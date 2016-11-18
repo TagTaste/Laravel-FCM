@@ -4,7 +4,7 @@
 @endsection
 @section('header')
     <div class="page-header">
-        <h1><i class="glyphicon glyphicon-plus"></i> ProfileAttributes / Create </h1>
+        <h1><i class="glyphicon glyphicon-plus"></i> Profile Attributes / Create </h1>
     </div>
 @endsection
 
@@ -38,13 +38,13 @@
                         <span class="help-block">{{ $errors->first("description") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('user_id')) has-error @endif">
+                    <!-- <div class="form-group @if($errors->has('user_id')) has-error @endif">
                        <label for="user_id-field">User_id</label>
                     <input type="text" id="user_id-field" name="user_id" class="form-control" value="{{ old("user_id") }}"/>
                        @if($errors->has("user_id"))
                         <span class="help-block">{{ $errors->first("user_id") }}</span>
                        @endif
-                    </div>
+                    </div> -->
                     <div class="form-group @if($errors->has('multiline')) has-error @endif">
                        <label for="multiline-field">Multiline</label>
                     <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="multiline-field" id="multiline-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="multiline-field" value="false" id="multiline-field" autocomplete="off"> False</label></div>
@@ -53,14 +53,14 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('requires_upload')) has-error @endif">
-                       <label for="requires_upload-field">Requires_upload</label>
+                       <label for="requires_upload-field">Requires Upload</label>
                     <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="requires_upload-field" id="requires_upload-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="requires_upload-field" value="false" id="requires_upload-field" autocomplete="off"> False</label></div>
                        @if($errors->has("requires_upload"))
                         <span class="help-block">{{ $errors->first("requires_upload") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('allowed_mime_types')) has-error @endif">
-                       <label for="allowed_mime_types-field">Allowed_mime_types</label>
+                       <label for="allowed_mime_types-field">Allowed Mime Types</label>
                     <input type="text" id="allowed_mime_types-field" name="allowed_mime_types" class="form-control" value="{{ old("allowed_mime_types") }}"/>
                        @if($errors->has("allowed_mime_types"))
                         <span class="help-block">{{ $errors->first("allowed_mime_types") }}</span>
@@ -81,19 +81,19 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('parent_id')) has-error @endif">
-                       <label for="parent_id-field">Parent_id</label>
+                       <label for="parent_id-field">Parent</label>
                     <input type="text" id="parent_id-field" name="parent_id" class="form-control" value="{{ old("parent_id") }}"/>
                        @if($errors->has("parent_id"))
                         <span class="help-block">{{ $errors->first("parent_id") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('template_id')) has-error @endif">
+                    <!-- <div class="form-group @if($errors->has('template_id')) has-error @endif">
                        <label for="template_id-field">Template_id</label>
                     <input type="text" id="template_id-field" name="template_id" class="form-control" value="{{ old("template_id") }}"/>
                        @if($errors->has("template_id"))
                         <span class="help-block">{{ $errors->first("template_id") }}</span>
                        @endif
-                    </div>
+                    </div> -->
                 <div class="well well-sm">
                     <button type="submit" class="btn btn-primary">Create</button>
                     <a class="btn btn-link pull-right" href="{{ route('profile_attributes.index') }}"><i class="glyphicon glyphicon-backward"></i> Back</a>
