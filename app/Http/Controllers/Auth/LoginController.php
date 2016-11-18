@@ -75,6 +75,10 @@ class LoginController extends Controller
      */
     public function getRedirectPath()
     {
-        return '/home';
+        if (Auth::user()->hasRole('foodie')) {
+            return '/home';
+        } else {
+            return '/logout';
+        }
     }
 }
