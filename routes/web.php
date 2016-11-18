@@ -27,3 +27,10 @@ Route::post('verifyLogin', ['middleware' => ['web'], 'as' => 'login', 'uses' => 
 Route::get('logout', ['middleware' => ['web'], 'as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 
 Route::resource("profile_types","ProfileTypeController");
+
+Route::resource("template_types","TemplateTypeController");
+Route::resource("templates","TemplateController");
+Route::resource("profile_attributes","ProfileAttributeController");
+
+Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttributeController@form"]);
+Route::resource("profiles","ProfileController");
