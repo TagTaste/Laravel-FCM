@@ -66,6 +66,10 @@
                      <label for="template_id">TEMPLATE_ID</label>
                      <p class="form-control-static">{{$profile_attribute->template_id}}</p>
                 </div>
+                <div class="form-group">
+                     <label for="template_id">PROFILE TYPE</label>
+                     <p class="form-control-static">{{$profile_attribute->profile_type_id}}</p>
+                </div>
             </form>
 
             <a class="btn btn-link" href="{{ route('profile_attributes.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
