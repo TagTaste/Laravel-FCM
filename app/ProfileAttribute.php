@@ -14,4 +14,8 @@ class ProfileAttribute extends Model
     	'enabled'=>'boolean',
     	'required'=>'boolean',
     ];
+
+    public function isRequired() {
+    	return $this->required ? "required" : null;
+    }
 }

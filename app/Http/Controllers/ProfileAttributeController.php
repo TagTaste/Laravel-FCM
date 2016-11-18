@@ -38,22 +38,10 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$profile_attribute = new ProfileAttribute();
 
-		$profile_attribute->name = $request->input("name");
-        $profile_attribute->label = $request->input("label");
-        $profile_attribute->description = $request->input("description");
-        $profile_attribute->user_id = $request->input("user_id");
-        $profile_attribute->multiline = $request->input("multiline");
-        $profile_attribute->requires_upload = $request->input("requires_upload");
-        $profile_attribute->allowed_mime_types = $request->input("allowed_mime_types");
-        $profile_attribute->enabled = $request->input("enabled");
-        $profile_attribute->required = $request->input("required");
-        $profile_attribute->parent_id = $request->input("parent_id") ?: null ;
-        $profile_attribute->template_id = $request->input("template_id");
-        $profile_attribute->profile_type_id = $request->input("profile_type_id");
+		$inputs = $this->getRequiredInputs($request);
 
-		$profile_attribute->save();
+		$profile_attribute = ProfileAttribute::create($inputs);
 
 		return redirect()->route('profile_attributes.index')->with('message', 'Item created successfully.');
 	}
@@ -96,9 +84,8 @@ class ProfileAttributeController extends Controller {
 
 		$profile_attribute = ProfileAttribute::findOrFail($id);
 
-		$input = $request->only('name','label','description','user_id','multiline','requires_upload','allowed_mime_types','enabled','required','parent_id','template_id','profile_type_id');
-
-		$profile_attribute->update(array_filter($input));
+		
+		$profile_attribute->update($this->getRequiredInputs($request));
 
 		return redirect()->route('profile_attributes.index')->with('message', 'Item updated successfully.');
 	}
@@ -115,6 +102,17 @@ class ProfileAttributeController extends Controller {
 		$profile_attribute->delete();
 
 		return redirect()->route('profile_attributes.index')->with('message', 'Item deleted successfully.');
+	}
+
+	public function form($typeId){
+		$profileAttributes = ProfileAttribute::where('profile_type_id',$typeId)->get();
+
+		return view('profile_attributes.form',compact('profileAttributes'));
+	}
+
+	public function getRequiredInputs($request){
+		$input = $request->only('name','label','description','user_id','multiline','requires_upload','allowed_mime_types','enabled','required','parent_id','template_id','profile_type_id');
+		return array_filter($input);
 	}
 
 }

@@ -23,3 +23,6 @@ Route::resource("profile_types","ProfileTypeController");
 Route::resource("template_types","TemplateTypeController");
 Route::resource("templates","TemplateController");
 Route::resource("profile_attributes","ProfileAttributeController");
+
+Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttributeController@form"]);
+Route::resource("profile","ProfileAttributeController");
