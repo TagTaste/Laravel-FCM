@@ -46,36 +46,36 @@
                        @endif
                     </div> -->
                     <div class="form-group @if($errors->has('multiline')) has-error @endif">
-                       <label for="multiline-field">Multiline</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="multiline-field" id="multiline-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="multiline-field" value="false" id="multiline-field" autocomplete="off"> False</label></div>
+                       <label for="multiline">Multiline</label>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="multiline" id="multiline" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="multiline" value="0" id="multiline" autocomplete="off"> No </label></div>
                        @if($errors->has("multiline"))
                         <span class="help-block">{{ $errors->first("multiline") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('requires_upload')) has-error @endif">
-                       <label for="requires_upload-field">Requires Upload</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="requires_upload-field" id="requires_upload-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="requires_upload-field" value="false" id="requires_upload-field" autocomplete="off"> False</label></div>
+                       <label for="requires_upload">Requires Upload</label>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="requires_upload" id="requires_upload" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="requires_upload" value="0" id="requires_upload" autocomplete="off"> No </label></div>
                        @if($errors->has("requires_upload"))
                         <span class="help-block">{{ $errors->first("requires_upload") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('allowed_mime_types')) has-error @endif">
-                       <label for="allowed_mime_types-field">Allowed Mime Types</label>
-                    <input type="text" id="allowed_mime_types-field" name="allowed_mime_types" class="form-control" value="{{ old("allowed_mime_types") }}"/>
+                       <label for="allowed_mime_types">Allowed Mime Types</label>
+                    <input type="text" id="allowed_mime_types" name="allowed_mime_types" class="form-control" value="{{ old("allowed_mime_types") }}"/>
                        @if($errors->has("allowed_mime_types"))
                         <span class="help-block">{{ $errors->first("allowed_mime_types") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('enabled')) has-error @endif">
-                       <label for="enabled-field">Enabled</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="enabled-field" id="enabled-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="enabled-field" value="false" id="enabled-field" autocomplete="off"> False</label></div>
+                       <label for="enabled">Enabled</label>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="enabled" id="enabled" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="enabled" value="0" id="enabled" autocomplete="off"> No </label></div>
                        @if($errors->has("enabled"))
                         <span class="help-block">{{ $errors->first("enabled") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('required')) has-error @endif">
-                       <label for="required-field">Required</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="required-field" id="required-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="required-field" value="false" id="required-field" autocomplete="off"> False</label></div>
+                       <label for="required">Required</label>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="required" id="required" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="required" value="0" id="required" autocomplete="off"> No </label></div>
                        @if($errors->has("required"))
                         <span class="help-block">{{ $errors->first("required") }}</span>
                        @endif

@@ -49,7 +49,7 @@ class ProfileAttributeController extends Controller {
         $profile_attribute->allowed_mime_types = $request->input("allowed_mime_types");
         $profile_attribute->enabled = $request->input("enabled");
         $profile_attribute->required = $request->input("required");
-        $profile_attribute->parent_id = $request->input("parent_id");
+        $profile_attribute->parent_id = $request->input("parent_id") ?: null ;
         $profile_attribute->template_id = $request->input("template_id");
 
 		$profile_attribute->save();
