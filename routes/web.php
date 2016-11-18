@@ -21,3 +21,4 @@ Route::get('/home', 'HomeController@index');
 Route::resource("profile_types","ProfileTypeController");
 
 Route::resource("template_types","TemplateTypeController");
+Route::resource("templates","TemplateController");
