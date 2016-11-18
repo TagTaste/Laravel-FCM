@@ -22,3 +22,4 @@ Route::resource("profile_types","ProfileTypeController");
 
 Route::resource("template_types","TemplateTypeController");
 Route::resource("templates","TemplateController");
+Route::resource("profile_attributes","ProfileAttributeController");
