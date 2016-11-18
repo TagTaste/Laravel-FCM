@@ -19,9 +19,9 @@
                         <tr>
                             <th>ID</th>
                             <th>USER_ID</th>
-                        <th>ATTRIBUTE_ID</th>
+                        <th>ATTRIBUTE</th>
                         <th>VALUE</th>
-                        <th>TYPE_ID</th>
+                        <th>TYPE</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -31,9 +31,9 @@
                             <tr>
                                 <td>{{$profile->id}}</td>
                                 <td>{{$profile->user_id}}</td>
-                    <td>{{$profile->attribute_id}}</td>
+                    <td>{{$profile->attribute->label}}</td>
                     <td>{{$profile->value}}</td>
-                    <td>{{$profile->type_id}}</td>
+                    <td>{{$profile->type->type}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('profiles.show', $profile->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('profiles.edit', $profile->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
@@ -49,9 +49,16 @@
                 </table>
                 {!! $profiles->render() !!}
             @else
-                <h3 class="text-center alert alert-info">Empty!</h3>
+               
             @endif
 
+        </div>
+        <div class="col-md-12">
+            <ul>
+                    @foreach($profileTypes as $type)
+                    <li><a href="{{ route('profile.form',$type)}}">{{$type->type}}</a></li>
+                    @endforeach
+               </ul>
         </div>
     </div>
 

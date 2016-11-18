@@ -11,6 +11,9 @@
 @section('content')
 <div class="row">
 	<div class="col-md-12">
+	<form method="post" action="{{ route('profiles.store') }}" enctype="{{ $encType }}">
+		{{ csrf_field() }}
+		<input type="hidden" name="typeId" value="{{ $typeId }}">
 		@foreach($profileAttributes as $attribute)
 		<?php $required = $attribute->isRequired();?>
 		<div class="form-group">
@@ -33,7 +36,12 @@
 			<small>{{ $attribute->description}}</small>
 		</div>
 		@endforeach
+		<div class="form-group">
+					<input type="submit" value="Save" class="btn btn-info">
+		</div>
+	</form>		
 	</div>
+
 </div>
 
 

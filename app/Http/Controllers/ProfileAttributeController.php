@@ -107,7 +107,15 @@ class ProfileAttributeController extends Controller {
 	public function form($typeId){
 		$profileAttributes = ProfileAttribute::where('profile_type_id',$typeId)->get();
 
-		return view('profile_attributes.form',compact('profileAttributes'));
+		$hasFileInput = ProfileAttribute::where('profile_type_id',$typeId)->where("requires_upload",1)->count();
+
+		$encType = 'application/x-www-form-urlencoded';
+
+		if($hasFileInput > 0){
+			$encType = 'multipart/form-data';
+		}
+
+		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId'));
 	}
 
 	public function getRequiredInputs($request){

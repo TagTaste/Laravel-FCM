@@ -4,6 +4,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Profile;
+use App\ProfileType;
+
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller {
@@ -15,9 +17,11 @@ class ProfileController extends Controller {
 	 */
 	public function index()
 	{
-		$profiles = Profile::orderBy('id', 'desc')->paginate(10);
+		$profileTypes = ProfileType::all();
 
-		return view('profiles.index', compact('profiles'));
+		$profiles = Profile::with('type','attribute')->orderBy('id', 'asc')->paginate(10);
+
+		return view('profiles.index', compact('profiles','profileTypes'));
 	}
 
 	/**
@@ -38,16 +42,23 @@ class ProfileController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$profile = new Profile();
+		$attributes = $request->input("attributes");
+		
+		$typeId = $request->input('typeId');
 
-		$profile->user_id = $request->input("user_id");
-        $profile->attribute_id = $request->input("attribute_id");
-        $profile->value = $request->input("value");
-        $profile->type_id = $request->input("type_id");
+		$data = [];
 
-		$profile->save();
 
-		return redirect()->route('profiles.index')->with('message', 'Item created successfully.');
+
+		foreach($attributes as $id => $value){
+			$data[] = [
+				'user_id'=>1,
+				'profile_attribute_id' => $id, 'value' => $value['value'], 'type_id' => $typeId];
+		}
+
+		$profile = Profile::insert($data);
+
+		return redirect()->route('profiles.index')->with('message', 'Profile created successfully.');
 	}
 
 	/**
