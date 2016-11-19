@@ -125,7 +125,8 @@ class LoginController extends Controller
         $user = User::updateOrCreate([
             'email' => $socialLiteUser->email,
         ], [
-            $key.'_id' => $socialLiteUser->id,
+            'social_provider' => $key,
+            'social_provider_id' => $socialLiteUser->id,
             'name' => $socialLiteUser->name,
             'password' => 'social'
         ]);
