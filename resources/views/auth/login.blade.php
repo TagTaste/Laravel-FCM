@@ -59,6 +59,12 @@
                                 </a>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4">
+                                <a class="btn btn-primary" href="{{ route('social.login', ['facebook']) }}">Facebook</a>
+                                <a class="btn btn-primary" href="{{ route('social.login', ['google']) }}">Google</a>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>

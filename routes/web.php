@@ -25,6 +25,8 @@ Route::get('/home', 'HomeController@index');
 Route::get('login', ['middleware' => ['web'], 'as' => 'login', 'uses' => 'Auth\LoginController@showLoginForm']);
 Route::post('verifyLogin', ['middleware' => ['web'], 'as' => 'login', 'uses' => 'Auth\LoginController@doLogin']);
 Route::get('logout', ['middleware' => ['web'], 'as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
+Route::get('social/login/redirect/{provider}', ['uses' => 'Auth\LoginController@redirectToProvider', 'as' => 'social.login']);
+Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
 
 Route::resource("profile_types","ProfileTypeController");
 

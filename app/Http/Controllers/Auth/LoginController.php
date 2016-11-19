@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -61,7 +63,7 @@ class LoginController extends Controller
     public function doLogin(Request $request)
     {
         if (Auth::attempt(['email' => $request['email'], 'password' => $request['password'], 'is_active' => "1"])) {
-            Session::put('admin', User::find(1));
+            //Session::put('admin', User::find(1));
             return redirect($this->getRedirectPath());
         } else {
             return redirect('/login');
@@ -80,5 +82,58 @@ class LoginController extends Controller
         } else {
             return '/logout';
         }
+    }
+
+    /**
+     * Redirect the user to the social site authentication page.
+     *
+     * @return Response
+     */
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->redirect();
+    }
+
+    /**
+     * Obtain the user information from social site.
+     *
+     * @return Response
+     */
+    public function handleProviderCallback($provider)
+    {
+        try {
+            $user = Socialite::driver($provider)->user();
+        } catch (Exception $e) {
+            return Redirect::to('/login');
+        }
+        $authUser = $this->findOrCreateUser($user, $provider);
+        Auth::login($authUser, true);
+
+        return redirect($this->getRedirectPath());
+    }
+
+    /**
+     * Return user if exists; create and return if doesn't
+     *
+     * @param $socialLiteUser
+     * @param $key
+     * @return User
+     */
+    private function findOrCreateUser($socialLiteUser, $key)
+    {
+        $exists = User::where('email', '=', $socialLiteUser->email)->first();
+        $user = User::updateOrCreate([
+            'email' => $socialLiteUser->email,
+        ], [
+            $key.'_id' => $socialLiteUser->id,
+            'name' => $socialLiteUser->name,
+            'password' => 'social'
+        ]);
+
+        if (!$exists) {
+            $role = Role::where('name', '=', 'foodie')->first();
+            $user->attachRole($role);
+        }
+        return $user;
     }
 }
