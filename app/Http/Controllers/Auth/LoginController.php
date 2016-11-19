@@ -79,6 +79,8 @@ class LoginController extends Controller
     {
         if (Auth::user()->hasRole('foodie')) {
             return '/home';
+        } else if (Auth::user()->hasRole('admin')) {
+            return 'admin/dashboard';
         } else {
             return '/logout';
         }
