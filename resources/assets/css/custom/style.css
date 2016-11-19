@@ -1,0 +1,38 @@
+/**
+ * Admin side css for hiding button shape
+ */
+
+#usersTable button {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    border: 0;
+    background: transparent;
+}
+
+/**
+ * chosen select custom css
+ */
+.chosen-container-multi .chosen-choices li.search-choice .search-choice-close {
+	background: url('/images/chosen-sprite.png') -42px 1px no-repeat;
+}
+
+.chosen-container {
+	width: 100% !important;
+}
+
+.has-error .chosen-choices {
+    border-color: #ed5565;
+}
+
+.has-success .chosen-choices {
+    border-color: #1ab394;
+}
+
+/**
+ * checkbox pointer
+ */
+input[type="checkbox"] {
+    cursor: pointer;
+}
