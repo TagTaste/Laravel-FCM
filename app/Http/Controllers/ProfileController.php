@@ -17,7 +17,7 @@ class ProfileController extends Controller {
 	 */
 	public function index()
 	{
-		$profileTypes = ProfileType::all();
+		$profileTypes = ProfileType::orderBy('type','asc')->get();
 
 		$profiles = Profile::with('type','attribute')->orderBy('id', 'asc')->paginate(10);
 
