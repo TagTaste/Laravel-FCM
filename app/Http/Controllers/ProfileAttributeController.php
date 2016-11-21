@@ -27,7 +27,8 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function create()
 	{
-		return view('profile_attributes.create');
+		$profileTypes = \App\ProfileType::select('id','type')->where('enabled',1)->get()->pluck('type','id');
+		return view('profile_attributes.create',compact('profileTypes'));
 	}
 
 	/**
