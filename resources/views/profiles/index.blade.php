@@ -58,10 +58,20 @@
                 @endif
 
             </div>
-            <div class="col-md-12">
+            <div class="col-md-6">
+                <h3> View attributes for: </h3>
                 <ul>
                         @foreach($profileTypes as $type)
                         <li><a href="{{ route('profile.form',$type)}}">{{$type->type}}</a></li>
+                        @endforeach
+                   </ul>
+            </div>
+
+            <div class="col-md-6">
+                <h3>View Profile</h3>
+                <ul>
+                        @foreach($profileTypes as $type)
+                        <li><a href="{{ route('profiles.show',$type)}}"> {{$type->type}} </a></li>
                         @endforeach
                    </ul>
             </div>

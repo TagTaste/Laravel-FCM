@@ -79,7 +79,7 @@ class ProfileController extends Controller {
 	 */
 	public function show($id)
 	{
-		$user_id = 1; //use the logged in user id;
+		$userId = 1; //use the logged in user id;
 
 
 		//$profile = Profile::with('attribute')->where("user_id",1)->get();
@@ -91,8 +91,8 @@ class ProfileController extends Controller {
 							"profile_attributes.requires_upload",
 							"profile_attributes.label",
 							"profiles.value")
-						->where("profiles.user_id",1)
-						->where("profiles.type_id",2)
+						->where("profiles.user_id",$userId)
+						->where("profiles.type_id",$id)
 						->where("profile_attributes.enabled",1)->get();
 
 
