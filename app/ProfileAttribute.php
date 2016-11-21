@@ -43,6 +43,29 @@ class ProfileAttribute extends Model
         }
     }
 
-    
+    public function getMultilineAttribute($value) {
+        return $this->booleanValue($value);
+    }
+
+    public function getRequiresUploadAttribute($value) {
+        return $this->booleanValue($value);
+    }
+
+    public function getAllowedMimeTypesAttribute($value){
+        return $value ?: "NA";
+    }
+
+
+    public function getEnabledAttribute($value){
+        return $this->booleanValue($value);
+    }
+
+    public function getRequiredAttribute($value){
+        return $this->booleanValue($value);
+    }
+
+    public function booleanValue(&$value){
+        return $value ? "Yes" : "No";
+    }
 
 }
