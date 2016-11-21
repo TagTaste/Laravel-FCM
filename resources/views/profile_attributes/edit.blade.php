@@ -18,6 +18,15 @@
                 <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
+                <div class="form-group @if($errors->has('profile_type_id')) has-error @endif""> 
+                    <label for="profile_type_id">Profile Type</label>
+                    <select id="profile_type_id" name="profile_type_id" class="form-control">
+                      @foreach($profileTypes as $id => $type)
+                        <option value="{{ $id }}" @if(old("profile_type_id")) selected @endif>{{ $type }} </option>
+                      @endforeach
+                    </select>
+                </div>
+
                 <div class="form-group @if($errors->has('name')) has-error @endif">
                        <label for="name-field">Name</label>
                     <input type="text" id="name-field" name="name" class="form-control" value="{{ is_null(old("name")) ? $profile_attribute->name : old("name") }}"/>
@@ -88,13 +97,7 @@
                         <span class="help-block">{{ $errors->first("parent_id") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('profile_type_id')) has-error @endif">
-                       <label for="profile_type_id-field">profile_type_id</label>
-                    <input type="text" id="profile_type_id-field" name="profile_type_id" class="form-control" value="{{ is_null(old("profile_type_id")) ? $profile_attribute->profile_type_id : old("profile_type_id") }}"/>
-                       @if($errors->has("profile_type_id"))
-                        <span class="help-block">{{ $errors->first("profile_type_id") }}</span>
-                       @endif
-                    </div>
+                    
                     <div class="form-group @if($errors->has('template_id')) has-error @endif">
                        <label for="template_id-field">Template_id</label>
                     <input type="text" id="template_id-field" name="template_id" class="form-control" value="{{ is_null(old("template_id")) ? $profile_attribute->template_id : old("template_id") }}"/>

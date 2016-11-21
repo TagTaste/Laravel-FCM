@@ -4,6 +4,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\ProfileAttribute;
+use App\ProfileType;
 use Illuminate\Http\Request;
 
 class ProfileAttributeController extends Controller {
@@ -27,7 +28,7 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function create()
 	{
-		$profileTypes = \App\ProfileType::select('id','type')->where('enabled',1)->get()->pluck('type','id');
+		$profileTypes = ProfileType::getTypes();
 		return view('profile_attributes.create',compact('profileTypes'));
 	}
 
@@ -70,7 +71,9 @@ class ProfileAttributeController extends Controller {
 	{
 		$profile_attribute = ProfileAttribute::findOrFail($id);
 
-		return view('profile_attributes.edit', compact('profile_attribute'));
+		$profileTypes = ProfileType::getTypes();
+
+		return view('profile_attributes.edit', compact('profile_attribute', 'profileTypes'));
 	}
 
 	/**
