@@ -37,5 +37,5 @@ Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttribu
 Route::resource("profiles","ProfileController");
 
 Route::get("follow/{chefId}", ['as'=>'chef.follow','uses'=>'FollowerController@follow']);
-
+Route::get("unfollow/{chefId}", ['as' => 'chef.unfollow', 'uses'=>'FollowerController@unfollow']);
 Route::resource("followers","FollowerController");

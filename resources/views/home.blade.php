@@ -23,7 +23,7 @@
                 <div class="panel-body">
                         <ul>
                             @foreach($chefsFollowed as $chef)
-                                <li> {{ $chef->chef->name }}</li>
+                                <li> {{ $chef->chef->name }} <a href="{{ route('chef.unfollow', $chef->chef->id) }}">Unfollow</a> </li>
                             @endforeach
                         </ul>
                     

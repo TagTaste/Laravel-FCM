@@ -99,12 +99,14 @@ class FollowerController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy($chefId, $userId)
 	{
-		$follower = Follower::findOrFail($id);
-		$follower->delete();
+		$follower = Follower::where('chef_id','=',$chefId)->where('follower_id','=',$userId)->first();
+		if($follower){
+			$follower->delete();
+		}
 
-		return redirect()->route('followers.index')->with('message', 'Item deleted successfully.');
+		
 	}
 
 	public function follow(Request $request, $chefId){
@@ -117,6 +119,13 @@ class FollowerController extends Controller {
 
 		return redirect()->back()->with('message', 'Item created successfully.');
 
+	}
+
+	public function unfollow(Request $request, $chefId){
+		
+		$this->destroy($chefId, $request->user()->id);
+
+		return redirect()->back()->with('message', 'Item deleted successfully.');
 	}
 
 }
