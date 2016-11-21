@@ -25,6 +25,10 @@ class ProfileAttribute extends Model
     	return $this->required ? "required" : null;
     }
 
+    public function requiresUpload() {
+        return $this->requires_upload ? true : false;
+    }
+
     public function children() {
         return $this->belongsTo('\App\ProfileAttribute','parent_id','id');
     }
@@ -44,31 +48,6 @@ class ProfileAttribute extends Model
             }
             return $this->parent;
         }
-    }
-
-    public function getMultilineAttribute($value) {
-        return $this->booleanValue($value);
-    }
-
-    public function getRequiresUploadAttribute($value) {
-        return $this->booleanValue($value);
-    }
-
-    public function getAllowedMimeTypesAttribute($value){
-        return $value ?: "NA";
-    }
-
-
-    public function getEnabledAttribute($value){
-        return $this->booleanValue($value);
-    }
-
-    public function getRequiredAttribute($value){
-        return $this->booleanValue($value);
-    }
-
-    public function booleanValue(&$value){
-        return $value ? "Yes" : "No";
     }
 
 }
