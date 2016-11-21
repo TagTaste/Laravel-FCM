@@ -18,6 +18,9 @@ class ProfileAttribute extends Model
     	'required'=>'boolean',
     ];
 
+    public function profileType() {
+        return $this->belongsTo('\App\ProfileType','profile_type_id');
+    }
     public function isRequired() {
     	return $this->required ? "required" : null;
     }
