@@ -19,6 +19,11 @@ class BasicRoles extends Seeder
             'description' => 'Admin User',
         ]);
         DB::table('roles')->insert([
+            'name' => 'deo',
+            'display_name' => 'Data Entry Operator',
+            'description' => 'DEO User',
+        ]);
+        DB::table('roles')->insert([
             'name' => 'foodie',
             'display_name' => 'Foodie',
             'description' => 'Foodie User',
