@@ -46,10 +46,20 @@ class ProfileController extends Controller {
 		
 		$typeId = $request->input('typeId');
 
+		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('requires_upload',1)->where('profile_type_id','=',$typeId)->get();
+
+		foreach($inputsWithFile as $input){
+			$key = 'attributes.' . $input->id;
+			if($request->hasFile($key)){
+				$file = $request->file($key)['value'];
+				$fileName = $key . "." . strtolower(str_random(32)) . "." . $file->extension();
+				$file->storeAs('files',$fileName);
+				$attributes[$input->id]['value'] = $fileName;
+			}
+
+		 }
+
 		$data = [];
-
-
-
 		foreach($attributes as $id => $value){
 			$data[] = [
 				'user_id'=>1,

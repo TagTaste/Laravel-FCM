@@ -38,7 +38,7 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-
+		
 		$inputs = $this->getRequiredInputs($request);
 
 		$profile_attribute = ProfileAttribute::create($inputs);
@@ -107,15 +107,18 @@ class ProfileAttributeController extends Controller {
 	public function form($typeId){
 		$profileAttributes = ProfileAttribute::where('profile_type_id',$typeId)->get();
 
-		$hasFileInput = ProfileAttribute::where('profile_type_id',$typeId)->where("requires_upload",1)->count();
+		$hasFileInput = ProfileAttribute::select('id')->where('profile_type_id',$typeId)->where("requires_upload",1)->get();
 
 		$encType = 'application/x-www-form-urlencoded';
 
-		if($hasFileInput > 0){
+		if($hasFileInput->count() > 0){
 			$encType = 'multipart/form-data';
 		}
 
-		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId'));
+		//todo: move this to ProfileAttributeController. Add to cache when an input is created.
+		\Cache::put("fileInputs." . $typeId, $hasFileInput->toArray());
+
+		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId', 'hasFileInput'));
 	}
 
 	public function getRequiredInputs($request){
