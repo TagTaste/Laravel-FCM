@@ -40,7 +40,9 @@
                     </div>
                     <div class="form-group @if($errors->has('type_id')) has-error @endif">
                        <label for="type_id-field">Type_id</label>
+
                     <input type="text" id="type_id-field" name="type_id" class="form-control" value="{{ old("type_id") }}"/>
+                   
                        @if($errors->has("type_id"))
                         <span class="help-block">{{ $errors->first("type_id") }}</span>
                        @endif

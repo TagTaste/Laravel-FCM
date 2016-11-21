@@ -15,11 +15,11 @@ class ProfileController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$profileTypes = ProfileType::all();
+		$profileTypes = ProfileType::orderBy('type','asc')->get();
 
-		$profiles = Profile::with('type','attribute')->orderBy('id', 'asc')->paginate(10);
+		$profiles = Profile::where('user_id','=',$request->user()->id)->with('type','attribute')->orderBy('id', 'asc')->paginate(10);
 
 		return view('profiles.index', compact('profiles','profileTypes'));
 	}
@@ -46,13 +46,24 @@ class ProfileController extends Controller {
 		
 		$typeId = $request->input('typeId');
 
+		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('requires_upload',1)->where('profile_type_id','=',$typeId)->get();
+
+		foreach($inputsWithFile as $input){
+			$key = 'attributes.' . $input->id;
+			if($request->hasFile($key)){
+				$file = $request->file($key)['value'];
+				$fileName = $key . "." . strtolower(str_random(32)) . "." . $file->extension();
+				$file->storeAs('files',$fileName);
+				$attributes[$input->id]['value'] = $fileName;
+			}
+
+		 }
+
 		$data = [];
-
-
-
+		$userId = $request->user()->id;
 		foreach($attributes as $id => $value){
 			$data[] = [
-				'user_id'=>1,
+				'user_id'=> $userId,
 				'profile_attribute_id' => $id, 'value' => $value['value'], 'type_id' => $typeId];
 		}
 
@@ -67,9 +78,24 @@ class ProfileController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $id) 
 	{
-		$profile = Profile::findOrFail($id);
+		$userId = $request->user()->id; //use the logged in user id;
+
+
+		//$profile = Profile::with('attribute')->where("user_id",1)->get();
+		$profile = \DB::table('profiles')
+						->join('profile_attributes','profiles.profile_attribute_id','=','profile_attributes.id')
+						->select(
+							"profile_attributes.id",
+							"profile_attributes.multiline",
+							"profile_attributes.requires_upload",
+							"profile_attributes.label",
+							"profiles.value")
+						->where("profiles.user_id",$userId)
+						->where("profiles.type_id",$id)
+						->where("profile_attributes.enabled",1)->get();
+
 
 		return view('profiles.show', compact('profile'));
 	}
@@ -80,9 +106,9 @@ class ProfileController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit(Request $request, $id)
 	{
-		$profile = Profile::findOrFail($id);
+		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
 
 		return view('profiles.edit', compact('profile'));
 	}
@@ -96,14 +122,10 @@ class ProfileController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$profile = Profile::findOrFail($id);
+		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
+		
+		$profile->update($request->only('attribute_id','value','type_id'));
 
-		$profile->user_id = $request->input("user_id");
-        $profile->attribute_id = $request->input("attribute_id");
-        $profile->value = $request->input("value");
-        $profile->type_id = $request->input("type_id");
-
-		$profile->save();
 
 		return redirect()->route('profiles.index')->with('message', 'Item updated successfully.');
 	}
@@ -116,10 +138,14 @@ class ProfileController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$profile = Profile::findOrFail($id);
+		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
 		$profile->delete();
 
 		return redirect()->route('profiles.index')->with('message', 'Item deleted successfully.');
+	}
+
+	public function fileDownload($file){
+		return response()->file(storage_path("app/files/" . $file)) ;
 	}
 
 }

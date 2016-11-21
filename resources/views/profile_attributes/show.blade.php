@@ -68,7 +68,7 @@
                 </div>
                 <div class="form-group">
                      <label for="template_id">PROFILE TYPE</label>
-                     <p class="form-control-static">{{$profile_attribute->profile_type_id}}</p>
+                     <p class="form-control-static">{{$profile_attribute->profileType->type}}</p>
                 </div>
             </form>
 

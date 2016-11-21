@@ -4,6 +4,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\ProfileAttribute;
+use App\ProfileType;
 use Illuminate\Http\Request;
 
 class ProfileAttributeController extends Controller {
@@ -15,7 +16,9 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function index()
 	{
-		$profile_attributes = ProfileAttribute::orderBy('id', 'desc')->paginate(10);
+		$profile_attributes = ProfileAttribute::paginate(10);
+
+		//dd($profile_attributes->groupBy('parent_id'));
 
 		return view('profile_attributes.index', compact('profile_attributes'));
 	}
@@ -27,7 +30,8 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function create()
 	{
-		return view('profile_attributes.create');
+		$profileTypes = ProfileType::getTypes();
+		return view('profile_attributes.create',compact('profileTypes'));
 	}
 
 	/**
@@ -38,9 +42,11 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-
+	
 		$inputs = $this->getRequiredInputs($request);
 
+		$inputs['user_id'] = $request->user()->id;
+			
 		$profile_attribute = ProfileAttribute::create($inputs);
 
 		return redirect()->route('profile_attributes.index')->with('message', 'Item created successfully.');
@@ -69,7 +75,9 @@ class ProfileAttributeController extends Controller {
 	{
 		$profile_attribute = ProfileAttribute::findOrFail($id);
 
-		return view('profile_attributes.edit', compact('profile_attribute'));
+		$profileTypes = ProfileType::getTypes();
+
+		return view('profile_attributes.edit', compact('profile_attribute', 'profileTypes'));
 	}
 
 	/**
@@ -105,17 +113,21 @@ class ProfileAttributeController extends Controller {
 	}
 
 	public function form($typeId){
+		
 		$profileAttributes = ProfileAttribute::where('profile_type_id',$typeId)->get();
 
-		$hasFileInput = ProfileAttribute::where('profile_type_id',$typeId)->where("requires_upload",1)->count();
+		$hasFileInput = ProfileAttribute::select('id')->where('profile_type_id',$typeId)->where("requires_upload",1)->get();
 
 		$encType = 'application/x-www-form-urlencoded';
 
-		if($hasFileInput > 0){
+		if($hasFileInput->count() > 0){
 			$encType = 'multipart/form-data';
 		}
 
-		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId'));
+		//todo: move this to ProfileAttributeController. Add to cache when an input is created.
+		\Cache::put("fileInputs." . $typeId, $hasFileInput->toArray());
+
+		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId', 'hasFileInput'));
 	}
 
 	public function getRequiredInputs($request){

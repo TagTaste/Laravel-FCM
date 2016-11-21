@@ -27,7 +27,7 @@
                         <th>ALLOWED_MIME_TYPES</th>
                         <th>ENABLED</th>
                         <th>REQUIRED</th>
-                        <th>PARENT_ID</th>
+                        <th>PARENT</th>
                         <th>TEMPLATE_ID</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
@@ -46,9 +46,9 @@
                     <td>{{$profile_attribute->allowed_mime_types}}</td>
                     <td>{{$profile_attribute->enabled}}</td>
                     <td>{{$profile_attribute->required}}</td>
-                    <td>{{$profile_attribute->parent_id}}</td>
+                    <td>{{$profile_attribute->getParent('name')}}</td>
                     <td>{{$profile_attribute->template_id}}</td>
-                    <td>{{$profile_attribute->profile_type_id}}</td>
+                    <td>{{$profile_attribute->profileType->type}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('profile_attributes.show', $profile_attribute->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('profile_attributes.edit', $profile_attribute->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>

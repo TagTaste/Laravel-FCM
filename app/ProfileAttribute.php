@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProfileAttribute extends Model
 {
+
+    protected $storagePath = 'files/';
+
     protected $fillable = ['name','label','description','multiline','requires_upload','allowed_mime_types','enabled','required','user_id','parent_id','template_id','profile_type_id'];
 
     protected $casts = [
@@ -15,7 +18,36 @@ class ProfileAttribute extends Model
     	'required'=>'boolean',
     ];
 
+    public function profileType() {
+        return $this->belongsTo('\App\ProfileType','profile_type_id');
+    }
     public function isRequired() {
     	return $this->required ? "required" : null;
     }
+
+    public function requiresUpload() {
+        return $this->requires_upload ? true : false;
+    }
+
+    public function children() {
+        return $this->belongsTo('\App\ProfileAttribute','parent_id','id');
+    }
+
+    public static function getAll() {
+        return static::orderBy('id', 'desc')->paginate(10);
+    }
+
+    public function parent() {
+        return $this->belongsTo('\App\ProfileAttribute','parent_id');
+    }
+
+    public function getParent($attribute = null) {
+        if($this->parent_id != 0 ) {
+            if(!is_null($attribute)){
+                return $this->parent->$attribute;
+            }
+            return $this->parent;
+        }
+    }
+
 }

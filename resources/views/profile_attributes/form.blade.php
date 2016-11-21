@@ -14,6 +14,7 @@
 	<form method="post" action="{{ route('profiles.store') }}" enctype="{{ $encType }}">
 		{{ csrf_field() }}
 		<input type="hidden" name="typeId" value="{{ $typeId }}">
+
 		@foreach($profileAttributes as $attribute)
 		<?php $required = $attribute->isRequired();?>
 		<div class="form-group">
@@ -26,9 +27,9 @@
 			</label>
 
 			@if($attribute->requires_upload)
-				<input type="file" id="exampleInputFile" {{ $required }}>
+				<input type="file" id="exampleInputFile" name="attributes[{{$attribute->id}}][value]" {{ $required }}>
 			@elseif($attribute->multiline)
-				<textarea class="form-control" rows="3" {{ $required }}></textarea>
+				<textarea class="form-control" rows="3" name="attributes[{{$attribute->id}}][value]" {{ $required }}></textarea>
 			@else
 				<input type="text" class="form-control"  name="attributes[{{$attribute->id}}][value]" {{ $required }}/>
 			@endif

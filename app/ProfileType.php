@@ -17,4 +17,8 @@ class ProfileType extends Model
     public function getDefaultAttribute($value){
     	 return $value ? "Yes" : "No";
     }
+
+    public static function getTypes() {
+    	return static::select('id','type')->where('enabled',1)->orderBy('type','asc')->get()->pluck('type','id');
+    }
 }

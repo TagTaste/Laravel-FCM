@@ -16,7 +16,7 @@ class CreateProfilesTable extends Migration {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->integer('profile_attribute_id')->unsigned();
-            $table->string('value');
+            $table->text('value');
             $table->integer('type_id')->unsigned();
             $table->timestamps();
 
