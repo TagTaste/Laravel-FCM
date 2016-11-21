@@ -13,4 +13,8 @@ class Profile extends Model
     public function attribute() {
     	return $this->belongsTo('\App\ProfileAttribute','profile_attribute_id');
     }
+
+    public function user() {
+    	return $this->belongsTo('\App\User');
+    }
 }

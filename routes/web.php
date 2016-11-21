@@ -35,3 +35,7 @@ Route::resource("profile_attributes","ProfileAttributeController");
 Route::get("profile/file/{filename}",['as'=>'profile.fileDownload','uses'=>'ProfileController@fileDownload']);
 Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttributeController@form"]);
 Route::resource("profiles","ProfileController");
+
+Route::get("follow/{chefId}", ['as'=>'chef.follow','uses'=>'FollowerController@follow']);
+
+Route::resource("followers","FollowerController");

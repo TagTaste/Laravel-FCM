@@ -21,8 +21,15 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
+
+        $chefs = \App\User::whereHas('profile',function($query){
+            $query->where('type_id','=',1);
+        })->where("id","!=",$request->user()->id)->get();
+
+        $chefsFollowed = \App\Follower::with('chef')->where('follower_id',$request->user()->id)->get();
+        $followers = \App\Follower::with('follower')->where('chef_id',$request->user()->id)->get();
+        return view('home', compact('chefs','chefsFollowed', 'followers'));
     }
 }

@@ -8,7 +8,38 @@
                 <div class="panel-heading">Dashboard</div>
 
                 <div class="panel-body">
-                    You are logged in!
+                        <ul>
+                            @foreach($chefs as $chef)
+                                <li> {{ $chef->name }} <a href="{{ route('chef.follow', $chef->id) }}">Follow</a> </li>
+                            @endforeach
+                        </ul>
+                    
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Chefs Followed</div>
+
+                <div class="panel-body">
+                        <ul>
+                            @foreach($chefsFollowed as $chef)
+                                <li> {{ $chef->chef->name }}</li>
+                            @endforeach
+                        </ul>
+                    
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Following You</div>
+
+                <div class="panel-body">
+                        <ul>
+                            @foreach($followers as $follower)
+                                <li> {{ $follower->follower->name }}</li>
+                            @endforeach
+                        </ul>
+                    
                 </div>
             </div>
         </div>
