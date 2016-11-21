@@ -22,4 +22,27 @@ class ProfileAttribute extends Model
     	return $this->required ? "required" : null;
     }
 
+    public function children() {
+        return $this->belongsTo('\App\ProfileAttribute','parent_id','id');
+    }
+
+    public static function getAll() {
+        return static::orderBy('id', 'desc')->paginate(10);
+    }
+
+    public function parent() {
+        return $this->belongsTo('\App\ProfileAttribute','parent_id');
+    }
+
+    public function getParent($attribute = null) {
+        if($this->parent_id != 0 ) {
+            if(!is_null($attribute)){
+                return $this->parent->$attribute;
+            }
+            return $this->parent;
+        }
+    }
+
+    
+
 }

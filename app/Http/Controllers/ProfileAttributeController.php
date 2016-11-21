@@ -16,7 +16,9 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function index()
 	{
-		$profile_attributes = ProfileAttribute::orderBy('id', 'desc')->paginate(10);
+		$profile_attributes = ProfileAttribute::paginate(10);
+
+		//dd($profile_attributes->groupBy('parent_id'));
 
 		return view('profile_attributes.index', compact('profile_attributes'));
 	}

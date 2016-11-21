@@ -27,7 +27,7 @@
                         <th>ALLOWED_MIME_TYPES</th>
                         <th>ENABLED</th>
                         <th>REQUIRED</th>
-                        <th>PARENT_ID</th>
+                        <th>PARENT</th>
                         <th>TEMPLATE_ID</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
@@ -46,7 +46,7 @@
                     <td>{{$profile_attribute->allowed_mime_types}}</td>
                     <td>{{$profile_attribute->enabled}}</td>
                     <td>{{$profile_attribute->required}}</td>
-                    <td>{{$profile_attribute->parent_id}}</td>
+                    <td>{{$profile_attribute->getParent('name')}}</td>
                     <td>{{$profile_attribute->template_id}}</td>
                     <td>{{$profile_attribute->profile_type_id}}</td>
                                 <td class="text-right">
