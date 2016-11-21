@@ -1,23 +1,25 @@
 @extends('layout')
 @section('header')
 <div class="page-header">
-        <h1>Profiles / Show #{{$profile->id}}</h1>
-        <form action="{{ route('profiles.destroy', $profile->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <div class="btn-group pull-right" role="group" aria-label="...">
-                <a class="btn btn-warning btn-group" role="group" href="{{ route('profiles.edit', $profile->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-                <button type="submit" class="btn btn-danger">Delete <i class="glyphicon glyphicon-trash"></i></button>
-            </div>
-        </form>
+        <h1>Profiles / Show </h1>
+       
     </div>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-md-12">
-
-            <form action="#">
+            @foreach($profile as $attribute)
+                <div class="col-md-12">
+                    <h3> {{ $attribute->label }} </h3>
+                    @if($attribute->requires_upload)
+                        <a href="{{ route('profile.fileDownload', $attribute->value) }}">View</a>
+                    @else
+                    <p> {{ $attribute->value }} </p>
+                    @endif
+                </div>
+            @endforeach
+            {{-- <form action="#">
                 <div class="form-group">
                     <label for="nome">ID</label>
                     <p class="form-control-static"></p>
@@ -38,7 +40,7 @@
                      <label for="type_id">TYPE_ID</label>
                      <p class="form-control-static">{{$profile->type_id}}</p>
                 </div>
-            </form>
+            </form> --}}
 
             <a class="btn btn-link" href="{{ route('profiles.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
 

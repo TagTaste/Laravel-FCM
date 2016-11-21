@@ -79,7 +79,22 @@ class ProfileController extends Controller {
 	 */
 	public function show($id)
 	{
-		$profile = Profile::findOrFail($id);
+		$user_id = 1; //use the logged in user id;
+
+
+		//$profile = Profile::with('attribute')->where("user_id",1)->get();
+		$profile = \DB::table('profiles')
+						->join('profile_attributes','profiles.profile_attribute_id','=','profile_attributes.id')
+						->select(
+							"profile_attributes.id",
+							"profile_attributes.multiline",
+							"profile_attributes.requires_upload",
+							"profile_attributes.label",
+							"profiles.value")
+						->where("profiles.user_id",1)
+						->where("profiles.type_id",2)
+						->where("profile_attributes.enabled",1)->get();
+
 
 		return view('profiles.show', compact('profile'));
 	}

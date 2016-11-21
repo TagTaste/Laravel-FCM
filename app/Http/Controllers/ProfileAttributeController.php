@@ -105,6 +105,7 @@ class ProfileAttributeController extends Controller {
 	}
 
 	public function form($typeId){
+		
 		$profileAttributes = ProfileAttribute::where('profile_type_id',$typeId)->get();
 
 		$hasFileInput = ProfileAttribute::select('id')->where('profile_type_id',$typeId)->where("requires_upload",1)->get();
