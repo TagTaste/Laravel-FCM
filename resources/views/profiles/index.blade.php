@@ -30,7 +30,7 @@
                             @foreach($profiles as $profile)
 
                                 <tr>
-                                    <td>{{$profile->id}} {{ $profile->attribute->requires_upload}}</td>
+                                    <td>{{$profile->id}}</td>
                                     <td>{{$profile->user_id}}</td>
                         <td>{{$profile->attribute->label}}</td>
                         @if($profile->attribute->requires_upload == 1)
