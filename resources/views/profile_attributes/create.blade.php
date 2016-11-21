@@ -96,16 +96,7 @@
                         <span class="help-block">{{ $errors->first("parent_id") }}</span>
                        @endif
                     </div>
-
-                    <div class="form-group @if($errors->has('profile_type_id')) has-error @endif">
-                       <label for="profile_type_id-field">Profile Type Id</label>
-                    <input type="text" id="profile_type_id-field" name="profile_type_id" class="form-control" value="{{ old("profile_type_id") }}"/>
-                       @if($errors->has("profile_type_id"))
-                        <span class="help-block">{{ $errors->first("profile_type_id") }}</span>
-                       @endif
-                    </div>
-
-                     
+  
                     
                     <!-- <div class="form-group @if($errors->has('template_id')) has-error @endif">
                        <label for="template_id-field">Template_id</label>
