@@ -24,5 +24,6 @@ Route::resource("template_types","TemplateTypeController");
 Route::resource("templates","TemplateController");
 Route::resource("profile_attributes","ProfileAttributeController");
 
+Route::get("profile/file/{filename}",['as'=>'profile.fileDownload','uses'=>'ProfileController@fileDownload']);
 Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttributeController@form"]);
 Route::resource("profiles","ProfileController");

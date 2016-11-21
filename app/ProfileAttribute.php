@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProfileAttribute extends Model
 {
+
+    protected $storagePath = 'files/';
+
     protected $fillable = ['name','label','description','multiline','requires_upload','allowed_mime_types','enabled','required','user_id','parent_id','template_id','profile_type_id'];
 
     protected $casts = [
@@ -18,4 +21,5 @@ class ProfileAttribute extends Model
     public function isRequired() {
     	return $this->required ? "required" : null;
     }
+
 }

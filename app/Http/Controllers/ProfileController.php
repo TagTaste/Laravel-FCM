@@ -132,4 +132,8 @@ class ProfileController extends Controller {
 		return redirect()->route('profiles.index')->with('message', 'Item deleted successfully.');
 	}
 
+	public function fileDownload($file){
+		return response()->file(storage_path("app/files/" . $file)) ;
+	}
+
 }
