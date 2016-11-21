@@ -57,14 +57,14 @@
                     </div> -->
                     <div class="form-group @if($errors->has('multiline')) has-error @endif">
                        <label for="multiline">Multiline</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="multiline" id="multiline" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="multiline" value="false" id="multiline" autocomplete="off"> False</label></div>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="multiline" id="multiline" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="multiline" value="0" id="multiline" autocomplete="off"> False</label></div>
                        @if($errors->has("multiline"))
                         <span class="help-block">{{ $errors->first("multiline") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('requires_upload')) has-error @endif">
                        <label for="requies_upload">Requires Upload</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="requies_upload" id="requies_upload" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="requies_upload" value="false" id="requies_upload" autocomplete="off"> False</label></div>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="requies_upload" id="requies_upload" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="requies_upload" value="0" id="requies_upload" autocomplete="off"> False</label></div>
                        @if($errors->has("requires_upload"))
                         <span class="help-block">{{ $errors->first("requires_upload") }}</span>
                        @endif
@@ -78,14 +78,14 @@
                     </div>
                     <div class="form-group @if($errors->has('enabled')) has-error @endif">
                        <label for="enabled">Enabled</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="enabled" id="enabled" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="enabled" value="false" id="enabled" autocomplete="off"> False</label></div>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="enabled" id="enabled" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="enabled" value="0" id="enabled" autocomplete="off"> False</label></div>
                        @if($errors->has("enabled"))
                         <span class="help-block">{{ $errors->first("enabled") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('required')) has-error @endif">
                        <label for="required">Required</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="required" id="required" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="required" value="false" id="required" autocomplete="off"> False</label></div>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="required" id="required" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="required" value="0" id="required" autocomplete="off"> False</label></div>
                        @if($errors->has("required"))
                         <span class="help-block">{{ $errors->first("required") }}</span>
                        @endif
