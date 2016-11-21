@@ -42,9 +42,11 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		
+	
 		$inputs = $this->getRequiredInputs($request);
 
+		$inputs['user_id'] = $request->user()->id;
+			
 		$profile_attribute = ProfileAttribute::create($inputs);
 
 		return redirect()->route('profile_attributes.index')->with('message', 'Item created successfully.');
