@@ -60,5 +60,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("unfollow/{chefId}", ['as' => 'chef.unfollow', 'uses'=>'FollowerController@unfollow']);
 	Route::resource("followers","FollowerController");
 	Route::resource("privacies","PrivacyController");
+
+	Route::resource("articles","ArticleController");
 });
 
