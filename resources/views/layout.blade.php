@@ -45,6 +45,9 @@
                     <li><a href="{{ route('profiles.index')}}">Profiles</a></li>
                     <li><a href="{{ route('profile_types.index')}}">Profile Types</a></li>
                     <li><a href="{{ route('profile_attributes.index')}}">Profile Attributes</a></li>
+                    <li><a href="{{ route('articles.index')}}">Articles</a></li>
+                    <li><a href="{{ route('templates.index')}}">Templates</a></li>
+                    <li><a href="{{ route('privacies.index')}}">Privacy</a></li>
 =                </ul>
             </div><!--/.nav-collapse -->
         </div>
