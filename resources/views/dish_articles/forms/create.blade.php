@@ -1,7 +1,7 @@
 
 
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-
+                
                 <div class="form-group @if($errors->has('showcase')) has-error @endif">
                        <label for="showcase-field">Showcase</label>
                     <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="dish[showcase]" id="showcase-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="dish[showcase]" value="0" id="showcase-field" autocomplete="off"> False</label></div>
