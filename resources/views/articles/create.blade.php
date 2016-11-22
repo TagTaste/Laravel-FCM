@@ -31,7 +31,11 @@
      <div class="col-md-3">
       <div class="form-group @if($errors->has('privacy_id')) has-error @endif">
        <label for="privacy_id-field">Privacy</label>
-       <input type="text" id="privacy_id-field" name="article[privacy_id]" class="form-control" value="{{ old("privacy_id") }}"/>
+       <select name="privacy_id" id="" class='form-control'>
+          @foreach($privacy as $name => $id)
+            <option value="{{ $id }}"> {{ $name }} </option>
+          @endforeach
+       </select>
        @if($errors->has("privacy_id"))
        <span class="help-block">{{ $errors->first("privacy_id") }}</span>
        @endif

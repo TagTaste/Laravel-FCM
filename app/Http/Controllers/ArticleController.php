@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Article;
 use App\DishArticle;
+use App\Privacy;
 
 use Illuminate\Http\Request;
 
@@ -23,14 +24,15 @@ class ArticleController extends Controller {
 	}
 
 	/**
-	 * Show the form for creating a new resource.
-	 *
+	 * Show the form for creating new artcile of type $type.
+	 * 
+	 * @param  String $type
 	 * @return Response
 	 */
 	public function create($type)
 	{
-
-		return view('articles.create', compact('type'));
+		$privacy = Privacy::getALl();
+		return view('articles.create', compact('type','privacy'));
 	}
 
 	/**
