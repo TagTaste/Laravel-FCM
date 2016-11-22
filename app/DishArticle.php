@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DishArticle extends Model
 {
-    protected $fillable = ['showcase','hasRecipe','article_id','chef_id'];
+    protected $fillable = ['showcase','content','hasRecipe','article_id','chef_id'];
 
     public function article() {
     	return $this->belongsTo('\App\Article','article_id');

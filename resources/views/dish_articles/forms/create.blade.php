@@ -1,6 +1,12 @@
 
 
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <div class="form-group @if($errors->has('content')) has-error @endif">
+                       <label for="content-field">Content</label>
+                       <textarea id="content-field" name="dish[content]" class="form-control" rows="10">{{ old("content") }}</textarea>
+                       @if($errors->has("content"))
+                       <span class="help-block">{{ $errors->first("content") }}</span>
+                       @endif
+                     </div>
                 
                 <div class="form-group @if($errors->has('showcase')) has-error @endif">
                        <label for="showcase-field">Showcase</label>
@@ -16,6 +22,9 @@
                         <span class="help-block">{{ $errors->first("hasrecipe") }}</span>
                        @endif
                     </div>
+
+                    
+
                     {{--
 
                       <!-- <div class="form-group @if($errors->has('article_id')) has-error @endif">
