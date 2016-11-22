@@ -50,4 +50,8 @@ class ProfileAttribute extends Model
         }
     }
 
+    public function values() {
+        return $this->hasMany('\App\AttributeValue','attribute_id');
+    }
+
 }

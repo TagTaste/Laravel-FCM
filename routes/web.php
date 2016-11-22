@@ -53,6 +53,9 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttributeController@form"]);
 	Route::resource("profiles","ProfileController");
 
+	Route::get("attribute_values/create/{attributeId}",['as'=>'attribute_values.create','uses'=>"AttributeValueController@create"]);
+	Route::resource("attribute_values","AttributeValueController");
+
 	Route::get("follow/{chefId}", ['as'=>'chef.follow','uses'=>'FollowerController@follow']);
 	Route::get("unfollow/{chefId}", ['as' => 'chef.unfollow', 'uses'=>'FollowerController@unfollow']);
 	Route::resource("followers","FollowerController");
