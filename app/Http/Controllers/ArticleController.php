@@ -4,6 +4,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Article;
+use App\DishArticle;
+
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller {
@@ -39,18 +41,21 @@ class ArticleController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$article = new Article();
+		$inputs = $request->input('article');
+		$inputs['author_id'] = $request->user()->getChefProfileId();
+		
+		$article = Article::create($inputs);
+		
+		$type = $request->input("type");
 
-		$article->title = $request->input("title");
-        $article->author_id = $request->input("author_id");
-        $article->privacy_id = $request->input("privacy_id");
-        $article->comments_enabled = $request->input("comments_enabled");
-        $article->status = $request->input("status");
-        $article->template_id = $request->input("template_id");
+		$typeInputs = $request->input($type);
+		$typeInputs['article_id'] = $article->id;
 
-		$article->save();
+		$class = "\App\\" . ucfirst($type) . "Article";
 
-		return redirect()->route('articles.index')->with('message', 'Item created successfully.');
+		$particularArticle = $class::create($typeInputs);
+
+		return redirect()->route('articles.index')->with('message', 'Article created successfully.');
 	}
 
 	/**
@@ -99,7 +104,7 @@ class ArticleController extends Controller {
 
 		$article->save();
 
-		return redirect()->route('articles.index')->with('message', 'Item updated successfully.');
+		return redirect()->route('articles.index')->with('message', 'Article updated successfully.');
 	}
 
 	/**
@@ -113,7 +118,7 @@ class ArticleController extends Controller {
 		$article = Article::findOrFail($id);
 		$article->delete();
 
-		return redirect()->route('articles.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('articles.index')->with('message', 'Article deleted successfully.');
 	}
 
 }

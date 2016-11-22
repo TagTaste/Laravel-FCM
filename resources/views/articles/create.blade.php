@@ -16,7 +16,7 @@
 
     <form action="{{ route('articles.store') }}" method="POST">
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
-
+      <input type="hidden" name="type" value="{{$type}}">
       <div class="col-md-9">
         <div class="form-group @if($errors->has('title')) has-error @endif">
          <label for="title-field">Title</label>
