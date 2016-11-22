@@ -62,5 +62,8 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("privacies","PrivacyController");
 
 	Route::resource("articles","ArticleController");
+	Route::resource("dish_articles","DishArticleController");
+	
+	Route::resource("recipe_articles","RecipeArticleController");
 });
 
