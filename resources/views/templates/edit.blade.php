@@ -34,14 +34,19 @@
                     </div>
                     <div class="form-group @if($errors->has('enabled')) has-error @endif">
                        <label for="enabled-field">Enabled</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="enabled-field" id="enabled-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="enabled-field" value="false" id="enabled-field" autocomplete="off"> False</label></div>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="enabled" id="enabled-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="enabled" value="0" id="enabled-field" autocomplete="off"> False</label></div>
                        @if($errors->has("enabled"))
                         <span class="help-block">{{ $errors->first("enabled") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('template_type_id')) has-error @endif">
-                       <label for="template_type_id-field">Template_type_id</label>
-                    <input type="text" id="template_type_id-field" name="template_type_id" class="form-control" value="{{ is_null(old("template_type_id")) ? $template->template_type_id : old("template_type_id") }}"/>
+                       <label for="template_type_id-field">Template Type</label>
+
+                      <select name="template_type_id" id="template_type_id-field" class="form-control">
+                        @foreach($templateTypes as $name => $id)
+                          <option value="{{ $id }}" @if($template->template_type_id == $id) selected @endif> {{ $name }}</option>
+                        @endforeach
+                      </select>
                        @if($errors->has("template_type_id"))
                         <span class="help-block">{{ $errors->first("template_type_id") }}</span>
                        @endif

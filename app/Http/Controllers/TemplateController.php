@@ -17,7 +17,7 @@ class TemplateController extends Controller {
 	 */
 	public function index()
 	{
-		$templates = Template::orderBy('id', 'desc')->paginate(10);
+		$templates = Template::with('type')->orderBy('id', 'desc')->paginate(10);
 
 		return view('templates.index', compact('templates'));
 	}
@@ -75,8 +75,9 @@ class TemplateController extends Controller {
 	public function edit($id)
 	{
 		$template = Template::findOrFail($id);
+		$templateTypes = TemplateType::getAll();
 
-		return view('templates.edit', compact('template'));
+		return view('templates.edit', compact('template','templateTypes'));
 	}
 
 	/**
