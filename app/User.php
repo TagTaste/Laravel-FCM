@@ -32,4 +32,16 @@ class User extends Authenticatable
     public function profile() {
         return $this->hasMany('\App\Profile');
     }
+
+    public function getChefProfileId() {
+        $attribute = \App\ProfileAttribute::select('id')->where('name','like','chef_id')->first();
+
+        if($attribute){
+            $profile = \App\Profile::select('id')->where('profile_attribute_id','=',$attribute->id)->first();
+
+            if($profile){
+                return $profile->id;
+            }
+        }
+    }
 }
