@@ -61,6 +61,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("followers","FollowerController");
 	Route::resource("privacies","PrivacyController");
 
+	Route::get("articles/create/{type}", ['as'=>'articles.new','uses'=>'ArticleController@create']);
 	Route::resource("articles","ArticleController");
 	Route::resource("dish_articles","DishArticleController");
 	

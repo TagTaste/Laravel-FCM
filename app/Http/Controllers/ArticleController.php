@@ -25,9 +25,10 @@ class ArticleController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create($type)
 	{
-		return view('articles.create');
+
+		return view('articles.create', compact('type'));
 	}
 
 	/**
