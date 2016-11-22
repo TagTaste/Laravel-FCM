@@ -28,6 +28,14 @@ Route::get('logout', ['middleware' => ['web'], 'as' => 'logout', 'uses' => 'Auth
 
 
 /**
+ * Forgot and Reset Password Controller
+ */
+Route::get('password/reset', ['middleware' => ['web'], 'uses' => 'Auth\ForgotPasswordController@showLinkRequestForm']);
+Route::post('password/email', ['middleware' => ['web'], 'uses' => 'Auth\ForgotPasswordController@sendResetLinkEmail']);
+Route::get('password/reset/{token}', ['middleware' => ['web'], 'uses' => 'Auth\ResetPasswordController@showResetForm']);
+Route::post('password/reset', ['middleware' => ['web'], 'uses' => 'Auth\ResetPasswordController@reset']);
+
+/**
  * Social site authentication routes
  */
 Route::get('social/login/redirect/{provider}', ['uses' => 'Auth\LoginController@redirectToProvider', 'as' => 'social.login']);
