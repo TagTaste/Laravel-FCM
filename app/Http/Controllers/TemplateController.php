@@ -4,6 +4,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Template;
+use App\TemplateType;
+
 use Illuminate\Http\Request;
 
 class TemplateController extends Controller {
@@ -27,7 +29,8 @@ class TemplateController extends Controller {
 	 */
 	public function create()
 	{
-		return view('templates.create');
+		$templateTypes = TemplateType::getAll();
+		return view('templates.create', compact('templateTypes'));
 	}
 
 	/**

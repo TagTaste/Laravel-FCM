@@ -49,7 +49,12 @@
      </div>
      <div class="form-group @if($errors->has('template_id')) has-error @endif">
        <label for="template_id-field">Template</label>
-       <input type="text" id="template_id-field" name="article[template_id]" class="form-control" value="{{ old("template_id") }}"/>
+
+       <select name="article[template_id]" id="" class="form-control">
+         @foreach($templates as $name => $id)
+            <option value="{{ $id }}">{{ $name }}</option>
+         @endforeach
+       </select>
        @if($errors->has("template_id"))
        <span class="help-block">{{ $errors->first("template_id") }}</span>
        @endif

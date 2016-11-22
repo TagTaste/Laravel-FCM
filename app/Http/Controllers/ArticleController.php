@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Article;
 use App\DishArticle;
 use App\Privacy;
+use App\Template;
 
 use Illuminate\Http\Request;
 
@@ -32,7 +33,8 @@ class ArticleController extends Controller {
 	public function create($type)
 	{
 		$privacy = Privacy::getALl();
-		return view('articles.create', compact('type','privacy'));
+		$templates = Template::for(ucwords($type . " article"));
+		return view('articles.create', compact('type','privacy', 'templates'));
 	}
 
 	/**
