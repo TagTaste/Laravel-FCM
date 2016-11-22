@@ -17,7 +17,6 @@ class ProfileAttributeController extends Controller {
 	public function index()
 	{
 		$profile_attributes = ProfileAttribute::paginate(10);
-
 		//dd($profile_attributes->groupBy('parent_id'));
 
 		return view('profile_attributes.index', compact('profile_attributes'));
@@ -31,7 +30,10 @@ class ProfileAttributeController extends Controller {
 	public function create()
 	{
 		$profileTypes = ProfileType::getTypes();
-		return view('profile_attributes.create',compact('profileTypes'));
+		
+		$inputTypes = $this->getInputTypes();
+
+		return view('profile_attributes.create',compact('profileTypes','inputTypes'));
 	}
 
 	/**
@@ -77,7 +79,9 @@ class ProfileAttributeController extends Controller {
 
 		$profileTypes = ProfileType::getTypes();
 
-		return view('profile_attributes.edit', compact('profile_attribute', 'profileTypes'));
+		$inputTypes = $this->getInputTypes();
+
+		return view('profile_attributes.edit', compact('profile_attribute', 'profileTypes', 'inputTypes'));
 	}
 
 	/**
@@ -114,9 +118,9 @@ class ProfileAttributeController extends Controller {
 
 	public function form($typeId){
 		
-		$profileAttributes = ProfileAttribute::where('profile_type_id',$typeId)->get();
-
-		$hasFileInput = ProfileAttribute::select('id')->where('profile_type_id',$typeId)->where("requires_upload",1)->get();
+		$profileAttributes = ProfileAttribute::with('values')->where('profile_type_id',$typeId)->get();
+		
+		$hasFileInput = ProfileAttribute::select('id')->where('profile_type_id',$typeId)->where("input_type",'like',"file")->get();
 
 		$encType = 'application/x-www-form-urlencoded';
 
@@ -131,8 +135,20 @@ class ProfileAttributeController extends Controller {
 	}
 
 	public function getRequiredInputs($request){
-		$input = $request->only('name','label','description','user_id','multiline','requires_upload','allowed_mime_types','enabled','required','parent_id','template_id','profile_type_id');
+		$input = $request->only('name','label','description','input_type','allowed_mime_types','enabled','required','parent_id','template_id','profile_type_id');
 		return array_filter($input);
+	}
+
+	public function getInputTypes(){
+		return [
+				'Short Text'=>'text', 
+				'Long Text' => 'textarea',
+				'File Upload' => 'file',
+				'Dropdown' => 'dropdown',
+				'Dropdown with multiple select' => 'dropdown_multiple',
+				'Multiple Options, Multiple Select'=>'checkbox',
+				'Multiple Options, Single Select' => 'radio'];
+
 	}
 
 }

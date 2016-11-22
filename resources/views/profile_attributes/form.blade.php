@@ -26,11 +26,26 @@
 				@endif
 			</label>
 
-			@if($attribute->requires_upload)
+			@if($attribute->input_type == "file")
 				<input type="file" id="exampleInputFile" name="attributes[{{$attribute->id}}][value]" {{ $required }}>
-			@elseif($attribute->multiline)
+			@elseif($attribute->input_type == "textarea")
 				<textarea class="form-control" rows="3" name="attributes[{{$attribute->id}}][value]" {{ $required }}></textarea>
-			@else
+			@elseif($attribute->input_type == "checkbox")
+
+				@foreach($attribute->values as $value)
+					<input type="checkbox" name="attributes[{{$attribute->id}}][value_id][]" value="{{ $value->id }}"/> 
+					{{ $value->name }} <br />
+				@endforeach
+				
+			@elseif($attribute->input_type == "radio")
+			@elseif($attribute->input_type == "dropdown" || $attribute->input_type == "dropdown_multiple")
+				<select name="attributes[{{$attribute->id}}][value_id]">
+					@foreach($attribute->values as $value)
+						<option value="{{ $value->id }}">{{ $value->name }}</option>
+					@endforeach
+				</select>
+				
+			@elseif($attribute->input_type == "text")
 				<input type="text" class="form-control"  name="attributes[{{$attribute->id}}][value]" {{ $required }}/>
 			@endif
 

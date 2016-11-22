@@ -46,7 +46,7 @@ class ProfileController extends Controller {
 		
 		$typeId = $request->input('typeId');
 
-		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('requires_upload',1)->where('profile_type_id','=',$typeId)->get();
+		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('input_type','like','file')->where('profile_type_id','=',$typeId)->get();
 
 		foreach($inputsWithFile as $input){
 			$key = 'attributes.' . $input->id;
@@ -62,9 +62,24 @@ class ProfileController extends Controller {
 		$data = [];
 		$userId = $request->user()->id;
 		foreach($attributes as $id => $value){
-			$data[] = [
+
+			$single = [
 				'user_id'=> $userId,
-				'profile_attribute_id' => $id, 'value' => $value['value'], 'type_id' => $typeId];
+				'profile_attribute_id' => $id, 
+				'type_id' => $typeId
+				];
+
+
+			if(isset($value['value_id'])){
+				foreach($value['value_id'] as $valueId){
+					$single['value_id'] = $valueId;
+					$data[] = $single;
+				}
+			} else {
+				$single['value'] = $value['value'];
+				$data[] = $single;
+			}
+			
 		}
 
 		$profile = Profile::insert($data);
@@ -136,7 +151,7 @@ class ProfileController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $id)
 	{
 		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
 		$profile->delete();

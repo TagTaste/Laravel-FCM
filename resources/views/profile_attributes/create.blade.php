@@ -54,20 +54,18 @@
                         <span class="help-block">{{ $errors->first("user_id") }}</span>
                        @endif
                     </div> -->
-                    <div class="form-group @if($errors->has('multiline')) has-error @endif">
-                       <label for="multiline">Multiline</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="multiline" id="multiline" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="multiline" value="0" id="multiline" autocomplete="off"> No </label></div>
-                       @if($errors->has("multiline"))
-                        <span class="help-block">{{ $errors->first("multiline") }}</span>
+                    <div class="form-group @if($errors->has('input_type')) has-error @endif">
+                       <label for="input_type">Input Type</label>
+                      <select name="input_type" id="input_type" class="form-control">
+                          @foreach($inputTypes as $name => $value)
+                            <option value="{{ $value }}"> {{ $name }} </option>
+                          @endforeach
+                      </select>
+                       @if($errors->has("input_type"))
+                        <span class="help-block">{{ $errors->first("input_type") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('requires_upload')) has-error @endif">
-                       <label for="requires_upload">Requires Upload</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="requires_upload" id="requires_upload" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="requires_upload" value="0" id="requires_upload" autocomplete="off"> No </label></div>
-                       @if($errors->has("requires_upload"))
-                        <span class="help-block">{{ $errors->first("requires_upload") }}</span>
-                       @endif
-                    </div>
+                    
                     <div class="form-group @if($errors->has('allowed_mime_types')) has-error @endif">
                        <label for="allowed_mime_types">Allowed Mime Types</label>
                     <input type="text" id="allowed_mime_types" name="allowed_mime_types" class="form-control" value="{{ old("allowed_mime_types") }}"/>

@@ -22,8 +22,7 @@
                         <th>LABEL</th>
                         <th>DESCRIPTION</th>
                         <th>USER_ID</th>
-                        <th>MULTILINE</th>
-                        <th>REQUIRES_UPLOAD</th>
+                        <th>INPUT TYPE</th>
                         <th>ALLOWED_MIME_TYPES</th>
                         <th>ENABLED</th>
                         <th>REQUIRED</th>
@@ -41,8 +40,7 @@
                     <td>{{$profile_attribute->label}}</td>
                     <td>{{$profile_attribute->description}}</td>
                     <td>{{$profile_attribute->user_id}}</td>
-                    <td>{{$profile_attribute->multiline}}</td>
-                    <td>{{$profile_attribute->requires_upload}}</td>
+                    <td>{{$profile_attribute->input_type}}</td>
                     <td>{{$profile_attribute->allowed_mime_types}}</td>
                     <td>{{$profile_attribute->enabled}}</td>
                     <td>{{$profile_attribute->required}}</td>
