@@ -18,15 +18,16 @@
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
       <input type="hidden" name="type" value="{{$type}}">
       <div class="col-md-9">
+        @if($requiresTitle)
         <div class="form-group @if($errors->has('title')) has-error @endif">
          <label for="title-field">Title</label>
          <input type="text" id="title-field" name="article[title]" class="form-control" value="{{ old("title") }}"/>
          @if($errors->has("title"))
-         <span class="help-block">{{ $errors->first("title") }}</span>
-         @endif
-
-         @include($type . "_articles.forms.create")
+          <span class="help-block">{{ $errors->first("title") }}</span>
+          @endif
        </div>
+       @endif
+       @include($type . "_articles.forms.create")
      </div>
      <div class="col-md-3">
       <div class="form-group @if($errors->has('privacy_id')) has-error @endif">

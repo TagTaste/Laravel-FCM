@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Article;
 use App\DishArticle;
+use App\RecipeArticle;
 use App\Privacy;
 use App\Template;
 
@@ -19,9 +20,9 @@ class ArticleController extends Controller {
 	 */
 	public function index()
 	{
-		$articles = Article::orderBy('id', 'desc')->paginate(10);
+		$dishes = DishArticle::with('recipe','article')->orderBy('id', 'desc')->paginate(10);
 
-		return view('articles.index', compact('articles'));
+		return view('articles.index', compact('dishes','recipes'));
 	}
 
 	/**
@@ -30,11 +31,17 @@ class ArticleController extends Controller {
 	 * @param  String $type
 	 * @return Response
 	 */
-	public function create($type)
+	public function create(Request $request, $type)
 	{
 		$privacy = Privacy::getALl();
 		$templates = Template::for(ucwords($type . " article"));
-		return view('articles.create', compact('type','privacy', 'templates'));
+		$dishes = false;
+		$requiresTitle = true;
+		if($type == 'recipe'){
+			$dishes = DishArticle::getAsArray($request->user()->getChefProfileId());
+			$requiresTitle = false;
+		}
+		return view('articles.create', compact('type','privacy', 'templates','dishes','requiresTitle'));
 	}
 
 	/**
