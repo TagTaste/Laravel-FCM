@@ -15,4 +15,13 @@ class DishArticle extends Model
     public function chef() {
     	return $this->belongsTo('\App\Profile','chef_id');
     }
+
+    public function recipe() {
+    	return $this->hasMany('\App\RecipeArticle','dish_id');
+    }
+
+
+    public static function getAsArray($chefId) {
+        return static::with('article')->where('chef_id','=',$chefId)->get()->pluck('article.title','id');
+    }
 }
