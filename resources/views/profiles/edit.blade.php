@@ -25,11 +25,11 @@
                         <span class="help-block">{{ $errors->first("user_id") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('attribute_id')) has-error @endif">
-                       <label for="attribute_id-field">Attribute_id</label>
-                    <input type="text" id="attribute_id-field" name="attribute_id" class="form-control" value="{{ is_null(old("attribute_id")) ? $profile->attribute_id : old("attribute_id") }}"/>
-                       @if($errors->has("attribute_id"))
-                        <span class="help-block">{{ $errors->first("attribute_id") }}</span>
+                    <div class="form-group @if($errors->has('profile_attribute_id')) has-error @endif">
+                       <label for="profile_attribute_id-field">profile_attribute_id</label>
+                    <input type="text" id="profile_attribute_id-field" name="profile_attribute_id" class="form-control" value="{{ is_null(old("pprofile_attribute_id")) ? $profile->profile_attribute_id : old("profile_attribute_id") }}"/>
+                       @if($errors->has("profile_attribute_id"))
+                        <span class="help-block">{{ $errors->first("profile_attribute_id") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('value')) has-error @endif">

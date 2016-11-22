@@ -124,7 +124,7 @@ class ProfileController extends Controller {
 	public function edit(Request $request, $id)
 	{
 		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
-
+		
 		return view('profiles.edit', compact('profile'));
 	}
 

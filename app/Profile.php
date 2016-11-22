@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
-	protected $fillable = ['user_id','attribute_id','value','value_id','type_id'];
+	protected $fillable = ['user_id','profile_attribute_id','value','value_id','type_id'];
 	
     public function type() {
     	return $this->belongsTo('\App\ProfileType');
