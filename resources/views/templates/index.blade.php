@@ -21,7 +21,7 @@
                             <th>NAME</th>
                         <th>VIEW</th>
                         <th>ENABLED</th>
-                        <th>TEMPLATE_TYPE_ID</th>
+                        <th>TEMPLATE FOR</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -33,7 +33,7 @@
                                 <td>{{$template->name}}</td>
                     <td>{{$template->view}}</td>
                     <td>{{$template->enabled}}</td>
-                    <td>{{$template->template_type_id}}</td>
+                    <td>{{$template->type->name}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('templates.show', $template->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('templates.edit', $template->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
