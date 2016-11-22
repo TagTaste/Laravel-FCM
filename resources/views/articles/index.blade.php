@@ -23,15 +23,12 @@
                         @if(!is_null($dish->recipe))
                             <h3> Recipe </h3>
                             <ul>
-                                
-                                    @foreach($dish->recipe as $recipe)
-                                        <li>
-                                            <h4> Step {{ $recipe->step }} </h4>
-                                            <p> {{ $recipe->content }} </p>
-                                        </li>
-                                    @endforeach
-
-                               
+                                @foreach($dish->recipe as $recipe)
+                                    <li>
+                                        <h4> Step {{ $recipe->step }} </h4>
+                                        <p> {{ $recipe->content }} </p>
+                                    </li>
+                                @endforeach
                             </ul>
                          @endif
                     </div>
@@ -41,6 +38,13 @@
 
             
 
+        </div>
+
+        <div class="col-md-9">
+            @foreach($dishes as $dish)
+                @include($dish->article->template->view,$dish)
+                <hr>
+            @endforeach
         </div>
     </div>
 

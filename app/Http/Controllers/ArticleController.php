@@ -20,7 +20,7 @@ class ArticleController extends Controller {
 	 */
 	public function index()
 	{
-		$dishes = DishArticle::with('recipe','article')->orderBy('id', 'desc')->paginate(10);
+		$dishes = DishArticle::with('recipe','article','article.template')->orderBy('id', 'desc')->paginate(10);
 
 		return view('articles.index', compact('dishes','recipes'));
 	}
