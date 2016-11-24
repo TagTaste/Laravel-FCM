@@ -9,14 +9,14 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            @foreach($profile as $attribute)
+            @foreach($profile as $id=>$attributes)
                 <div class="col-md-12">
-                    <h3> {{ $attribute->label }} </h3>
-                    @if($attribute->requires_upload)
-                        <a href="{{ route('profile.fileDownload', $attribute->value) }}">View</a>
-                    @else
-                    <p> {{ $attribute->value }} </p>
-                    @endif
+                
+                    <h3>{{ $attributes->first()->attribute->label}}</h3>
+
+                    @foreach($attributes as $attribute)
+                        {{ $attribute->getValue() }}<br/>
+                    @endforeach
                 </div>
             @endforeach
             {{-- <form action="#">
