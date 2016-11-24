@@ -98,20 +98,7 @@ class ProfileController extends Controller {
 		$userId = $request->user()->id; //use the logged in user id;
 
 
-		//$profile = Profile::with('attribute')->where("user_id",1)->get();
-		$profile = \DB::table('profiles')
-						->join('profile_attributes','profiles.profile_attribute_id','=','profile_attributes.id')
-						->join('attribute_values','profiles.profile_attribute_id','=','attribute_values.id')
-						->select(
-							"profile_attributes.id",
-							"profile_attributes.input_type",
-							"profile_attributes.label",
-							"profiles.value",
-							"attribute_values.name"
-							)
-						->where("profiles.user_id",$userId)
-						->where("profiles.type_id",$id)
-						->where("profile_attributes.enabled",1)->get();
+		
 
 		$profile = Profile::with('attribute','attributeValue')->where('user_id',$userId)->where('type_id',$id)->whereHas('attribute',function($query){
 			$query->where('enabled',1);
