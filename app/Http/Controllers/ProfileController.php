@@ -34,6 +34,45 @@ class ProfileController extends Controller {
 		return view('profiles.create');
 	}
 
+	private function inputHasFile(&$typeId, &$requst, &$attributes){
+		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('input_type','like','file')->where('profile_type_id','=',$typeId)->get();
+
+		foreach($inputsWithFile as $input){
+			$key = 'attributes.' . $input->id;
+			if($request->hasFile($key)){
+				$file = $request->file($key)['value'];
+				$fileName = $key . "." . strtolower(str_random(32)) . "." . $file->extension();
+				$file->storeAs('files',$fileName);
+				$attributes[$input->id]['value'] = $fileName;
+			}
+
+		 }
+	}
+
+	private function processData(&$attributes, &$userId, &$typeId) {
+		$data = [];
+		foreach($attributes as $id => $value){
+
+			$single = [
+				'user_id'=> $userId,
+				'profile_attribute_id' => $id, 
+				'type_id' => $typeId
+				];
+
+
+			if(isset($value['value_id'])){
+				foreach($value['value_id'] as $valueId){
+					$single['value_id'] = $valueId;
+					$data[] = $single;
+				}
+			} else {
+				$single['value'] = $value['value'];
+				$data[] = $single;
+			}
+			
+		}
+		return $data;
+	}
 	/**
 	 * Store a newly created resource in storage.
 	 *
@@ -93,20 +132,18 @@ class ProfileController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show(Request $request, $id) 
+	public function show(Request $request, $typeId) 
 	{
+
 		$userId = $request->user()->id; //use the logged in user id;
 
-
-		
-
-		$profile = Profile::with('attribute','attributeValue')->where('user_id',$userId)->where('type_id',$id)->whereHas('attribute',function($query){
+		$profile = Profile::with('attribute','attributeValue')->where('user_id',$userId)->where('type_id',$typeId)->whereHas('attribute',function($query){
 			$query->where('enabled',1);
 		})->get();
 
 		$profile = $profile->groupBy("attribute.id");
 
-		return view('profiles.show', compact('profile'));
+		return view('profiles.show', compact('profile','typeId'));
 	}
 
 	/**
@@ -115,9 +152,17 @@ class ProfileController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit(Request $request, $id)
-	{
-		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
+	public function edit(Request $request, $typeId)
+	{	
+		
+		$userId = $request->user()->id; //use the logged in user id;
+
+		$profile = Profile::with('attribute','attributeValue')->where('user_id',$userId)->where('type_id',$typeId)->whereHas('attribute',function($query){
+			$query->where('enabled',1);
+		})->get();
+
+		$profile = $profile->groupBy("attribute.id");
+
 		
 		return view('profiles.edit', compact('profile'));
 	}
@@ -129,11 +174,25 @@ class ProfileController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(Request $request, $id)
+	public function update(Request $request)
 	{
-		$profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
+		dd($request->input());
+		$attributes = $request->input("attributes");
+
+		$typeId = $request->input("typeId");
+
+		$this->inputHasFile($typeId, $request, $attributes);
+
 		
-		$profile->update($request->only('attribute_id','value','type_id'));
+		$userId = $request->user()->id;
+
+		$data = $this->processData($attributes,$userId,$typeId);
+
+		dd($data);
+
+		// $profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
+		
+		// $profile->update($request->only('attribute_id','value','type_id'));
 
 
 		return redirect()->route('profiles.index')->with('message', 'Item updated successfully.');
