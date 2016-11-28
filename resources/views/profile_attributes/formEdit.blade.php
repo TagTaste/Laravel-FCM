@@ -19,7 +19,7 @@
 		@foreach($profileAttributes as $attributes)
 			@php
 				$first = $attributes->first();
-				$required = $attributes->first()->isRequired();
+				$required = $first->isRequired();
 				$name = "attributes[$first->p_id]";
 			@endphp
 		
@@ -37,31 +37,26 @@
 				<input type="file" id="exampleInputFile" name="{{ $name }}" {{ $required }}>
 			@elseif($first->input_type == "textarea")
 				<textarea class="form-control" rows="3" name="{{ $name }} " {{ $required }}></textarea>
+					
+			@elseif($first->input_type == "text")
+				<input type="text" class="form-control"  name="{{ $name }}" {{ $required }}
+				value = "{{ $first->value }}"
+				/>
 			@elseif($first->input_type == "checkbox")
 				
 				@foreach($attributes as $attribute)
-					@php
-						$name = "attributes[{$attribute->id}][{$attribute->p_id}]";
-					@endphp
-					<input type="checkbox" name="{{ $name }}" value="{{ $attribute->av_id}}"
+					<input type="checkbox" name="attributes[{$attribute->p_id}]" value="{{ $attribute->av_id}}"
 					@if(!is_null($attribute->p_value) && $attribute->av_id == $attribute->p_value) checked @endif /> {{ $attribute->av_name }} <br/>
 				@endforeach
 				
 			@elseif($first->input_type == "radio")
 			@elseif($first->input_type == "dropdown" || $first->input_type == "dropdown_multiple")
-				@php
-					$name = "attributes[][{$first->p_id}][value_id]";
-				@endphp
-				<select name="{{ $name }} ">
+				<select name="attributes[{$first->p_id}][value_id]">
 					@foreach($attributes as $attribute)
 						<option value="{{ $attribute->av_id }}">{{ $attribute->av_name }}</option>
 					@endforeach
 				</select>
-				
-			@elseif($first->input_type == "text")
-				<input type="text" class="form-control"  name="{{ $name }}" {{ $required }}
-				value = "{{ $first->av_id ? $first->av_id : $first->value}}"
-				/>
+			
 			@endif
 
 			<small>{{ $first->description}}</small>
