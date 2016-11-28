@@ -60,7 +60,7 @@
 				
 			@elseif($first->input_type == "text")
 				<input type="text" class="form-control"  name="{{ $name }}" {{ $required }}
-				value = "{{ $first->av_id }}"
+				value = "{{ $first->av_id ? $first->av_id : $first->value}}"
 				/>
 			@endif
 
