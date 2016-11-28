@@ -59,7 +59,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("profiles/{typeId}/edit",['as'=>'profiles.editSingle','uses'=>'ProfileController@edit']);
 	Route::resource("profiles","ProfileController");
 
-	Route::get("attribute_values/create/{attributeId}",['as'=>'attribute_values.create','uses'=>"AttributeValueController@create"]);
+	Route::get("attribute_values/create/{attributeId}",['as'=>'attribute_values.add','uses'=>"AttributeValueController@create"]);
 	Route::resource("attribute_values","AttributeValueController");
 
 	Route::get("follow/{chefId}", ['as'=>'chef.follow','uses'=>'FollowerController@follow']);

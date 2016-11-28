@@ -55,7 +55,7 @@
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash"></i> Delete</button>
                         </form>
-                        <a class="btn btn-xs btn-info" href="{{ route('attribute_values.create',$profile_attribute->id)}}">Add Values</a>
+                        <a class="btn btn-xs btn-info" href="{{ route('attribute_values.add',$profile_attribute->id)}}">Add Values</a>
                     </td>
                 </tr>
                 @endforeach
