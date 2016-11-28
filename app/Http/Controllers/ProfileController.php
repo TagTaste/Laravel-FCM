@@ -178,7 +178,7 @@ class ProfileController extends Controller {
 	{
 		dd($request->input());
 		$attributes = $request->input("attributes");
-
+			
 		$typeId = $request->input("typeId");
 
 		$this->inputHasFile($typeId, $request, $attributes);

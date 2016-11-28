@@ -28,4 +28,10 @@ class Profile extends Model
 
         return is_null($this->value) ? $this->attributeValue->name : $this->value;
     }
+
+    // public function getAttributeValue($attributeId){
+    //     $self = static::where('profile_attribute_id',$attributeId)->first();
+    //     if($self) return $self->getValue();
+    //     return;
+    // }
 }

@@ -46,7 +46,9 @@
 				</select>
 				
 			@elseif($attribute->input_type == "text")
-				<input type="text" class="form-control"  name="attributes[{{$attribute->id}}][value]" {{ $required }}/>
+				<input type="text" class="form-control"  name="attributes[{{$attribute->id}}][value]" {{ $required }}
+				value = ""
+				/>
 			@endif
 
 			<small>{{ $attribute->description}}</small>

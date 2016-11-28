@@ -116,7 +116,7 @@ class ProfileAttributeController extends Controller {
 		return redirect()->route('profile_attributes.index')->with('message', 'Item deleted successfully.');
 	}
 
-	public function form($typeId){
+	public function form(Request $request, $typeId){
 		
 		$profileAttributes = ProfileAttribute::with('values')->where('profile_type_id',$typeId)->get();
 		
@@ -130,8 +130,44 @@ class ProfileAttributeController extends Controller {
 
 		//todo: move this to ProfileAttributeController. Add to cache when an input is created.
 		\Cache::put("fileInputs." . $typeId, $hasFileInput->toArray());
+		//$profile = $profile->groupBy('profile_attribute_id');
 
-		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId', 'hasFileInput'));
+		return view('profile_attributes.form',compact('profileAttributes', 'encType', 'typeId'));
+	}
+
+	public function formEdit(Request $request, $typeId) {
+
+// select attribute.id, attribute.profile_type_id, attribute.name, attribute.label, av.id, av.name, av.value, profiles.value_id from profile_attributes attribute
+// left join attribute_values av on av.attribute_id = attribute.id
+// left join profiles on profiles.value_id = av.id 
+// where 
+// attribute.profile_type_id = 1
+// and (profiles.type_id = 1 
+// and profiles.user_id = 2
+// or profiles.value_id is null 
+// or av.attribute_id is null)
+// ORDER BY `attribute`.`id`, av.id ASC
+
+		$userId = $request->user()->id;
+
+		$profileAttributes = ProfileAttribute::select('profile_attributes.*','av.id as av_id','av.name as av_name','av.value as av_value','profiles.value_id as p_value','profiles.id as p_id')
+		->leftJoin('attribute_values as av','av.attribute_id','=','profile_attributes.id')
+		->leftJoin('profiles','profiles.value_id','=','av.id')
+		->orderBy('profile_attributes.id','desc')
+		->orderBy('av.id','desc')
+		->where('profile_attributes.profile_type_id','=',$typeId)
+		->where(function($query) use ($userId, $typeId) {
+			$query->where('profiles.user_id','=',$userId)
+			->where('profiles.type_id','=',$typeId)
+			->orWhereNull('profiles.value_id')
+			->orWhereNull('av.attribute_id');
+		})
+		->orderBy('profile_attributes.id','desc')
+		->orderBy('av.id','desc')
+		->get();
+
+		$profileAttributes = $profileAttributes->groupBy('id');
+		return view('profile_attributes.formEdit',compact('profileAttributes','typeId'));
 	}
 
 	public function getRequiredInputs($request){

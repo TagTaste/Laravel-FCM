@@ -19,6 +19,8 @@
                     @endforeach
                 </div>
             @endforeach
+
+            <a href="{{ route('profiles.edit',$typeId) }} ">Edit Profile</a>
             {{-- <form action="#">
                 <div class="form-group">
                     <label for="nome">ID</label>

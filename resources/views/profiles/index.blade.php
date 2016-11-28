@@ -28,7 +28,6 @@
 
                 <tbody>
                     @foreach($profiles as $profile)
-
                     <tr>
                         <td>{{$profile->id}}</td>
                         <td>{{$profile->user_id}}</td>
