@@ -3,7 +3,23 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-md-8 col-md-offset-2">
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">Left Side</div>
+                <div class="panel-body">Left Side</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Feed
+                </div>
+                <div class="panel-body">
+                    TODO
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="panel panel-default">
                 <div class="panel-heading">Dashboard</div>
 
