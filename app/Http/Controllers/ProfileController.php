@@ -46,7 +46,7 @@ class ProfileController extends Controller {
 				$attributes[$input->id]['value'] = $fileName;
 			}
 
-		 }
+		}
 	}
 
 	private function processData(&$attributes, &$userId, &$typeId) {
@@ -54,10 +54,10 @@ class ProfileController extends Controller {
 		foreach($attributes as $id => $value){
 
 			$single = [
-				'user_id'=> $userId,
-				'profile_attribute_id' => $id, 
-				'type_id' => $typeId
-				];
+			'user_id'=> $userId,
+			'profile_attribute_id' => $id, 
+			'type_id' => $typeId
+			];
 
 
 			if(isset($value['value_id'])){
@@ -96,17 +96,17 @@ class ProfileController extends Controller {
 				$attributes[$input->id]['value'] = $fileName;
 			}
 
-		 }
+		}
 
 		$data = [];
 		$userId = $request->user()->id;
 		foreach($attributes as $id => $value){
 
 			$single = [
-				'user_id'=> $userId,
-				'profile_attribute_id' => $id, 
-				'type_id' => $typeId
-				];
+			'user_id'=> $userId,
+			'profile_attribute_id' => $id, 
+			'type_id' => $typeId
+			];
 
 
 			if(isset($value['value_id'])){
@@ -159,9 +159,8 @@ class ProfileController extends Controller {
 		$userId = $request->user()->id;
 
 		$profileAttributes = \App\ProfileAttribute::type($typeId)->with('values')->get();
-
 		$profile = \App\Profile::profileType($typeId)->forUser($userId)->get();
-		$profile = $profile->keyBy('profile_attribute_id');
+		$profile = $profile->groupBy('profile_attribute_id');
 		$encType = null;
 
 		return view('profiles.edit',compact('profile','profileAttributes','typeId','encType'));
@@ -176,8 +175,82 @@ class ProfileController extends Controller {
 	 */
 	public function update(Request $request)
 	{
+		$inputProfile = $request->input('profile');
+		
+		if(count($inputProfile)){
+			
+
+			$profile = \App\Profile::whereIn('id',array_keys($inputProfile))->get()->keyBy('id');
+			
+			if($profile){
+				foreach($profile as $p){
+
+				var_dump(isset($inputProfile[$p->id]));
+				if(isset($inputProfile[$p->id])){
+					$value = $inputProfile[$p->id];
+					$updatedValue = null;
+					if(!is_array($value)){
+						if($p->value != $value){
+							$p->value = $value;
+						}
+					} else {
+						if(isset($value['value_id'][0]) && is_array($value['value_id'])){
+							$p->value_id = $value['value_id'][0];
+						}
+
+					}
+
+					if(!is_null($p->isDirty())){
+						
+						$p->update();
+						//unset($inputProfile[$p->id]);
+					}
+
+
+				}
+			}
+			}
+
+			//don't delete chef_ids, out
+			$profileIds = \App\ProfileAttribute::select('id')->where('name','like',"%_id")->get()->pluck('id')->toArray();
+			
+			//$delete = array_merge(,$profileIds);
+			
+			//delete other profiles
+			
+			\App\Profile::whereNotIn('id',array_keys($inputProfile))->whereNotIn('profile_attribute_id',$profileIds)->delete();
+
+
+			// foreach($inputProfile as $profileId => $inputValue){
+			// 	$pro = $profile->get($profileId);
+			// 	$value = null;
+			// 	if(!is_array($inputValue) && $pro->value != $inputValue){
+			// 		$value = $inputValue;
+			// 	}
+
+			// 	if(is_array($inputValue) && $pro->value != $inputValue['value_id']){
+			// 		$value = $inputValue['value_id'];
+			// 	}
+
+			// 	if(!is_null($value)){
+			// 		$pro->value = $value;
+			// 		$pro->update();
+			// 		var_dump($profileId,$inputProfile[$profileId]);
+			// 	}
+			// }
+
+		//delete other profiles
+			
+			//\App\Profile::whereIn('id',array_keys($inputProfile))->delete();
+		}
+		
+
+		//add new profiles
+
 		$attributes = $request->input("attributes");
 		
+		
+
 		$typeId = $request->input('typeId');
 
 		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('input_type','like','file')->where('profile_type_id','=',$typeId)->get();
@@ -191,32 +264,37 @@ class ProfileController extends Controller {
 				$attributes[$input->id]['value'] = $fileName;
 			}
 
-		 }
+		}
 
 		$data = [];
 		$userId = $request->user()->id;
-		foreach($attributes as $id => $value){
+		if(count($attributes) > 0){
+			foreach($attributes as $id => $value){
 
-			$single = [
+				$single = [
 				'user_id'=> $userId,
 				'profile_attribute_id' => $id, 
 				'type_id' => $typeId
 				];
 
 
-			if(isset($value['value_id'])){
-				foreach($value['value_id'] as $valueId){
-					$single['value_id'] = $valueId;
+				if(isset($value['value_id'])){
+					foreach($value['value_id'] as $valueId){
+						$single['value_id'] = $valueId;
+						$data[] = $single;
+					}
+				} elseif(isset($value['value'])) {
+					$single['value'] = $value['value'];
+					$data[] = $single;
+				} else {
+					$single['value'] = $value;
 					$data[] = $single;
 				}
-			} else {
-				$single['value'] = $value['value'];
-				$data[] = $single;
+
 			}
 			
+			$profile = Profile::insert($data);
 		}
-
-		$profile = Profile::insert($data);
 
 		return redirect()->route('profiles.index')->with('message', 'Profile created successfully.');
 	}
