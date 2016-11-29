@@ -15,7 +15,7 @@
 		{{ csrf_field() }}
 		<input type="hidden" name="typeId" value="{{ $typeId }}">
 		<hr>
-
+		
 		@foreach($profileAttributes as $attributes)
 			@php
 				$first = $attributes->first();
@@ -45,7 +45,16 @@
 			@elseif($first->input_type == "checkbox")
 				
 				@foreach($attributes as $attribute)
-					<input type="checkbox" name="attributes[{$attribute->p_id}]" value="{{ $attribute->av_id}}"
+					@php
+
+						if(is_null($attribute->p_id)) {
+							$name = "new[{$attribute->id}][]";
+
+						} else {
+							$name = "attributes[{$attribute->p_id}]";
+						}
+					@endphp
+					<input type="checkbox" name="{{ $name }}" value="{{ $attribute->av_id}}"
 					@if(!is_null($attribute->p_value) && $attribute->av_id == $attribute->p_value) checked @endif /> {{ $attribute->av_name }} <br/>
 				@endforeach
 				

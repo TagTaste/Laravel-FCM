@@ -54,4 +54,8 @@ class ProfileAttribute extends Model
         return $this->hasMany('\App\AttributeValue','attribute_id');
     }
 
+    public function scopeType($query, $profileTypeId){
+        return $query->where('profile_type_id','=',$profileTypeId);
+    }
+
 }

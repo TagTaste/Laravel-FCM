@@ -138,20 +138,27 @@ class ProfileAttributeController extends Controller {
 	public function formEdit(Request $request, $typeId) {
 
 		$userId = $request->user()->id;
-		$profileAttributes = ProfileAttribute::
-			select('profile_attributes.*','av.id as av_id','av.name as av_name','av.value as av_value','profiles.value as value','profiles.value_id as p_value','profiles.id as p_id')
-			->leftJoin('profiles',function($join) use ($userId,$typeId) {
-				$join->on('profiles.profile_attribute_id','=','profile_attributes.id')
-					->where('profiles.user_id','=',$userId)
-					->where('profiles.type_id','=',$typeId);
-			})
-			->leftJoin('attribute_values as av','av.attribute_id','=','profile_attributes.id')
-			->where('profile_attributes.profile_type_id','=',$typeId)->get();
 
+		$profileAttributes = ProfileAttribute::type($typeId)->with('values')->get();
 
-		$profileAttributes = $profileAttributes->groupBy('id');
+		$profile = \App\Profile::profileType($typeId)->forUser($userId)->with('attributeValue')->get();
 
-		return view('profile_attributes.formEdit',compact('profileAttributes','typeId'));
+		// dd($profile->toArray());
+
+		// $profileAttributes = ProfileAttribute::
+		// 	select('profile_attributes.*','av.id as av_id','av.name as av_name','av.value as av_value','profiles.value as value','profiles.value_id as p_value','profiles.id as p_id')
+		// 	->leftJoin('profiles',function($join) use ($userId,$typeId) {
+		// 		$join->on('profiles.profile_attribute_id','=','profile_attributes.id')
+		// 			->where('profiles.user_id','=',$userId)
+		// 			->where('profiles.type_id','=',$typeId);
+		// 	})
+		// 	->leftJoin('attribute_values as av','av.attribute_id','=','profile_attributes.id')
+		// 	->where('profile_attributes.profile_type_id','=',$typeId)->get();
+
+		// dd($profileAttributes);
+		// $profileAttributes = $profileAttributes->groupBy('id');
+		$encType = null;
+		return view('profiles.edit',compact('profile','profileAttributes','typeId','encType'));
 	}
 
 	public function getRequiredInputs($request){

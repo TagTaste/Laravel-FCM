@@ -120,7 +120,8 @@ class ProfileController extends Controller {
 			}
 			
 		}
-
+		
+		
 		$profile = Profile::insert($data);
 
 		return redirect()->route('profiles.index')->with('message', 'Profile created successfully.');
@@ -155,16 +156,15 @@ class ProfileController extends Controller {
 	public function edit(Request $request, $typeId)
 	{	
 		
-		$userId = $request->user()->id; //use the logged in user id;
+		$userId = $request->user()->id;
 
-		$profile = Profile::with('attribute','attributeValue')->where('user_id',$userId)->where('type_id',$typeId)->whereHas('attribute',function($query){
-			$query->where('enabled',1);
-		})->get();
+		$profileAttributes = \App\ProfileAttribute::type($typeId)->with('values')->get();
 
-		$profile = $profile->groupBy("attribute.id");
+		$profile = \App\Profile::profileType($typeId)->forUser($userId)->get();
+		$profile = $profile->keyBy('profile_attribute_id');
+		$encType = null;
 
-		
-		return view('profiles.edit', compact('profile'));
+		return view('profiles.edit',compact('profile','profileAttributes','typeId','encType'));
 	}
 
 	/**
@@ -176,26 +176,49 @@ class ProfileController extends Controller {
 	 */
 	public function update(Request $request)
 	{
-		dd($request->input());
 		$attributes = $request->input("attributes");
-			
-		$typeId = $request->input("typeId");
-
-		$this->inputHasFile($typeId, $request, $attributes);
-
 		
+		$typeId = $request->input('typeId');
+
+		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('input_type','like','file')->where('profile_type_id','=',$typeId)->get();
+
+		foreach($inputsWithFile as $input){
+			$key = 'attributes.' . $input->id;
+			if($request->hasFile($key)){
+				$file = $request->file($key)['value'];
+				$fileName = $key . "." . strtolower(str_random(32)) . "." . $file->extension();
+				$file->storeAs('files',$fileName);
+				$attributes[$input->id]['value'] = $fileName;
+			}
+
+		 }
+
+		$data = [];
 		$userId = $request->user()->id;
+		foreach($attributes as $id => $value){
 
-		$data = $this->processData($attributes,$userId,$typeId);
-
-		dd($data);
-
-		// $profile = Profile::where('id','=',$id)->where("user_id",'=',$request->user()->id)->first();
-		
-		// $profile->update($request->only('attribute_id','value','type_id'));
+			$single = [
+				'user_id'=> $userId,
+				'profile_attribute_id' => $id, 
+				'type_id' => $typeId
+				];
 
 
-		return redirect()->route('profiles.index')->with('message', 'Item updated successfully.');
+			if(isset($value['value_id'])){
+				foreach($value['value_id'] as $valueId){
+					$single['value_id'] = $valueId;
+					$data[] = $single;
+				}
+			} else {
+				$single['value'] = $value['value'];
+				$data[] = $single;
+			}
+			
+		}
+
+		$profile = Profile::insert($data);
+
+		return redirect()->route('profiles.index')->with('message', 'Profile created successfully.');
 	}
 
 	/**

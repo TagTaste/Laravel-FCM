@@ -29,6 +29,13 @@ class Profile extends Model
         return is_null($this->value) ? $this->attributeValue->name : $this->value;
     }
 
+    public function scopeProfileType($query, $profileTypeId){
+        return $query->where('type_id','=',$profileTypeId);
+    }
+
+    public function scopeForUser($query,$userId){
+        return $query->where('user_id','=',$userId);
+    }
     // public function getAttributeValue($attributeId){
     //     $self = static::where('profile_attribute_id',$attributeId)->first();
     //     if($self) return $self->getValue();
