@@ -19,13 +19,24 @@
                                 
                             </div>
                         <div class="panel-body">
-                        <h4>{{ $article->title }}</h4>
-                                <h6 class="subtitle">By: {{ $article->getAuthor() }} </h6>
+                            <h4>{{ $article->title }}</h4>
+
+                                    <div class="col-md-9">
+                                        <h6 class="subtitle">By: {{ $article->getAuthor() }} <a href="{{route('chef.follow',$article->author->user_id)}}">Follow</a></h6>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <p class="text-right text-muted">{{ $article->created_at->toFormattedDateString() }}</p>
+                                    
+                                    </div>
+                               
+                               <div class="col-md-12 text-justify">
                                 <hr>
-                           <p>{{ $article->getContent() }}</p>
-                           @if($article->hasRecipe())
-                            <p><a href="#">View Recipe</a></p>
-                           @endif
+                                   <p>{{ $article->getContent() }}</p>
+                               @if($article->hasRecipe())
+                                <p><a href="#">View Recipe</a></p>
+                               @endif
+                               </div>
                         </div>
 
                     </div> 

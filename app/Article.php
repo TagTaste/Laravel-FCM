@@ -8,6 +8,12 @@ class Article extends Model
 {
     protected $fillable = ['title','author_id','privacy_id','comments_enabled','status','template_id'];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
    	public function author() {
    		return $this->belongsTo('\App\Profile','author_id');
    	}
