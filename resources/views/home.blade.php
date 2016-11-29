@@ -10,14 +10,21 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    Feed
-                </div>
-                <div class="panel-body">
-                    TODO
-                </div>
-            </div>
+           
+          
+                
+                    @foreach($articles as $article)
+                     <div class="panel panel-default">
+                           <div class="panel-heading">
+                                {{ $article->title }}
+                            </div>
+                        <div class="panel-body">
+                           {{ $article-> content }}
+                        </div>
+                    </div> 
+                    @endforeach
+                
+           
         </div>
         <div class="col-md-3">
             <div class="panel panel-default">
