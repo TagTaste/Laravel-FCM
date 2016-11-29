@@ -201,9 +201,7 @@ class ProfileController extends Controller {
 					}
 
 					if(!is_null($p->isDirty())){
-						
 						$p->update();
-						//unset($inputProfile[$p->id]);
 					}
 
 
@@ -211,41 +209,15 @@ class ProfileController extends Controller {
 			}
 			}
 
-			//don't delete chef_ids, out
+			//don't delete chef_ids, etc
 			$profileIds = \App\ProfileAttribute::select('id')->where('name','like',"%_id")->get()->pluck('id')->toArray();
 			
-			//$delete = array_merge(,$profileIds);
 			
 			//delete other profiles
 			
 			\App\Profile::whereNotIn('id',array_keys($inputProfile))->whereNotIn('profile_attribute_id',$profileIds)->delete();
-
-
-			// foreach($inputProfile as $profileId => $inputValue){
-			// 	$pro = $profile->get($profileId);
-			// 	$value = null;
-			// 	if(!is_array($inputValue) && $pro->value != $inputValue){
-			// 		$value = $inputValue;
-			// 	}
-
-			// 	if(is_array($inputValue) && $pro->value != $inputValue['value_id']){
-			// 		$value = $inputValue['value_id'];
-			// 	}
-
-			// 	if(!is_null($value)){
-			// 		$pro->value = $value;
-			// 		$pro->update();
-			// 		var_dump($profileId,$inputProfile[$profileId]);
-			// 	}
-			// }
-
-		//delete other profiles
-			
-			//\App\Profile::whereIn('id',array_keys($inputProfile))->delete();
 		}
 		
-
-		//add new profiles
 
 		$attributes = $request->input("attributes");
 		
