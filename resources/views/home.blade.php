@@ -16,11 +16,18 @@
                     @foreach($articles as $article)
                      <div class="panel panel-default">
                            <div class="panel-heading">
-                                {{ $article->title }}
+                                
                             </div>
                         <div class="panel-body">
-                           {{ $article-> content }}
+                        <h4>{{ $article->title }}</h4>
+                                <h6 class="subtitle">By: {{ $article->getAuthor() }} </h6>
+                                <hr>
+                           <p>{{ $article->getContent() }}</p>
+                           @if($article->hasRecipe())
+                            <p><a href="#">View Recipe</a></p>
+                           @endif
                         </div>
+
                     </div> 
                     @endforeach
                 
