@@ -30,6 +30,8 @@ class HomeController extends Controller
 
         $chefsFollowed = \App\Follower::with('chef')->where('follower_id',$request->user()->id)->get();
         $followers = \App\Follower::with('follower')->where('chef_id',$request->user()->id)->get();
-        return view('home', compact('chefs','chefsFollowed', 'followers'));
+
+        $articles = \App\Article::with('template')->get();
+        return view('home', compact('chefs','chefsFollowed', 'followers','articles'));
     }
 }

@@ -1,9 +1,32 @@
-@extends('layouts.app')
+@extends('layout')
 
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-md-8 col-md-offset-2">
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">Left Side</div>
+                <div class="panel-body">Left Side</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+           
+          
+                
+                    @foreach($articles as $article)
+                     <div class="panel panel-default">
+                           <div class="panel-heading">
+                                {{ $article->title }}
+                            </div>
+                        <div class="panel-body">
+                           {{ $article-> content }}
+                        </div>
+                    </div> 
+                    @endforeach
+                
+           
+        </div>
+        <div class="col-md-3">
             <div class="panel panel-default">
                 <div class="panel-heading">Dashboard</div>
 

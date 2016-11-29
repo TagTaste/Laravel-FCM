@@ -15,7 +15,7 @@
 		{{ csrf_field() }}
 		<input type="hidden" name="typeId" value="{{ $typeId }}">
 		<hr>
-		
+
 		@foreach($profileAttributes as $attributes)
 			@php
 				$first = $attributes->first();
@@ -37,7 +37,7 @@
 				<input type="file" id="exampleInputFile" name="{{ $name }}" {{ $required }}>
 			@elseif($first->input_type == "textarea")
 				<textarea class="form-control" rows="3" name="{{ $name }} " {{ $required }}></textarea>
-					
+
 			@elseif($first->input_type == "text")
 				<input type="text" class="form-control"  name="{{ $name }}" {{ $required }}
 				value = "{{ $first->value }}"

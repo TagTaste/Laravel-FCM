@@ -30,7 +30,6 @@ elixir(function(mix) {
             "resources/assets/js/plugins/toastr/toastr.min.js",
             "resources/assets/js/plugins/loader/Loading.js",
             "resources/assets/js/plugins/dropzone/dropzone.js",
-            "resources/assets/js/custom/image_upload.js",
         ], 'public/js/app.js', './')
 
         .styles([
