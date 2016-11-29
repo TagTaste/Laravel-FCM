@@ -4,7 +4,7 @@
     <div class="page-header clearfix">
         <h1>
             <i class="glyphicon glyphicon-align-justify"></i> Profiles
-            <a class="btn btn-success pull-right" href="{{ route('profiles.create') }}"><i class="glyphicon glyphicon-plus"></i> Create</a>
+            <a class="btn btn-success pull-right hide" href="{{ route('profiles.create') }}"><i class="glyphicon glyphicon-plus"></i> Create</a>
         </h1>
 
     </div>
@@ -14,50 +14,62 @@
     <div class="row">
         <div class="col-md-12">
             @if($profiles->count())
-            <table class="table table-condensed table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>USER_ID</th>
-                        <th>ATTRIBUTE</th>
-                        <th>VALUE</th>
-                        <th>TYPE</th>
-                        <th class="text-right">OPTIONS</th>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    @foreach($profiles as $profile)
-                    <tr>
-                        <td>{{$profile->id}}</td>
-                        <td>{{$profile->user_id}}</td>
-                        <td>{{$profile->attribute->label}}</td>
-                        @if($profile->attribute->requires_upload == 1)
-                        <td><a href="{{ route("profile.fileDownload",$profile->value) }}">View File</a></td>
-                        @else
-                        <td>{{$profile->getValue()}}</td>
-                        @endif
-                        <td>{{$profile->type->type}}</td>
-                        <td class="text-right">
-                            <a class="btn btn-xs btn-primary" href="{{ route('profiles.show', $profile->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
-                            <a class="btn btn-xs btn-warning" href="{{ route('profiles.edit', $profile->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-                            <form action="{{ route('profiles.destroy', $profile->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                            </form>
-                        </td>
-                    </tr>
+            <div>
+                 <ul class="nav nav-tabs" role="tablist">
+                @foreach($profileTypes as $profileType)
+                  <!-- Nav tabs -->
+               
+                    <li role="presentation" class=""><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab">{{ $profileType->type }}</a></li>
+                   
+                @endforeach
+                </ul>
+
+                <!-- Tab panes -->
+                
+                <div class="tab-content">
+                    @foreach($profileTypes as $profileType)
+                        <div role="tabpanel" class="tab-pane" id="{{ $profileType->type }}">
+                            <p class="text-right">
+                                <a href="{{ route('profiles.edit',$profileType->id) }} ">Edit Profile</a>
+                            </p>
+                            @php
+                                $prof = $profiles->get($profileType->id);
+
+                            @endphp
+                            @if($prof && $prof->count())
+                                <ul>
+                                    @foreach($prof->groupBy('profile_attribute_id') as $p)
+                                        @php
+                                            $label = $p->first()->attribute->label;
+
+                        
+                                        @endphp
+                                        <li>
+                                            <h5>{{$label}}</h5>
+                                            @foreach($p as $value)
+                                                <p> {{ $value->getValue()}} </p>
+
+                                            @endforeach
+                                        </li>
+
+        
+                                    @endforeach
+                                </ul>
+                            @endif 
+                               
+                        </div>
                     @endforeach
-                </tbody>
-            </table>
-            {!! $profiles->render() !!}
-            @else
-
+                    
+                </div>
+            
+            </div>
             @endif
 
+            
+
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 hide">
             <h3> View attributes for: </h3>
             <ul>
                 @foreach($profileTypes as $type)
@@ -66,7 +78,7 @@
             </ul>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-6 hide">
             <h3>View Profile</h3>
             <ul>
                 @foreach($profileTypes as $type)

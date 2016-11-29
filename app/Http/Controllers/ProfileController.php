@@ -17,9 +17,9 @@ class ProfileController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-		$profileTypes = ProfileType::orderBy('type','asc')->get();
+		$profileTypes = ProfileType::orderBy('type','asc')->get()->keyBy('id');
 
-		$profiles = Profile::where('user_id','=',$request->user()->id)->with('type','attribute')->orderBy('id', 'asc')->paginate(10);
+		$profiles = Profile::where('user_id','=',$request->user()->id)->with('type','attribute')->orderBy('id', 'asc')->get()->groupBy('type_id');
 
 		return view('profiles.index', compact('profiles','profileTypes'));
 	}
