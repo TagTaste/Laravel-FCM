@@ -16,76 +16,84 @@
             @if($profiles->count())
 
             <div>
-                 <ul class="nav nav-tabs" role="tablist">
-                @foreach($profileTypes as $profileType)
-                  <!-- Nav tabs -->
-               
-                    <li role="presentation" class=""><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab">{{ $profileType->type }}</a></li>
+               <ul class="nav nav-tabs" role="tablist">
+                   @php
+                   $first = true;
+
+                   @endphp
+                   @foreach($profileTypes as $profileType)
+                   <!-- Nav tabs -->
                    
-                @endforeach
-                </ul>
+                   <li role="presentation" class="@if($first) active @php $first=false;@endphp @endif"><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab">{{ $profileType->type }}</a></li>
+                   
+                   @endforeach
+               </ul>
 
-                <!-- Tab panes -->
-                
-                <div class="tab-content">
-                    @foreach($profileTypes as $profileType)
-                        <div role="tabpanel" class="tab-pane" id="{{ $profileType->type }}">
-                            <p class="text-right">
-                                <a href="{{ route('profiles.edit',$profileType->id) }} ">Edit Profile</a>
-                            </p>
-                            @php
-                                $prof = $profiles->get($profileType->id);
+               @php
+               $first = true;
 
-                            @endphp
-                            @if($prof && $prof->count())
-                                <ul>
-                                    @foreach($prof->groupBy('profile_attribute_id') as $p)
-                                        @php
-                                            $label = $p->first()->attribute->label;
+               @endphp
+               <!-- Tab panes -->
+               
+               <div class="tab-content">
+                @foreach($profileTypes as $profileType)
+                <div role="tabpanel" class="@if($first) active @php $first=false;@endphp @endif tab-pane" id="{{ $profileType->type }}">
+                    <p class="text-right">
+                        <a href="{{ route('profiles.edit',$profileType->id) }} ">Edit Profile</a>
+                    </p>
+                    @php
+                    $prof = $profiles->get($profileType->id);
+
+                    @endphp
+                    @if($prof && $prof->count())
+                    <ul>
+                        @foreach($prof->groupBy('profile_attribute_id') as $p)
+                        @php
+                        $label = $p->first()->attribute->label;
 
                         
-                                        @endphp
-                                        <li>
-                                            <h5>{{$label}}</h5>
-                                            @foreach($p as $value)
-                                                <p> {{ $value->getValue()}} </p>
+                        @endphp
+                        <li>
+                            <h5>{{$label}}</h5>
+                            @foreach($p as $value)
+                            <p> {{ $value->getValue()}} </p>
 
-                                            @endforeach
-                                        </li>
+                            @endforeach
+                        </li>
 
-        
-                                    @endforeach
-                                </ul>
-                            @endif 
-                               
-                        </div>
-                    @endforeach
+                        
+                        @endforeach
+                    </ul>
+                    @endif 
                     
                 </div>
-            
+                @endforeach
+                
             </div>
-            @endif
-
             
+        </div>
+        @endif
 
-        </div>
-        <div class="col-md-6 hide">
-            <h3> View attributes for: </h3>
-            <ul>
-                @foreach($profileTypes as $type)
-                <li><a href="{{ route('profile.form',$type->id)}}">{{$type->type}}</a></li>
-                @endforeach
-            </ul>
-        </div>
+        
 
-        <div class="col-md-6 hide">
-            <h3>View Profile</h3>
-            <ul>
-                @foreach($profileTypes as $type)
-                <li><a href="{{ route('profiles.show',$type->id)}}"> {{$type->type}} </a></li>
-                @endforeach
-            </ul>
-        </div>
+    </div>
+    <div class="col-md-6 hide">
+        <h3> View attributes for: </h3>
+        <ul>
+            @foreach($profileTypes as $type)
+            <li><a href="{{ route('profile.form',$type->id)}}">{{$type->type}}</a></li>
+            @endforeach
+        </ul>
     </div>
 
-    @endsection
+    <div class="col-md-6 hide">
+        <h3>View Profile</h3>
+        <ul>
+            @foreach($profileTypes as $type)
+            <li><a href="{{ route('profiles.show',$type->id)}}"> {{$type->type}} </a></li>
+            @endforeach
+        </ul>
+    </div>
+</div>
+
+@endsection
