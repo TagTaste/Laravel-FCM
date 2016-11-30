@@ -5,8 +5,20 @@
     <div class="row">
         <div class="col-md-3">
             <div class="panel panel-default">
-                <div class="panel-heading">Left Side</div>
-                <div class="panel-body">Left Side</div>
+                <div class="panel-heading">Trending</div>
+                <div class="panel-body">content</div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Messages</div>
+                <div class="panel-body">content</div>
+            </div>
+                        <div class="panel panel-default">
+                <div class="panel-heading">Events</div>
+                <div class="panel-body">content</div>
+            </div>
+                        <div class="panel panel-default">
+                <div class="panel-heading">Messages</div>
+                <div class="panel-body">content</div>
             </div>
         </div>
         <div class="col-md-6">
@@ -46,7 +58,7 @@
         </div>
         <div class="col-md-3">
             <div class="panel panel-default">
-                <div class="panel-heading">Dashboard</div>
+                <div class="panel-heading">People to Follow</div>
 
                 <div class="panel-body">
                         <ul>
@@ -73,6 +85,19 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">Following You</div>
+
+                <div class="panel-body">
+                        <ul>
+                            @foreach($followers as $follower)
+                                <li> {{ $follower->follower->name }}</li>
+                            @endforeach
+                        </ul>
+                    
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Who Viewed You</div>
 
                 <div class="panel-body">
                         <ul>
