@@ -43,6 +43,9 @@
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="/home">Home</a></li>
                     <li><a href="{{ route('profiles.index')}}">Profiles</a></li>
+                    <li><a href="#">Network</a></li>
+                    <li><a href="#">Jobs</a></li>
+                    <li><a href="#">Projects</a></li>
                     @role(('admin'))
                     <li><a href="{{ route('profile_types.index')}}">Profile Types</a></li>
                     <li><a href="{{ route('profile_attributes.index')}}">Profile Attributes</a></li>
