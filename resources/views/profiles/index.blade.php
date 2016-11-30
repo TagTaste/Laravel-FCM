@@ -28,7 +28,7 @@
                          @foreach($profileTypes as $profileType)
                          <!-- Nav tabs -->
 
-                         <li role="presentation" class="@if($first) active @php $first=false;@endphp @endif"><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab">{{ $profileType->type }}</a></li>
+                            <li role="presentation" class="@if($first) active @php $first=false;@endphp @endif"><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab"><b>{{ $profileType->type }}</b></a></li>
 
                          @endforeach
                      </ul>
@@ -51,19 +51,23 @@
 
                             @endphp
                             @if($prof && $prof->count())
-                            <ul>
+                            <ul class="list-unstyled" >
                                 @foreach($prof->groupBy('profile_attribute_id') as $p)
                                 @php
                                 $label = $p->first()->attribute->label;
 
 
                                 @endphp
-                                <li>
-                                    <h5>{{$label}}</h5>
-                                    @foreach($p as $value)
-                                    <p> {{ $value->getValue()}} </p>
-
-                                    @endforeach
+                                <li style="border-bottom:thin solid #dedede;padding-bottom:1em;margin-top:1em;">
+                                    <b style="margin-bottom:1em;display: block;">{{$label}}</b>
+                                    <ul class="list-unstyled">
+                                        
+                                        @foreach($p as $value)
+                                            <li style="display:inline;margin:1em">{{ $value->getValue()}}</li>
+                                        @endforeach
+                                    </ul>
+                                    
+                                    
                                 </li>
 
 
