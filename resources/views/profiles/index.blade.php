@@ -92,7 +92,8 @@
 
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-default">
+            <div class="col-md-12">
+                <div class="panel panel-default">
                 <div class="panel-heading"><h5>My Interests</h5></div>
 
                 <div class="panel-body">
@@ -103,6 +104,45 @@
                     </ul>
 
                 </div>
+            </div>
+            </div>
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                <div class="panel-heading"><h5>Account Settings</h5></div>
+
+                <div class="panel-body">
+                    <form action="">
+                        <div class="form-group">
+                            <label for="">Change Password</label>
+                            <input class="form-control" type="text" name="" id="" placeholder="Old Password">
+                            
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="" id="" placeholder="New Password">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="" id="" placeholder="New Password">
+                            
+                        </div>
+                        <input type="button" class="btn btn-primary" value="Change Password">   
+                    </form>
+                    <hr>
+                    <form action="">
+                        <h4>Connect Social Accounts</h4>
+                        <div class="form-group">
+                            <input class="btn btn-default" type="button" value="Facebook">
+                            <input class="btn btn-default"  type="button" value="LinkedIn">
+                            <input class="btn btn-default"  type="button" value="Twitter">
+                        </div>
+                    </form>
+                    <hr>
+                    <form action="">
+                        <p>Want to leave TagTaste?</p>
+                        <input type="button" value="Delete Account" class="btn btn-danger">
+                    </form>
+
+                </div>
+            </div>
             </div>
         </div>
 
