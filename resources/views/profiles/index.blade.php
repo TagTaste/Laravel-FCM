@@ -43,7 +43,8 @@
                         @foreach($profileTypes as $profileType)
                         <div role="tabpanel" class="@if($first) active @php $first=false;@endphp @endif tab-pane" id="{{ $profileType->type }}">
                             <p class="text-right">
-                            <a style="margin:1em;" class="btn btn-default" href="{{ route('profiles.edit',$profileType->id) }} ">Update {{$profileType->type}} Profile</a>
+
+                            <a style="margin:1em;" class="btn btn-default" href="{{ route('profiles.edit',$profileType->id) }} "><i style="margin-right:0.5em;" class="glyphicon glyphicon-scale"></i>Promote {{$profileType->type}} Profile</a><a style="margin:1em;" class="btn btn-default" href="{{ route('profiles.edit',$profileType->id) }} "><i style="margin-right:0.5em;" class="glyphicon glyphicon-pencil"></i>Update {{$profileType->type}} Profile</a>
                             </p>
                             @php
                             $prof = $profiles->get($profileType->id);
@@ -104,11 +105,12 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading col-md-12">
-                    <div class="text-left col-md-8">
+                    <div class="text-left col-md-6">
                          <h5>Your Recipe Book</h5>
                     </div>
-                    <div class="text-right col-md-4">
+                    <div class="text-right col-md-6">
                         <a href="#" class="btn btn-default"><span style="margin-right:0.5em" class="glyphicon glyphicon-book" aria-hidden="true"></span>Publish</a>
+                        <a href="#" class="btn btn-default"><span style="margin-right:0.5em" class="glyphicon glyphicon-send" aria-hidden="true"></span>Email</a>
                     </div>
                 </div>
                 

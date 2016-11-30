@@ -23,38 +23,47 @@
         </div>
         <div class="col-md-6">    
             @foreach($articles as $article)
-            <div class="panel panel-default">
-             <div class="panel-heading">
+            <div class="panel panel-default" style="position: relative;">
+             
+             <div style="width: 100%;height: 250px;background-image:url('https://img.werecipes.com/wp/wp-content/uploads/2015/02/restuarant-style-veg-manchow-soup-recipe.jpg');">
+                    
+                </div>
 
-             </div>
+                <p class="text-right" style="position: absolute;top: 1em;right: 1em;">
+                            <a title="Like" class="btn btn-default" href="#"><span style="color:red" class="glyphicon glyphicon-heart" aria-hidden="true"></span></a>
+                            <a title="Favourite" class="btn btn-default" href="#">
+                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                            </a>
+                            <a title="Subscribe" class="btn btn-default" href="#">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            </a>
+
+                        </p>
+
              <div class="panel-body">
-                <h4>{{ $article->title }}</h4>
+                
+                <div>
+                    <div class="col-md-12">
+                        <h3>{{ $article->title }}</h3>
+                    </div>
 
-                <div class="col-md-9">
-                    <h6 class="subtitle">By: {{ $article->getAuthor() }} <a href="{{route('chef.follow',$article->author->user_id)}}">Follow</a></h6>
-                </div>
+                    <div class="col-md-9">
+                        <h6 class="subtitle text-italic"><em>By: {{ $article->getAuthor() }}</em> <a href="{{route('chef.follow',$article->author->user_id)}}">Follow</a></h6>
+                    </div>
 
-                <div class="col-md-3">
-                    <p class="text-right text-muted">{{ $article->created_at->toFormattedDateString() }}</p>
+                    <div class="col-md-3">
+                        <p class="text-right text-muted">{{ $article->created_at->toFormattedDateString() }}</p>
 
-                </div>
+                    </div>
 
-                <div class="col-md-12 text-justify">
-                    <hr>
-                    <p>{{ $article->getContent() }}</p>
-                    @if($article->hasRecipe())
-                    <p><a href="#">View Recipe</a></p>
-                    <p class='text-right'>
-                        <a title="Like" class="btn btn-default" href="#"><span class="glyphicon glyphicon-heart" aria-hidden="true"></span></a>
-                        <a title="Favourite" class="btn btn-default" href="#">
-                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                        </a>
-                        <a title="Subscribe" class="btn btn-default" href="#">
-                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                        </a>
-
-                    </p>
-                    @endif
+                    <div style="padding:0px 2em 2em 2em;" class="col-md-12 text-justify">
+                        <hr>
+                        <p>{{ $article->getContent() }}</p>
+                        @if($article->hasRecipe())
+                        <p><a href="#">View Recipe</a></p>
+                    
+                        @endif
+                    </div>
                 </div>
             </div>
 
