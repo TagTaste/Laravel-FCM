@@ -15,6 +15,7 @@
                 @include('admin_template.navbar') @yield('content') @include('admin_template.footer')
             </div>
         </div>
+        <script type="text/javascript" src="{{ elixir('js/admin/admin.js') }}"></script>
         <script type="text/javascript">
             Loading(true);
             $(window).load(function(){

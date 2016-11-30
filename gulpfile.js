@@ -32,6 +32,14 @@ elixir(function(mix) {
             "resources/assets/js/plugins/dropzone/dropzone.js",
         ], 'public/js/app.js', './')
 
+        /**
+         *Custom JS for Admin side
+         */
+        .scripts([
+            'resources/assets/js/custom/admin/admin.js',
+            'resources/assets/js/custom/admin/role_permission.js',
+        ], 'public/js/admin/admin.js')
+
         .styles([
             './bower_components/bootstrap/dist/css/bootstrap.css',
             './bower_components/font-awesome/css/font-awesome.css',
