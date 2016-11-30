@@ -41,7 +41,7 @@
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="/home"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
+                    <li class=""><a href="/home"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
                     <li><a href="{{ route('profiles.index')}}">Profiles</a></li>
                     <li><a href="#">Network</a></li>
                     <li><a href="#">Jobs</a></li>
