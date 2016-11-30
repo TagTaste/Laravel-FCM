@@ -25,7 +25,7 @@
             @foreach($articles as $article)
             <div class="panel panel-default">
              <div class="panel-heading">
-                
+
              </div>
              <div class="panel-body">
                 <h4>{{ $article->title }}</h4>
@@ -36,9 +36,9 @@
 
                 <div class="col-md-3">
                     <p class="text-right text-muted">{{ $article->created_at->toFormattedDateString() }}</p>
-                    
+
                 </div>
-                
+
                 <div class="col-md-12 text-justify">
                     <hr>
                     <p>{{ $article->getContent() }}</p>
@@ -60,8 +60,8 @@
 
         </div> 
         @endforeach
-        
-        
+
+
     </div>
     <div class="col-md-3">
         <div class="panel panel-default">
@@ -78,7 +78,7 @@
                     </li>
                     @endforeach
                 </ul>
-                
+
             </div>
         </div>
 
@@ -90,14 +90,14 @@
                     @foreach($chefsFollowed as $chef)
                     <li class="col-md-12"> 
                         <div style="margin-right:1em;" class="col-md-3"><img src="http://placehold.it/50x50" alt=""></div>
-                        <div class="col-md-9"> {{ $chef->chef->name }} <br/><a href="{{ route('chef.unfollow', $chef->chef->id) }}">Unfollow</a> </div>
-                        
-                        
+                        <div class="col-md-8"> {{ $chef->chef->name }} <br/><a href="{{ route('chef.unfollow', $chef->chef->id) }}">Unfollow</a> </div>
+
+
 
                     </li>
                     @endforeach
                 </ul>
-                
+
             </div>
         </div>
 
@@ -110,7 +110,7 @@
                     <li> {{ $follower->follower->name }}</li>
                     @endforeach
                 </ul>
-                
+
             </div>
         </div>
 
@@ -123,7 +123,7 @@
                     <li> {{ $follower->follower->name }}</li>
                     @endforeach
                 </ul>
-                
+
             </div>
         </div>
     </div>
