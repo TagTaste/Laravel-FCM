@@ -1,18 +1,22 @@
     @extends('layout')
 
     @section('header')
-    <div class="page-header clearfix">
+  <!--   <div class="page-header clearfix">
         <h1>
             <i class="glyphicon glyphicon-align-justify"></i> My Profiles
             <a class="btn btn-success pull-right hide" href="{{ route('profiles.create') }}"><i class="glyphicon glyphicon-plus"></i> Create</a>
         </h1>
 
-    </div>
+    </div> -->
     @endsection
 
     @section('content')
     <div class="row">
-        <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">Your Profiles</div>
+
+            <div class="panel-body">
+                <div class="col-md-12">
             @if($profiles->count())
 
             <div>
@@ -72,34 +76,45 @@
             </div>
             
         </div>
+            </div>
+        </div>
+        
         @endif
 
         
 
     </div>
-    <hr>
-    <div class="page-header clearfix">
-        <h1>
-            <i class="glyphicon glyphicon glyphicon-glass"></i> My Interests
-        </h1>
-        
-        <ul>
+   
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+            <div class="panel-heading">My Interests</div>
+
+            <div class="panel-body">
+                <ul>
             <li>list</li>
             <li>of</li>
-            <li>interests</li>
+            <li>Interests</li>
         </ul>
-    </div>
+                
+            </div>
+        </div>
+        </div>
+  
+        <div class="col-md-6">
+            <div class="panel panel-default">
+            <div class="panel-heading">Your Articles</div>
 
-    <div class="page-header clearfix">
-        <h1>
-            <i class="glyphicon glyphicon glyphicon-glass"></i> My Articles
-        </h1>
-        
-        <ul>
+            <div class="panel-body">
+                <ul>
             <li>list</li>
             <li>of</li>
             <li>Posts</li>
         </ul>
+                
+            </div>
+        </div>
+        </div>
     </div>
 
 
