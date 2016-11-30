@@ -28,14 +28,17 @@
              <div style="width: 100%;height: 250px;background-image:url('https://img.werecipes.com/wp/wp-content/uploads/2015/02/restuarant-style-veg-manchow-soup-recipe.jpg');">
                     
                 </div>
-
+                <p style="position:absolute;top:1em;left:1em;">
+                    <span style="color:red;font-size:2em;" class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+                </p>
                 <p class="text-right" style="position: absolute;top: 1em;right: 1em;">
-                            <a title="Like" class="btn btn-default" href="#"><span style="color:red" class="glyphicon glyphicon-heart" aria-hidden="true"></span></a>
+                            <a title="Like" class="btn btn-default" href="#">
+                                <span style="color:red;margin-right:0.5em;" class="glyphicon glyphicon-heart" aria-hidden="true"></span>43</a>
                             <a title="Favourite" class="btn btn-default" href="#">
-                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                <span style="margin-right:0.5em;" class="glyphicon glyphicon-star" aria-hidden="true"></span> 99
                             </a>
                             <a title="Subscribe" class="btn btn-default" href="#">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                <span style="margin-right:0.5em;" class="glyphicon glyphicon-plus" aria-hidden="true"></span>305
                             </a>
 
                         </p>
@@ -60,7 +63,7 @@
                         <hr>
                         <p>{{ $article->getContent() }}</p>
                         @if($article->hasRecipe())
-                        <p><a href="#">View Recipe</a></p>
+                        <p><a class="btn btn-default" href="#">View Recipe</a></p>
                     
                         @endif
                     </div>
