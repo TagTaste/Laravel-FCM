@@ -3,7 +3,7 @@
     @section('header')
     <div class="page-header clearfix">
         <h1>
-            <i class="glyphicon glyphicon-align-justify"></i> Profiles
+            <i class="glyphicon glyphicon-align-justify"></i> My Profiles
             <a class="btn btn-success pull-right hide" href="{{ route('profiles.create') }}"><i class="glyphicon glyphicon-plus"></i> Create</a>
         </h1>
 
@@ -77,6 +77,32 @@
         
 
     </div>
+    <hr>
+    <div class="page-header clearfix">
+        <h1>
+            <i class="glyphicon glyphicon glyphicon-glass"></i> My Interests
+        </h1>
+        
+        <ul>
+            <li>list</li>
+            <li>of</li>
+            <li>interests</li>
+        </ul>
+    </div>
+
+    <div class="page-header clearfix">
+        <h1>
+            <i class="glyphicon glyphicon glyphicon-glass"></i> My Articles
+        </h1>
+        
+        <ul>
+            <li>list</li>
+            <li>of</li>
+            <li>Posts</li>
+        </ul>
+    </div>
+
+
     <div class="col-md-6 hide">
         <h3> View attributes for: </h3>
         <ul>
