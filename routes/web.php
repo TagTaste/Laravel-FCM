@@ -38,6 +38,20 @@ Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallba
  */
 Route::group(['middlewareGroups' => ['web', 'auth', 'role:admin'], 'prefix' => 'admin'], function () {
 	Route::get('dashboard', 'DashboardController@index');
+
+	Route::get('role/add', 'RoleController@create');
+	Route::post('role/store', 'RoleController@store');
+	Route::get('role/view', 'RoleController@index');
+	Route::get('role/destroy/{id}', 'RoleController@destroy');
+	Route::get('role/edit/{id}', 'RoleController@show');
+	Route::post('role/update/{id}', 'RoleController@update');
+
+	Route::get('permission/add', 'PermissionController@create');
+	Route::post('permission/store', 'PermissionController@store');
+	Route::get('permission/view', 'PermissionController@index');
+	Route::get('permission/destroy/{id}', 'PermissionController@destroy');
+	Route::get('permission/edit/{id}', 'PermissionController@show');
+	Route::post('permission/update/{id}', 'PermissionController@update');
 });
 
 
