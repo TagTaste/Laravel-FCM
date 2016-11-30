@@ -88,7 +88,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="panel panel-default">
-                <div class="panel-heading">My Interests</div>
+                <div class="panel-heading"><h5>My Interests</h5></div>
 
                 <div class="panel-body">
                     <ul>
@@ -103,8 +103,15 @@
 
         <div class="col-md-6">
             <div class="panel panel-default">
-                <div class="panel-heading">Your Articles</div>
-
+                <div class="panel-heading col-md-12">
+                    <div class="text-left col-md-8">
+                         <h5>Your Recipe Book</h5>
+                    </div>
+                    <div class="text-right col-md-4">
+                        <a href="#" class="btn btn-default"><span style="margin-right:0.5em" class="glyphicon glyphicon-book" aria-hidden="true"></span>Publish</a>
+                    </div>
+                </div>
+                
                 <div class="panel-body">
                     <ul class="list-unstyled">
                         <li  class="col-md-12">
