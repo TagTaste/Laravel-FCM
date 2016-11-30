@@ -17,65 +17,65 @@
 
             <div class="panel-body">
                 <div class="col-md-12">
-            @if($profiles->count())
+                    @if($profiles->count())
 
-            <div>
-               <ul class="nav nav-tabs" role="tablist">
-                   @php
-                   $first = true;
+                    <div>
+                     <ul class="nav nav-tabs" role="tablist">
+                         @php
+                         $first = true;
 
-                   @endphp
-                   @foreach($profileTypes as $profileType)
-                   <!-- Nav tabs -->
-                   
-                   <li role="presentation" class="@if($first) active @php $first=false;@endphp @endif"><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab">{{ $profileType->type }}</a></li>
-                   
-                   @endforeach
-               </ul>
+                         @endphp
+                         @foreach($profileTypes as $profileType)
+                         <!-- Nav tabs -->
 
-               @php
-               $first = true;
+                         <li role="presentation" class="@if($first) active @php $first=false;@endphp @endif"><a href="#{{$profileType->type}}" aria-controls="{{$profileType->type}}" role="tab" data-toggle="tab">{{ $profileType->type }}</a></li>
 
-               @endphp
-               <!-- Tab panes -->
-               
-               <div class="tab-content">
-                @foreach($profileTypes as $profileType)
-                <div role="tabpanel" class="@if($first) active @php $first=false;@endphp @endif tab-pane" id="{{ $profileType->type }}">
-                    <p class="text-right">
-                        <a href="{{ route('profiles.edit',$profileType->id) }} ">Edit Profile</a>
-                    </p>
-                    @php
-                    $prof = $profiles->get($profileType->id);
+                         @endforeach
+                     </ul>
 
-                    @endphp
-                    @if($prof && $prof->count())
-                    <ul>
-                        @foreach($prof->groupBy('profile_attribute_id') as $p)
-                        @php
-                        $label = $p->first()->attribute->label;
+                     @php
+                     $first = true;
 
-                        
-                        @endphp
-                        <li>
-                            <h5>{{$label}}</h5>
-                            @foreach($p as $value)
-                            <p> {{ $value->getValue()}} </p>
+                     @endphp
+                     <!-- Tab panes -->
 
-                            @endforeach
-                        </li>
+                     <div class="tab-content">
+                        @foreach($profileTypes as $profileType)
+                        <div role="tabpanel" class="@if($first) active @php $first=false;@endphp @endif tab-pane" id="{{ $profileType->type }}">
+                            <p class="text-right">
+                            <a style="margin:1em;" class="btn btn-default" href="{{ route('profiles.edit',$profileType->id) }} ">Update {{$profileType->type}} Profile</a>
+                            </p>
+                            @php
+                            $prof = $profiles->get($profileType->id);
 
-                        
+                            @endphp
+                            @if($prof && $prof->count())
+                            <ul>
+                                @foreach($prof->groupBy('profile_attribute_id') as $p)
+                                @php
+                                $label = $p->first()->attribute->label;
+
+
+                                @endphp
+                                <li>
+                                    <h5>{{$label}}</h5>
+                                    @foreach($p as $value)
+                                    <p> {{ $value->getValue()}} </p>
+
+                                    @endforeach
+                                </li>
+
+
+                                @endforeach
+                            </ul>
+                            @endif 
+
+                        </div>
                         @endforeach
-                    </ul>
-                    @endif 
-                    
+
+                    </div>
+
                 </div>
-                @endforeach
-                
-            </div>
-            
-        </div>
             </div>
         </div>
         
@@ -84,36 +84,78 @@
         
 
     </div>
-   
+
     <div class="row">
         <div class="col-md-6">
             <div class="panel panel-default">
-            <div class="panel-heading">My Interests</div>
+                <div class="panel-heading">My Interests</div>
 
-            <div class="panel-body">
-                <ul>
-            <li>list</li>
-            <li>of</li>
-            <li>Interests</li>
-        </ul>
-                
+                <div class="panel-body">
+                    <ul>
+                        <li>Chinese Cuisine</li>
+                        <li>Quick Recipes</li>
+                        <li>Innovative Cooking</li>
+                    </ul>
+
+                </div>
             </div>
         </div>
-        </div>
-  
+
         <div class="col-md-6">
             <div class="panel panel-default">
-            <div class="panel-heading">Your Articles</div>
+                <div class="panel-heading">Your Articles</div>
 
-            <div class="panel-body">
-                <ul>
-            <li>list</li>
-            <li>of</li>
-            <li>Posts</li>
-        </ul>
-                
+                <div class="panel-body">
+                    <ul class="list-unstyled">
+                        <li  class="col-md-12">
+                            <h3>Manchow Soup In 10 Easy Steps</h3>
+                            <p class="col-md-3">
+                                <img style="padding:1em;" height="120px" width="120px" src="https://img.werecipes.com/wp/wp-content/uploads/2015/02/restuarant-style-veg-manchow-soup-recipe.jpg" alt="">
+                            </p>
+                            <p class="col-md-9">
+
+                                <p style="padding:1em;">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque voluptatum odit, inventore eius repudiandae. Quo magnam, fugit, repudiandae odio facilis at labore mollitia, placeat soluta dolorum quibusdam necessitatibus aperiam possimus.</p>
+                            </p>
+                            <p>
+                                <a class="btn btn-default" href="#">Read Article</a>
+                            </p>
+                            <hr>
+                        </li>
+
+                        <li  class="col-md-12">
+                            <h3>Manchow Soup In 10 Easy Steps</h3>
+                            <p class="col-md-3">
+                                <img style="padding:1em;" height="120px" width="120px" src="https://img.werecipes.com/wp/wp-content/uploads/2015/02/restuarant-style-veg-manchow-soup-recipe.jpg" alt="">
+                            </p>
+                            <p class="col-md-9">
+                                
+                                <p style="padding:1em;">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque voluptatum odit, inventore eius repudiandae. Quo magnam, fugit, repudiandae odio facilis at labore mollitia, placeat soluta dolorum quibusdam necessitatibus aperiam possimus.</p>
+                            </p>
+                            <p>
+                                <a class="btn btn-default" href="#">Read Article</a>
+                            </p>
+                            <hr>
+                        </li>
+
+                        <li  class="col-md-12">
+                            <h3>Manchow Soup In 10 Easy Steps</h3>
+                            <p class="col-md-3">
+                                <img style="padding:1em;" height="120px" width="120px" src="https://img.werecipes.com/wp/wp-content/uploads/2015/02/restuarant-style-veg-manchow-soup-recipe.jpg" alt="">
+                            </p>
+                            <p class="col-md-9">
+                                
+                                <p style="padding:1em;">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque voluptatum odit, inventore eius repudiandae. Quo magnam, fugit, repudiandae odio facilis at labore mollitia, placeat soluta dolorum quibusdam necessitatibus aperiam possimus.</p>
+                            </p>
+                            <p>
+                                <a class="btn btn-default" href="#">Read Article</a>
+                            </p>
+                            <hr>
+                        </li>
+                        
+                    </ul>
+
+                </div>
             </div>
-        </div>
         </div>
     </div>
 
