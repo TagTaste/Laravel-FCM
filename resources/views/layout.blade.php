@@ -103,7 +103,9 @@
             @yield('header')
             @yield('content')
         </div><!-- /.container -->
-
+        <div class="text-center text-muted" style="border-top:thin solid #dedede;margin-top:1em;padding:1em;">
+            TagTaste © 2016
+        </div>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
