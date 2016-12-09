@@ -58,4 +58,8 @@ class ProfileAttribute extends Model
         return $query->where('profile_type_id','=',$profileTypeId);
     }
 
+    public function inputType($type){
+        return $this->input_type == $type;
+    }
+
 }
