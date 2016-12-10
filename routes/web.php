@@ -42,6 +42,14 @@ Route::group(['middlewareGroups' => ['web', 'auth', 'role:admin'], 'prefix' => '
 
 
 Route::group(['middleware'=>'auth'],function(){
+    Route::get('/images/{file}',function($file){
+
+        $f = storage_path('app/files/'.$file);
+        if(file_exists($f)){
+            return response()->file($f);
+        }
+    });
+
 	Route::resource("profile_types","ProfileTypeController");
 
 
@@ -73,4 +81,3 @@ Route::group(['middleware'=>'auth'],function(){
 	
 	Route::resource("recipe_articles","RecipeArticleController");
 });
-
