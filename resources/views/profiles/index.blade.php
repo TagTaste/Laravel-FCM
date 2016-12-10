@@ -17,7 +17,7 @@
 
             <div class="panel-body">
                 <div class="col-md-12">
-                    @if($profiles->count())
+
 
                     <div>
                      <ul class="nav nav-tabs" role="tablist">
@@ -42,39 +42,37 @@
                      <div class="tab-content">
                         @foreach($profileTypes as $profileType)
                         <div role="tabpanel" class="@if($first) active @php $first=false;@endphp @endif tab-pane" id="{{ $profileType->type }}">
+
                             <p class="text-right">
 
                             <a style="margin:1em;" class="btn btn-default" href="{{ route('profiles.edit',$profileType->id) }} "><i style="margin-right:0.5em;" class="glyphicon glyphicon-scale"></i>Promote {{$profileType->type}} Profile</a><a style="margin:1em;" class="btn btn-default" href="{{ route('profiles.edit',$profileType->id) }} "><i style="margin-right:0.5em;" class="glyphicon glyphicon-pencil"></i>Update {{$profileType->type}} Profile</a>
                             </p>
-                            @php
-                            $prof = $profiles->get($profileType->id);
-
-                            @endphp
-                            @if($prof && $prof->count())
-                            <ul class="list-unstyled" >
-                                @foreach($prof->groupBy('profile_attribute_id') as $p)
+                            @if($profiles->count())
                                 @php
-                                $label = $p->first()->attribute->label;
-
+                                $prof = $profiles->get($profileType->id);
 
                                 @endphp
-                                <li style="border-bottom:thin solid #dedede;padding-bottom:1em;margin-top:1em;">
-                                    <b style="margin-bottom:1em;display: block;">{{$label}}</b>
-                                    <ul class="list-unstyled">
-                                        
-                                        @foreach($p as $value)
-                                            <li style="display:inline;margin:1em">{{ $value->getValue()}}</li>
+                                @if($prof && $prof->count())
+                                    <ul class="list-unstyled" >
+                                        @foreach($prof->groupBy('profile_attribute_id') as $p)
+                                            @php
+                                             $label = $p->first()->attribute->label;
+                                            @endphp
+                                        <li style="border-bottom:thin solid #dedede;padding-bottom:1em;margin-top:1em;">
+                                            <b style="margin-bottom:1em;display: block;">{{$label}}</b>
+                                            <ul class="list-unstyled">
+
+                                                @foreach($p as $value)
+                                                    <li style="display:inline;margin:1em">{{ $value->getValue()}}</li>
+                                                @endforeach
+                                            </ul>
+                                        </li>
                                         @endforeach
                                     </ul>
-                                    
-                                    
-                                </li>
-
-
-                                @endforeach
-                            </ul>
-                            @endif 
-
+                                @endif
+                            @else
+                                <p>You haven't created this profile yet.</p>
+                            @endif
                         </div>
                         @endforeach
 
@@ -84,7 +82,7 @@
             </div>
         </div>
         
-        @endif
+
 
         
 
