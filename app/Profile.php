@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Response;
 
 class Profile extends Model
 {
@@ -28,6 +29,7 @@ class Profile extends Model
 
         return is_null($this->value) ? $this->attributeValue->name : $this->value;
     }
+
 
     public function scopeProfileType($query, $profileTypeId){
         return $query->where('type_id','=',$profileTypeId);
