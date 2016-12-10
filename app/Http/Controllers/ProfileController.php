@@ -120,6 +120,8 @@ class ProfileController extends Controller {
 			}
 			
 		}
+
+
 		
 		
 		$profile = Profile::insert($data);
@@ -235,7 +237,8 @@ class ProfileController extends Controller {
 
 		}
 
-		$data = [];
+		$dataMultiple = [];
+        $dataSingle = [];
 		$userId = $request->user()->id;
 		if(count($attributes) > 0){
 
@@ -251,19 +254,21 @@ class ProfileController extends Controller {
 				if(isset($value['value_id'])){
 					foreach($value['value_id'] as $valueId){
 						$single['value_id'] = $valueId;
-						$data[] = $single;
+                        $dataMultiple[] = $single;
 					}
 				} elseif(isset($value['value'])) {
+
 					$single['value'] = $value['value'];
-					$data[] = $single;
+                    $dataMultiple[] = $single;
 				} else {
 					$single['value'] = $value;
-					$data[] = $single;
+                    $dataSingle[] = $single;
 				}
 
 			}
 
-			\App\Profile::insert($data);
+			\App\Profile::insert($dataMultiple);
+			\App\Profile::insert($dataSingle);
 
 		}
 
