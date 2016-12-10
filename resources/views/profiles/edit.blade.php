@@ -15,7 +15,7 @@
     <div class="row">
         <div class="col-md-12">
 
-            <form action="{{ route('profiles.updateIndividual') }}" method="post">
+            <form action="{{ route('profiles.updateIndividual') }}" method="post" enctype="multipart/form-data">
                 {{ csrf_field() }}
                 <input type="hidden" name="typeId" value="{{ $typeId }}">
                 @foreach($profileAttributes as $attribute)

@@ -226,17 +226,31 @@ class ProfileController extends Controller {
 
 		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('input_type','like','file')->where('profile_type_id','=',$typeId)->get();
 
+		//check for existing files
+        $existingProfile = \App\Profile::whereIn('profile_attribute_id',$inputsWithFile->pluck('id')->toArray())->get()->keyBy('profile_attribute_id');
+
 		foreach($inputsWithFile as $input){
 			$key = 'attributes.' . $input->id;
 			if($request->hasFile($key)){
-				$file = $request->file($key)['value'];
-				$fileName = $key . "." . strtolower(str_random(32)) . "." . $file->extension();
+
+				$file = $request->file($key);
+				$fileName = "a{$input->id}" . strtolower(str_random(32)) . "." . $file->extension();
 				$file->storeAs('files',$fileName);
-				$attributes[$input->id]['value'] = $fileName;
+
+				//check if file for this attribute exists
+                if($existingProfile->get($input->id)){
+                    $prof = $existingProfile->get($input->id);
+                    $prof->value = $fileName;
+                    $prof->update();
+                    unset($attributes[$input->id]);
+                } else {
+                    $attributes[$input->id]['value'] = $fileName;
+                }
+
+
 			}
 
 		}
-
 		$dataMultiple = [];
         $dataSingle = [];
 		$userId = $request->user()->id;

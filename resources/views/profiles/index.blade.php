@@ -63,7 +63,14 @@
                                             <ul class="list-unstyled">
 
                                                 @foreach($p as $value)
-                                                    <li style="display:inline;margin:1em">{{ $value->getValue()}}</li>
+                                                    <li style="display:inline;margin:1em">
+
+                                                        @if($p->first()->attribute->inputType('file'))
+                                                            <img src="/images/{{ $value->getValue()}}" alt="" height="auto" width="250px">
+                                                        @else
+                                                            {{ $value->getValue()}}
+                                                        @endif
+                                                    </li>
                                                 @endforeach
                                             </ul>
                                         </li>
