@@ -175,53 +175,50 @@ class ProfileController extends Controller {
 	 */
 	public function update(Request $request)
 	{
-		$inputProfile = $request->input('profile');
-		
-		if(count($inputProfile)){
-			
+        $inputProfile = $request->input('profile');
 
-			$profile = \App\Profile::whereIn('id',array_keys($inputProfile))->get()->keyBy('id');
-			
-			if($profile){
-				foreach($profile as $p){
+        if(count($inputProfile)){
 
-				var_dump(isset($inputProfile[$p->id]));
-				if(isset($inputProfile[$p->id])){
-					$value = $inputProfile[$p->id];
-					$updatedValue = null;
-					if(!is_array($value)){
-						if($p->value != $value){
-							$p->value = $value;
-						}
-					} else {
-						if(isset($value['value_id'][0]) && is_array($value['value_id'])){
-							$p->value_id = $value['value_id'][0];
-						}
+            $profile = \App\Profile::whereIn('id',array_keys($inputProfile))->get()->keyBy('id');
 
-					}
+            if($profile){
+                foreach($profile as $p){
 
-					if(!is_null($p->isDirty())){
-						$p->update();
-					}
+                    //var_dump(isset($inputProfile[$p->id]));
+                    if(isset($inputProfile[$p->id])){
+                        $value = $inputProfile[$p->id];
+
+                        $updatedValue = null;
+                        if(!is_array($value)){
+                            if($p->value != $value){
+                                $p->value = $value;
+                            }
+                        } else {
+
+                            if(isset($value['value_id'][0]) && is_array($value['value_id'])){
+                                $p->value_id = $value['value_id'][0];
+                            }
+
+                        }
+
+                        if(!is_null($p->isDirty())){
+                            $p->update();
+                        }
 
 
-				}
-			}
-			}
+                    }
+                }
+            }
 
-			//don't delete chef_ids, etc
-			$profileIds = \App\ProfileAttribute::select('id')->where('name','like',"%_id")->get()->pluck('id')->toArray();
-			
-			
-			//delete other profiles
-			
-			\App\Profile::whereNotIn('id',array_keys($inputProfile))->whereNotIn('profile_attribute_id',$profileIds)->delete();
-		}
-		
+            //don't delete chef_ids, etc
+            $profileIds = \App\ProfileAttribute::select('id')->where('name','like',"%_id")->get()->pluck('id')->toArray();
 
-		$attributes = $request->input("attributes");
-		
-		
+
+            //delete other profiles
+            \App\Profile::whereNotIn('id',array_keys($inputProfile))->whereNotIn('profile_attribute_id',$profileIds)->delete();
+        }
+
+		$attributes = array_filter($request->input("attributes"));
 
 		$typeId = $request->input('typeId');
 
@@ -241,6 +238,7 @@ class ProfileController extends Controller {
 		$data = [];
 		$userId = $request->user()->id;
 		if(count($attributes) > 0){
+
 			foreach($attributes as $id => $value){
 
 				$single = [
@@ -264,9 +262,12 @@ class ProfileController extends Controller {
 				}
 
 			}
-			
-			$profile = Profile::insert($data);
+
+			\App\Profile::insert($data);
+
 		}
+
+
 
 		return redirect()->route('profiles.index')->with('message', 'Profile created successfully.');
 	}
