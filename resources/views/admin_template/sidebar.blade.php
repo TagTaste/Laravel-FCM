@@ -22,6 +22,20 @@
             <li class="{{ Request::is( '*/dashboard') ? "active" : ""}}">
                 <a href="/admin/dashboard"><i class="fa fa-th-large"></i><span class="nav-label">Dashboard</span></a>
             </li>
+            <li class="{{ Request::is( '*/permission/*') ? "active" : ""}}">
+                <a href=""><i class="fa fa-plus"></i><span class="nav-label">Permissions</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ Request::is( '*/permission/add*') ? "active" : ""}}"><a href="/admin/permission/add">Add Permission</a></li>
+                    <li class="{{ Request::is( '*/permission/view*') ? "active" : ""}}"><a href="/admin/permission/view">View / Edit Permissions</a></li>
+                </ul>
+            </li>
+            <li class="{{ Request::is( '*/role/*') ? "active" : ""}}">
+                <a href=""><i class="fa fa-plus"></i><span class="nav-label">Roles</span> <span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{{ Request::is( '*/role/add*') ? "active" : ""}}"><a href="/admin/role/add">Add Role</a></li>
+                    <li class="{{ Request::is( '*/role/view*') ? "active" : ""}}"><a href="/admin/role/view">View / Edit Roles</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
 </nav>
