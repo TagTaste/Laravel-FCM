@@ -87,17 +87,25 @@ class ProfileAttribute extends Model
     public function getFormInput($name=null,$profile=null,$inputValue = null,$attributes=[])
     {
         $component = "bs" . ucfirst($this->input_type);
+        if(!$name){
+            $name = "attributes[$this->id]";
+        }
 
-        if($this->inputType("checkbox")){
+        if($this->values->count() > 0){
             foreach($this->values as $attributeValue){
-                if($profile){
-                    $profileValue = $profile->get($attributeValue->id);}
+
                 $checked = false;
                 $name = "attributes[{$this->id}][value_id][]";
-                if(isset($profileValue)){
-                    $checked = true;
-                    $name = "profile[{$profileValue->id}][value_id][]";
+
+                if($profile){
+                    $profileValue = $profile->get($attributeValue->id);
+                    if(isset($profileValue)){
+                        $checked = true;
+                        $name = "profile[{$profileValue->id}][value_id][]";
+                    }
                 }
+
+
                 echo \Form::$component($attributeValue->name,$name,$attributeValue->id,compact('checked'));
             }
             return;
