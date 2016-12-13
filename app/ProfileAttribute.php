@@ -92,6 +92,7 @@ class ProfileAttribute extends Model
         }
 
         if($this->values->count() > 0){
+            echo \Form::bsLabel($this->label);
             foreach($this->values as $attributeValue){
 
                 $checked = false;

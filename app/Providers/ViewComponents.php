@@ -14,6 +14,7 @@ class ViewComponents extends ServiceProvider
      */
     public function boot()
     {
+        Form::component('bsLabel','components.form.label',['label']);
         Form::component('bsText','components.form.text',['label','name','value','attributes']);
         Form::component('bsFile','components.form.file',['label','name']);
         Form::component('bsTextarea','components.form.textarea',['label','name','value','attributes']);
