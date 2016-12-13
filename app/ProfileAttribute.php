@@ -18,6 +18,10 @@ class ProfileAttribute extends Model
     	'required'=>'boolean',
     ];
 
+    protected $attributes = [
+        'textarea' => ['rows'=>10,'cols'=>30]
+    ];
+
     public function profileType() {
         return $this->belongsTo('\App\ProfileType','profile_type_id');
     }
@@ -60,6 +64,37 @@ class ProfileAttribute extends Model
 
     public function inputType($type){
         return $this->input_type == $type;
+    }
+
+    public function getAttributesForInput()
+    {
+        if(isset($this->attributes[$this->input_type])){
+            return $this->attributes[$this->input_type];
+        }
+        return [];
+    }
+
+    public function getFormInput($name=null,$profile=null,$inputValue = null,$attributes=[])
+    {
+        $component = "bs" . ucfirst($this->input_type);
+
+        if($this->inputType("checkbox")){
+            foreach($this->values as $attributeValue){
+                if($profile){
+                    $profileValue = $profile->get($attributeValue->id);}
+                $checked = false;
+                $name = "attributes[{$this->id}][value_id][]";
+                if(isset($profileValue)){
+                    $checked = true;
+                    $name = "profile[{$profileValue->id}][value_id][]";
+                }
+                echo \Form::$component($attributeValue->name,$name,$attributeValue->id,compact('checked'));
+            }
+            return;
+        }
+
+
+        return \Form::$component($this->label,$name,$inputValue,array_merge($attributes,$this->getAttributesForInput()));
     }
 
 }
