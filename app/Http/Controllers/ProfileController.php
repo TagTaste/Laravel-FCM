@@ -222,7 +222,11 @@ class ProfileController extends Controller {
             \App\Profile::whereNotIn('id',array_keys($inputProfile))->whereNotIn('profile_attribute_id',$profileIds)->delete();
         }
 
-		$attributes = array_filter($request->input("attributes"));
+
+		$attributes = $request->input("attributes");
+        if(count($attributes) > 0){
+            $attributes = array_filter($attributes);
+        }
 
 		$typeId = $request->input('typeId');
 
