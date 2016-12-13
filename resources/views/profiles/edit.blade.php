@@ -26,14 +26,13 @@
                         $inputValue = null;
                         if($profileValue){
                           if($attribute->inputType("text") || $attribute->inputType("textarea")){
+
                             $profileValue = $profileValue->first();
 
-                                if($profileValue){
-                                  $name = "profile[{$profileValue->id}]";
-                                  $inputValue = $profileValue->value;
-                                }
-
-
+                            if($profileValue){
+                              $name = "profile[{$profileValue->id}]";
+                              $inputValue = $profileValue->value;
+                            }
                           } else {
                             $profileValue = $profileValue->keyBy('value_id');
                           }
