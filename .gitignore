@@ -9,3 +9,5 @@ app/storage/
 .env.*.php
 .env.php
 .env
+/.idea
+.DS_Store
