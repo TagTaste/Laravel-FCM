@@ -74,6 +74,16 @@ class ProfileAttribute extends Model
         return [];
     }
 
+    public function profile()
+    {
+        return $this->hasMany('\App\Profiles','profile_attribute_id');
+    }
+
+    public function getProfileValue($userId)
+    {
+
+    }
+
     public function getFormInput($name=null,$profile=null,$inputValue = null,$attributes=[])
     {
         $component = "bs" . ucfirst($this->input_type);

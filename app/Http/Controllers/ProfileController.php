@@ -158,10 +158,12 @@ class ProfileController extends Controller {
 	public function edit(Request $request, $typeId)
 	{	
 		
-		$userId = $request->user()->id;
+		$user = $request->user();
 
-		$profileAttributes = \App\ProfileAttribute::type($typeId)->with('values')->get();
-		$profile = \App\Profile::profileType($typeId)->forUser($userId)->get();
+        $profileAttributes = \App\ProfileAttribute::type($typeId)->with('values')->get();
+
+        $profile = $user->profile()->profileType($typeId)->get();
+
 		$profile = $profile->groupBy('profile_attribute_id');
 		$encType = null;
 
