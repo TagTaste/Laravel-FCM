@@ -31,7 +31,7 @@ class ProfileAttributeController extends Controller {
 	{
 		$profileTypes = ProfileType::getTypes();
 		
-		$inputTypes = $this->getInputTypes();
+		$inputTypes = ProfileAttribute::getInputTypes();
 
 		return view('profile_attributes.create',compact('profileTypes','inputTypes'));
 	}
@@ -79,7 +79,7 @@ class ProfileAttributeController extends Controller {
 
 		$profileTypes = ProfileType::getTypes();
 
-		$inputTypes = $this->getInputTypes();
+		$inputTypes = ProfileAttribute::getInputTypes();
 
 		return view('profile_attributes.edit', compact('profile_attribute', 'profileTypes', 'inputTypes'));
 	}
@@ -164,18 +164,6 @@ class ProfileAttributeController extends Controller {
 	public function getRequiredInputs($request){
 		$input = $request->only('name','label','description','input_type','allowed_mime_types','enabled','required','parent_id','template_id','profile_type_id');
 		return array_filter($input);
-	}
-
-	public function getInputTypes(){
-		return [
-				'Short Text'=>'text', 
-				'Long Text' => 'textarea',
-				'File Upload' => 'file',
-				'Dropdown' => 'dropdown',
-				'Dropdown with multiple select' => 'dropdown_multiple',
-				'Multiple Options, Multiple Select'=>'checkbox',
-				'Multiple Options, Single Select' => 'radio'];
-
 	}
 
 }

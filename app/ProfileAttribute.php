@@ -116,4 +116,16 @@ class ProfileAttribute extends Model
         return \Form::$component($this->label,$name,$inputValue,array_merge($attributes,$this->getAttributesForInput()));
     }
 
+    public static function getInputTypes() {
+        return [
+            'Short Text'=>'text',
+            'Long Text' => 'textarea',
+            'File Upload' => 'file',
+            'Dropdown' => 'dropdown',
+            'Dropdown with multiple select' => 'dropdown_multiple',
+            'Multiple Options, Multiple Select'=>'checkbox',
+            'Multiple Options, Single Select' => 'radio'];
+
+    }
+
 }
