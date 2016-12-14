@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Seeder;
 use App\ProfileAttribute;
-use App\Role;
 use App\User;
+use App\ProfileType;
 
 class ProfileAttributeIdSeeder extends Seeder
 {
@@ -15,16 +15,20 @@ class ProfileAttributeIdSeeder extends Seeder
     public function run()
     {
 
-        $admin = User::whereHas("roles",function($query){
-            $query->where('name','like','admin');
-        })->first();
+        $userId = null;
+        $admin = User::getAdmin();
 
         if($admin){
-            ProfileAttribute::insert(
-                [
-                    ['name'=>'chef_id','label'=>'chef_id','enabled'=>0,'required'=>0,'user_id'=> $admin->id,'']
-                ]);
+            $userId = $admin->id;
         }
 
+        $types = ProfileType::select('id','type')->get();
+        $profileAttributes = [];
+        foreach($types as $type){
+            $name = strtolower($type->type) . '_id';
+            $profileAttributes[] =  ['name'=>$name,'label'=>$name,'enabled'=>0,'required'=>0,'user_id'=> $userId,'profile_type_id'=>$type->id];
+        }
+
+        ProfileAttribute::insert($profileAttributes);
     }
 }
