@@ -87,12 +87,17 @@ class ProfileAttribute extends Model
     public function getFormInput($name=null,$profile=null,$inputValue = null,$attributes=[])
     {
         $component = "bs" . ucfirst($this->input_type);
+        $valuesCount = $this->values->count();
+
+
         if(!$name){
             $name = "attributes[$this->id]";
         }
 
-        if($this->values->count() > 0){
+        if($valuesCount){
+
             echo \Form::bsLabel($this->label);
+
             foreach($this->values as $attributeValue){
 
                 $checked = false;
@@ -105,7 +110,6 @@ class ProfileAttribute extends Model
                         $name = "profile[{$profileValue->id}][value_id][]";
                     }
                 }
-
 
                 echo \Form::$component($attributeValue->name,$name,$attributeValue->id,compact('checked'));
             }
