@@ -44,4 +44,11 @@ class User extends Authenticatable
             }
         }
     }
+
+    public static function getAdmin()
+    {
+        return static::select('id','name')->whereHas("roles",function($query){
+            $query->where('name','like','admin');
+        })->first();
+    }
 }
