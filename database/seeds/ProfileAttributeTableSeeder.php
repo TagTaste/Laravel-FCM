@@ -28,7 +28,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         }
 
         if($chef){
-            $attributes = ['work experience'=>'textarea','cuisine'=>'checkbox','awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text'];
+            $attributes = ['work experience'=>'textarea','cuisine'=>'checkbox','chef awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text'];
 
             foreach($attributes as $name => $inputType){
                 $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>1,'user_id'=> $admin->id,'profile_type_id'=>$chef->id,'input_type'=>$inputType];
