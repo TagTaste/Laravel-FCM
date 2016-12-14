@@ -26,9 +26,16 @@ class AddSocialPlugin extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
-            $table->dropColumn('facebook_id');
-            $table->dropColumn('google_id');
-        });
+        if(Schema::hasColumn('users','facebook_id')){
+            Schema::table('users', function ($table) {
+                $table->dropColumn('facebook_id');
+            });
+        }
+
+        if(Schema::hasColumn('users','google_id')){
+            Schema::table('users', function ($table) {
+                $table->dropColumn('google_id');
+            });
+        }
     }
 }
