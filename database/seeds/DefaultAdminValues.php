@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\User;
+use App\Role;
 
 class DefaultAdminValues extends Seeder
 {
@@ -12,10 +13,18 @@ class DefaultAdminValues extends Seeder
      */
     public function run()
     {
-    	User::create([
+    	$user = User::create([
             'name' => 'Admin',
             'email' => 'admin@tagtaste.com',
             'password' => bcrypt('shadowqwerty'),
         ]);
+
+    	$admin = Role::where('name','like','admin')->first();
+
+    	if($admin){
+    	    $user->attachRole($admin);
+        } else {
+    	    echo "Could not find Admin Role\n";
+        }
     }
 }

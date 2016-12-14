@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Role;
 
 class BasicRoles extends Seeder
 {
@@ -11,22 +12,18 @@ class BasicRoles extends Seeder
      */
     public function run()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::table('roles')->truncate();
-        DB::table('roles')->insert([
+        Role::insert([[
             'name' => 'admin',
             'display_name' => 'Admin',
             'description' => 'Admin User',
-        ]);
-        DB::table('roles')->insert([
+        ],[
             'name' => 'deo',
             'display_name' => 'Data Entry Operator',
             'description' => 'DEO User',
-        ]);
-        DB::table('roles')->insert([
+        ],[
             'name' => 'foodie',
             'display_name' => 'Foodie',
             'description' => 'Foodie User',
-        ]);
+        ]]);
     }
 }
