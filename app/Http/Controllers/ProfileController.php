@@ -160,7 +160,7 @@ class ProfileController extends Controller {
 		
 		$user = $request->user();
 
-        $profileAttributes = \App\ProfileAttribute::type($typeId)->with('values')->get();
+        $profileAttributes = \App\ProfileAttribute::where('enabled','=',1)->type($typeId)->with('values')->get();
 
         $profile = $user->profile()->profileType($typeId)->get();
 
