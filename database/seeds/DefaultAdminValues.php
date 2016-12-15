@@ -21,10 +21,11 @@ class DefaultAdminValues extends Seeder
 
     	$admin = Role::where('name','like','admin')->first();
 
-    	if($admin){
-    	    $user->attachRole($admin);
-        } else {
-    	    echo "Could not find Admin Role\n";
+    	if(!$admin){
+    	    throw new \Exception("Could not find Admin role.");
         }
+
+        $user->attachRole($admin);
+
     }
 }
