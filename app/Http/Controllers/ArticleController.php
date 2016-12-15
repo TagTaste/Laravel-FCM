@@ -33,7 +33,7 @@ class ArticleController extends Controller {
 	 */
 	public function create(Request $request, $type)
 	{
-		$privacy = Privacy::getALl();
+		$privacy = Privacy::getAll();
 		$templates = Template::for(ucwords($type . " article"));
 		$dishes = false;
 		$requiresTitle = true;
