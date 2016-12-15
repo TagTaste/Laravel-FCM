@@ -134,7 +134,11 @@ class ProfileAttribute extends Model
 
     public static function getTypeId($typeId)
     {
-        return static::select('id')->where('profile_type_id','=',$typeId)->first();
+        $attribute = static::select('id')->where('profile_type_id','=',$typeId)->first();
+        if(!$attribute){
+            throw new \Exception("Could not get Attribute for Type: " . $typeId);
+        }
+        return $attribute;
     }
 
     public static function getChefAttributeId()

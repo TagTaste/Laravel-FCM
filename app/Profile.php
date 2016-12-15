@@ -53,12 +53,26 @@ class Profile extends Model
     public static function createProfileId($userId,$typeId)
     {
         $attribute = ProfileAttribute::getTypeid($typeId);
-        if(!$attribute){
-            throw new \Exception("Could not get Attribute for Type: " . $typeId);
-        }
-
         Profile::create(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$typeId]);
         return;
+    }
+
+    public static function createDefaultProfile($userId)
+    {
+        $defaultProfileType = static::getDefaultProfile();
+        $attribute = ProfileAttribute::getTypeid($defaultProfileType->id);
+        Profile::create(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$defaultProfileType->id]);
+        return;
+    }
+
+    public static function getDefaultProfile()
+    {
+        $default = ProfileType::where('default','=',1)->first();
+        if(!$default){
+            throw new \Exception("Could not find default profile type.");
+        }
+
+        return $default;
     }
 
 }

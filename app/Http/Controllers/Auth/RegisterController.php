@@ -68,10 +68,18 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
-        if ($user) {
-            $role = Role::where('name', '=', 'foodie')->first();
-            $user->attachRole($role);
-            return $user;
-        } 
+
+        if(!$user){
+            throw new \Exception("Could not create user.");
+        }
+
+        $user->attachDefaultRole();
+
+        //create default profile
+        $user->createDefaultProfile();
+
+
+        return $user;
+
     }
 }

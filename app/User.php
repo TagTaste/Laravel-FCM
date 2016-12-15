@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
+use App\Profile;
 
 class User extends Authenticatable
 {
@@ -50,5 +51,24 @@ class User extends Authenticatable
         return static::select('id','name')->whereHas("roles",function($query){
             $query->where('name','like','admin');
         })->first();
+    }
+
+    public function attachDefaultRole()
+    {
+        $role = Role::where('name', '=', 'foodie')->first();
+
+        if(!$role){
+            throw new \Exception("Could not find default role");
+        }
+
+
+        $this->attachRole($role);
+        return;
+    }
+
+    public function createDefaultProfile()
+    {
+        Profile::createDefaultProfile($this->id);
+        return;
     }
 }
