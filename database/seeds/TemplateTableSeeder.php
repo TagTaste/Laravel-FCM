@@ -4,12 +4,20 @@ use Illuminate\Database\Seeder;
 
 // composer require laracasts/testdummy
 use Laracasts\TestDummy\Factory as TestDummy;
+use App\Template;
+use App\TemplateType;
 
 class TemplateTableSeeder extends Seeder {
 
     public function run()
     {
-        // TestDummy::times(20)->create('App\Post');
+        $dishTemplateType = TemplateType::where('name','like','%dish%')->first();
+
+        if(!$dishTemplateType){
+            throw new \Exception("Could not find dish template type.");
+        }
+
+        Template::create(['name'=>'Dish Article','view'=>'templates.article_dish','template_type_id'=>$dishTemplateType->id]);
     }
 
 }
