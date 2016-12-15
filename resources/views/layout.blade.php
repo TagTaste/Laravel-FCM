@@ -46,10 +46,11 @@
                     <li><a href="#">Network</a></li>
                     <li><a href="#">Jobs</a></li>
                     <li><a href="#">Projects</a></li>
+                    <li><a href="{{ route('articles.index')}}">My Articles</a></li>
+
                     @role(('admin'))
                     <li><a href="{{ route('profile_types.index')}}">Profile Types</a></li>
                     <li><a href="{{ route('profile_attributes.index')}}">Profile Attributes</a></li>
-                    <li><a href="{{ route('articles.index')}}">Articles</a></li>
                     <li><a href="{{ route('templates.index')}}">Templates</a></li>
                     <li><a href="{{ route('privacies.index')}}">Privacy</a></li>
                     @endrole
