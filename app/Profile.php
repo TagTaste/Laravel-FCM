@@ -75,4 +75,9 @@ class Profile extends Model
         return $default;
     }
 
+    public function articles()
+    {
+        return $this->hasMany('\App\Article','author_id','id');
+    }
+
 }

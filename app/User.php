@@ -71,4 +71,18 @@ class User extends Authenticatable
         Profile::createDefaultProfile($this->id);
         return;
     }
+
+    public function getArticles()
+    {
+        $profileAttributeIds = \App\ProfileAttribute::where('name','like','%_id')->get()->pluck('id');
+        $userId = $this->id;
+        return \App\Article::with('template','dish')->whereHas('author',function($query) use ($profileAttributeIds, $userId) {
+            $query->whereIn('profile_attribute_id',$profileAttributeIds)->where('user_id',$userId);
+        })->get();
+
+//        return $this->profile()->whereHas('attribute', function ($query) {
+//            $query->where('name', 'like', '%_id');
+//        })->join('articles', 'articles.author_id', '=', 'profiles.id')
+//            ->get()->groupBy('template_id');
+    }
 }
