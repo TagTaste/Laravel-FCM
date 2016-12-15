@@ -36,8 +36,11 @@ Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallba
 /**
  * admin routes
  */
-Route::group(['middlewareGroups' => ['web', 'auth', 'role:admin'], 'prefix' => 'admin'], function () {
-	Route::get('dashboard', 'DashboardController@index');
+//
+Route::group(['middlewareGroups' => ['web', 'auth', 'role:admin'], 'prefix' => 'admin',
+    'as'=>'admin.'], //do notice the dot!
+    function () {
+	Route::get('dashboard', ['uses'=>'DashboardController@index','as'=>'dashboard']);
 
 	Route::get('role/add', 'RoleController@create');
 	Route::post('role/store', 'RoleController@store');

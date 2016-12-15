@@ -22,6 +22,7 @@
             <li class="{{ Request::is( '*/dashboard') ? "active" : ""}}">
                 <a href="/admin/dashboard"><i class="fa fa-th-large"></i><span class="nav-label">Dashboard</span></a>
             </li>
+            <li><a href="{{ route("profiles.index") }}"><span class="nav-label">Visit Site</span></a></li>
             <li class="{{ Request::is( '*/permission/*') ? "active" : ""}}">
                 <a href=""><i class="fa fa-plus"></i><span class="nav-label">Permissions</span> <span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
@@ -36,6 +37,12 @@
                     <li class="{{ Request::is( '*/role/view*') ? "active" : ""}}"><a href="/admin/role/view">View / Edit Roles</a></li>
                 </ul>
             </li>
+            @role(('admin'))
+            <li><a href="{{ route('profile_types.index')}}"><span class="nav-label">Profile Types</span></a></li>
+            <li><a href="{{ route('profile_attributes.index')}}"><span class="nav-label">Profile Attributes</span></a></li>
+            <li><a href="{{ route('templates.index')}}"><span class="nav-label">Templates</span></a></li>
+            <li><a href="{{ route('privacies.index')}}"><span class="nav-label">Privacy</span></a></li>
+            @endrole
         </ul>
     </div>
 </nav>
