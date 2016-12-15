@@ -37,6 +37,17 @@ class ProfileAttributeIdSeeder extends Seeder
             $profileAttributes[] =  ['name'=>$name,'label'=>ucwords(str_replace("_", " ",$name)),'enabled'=>1,'required'=>0,'user_id'=> $userId,'profile_type_id'=>$type->id,'input_type'=>'file'];
         }
 
+        //social
+
+        $social = ['Facebook'=>'text','LinkedIn'=>'text','Instagram'=>'text','Pinterst'=>'text','Youtube'=>'text'];
+
+        foreach($social as $platform => $inputType){
+            foreach($types as $type){
+                $name = $type->type . " " . $platform;
+                $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>0,'user_id'=> $admin->id,'profile_type_id'=>$type->id,'input_type'=>$inputType];
+            }
+        }
+
         ProfileAttribute::insert($profileAttributes);
     }
 }
