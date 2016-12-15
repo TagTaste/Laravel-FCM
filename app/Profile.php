@@ -53,7 +53,7 @@ class Profile extends Model
     public static function createProfileId($userId,$typeId)
     {
         $attribute = ProfileAttribute::getTypeid($typeId);
-        Profile::create(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$typeId]);
+        Profile::firstOrCreate(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$typeId]);
         return;
     }
 
@@ -61,7 +61,7 @@ class Profile extends Model
     {
         $defaultProfileType = static::getDefaultProfile();
         $attribute = ProfileAttribute::getTypeid($defaultProfileType->id);
-        Profile::create(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$defaultProfileType->id]);
+        Profile::firstOrCreate(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$defaultProfileType->id]);
         return;
     }
 
