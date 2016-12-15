@@ -34,16 +34,49 @@ class User extends Authenticatable
         return $this->hasMany('\App\Profile');
     }
 
-    public function getChefProfileId() {
-        $attribute = \App\ProfileAttribute::select('id')->where('name','like','chef_id')->first();
-
-        if($attribute){
-            $profile = \App\Profile::select('id')->where('profile_attribute_id','=',$attribute->id)->first();
-
-            if($profile){
-                return $profile->id;
-            }
+    public function getProfileAttributeId($name)
+    {
+        $attribute = \App\ProfileAttribute::select('id')->where('name','like', $name . '_id')->first();
+        if(!$attribute){
+            throw new \Exception("Could not find $name attribute");
         }
+        return $attribute;
+    }
+
+    public function getProfileId($name)
+    {
+        $attribute = $this->getProfileAttributeId($name);
+
+        $profile = \App\Profile::select('id')->where('profile_attribute_id','=',$attribute->id)->where('user_id','=',$this->id)->first();
+        if(!$profile){
+            throw new \Exception("User has not created $name profile yet.");
+        }
+
+        return $profile->id;
+    }
+
+    public function getFoodieProfileId()
+    {
+        try {
+            $profileId = $this->getProfileId('foodie');
+        } catch (\Exception $e){
+            throw $e;
+        }
+
+        return $profileId;
+    }
+
+    public function getChefProfileId() {
+
+        try {
+            $profileId = $this->getProfileId("chef");
+        } catch (\Exception $e){
+            //cascade, get foodie profile in the end.
+            $profileId = $this->getFoodieProfileId();
+        }
+
+        return $profileId;
+
     }
 
     public static function getAdmin()
@@ -75,14 +108,13 @@ class User extends Authenticatable
     public function getArticles()
     {
         $profileAttributeIds = \App\ProfileAttribute::where('name','like','%_id')->get()->pluck('id');
-        $userId = $this->id;
-        return \App\Article::with('template','dish')->whereHas('author',function($query) use ($profileAttributeIds, $userId) {
-            $query->whereIn('profile_attribute_id',$profileAttributeIds)->where('user_id',$userId);
-        })->get();
 
-//        return $this->profile()->whereHas('attribute', function ($query) {
-//            $query->where('name', 'like', '%_id');
-//        })->join('articles', 'articles.author_id', '=', 'profiles.id')
-//            ->get()->groupBy('template_id');
+        $userId = $this->id;
+
+        return \App\Article::with('template','dish')
+            ->join('profiles','profiles.id','=','articles.author_id')
+            ->where('profiles.user_id','=',$userId)
+            ->whereIn('profiles.profile_attribute_id',$profileAttributeIds)
+            ->get();
     }
 }
