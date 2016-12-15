@@ -18,11 +18,14 @@ class ProfileAttributeTableSeeder extends Seeder {
 
         //attributes for foodie
         if($foodie){
-            $attributes = ['name'=>'text','location'=>'text','About Yourself'=>'textarea','phone'=>'text','email'=>'text',
-                'Facebook'=>'text','LinkedIn'=>'text','Instagram'=>'text','Pinterst'=>'text','Youtube'=>'text','Fun Facts'=>'textarea',"Ingredients that you cannot live without"=>'textarea'];
+            $attributes = ['name'=>'text','location'=>'text','About Yourself'=>'textarea','phone'=>'text','email'=>'text','Fun Facts'=>'textarea',"Ingredients that you cannot live without"=>'textarea'];
 
             foreach($attributes as $name => $inputType){
-                $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>1,'user_id'=> $admin->id,'profile_type_id'=>$foodie->id,'input_type'=>$inputType];
+                $profileAttributes[] = [
+                    'name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),
+                    'enabled'=>1,'required'=>1,'user_id'=> $admin->id,
+                    'profile_type_id'=>$foodie->id,
+                    'input_type'=>$inputType];
             }
 
         }
@@ -31,7 +34,7 @@ class ProfileAttributeTableSeeder extends Seeder {
             $attributes = ['work experience'=>'textarea','cuisine'=>'checkbox','chef awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text'];
 
             foreach($attributes as $name => $inputType){
-                $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>1,'user_id'=> $admin->id,'profile_type_id'=>$chef->id,'input_type'=>$inputType];
+                $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>0,'user_id'=> $admin->id,'profile_type_id'=>$chef->id,'input_type'=>$inputType];
             }
         }
 
