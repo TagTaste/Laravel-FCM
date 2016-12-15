@@ -132,4 +132,39 @@ class ProfileAttribute extends Model
 
     }
 
+    public static function getTypeId($typeId)
+    {
+        return static::select('id')->where('profile_type_id','=',$typeId)->first();
+    }
+
+    public static function getChefAttributeId()
+    {
+        return static::getAttributeId('chef_id');
+    }
+
+    public static function getFoodieAttributeId()
+    {
+        return static::getAttributeId('foodie_id');
+    }
+
+    public static function getOutletAttributeId()
+    {
+        return static::getAttributeId('outlet_id');
+    }
+
+    public static function getIngredientsAttributeId()
+    {
+        return static::getAttributeId('ingredients_id');
+    }
+
+    public static function getExpertAttributeId()
+    {
+        return static::getAttributeId('expert_id');
+    }
+
+    public static function getAttributeId($name)
+    {
+        return static::select('id')->where('name','like',$name)->first();
+    }
+
 }

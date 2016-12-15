@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Response;
+use App\ProfileAttribute;
 
 class Profile extends Model
 {
@@ -26,8 +27,13 @@ class Profile extends Model
     }
 
     public function getValue() {
+        if(is_null($this->value)){
+            if($this->attributeValue){
+                return $this->attributeValue->name;
+            }
+        }
 
-        return is_null($this->value) ? $this->attributeValue->name : $this->value;
+        return $this->value;
     }
 
 
@@ -43,4 +49,16 @@ class Profile extends Model
     //     if($self) return $self->getValue();
     //     return;
     // }
+
+    public static function createProfileId($userId,$typeId)
+    {
+        $attribute = ProfileAttribute::getTypeid($typeId);
+        if(!$attribute){
+            throw new \Exception("Could not get Attribute for Type: " . $typeId);
+        }
+
+        Profile::create(['user_id'=>$userId,'profile_attribute_id'=>$attribute->id,'type_id'=>$typeId]);
+        return;
+    }
+
 }

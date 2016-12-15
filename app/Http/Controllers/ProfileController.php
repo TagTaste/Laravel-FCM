@@ -19,7 +19,9 @@ class ProfileController extends Controller {
 	{
 		$profileTypes = ProfileType::orderBy('type','asc')->get()->keyBy('id');
 
-		$profiles = Profile::where('user_id','=',$request->user()->id)->with('type','attribute')->orderBy('id', 'asc')->get()->groupBy('type_id');
+		$profiles = Profile::whereHas('attribute',function($query){
+		    $query->where('enabled',1);
+        })->where('user_id','=',$request->user()->id)->with('type','attribute')->orderBy('id', 'asc')->get()->groupBy('type_id');
 
 		return view('profiles.index', compact('profiles','profileTypes'));
 	}
@@ -180,8 +182,8 @@ class ProfileController extends Controller {
 	public function update(Request $request)
 	{
         $inputProfile = $request->input('profile');
-
-        if(count($inputProfile)){
+        $typeId = $request->input('typeId');
+         if(count($inputProfile)){
 
             $profile = \App\Profile::whereIn('id',array_keys($inputProfile))->get()->keyBy('id');
 
@@ -220,15 +222,19 @@ class ProfileController extends Controller {
 
             //delete other profiles
             \App\Profile::whereNotIn('id',array_keys($inputProfile))->whereNotIn('profile_attribute_id',$profileIds)->delete();
-        }
+        } else {
+             //profile for this type hasn't been created yet.
+             //create profileId first
 
+             Profile::createProfileId($request->user()->id,$typeId);
+         }
 
 		$attributes = $request->input("attributes");
         if(count($attributes) > 0){
             $attributes = array_filter($attributes);
         }
 
-		$typeId = $request->input('typeId');
+
 
 		$inputsWithFile = \App\ProfileAttribute::select('id')->where('enabled',1)->where('input_type','like','file')->where('profile_type_id','=',$typeId)->get();
 
