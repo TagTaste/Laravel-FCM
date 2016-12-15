@@ -24,9 +24,17 @@ class ProfileAttributeIdSeeder extends Seeder
 
         $types = ProfileType::select('id','type')->get();
         $profileAttributes = [];
+
+        // chef_id, foodie_id, etc
         foreach($types as $type){
-            $name = strtolower($type->type) . '_id';
-            $profileAttributes[] =  ['name'=>$name,'label'=>$name,'enabled'=>0,'required'=>0,'user_id'=> $userId,'profile_type_id'=>$type->id];
+            $name = strtolower($type->type) . "_id";
+            $profileAttributes[] =  ['name'=>$name,'label'=>$name,'enabled'=>0,'required'=>0,'user_id'=> $userId,'profile_type_id'=>$type->id,'input_type'=>null];
+        }
+
+        //image, enabled, file input type
+        foreach($types as $type){
+            $name = strtolower($type->type) . "_image";
+            $profileAttributes[] =  ['name'=>$name,'label'=>ucwords(str_replace("_", " ",$name)),'enabled'=>1,'required'=>0,'user_id'=> $userId,'profile_type_id'=>$type->id,'input_type'=>'file'];
         }
 
         ProfileAttribute::insert($profileAttributes);
