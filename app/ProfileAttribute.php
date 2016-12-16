@@ -168,7 +168,12 @@ class ProfileAttribute extends Model
 
     public static function getAttributeId($name)
     {
-        return static::select('id')->where('name','like',$name)->first();
+        $attribute = static::select('id')->where('name','like',$name)->first();
+
+        if(!$attribute){
+            throw new \Exception("Attribute $attribute not found.");
+        }
+        return $attribute->id;
     }
 
 }
