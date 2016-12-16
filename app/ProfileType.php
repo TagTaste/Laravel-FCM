@@ -21,4 +21,14 @@ class ProfileType extends Model
     public static function getTypes() {
     	return static::select('id','type')->where('enabled',1)->orderBy('type','asc')->get()->pluck('type','id');
     }
+
+    public static function getTypeId($type)
+    {
+        $type = static::select('id')->where('enabled',1)->where('type','like',$type)->first();
+        if(!$type){
+            throw new \Exception("Type $type not found.");
+        }
+
+        return $type->id;
+    }
 }
