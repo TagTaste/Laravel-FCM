@@ -129,7 +129,7 @@ class LoginController extends Controller
         try {
             $user = User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
-            $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId());
+            $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
         }
 
         return $user;
