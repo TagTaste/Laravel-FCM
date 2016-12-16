@@ -117,4 +117,9 @@ class User extends Authenticatable
             ->whereIn('profiles.profile_attribute_id',$profileAttributeIds)
             ->get();
     }
+
+    public function social()
+    {
+        return $this->hasMany('\App\SocialAccount');
+    }
 }
