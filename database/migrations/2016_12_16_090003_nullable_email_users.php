@@ -26,7 +26,7 @@ class NullableEmailUsers extends Migration
     public function down()
     {
         Schema::table('users',function($table){
-            $table->string('email')->unique()->change();
+            $table->string('email')->change();
         });
     }
 }
