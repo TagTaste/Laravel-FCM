@@ -35,6 +35,24 @@ class User extends Authenticatable
         return $this->hasMany('\App\Profile');
     }
 
+    public function addFoodieImage($fileUrl)
+    {
+        $file = file_get_contents($fileUrl);
+        $filename = str_random(20) . ".jpg";
+        file_put_contents(storage_path('app/files/') . $filename,$file);
+        return $this->addProfileValue('foodie','image',$filename);
+
+    }
+
+    public function addProfileValue($profileType,$attributeName, $value)
+    {
+        $typeId = ProfileType::getTypeId($profileType);
+
+        $attribute = ProfileAttribute::where('name','like','%' . $attributeName . '%')->where('profile_type_id','=',$typeId)->first();
+
+        return $this->profile()->create(['profile_attribute_id'=>$attribute->id,'type_id'=>$typeId,'value'=>$value]);
+    }
+
     public function getProfileAttributeId($name)
     {
         $attribute = \App\ProfileAttribute::select('id')->where('name','like', $name . '_id')->first();
@@ -137,7 +155,7 @@ class User extends Authenticatable
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password, $socialRegistration = false, $provider, $providerUserId)
+    public static function addFoodie($name, $email = null, $password, $socialRegistration = false, $provider, $providerUserId, $avatar = null)
     {
 
         $user = static::create([
@@ -157,12 +175,20 @@ class User extends Authenticatable
         //create default profile
         $user->createDefaultProfile();
 
-        //social registration
+        //check social registration
         if($socialRegistration){
+
+            //create social account
             $user->social()->create([
                 'provider' => $provider,
                 'provider_user_id' => $providerUserId
             ]);
+
+            //get profile image from $provider
+            if($avatar){
+                $user->addFoodieImage($avatar);
+            }
+
         }
 
         return $user;
