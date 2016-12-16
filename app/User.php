@@ -136,4 +136,35 @@ class User extends Authenticatable
 
         return $user;
     }
+
+    public static function addFoodie($name, $email = null, $password, $socialRegistration = false, $provider, $providerUserId)
+    {
+
+        $user = static::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => bcrypt($password),
+            'social_registration'=>$socialRegistration
+        ]);
+
+        if(!$user){
+            throw new \Exception("Could not create user.");
+        }
+
+        //attach default role
+        $user->attachDefaultRole();
+
+        //create default profile
+        $user->createDefaultProfile();
+
+        //social registration
+        if($socialRegistration){
+            $user->social()->create([
+                'provider' => $provider,
+                'provider_user_id' => $providerUserId
+            ]);
+        }
+
+        return $user;
+    }
 }

@@ -109,6 +109,7 @@ class LoginController extends Controller
         } catch (Exception $e) {
             return Redirect::to('/login');
         }
+
         $authUser = $this->findOrCreateUser($user, $provider);
 
         Auth::login($authUser, true);
@@ -128,20 +129,7 @@ class LoginController extends Controller
         try {
             $user = User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
-
-
-            $user = User::firstOrCreate([
-                'name'=> $socialiteUser->getName(),
-                'email'=>$socialiteUser->getEmail(),
-                'password' => bcrypt(str_random(20))
-            ]);
-
-            $user->social()->create([
-                'provider' => $provider,
-                'provider_user_id' => $socialiteUser->getId()
-            ]);
-
-
+            $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId());
         }
 
         return $user;

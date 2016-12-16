@@ -63,23 +63,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
-
-        if(!$user){
-            throw new \Exception("Could not create user.");
-        }
-
-        $user->attachDefaultRole();
-
-        //create default profile
-        $user->createDefaultProfile();
-
-
-        return $user;
+        return User::addFoodie($data['name'],$data['email'],$data['password'],false);
 
     }
 }
