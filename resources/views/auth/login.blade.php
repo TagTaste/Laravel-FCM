@@ -7,7 +7,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Login</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/verifyLogin') }}">
+                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/verifyLogin') }}" enctype="multipart/form-data">
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -63,6 +63,7 @@
                             <div class="col-md-8 col-md-offset-4">
                                 <a class="btn btn-primary" href="{{ route('social.login', ['facebook']) }}">Facebook</a>
                                 <a class="btn btn-primary" href="{{ route('social.login', ['google']) }}">Google</a>
+                                <a class="btn btn-primary" href="{{ route('social.login', ['instagram']) }}">Instagram</a>
                             </div>
                         </div>
                     </form>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\Auth\SocialAccountUserNotFound;
+use App\SocialAccount;
 use App\User;
 use App\Role;
 use App\Http\Controllers\Controller;
@@ -77,13 +79,11 @@ class LoginController extends Controller
      */
     public function getRedirectPath()
     {
-        if (Auth::user()->hasRole('foodie')) {
-            return '/home';
-        } else if (Auth::user()->hasRole('admin')) {
-            return 'admin/dashboard';
-        } else {
-            return '/logout';
+        if(Auth::user()->hasRole('admin')){
+            return route("admin.dashboard");
         }
+
+        return route('home');
     }
 
     /**
@@ -103,12 +103,14 @@ class LoginController extends Controller
      */
     public function handleProviderCallback($provider)
     {
+
         try {
             $user = Socialite::driver($provider)->user();
         } catch (Exception $e) {
             return Redirect::to('/login');
         }
         $authUser = $this->findOrCreateUser($user, $provider);
+
         Auth::login($authUser, true);
 
         return redirect($this->getRedirectPath());
@@ -121,22 +123,28 @@ class LoginController extends Controller
      * @param $key
      * @return User
      */
-    private function findOrCreateUser($socialLiteUser, $key)
+    private function findOrCreateUser($socialiteUser, $provider)
     {
-        $exists = User::where('email', '=', $socialLiteUser->email)->first();
-        $user = User::updateOrCreate([
-            'email' => $socialLiteUser->email,
-        ], [
-            'social_provider' => $key,
-            'social_provider_id' => $socialLiteUser->id,
-            'name' => $socialLiteUser->name,
-            'password' => 'social'
-        ]);
+        try {
+            $user = User::findSocialAccount($provider,$socialiteUser->getId());
+        } catch (SocialAccountUserNotFound $e){
 
-        if (!$exists) {
-            $role = Role::where('name', '=', 'foodie')->first();
-            $user->attachRole($role);
+
+            $user = User::firstOrCreate([
+                'name'=> $socialiteUser->getName(),
+                'email'=>$socialiteUser->getEmail(),
+                'password' => bcrypt(str_random(20))
+            ]);
+
+            $user->social()->create([
+                'provider' => $provider,
+                'provider_user_id' => $socialiteUser->getId()
+            ]);
+
+
         }
+
         return $user;
+
     }
 }

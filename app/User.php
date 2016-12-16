@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
 use App\Profile;
+use App\Exceptions\Auth\SocialAccountUserNotFound;
 
 class User extends Authenticatable
 {
@@ -121,5 +122,18 @@ class User extends Authenticatable
     public function social()
     {
         return $this->hasMany('\App\SocialAccount');
+    }
+
+    public static function findSocialAccount($provider,$providerId)
+    {
+        $user = static::whereHas('social',function($query) use ($provider,$providerId){
+            $query->where('provider','like',$provider)->where('provider_user_id','=',$providerId);
+        })->first();
+
+        if(!$user){
+            throw new SocialAccountUserNotFound($provider);
+        }
+
+        return $user;
     }
 }

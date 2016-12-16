@@ -10,7 +10,8 @@
         "zizaco/entrust": "5.2.x-dev",
         "laravel/socialite": "^2.0",
         "doctrine/dbal": "^2.5",
-        "laravelcollective/html": "^5.3.0"
+        "laravelcollective/html": "^5.3.0",
+        "socialiteproviders/instagram": "^2.0"
     },
 
     "require-dev": {
