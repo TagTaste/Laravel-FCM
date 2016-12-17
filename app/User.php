@@ -181,7 +181,8 @@ class User extends Authenticatable
             //create social account
             $user->social()->create([
                 'provider' => $provider,
-                'provider_user_id' => $providerUserId
+                'provider_user_id' => $providerUserId,
+                'profile_type_id' => ProfileType::getTypeId('foodie')
             ]);
 
             //get profile image from $provider
@@ -192,5 +193,17 @@ class User extends Authenticatable
         }
 
         return $user;
+    }
+
+    public function getSocial($typeId)
+    {
+        $social = $this->social()->where('profile_type_id','=',$typeId)->first();
+
+        if(!$social){
+            throw new \Exception("Social account not found for Profile Type $typeId.");
+        }
+
+        return $social;
+
     }
 }
