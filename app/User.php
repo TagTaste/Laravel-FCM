@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Jobs\FetchUserAvatar;
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
@@ -40,6 +42,7 @@ class User extends Authenticatable
         $file = file_get_contents($fileUrl);
         $filename = str_random(20) . ".jpg";
         file_put_contents(storage_path('app/files/') . $filename,$file);
+        \Log::info("called.");
         return $this->addProfileValue('foodie','image',$filename);
 
     }
@@ -187,7 +190,11 @@ class User extends Authenticatable
 
             //get profile image from $provider
             if($avatar){
-                $user->addFoodieImage($avatar);
+                $job = (new FetchUserAvatar($user,$avatar))->onQueue('registration')
+                    ->delay(Carbon::now()->addMinutes(1));
+                \Log::info('Queueing job...');
+
+                dispatch($job);
             }
 
         }
