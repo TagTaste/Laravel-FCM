@@ -42,8 +42,8 @@ class User extends Authenticatable
         $file = file_get_contents($fileUrl);
         $filename = str_random(20) . ".jpg";
         file_put_contents(storage_path('app/files/') . $filename,$file);
-        \Log::info("called.");
-        return $this->addProfileValue('foodie','image',$filename);
+
+        $this->addProfileValue('foodie','image',$filename);
 
     }
 
