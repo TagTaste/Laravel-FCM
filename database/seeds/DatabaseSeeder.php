@@ -21,7 +21,5 @@ class DatabaseSeeder extends Seeder
         $this->call(AttributeValueTableSeeder::class);
         $this->call(TemplateTypeTableSeeder::class);
         $this->call(TemplateTableSeeder::class);
-        $this->call(establishmentTypes::class);
-        $this->call(cuisineTypes::class);
     }
 }
