@@ -15,5 +15,10 @@
     "vue": "^2.0.1",
     "vue-resource": "^1.0.3",
     "laravel-elixir-css-url-adjuster": "^3.0.0"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "ioredis": "^2.4.3",
+    "socket.io": "^1.7.2"
   }
 }

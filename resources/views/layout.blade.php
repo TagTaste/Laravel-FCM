@@ -16,7 +16,7 @@
 
     <!-- Custom styles for this template -->
     <!-- <link href="starter-template.css" rel="stylesheet"> -->
-
+    <link rel="stylesheet" href="/css/app.css">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -112,6 +112,19 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+    <script src="/js/app.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     @yield('scripts')
+
+    <script>
+        Loading(false);
+        $(document).ready(function(){
+            var socket = io('http://tagtaste.com:3000');
+            socket.on("notifications", function(message){
+                toastr.success(message.message[0]);
+
+            });
+        });
+    </script>
 </body>
 </html>

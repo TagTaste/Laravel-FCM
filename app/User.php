@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Jobs\FetchUserAvatar;
+use App\Notifications\NotifyUserAvatarUpdateComplete;
 use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,6 +15,7 @@ class User extends Authenticatable
 {
     use Notifiable;
     use EntrustUserTrait;
+
 
     /**
      * The attributes that are mass assignable.
@@ -42,8 +44,16 @@ class User extends Authenticatable
         $file = file_get_contents($fileUrl);
         $filename = str_random(20) . ".jpg";
         file_put_contents(storage_path('app/files/') . $filename,$file);
-        \Log::info("called.");
-        return $this->addProfileValue('foodie','image',$filename);
+
+        $profile = $this->addProfileValue('foodie','image',$filename);
+        if(!$profile){
+            throw new \Exception("Could not create profile.");
+        }
+
+        $when = Carbon::now()->addSecond(10);
+        $this->notify((new NotifyUserAvatarUpdateComplete())->delay($when));
+
+        return $profile;
 
     }
 
@@ -191,7 +201,7 @@ class User extends Authenticatable
             //get profile image from $provider
             if($avatar){
                 $job = (new FetchUserAvatar($user,$avatar))->onQueue('registration')
-                    ->delay(Carbon::now()->addMinutes(1));
+                    ->delay(Carbon::now()->addSeconds(10));
                 \Log::info('Queueing job...');
 
                 dispatch($job);

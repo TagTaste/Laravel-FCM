@@ -52,11 +52,13 @@ elixir(function(mix) {
             "resources/assets/css/plugins/dataTables/datatables.min.css",
             'resources/assets/css/plugins/loader/Loading.css',
             'resources/assets/css/plugins/dropzone/dropzone.css',
-            'resources/assets/css/custom/custom.css',
-            'resources/assets/css/custom/style.css',
+
+            'resources/assets/css/custom/style.css'
         ], 'public/css/app.css', './')
         .urlAdjuster('public/css/app.css', {}, 'public/css')
-        
+        .styles([
+            'resources/assets/css/custom/custom.css'
+        ],'public/css/admin.css','./')
         .copy([
             'bower_components/bootstrap-sass/assets/fonts/bootstrap'
             ],'public/build/fonts/')

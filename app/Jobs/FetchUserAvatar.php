@@ -32,7 +32,6 @@ class FetchUserAvatar implements ShouldQueue
      */
     public function handle()
     {
-
-        $this->user->addFoodieImage($this->url);
+       $this->user->addFoodieImage($this->url);
     }
 }
