@@ -11,7 +11,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-
         $this->call(BasicRoles::class);
 
         $this->call(DefaultAdminValues::class);
@@ -22,5 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AttributeValueTableSeeder::class);
         $this->call(TemplateTypeTableSeeder::class);
         $this->call(TemplateTableSeeder::class);
+        $this->call(establishmentTypes::class);
+        $this->call(cuisineTypes::class);
     }
 }
