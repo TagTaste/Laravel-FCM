@@ -119,7 +119,7 @@
     <script>
         Loading(false);
         $(document).ready(function(){
-            var socket = io('{{ env('APP_URL') }}:{{env('SOCKETIO_PORT')}}');
+            var socket = io('{{ env('APP_URL') }}');
             socket.on("notifications", function(message){
                 toastr.success(message.message[0]);
 
