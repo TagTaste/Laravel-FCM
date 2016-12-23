@@ -18,7 +18,7 @@ class ProfileAttribute extends Model
     	'required'=>'boolean',
     ];
 
-    protected $attributes = [
+    protected $inputAttributes = [
         'textarea' => ['rows'=>10,'cols'=>30]
     ];
 
@@ -68,8 +68,8 @@ class ProfileAttribute extends Model
 
     public function getAttributesForInput()
     {
-        if(isset($this->attributes[$this->input_type])){
-            return $this->attributes[$this->input_type];
+        if(isset($this->inputAttributes[$this->input_type])){
+            return $this->inputAttributes[$this->input_type];
         }
         return [];
     }
@@ -84,7 +84,7 @@ class ProfileAttribute extends Model
 
     }
 
-    public function getFormInput($name=null,$profile=null,$inputValue = null,$attributes=[])
+    public function getFormInput($name=null,$profile=null,$inputValue = null,$inputAttributes=[])
     {
         $component = "bs" . ucfirst($this->input_type);
         $valuesCount = $this->values->count();
@@ -117,7 +117,7 @@ class ProfileAttribute extends Model
         }
 
 
-        return \Form::$component($this->label,$name,$inputValue,array_merge($attributes,$this->getAttributesForInput()));
+        return \Form::$component($this->label,$name,$inputValue,array_merge($inputAttributes,$this->getAttributesForInput()));
     }
 
     public static function getInputTypes() {
