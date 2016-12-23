@@ -119,7 +119,7 @@
     <script>
         Loading(false);
         $(document).ready(function(){
-            var socket = io('http://tagtaste.com:3000');
+            var socket = io('http://app.tagtaste.com:3000');
             socket.on("notifications", function(message){
                 toastr.success(message.message[0]);
 
