@@ -119,7 +119,7 @@
     <script>
         Loading(false);
         $(document).ready(function(){
-            var socket = io('http://app.tagtaste.com:3000');
+            var socket = io('{{ env('APP_URL') }}:{{env('SOCKETIO_PORT')}}');
             socket.on("notifications", function(message){
                 toastr.success(message.message[0]);
 
