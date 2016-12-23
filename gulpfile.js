@@ -57,7 +57,7 @@ elixir(function(mix) {
         ], 'public/css/app.css', './')
         .urlAdjuster('public/css/app.css', {}, 'public/css')
         .styles([
-            'resources/assets/css/custom/custom.css'
+            'resources/assets/css/custom/admin.css'
         ],'public/css/admin.css','./')
         .copy([
             'bower_components/bootstrap-sass/assets/fonts/bootstrap'
