@@ -168,7 +168,7 @@ class User extends Authenticatable
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password, $socialRegistration = false, $provider, $providerUserId, $avatar = null)
+    public static function addFoodie($name, $email = null, $password, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null)
     {
 
         $user = static::create([
