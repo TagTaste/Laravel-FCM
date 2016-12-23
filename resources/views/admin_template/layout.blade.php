@@ -5,7 +5,8 @@
         <title>TagTaste</title>
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="stylesheet" href="{{ URL::asset('css/app.css') }}">
+        <link rel="stylesheet" href="{{ elixir('css/app.css') }}">
+        <link rel="stylesheet" href="{{ elixir('css/admin.css') }}">
     </head>
     <body class="fixed-sidebar no-skin-config">
         <script type="text/javascript" src="{{ elixir('js/app.js') }}"></script>
