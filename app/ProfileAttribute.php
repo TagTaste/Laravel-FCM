@@ -86,6 +86,11 @@ class ProfileAttribute extends Model
 
     public function getFormInput($name=null,$profile=null,$inputValue = null,$inputAttributes=[])
     {
+        if(is_null($this->input_type)){
+            return \Form::bsLabel($this->label);
+
+        }
+
         $component = "bs" . ucfirst($this->input_type);
         $valuesCount = $this->values->count();
 

@@ -18,29 +18,15 @@
             {{ Form::open(['url'=>route('profiles.updateIndividual'),'method'=>'post', 'files'=>true]) }}
                 {{ Form::token() }}
                 {{ Form::hidden('typeId',$typeId) }}
-
                 @foreach($profileAttributes as $attribute)
-                    @php
-                        $profileValue = $profile->get($attribute->id);
-                        $name = "attributes[$attribute->id]";
-                        $inputValue = null;
-                        if($profileValue){
-                          if($attribute->inputType("text") || $attribute->inputType("textarea")){
 
-                            $profileValue = $profileValue->first();
+                    @include('profiles.single')
 
-                            if($profileValue){
-                              $name = "profile[{$profileValue->id}]";
-                              $inputValue = $profileValue->value;
-                            }
-                          } else {
-                            $profileValue = $profileValue->keyBy('value_id');
-                          }
-
-                        }
-                    @endphp
-
-                        {{ $attribute->getFormInput($name,$profileValue,$inputValue) }}
+                    @if($attribute->children)
+                        @foreach($attribute->children as $child)
+                            @include('profiles.single',['attribute'=>$child])
+                        @endforeach
+                    @endif
 
                 @endforeach
 
