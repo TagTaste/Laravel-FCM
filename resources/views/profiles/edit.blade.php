@@ -23,9 +23,14 @@
                     @include('profiles.single')
 
                     @if($attribute->children)
-                        @foreach($attribute->children as $child)
-                            @include('profiles.single',['attribute'=>$child])
-                        @endforeach
+
+                        <div class="row">
+                            <div class="col-md-11 col-md-push-1">
+                                @foreach($attribute->children as $child)
+                                    @include('profiles.single',['attribute'=>$child])
+                                @endforeach
+                            </div>
+                        </div>
                     @endif
 
                 @endforeach
