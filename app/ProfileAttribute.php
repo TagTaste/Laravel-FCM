@@ -34,7 +34,7 @@ class ProfileAttribute extends Model
     }
 
     public function children() {
-        return $this->belongsTo('\App\ProfileAttribute','parent_id','id');
+        return $this->hasMany('\App\ProfileAttribute','parent_id');
     }
 
     public static function getAll() {

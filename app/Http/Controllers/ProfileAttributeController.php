@@ -72,9 +72,8 @@ class ProfileAttributeController extends Controller {
 	 */
 	public function show($id)
 	{
-		$profile_attribute = ProfileAttribute::findOrFail($id);
-
-		return view('profile_attributes.show', compact('profile_attribute'));
+		$profileAttribute = ProfileAttribute::with('children')->findOrFail($id);
+		return view('profile_attributes.show', compact('profileAttribute'));
 	}
 
 	/**
