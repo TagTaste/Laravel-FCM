@@ -72,6 +72,7 @@ Route::group(['middleware'=>'auth'],function(){
 
 	Route::resource("template_types","TemplateTypeController");
 	Route::resource("templates","TemplateController");
+	Route::get("profile_attributes/create/{parentId}",['as'=>'profile_attributes.addChild','uses'=>'ProfileAttributeController@create']);
 	Route::resource("profile_attributes","ProfileAttributeController");
 
 	Route::get("profile/file/{filename}",['as'=>'profile.fileDownload','uses'=>'ProfileController@fileDownload']);

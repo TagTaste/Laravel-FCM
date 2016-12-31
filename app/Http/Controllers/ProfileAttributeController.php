@@ -27,13 +27,23 @@ class ProfileAttributeController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create($parentId = null)
 	{
+	    $parent = null;
+	    if($parentId){
+	        $parent = ProfileAttribute::find($parentId);
+
+	        if(!$parent){
+	            throw new \Exception("Could not find parent.");
+            }
+        }
 		$profileTypes = ProfileType::getTypes();
 		
 		$inputTypes = ProfileAttribute::getInputTypes();
 
-		return view('profile_attributes.create',compact('profileTypes','inputTypes'));
+
+
+		return view('profile_attributes.create',compact('profileTypes','inputTypes','parent'));
 	}
 
 	/**

@@ -17,13 +17,24 @@
             <form action="{{ route('profile_attributes.store') }}" method="POST">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
+                @if(isset($parent))
+                    <h4>Adding Child for {{ $parent->name }}</h4>
+                    <input type="hidden" name="parent_id" value="{{ $parent->id }}">
+                @endif
+
                 <div class="form-group @if($errors->has('profile_type_id')) has-error @endif""> 
                     <label for="profile_type_id">Profile Type</label>
+
+                @if(isset($parent))
+                    {{ $parent->profileType->type }}
+                    <input type="hidden" name="profile_type_id" value="{{ $parent->profile_type_id }}">
+                @else
                     <select id="profile_type_id" name="profile_type_id" class="form-control">
-                      @foreach($profileTypes as $id => $type)
-                        <option value="{{ $id }}" @if(old("profile_type_id")) selected @endif>{{ $type }} </option>
-                      @endforeach
+                        @foreach($profileTypes as $id => $type)
+                            <option value="{{ $id }}" @if(old("profile_type_id")) selected @endif>{{ $type }} </option>
+                        @endforeach
                     </select>
+                @endif
                 </div>
 
                 <div class="form-group @if($errors->has('name')) has-error @endif">
@@ -85,13 +96,6 @@
                     <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="required" id="required" autocomplete="off"> Yes </label><label class="btn btn-primary active"><input type="radio" name="required" value="0" id="required" autocomplete="off"> No </label></div>
                        @if($errors->has("required"))
                         <span class="help-block">{{ $errors->first("required") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('parent_id')) has-error @endif">
-                       <label for="parent_id-field">Parent</label>
-                    <input type="text" id="parent_id-field" name="parent_id" class="form-control" value="{{ old("parent_id") }}"/>
-                       @if($errors->has("parent_id"))
-                        <span class="help-block">{{ $errors->first("parent_id") }}</span>
                        @endif
                     </div>
   
