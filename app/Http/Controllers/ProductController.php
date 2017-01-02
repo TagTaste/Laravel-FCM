@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Product;
 use Illuminate\Http\Request;
-
+use App\ProfileType;
 class ProductController extends Controller {
 
 	/**
@@ -44,8 +44,8 @@ class ProductController extends Controller {
         $product->price = $request->input("price");
         $product->image = $request->input("image");
         $product->moq = $request->input("moq");
-        $product->user_id = $request->input("user_id");
-        $product->profile_type_id = $request->input("profile_type_id");
+        $product->user_id = $request->user()->id;
+        $product->profile_type_id = ProfileType::getTypeId('supplier');
 
 		$product->save();
 
@@ -93,9 +93,6 @@ class ProductController extends Controller {
         $product->price = $request->input("price");
         $product->image = $request->input("image");
         $product->moq = $request->input("moq");
-        $product->user_id = $request->input("user_id");
-        $product->profile_type_id = $request->input("profile_type_id");
-
 		$product->save();
 
 		return redirect()->route('products.index')->with('message', 'Item updated successfully.');
