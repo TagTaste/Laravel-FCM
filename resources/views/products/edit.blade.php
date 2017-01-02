@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-md-12">
 
-            <form action="{{ route('products.update', $product->id) }}" method="POST">
+            <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
@@ -34,7 +34,7 @@
                     </div>
                     <div class="form-group @if($errors->has('image')) has-error @endif">
                        <label for="image-field">Image</label>
-                    <textarea class="form-control" id="image-field" rows="3" name="image">{{ is_null(old("image")) ? $product->image : old("image") }}</textarea>
+                       <input class="form-control" type="file" name="image"/>
                        @if($errors->has("image"))
                         <span class="help-block">{{ $errors->first("image") }}</span>
                        @endif

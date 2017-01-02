@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-md-12">
 
-            <form action="{{ route('products.store') }}" method="POST">
+          <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                 <div class="form-group @if($errors->has('name')) has-error @endif">
@@ -33,7 +33,8 @@
                     </div>
                     <div class="form-group @if($errors->has('image')) has-error @endif">
                        <label for="image-field">Image</label>
-                    <textarea class="form-control" id="image-field" rows="3" name="image">{{ old("image") }}</textarea>
+                       <input class="form-control" type="file" name="image" id=""/>
+              
                        @if($errors->has("image"))
                         <span class="help-block">{{ $errors->first("image") }}</span>
                        @endif

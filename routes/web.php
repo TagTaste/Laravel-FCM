@@ -98,6 +98,9 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("dish_articles","DishArticleController");
 	
 	Route::resource("recipe_articles","RecipeArticleController");
+	Route::get("/product/image/{filename}",function($filename){
+		return response()->file(storage_path(\App\Product::$imagePath . $filename));
+	});
 	Route::get('products/user/{userId}',['as'=>'products.user','uses'=>'ProductController@showForUser']);
 	Route::resource("products","ProductController");
 });

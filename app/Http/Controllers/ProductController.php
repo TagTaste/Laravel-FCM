@@ -48,7 +48,13 @@ class ProductController extends Controller {
 
 		$product->name = $request->input("name");
         $product->price = $request->input("price");
-        $product->image = $request->input("image");
+
+        if($request->hasFile('image')){
+        	$filename = $request->user()->id . str_random(25) . ".jpeg";
+        	$request->image->storeAs('product_images',$filename);
+        	$product->image = $filename;
+        }
+
         $product->moq = $request->input("moq");
         $product->user_id = $request->user()->id;
         $product->profile_type_id = ProfileType::getTypeId('supplier');
@@ -97,7 +103,9 @@ class ProductController extends Controller {
 
 		$product->name = $request->input("name");
         $product->price = $request->input("price");
-        $product->image = $request->input("image");
+		if($request->hasFile('image')){
+        	$product->image = $request->image->store('product_images');
+        }        
         $product->moq = $request->input("moq");
 		$product->save();
 

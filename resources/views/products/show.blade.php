@@ -32,7 +32,7 @@
                 </div>
                     <div class="form-group">
                      <label for="image">IMAGE</label>
-                     <p class="form-control-static">{{$product->image}}</p>
+                     <img src="/product/image/{{$product->image}}" alt="" height="300px" width="auto">
                 </div>
                     <div class="form-group">
                      <label for="moq">MOQ</label>

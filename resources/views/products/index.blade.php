@@ -33,7 +33,7 @@
                                 <td>{{$product->id}}</td>
                                 <td>{{$product->name}}</td>
                     <td>{{$product->price}}</td>
-                    <td>{{$product->image}}</td>
+                    <td><img src="/product/image/{{$product->image}}" alt="" height="100px" width="auto"></td>
                     <td>{{$product->moq}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('products.show', $product->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
