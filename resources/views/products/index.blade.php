@@ -22,8 +22,7 @@
                         <th>PRICE</th>
                         <th>IMAGE</th>
                         <th>MOQ</th>
-                        <th>USER_ID</th>
-                        <th>PROFILE_TYPE_ID</th>
+                   
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -36,8 +35,6 @@
                     <td>{{$product->price}}</td>
                     <td>{{$product->image}}</td>
                     <td>{{$product->moq}}</td>
-                    <td>{{$product->user_id}}</td>
-                    <td>{{$product->profile_type_id}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('products.show', $product->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('products.edit', $product->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
