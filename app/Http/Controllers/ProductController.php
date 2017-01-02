@@ -13,9 +13,9 @@ class ProductController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$products = Product::orderBy('id', 'desc')->paginate(10);
+		$products = Product::where('user_id',$request->user()->id)->orderBy('id', 'desc')->paginate(10);
 
 		return view('products.index', compact('products'));
 	}
