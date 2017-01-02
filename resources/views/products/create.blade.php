@@ -39,24 +39,10 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('moq')) has-error @endif">
-                       <label for="moq-field">Moq</label>
+                       <label for="moq-field">Minimum Order Quantity</label>
                     <input type="text" id="moq-field" name="moq" class="form-control" value="{{ old("moq") }}"/>
                        @if($errors->has("moq"))
                         <span class="help-block">{{ $errors->first("moq") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('user_id')) has-error @endif">
-                       <label for="user_id-field">User_id</label>
-                    <input type="text" id="user_id-field" name="user_id" class="form-control" value="{{ old("user_id") }}"/>
-                       @if($errors->has("user_id"))
-                        <span class="help-block">{{ $errors->first("user_id") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('profile_type_id')) has-error @endif">
-                       <label for="profile_type_id-field">Profile_type_id</label>
-                    <input type="text" id="profile_type_id-field" name="profile_type_id" class="form-control" value="{{ old("profile_type_id") }}"/>
-                       @if($errors->has("profile_type_id"))
-                        <span class="help-block">{{ $errors->first("profile_type_id") }}</span>
                        @endif
                     </div>
                 <div class="well well-sm">
