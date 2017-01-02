@@ -88,14 +88,22 @@
                 </div>
             </div>
         </div>
-        
-
-
-        
-
     </div>
 
     <div class="row">
+        <div class="col-md-6">
+        <h3>My Products</h3>
+            <div class="col-md-11 col-push-md-1">
+                <ul class="list-unstyled">
+                @foreach($products as $product)
+                <li>
+                    <img src="/product/image/{{ $product->image }}" alt="" height="100px" width="auto">
+                    <h3>{{ $product->name }}</h3>
+                </li>
+            @endforeach
+            </ul>
+            </div>
+        </div>
         <div class="col-md-6">
             <div class="col-md-12">
                 <div class="panel panel-default">

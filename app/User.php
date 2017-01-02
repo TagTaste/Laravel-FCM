@@ -223,4 +223,9 @@ class User extends Authenticatable
         return $social;
 
     }
+
+    public function products(){
+        return $this->hasMany('\App\Product');
+
+    }
 }

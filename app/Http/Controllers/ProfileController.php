@@ -5,7 +5,6 @@ use App\Http\Controllers\Controller;
 
 use App\Profile;
 use App\ProfileType;
-
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller {
@@ -22,8 +21,9 @@ class ProfileController extends Controller {
 		$profiles = Profile::whereHas('attribute',function($query){
 		    $query->where('enabled',1);
         })->where('user_id','=',$request->user()->id)->with('type','attribute')->orderBy('id', 'asc')->get()->groupBy('type_id');
+		$products = $request->user()->products;
 
-		return view('profiles.index', compact('profiles','profileTypes'));
+		return view('profiles.index', compact('profiles','profileTypes','products'));
 	}
 
 	/**
