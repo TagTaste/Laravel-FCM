@@ -38,14 +38,7 @@
                      <label for="moq">MOQ</label>
                      <p class="form-control-static">{{$product->moq}}</p>
                 </div>
-                    <div class="form-group">
-                     <label for="user_id">USER_ID</label>
-                     <p class="form-control-static">{{$product->user_id}}</p>
-                </div>
-                    <div class="form-group">
-                     <label for="profile_type_id">PROFILE_TYPE_ID</label>
-                     <p class="form-control-static">{{$product->profile_type_id}}</p>
-                </div>
+            
             </form>
 
             <a class="btn btn-link" href="{{ route('products.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
