@@ -98,5 +98,6 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("dish_articles","DishArticleController");
 	
 	Route::resource("recipe_articles","RecipeArticleController");
+	Route::get('products/user/{userId}',['as'=>'products.user','uses'=>'ProductController@showForUser']);
 	Route::resource("products","ProductController");
 });

@@ -20,6 +20,12 @@ class ProductController extends Controller {
 		return view('products.index', compact('products'));
 	}
 
+	public function showForUser($userId){
+		$products = Product::where('user_id',$userId)->orderBy('id', 'desc')->paginate(10);
+
+		return view('products.index', compact('products'));
+	}
+
 	/**
 	 * Show the form for creating a new resource.
 	 *
