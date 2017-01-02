@@ -103,4 +103,6 @@ Route::group(['middleware'=>'auth'],function(){
 	});
 	Route::get('products/user/{userId}',['as'=>'products.user','uses'=>'ProductController@showForUser']);
 	Route::resource("products","ProductController");
+	Route::resource("blog_articles","BlogArticleController");
+
 });
