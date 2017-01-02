@@ -98,4 +98,5 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("dish_articles","DishArticleController");
 	
 	Route::resource("recipe_articles","RecipeArticleController");
+	Route::resource("products","ProductController");
 });
