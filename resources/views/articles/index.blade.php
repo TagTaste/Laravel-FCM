@@ -6,6 +6,7 @@
             <i class="glyphicon glyphicon-align-justify"></i> My Articles
             <a class="btn btn-success pull-right" href="{{ route('articles.new','dish') }}"><i class="glyphicon glyphicon-plus"></i> Add Dish</a>
             <a class="btn btn-success pull-right" href="{{ route('articles.new','recipe') }}"><i class="glyphicon glyphicon-plus"></i> Add Recipe</a>
+            <a class="btn btn-success pull-right" href="{{ route('articles.new','blog') }}"><i class="glyphicon glyphicon-plus"></i> Add Blog</a>
         </h1>
 
     </div>
@@ -16,7 +17,7 @@
         <div class="col-md-9">
             @if($articles->count())
                 @foreach($articles as $article)
-                    @include($article->template->view,['dish'=>$article->dish, 'title'=>$article->title])
+                    @include($article->template->view,['article'=>$article->blog, 'title'=>$article->title])
                     <hr>
                 @endforeach
             @else
