@@ -13,6 +13,7 @@ class TemplateTypeTableSeeder extends Seeder {
         TemplateType::insert([
             ['name' => 'Dish Article'],
             ['name' => 'Recipe Article'],
+            ['name' => 'Blog Article'],
         ]);
     }
 
