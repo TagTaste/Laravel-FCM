@@ -143,7 +143,7 @@ class User extends Authenticatable
 
         $userId = $this->id;
 
-        return \App\Article::with('template','dish')
+        return \App\Article::with('template','dish','blog')
             ->join('profiles','profiles.id','=','articles.author_id')
             ->where('profiles.user_id','=',$userId)
             ->whereIn('profiles.profile_attribute_id',$profileAttributeIds)
