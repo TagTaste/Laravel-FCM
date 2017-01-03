@@ -139,14 +139,8 @@ class User extends Authenticatable
 
     public function getArticles()
     {
-        $profileAttributeIds = \App\ProfileAttribute::where('name','like','%_id')->get()->pluck('id');
-
-        $userId = $this->id;
-
         return \App\Article::with('template','dish','blog')
-            ->join('profiles','profiles.id','=','articles.author_id')
-            ->where('profiles.user_id','=',$userId)
-            ->whereIn('profiles.profile_attribute_id',$profileAttributeIds)
+            ->where('user_id','=',$this->id)
             ->get();
     }
 
