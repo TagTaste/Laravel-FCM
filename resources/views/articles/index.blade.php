@@ -17,7 +17,7 @@
         <div class="col-md-9">
             @if($articles->count())
                 @foreach($articles as $article)
-                    @include($article->template->view,['article'=>$article->blog, 'title'=>$article->title])
+                    @include($article->getView(),['article'=>$article->getArticle(), 'title'=>$article->title])
                     <hr>
                 @endforeach
             @else
