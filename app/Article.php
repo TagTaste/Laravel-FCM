@@ -14,9 +14,9 @@ class Article extends Model
         'deleted_at'
     ];
 
-    public function author()
+    public function user()
     {
-        return $this->belongsTo('\App\Profile', 'author_id');
+        return $this->belongsTo('\App\User');
     }
 
     public function privacy()
@@ -56,7 +56,7 @@ class Article extends Model
 
     public function getAuthor()
     {
-        return $this->author->user->name;
+        return $this->user->name;
     }
 
     public function getView()

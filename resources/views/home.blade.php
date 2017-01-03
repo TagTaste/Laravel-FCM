@@ -54,7 +54,7 @@
                         {{-- <!-- <h6 class="subtitle text-italic"><em>By: {{ $article->getAuthor() }}</em> <a href="{{route('chef.follow',$article->author->user_id)}}">Follow</a></h6>
  --> --}}
                         <div style="" class="col-md-2"><img src="http://placehold.it/50x50" alt=""></div>
-                        <div class="col-md-8"> <em>{{ $article->getAuthor() }}</em> <br/><a href="{{route('chef.follow',$article->author->user_id)}}" class="btn btn-xs btn-default" style="margin:0.5em;">Follow</a> </div>
+                        <div class="col-md-8"> <em>{{ $article->getAuthor() }}</em> <br/><a href="{{route('chef.follow',$article->user_id)}}" class="btn btn-xs btn-default" style="margin:0.5em;">Follow</a> </div>
 
 
                     </div>
