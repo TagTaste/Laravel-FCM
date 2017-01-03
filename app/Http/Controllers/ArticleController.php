@@ -37,7 +37,8 @@ class ArticleController extends Controller {
 	public function create(Request $request, $type)
 	{
 		$privacy = Privacy::getAll();
-		$templates = Template::forType(ucwords($type . " article"));
+
+		$templates = Template::forType($type);
 		$dishes = false;
 		$requiresTitle = true;
 		if($type == 'recipe'){

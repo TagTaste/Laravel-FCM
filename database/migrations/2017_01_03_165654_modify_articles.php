@@ -33,7 +33,7 @@ class ModifyArticles extends Migration
     public function down()
     {
         Schema::table('articles',function($table){
-            $table->integer('author_id')->unsigned();
+            $table->integer('author_id')->unsigned()->nullable();
             $table->foreign("author_id")->references("id")->on("profiles");
 
             $table->dropForeign(['user_id']);
