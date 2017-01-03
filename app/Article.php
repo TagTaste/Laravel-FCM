@@ -52,4 +52,15 @@ class Article extends Model
          return $this->author->user->name;
       }
 
+    public function getView()
+    {
+        return $this->template->view;
+      }
+
+    public function getArticle()
+    {
+        $type = strtolower($this->template->type->name);
+        return $this->$type;
+      }
+
 }
