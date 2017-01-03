@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
-    protected $fillable = ['title','author_id','privacy_id','comments_enabled','status','template_id'];
+    protected $fillable = ['title','user_id','profile_type_id','privacy_id','comments_enabled','status','template_id'];
 
     protected $dates = [
         'created_at',
@@ -28,6 +28,11 @@ class Article extends Model
 
       public function dish() {
          return $this->hasOne('\App\DishArticle','article_id');
+      }
+
+    public function blog()
+    {
+        return $this->hasOne('\App\BlogArticle','article_id');
       }
 
       public function getContent(){
