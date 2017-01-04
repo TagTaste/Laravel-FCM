@@ -14,6 +14,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         $chef = ProfileType::select('id','type')->where('type','like','chef')->first();
         $foodie = ProfileType::select('id','type')->where('type','like','foodie')->first();
         $supplier = ProfileType::select('id','type')->where('type','like','supplier')->first();
+        $default = ProfileType::select('id','type')->where('type','like','default')->first();
         $profileAttributes = [];
         $admin = User::getAdmin();
 
@@ -32,7 +33,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         }
 
         if($chef){
-            $attributes = ['work experience'=>'textarea','cuisine'=>'checkbox','chef awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text', 'establishment types'=>'checkbox'];
+            $attributes = ['work experience'=>'textarea','chef awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text', 'establishment types'=>'checkbox'];
 
             foreach($attributes as $name => $inputType){
                 $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>0,'user_id'=> $admin->id,'profile_type_id'=>$chef->id,'input_type'=>$inputType];
@@ -49,6 +50,14 @@ class ProfileAttributeTableSeeder extends Seeder {
                     'profile_type_id'=>$supplier->id,
                     'input_type'=>$inputType
                 ];
+            }
+        }
+
+        if($default){
+            $attributes = ['cuisine'=>'checkbox'];
+
+            foreach($attributes as $name => $inputType){
+                $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>0,'user_id'=> $admin->id,'profile_type_id'=>$default->id,'input_type'=>$inputType];
             }
         }
 

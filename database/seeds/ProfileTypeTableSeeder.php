@@ -15,7 +15,9 @@ class ProfileTypeTableSeeder extends Seeder {
         	['type' => 'Foodie', 'enabled' => 1, 'default' => 1],
         	['type' => 'Outlet', 'enabled' => 1, 'default' => 0],
         	['type' => 'Supplier', 'enabled' => 1, 'default' => 0],
-        	['type' => 'Expert', 'enabled' => 1, 'default' => 0]]);
+        	['type' => 'Expert', 'enabled' => 1, 'default' => 0],
+        	['type' => 'Default', 'enabled' => 1, 'default' => 0]]
+        );
     }
 
 }

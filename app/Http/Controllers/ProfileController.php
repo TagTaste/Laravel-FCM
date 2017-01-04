@@ -16,7 +16,7 @@ class ProfileController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-		$profileTypes = ProfileType::orderBy('type','asc')->get()->keyBy('id');
+		$profileTypes = ProfileType::where('type','!=','Default')->orderBy('type','asc')->get()->keyBy('id');
 
 		$profiles = Profile::whereHas('attribute',function($query){
 		    $query->where('enabled',1);
@@ -161,8 +161,9 @@ class ProfileController extends Controller {
 	{	
 		
 		$user = $request->user();
+		$default = ProfileType::select('id','type')->where('type','like','default')->first();
 
-        $profileAttributes = \App\ProfileAttribute::with('children')->whereNull('parent_id')->where('enabled','=',1)->type($typeId)->with('values')->get();
+        $profileAttributes = \App\ProfileAttribute::with('children')->whereNull('parent_id')->where('enabled','=',1)->whereIn('profile_type_id',[$typeId, $default->id])->with('values')->get();
 
         $profile = $user->profile()->profileType($typeId)->get();
 

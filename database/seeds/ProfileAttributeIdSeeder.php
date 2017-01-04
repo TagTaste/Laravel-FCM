@@ -22,7 +22,7 @@ class ProfileAttributeIdSeeder extends Seeder
             $userId = $admin->id;
         }
 
-        $types = ProfileType::select('id','type')->get();
+        $types = ProfileType::where('type','!=','Default')->select('id','type')->get();
         $profileAttributes = [];
 
         // chef_id, foodie_id, etc
