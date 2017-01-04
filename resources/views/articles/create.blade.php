@@ -14,7 +14,7 @@
 <div class="row">
   <div class="col-md-12">
 
-    <form action="{{ route('articles.store') }}" method="POST">
+    <form action="{{ route('articles.store') }}" method="POST" enctype="multipart/form-data">
       <input type="hidden" name="_token" value="{{ csrf_token() }}">
       <input type="hidden" name="type" value="{{$type}}">
       <div class="col-md-9">
