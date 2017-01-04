@@ -41,7 +41,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         }
 
         if($supplier) {
-            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','About Yourself'=>'textarea','Established on'=>'text','Major milestone'=>'text',"Number of customers"=>'text','clients'=>'text','Annual revenue'=>'text','address'=>'text'];
+            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','About Yourself'=>'textarea','Established on'=>'text','Major milestone'=>'text',"Number of customers"=>'text','clients'=>'text','Annual revenue'=>'text', 'Speciality'=>'text','Pincodes Catered'=>'text','Past Projects'=>'text','address'=>'text'];
 
             foreach($attributes as $name => $inputType) {
                 $profileAttributes[] = [
