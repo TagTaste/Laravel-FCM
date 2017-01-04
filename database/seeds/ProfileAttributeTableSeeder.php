@@ -15,6 +15,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         $foodie = ProfileType::select('id','type')->where('type','like','foodie')->first();
         $supplier = ProfileType::select('id','type')->where('type','like','supplier')->first();
         $default = ProfileType::select('id','type')->where('type','like','default')->first();
+        $outlet = ProfileType::select('id','type')->where('type','like','outlet')->first();
         $profileAttributes = [];
         $admin = User::getAdmin();
 
@@ -58,6 +59,19 @@ class ProfileAttributeTableSeeder extends Seeder {
 
             foreach($attributes as $name => $inputType){
                 $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>0,'user_id'=> $admin->id,'profile_type_id'=>$default->id,'input_type'=>$inputType];
+            }
+        }
+
+        if($outlet) {
+            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','address'=>'text','About Yourself'=>'textarea','cuisine'=>'checkbox','establishment types'=>'checkbox',"signature dishes"=>'text','famous for'=>'text','awards'=>'text'];
+
+            foreach($attributes as $name => $inputType) {
+                $profileAttributes[] = [
+                    'name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),
+                    'enabled'=>1,'required'=>1,'user_id'=> $admin->id,
+                    'profile_type_id'=>$outlet->id,
+                    'input_type'=>$inputType
+                ];
             }
         }
 
