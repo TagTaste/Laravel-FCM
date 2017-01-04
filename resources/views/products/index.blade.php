@@ -20,8 +20,15 @@
                             <th>ID</th>
                             <th>NAME</th>
                         <th>PRICE</th>
-                        <th>IMAGE</th>
                         <th>MOQ</th>
+                        <th>IMAGE</th>
+                        <th>Type</th>
+                        <th>About</th>
+                        <th>Ingredients</th>
+                        <th>Certifications</th>
+                        <th>Portion Size</th>
+                        <th>Shelf Life</th>
+                        <th>Mode</th>
                    
                             <th class="text-right">OPTIONS</th>
                         </tr>
@@ -33,8 +40,15 @@
                                 <td>{{$product->id}}</td>
                                 <td>{{$product->name}}</td>
                     <td>{{$product->price}}</td>
-                    <td><img src="/product/image/{{$product->image}}" alt="" height="100px" width="auto"></td>
                     <td>{{$product->moq}}</td>
+                    <td><img src="/product/image/{{$product->image}}" alt="" height="100px" width="auto"></td>
+                    <td>{{$product->type}}</td>
+                    <td>{{$product->about}}</td>
+                    <td>{{$product->ingredients}}</td>
+                    <td>{{$product->certifications}}</td>
+                    <td>{{$product->portion_size}}</td>
+                    <td>{{$product->shelf_life}}</td>
+                    <td>{{$product->mode}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('products.show', $product->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('products.edit', $product->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>

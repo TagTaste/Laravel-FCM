@@ -56,6 +56,13 @@ class ProductController extends Controller {
         }
 
         $product->moq = $request->input("moq");
+        $product->type = $request->input("type");
+        $product->about = $request->input("about");
+        $product->ingredients = $request->input("ingredients");
+        $product->certifications = $request->input("certifications");
+        $product->portion_size = $request->input("portion_size");
+        $product->shelf_life = $request->input("shelf_life");
+        $product->mode = $request->input("mode");
         $product->user_id = $request->user()->id;
         $product->profile_type_id = ProfileType::getTypeId('supplier');
 
@@ -107,6 +114,13 @@ class ProductController extends Controller {
         	$product->image = $request->image->store('product_images');
         }        
         $product->moq = $request->input("moq");
+        $product->type = $request->input("type");
+        $product->about = $request->input("about");
+        $product->ingredients = $request->input("ingredients");
+        $product->certifications = $request->input("certifications");
+        $product->portion_size = $request->input("portion_size");
+        $product->shelf_life = $request->input("shelf_life");
+        $product->mode = $request->input("mode");
 		$product->save();
 
 		return redirect()->route('products.index')->with('message', 'Item updated successfully.');

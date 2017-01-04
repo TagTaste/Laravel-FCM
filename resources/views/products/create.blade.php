@@ -46,6 +46,55 @@
                         <span class="help-block">{{ $errors->first("moq") }}</span>
                        @endif
                     </div>
+                    <div class="form-group @if($errors->has('type')) has-error @endif">
+                       <label for="type-field">Type</label>
+                    <input type="text" id="type-field" name="type" class="form-control" value="{{ old("type") }}"/>
+                       @if($errors->has("type"))
+                        <span class="help-block">{{ $errors->first("type") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('about')) has-error @endif">
+                       <label for="about-field">About</label>
+                    <input type="text" id="about-field" name="about" class="form-control" value="{{ old("about") }}"/>
+                       @if($errors->has("about"))
+                        <span class="help-block">{{ $errors->first("about") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('ingredients')) has-error @endif">
+                       <label for="ingredients-field">Ingredients</label>
+                    <input type="text" id="ingredients-field" name="ingredients" class="form-control" value="{{ old("ingredients") }}"/>
+                       @if($errors->has("ingredients"))
+                        <span class="help-block">{{ $errors->first("ingredients") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('certifications')) has-error @endif">
+                       <label for="certifications-field">Certifications</label>
+                    <input type="text" id="certifications-field" name="certifications" class="form-control" value="{{ old("certifications") }}"/>
+                       @if($errors->has("certifications"))
+                        <span class="help-block">{{ $errors->first("certifications") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('portion_size')) has-error @endif">
+                       <label for="portion_size-field">Portion Size</label>
+                    <input type="text" id="portion_size-field" name="portion_size" class="form-control" value="{{ old("portion_size") }}"/>
+                       @if($errors->has("portion_size"))
+                        <span class="help-block">{{ $errors->first("portion_size") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('shelf_life')) has-error @endif">
+                       <label for="shelf_life-field">Shelf Life</label>
+                    <input type="text" id="shelf_life-field" name="shelf_life" class="form-control" value="{{ old("shelf_life") }}"/>
+                       @if($errors->has("shelf_life"))
+                        <span class="help-block">{{ $errors->first("shelf_life") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('mode')) has-error @endif">
+                       <label for="mode-field">Mode</label>
+                    <input type="text" id="mode-field" name="mode" class="form-control" value="{{ old("mode") }}"/>
+                       @if($errors->has("mode"))
+                        <span class="help-block">{{ $errors->first("mode") }}</span>
+                       @endif
+                    </div>
                 <div class="well well-sm">
                     <button type="submit" class="btn btn-primary">Create</button>
                     <a class="btn btn-link pull-right" href="{{ route('products.index') }}"><i class="glyphicon glyphicon-backward"></i> Back</a>

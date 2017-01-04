@@ -38,6 +38,34 @@
                      <label for="moq">MOQ</label>
                      <p class="form-control-static">{{$product->moq}}</p>
                 </div>
+                <div class="form-group">
+                     <label for="type">Type</label>
+                     <p class="form-control-static">{{$product->type}}</p>
+                </div>
+                <div class="form-group">
+                     <label for="about">About</label>
+                     <p class="form-control-static">{{$product->about}}</p>
+                </div>
+                <div class="form-group">
+                     <label for="ingredients">Ingredients</label>
+                     <p class="form-control-static">{{$product->ingredients}}</p>
+                </div>
+                <div class="form-group">
+                     <label for="certifications">Certifications</label>
+                     <p class="form-control-static">{{$product->certifications}}</p>
+                </div>
+                <div class="form-group">
+                     <label for="portion_size">Portion Size</label>
+                     <p class="form-control-static">{{$product->portion_size}}</p>
+                </div>
+                <div class="form-group">
+                     <label for="shelf_life">Shelf Life</label>
+                     <p class="form-control-static">{{$product->shelf_life}}</p>
+                </div>
+                <div class="form-group">
+                     <label for="mode">Mode</label>
+                     <p class="form-control-static">{{$product->mode}}</p>
+                </div>
             
             </form>
 

@@ -18,6 +18,13 @@ class CreateproductsTable extends Migration {
             $table->float('price');
             $table->text('image');
             $table->float('moq');
+            $table->string('type');
+            $table->string('about');
+            $table->string('ingredients');
+            $table->string('certifications');
+            $table->string('portion_size');
+            $table->string('shelf_life');
+            $table->string('mode');
             $table->integer('user_id')->unsigned();
             $table->integer('profile_type_id')->unsigned();
             $table->timestamps();
