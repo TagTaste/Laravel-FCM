@@ -10,7 +10,7 @@ class BlogArticle extends Model
 
     public static $expectsFiles = true;
 
-    public static $fileInputs = ['image' => 'app/blogs/images'];
+    public static $fileInputs = ['image' => 'blogs/images'];
 
     public function article() {
         return $this->belongsTo('\App\Article','article_id');

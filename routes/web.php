@@ -103,7 +103,7 @@ Route::group(['middleware'=>'auth'],function(){
 	});
 	Route::get('products/user/{userId}',['as'=>'products.user','uses'=>'ProductController@showForUser']);
 	Route::resource("products","ProductController");
-	Route::get("blogs/images/{filename}",['as'=>'blog.image','uses'=>'BlogArticleController@image']);
+	Route::get("blogs/images/{filename}",['as'=>'blogs.image','uses'=>'BlogArticleController@image']);
 	Route::resource("blog_articles","BlogArticleController");
 
 });

@@ -111,7 +111,7 @@ class BlogArticleController extends Controller {
 
     public function image($filename)
     {
-        return response()->file(BlogArticle::$fileInputs['image'] . '/' . $filename);
+        return response()->file(storage_path("app/" . BlogArticle::$fileInputs['image'] . '/' . $filename));
 	}
 
 }
