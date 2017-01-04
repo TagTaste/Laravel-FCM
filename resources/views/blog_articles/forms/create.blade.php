@@ -7,7 +7,7 @@
                     </div>
                     <div class="form-group @if($errors->has('image')) has-error @endif">
                        <label for="image-field">Image</label>
-                    <input type="text" id="image-field" name="blog[image]" class="form-control" value="{{ old("image") }}"/>
+                    <input type="file" id="image-field" name="blog[image]" class="form-control"/>
                        @if($errors->has("image"))
                         <span class="help-block">{{ $errors->first("image") }}</span>
                        @endif

@@ -41,9 +41,7 @@ class Article extends Model
 
     public function getContent()
     {
-        if ($this->dish) {
-            return $this->dish->content;
-        }
+        return $this->getArticle()->content;
     }
 
     public function hasRecipe()
@@ -68,6 +66,11 @@ class Article extends Model
     {
         $type = strtolower($this->template->type->name);
         return $this->$type;
+    }
+
+    public function getImage()
+    {
+        return $this->getArticle()->image;
     }
 
 }

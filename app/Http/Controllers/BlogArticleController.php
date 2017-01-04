@@ -109,4 +109,9 @@ class BlogArticleController extends Controller {
 		return redirect()->route('blog_articles.index')->with('message', 'Item deleted successfully.');
 	}
 
+    public function image($filename)
+    {
+        return response()->file(storage_path("app/" . BlogArticle::$fileInputs['image'] . '/' . $filename));
+	}
+
 }

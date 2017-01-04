@@ -25,7 +25,7 @@
             @foreach($articles as $article)
             <div class="panel panel-default" style="position: relative;">
              
-             <div style="width: 100%;height: 250px;background-image:url('https://img.werecipes.com/wp/wp-content/uploads/2015/02/restuarant-style-veg-manchow-soup-recipe.jpg');">
+             <div style="width: 100%;height: 250px;background-image:url('{{ route("blogs.image",$article->getImage()) }}');background-size: cover;background-repeat: no-repeat;background-position: 50%;">
                     
                 </div>
                 <p style="position:absolute;top:1em;left:1em;">

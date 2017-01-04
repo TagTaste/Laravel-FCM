@@ -68,9 +68,25 @@ class ArticleController extends Controller {
 		$typeInputs = $request->input($type);
 		$typeInputs['article_id'] = $article->id;
 
+		//make this into a factory.
 		$class = "\App\\" . ucfirst($type) . "Article";
+        if($class::$expectsFiles){
+            foreach($class::$fileInputs as $fileInput => $storagePath){
+                $inputName = $type . "." . $fileInput;
+                if($request->hasFile($inputName)){
+                    $file = $request->file($inputName);
+                    $filePath = $file->store($storagePath);
+                    //get file name, laravel has something for this?
+                    $names = explode("/",$filePath);
+                    $typeInputs[$fileInput] = end($names);
+                }
+            }
+        }
+
 
 		$particularArticle = $class::create($typeInputs);
+
+
 
 		return redirect()->route('articles.index')->with('message', 'Article created successfully.');
 	}
