@@ -19,10 +19,6 @@
 
             <form action="#">
                 <div class="form-group">
-                    <label for="nome">ID</label>
-                    <p class="form-control-static"></p>
-                </div>
-                <div class="form-group">
                      <label for="name">NAME</label>
                      <p class="form-control-static">{{$ideabook->name}}</p>
                 </div>
@@ -31,12 +27,8 @@
                      <p class="form-control-static">{{$ideabook->description}}</p>
                 </div>
                     <div class="form-group">
-                     <label for="privacy_id">PRIVACY_ID</label>
-                     <p class="form-control-static">{{$ideabook->privacy_id}}</p>
-                </div>
-                    <div class="form-group">
-                     <label for="user_id">USER_ID</label>
-                     <p class="form-control-static">{{$ideabook->user_id}}</p>
+                     <label for="privacy_id">PRIVACY</label>
+                     <p class="form-control-static">{{$ideabook->privacy->name}}</p>
                 </div>
             </form>
 
