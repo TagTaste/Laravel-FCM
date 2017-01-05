@@ -17,8 +17,16 @@
         <div class="col-md-9">
             @if($articles->count())
                 @foreach($articles as $article)
-                    @include($article->getView(),['article'=>$article->getArticle(), 'title'=>$article->title])
-                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            @include($article->getView(),['article'=>$article->getArticle(), 'title'=>$article->title])
+                            <hr>
+                        </div>
+                        <div class="col-md-12">
+                            <a href="{{ route("ideabooks.addItem", $article->id) }}">Add To Ideabook</a>
+                        </div>
+                    </div>
+
                 @endforeach
             @else
                 <p>You haven't written any articles yet.</p>
