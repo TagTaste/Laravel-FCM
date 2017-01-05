@@ -106,4 +106,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("blogs/images/{filename}",['as'=>'blogs.image','uses'=>'BlogArticleController@image']);
 	Route::resource("blog_articles","BlogArticleController");
 
+    Route::resource("ideabooks","IdeabookController");
+
+
 });
