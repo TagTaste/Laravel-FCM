@@ -47,7 +47,7 @@ class IdeabookController extends Controller {
 		$ideabook->name = $request->input("name");
         $ideabook->description = $request->input("description");
         $ideabook->privacy_id = $request->input("privacy_id");
-        $ideabook->user_id = $request->input("user_id");
+        $ideabook->user_id = $request->user()->id;
 
 		$ideabook->save();
 
@@ -94,7 +94,6 @@ class IdeabookController extends Controller {
 		$ideabook->name = $request->input("name");
         $ideabook->description = $request->input("description");
         $ideabook->privacy_id = $request->input("privacy_id");
-        $ideabook->user_id = $request->input("user_id");
 
 		$ideabook->save();
 

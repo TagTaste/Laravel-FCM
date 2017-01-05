@@ -39,13 +39,6 @@
                         <span class="help-block">{{ $errors->first("privacy_id") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('user_id')) has-error @endif">
-                       <label for="user_id-field">User_id</label>
-                    <input type="text" id="user_id-field" name="user_id" class="form-control" value="{{ old("user_id") }}"/>
-                       @if($errors->has("user_id"))
-                        <span class="help-block">{{ $errors->first("user_id") }}</span>
-                       @endif
-                    </div>
                 <div class="well well-sm">
                     <button type="submit" class="btn btn-primary">Create</button>
                     <a class="btn btn-link pull-right" href="{{ route('ideabooks.index') }}"><i class="glyphicon glyphicon-backward"></i> Back</a>
