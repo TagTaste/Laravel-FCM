@@ -42,7 +42,7 @@ class IdeabookArticleController extends Controller {
         $ideabook->articles()->attach($articleId);
 
 
-        return redirect()->back()->with('message', 'Article added to Ideabook.');
+        return response()->json(['Article added to ideabook.']);
 	}
 
 	/**

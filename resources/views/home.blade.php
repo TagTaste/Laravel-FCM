@@ -59,8 +59,18 @@
 
                             @if($article->ideabooks->count())
                                 <p>Added in ideabook</p>
+
                             @else
-                                <p><a class="btn btn-xs btn-default" href="{{ route("ideabooks.addArticle", $article->id) }}">Add To Ideabook</a></p>
+                                <div class="">
+                                    <form data-id="{{ $article->id }}" class="addArticleToIdeabook" action="{{ route("ideabooks.addArticle",$article->id) }}" method="post">
+                                        {!! csrf_field() !!}
+                                        {{ Form::submit('Add to Ideabook',['class'=>'btn btn-xs btn-default']) }}
+                                    </form>
+                                    <p id="addedToIdeabook-{{$article->id}}-loading" class="hide">Saving...</p>
+
+                                    <p id="addedToIdeabook-{{$article->id}}" class="hide">Added to ideabook</p>
+                                </div>
+
                             @endif
                         </div>
 
@@ -154,4 +164,42 @@
     </div>
 </div>
 </div>
+
+@endsection
+
+@section('scripts')
+    <script type="text/javascript">
+        $("document").ready(function(){
+
+            var form = $(".addArticleToIdeabook");
+
+            form.on('submit',function(e){
+                e.preventDefault();
+                var self = $(this);
+
+                var url = self.attr('action');
+                var articleId = self.data('id');
+                self.addClass('hide');
+
+                var loadingText = $("#addedToIdeabook-" + articleId +  "-loading");
+                loadingText.toggleClass('hide');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: self.serialize(),
+                    success: function(data)
+                    {
+                        var el = $("#addedToIdeabook-" + articleId);
+                        loadingText.toggleClass('hide');
+                        el.toggleClass('hide');
+                    }
+                });
+
+                return false;
+
+            });
+
+        });
+
+    </script>
 @endsection

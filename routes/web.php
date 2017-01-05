@@ -108,7 +108,7 @@ Route::group(['middleware'=>'auth'],function(){
 
 	Route::get('ideas',['as'=>'ideas','uses'=>'IdeabookController@ideas']);
     Route::resource("ideabooks","IdeabookController");
-    Route::get("ideabook/add/{articleId}",['as'=>'ideabooks.addArticle','uses'=>'IdeabookArticleController@store']);
+    Route::post("ideabook/add/{articleId}",['as'=>'ideabooks.addArticle','uses'=>'IdeabookArticleController@store']);
     Route::get('ideabook/remove/{articleId}',['as'=>'ideas.remove','uses'=>'IdeabookArticleController@destroy']);
 
     //Route::resource("ideabook_articles","IdeabookArticleController");
