@@ -43,7 +43,7 @@ class IdeabookController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$ideabook = new Ideabook();
+		$ideabook = new Ideabooks();
 
 		$ideabook->name = $request->input("name");
         $ideabook->description = $request->input("description");
@@ -63,7 +63,7 @@ class IdeabookController extends Controller {
 	 */
 	public function show(Request $request, $id)
 	{
-		$ideabook = $request->user()->ideabook()->findOrFail($id);
+		$ideabook = $request->user()->ideabooks()->findOrFail($id);
 
 		return view('ideabooks.show', compact('ideabook'));
 	}
@@ -76,7 +76,7 @@ class IdeabookController extends Controller {
 	 */
 	public function edit(Request $request, $id)
 	{
-		$ideabook = $request->user()->ideabook()->findOrFail($id);
+		$ideabook = $request->user()->ideabooks()->findOrFail($id);
 
 		return view('ideabooks.edit', compact('ideabook'));
 	}
@@ -90,7 +90,7 @@ class IdeabookController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$ideabook = $request->user()->ideabook()->find($id);
+		$ideabook = $request->user()->ideabooks()->find($id);
 
 		$ideabook->name = $request->input("name");
         $ideabook->description = $request->input("description");
@@ -107,9 +107,9 @@ class IdeabookController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $id)
 	{
-		$ideabook = Ideabook::findOrFail($id);
+		$ideabook = $request->user()->ideabooks()->findOrFail($id);
 		$ideabook->delete();
 
 		return redirect()->route('ideabooks.index')->with('message', 'Ideabook deleted successfully.');
