@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Ideabook;
 use App\Privacy;
 use GuzzleHttp\Psr7\Response;
@@ -43,7 +41,7 @@ class IdeabookController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$ideabook = new Ideabooks();
+		$ideabook = new Ideabook();
 
 		$ideabook->name = $request->input("name");
         $ideabook->description = $request->input("description");
