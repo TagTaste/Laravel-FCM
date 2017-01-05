@@ -38,7 +38,7 @@
                     @endforeach
                 @else
                     <p>
-                        You haven't saved any idea yet.
+                        You haven't saved any ideas yet.
                     </p>
                 @endif
             </ul>
