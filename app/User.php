@@ -136,6 +136,12 @@ class User extends Authenticatable
         return;
     }
 
+    public function createDefaultIdeabook()
+    {
+        $publicId = Privacy::defaultId();
+        return $this->ideabooks()->create(['name'=>'Ideabook','description'=>'All your ideas in one place.','privacy_id'=>$publicId]);
+    }
+
     public function getArticles()
     {
         return \App\Article::with('template','dish','blog')
@@ -201,6 +207,8 @@ class User extends Authenticatable
             }
 
         }
+
+        $user->createDefaultIdeabook();
 
         return $user;
     }
