@@ -107,7 +107,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("blog_articles","BlogArticleController");
 
     Route::resource("ideabooks","IdeabookController");
-    Route::get("ideabook/add/{{articleId}}",['as'=>'ideabooks.addArticle','uses'=>'Ideabook']);
-    Route::resource("ideabook_articles","IdeabookArticleController"); // Add this line in routes.php
+    Route::get("ideabook/add/{{articleId}}",['as'=>'ideabooks.addArticle','uses'=>'IdeabookArticleController@create']);
+    //Route::resource("ideabook_articles","IdeabookArticleController");
 
 });
