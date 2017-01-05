@@ -10,11 +10,17 @@ class Ideabook extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('\App\User');
     }
 
     public function privacy()
     {
-        return $this->belongsTo('App\Privacy');
+        return $this->belongsTo('\App\Privacy');
     }
+
+    public function articles()
+    {
+        return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id');
+    }
+
 }

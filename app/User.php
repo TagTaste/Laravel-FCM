@@ -2,14 +2,13 @@
 
 namespace App;
 
+use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Jobs\FetchUserAvatar;
 use App\Notifications\NotifyUserAvatarUpdateComplete;
 use Carbon\Carbon;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
-use App\Profile;
-use App\Exceptions\Auth\SocialAccountUserNotFound;
 
 class User extends Authenticatable
 {
@@ -226,5 +225,15 @@ class User extends Authenticatable
     public function ideabooks()
     {
         return $this->hasMany('\App\Ideabook');
+    }
+
+    public function getDefaultIdeabook()
+    {
+        $ideabook = $this->ideabooks->first();
+        if(!$ideabook){
+            throw new \Exception("Ideabook not created yet.");
+        }
+
+        return $ideabook;
     }
 }

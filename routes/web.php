@@ -106,8 +106,9 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("blogs/images/{filename}",['as'=>'blogs.image','uses'=>'BlogArticleController@image']);
 	Route::resource("blog_articles","BlogArticleController");
 
+	Route::get('ideas',['as'=>'ideas','uses'=>'IdeabookController@ideas']);
     Route::resource("ideabooks","IdeabookController");
-    Route::get("ideabook/add/{{articleId}}",['as'=>'ideabooks.addArticle','uses'=>'IdeabookArticleController@create']);
+    Route::get("ideabook/add/{articleId}",['as'=>'ideabooks.addArticle','uses'=>'IdeabookArticleController@store']);
     //Route::resource("ideabook_articles","IdeabookArticleController");
 
 });

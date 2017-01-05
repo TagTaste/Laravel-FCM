@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\IdeabookArticle;
 use Illuminate\Http\Request;
 
@@ -25,8 +23,9 @@ class IdeabookArticleController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
-	{
+	public function create(Request $request, $articleId)
+    {
+
 		return view('ideabook_articles.create');
 	}
 
@@ -36,16 +35,14 @@ class IdeabookArticleController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request)
+	public function store(Request $request, $articleId)
 	{
-		$ideabook_article = new IdeabookArticle();
+        $ideabook = $request->user()->getDefaultIdeabook();
 
-		$ideabook_article->ideabook_id = $request->input("ideabook_id");
-        $ideabook_article->article_id = $request->input("article_id");
+        $ideabook->articles()->attach($articleId);
 
-		$ideabook_article->save();
 
-		return redirect()->route('ideabook_articles.index')->with('message', 'Item created successfully.');
+        return redirect()->back()->with('message', 'Article added to Ideabook.');
 	}
 
 	/**

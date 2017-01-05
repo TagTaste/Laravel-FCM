@@ -23,7 +23,7 @@
                             <hr>
                         </div>
                         <div class="col-md-12">
-                            <a href="{{ route("ideabooks.addItem", $article->id) }}">Add To Ideabook</a>
+                            <a href="{{ route("ideabooks.addArticle", $article->id) }}">Add To Ideabook</a>
                         </div>
                     </div>
 

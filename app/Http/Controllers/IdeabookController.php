@@ -114,4 +114,12 @@ class IdeabookController extends Controller {
 		return redirect()->route('ideabooks.index')->with('message', 'Ideabook deleted successfully.');
 	}
 
+    public function ideas(Request $request)
+    {
+        $ideabook = $request->user()->getDefaultIdeabook();
+
+        $articles = $ideabook->articles;
+        return view('ideabooks.ideas',compact('articles'));
+	}
+
 }
