@@ -55,8 +55,14 @@
  --> --}}
                         <div style="" class="col-md-2"><img src="http://placehold.it/50x50" alt=""></div>
                         <div class="col-md-8"> <em>{{ $article->getAuthor() }}</em> <br/><a href="{{route('chef.follow',$article->user_id)}}" class="btn btn-xs btn-default" style="margin:0.5em;">Follow</a> </div>
-                        <p><a class="btn btn-xs btn-default" href="{{ route("ideabooks.addArticle", $article->id) }}">Add To Ideabook</a></p>
+                        <div class="col-md-8">
 
+                            @if($article->ideabooks->count())
+                                <p>Added in ideabook</p>
+                            @else
+                                <p><a class="btn btn-xs btn-default" href="{{ route("ideabooks.addArticle", $article->id) }}">Add To Ideabook</a></p>
+                            @endif
+                        </div>
 
                     </div>
 
@@ -70,7 +76,7 @@
                         <p>{{ $article->getContent() }}</p>
                         @if($article->hasRecipe())
                         <p style="margin-top:2em;"><a class="btn btn-default" href="#">View Recipe</a></p>
-                            <p><a href="{{ route("ideabooks.addArticle", $article->id) }}">Add To Ideabook</a></p>
+
 
                         @endif
                     </div>

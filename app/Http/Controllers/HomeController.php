@@ -23,15 +23,20 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        $userId = $request->user()->id;
 
         $chefs = \App\User::whereHas('profile',function($query){
             $query->where('type_id','=',1);
-        })->where("id","!=",$request->user()->id)->get();
+        })->where("id","!=",$userId)->get();
 
-        $chefsFollowed = \App\Follower::with('chef')->where('follower_id',$request->user()->id)->get();
-        $followers = \App\Follower::with('follower')->where('chef_id',$request->user()->id)->get();
+        $chefsFollowed = \App\Follower::with('chef')->where('follower_id',$userId)->get();
+        $followers = \App\Follower::with('follower')->where('chef_id',$userId)->get();
 
-        $articles = \App\Article::with('template')->get();
+        $articles = \App\Article::with('template')->with(['ideabooks' => function($query) use ($userId) {
+            $query->where('user_id','=',$userId);
+        }])->get();
+
+
         return view('home', compact('chefs','chefsFollowed', 'followers','articles'));
     }
 }
