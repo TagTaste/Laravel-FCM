@@ -12,12 +12,24 @@
     @include('error')
 
     <div class="row">
-       <div class="col-md-12">
-           <ul>
+       <div class="col-md-6 col-md-push-3">
+           <ul class="list-unstyled">
                @foreach($articles as $article)
                    <li>
-                       <a href="{{ route("articles.show",$article->id) }}">{{ $article->title }}</a>
-                       <a href="{{ route("ideas.remove",$article->id) }}">x</a>
+                      <div class="row">
+                          <div class="col-md-12">
+                              <h2><a href="{{ route("articles.show",$article->id) }}">{{ $article->title }}</a></h2>
+                          </div>
+
+                          <div class="col-md-12 text-justify">
+                              <p>{{ $article->getContent() }}</p>
+                          </div>
+
+                          <div class="col-md-12 text-right">
+                              <a href="{{ route("ideas.remove",$article->id) }}">Remove from Ideabook</a>
+
+                          </div>
+                      </div>
 
                    </li>
                @endforeach
