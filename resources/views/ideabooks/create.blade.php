@@ -32,8 +32,9 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('privacy_id')) has-error @endif">
-                       <label for="privacy_id-field">Privacy_id</label>
-                    <input type="text" id="privacy_id-field" name="privacy_id" class="form-control" value="{{ old("privacy_id") }}"/>
+                       <label for="privacy_id-field">Privacy</label>
+                        {{ Form::select('privacy_id',$privacy,old('privacy_id'),['class'=>'form-control']) }}
+
                        @if($errors->has("privacy_id"))
                         <span class="help-block">{{ $errors->first("privacy_id") }}</span>
                        @endif

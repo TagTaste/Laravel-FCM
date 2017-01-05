@@ -4,6 +4,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Ideabook;
+use App\Privacy;
 use Illuminate\Http\Request;
 
 class IdeabookController extends Controller {
@@ -17,6 +18,8 @@ class IdeabookController extends Controller {
 	{
 		$ideabooks = Ideabook::orderBy('id', 'desc')->paginate(10);
 
+
+
 		return view('ideabooks.index', compact('ideabooks'));
 	}
 
@@ -27,7 +30,8 @@ class IdeabookController extends Controller {
 	 */
 	public function create()
 	{
-		return view('ideabooks.create');
+        $privacy = Privacy::getAll();
+		return view('ideabooks.create', compact('privacy'));
 	}
 
 	/**
