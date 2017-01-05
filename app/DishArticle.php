@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class DishArticle extends Model
 {
-    protected $fillable = ['showcase','content','hasRecipe','article_id','chef_id'];
+    protected $fillable = ['showcase','description','hasRecipe','article_id','chef_id', 'ingredients', 'category', 'serving', 'calorie', 'time', 'image'];
+
+    public static $expectsFiles = true;
+
+    public static $fileInputs = ['image' => 'dishes/images'];
 
     public function article() {
     	return $this->belongsTo('\App\Article','article_id');

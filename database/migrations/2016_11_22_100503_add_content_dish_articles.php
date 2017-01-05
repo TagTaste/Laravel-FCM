@@ -14,7 +14,13 @@ class AddContentDishArticles extends Migration
     public function up()
     {
         Schema::table('dish_articles',function($table){
-            $table->text('content');
+            $table->text('description')->after('id');
+            $table->text('ingredients')->after('description');
+            $table->string('image')->nullable()->after('ingredients');
+            $table->string('category')->after('image');
+            $table->string('serving')->after('category');
+            $table->string('calorie')->after('serving');
+            $table->string('time')->after('calorie');
         });
     }
 
@@ -26,7 +32,13 @@ class AddContentDishArticles extends Migration
     public function down()
     {
         Schema::table('dish_articles',function($table){
-            $table->dropColumn('content');
+            $table->dropColumn('description');
+            $table->dropColumn('ingredients');
+            $table->dropColumn('image');
+            $table->dropColumn('category');
+            $table->dropColumn('serving');
+            $table->dropColumn('calorie');
+            $table->dropColumn('time');
         });
     }
 }

@@ -96,6 +96,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("articles/create/{type}", ['as'=>'articles.new','uses'=>'ArticleController@create']);
 	Route::resource("articles","ArticleController");
 	Route::resource("dish_articles","DishArticleController");
+	Route::get('dish_articles/{id}',['as'=>'dish_articles.receipe','uses'=>'DishArticleController@addReceipe']);
 	
 	Route::resource("recipe_articles","RecipeArticleController");
 	Route::get("/product/image/{filename}",function($filename){
@@ -105,6 +106,8 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("products","ProductController");
 	Route::get("blogs/images/{filename}",['as'=>'blogs.image','uses'=>'BlogArticleController@image']);
 	Route::resource("blog_articles","BlogArticleController");
+
+	Route::get("dishes/images/{filename}",['as'=>'dishes.image','uses'=>'DishArticleController@image']);
 
 	Route::get('ideas',['as'=>'ideas','uses'=>'IdeabookController@ideas']);
     Route::resource("ideabooks","IdeabookController");
