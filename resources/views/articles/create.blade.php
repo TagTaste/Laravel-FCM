@@ -32,11 +32,8 @@
      <div class="col-md-3">
       <div class="form-group @if($errors->has('privacy_id')) has-error @endif">
        <label for="privacy_id-field">Privacy</label>
-       <select name="article[privacy_id]" id="" class='form-control'>
-          @foreach($privacy as $name => $id)
-            <option value="{{ $id }}" @if($id == 1) selecterd @endif> {{ $name }} </option>
-          @endforeach
-       </select>
+          {{ Form::select("article[privacy_id",$privacy,null,['class'=>'form-control']) }}
+
        @if($errors->has("privacy_id"))
        <span class="help-block">{{ $errors->first("privacy_id") }}</span>
        @endif
