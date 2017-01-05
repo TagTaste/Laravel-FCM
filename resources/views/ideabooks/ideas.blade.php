@@ -15,7 +15,11 @@
        <div class="col-md-12">
            <ul>
                @foreach($articles as $article)
-                   <li><a href="{{ route("articles.show",$article->id) }}">{{ $article->title }}</a></li>
+                   <li>
+                       <a href="{{ route("articles.show",$article->id) }}">{{ $article->title }}</a>
+                       <a href="{{ route("ideas.remove",$article->id) }}">x</a>
+
+                   </li>
                @endforeach
            </ul>
        </div>

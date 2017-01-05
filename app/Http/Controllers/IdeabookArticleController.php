@@ -96,12 +96,13 @@ class IdeabookArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $articleId)
 	{
-		$ideabook_article = IdeabookArticle::findOrFail($id);
-		$ideabook_article->delete();
+        $ideabook = $request->user()->getDefaultIdeabook();
 
-		return redirect()->route('ideabook_articles.index')->with('message', 'Item deleted successfully.');
+        $ideabook->articles()->detach($articleId);
+
+		return redirect()->back()->with('message', 'Article removed from Ideabook');
 	}
 
 }
