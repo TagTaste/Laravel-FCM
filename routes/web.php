@@ -107,6 +107,6 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("blog_articles","BlogArticleController");
 
     Route::resource("ideabooks","IdeabookController");
-
+    Route::resource("ideabook_items","Ideabook_itemController");
 
 });
