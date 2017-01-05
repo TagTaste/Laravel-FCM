@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Ideabook;
 use App\Privacy;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 
 class IdeabookController extends Controller {
@@ -14,9 +15,9 @@ class IdeabookController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$ideabooks = Ideabook::orderBy('id', 'desc')->paginate(10);
+		$ideabooks = $request->user()->ideabooks()->orderBy('id', 'desc')->paginate(10);
 
 
 
@@ -51,7 +52,7 @@ class IdeabookController extends Controller {
 
 		$ideabook->save();
 
-		return redirect()->route('ideabooks.index')->with('message', 'Item created successfully.');
+		return redirect()->route('ideabooks.index')->with('message', 'Ideabook created successfully.');
 	}
 
 	/**
@@ -60,9 +61,9 @@ class IdeabookController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $id)
 	{
-		$ideabook = Ideabook::findOrFail($id);
+		$ideabook = $request->user()->ideabook()->findOrFail($id);
 
 		return view('ideabooks.show', compact('ideabook'));
 	}
@@ -73,9 +74,9 @@ class IdeabookController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit(Request $request, $id)
 	{
-		$ideabook = Ideabook::findOrFail($id);
+		$ideabook = $request->user()->ideabook()->findOrFail($id);
 
 		return view('ideabooks.edit', compact('ideabook'));
 	}
@@ -89,7 +90,7 @@ class IdeabookController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$ideabook = Ideabook::findOrFail($id);
+		$ideabook = $request->user()->ideabook()->find($id);
 
 		$ideabook->name = $request->input("name");
         $ideabook->description = $request->input("description");
@@ -97,7 +98,7 @@ class IdeabookController extends Controller {
 
 		$ideabook->save();
 
-		return redirect()->route('ideabooks.index')->with('message', 'Item updated successfully.');
+		return redirect()->route('ideabooks.index')->with('message', 'Ideabook updated successfully.');
 	}
 
 	/**
@@ -111,7 +112,7 @@ class IdeabookController extends Controller {
 		$ideabook = Ideabook::findOrFail($id);
 		$ideabook->delete();
 
-		return redirect()->route('ideabooks.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('ideabooks.index')->with('message', 'Ideabook deleted successfully.');
 	}
 
 }
