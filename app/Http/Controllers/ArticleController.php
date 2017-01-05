@@ -24,7 +24,6 @@ class ArticleController extends Controller {
 
 	    $articles = $request->user()->getArticles();
 
-
 		return view('articles.index', compact('articles'));
 	}
 
@@ -113,8 +112,19 @@ class ArticleController extends Controller {
 	public function edit($id)
 	{
 		$article = Article::findOrFail($id);
+		$requiresTitle = true;
 
-		return view('articles.edit', compact('article'));
+		$privacy = Privacy::getAll();
+
+		if(count($article->dish)) {
+			$type = 'dish';
+		} else {
+			$type = 'blog';
+		}
+
+		$templates = Template::forType($type);
+
+		return view('articles.edit', compact('article', 'requiresTitle', 'type', 'privacy', 'templates'));
 	}
 
 	/**
@@ -127,15 +137,25 @@ class ArticleController extends Controller {
 	public function update(Request $request, $id)
 	{
 		$article = Article::findOrFail($id);
+		$article->update($request->input('article'));
 
-		$article->title = $request->input("title");
-        $article->author_id = $request->input("author_id");
-        $article->privacy_id = $request->input("privacy_id");
-        $article->comments_enabled = $request->input("comments_enabled");
-        $article->status = $request->input("status");
-        $article->template_id = $request->input("template_id");
+		$type = $request->input("type");
+		$typeInputs = $request->input($type);
 
-		$article->save();
+		$class = "\App\\" . ucfirst($type) . "Article";
+        if($class::$expectsFiles){
+            foreach($class::$fileInputs as $fileInput => $storagePath){
+                $inputName = $type . "." . $fileInput;
+                if($request->hasFile($inputName)){
+                    $file = $request->file($inputName);
+                    $filePath = $file->store($storagePath);
+                    //get file name, laravel has something for this?
+                    $names = explode("/",$filePath);
+                    $typeInputs[$fileInput] = end($names);
+                }
+            }
+        }
+		$article->$type->update($typeInputs);
 
 		return redirect()->route('articles.index')->with('message', 'Article updated successfully.');
 	}
@@ -146,7 +166,7 @@ class ArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $id)
 	{
 		$article = Article::findOrFail($id);
 		$article->delete();

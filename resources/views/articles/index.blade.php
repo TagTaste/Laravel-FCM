@@ -19,14 +19,13 @@
                 @foreach($articles as $article)
                     <div class="row">
                         <div class="col-md-12">
-                            @include($article->getView(),['article'=>$article->getArticle(), 'title'=>$article->title])
-                            <hr>
+                            @include($article->getView(),['article'=>$article->getArticle(), 'title'=>$article->title, 'id'=>$article->id])
+                        <hr>
                         </div>
                         <div class="col-md-12">
                             <a href="{{ route("ideabooks.addArticle", $article->id) }}">Add To Ideabook</a>
                         </div>
                     </div>
-
                 @endforeach
             @else
                 <p>You haven't written any articles yet.</p>
