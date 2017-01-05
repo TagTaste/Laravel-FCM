@@ -77,8 +77,9 @@ class IdeabookController extends Controller {
 	public function edit(Request $request, $id)
 	{
 		$ideabook = $request->user()->ideabooks()->findOrFail($id);
+        $privacy = Privacy::getAll();
 
-		return view('ideabooks.edit', compact('ideabook'));
+		return view('ideabooks.edit', compact('ideabook','privacy'));
 	}
 
 	/**
