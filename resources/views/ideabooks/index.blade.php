@@ -20,8 +20,7 @@
                             <th>ID</th>
                             <th>NAME</th>
                         <th>DESCRIPTION</th>
-                        <th>PRIVACY_ID</th>
-                        <th>USER_ID</th>
+                        <th>PRIVACY</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -32,8 +31,7 @@
                                 <td>{{$ideabook->id}}</td>
                                 <td>{{$ideabook->name}}</td>
                     <td>{{$ideabook->description}}</td>
-                    <td>{{$ideabook->privacy_id}}</td>
-                    <td>{{$ideabook->user_id}}</td>
+                    <td>{{$ideabook->privacy->name}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('ideabooks.show', $ideabook->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('ideabooks.edit', $ideabook->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
