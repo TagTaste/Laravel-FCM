@@ -73,4 +73,9 @@ class Article extends Model
         return $this->getArticle()->image;
     }
 
+    public function ideabooks()
+    {
+        return $this->belongsToMany('\App\Ideabook','ideabook_articles','article_id','ideabook_id');
+    }
+
 }
