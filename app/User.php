@@ -6,6 +6,7 @@ use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Jobs\FetchUserAvatar;
 use App\Notifications\NotifyUserAvatarUpdateComplete;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
@@ -14,6 +15,7 @@ class User extends Authenticatable
 {
     use Notifiable;
     use EntrustUserTrait;
+    use SoftDeletes;
 
 
     /**
@@ -33,6 +35,32 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    protected $dates = ['deleted_at'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::deleting(function($user){
+            if($user->profile->count()){
+                $user->profile->delete();
+            }
+
+            if($user->social->count()){
+                $user->social->delete();
+            }
+
+            if($user->products->count()){
+                $user->products->delete();
+            }
+
+            if($user->ideabooks->count()){
+                $user->ideabooks->delete();
+            }
+
+        });
+    }
 
     public function profile() {
         return $this->hasMany('\App\Profile');
