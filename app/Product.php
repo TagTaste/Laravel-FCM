@@ -8,6 +8,10 @@ class Product extends Model
 {
 	static $imagePath = 'app/product_images/';
 
+	public static $types = ['Vegetarian','Non-Vegeratrian', 'Vegan'];
+
+	public static $modes = ['Frozen','Fresh'];
+
     protected $fillable = ['name','price','image','moq'];
 
     public function user(){
