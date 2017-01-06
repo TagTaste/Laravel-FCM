@@ -18,6 +18,7 @@ class Profile extends Model
 
 
     }
+
     public function type() {
     	return $this->belongsTo('\App\ProfileType');
     }

@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProfileAttribute extends Model
 {
+    use SoftDeletes;
 
     protected $storagePath = 'files/';
 
@@ -21,6 +23,27 @@ class ProfileAttribute extends Model
     protected $inputAttributes = [
         'textarea' => ['rows'=>10,'cols'=>30]
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::deleting(function($attribute){
+            if($attribute->children->count()){
+                $attribute->children->delete();
+            }
+
+            if($attribute->values->count()){
+                $attribute->values->delete();
+            }
+
+            if($attribute->profile->count()){
+                $attribute->profile->delete();
+            }
+
+
+        });
+    }
 
     public function profileType() {
         return $this->belongsTo('\App\ProfileType','profile_type_id');
