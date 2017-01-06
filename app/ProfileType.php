@@ -24,6 +24,10 @@ class ProfileType extends Model
             if($type->products->count()){
                 $type->products->delete();
             }
+
+            if($type->socialAccounts->count()){
+                $type->socialAccounts->delete();
+            }
         });
     }
 
@@ -52,5 +56,10 @@ class ProfileType extends Model
     public function products()
     {
         return $this->hasMany('\App\Product');
+    }
+
+    public function socialAccounts()
+    {
+        return  $this->hasMany('\App\SocialAccount');
     }
 }

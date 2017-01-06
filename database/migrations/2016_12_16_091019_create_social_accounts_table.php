@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class CreateSocialAccountsTable extends Migration
 {
@@ -18,6 +17,7 @@ class CreateSocialAccountsTable extends Migration
             $table->string('provider_user_id');
             $table->string('provider');
             $table->integer('profile_type_id')->unsigned();
+            $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('profile_type_id')->references('id')->on('profile_types');
