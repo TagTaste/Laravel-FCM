@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateIdeabookArticlesTable extends Migration {
 
@@ -17,6 +17,11 @@ class CreateIdeabookArticlesTable extends Migration {
             $table->integer('ideabook_id')->unsigned();
             $table->integer('article_id')->unsigned();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign("ideabook_id")->references("id")->on("ideabooks");
+            $table->foreign("article_id")->references("id")->on("articles");
+
         });
 	}
 
