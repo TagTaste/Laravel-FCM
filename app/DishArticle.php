@@ -25,6 +25,8 @@ class DishArticle extends Model
     }
 
     public static function getAsArray($userId,$profileTypeId) {
-        return static::with('article')->where('user_id','=',$userId)->where('profile_type_id','=',$profileTypeId)->get()->pluck('article.title','id');
+        return static::whereHas('article',function($query) use ($userId,$profileTypeId) {
+            $query->where('user_id',$userId)->where('profile_type_id',$profileTypeId);
+        })->get()->pluck('article.title','id');
     }
 }
