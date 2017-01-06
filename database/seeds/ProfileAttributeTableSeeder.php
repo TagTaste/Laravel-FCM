@@ -42,7 +42,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         }
 
         if($supplier) {
-            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','About Yourself'=>'textarea','Established on'=>'text','Major milestone'=>'text',"Number of customers"=>'text','clients'=>'text','Annual revenue'=>'text', 'Speciality'=>'text','Pincodes Catered'=>'text','Past Projects'=>'text','address'=>'text'];
+            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','About'=>'textarea','Established on'=>'text','Major milestone'=>'textarea',"Number of customers"=>'text','clients'=>'text','Annual revenue'=>'text', 'Speciality'=>'text','Pincodes Catered'=>'text','Past Projects'=>'text','address'=>'text'];
 
             foreach($attributes as $name => $inputType) {
                 $profileAttributes[] = [
@@ -63,7 +63,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         }
 
         if($outlet) {
-            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','address'=>'text','About Yourself'=>'textarea','cuisine'=>'checkbox','establishment types'=>'checkbox',"signature dishes"=>'text','famous for'=>'text','awards'=>'text'];
+            $attributes = ['name'=>'text','phone'=>'text','email'=>'text','address'=>'text','About'=>'textarea','cuisine'=>'checkbox','establishment type'=>'checkbox',"signature dishes"=>'text','famous for'=>'text','awards'=>'text'];
 
             foreach($attributes as $name => $inputType) {
                 $profileAttributes[] = [
