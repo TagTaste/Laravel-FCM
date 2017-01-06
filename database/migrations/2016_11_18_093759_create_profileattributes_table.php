@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateProfileAttributesTable extends Migration {
 
@@ -27,6 +27,7 @@ class CreateProfileAttributesTable extends Migration {
             $table->integer('parent_id')->unsigned()->nullable();
             $table->integer('template_id')->unsigned()->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign("user_id")->references("id")->on("users");
             $table->foreign("parent_id")->references("id")->on("profile_attributes");
