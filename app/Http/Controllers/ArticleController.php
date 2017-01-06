@@ -109,18 +109,12 @@ class ArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit($id, $type)
 	{
 		$article = Article::findOrFail($id);
 		$requiresTitle = true;
 
 		$privacy = Privacy::getAll();
-
-		if(count($article->dish)) {
-			$type = 'dish';
-		} else {
-			$type = 'blog';
-		}
 
 		$templates = Template::forType($type);
 

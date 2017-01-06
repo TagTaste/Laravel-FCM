@@ -11,7 +11,7 @@
 <div class="col-md-4">
 	<div class="row">
 		<div class="com-md-4">
-			<a class="btn btn-xs btn-warning" href="{{ route('articles.edit', $id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+			<a class="btn btn-xs btn-warning" href="{{ route('articles.edit', ['id' => $id, 'type' => 'dish']) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
 		</div>
 		<div class="com-md-4">
 			<a class="btn btn-xs btn-warning" href="{{ route('dish_articles.receipe', $article->id) }}"><i class="glyphicon glyphicon-edit"></i> Add Receipe</a>

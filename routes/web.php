@@ -95,6 +95,7 @@ Route::group(['middleware'=>'auth'],function(){
 
 	Route::get("articles/create/{type}", ['as'=>'articles.new','uses'=>'ArticleController@create']);
 	Route::resource("articles","ArticleController");
+	Route::get("articles/edit/{id}/{type}", ['as'=>'articles.edit','uses'=>'ArticleController@edit']);
 	Route::resource("dish_articles","DishArticleController");
 	Route::get('dish_articles/{id}',['as'=>'dish_articles.receipe','uses'=>'DishArticleController@addReceipe']);
 	
