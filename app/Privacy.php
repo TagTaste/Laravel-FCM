@@ -16,12 +16,20 @@ class Privacy extends Model
         parent::boot();
 
         self::deleting(function($privacy){
+
+            //if these relationships exist, do not delete this model.
+            // otherwise, there won't be any relationships to delete.
+            // maybe stale articles.
+
+
             if($privacy->articles->count()){
-                $privacy->articles->delete();
+                throw new \Exception("There are Articles using this Privacy Preference.");
+                //$privacy->articles->delete();
             }
 
             if($privacy->ideabooks->count()){
-                $privacy->ideabooks->delete();
+                throw new \Exception("There are Ideabooks using this Privacy Preference.");
+                //$privacy->ideabooks->delete();
             }
         });
     }

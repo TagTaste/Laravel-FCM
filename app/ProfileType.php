@@ -21,16 +21,25 @@ class ProfileType extends Model
         parent::boot();
 
         ProfileType::deleting(function($type){
+
+            //if these relationships exist, do not delete this model.
+            // otherwise, there won't be any relationships to delete.
+            // maybe stale articles.
+
             if($type->products->count()){
-                $type->products->delete();
+                throw new \Exception("There are Products using this Profile Type. Aborting.");
+
+                //$type->products->delete();
             }
 
             if($type->socialAccounts->count()){
-                $type->socialAccounts->delete();
+                throw new \Exception("There are Social Accounts using this Profile Type. Aborting.");
+                //$type->socialAccounts->delete();
             }
 
             if($type->articles->count()){
-                $type->articles->delete();
+                throw new \Exception("There are Articles using this Profile Type. Aborting.");
+                //$type->articles->delete();
             }
         });
     }
