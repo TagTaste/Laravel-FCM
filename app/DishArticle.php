@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DishArticle extends Model
 {
-    protected $fillable = ['showcase','description','hasRecipe','article_id','chef_id', 'ingredients', 'category', 'serving', 'calorie', 'time', 'image'];
+    protected $fillable = ['showcase','description','hasRecipe','article_id', 'ingredients', 'category', 'serving', 'calorie', 'time', 'image'];
 
     public static $expectsFiles = true;
 
@@ -24,8 +24,7 @@ class DishArticle extends Model
     	return $this->hasMany('\App\RecipeArticle','dish_id');
     }
 
-
-    public static function getAsArray($chefId) {
-        return static::with('article')->where('chef_id','=',$chefId)->get()->pluck('article.title','id');
+    public static function getAsArray($userId,$profileTypeId) {
+        return static::with('article')->where('user_id','=',$userId)->where('profile_type_id','=',$profileTypeId)->get()->pluck('article.title','id');
     }
 }

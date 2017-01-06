@@ -1,15 +1,11 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Article;
 use App\DishArticle;
-use App\ProfileType;
-use App\RecipeArticle;
+use App\Http\Requests;
 use App\Privacy;
+use App\ProfileType;
 use App\Template;
-
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller {
@@ -41,7 +37,7 @@ class ArticleController extends Controller {
 		$dishes = false;
 		$requiresTitle = true;
 		if($type == 'recipe'){
-			$dishes = DishArticle::getAsArray($request->user()->getChefProfileId());
+			$dishes = DishArticle::getAsArray($request->user()->id,ProfileType::getTypeId('chef'));
 			$requiresTitle = false;
 		}
 		return view('articles.create', compact('type','privacy', 'templates','dishes','requiresTitle'));
