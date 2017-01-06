@@ -111,4 +111,8 @@ class DishArticleController extends Controller {
 		return redirect()->route('dish_articles.index')->with('message', 'Item deleted successfully.');
 	}
 
+	public function image($filename)
+    {
+        return response()->file(storage_path("app/" . DishArticle::$fileInputs['image'] . '/' . $filename));
+	}
 }
