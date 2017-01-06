@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateTemplatesTable extends Migration {
 
@@ -20,6 +20,9 @@ class CreateTemplatesTable extends Migration {
             $table->integer('template_type_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('template_type_id')->references('id')->on('template_types');
+
         });
 	}
 
