@@ -59,7 +59,16 @@ class User extends Authenticatable
                 $user->ideabooks->delete();
             }
 
+            if($user->articles->count()){
+                $user->articles->delete();
+            }
+
         });
+    }
+
+    public function articles()
+    {
+        return $this->hasMany('\App\Article');
     }
 
     public function profile() {
