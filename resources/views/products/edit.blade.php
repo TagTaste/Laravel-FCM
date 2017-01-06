@@ -48,7 +48,7 @@
                     </div>
                     <div class="form-group @if($errors->has('type')) has-error @endif">
                        <label for="type-field">Type</label>
-                    <input type="text" id="type-field" name="type" class="form-control" value="{{ is_null(old("type")) ? $product->type : old("type") }}"/>
+                        {!! Form::select('type',$types,old('type'),['class'=>'form-control']) !!}
                        @if($errors->has("type"))
                         <span class="help-block">{{ $errors->first("type") }}</span>
                        @endif
@@ -89,8 +89,8 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('mode')) has-error @endif">
-                       <label for="mode-field">Portion Size</label>
-                    <input type="text" id="mode-field" name="mode" class="form-control" value="{{ is_null(old("mode")) ? $product->mode : old("mode") }}"/>
+                       <label for="mode-field">Mode</label>
+                        {!! Form::select('mode',$modes,old('mode'),['class'=>'form-control']) !!}
                        @if($errors->has("mode"))
                         <span class="help-block">{{ $errors->first("mode") }}</span>
                        @endif

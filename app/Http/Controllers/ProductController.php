@@ -1,11 +1,10 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Product;
-use Illuminate\Http\Request;
 use App\ProfileType;
+use Illuminate\Http\Request;
+
 class ProductController extends Controller {
 
 	/**
@@ -33,7 +32,9 @@ class ProductController extends Controller {
 	 */
 	public function create()
 	{
-		return view('products.create');
+	    $types = Product::$types;
+	    $modes = Product::$modes;
+		return view('products.create', compact('modes','types'));
 	}
 
 	/**
@@ -93,6 +94,8 @@ class ProductController extends Controller {
 	public function edit($id)
 	{
 		$product = Product::findOrFail($id);
+        $types = Product::$types;
+        $modes = Product::$modes;
 
 		return view('products.edit', compact('product'));
 	}

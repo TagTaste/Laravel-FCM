@@ -21,4 +21,14 @@ class Product extends Model
     public function profileType(){
     	return $this->belongsTo('\App\ProfileType');
     }
+
+    public function getMode()
+    {
+        return self::$modes[$this->mode];
+    }
+
+    public function getType()
+    {
+        return self::$types[$this->type];
+    }
 }
