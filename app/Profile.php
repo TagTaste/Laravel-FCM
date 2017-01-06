@@ -3,13 +3,21 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Response;
-use App\ProfileAttribute;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Profile extends Model
 {
+    use SoftDeletes;
 	protected $fillable = ['user_id','profile_attribute_id','value','value_id','type_id'];
-	
+
+	protected $dates = ['deleted_at'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+
+    }
     public function type() {
     	return $this->belongsTo('\App\ProfileType');
     }
@@ -73,11 +81,6 @@ class Profile extends Model
         }
 
         return $default;
-    }
-
-    public function articles()
-    {
-        return $this->hasMany('\App\Article','author_id','id');
     }
 
 }
