@@ -97,7 +97,7 @@ class ProductController extends Controller {
         $types = Product::$types;
         $modes = Product::$modes;
 
-		return view('products.edit', compact('product'));
+		return view('products.edit', compact('product','types','modes'));
 	}
 
 	/**

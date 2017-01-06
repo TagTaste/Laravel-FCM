@@ -48,7 +48,7 @@
                     </div>
                     <div class="form-group @if($errors->has('type')) has-error @endif">
                        <label for="type-field">Type</label>
-                        {!! Form::select('type',$types,old('type'),['class'=>'form-control']) !!}
+                        {!! Form::select('type',$types,is_null(old("type")) ? $product->type : old("type"),['class'=>'form-control']) !!}
                        @if($errors->has("type"))
                         <span class="help-block">{{ $errors->first("type") }}</span>
                        @endif
@@ -90,7 +90,7 @@
                     </div>
                     <div class="form-group @if($errors->has('mode')) has-error @endif">
                        <label for="mode-field">Mode</label>
-                        {!! Form::select('mode',$modes,old('mode'),['class'=>'form-control']) !!}
+                        {!! Form::select('mode',$modes,is_null(old("mode")) ? $product->mode : old("mode"),['class'=>'form-control']) !!}
                        @if($errors->has("mode"))
                         <span class="help-block">{{ $errors->first("mode") }}</span>
                        @endif

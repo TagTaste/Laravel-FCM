@@ -40,7 +40,7 @@
                 </div>
                 <div class="form-group">
                      <label for="type">Type</label>
-                     <p class="form-control-static">{{$product->type}}</p>
+                     <p class="form-control-static">{{$product->getType()}}</p>
                 </div>
                 <div class="form-group">
                      <label for="about">About</label>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="form-group">
                      <label for="mode">Mode</label>
-                     <p class="form-control-static">{{$product->mode}}</p>
+                     <p class="form-control-static">{{$product->getMode()}}</p>
                 </div>
             
             </form>
