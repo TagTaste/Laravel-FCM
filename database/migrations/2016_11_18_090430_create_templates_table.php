@@ -17,7 +17,7 @@ class CreateTemplatesTable extends Migration {
             $table->string('name');
             $table->string('view');
             $table->boolean('enabled')->default(0);
-            $table->integer('template_type_id')->nullable();
+            $table->integer('template_type_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
 
