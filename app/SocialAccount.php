@@ -10,6 +10,8 @@ class SocialAccount extends Model
     use SoftDeletes;
     protected $fillable = ['user_id','provider_user_id','provider','profile_type_id'];
 
+    protected $dates = ['deleted_at'];
+
     public function user()
     {
         return $this->belongsTo('\App\User');
