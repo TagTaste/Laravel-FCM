@@ -3,14 +3,28 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DishArticle extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['showcase','description','hasRecipe','article_id', 'ingredients', 'category', 'serving', 'calorie', 'time', 'image'];
+
+    protected $dates = ['deleted_at'];
 
     public static $expectsFiles = true;
 
     public static $fileInputs = ['image' => 'dishes/images'];
+
+    public static function boot()
+    {
+        self::deleting(function($dish){
+            if($dish->recipe){
+                $dish->recipe->delete();
+            }
+        });
+    }
 
     public function article() {
     	return $this->belongsTo('\App\Article','article_id');
@@ -21,7 +35,7 @@ class DishArticle extends Model
     }
 
     public function recipe() {
-    	return $this->hasMany('\App\RecipeArticle','dish_id');
+    	return $this->hasOne('\App\RecipeArticle','dish_id');
     }
 
     public static function getAsArray($userId,$profileTypeId) {

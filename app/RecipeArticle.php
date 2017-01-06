@@ -3,10 +3,20 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class RecipeArticle extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['dish_id','step','content','template_id','parent_id'];
+
+    protected $dates = ['deleted_at'];
+
+    public static function boot() {
+
+    }
 
     public function dish() {
     	return $this->belongsTo('\App\DishRecipe','dish_id');

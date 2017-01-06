@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['title', 'user_id', 'profile_type_id', 'privacy_id', 'comments_enabled', 'status', 'template_id'];
 
     protected $dates = [
@@ -13,6 +16,22 @@ class Article extends Model
         'updated_at',
         'deleted_at'
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::deleting(function($article){
+            if($article->dish){
+                $article->dish->delete();
+            }
+            if($article->blog){
+                $article->blog->delete();
+            }
+        });
+
+
+    }
 
     public function user()
     {
