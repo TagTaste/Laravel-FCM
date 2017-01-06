@@ -15,6 +15,10 @@ class TemplateType extends Model
     {
         parent::boot();
 
+        //if these relationships exist, do not delete this model.
+        // otherwise, there won't be any relationships to delete.
+        // maybe stale articles.
+
         self::deleting(function($type){
 
             if($type->templates->count()){
