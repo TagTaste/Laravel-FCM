@@ -97,9 +97,11 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("articles","ArticleController");
 	Route::get("articles/edit/{id}/{type}", ['as'=>'articles.edit','uses'=>'ArticleController@edit']);
 	Route::resource("dish_articles","DishArticleController");
-	Route::get('dish_articles/{id}',['as'=>'dish_articles.receipe','uses'=>'DishArticleController@addReceipe']);
 	
 	Route::resource("recipe_articles","RecipeArticleController");
+	Route::get("receipe/create/{id}", ['as'=>'recipe_articles.create','uses'=>'RecipeArticleController@create']);
+	Route::get("receipe/delete/{id}", ['uses'=>'RecipeArticleController@delete']);
+
 	Route::get("/product/image/{filename}",function($filename){
 		return response()->file(storage_path(\App\Product::$imagePath . $filename));
 	});
