@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Database\Seeder;
-
-// composer require laracasts/testdummy
 use App\ProfileAttribute;
 use App\ProfileType;
 use App\User;
+use Illuminate\Database\Seeder;
+
+// composer require laracasts/testdummy
 
 class ProfileAttributeTableSeeder extends Seeder {
 
@@ -34,7 +34,7 @@ class ProfileAttributeTableSeeder extends Seeder {
         }
 
         if($chef){
-            $attributes = ['work experience'=>'textarea','chef awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text', 'establishment types'=>'checkbox'];
+            $attributes = ['fun facts'=>'textarea','work experience'=>'textarea','chef awards'=>'checkbox','recognition'=>'textarea','certifications'=>'text', 'establishment types'=>'checkbox'];
 
             foreach($attributes as $name => $inputType){
                 $profileAttributes[] = ['name'=>str_replace(" ","_",strtolower($name)),'label'=>ucwords($name),'enabled'=>1,'required'=>0,'user_id'=> $admin->id,'profile_type_id'=>$chef->id,'input_type'=>$inputType];
