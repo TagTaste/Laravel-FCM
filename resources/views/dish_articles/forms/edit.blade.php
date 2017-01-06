@@ -71,25 +71,3 @@
                         <span class="help-block">{{ $errors->first("hasrecipe") }}</span>
                        @endif
                     </div>
-
-                    
-
-                    {{--
-
-                      <!-- <div class="form-group @if($errors->has('article_id')) has-error @endif">
-                       <label for="article_id-field">Article_id</label>
-                    <input type="text" id="article_id-field" name="article_id" class="form-control" value="{{ old("article_id") }}"/>
-                       @if($errors->has("article_id"))
-                        <span class="help-block">{{ $errors->first("article_id") }}</span>
-                       @endif
-                    </div> 
-                    <div class="form-group @if($errors->has('chef_id')) has-error @endif">
-                       <label for="chef_id-field">Chef_id</label>
-                    <input type="text" id="chef_id-field" name="chef_id" class="form-control" value="{{ old("chef_id") }}"/>
-                       @if($errors->has("chef_id"))
-                        <span class="help-block">{{ $errors->first("chef_id") }}</span>
-                       @endif
-                    </div> -->
-
-
-                    --}}
