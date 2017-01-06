@@ -13,6 +13,9 @@ class ProfileType extends Model
 
     protected $casts = ['enabled' => 'boolean', 'default' => 'boolean'];
 
+    protected $dates = ['deleted_at'];
+
+
     public static function boot()
     {
         parent::boot();

@@ -20,6 +20,8 @@ class ProfileAttribute extends Model
     	'required'=>'boolean',
     ];
 
+    protected $dates = ['deleted_at'];
+
     protected $inputAttributes = [
         'textarea' => ['rows'=>10,'cols'=>30]
     ];
@@ -38,6 +40,7 @@ class ProfileAttribute extends Model
             }
 
             if($attribute->profile->count()){
+                $attribute->profile->delete();
                 $attribute->profile->delete();
             }
 

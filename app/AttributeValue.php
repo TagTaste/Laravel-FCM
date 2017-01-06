@@ -11,6 +11,9 @@ class AttributeValue extends Model
 
     protected $fillable = ['attribute_id','name','value','default'];
 
+    protected $dates = ['deleted_at'];
+
+
     public function profileValue() {
     	//return $this->hasManyThrough('\App\AttributeValue','\App\Profile','id','value_id','value_id');
     	return $this->hasManyThrough('\App\AttributeValue','\App\Profile','id','value_id','value_id');
