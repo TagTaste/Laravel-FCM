@@ -3,10 +3,26 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ideabook extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['name','description','privacy_id','user_id'];
+
+    protected $dates = ['deleted_at'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::deleting(function($ideabook){
+            if($ideabook->articles->count()){
+                $ideabook->articles->delete();
+            }
+        });
+    }
 
     public function user()
     {
