@@ -83,22 +83,22 @@ class RecipeArticleController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(Request $request, $id)
+	public function update(Request $request, $dish_id)
 	{
+		$steps = array();
+		$recipes = RecipeArticle::where("dish_id", "=", $dish_id)->get();
+		$recipes = $recipes->keyBy('id');
 		foreach ($request['content'] as $key => $value) {
-			$recipe = RecipeArticle::where("dish_id", "=", $id)->where("id", "=", $request['recipe_id'.$key])->first();
-			if($recipe) {
+			$recipe = $recipes->get($request['recipe_id'.$key]);
+			if ($recipe) {
 				$recipe->step = ++$key;
 				$recipe->content = $value;
 				$recipe->save();
 			} else {
-				$recipe = RecipeArticle::create([
-	                'dish_id' => $id,
-	                'step' => ++$key,
-	                'content' => $value,
-	            ]);
+				$steps[] = ['dish_id' => $dish_id, 'step' => ++$key, 'content' => $value, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
 			}
 		}
+		RecipeArticle::insert($steps);
 		return redirect()->route('articles.index')->with('message', 'Recipe updated successfully.');
 	}
 
