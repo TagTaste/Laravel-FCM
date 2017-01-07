@@ -65,9 +65,12 @@
             e.preventDefault();
             var recipe_id = $(this).attr("value");
             var recipe_delete_id = $(this).attr("length");
+            var formData = {"_token": "{{ csrf_token() }}", 'recipe_id' : recipe_id};
             if (recipe_id != undefined) {
               $.ajax({
-                  url:"/recipe/delete/"+recipe_id,
+                  url:"/recipe/delete",
+                  type: "POST",
+                  data: formData,
                   success : function(data) {
                     $("form #removeBlock"+recipe_delete_id).remove();
                     curr_recipe_length--;

@@ -122,9 +122,10 @@ class RecipeArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function delete($recipe_id)
+	public function delete(Request $request)
 	{
-		$recipe_article = RecipeArticle::findOrFail($recipe_id);
+		$recipe_article = RecipeArticle::findOrFail($request['recipe_id']);
+		$article = $request->user()->articles()->findOrFail($recipe_article->dish->article_id);
 		$recipe_article->delete();
 
 		return $recipe_article;
