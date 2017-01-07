@@ -19,6 +19,7 @@ class CreateideabooksTable extends Migration {
             $table->integer('privacy_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign("privacy_id")->references("id")->on("privacies");
             $table->foreign("user_id")->references("id")->on("users");
