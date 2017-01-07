@@ -4,7 +4,7 @@
 @endsection
 @section('header')
     <div class="page-header">
-        <h1><i class="glyphicon glyphicon-edit"></i> RecipeArticles / Edit #{{$dish_article->id}}</h1>
+        <h1><i class="glyphicon glyphicon-edit"></i> RecipeArticles / Edit #{{$article->dish->id}}</h1>
     </div>
 @endsection
 
@@ -13,13 +13,13 @@
 
     <div class="row">
         <div class="col-md-12">
-          @if(count($dish_article->recipe) > 0)
-            <form action="{{ route('recipe_articles.update', $dish_article->id) }}" method="POST">
+          @if(count($article->dish->recipe) > 0)
+            <form action="{{ route('recipe_articles.update', $article->dish->id) }}" method="POST">
                 <input type="hidden" name="_method" value="PUT">
-                <input type="hidden" name="id" value="{{ $dish_article->id }}">
+                <input type="hidden" name="id" value="{{ $article->dish->id }}">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="row" id="addMoreFields">
-                  @foreach($dish_article->recipe as $key => $value)
+                  @foreach($article->dish->recipe as $key => $value)
                     <div class="form-group" id="removeBlock{{$key+1}}">
                         <input type="hidden" name="recipe_id{{$key}}" value="{{ $value['id'] }}">
                         <span class="glyphicon glyphicon-remove removerecipe" style="color: blue; cursor: pointer;" length="{{$key+1}}" data-toggle="tooltip" title="Remove" value="{{$value['id']}}"></span>

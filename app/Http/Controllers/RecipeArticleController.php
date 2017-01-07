@@ -68,11 +68,12 @@ class RecipeArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit(Request $request, $dish_id)
 	{
-		$dish_article = DishArticle::findOrFail($id);
+		$dish_article = DishArticle::findOrFail($dish_id);
+		$article = $request->user()->articles()->findOrFail($dish_article->article_id);
 
-		return view('recipe_articles.edit', compact('dish_article'));
+		return view('recipe_articles.edit', compact('article'));
 	}
 
 	/**
@@ -121,9 +122,9 @@ class RecipeArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function delete($id)
+	public function delete($recipe_id)
 	{
-		$recipe_article = RecipeArticle::findOrFail($id);
+		$recipe_article = RecipeArticle::findOrFail($recipe_id);
 		$recipe_article->delete();
 
 		return $recipe_article;
