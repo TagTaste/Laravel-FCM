@@ -13,9 +13,9 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable
 {
-    use Notifiable;
-    use EntrustUserTrait;
-    use SoftDeletes;
+    use Notifiable, EntrustUserTrait, SoftDeletes {
+        SoftDeletes::restore as softRestore;
+    }
 
 
     /**
@@ -280,5 +280,10 @@ class User extends Authenticatable
         }
 
         return $ideabook;
+    }
+
+    public function restore()
+    {
+        return $this->softRestore();
     }
 }
