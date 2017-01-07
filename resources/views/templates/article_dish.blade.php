@@ -5,8 +5,15 @@
         </div>
         <div class="col-md-9 col-md-offset-3">
         	<p class='text-justify text-align-left'> {!! $article->description !!}</p>
-
         </div>
+        @if(count($article->recipe)>0)
+            <h4>  Receipe: </h4>
+            @foreach($article->recipe as $key => $value)
+                <div class="col-md-12" >
+                <p class='text-justify text-align-left'> Step {{++$key}}: {{$value->content}} </p>
+                </div>
+            @endforeach
+        @endif
 </div>
 <div class="col-md-4">
 	<div class="row">
