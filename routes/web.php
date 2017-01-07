@@ -99,8 +99,8 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("dish_articles","DishArticleController");
 	
 	Route::resource("recipe_articles","RecipeArticleController");
-	Route::get("receipe/create/{id}", ['as'=>'recipe_articles.create','uses'=>'RecipeArticleController@create']);
-	Route::get("receipe/delete/{id}", ['uses'=>'RecipeArticleController@delete']);
+	Route::get("recipe/create/{id}", ['as'=>'recipe_articles.create','uses'=>'RecipeArticleController@create']);
+	Route::get("recipe/delete/{id}", ['uses'=>'RecipeArticleController@delete']);
 
 	Route::get("/product/image/{filename}",function($filename){
 		return response()->file(storage_path(\App\Product::$imagePath . $filename));

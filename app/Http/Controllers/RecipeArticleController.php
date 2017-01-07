@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\RecipeArticle;
 use App\DishArticle;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class RecipeArticleController extends Controller {
 
@@ -26,9 +27,9 @@ class RecipeArticleController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create($id)
+	public function create($dish_id)
 	{
-		return view('recipe_articles.create', compact('id'));
+		return view('recipe_articles.create', compact('dish_id'));
 	}
 
 	/**
@@ -39,14 +40,13 @@ class RecipeArticleController extends Controller {
 	 */
 	public function store(Request $request)
 	{
+		$articles = array();
 		foreach ($request['content'] as $key => $value) {
-			$receipe = RecipeArticle::create([
-                'dish_id' => $request['id'],
-                'step' => ++$key,
-                'content' => $value,
-            ]);
+            $articles[] = ['dish_id' => $request['id'], 'step' => ++$key, 'content' => $value, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
 		}
-		return redirect()->route('articles.index')->with('message', 'Item created successfully.');
+		RecipeArticle::insert($articles);
+
+		return redirect()->route('articles.index')->with('message', 'Recipe created successfully.');
 	}
 
 	/**
@@ -85,20 +85,20 @@ class RecipeArticleController extends Controller {
 	public function update(Request $request, $id)
 	{
 		foreach ($request['content'] as $key => $value) {
-			$receipe = RecipeArticle::where("dish_id", "=", $id)->where("id", "=", $request['receipe_id'.$key])->first();
-			if(count($receipe) > 0) {
-				$receipe->step = ++$key;
-				$receipe->content = $value;
-				$receipe->save();
+			$recipe = RecipeArticle::where("dish_id", "=", $id)->where("id", "=", $request['recipe_id'.$key])->first();
+			if($recipe) {
+				$recipe->step = ++$key;
+				$recipe->content = $value;
+				$recipe->save();
 			} else {
-				$receipe = RecipeArticle::create([
+				$recipe = RecipeArticle::create([
 	                'dish_id' => $id,
 	                'step' => ++$key,
 	                'content' => $value,
 	            ]);
 			}
 		}
-		return redirect()->route('articles.index')->with('message', 'Item updated successfully.');
+		return redirect()->route('articles.index')->with('message', 'Recipe updated successfully.');
 	}
 
 	/**
@@ -107,12 +107,12 @@ class RecipeArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy($recipe_id)
 	{
-		$recipe_article = RecipeArticle::findOrFail($id);
+		$recipe_article = RecipeArticle::findOrFail($recipe_id);
 		$recipe_article->delete();
 
-		return redirect()->route('recipe_articles.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('recipe_articles.index')->with('message', 'Recipe deleted successfully.');
 	}
 
 	/**
@@ -126,6 +126,6 @@ class RecipeArticleController extends Controller {
 		$recipe_article = RecipeArticle::findOrFail($id);
 		$recipe_article->delete();
 
-		return 0;
+		return $recipe_article;
 	}
 }
