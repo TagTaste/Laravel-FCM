@@ -10,13 +10,16 @@
 </div>
 <div class="col-md-4">
 	<div class="row">
-		<div class="com-md-4">
+		<div class="com-md-3">
 			<a class="btn btn-xs btn-warning" href="{{ route('articles.edit', ['id' => $id, 'type' => 'dish']) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
 		</div>
-		<div class="com-md-4">
-			<a class="btn btn-xs btn-warning" href="{{ route('dish_articles.receipe', $article->id) }}"><i class="glyphicon glyphicon-edit"></i> Add Receipe</a>
+		<div class="com-md-3">
+			<a class="btn btn-xs btn-warning" href="{{ route('recipe_articles.create', $article->id) }}"><i class="glyphicon glyphicon-edit"></i> Add Receipe</a>
 		</div>
-		<div class="com-md-4">
+        <div class="com-md-3">
+            <a class="btn btn-xs btn-warning" href="{{ route('recipe_articles.edit', $article->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit Receipe</a>
+        </div>
+		<div class="com-md-3">
 			<form action="{{ route('articles.destroy', $id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
                 <input type="hidden" name="_method" value="DELETE">
                 <input type="hidden" name="type" value="dish">

@@ -35,7 +35,7 @@ class DishArticle extends Model
     }
 
     public function recipe() {
-    	return $this->hasOne('\App\RecipeArticle','dish_id');
+    	return $this->hasMany('\App\RecipeArticle','dish_id');
     }
 
     public static function getAsArray($userId,$profileTypeId) {

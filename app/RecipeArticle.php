@@ -19,7 +19,7 @@ class RecipeArticle extends Model
     }
 
     public function dish() {
-    	return $this->belongsTo('\App\DishRecipe','dish_id');
+    	return $this->belongsTo('\App\DishArticle','dish_id');
     }
 
     public function template(){

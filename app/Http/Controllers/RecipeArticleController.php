@@ -4,7 +4,9 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\RecipeArticle;
+use App\DishArticle;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class RecipeArticleController extends Controller {
 
@@ -25,9 +27,9 @@ class RecipeArticleController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create($dish_id)
 	{
-		return view('recipe_articles.create');
+		return view('recipe_articles.create', compact('dish_id'));
 	}
 
 	/**
@@ -38,17 +40,13 @@ class RecipeArticleController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$recipe_article = new RecipeArticle();
+		$articles = array();
+		foreach ($request['content'] as $key => $value) {
+            $articles[] = ['dish_id' => $request['id'], 'step' => ++$key, 'content' => $value, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+		}
+		RecipeArticle::insert($articles);
 
-		$recipe_article->dish_id = $request->input("dish_id");
-        $recipe_article->step = $request->input("step");
-        $recipe_article->content = $request->input("content");
-        $recipe_article->template_id = $request->input("template_id");
-        $recipe_article->parent_id = $request->input("parent_id");
-
-		$recipe_article->save();
-
-		return redirect()->route('recipe_articles.index')->with('message', 'Item created successfully.');
+		return redirect()->route('articles.index')->with('message', 'Recipe created successfully.');
 	}
 
 	/**
@@ -70,11 +68,12 @@ class RecipeArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit(Request $request, $dish_id)
 	{
-		$recipe_article = RecipeArticle::findOrFail($id);
+		$dish_article = DishArticle::findOrFail($dish_id);
+		$article = $request->user()->articles()->findOrFail($dish_article->article_id);
 
-		return view('recipe_articles.edit', compact('recipe_article'));
+		return view('recipe_articles.edit', compact('article'));
 	}
 
 	/**
@@ -84,19 +83,23 @@ class RecipeArticleController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(Request $request, $id)
+	public function update(Request $request, $dish_id)
 	{
-		$recipe_article = RecipeArticle::findOrFail($id);
-
-		$recipe_article->dish_id = $request->input("dish_id");
-        $recipe_article->step = $request->input("step");
-        $recipe_article->content = $request->input("content");
-        $recipe_article->template_id = $request->input("template_id");
-        $recipe_article->parent_id = $request->input("parent_id");
-
-		$recipe_article->save();
-
-		return redirect()->route('recipe_articles.index')->with('message', 'Item updated successfully.');
+		$steps = array();
+		$recipes = RecipeArticle::where("dish_id", "=", $dish_id)->get();
+		$recipes = $recipes->keyBy('id');
+		foreach ($request['content'] as $key => $value) {
+			$recipe = $recipes->get($request['recipe_id'.$key]);
+			if ($recipe) {
+				$recipe->step = ++$key;
+				$recipe->content = $value;
+				$recipe->save();
+			} else {
+				$steps[] = ['dish_id' => $dish_id, 'step' => ++$key, 'content' => $value, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
+			}
+		}
+		RecipeArticle::insert($steps);
+		return redirect()->route('articles.index')->with('message', 'Recipe updated successfully.');
 	}
 
 	/**
@@ -105,12 +108,26 @@ class RecipeArticleController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy($recipe_id)
 	{
-		$recipe_article = RecipeArticle::findOrFail($id);
+		$recipe_article = RecipeArticle::findOrFail($recipe_id);
 		$recipe_article->delete();
 
-		return redirect()->route('recipe_articles.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('recipe_articles.index')->with('message', 'Recipe deleted successfully.');
 	}
 
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param  int  $id
+	 * @return Response
+	 */
+	public function delete(Request $request)
+	{
+		$recipe_article = RecipeArticle::findOrFail($request['recipe_id']);
+		$article = $request->user()->articles()->findOrFail($recipe_article->dish->article_id);
+		$recipe_article->delete();
+
+		return $recipe_article;
+	}
 }
