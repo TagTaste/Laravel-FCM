@@ -3,7 +3,7 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Certification;
+use App\Profile\Certification;
 use Illuminate\Http\Request;
 
 class CertificationController extends Controller {
