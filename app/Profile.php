@@ -28,4 +28,9 @@ class Profile extends Model
         }
         return date("d-m-Y",strtotime($value));
     }
+
+    public function experience()
+    {
+        return $this->hasMany('App\Profile\Experience');
+    }
 }

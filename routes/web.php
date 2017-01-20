@@ -118,4 +118,6 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("profile_shows","ProfileShowController");
     Route::resource("projects","ProjectController");
     Route::resource("experiences","ExperienceController");
+    Route::resource("awards","AwardController");
+
 });
