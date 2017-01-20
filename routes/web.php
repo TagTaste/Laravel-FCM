@@ -112,7 +112,7 @@ Route::group(['middleware'=>'auth'],function(){
 
     //Route::resource("ideabook_articles","IdeabookArticleController");
 
-    Route::resource("profiles","ProfileController"); // Add this line in routes.php
+    Route::resource("profiles","ProfileController");
 
 
 });
