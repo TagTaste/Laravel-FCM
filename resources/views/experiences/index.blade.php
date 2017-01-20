@@ -22,7 +22,7 @@
                         <th>DESIGNATION</th>
                         <th>DESCRIPTION</th>
                         <th>LOCATION</th>
-                        <th>START_END</th>
+                        <th>start_date</th>
                         <th>END_DATE</th>
                         <th>CURRENT_COMPANY</th>
                         <th>PROFILE_ID</th>
@@ -39,7 +39,7 @@
                     <td>{{$experience->designation}}</td>
                     <td>{{$experience->description}}</td>
                     <td>{{$experience->location}}</td>
-                    <td>{{$experience->start_end}}</td>
+                    <td>{{$experience->start_date}}</td>
                     <td>{{$experience->end_date}}</td>
                     <td>{{$experience->current_company}}</td>
                     <td>{{$experience->profile_id}}</td>

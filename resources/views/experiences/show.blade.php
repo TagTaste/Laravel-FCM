@@ -39,8 +39,8 @@
                      <p class="form-control-static">{{$experience->location}}</p>
                 </div>
                     <div class="form-group">
-                     <label for="start_end">START_END</label>
-                     <p class="form-control-static">{{$experience->start_end}}</p>
+                     <label for="start_date">start_date</label>
+                     <p class="form-control-static">{{$experience->start_date}}</p>
                 </div>
                     <div class="form-group">
                      <label for="end_date">END_DATE</label>

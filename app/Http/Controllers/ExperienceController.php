@@ -42,7 +42,7 @@ class ExperienceController extends Controller {
         $experience->designation = $request->input("designation");
         $experience->description = $request->input("description");
         $experience->location = $request->input("location");
-        $experience->start_end = $request->input("start_end");
+        $experience->start_date = $request->input("start_date");
         $experience->end_date = $request->input("end_date");
         $experience->current_company = $request->input("current_company");
 
@@ -92,7 +92,7 @@ class ExperienceController extends Controller {
         $experience->designation = $request->input("designation");
         $experience->description = $request->input("description");
         $experience->location = $request->input("location");
-        $experience->start_end = $request->input("start_end");
+        $experience->start_date = $request->input("start_date");
         $experience->end_date = $request->input("end_date");
         $experience->current_company = $request->input("current_company");
 

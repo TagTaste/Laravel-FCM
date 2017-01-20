@@ -46,11 +46,11 @@
                         <span class="help-block">{{ $errors->first("location") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('start_end')) has-error @endif">
-                       <label for="start_end-field">Start_end</label>
-                    <input type="text" id="start_end-field" name="start_end" class="form-control date-picker" value="{{ is_null(old("start_end")) ? $experience->start_end : old("start_end") }}"/>
-                       @if($errors->has("start_end"))
-                        <span class="help-block">{{ $errors->first("start_end") }}</span>
+                    <div class="form-group @if($errors->has('start_date')) has-error @endif">
+                       <label for="start_date-field">start_date</label>
+                    <input type="text" id="start_date-field" name="start_date" class="form-control date-picker" value="{{ is_null(old("start_date")) ? $experience->start_date : old("start_date") }}"/>
+                       @if($errors->has("start_date"))
+                        <span class="help-block">{{ $errors->first("start_date") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('end_date')) has-error @endif">

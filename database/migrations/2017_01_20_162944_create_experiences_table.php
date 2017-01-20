@@ -18,7 +18,7 @@ class CreateExperiencesTable extends Migration {
             $table->string('designation');
             $table->text('description')->nullable();
             $table->text('location')->nullable();
-            $table->date('start_end');
+            $table->date('start_date');
             $table->date('end_date');
             $table->boolean('current_company')->default('0');
             $table->integer('profile_id')->unsigned();
