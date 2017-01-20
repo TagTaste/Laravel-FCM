@@ -117,4 +117,5 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("profile_books","ProfileBookController");
     Route::resource("profile_shows","ProfileShowController");
     Route::resource("projects","ProjectController");
+    Route::resource("experiences","ExperienceController");
 });

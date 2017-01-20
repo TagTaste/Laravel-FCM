@@ -46,38 +46,24 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('start_end')) has-error @endif">
-                       <label for="start_end-field">Start_end</label>
+                       <label for="start_end-field">Start End</label>
                     <input type="text" id="start_end-field" name="start_end" class="form-control date-picker" value="{{ old("start_end") }}"/>
                        @if($errors->has("start_end"))
                         <span class="help-block">{{ $errors->first("start_end") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('end_date')) has-error @endif">
-                       <label for="end_date-field">End_date</label>
+                       <label for="end_date-field">End Date</label>
                     <input type="text" id="end_date-field" name="end_date" class="form-control date-picker" value="{{ old("end_date") }}"/>
                        @if($errors->has("end_date"))
                         <span class="help-block">{{ $errors->first("end_date") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('current_company')) has-error @endif">
-                       <label for="current_company-field">Current_company</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="current_company-field" id="current_company-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="current_company-field" value="false" id="current_company-field" autocomplete="off"> False</label></div>
+                       <label for="current_company">Current Company</label>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="current_company" id="current_company" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="current_company" value="0" id="current_company" autocomplete="off"> False</label></div>
                        @if($errors->has("current_company"))
                         <span class="help-block">{{ $errors->first("current_company") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('profile_id')) has-error @endif">
-                       <label for="profile_id-field">Profile_id</label>
-                    <input type="text" id="profile_id-field" name="profile_id" class="form-control" value="{{ old("profile_id") }}"/>
-                       @if($errors->has("profile_id"))
-                        <span class="help-block">{{ $errors->first("profile_id") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('profile_id')) has-error @endif">
-                       <label for="profile_id-field">Profile_id</label>
-                    <input type="text" id="profile_id-field" name="profile_id" class="form-control" value="{{ old("profile_id") }}"/>
-                       @if($errors->has("profile_id"))
-                        <span class="help-block">{{ $errors->first("profile_id") }}</span>
                        @endif
                     </div>
                 <div class="well well-sm">
