@@ -119,5 +119,6 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("projects","ProjectController");
     Route::resource("experiences","ExperienceController");
     Route::resource("awards","AwardController");
+    Route::resource("certifications","CertificationController");
 
 });

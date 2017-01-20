@@ -38,4 +38,9 @@ class Profile extends Model
     {
         return $this->hasMany('App\Profile\Award');
     }
+
+    public function certifications()
+    {
+        return $this->hasMany('App\Profile\Certification');
+    }
 }
