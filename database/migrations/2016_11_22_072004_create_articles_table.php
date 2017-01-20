@@ -15,7 +15,6 @@ class CreateArticlesTable extends Migration {
 		Schema::create('articles', function(Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->integer('author_id')->unsigned();
             $table->integer('privacy_id')->unsigned()->nullable();
             $table->boolean('comments_enabled')->default(1);
             $table->string('status');
@@ -23,7 +22,6 @@ class CreateArticlesTable extends Migration {
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign("author_id")->references("id")->on("profiles");
             $table->foreign("privacy_id")->references("id")->on("privacies");
             $table->foreign("template_id")->references("id")->on("templates");
         });
