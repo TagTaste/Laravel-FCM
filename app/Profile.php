@@ -33,4 +33,9 @@ class Profile extends Model
     {
         return $this->hasMany('App\Profile\Experience');
     }
+
+    public function awards()
+    {
+        return $this->hasMany('App\Profile\Awards');
+    }
 }
