@@ -42,6 +42,10 @@ class User extends Authenticatable
     {
         parent::boot();
 
+        self::created(function(User $user){
+            $user->profile()->create([]);
+        });
+
         self::deleting(function($user){
             if($user->profile->count()){
                 $user->profile->delete();

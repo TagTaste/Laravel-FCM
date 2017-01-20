@@ -14,8 +14,13 @@ class Experience extends Model
         return $this->belongsTo('App\Profile');
     }
 
-    public function set()
+    public function setStartDateAttribute($value)
     {
-        
+        $this->attributes['start_date'] = date('Y-m-d',strtotime($value));
+    }
+
+    public function getStartDateAttribute($value)
+    {
+        date('Y-m-d',strtotime($value));
     }
 }

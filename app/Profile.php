@@ -23,6 +23,9 @@ class Profile extends Model
 
     public function getDobAttribute($value)
     {
+        if(!$value){
+            return;
+        }
         return date("d-m-Y",strtotime($value));
     }
 }
