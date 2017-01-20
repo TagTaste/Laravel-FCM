@@ -14,25 +14,23 @@ class CreateProfilesTable extends Migration {
 	{
 		Schema::create('profiles', function(Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->text('tagline');
-            $table->text('about');
+            $table->text('tagline')->nullable();
+            $table->text('about')->nullable();
             $table->string('image');
             $table->string('hero_image')->nullable();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->date('dob')->nullable();
             $table->text('interests')->nullable();
-            $table->integer('marital_status',2)->nullable();
             $table->string('website_url')->nullable();
             $table->string('blog_url')->nullable();
             $table->string('facebook_url')->nullable();
             $table->string('linkedin_url')->nullable();
             $table->string('instagram_link')->nullable();
             $table->string('youtube_channel')->nullable();
-            $table->integer('followers')->unsigned()->default('0');
-            $table->integer('following')->unsigned()->default('0');
-            $table->integer('user_id')->unsigned();
+            $table->unsignedInteger('followers')->default('0');
+            $table->unsignedInteger('following')->default('0');
+            $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
 
