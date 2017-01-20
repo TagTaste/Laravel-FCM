@@ -21,8 +21,6 @@
                             <th>NAME</th>
                         <th>DESCRIPTION</th>
                         <th>DATE</th>
-                        <th>PROFILE_ID</th>
-                        <th>PROFILE_ID</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>

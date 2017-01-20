@@ -38,20 +38,6 @@
                         <span class="help-block">{{ $errors->first("date") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('profile_id')) has-error @endif">
-                       <label for="profile_id-field">Profile_id</label>
-                    <input type="text" id="profile_id-field" name="profile_id" class="form-control" value="{{ old("profile_id") }}"/>
-                       @if($errors->has("profile_id"))
-                        <span class="help-block">{{ $errors->first("profile_id") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('profile_id')) has-error @endif">
-                       <label for="profile_id-field">Profile_id</label>
-                    <input type="text" id="profile_id-field" name="profile_id" class="form-control" value="{{ old("profile_id") }}"/>
-                       @if($errors->has("profile_id"))
-                        <span class="help-block">{{ $errors->first("profile_id") }}</span>
-                       @endif
-                    </div>
                 <div class="well well-sm">
                     <button type="submit" class="btn btn-primary">Create</button>
                     <a class="btn btn-link pull-right" href="{{ route('certifications.index') }}"><i class="glyphicon glyphicon-backward"></i> Back</a>

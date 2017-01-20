@@ -34,14 +34,6 @@
                      <label for="date">DATE</label>
                      <p class="form-control-static">{{$certification->date}}</p>
                 </div>
-                    <div class="form-group">
-                     <label for="profile_id">PROFILE_ID</label>
-                     <p class="form-control-static">{{$certification->profile_id}}</p>
-                </div>
-                    <div class="form-group">
-                     <label for="profile_id">PROFILE_ID</label>
-                     <p class="form-control-static">{{$certification->profile_id}}</p>
-                </div>
             </form>
 
             <a class="btn btn-link" href="{{ route('certifications.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
