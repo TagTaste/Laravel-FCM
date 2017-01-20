@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Profile;
 use Illuminate\Http\Request;
 
@@ -39,8 +37,6 @@ class ProfileController extends Controller {
 	public function store(Request $request)
 	{
 		$profile = new Profile();
-
-		$profile->name = $request->input("name");
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
         $profile->image = $request->input("image");
@@ -49,20 +45,16 @@ class ProfileController extends Controller {
         $profile->address = $request->input("address");
         $profile->dob = $request->input("dob");
         $profile->interests = $request->input("interests");
-        $profile->marital_status = $request->input("marital_status");
         $profile->website_url = $request->input("website_url");
         $profile->blog_url = $request->input("blog_url");
         $profile->facebook_url = $request->input("facebook_url");
         $profile->linkedin_url = $request->input("linkedin_url");
         $profile->instagram_link = $request->input("instagram_link");
         $profile->youtube_channel = $request->input("youtube_channel");
-        $profile->followers = $request->input("followers");
-        $profile->following = $request->input("following");
-        $profile->user_id = $request->input("user_id");
 
 		$profile->save();
 
-		return redirect()->route('profiles.index')->with('message', 'Item created successfully.');
+		return redirect()->route('profiles.index')->with('message', 'Profile created.');
 	}
 
 	/**
@@ -102,7 +94,6 @@ class ProfileController extends Controller {
 	{
 		$profile = Profile::findOrFail($id);
 
-		$profile->name = $request->input("name");
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
         $profile->image = $request->input("image");
@@ -111,20 +102,17 @@ class ProfileController extends Controller {
         $profile->address = $request->input("address");
         $profile->dob = $request->input("dob");
         $profile->interests = $request->input("interests");
-        $profile->marital_status = $request->input("marital_status");
         $profile->website_url = $request->input("website_url");
         $profile->blog_url = $request->input("blog_url");
         $profile->facebook_url = $request->input("facebook_url");
         $profile->linkedin_url = $request->input("linkedin_url");
         $profile->instagram_link = $request->input("instagram_link");
         $profile->youtube_channel = $request->input("youtube_channel");
-        $profile->followers = $request->input("followers");
-        $profile->following = $request->input("following");
-        $profile->user_id = $request->input("user_id");
+        $profile->user_id = $request->user()->id;
 
 		$profile->save();
 
-		return redirect()->route('profiles.index')->with('message', 'Item updated successfully.');
+		return redirect()->route('profiles.index')->with('message', 'Profile updated.');
 	}
 
 	/**
@@ -138,7 +126,7 @@ class ProfileController extends Controller {
 		$profile = Profile::findOrFail($id);
 		$profile->delete();
 
-		return redirect()->route('profiles.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('profiles.index')->with('message', 'Profile deleted.');
 	}
 
 }

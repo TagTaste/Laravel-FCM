@@ -19,7 +19,7 @@
 
                 <div class="form-group @if($errors->has('name')) has-error @endif">
                        <label for="name-field">Name</label>
-                    <input type="text" id="name-field" name="name" class="form-control" value="{{ old("name") }}"/>
+                    <input type="text" id="name-field" name="user.name" class="form-control" value="{{ old("name") }}"/>
                        @if($errors->has("name"))
                         <span class="help-block">{{ $errors->first("name") }}</span>
                        @endif
@@ -80,13 +80,6 @@
                         <span class="help-block">{{ $errors->first("interests") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('marital_status')) has-error @endif">
-                       <label for="marital_status-field">Marital_status</label>
-                    <input type="text" id="marital_status-field" name="marital_status" class="form-control" value="{{ old("marital_status") }}"/>
-                       @if($errors->has("marital_status"))
-                        <span class="help-block">{{ $errors->first("marital_status") }}</span>
-                       @endif
-                    </div>
                     <div class="form-group @if($errors->has('website_url')) has-error @endif">
                        <label for="website_url-field">Website_url</label>
                     <input type="text" id="website_url-field" name="website_url" class="form-control" value="{{ old("website_url") }}"/>
@@ -127,27 +120,6 @@
                     <input type="text" id="youtube_channel-field" name="youtube_channel" class="form-control" value="{{ old("youtube_channel") }}"/>
                        @if($errors->has("youtube_channel"))
                         <span class="help-block">{{ $errors->first("youtube_channel") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('followers')) has-error @endif">
-                       <label for="followers-field">Followers</label>
-                    <input type="text" id="followers-field" name="followers" class="form-control" value="{{ old("followers") }}"/>
-                       @if($errors->has("followers"))
-                        <span class="help-block">{{ $errors->first("followers") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('following')) has-error @endif">
-                       <label for="following-field">Following</label>
-                    <input type="text" id="following-field" name="following" class="form-control" value="{{ old("following") }}"/>
-                       @if($errors->has("following"))
-                        <span class="help-block">{{ $errors->first("following") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('user_id')) has-error @endif">
-                       <label for="user_id-field">User_id</label>
-                    <input type="text" id="user_id-field" name="user_id" class="form-control" value="{{ old("user_id") }}"/>
-                       @if($errors->has("user_id"))
-                        <span class="help-block">{{ $errors->first("user_id") }}</span>
                        @endif
                     </div>
                 <div class="well well-sm">
