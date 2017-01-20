@@ -135,6 +135,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js"></script>
   <script>
     $('.date-picker').datepicker({
+        format : "dd-mm-yyyy"
     });
   </script>
 @endsection

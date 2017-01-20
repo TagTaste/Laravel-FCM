@@ -51,7 +51,7 @@ class ProfileController extends Controller {
         $profile->linkedin_url = $request->input("linkedin_url");
         $profile->instagram_link = $request->input("instagram_link");
         $profile->youtube_channel = $request->input("youtube_channel");
-
+        $profile->user_id = $request->user()->id;
 		$profile->save();
 
 		return redirect()->route('profiles.index')->with('message', 'Profile created.');
