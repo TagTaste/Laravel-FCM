@@ -114,7 +114,7 @@ Route::group(['middleware'=>'auth'],function(){
 
     Route::resource("profiles","ProfileController");
     Route::resource("professionals","ProfessionalController");
-    Route::resource("profile_books","ProfileBookController"); // Add this line in routes.php
-
+    Route::resource("profile_books","ProfileBookController");
+    Route::resource("profile_shows","ProfileShowController");
 
 });
