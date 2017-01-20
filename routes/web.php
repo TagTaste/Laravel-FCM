@@ -116,5 +116,5 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("professionals","ProfessionalController");
     Route::resource("profile_books","ProfileBookController");
     Route::resource("profile_shows","ProfileShowController");
-
+    Route::resource("projects","ProjectController");
 });
