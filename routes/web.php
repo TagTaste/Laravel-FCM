@@ -75,15 +75,8 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::get("profile_attributes/create/{parentId}",['as'=>'profile_attributes.addChild','uses'=>'ProfileAttributeController@create']);
 	Route::resource("profile_attributes","ProfileAttributeController");
 
-	Route::get("profile/file/{filename}",['as'=>'profile.fileDownload','uses'=>'ProfileController@fileDownload']);
 	Route::get("profile/form/{typeId}",['as'=>'profile.form','uses'=>"ProfileAttributeController@form"]);
 	Route::get("profile/form/{typeId}/edit",['as'=>'profile.formEdit','uses'=>"ProfileAttributeController@formEdit"]);
-
-	Route::post("profiles/update",['as'=>'profiles.updateIndividual','uses'=>'ProfileController@update']);
-
-	Route::get("profiles/{typeId}",['as'=>'profiles.show','uses'=>'ProfileController@show']);
-	Route::get("profiles/{typeId}/edit",['as'=>'profiles.editSingle','uses'=>'ProfileController@edit']);
-	Route::resource("profiles","ProfileController");
 
 	Route::get("attribute_values/create/{attributeId}",['as'=>'attribute_values.add','uses'=>"AttributeValueController@create"]);
 	Route::resource("attribute_values","AttributeValueController");
