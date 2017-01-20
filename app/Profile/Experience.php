@@ -15,12 +15,28 @@ class Experience extends Model
     }
 
     public function setStartDateAttribute($value)
-    {
-        $this->attributes['start_date'] = date('Y-m-d',strtotime($value));
-    }
+{
+    $this->attributes['start_date'] = date('Y-m-d',strtotime($value));
+}
 
     public function getStartDateAttribute($value)
     {
-        date('Y-m-d',strtotime($value));
+        if(!$value){
+            return;
+        }
+        return date("d-m-Y",strtotime($value));
+    }
+
+    public function setEndDateAttribute($value)
+    {
+        $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
+    }
+
+    public function getEndDateAttribute($value)
+    {
+        if(!$value){
+            return;
+        }
+        return date("d-m-Y",strtotime($value));
     }
 }

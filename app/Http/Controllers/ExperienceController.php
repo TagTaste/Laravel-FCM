@@ -37,7 +37,6 @@ class ExperienceController extends Controller {
 	public function store(Request $request)
 	{
 		$experience = new Experience();
-
 		$experience->company = $request->input("company");
         $experience->designation = $request->input("designation");
         $experience->description = $request->input("description");
@@ -45,6 +44,7 @@ class ExperienceController extends Controller {
         $experience->start_date = $request->input("start_date");
         $experience->end_date = $request->input("end_date");
         $experience->current_company = $request->input("current_company");
+        $experience->profile_id = $request->user()->profile->id;
 
 		$experience->save();
 
@@ -95,7 +95,7 @@ class ExperienceController extends Controller {
         $experience->start_date = $request->input("start_date");
         $experience->end_date = $request->input("end_date");
         $experience->current_company = $request->input("current_company");
-
+        $experience->profile_id = $request->user()->profile->id;
 		$experience->save();
 
 		return redirect()->route('experiences.index')->with('message', 'Item updated successfully.');
