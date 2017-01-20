@@ -3,7 +3,7 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Award;
+use App\Profile\Award;
 use Illuminate\Http\Request;
 
 class AwardController extends Controller {
