@@ -36,6 +36,6 @@ class Profile extends Model
 
     public function awards()
     {
-        return $this->hasMany('App\Profile\Awards');
+        return $this->hasMany('App\Profile\Award');
     }
 }
