@@ -72,7 +72,7 @@ class User extends Authenticatable
     }
 
     public function profile() {
-        return $this->hasMany('\App\Profile');
+        return $this->hasOne('\App\Profile');
     }
 
     public function addFoodieImage($fileUrl)
