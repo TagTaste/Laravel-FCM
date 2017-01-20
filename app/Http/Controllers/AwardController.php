@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Profile\Award;
 use Illuminate\Http\Request;
 
@@ -43,7 +41,7 @@ class AwardController extends Controller {
 		$award->name = $request->input("name");
         $award->description = $request->input("description");
         $award->date = $request->input("date");
-        $award->profile_id = $request->input("profile_id");
+        $award->profile_id = $request->user()->profile->id;
 
 		$award->save();
 
@@ -90,7 +88,7 @@ class AwardController extends Controller {
 		$award->name = $request->input("name");
         $award->description = $request->input("description");
         $award->date = $request->input("date");
-        $award->profile_id = $request->input("profile_id");
+        $award->profile_id = $request->user()->profile->id;
 
 		$award->save();
 
