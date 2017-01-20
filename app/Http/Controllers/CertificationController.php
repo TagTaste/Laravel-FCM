@@ -43,8 +43,7 @@ class CertificationController extends Controller {
 		$certification->name = $request->input("name");
         $certification->description = $request->input("description");
         $certification->date = $request->input("date");
-        $certification->profile_id = $request->input("profile_id");
-        $certification->profile_id = $request->input("profile_id");
+        $certification->profile_id = $request->user()->profile->id;
 
 		$certification->save();
 
@@ -91,8 +90,7 @@ class CertificationController extends Controller {
 		$certification->name = $request->input("name");
         $certification->description = $request->input("description");
         $certification->date = $request->input("date");
-        $certification->profile_id = $request->input("profile_id");
-        $certification->profile_id = $request->input("profile_id");
+        $certification->profile_id = $request->user()->profile->id;
 
 		$certification->save();
 
