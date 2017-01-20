@@ -20,7 +20,7 @@ class CreateProjectMembersTable extends Migration {
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->string('name')->nullable();
             $table->string('designation')->nullable();
-            $table->nullable('description');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
 	}
