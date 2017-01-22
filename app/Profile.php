@@ -43,4 +43,6 @@ class Profile extends Model
     {
         return $this->hasMany('App\Profile\Certification');
     }
+
+
 }
