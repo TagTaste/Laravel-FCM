@@ -226,7 +226,7 @@ class User extends Authenticatable
         $user->attachDefaultRole();
 
         //create default profile
-        $user->createDefaultProfile();
+        //$user->createDefaultProfile();
 
         //check social registration
         if($socialRegistration){
