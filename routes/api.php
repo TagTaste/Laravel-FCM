@@ -12,9 +12,10 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['middleware'=>'jwt.auth'],function(){
+Route::group(['middleware'=>'api.auth'],function(){
     Route::get('/profile', function (Request $request) {
-        return $request->user()->get();
+
+        return response()->json($request->user());
     });
 });
 
