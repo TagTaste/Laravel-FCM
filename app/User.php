@@ -27,6 +27,10 @@ class User extends Authenticatable
         'name', 'email', 'password', 'is_active', 'social_registration'
     ];
 
+    protected $with = ['profile'];
+
+    protected $visible = ['name','email','profile'];
+
     /**
      * The attributes that should be hidden for arrays.
      *

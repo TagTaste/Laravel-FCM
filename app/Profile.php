@@ -11,6 +11,13 @@ class Profile extends Model
     'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
     'youtube_channel','followers','following','user_id'];
 
+    protected $with = ['experience','awards','certifications'];
+
+    protected $visible = ['tagline','about','image',
+        'hero_image','phone','address','dob','interests',
+        'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
+        'youtube_channel','followers','following','experience','awards','certifications'];
+
     public function user()
     {
         return $this->belongsTo('App\User');

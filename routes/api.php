@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 Route::group(['middleware'=>'jwt.auth'],function(){
     Route::get('/profile', function (Request $request) {
-        return $request->user()->profile->with('experience','awards','certifications')->get();
+        return $request->user()->get();
     });
 });
 
