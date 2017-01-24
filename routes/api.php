@@ -13,10 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 Route::group(['middleware'=>'api.auth'],function(){
-    Route::get('/profile', function (Request $request) {
-
-        return response()->json($request->user());
-    });
+    Route::resource('profile','ProfileController');
 });
 
 Route::post('/user/create',function(Request $request){
