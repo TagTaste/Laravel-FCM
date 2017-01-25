@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -9,13 +10,17 @@ class Article extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['title', 'user_id', 'profile_type_id', 'privacy_id', 'comments_enabled', 'status', 'template_id'];
+    protected $fillable = ['title', 'user_id', 'privacy_id', 'comments_enabled', 'status', 'template_id'];
 
     protected $dates = [
         'created_at',
         'updated_at',
         'deleted_at'
     ];
+
+    protected $with = ['dish'];
+
+    protected $visible = ['title','comments_enabled','dish','created_at'];
 
     public static function boot()
     {
@@ -31,6 +36,12 @@ class Article extends Model
         });
 
 
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        $date = new Carbon($value);
+        return $date->diffForHumans(Carbon::now(),true);
     }
 
     public function user()

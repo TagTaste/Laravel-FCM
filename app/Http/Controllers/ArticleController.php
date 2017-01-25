@@ -4,7 +4,6 @@ use App\Article;
 use App\DishArticle;
 use App\Http\Requests;
 use App\Privacy;
-use App\ProfileType;
 use App\Template;
 use Illuminate\Http\Request;
 
@@ -52,9 +51,7 @@ class ArticleController extends Controller {
 	public function store(Request $request)
 	{
 		$inputs = $request->input('article');
-		//$inputs['author_id'] = $request->user()->getChefProfileId();
 		$inputs['user_id'] = $request->user()->id;
-		$inputs['profile_type_id'] = ProfileType::getTypeId('chef');
 
 		$article = Article::create($inputs);
 		
