@@ -13,6 +13,8 @@ class DishArticle extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $visible = ['description','ingredients','image','category','serving', 'calorie', 'time', 'hasRecipe'];
+
     public static $expectsFiles = true;
 
     public static $fileInputs = ['image' => 'dishes/images'];
