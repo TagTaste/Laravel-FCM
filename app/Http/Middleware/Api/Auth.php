@@ -22,9 +22,7 @@ class Auth extends GetUserFromToken
 
         try {
             $user = $this->auth->authenticate($token);
-            $request->setUserResolver(function() use ($user){
-                return $user;
-            });
+
         } catch (TokenExpiredException $e) {
             return $this->respond('tymon.jwt.expired', 'token_expired', $e->getStatusCode(), [$e]);
         } catch (JWTException $e) {
@@ -36,6 +34,10 @@ class Auth extends GetUserFromToken
         }
 
         $this->events->fire('tymon.jwt.valid', $user);
+
+        $request->setUserResolver(function() use ($user){
+            return $user;
+        });
 
         return $next($request);
     }
