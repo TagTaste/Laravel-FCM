@@ -12,14 +12,16 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['middleware'=>'api.auth'],function(){
-    Route::resource('profile','ProfileController');
-});
+Route::group(['namespace'=>'Api'],function(){
+    //unauthenticated routes.
+    Route::post('/user/register',['uses'=>'UserController@register']);
 
-Route::post('/user/create',function(Request $request){
-    //return response()->json($request->only('user'));
-    return response()->json(['status'=>'success','result'=> ['user'=>\App\User::create($request->input('user'))]]);
+    //authenticated routes.
+    Route::group(['middleware'=>'api.auth'],function(){
+        Route::resource('profile','ProfileController');
+
     });
+});
 
 Route::post('login',function(Request $request){
     $credentials = $request->only('email','password');
