@@ -8,6 +8,8 @@ class Book extends Model
 {
     protected $table = 'profile_books';
 
+    protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
+
     public function setReleaseDateAttribute($value)
     {
         $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
