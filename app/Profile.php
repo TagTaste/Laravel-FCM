@@ -19,7 +19,7 @@ class Profile extends Model
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
         'youtube_channel',
         'followers','following',
-        'experience','awards','certifications','tvshows',
+        'experience','awards','certifications','tvshows','books',
         'name'];
 
     protected $appends = ['imageUrl','heroImageUrl'];
