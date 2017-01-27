@@ -2,6 +2,8 @@
 
 namespace App\Api;
 
+use App\Profile;
+
 class Recommend
 {
     private $recommendations = [];
@@ -24,10 +26,10 @@ class Recommend
 
     public function profiles()
     {
-        $profiles = \DB::table('users')->select('users.id','users.name','profiles.tagline')
-            ->join('profiles','users.id','=','profiles.user_id')
-            ->take(2)
-            ->get();
+        //a join is required with the users table; otherwise we would get stuck in an endless loop while fetching recommendations
+        $profiles = Profile::select('name','tagline')
+                ->join('users','users.id','=','profiles.user_id')
+                ->without('experience','awards','certifications')->take(2)->get();
 
         $this->recommendations['profiles'] = $profiles;
         return;
