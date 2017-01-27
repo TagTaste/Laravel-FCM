@@ -13,11 +13,13 @@ class DishArticle extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['description','ingredients','image','category','serving', 'calorie', 'time', 'hasRecipe'];
+    protected $visible = ['description','ingredients','imageUrl','category','serving', 'calorie', 'time', 'hasRecipe'];
 
     public static $expectsFiles = true;
 
     public static $fileInputs = ['image' => 'dishes/images'];
+
+    protected $appends = ['imageUrl'];
 
     public static function boot()
     {
@@ -44,5 +46,12 @@ class DishArticle extends Model
         return static::whereHas('article',function($query) use ($userId,$profileTypeId) {
             $query->where('user_id',$userId)->where('profile_type_id',$profileTypeId);
         })->get()->pluck('article.title','id');
+    }
+
+    //specific for API
+    public function getImageUrlAttribute()
+    {
+        return "/profile/dish/" . $this->id . '.jpg';
+
     }
 }

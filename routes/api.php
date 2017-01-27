@@ -23,6 +23,7 @@ Route::group(['namespace'=>'Api',
     Route::group(['middleware'=>'api.auth'],function(){
 
         Route::resource('profile','ProfileController');
+        Route::get('dish/image/{id}','DishController@dishImages');
 
     });
 });

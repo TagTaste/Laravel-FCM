@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DishArticle;
 use App\Http\Controllers\Controller;
-use App\Profile;
 use Illuminate\Http\Request;
 
-class ProfileController extends Controller
+class DishController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        return response()->json($request->user());
+        //
     }
 
     /**
@@ -84,22 +84,10 @@ class ProfileController extends Controller
         //
     }
 
-    public function image($id)
-    {
-        $profile = Profile::select('image')->findOrFail($id);
-        return response()->file(storage_path("app/" . $profile->image));
-    }
-
-    public function heroImage($id)
-    {
-        $profile = Profile::select('hero_image')->findOrFail($id);
-
-        return response()->file(storage_path("app/" . $profile->hero_image));
-    }
-
     public function dishImages($id)
     {
-        $profile = Profile::select('hero_image')->findOrFail($id);
-        return response()->file(storage_path("app/" . $profile->hero_image));
+        $dish = DishArticle::select('image')->findOrFail($id);
+        $path = storage_path("app/" . DishArticle::$fileInputs['image'] . "/" . $dish->image);
+        return response()->file($path);
     }
 }
