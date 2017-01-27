@@ -11,11 +11,14 @@ class Profile extends Model
     'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
     'youtube_channel','followers','following','user_id'];
 
-    protected $with = ['experience','awards','certifications'];
+    protected $with = ['experience','awards','certifications','tvshows'];
 
     protected $visible = ['tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
-        'youtube_channel','followers','following','experience','awards','certifications','name'];
+        'youtube_channel',
+        'followers','following',
+        'experience','awards','certifications','tvshows',
+        'name'];
 
     protected $appends = ['imageUrl','heroImageUrl'];
 
@@ -50,6 +53,11 @@ class Profile extends Model
     public function certifications()
     {
         return $this->hasMany('App\Profile\Certification');
+    }
+
+    public function tvshows()
+    {
+        return $this->hasMany('App\Profile\Show');
     }
 
     //specific to API

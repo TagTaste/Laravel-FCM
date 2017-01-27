@@ -40,7 +40,7 @@
                     </div>
                     <div class="form-group @if($errors->has('current')) has-error @endif">
                        <label for="current-field">Current</label>
-                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="true" name="current-field" id="current-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="current-field" value="false" id="current-field" autocomplete="off"> False</label></div>
+                    <div class="btn-group" data-toggle="buttons"><label class="btn btn-primary"><input type="radio" value="1" name="current" id="current-field" autocomplete="off"> True</label><label class="btn btn-primary active"><input type="radio" name="current" value="0" id="current-field" autocomplete="off"> False</label></div>
                        @if($errors->has("current"))
                         <span class="help-block">{{ $errors->first("current") }}</span>
                        @endif

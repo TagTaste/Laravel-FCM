@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\ProfileShow;
+use App\Profile\Show;
 use Illuminate\Http\Request;
 
 class ProfileShowController extends Controller {
@@ -15,7 +13,7 @@ class ProfileShowController extends Controller {
 	 */
 	public function index()
 	{
-		$profile_shows = ProfileShow::orderBy('id', 'desc')->paginate(10);
+		$profile_shows = Show::orderBy('id', 'desc')->paginate(10);
 
 		return view('profile_shows.index', compact('profile_shows'));
 	}
@@ -38,7 +36,7 @@ class ProfileShowController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$profile_show = new ProfileShow();
+		$profile_show = new Show();
 
 		$profile_show->title = $request->input("title");
         $profile_show->description = $request->input("description");
@@ -48,7 +46,7 @@ class ProfileShowController extends Controller {
         $profile_show->end_date = $request->input("end_date");
         $profile_show->url = $request->input("url");
         $profile_show->appeared_as = $request->input("appeared_as");
-        $profile_show->profile_id = $request->input("profile_id");
+        $profile_show->profile_id = $request->user()->profile->id;
 
 		$profile_show->save();
 
@@ -63,7 +61,7 @@ class ProfileShowController extends Controller {
 	 */
 	public function show($id)
 	{
-		$profile_show = ProfileShow::findOrFail($id);
+		$profile_show = Show::findOrFail($id);
 
 		return view('profile_shows.show', compact('profile_show'));
 	}
@@ -76,7 +74,7 @@ class ProfileShowController extends Controller {
 	 */
 	public function edit($id)
 	{
-		$profile_show = ProfileShow::findOrFail($id);
+		$profile_show = Show::findOrFail($id);
 
 		return view('profile_shows.edit', compact('profile_show'));
 	}
@@ -90,7 +88,7 @@ class ProfileShowController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$profile_show = ProfileShow::findOrFail($id);
+		$profile_show = Show::findOrFail($id);
 
 		$profile_show->title = $request->input("title");
         $profile_show->description = $request->input("description");
@@ -115,7 +113,7 @@ class ProfileShowController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$profile_show = ProfileShow::findOrFail($id);
+		$profile_show = Show::findOrFail($id);
 		$profile_show->delete();
 
 		return redirect()->route('profile_shows.index')->with('message', 'Item deleted successfully.');
