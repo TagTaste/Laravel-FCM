@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Api\Recommend;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Jobs\FetchUserAvatar;
 use App\Notifications\NotifyUserAvatarUpdateComplete;
@@ -29,7 +30,9 @@ class User extends Authenticatable
 
     protected $with = ['profile','articles'];
 
-    protected $visible = ['name','email','profile','articles'];
+    protected $visible = ['name','email','profile','articles','recommend'];
+
+    protected $appends = ['recommend'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -293,5 +296,12 @@ class User extends Authenticatable
     public function restore()
     {
         return $this->softRestore();
+    }
+
+    public function getRecommendAttribute()
+    {
+        $recommendations = Recommend::get();
+
+        return $recommendations;
     }
 }
