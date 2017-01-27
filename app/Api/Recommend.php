@@ -27,7 +27,7 @@ class Recommend
     public function profiles()
     {
         //a join is required with the users table; otherwise we would get stuck in an endless loop while fetching recommendations
-        $profiles = Profile::select('name','tagline')
+        $profiles = Profile::select('name','profiles.id as id','tagline')
                 ->join('users','users.id','=','profiles.user_id')
                 ->without('experience','awards','certifications')->take(2)->get();
 
