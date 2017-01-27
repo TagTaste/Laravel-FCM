@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\ProjectMember;
+use App\Profile\ProjectMember;
 use Illuminate\Http\Request;
 
 class ProjectMemberController extends Controller {
