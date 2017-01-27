@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Profile;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectMember extends Model
+class ProfileBook extends Model
 {
     //
 }
