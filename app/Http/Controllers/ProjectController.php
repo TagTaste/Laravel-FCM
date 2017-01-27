@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\Project;
+use App\Profile\Project;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller {
