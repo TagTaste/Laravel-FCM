@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
+| All API controllers are namespaced to App\Http\Controllers\Api,
+| have their route alias start with "api.",
+| and reside in App\Http\Controllers\Api folder. Duh.
 |
 */
 Route::group(['namespace'=>'Api',
@@ -18,18 +18,19 @@ Route::group(['namespace'=>'Api',
 
 
     //unauthenticated routes.
-    Route::post('/user/register',['uses'=>'UserController@register']);
-    Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
-    Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
+        Route::post('/user/register',['uses'=>'UserController@register']);
+        Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
+        Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
+        Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
 
     //authenticated routes.
-    Route::group(['middleware'=>'api.auth'],function(){
+        Route::group(['middleware'=>'api.auth'],function(){
 
-        Route::resource('profile','ProfileController');
-        Route::get('dish/image/{id}','DishController@dishImages');
+            Route::resource('profile','ProfileController');
+            Route::get('dish/image/{id}','DishController@dishImages');
 
-    });
+        });
 });
 
 Route::post('login',function(Request $request){

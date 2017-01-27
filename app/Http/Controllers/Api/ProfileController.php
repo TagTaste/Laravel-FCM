@@ -47,7 +47,11 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
-        //
+        $profile = \App\User::whereHas('profile',function($query) use ($id) {
+            $query->where('id','=',$id);
+        })->first();
+
+        return response()->json($profile);
     }
 
     /**
