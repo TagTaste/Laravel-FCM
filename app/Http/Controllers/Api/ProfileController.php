@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Profile;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -81,5 +82,18 @@ class ProfileController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function image($id)
+    {
+        $profile = Profile::select('image')->findOrFail($id);
+        return response()->file(storage_path("app/" . $profile->image));
+    }
+
+    public function heroImage($id)
+    {
+        $profile = Profile::select('hero_image')->findOrFail($id);
+
+        return response()->file(storage_path("app/" . $profile->hero_image));
     }
 }

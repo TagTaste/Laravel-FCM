@@ -12,12 +12,16 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['namespace'=>'Api'],function(){
+Route::group(['namespace'=>'Api',
+    'as' => 'api.' //note the dot.
+    ],function(){
     //unauthenticated routes.
     Route::post('/user/register',['uses'=>'UserController@register']);
-
+    Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
+    Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
     //authenticated routes.
     Route::group(['middleware'=>'api.auth'],function(){
+
         Route::resource('profile','ProfileController');
 
     });

@@ -111,7 +111,8 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('ideabook/remove/{articleId}',['as'=>'ideas.remove','uses'=>'IdeabookArticleController@destroy']);
 
     //Route::resource("ideabook_articles","IdeabookArticleController");
-
+    Route::get("profiles/image/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
+    Route::get("profiles/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
     Route::resource("profiles","ProfileController");
     Route::resource("professionals","ProfessionalController");
     Route::resource("profile_books","ProfileBookController");

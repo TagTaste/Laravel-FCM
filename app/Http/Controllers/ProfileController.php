@@ -39,8 +39,15 @@ class ProfileController extends Controller {
 		$profile = new Profile();
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
-        $profile->image = $request->input("image");
-        $profile->hero_image = $request->input("hero_image");
+        if($request->hasFile('image')){
+           $path = $request->image->store('profile.images');
+           $profile->image = $path;
+        }
+        if($request->hasFile("hero_image")){
+            $path = $request->hero_image->store('profile.hero_images');
+            $profile->hero_image = $path;
+        }
+
         $profile->phone = $request->input("phone");
         $profile->address = $request->input("address");
         $profile->dob = $request->input("dob");
@@ -92,12 +99,22 @@ class ProfileController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
+	    $userId = $request->user()->id;
 		$profile = Profile::findOrFail($id);
 
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
-        $profile->image = $request->input("image");
-        $profile->hero_image = $request->input("hero_image");
+
+        if($request->hasFile('image')){
+            $path = $request->image->store("profile/{$userId}/images");
+            $profile->image = $path;
+        }
+
+        if($request->hasFile("hero_image")){
+            $path = $request->hero_image->store("profile/{$userId}/hero_images");
+            $profile->hero_image = $path;
+        }
+
         $profile->phone = $request->input("phone");
         $profile->address = $request->input("address");
         $profile->dob = $request->input("dob");
@@ -108,7 +125,7 @@ class ProfileController extends Controller {
         $profile->linkedin_url = $request->input("linkedin_url");
         $profile->instagram_link = $request->input("instagram_link");
         $profile->youtube_channel = $request->input("youtube_channel");
-        $profile->user_id = $request->user()->id;
+        $profile->user_id = $userId;
 
 		$profile->save();
 
@@ -128,5 +145,18 @@ class ProfileController extends Controller {
 
 		return redirect()->route('profiles.index')->with('message', 'Profile deleted.');
 	}
+
+    public function image($id)
+    {
+        $profile = Profile::select('image')->findOrFail($id);
+        return response()->file(storage_path("app/" . $profile->image));
+	}
+
+    public function heroImage($id)
+    {
+        $profile = Profile::select('hero_image')->findOrFail($id);
+
+        return response()->file(storage_path("app/" . $profile->hero_image));
+    }
 
 }

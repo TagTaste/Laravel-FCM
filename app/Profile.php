@@ -13,10 +13,11 @@ class Profile extends Model
 
     protected $with = ['experience','awards','certifications'];
 
-    protected $visible = ['tagline','about','image',
-        'hero_image','phone','address','dob','interests',
+    protected $visible = ['tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
         'youtube_channel','followers','following','experience','awards','certifications'];
+
+    protected $appends = ['imageUrl','heroImageUrl'];
 
     public function user()
     {
@@ -51,6 +52,18 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Certification');
     }
 
+    //specific to API
+    public function getImageUrlAttribute()
+    {
+        return "/profile/images/" . $this->id . '.jpg';
+    }
+
+    //specific to API
+    public function getHeroImageUrlAttribute()
+    {
+        return "/profile/hero/" . $this->id . '.jpg';
+
+    }
 
 
 }
