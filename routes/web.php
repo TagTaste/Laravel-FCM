@@ -123,10 +123,3 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("certifications","CertificationController");
 
 });
-
-Route::get('/foo',function(){
-    $dish = \App\DishArticle::select('image')->findOrFail(1);
-    $path = storage_path("app/" . \App\DishArticle::$fileInputs['image'] . "/" . $dish->image);
-    dd($dish->image);
-    return response()->file($path);
-});
