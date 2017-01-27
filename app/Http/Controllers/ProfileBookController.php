@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Profile\ProfileBook;
+use App\Profile\Book;
 use Illuminate\Http\Request;
 
 class ProfileBookController extends Controller {
@@ -13,7 +13,7 @@ class ProfileBookController extends Controller {
 	 */
 	public function index()
 	{
-		$profile_books = ProfileBook::orderBy('id', 'desc')->paginate(10);
+		$profile_books = Book::orderBy('id', 'desc')->paginate(10);
 
 		return view('profile_books.index', compact('profile_books'));
 	}
@@ -36,7 +36,7 @@ class ProfileBookController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$profile_book = new ProfileBook();
+		$profile_book = new Book();
 
 		$profile_book->title = $request->input("title");
         $profile_book->description = $request->input("description");
@@ -44,7 +44,7 @@ class ProfileBookController extends Controller {
         $profile_book->release_date = $request->input("release_date");
         $profile_book->url = $request->input("url");
         $profile_book->isbn = $request->input("isbn");
-        $profile_book->profile_id = $request->input("profile_id");
+        $profile_book->profile_id = $request->user()->profile->id;
 
 		$profile_book->save();
 
@@ -59,7 +59,7 @@ class ProfileBookController extends Controller {
 	 */
 	public function show($id)
 	{
-		$profile_book = ProfileBook::findOrFail($id);
+		$profile_book = Book::findOrFail($id);
 
 		return view('profile_books.show', compact('profile_book'));
 	}
@@ -72,7 +72,7 @@ class ProfileBookController extends Controller {
 	 */
 	public function edit($id)
 	{
-		$profile_book = ProfileBook::findOrFail($id);
+		$profile_book = Book::findOrFail($id);
 
 		return view('profile_books.edit', compact('profile_book'));
 	}
@@ -86,7 +86,7 @@ class ProfileBookController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$profile_book = ProfileBook::findOrFail($id);
+		$profile_book = Book::findOrFail($id);
 
 		$profile_book->title = $request->input("title");
         $profile_book->description = $request->input("description");
@@ -94,7 +94,7 @@ class ProfileBookController extends Controller {
         $profile_book->release_date = $request->input("release_date");
         $profile_book->url = $request->input("url");
         $profile_book->isbn = $request->input("isbn");
-        $profile_book->profile_id = $request->input("profile_id");
+        $profile_book->profile_id = $request->user()->profile->id;
 
 		$profile_book->save();
 
@@ -109,7 +109,7 @@ class ProfileBookController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$profile_book = ProfileBook::findOrFail($id);
+		$profile_book = Book::findOrFail($id);
 		$profile_book->delete();
 
 		return redirect()->route('profile_books.index')->with('message', 'Item deleted successfully.');

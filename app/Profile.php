@@ -11,7 +11,9 @@ class Profile extends Model
     'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
     'youtube_channel','followers','following','user_id'];
 
-    protected $with = ['experience','awards','certifications','tvshows'];
+    //if you add a relation here, make sure you remove it from
+    //App\Recommend to prevent any unwanted results like nested looping.
+    protected $with = ['experience','awards','certifications','tvshows','books'];
 
     protected $visible = ['tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
@@ -58,6 +60,11 @@ class Profile extends Model
     public function tvshows()
     {
         return $this->hasMany('App\Profile\Show');
+    }
+
+    public function books()
+    {
+        return $this->hasMany('App\Profile\Book');
     }
 
     //specific to API

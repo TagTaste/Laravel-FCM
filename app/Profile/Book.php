@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Profile;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Book extends Model
+{
+    protected $table = 'profile_books';
+
+    public function setReleaseDateAttribute($value)
+    {
+        $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
+    }
+
+    public function getReleaseDateAttribute($value)
+    {
+        if(!$value){
+            return;
+        }
+        return date("d-m-Y",strtotime($value));
+    }
+}
