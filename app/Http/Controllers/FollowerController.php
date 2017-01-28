@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Follower;
+use App\Http\Requests;
 use Illuminate\Http\Request;
 
 class FollowerController extends Controller {
@@ -40,7 +38,7 @@ class FollowerController extends Controller {
 	{
 		$follower = new Follower();
 
-		$follower->chef_id = $chefId;
+		$follower->follows_id = $chefId;
         $follower->follower_id = $request->user()->id;
 
 		$follower->save();
@@ -85,7 +83,7 @@ class FollowerController extends Controller {
 	{
 		$follower = Follower::findOrFail($id);
 
-		$follower->chef_id = $request->input("chef_id");
+		$follower->follows_id = $request->input("chef_id");
         $follower->follower_id = $request->input("follower_id");
 
 		$follower->save();
@@ -101,7 +99,7 @@ class FollowerController extends Controller {
 	 */
 	public function destroy($chefId, $userId)
 	{
-		$follower = Follower::where('chef_id','=',$chefId)->where('follower_id','=',$userId)->first();
+		$follower = Follower::where('follows_id','=',$chefId)->where('follower_id','=',$userId)->first();
 		if($follower){
 			$follower->delete();
 		}
@@ -112,7 +110,7 @@ class FollowerController extends Controller {
 	public function follow(Request $request, $chefId){
 		$follower = new Follower();
 
-		$follower->chef_id = $chefId;
+		$follower->follows_id = $chefId;
         $follower->follower_id = $request->user()->id;
 
 		$follower->save();
