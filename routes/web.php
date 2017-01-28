@@ -123,9 +123,3 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("certifications","CertificationController");
 
 });
-
-Route::get("/foo",function(){
-    $profile = \App\Profile::find(2);
-    //$profile->follow(1);
-    dd($profile->toArray());
-});
