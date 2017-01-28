@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateFollowersTable extends Migration {
 
@@ -14,12 +14,12 @@ class CreateFollowersTable extends Migration {
 	{
 		Schema::create('followers', function(Blueprint $table) {
             $table->increments('id');
-            $table->integer('chef_id')->unsigned();
             $table->integer('follower_id')->unsigned();
+            $table->integer('follows_id')->unsigned();
             $table->timestamps();
 
-            $table->foreign('chef_id')->references('id')->on('users');
-            $table->foreign('follower_id')->references('id')->on('users');
+            $table->foreign('follower_id')->references('id')->on('profiles');
+            $table->foreign('follows_id')->references('id')->on('profiles');
         });
 	}
 
