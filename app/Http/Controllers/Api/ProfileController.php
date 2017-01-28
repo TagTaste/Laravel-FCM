@@ -106,4 +106,12 @@ class ProfileController extends Controller
         $profile = Profile::select('hero_image')->findOrFail($id);
         return response()->file(storage_path("app/" . $profile->hero_image));
     }
+
+    public function follow(Request $request)
+    {
+        $id = $request->input('id');
+        $request->user()->profile->follow($id);
+        //have a better response.
+        return response()->json(['success'=>'done']);
+    }
 }

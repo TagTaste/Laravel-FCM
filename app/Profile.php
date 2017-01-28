@@ -19,10 +19,10 @@ class Profile extends Model
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
         'youtube_channel',
         'followers','following',
-        'experience','awards','certifications','tvshows','books',
+        'experience','awards','certifications','tvshows','books','followingProfiles', 'followerProfiles',
         'name'];
 
-    protected $appends = ['imageUrl','heroImageUrl'];
+    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
 
     public function user()
     {
@@ -77,6 +77,58 @@ class Profile extends Model
     public function getHeroImageUrlAttribute()
     {
         return "/profile/hero/" . $this->id . '.jpg';
+
+    }
+
+    //$followsId is following $this profile
+    public function follow($followsId)
+    {
+        $this->iAmFollowing()->attach($followsId);
+        $this->save();
+    }
+
+    public function unfollow($followsId)
+    {
+        $this->iAmFollowing()->detach($followsId);
+        $this->save();
+    }
+
+    //profiles which are following this profile
+    public function myFollowers()
+    {
+        return $this->belongsToMany('App\Profile', 'followers', 'follows_id', 'follower_id');
+    }
+
+    //profiles which this profile is following
+    public function iAmFollowing()
+    {
+        return $this->belongsToMany('App\Profile','followers','follower_id','follows_id');
+
+    }
+
+    public function getFollowingProfilesAttribute()
+    {
+        //if you use \App\Profile here, it would end up nesting a lot of things.
+
+        $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
+            ->join('followers','followers.follows_id','=','profiles.id')
+            ->join('users','users.id','=','followers.follows_id')
+            ->where('followers.follower_id','=',$this->id)->get();
+
+        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+
+    }
+
+    public function getFollowerProfilesAttribute()
+    {
+        //if you use \App\Profile here, it would end up nesting a lot of things.
+
+        $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
+            ->join('followers','followers.follower_id','=','profiles.id')
+            ->join('users','users.id','=','followers.follower_id')
+            ->where('followers.follows_id','=',$this->id)->get();
+
+        return ['count'=> $profiles->count(), 'profiles' => $profiles];
 
     }
 
