@@ -28,7 +28,7 @@ class HomeController extends Controller
         $chefs = \App\User::where("id","!=",$userId)->get();
 
        $chefsFollowed = \App\Follower::with('chef')->where('follower_id',$userId)->get();
-       $followers = \App\Follower::with('follower')->where('chef_id',$userId)->get();
+       $followers = \App\Follower::with('follower')->where('follows_id',$userId)->get();
 
         $articles = \App\Article::with('template')->with(['ideabooks' => function($query) use ($userId) {
             $query->where('user_id','=',$userId);
