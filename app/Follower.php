@@ -11,6 +11,6 @@ class Follower extends Model
     }
 
     public function follows() {
-    	return $this->belongsTo('App\User');
+    	return $this->belongsTo('App\Profile');
     }
 }
