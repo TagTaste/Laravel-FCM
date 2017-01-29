@@ -122,15 +122,15 @@
 
             <div class="panel-body">
                 <ul class='list-unstyled'>
-                    @foreach($chefsFollowed as $chef)
-                    <li class="col-md-12"> 
-                        <div style="margin-right:1em;" class="col-md-3"><img src="http://placehold.it/50x50" alt=""></div>
-                        <div class="col-md-8"> {{ $chef->chef->name }} <br/><a href="{{ route('chef.unfollow', $chef->chef->id) }}">Unfollow</a> </div>
+                    {{--@foreach($chefsFollowed as $chef)--}}
+                    {{--<li class="col-md-12"> --}}
+                        {{--<div style="margin-right:1em;" class="col-md-3"><img src="http://placehold.it/50x50" alt=""></div>--}}
+                        {{--<div class="col-md-8"> {{ $chef->chef->name }} <br/><a href="{{ route('chef.unfollow', $chef->chef->id) }}">Unfollow</a> </div>--}}
 
 
 
-                    </li>
-                    @endforeach
+                    {{--</li>--}}
+                    {{--@endforeach--}}
                 </ul>
 
             </div>
