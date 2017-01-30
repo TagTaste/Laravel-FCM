@@ -31,7 +31,6 @@
                                 <td>{{$album->id}}</td>
                                 <td>{{$album->name}}</td>
                                 <td>{{$album->description}}</td>
-                                <td>{{$album->profile_id}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('albums.show', $album->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('albums.edit', $album->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
