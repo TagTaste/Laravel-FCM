@@ -42,7 +42,7 @@ class AlbumController extends Controller {
 
 		$album->name = $request->input("name");
         $album->description = $request->input("description");
-        $album->profile_id = $request->input("profile_id");
+        $album->profile_id = $request->user()->profile->id;
 
 		$album->save();
 
@@ -88,7 +88,7 @@ class AlbumController extends Controller {
 
 		$album->name = $request->input("name");
         $album->description = $request->input("description");
-        $album->profile_id = $request->input("profile_id");
+        $album->profile_id = $request->user()->profile->id;
 
 		$album->save();
 
