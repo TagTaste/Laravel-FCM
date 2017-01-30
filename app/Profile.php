@@ -132,5 +132,10 @@ class Profile extends Model
 
     }
 
+    public function albums()
+    {
+        return $this->hasMany('App\Album');
+    }
+
 
 }
