@@ -121,5 +121,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("experiences","ExperienceController");
     Route::resource("awards","AwardController");
     Route::resource("certifications","CertificationController");
+    Route::resource("albums","AlbumController"); // Add this line in routes.php
+
 
 });
