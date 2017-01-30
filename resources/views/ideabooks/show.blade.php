@@ -15,7 +15,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-4">
 
             <form action="#">
                 <div class="form-group">
@@ -34,6 +34,14 @@
 
             <a class="btn btn-link" href="{{ route('ideabooks.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
 
+        </div>
+        <div class="col-md-8">
+            <h4>Albums</h4>
+            <ul>
+                @foreach($ideabook->albums as $album)
+                    <li><a href="{{ route("albums.show",$album->id) }}">{{ $album->name }}</a></li>
+                @endforeach
+            </ul>
         </div>
     </div>
 

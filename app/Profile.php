@@ -137,5 +137,10 @@ class Profile extends Model
         return $this->hasMany('App\Album');
     }
 
+    public function photos()
+    {
+        return $this->hasManyThrough('App\Photo','App\Album');
+    }
+
 
 }

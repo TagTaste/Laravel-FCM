@@ -41,7 +41,16 @@
             @if($album->photos->count())
                 <ul class="list-unstyled">
                     @foreach($album->photos as $photo)
-                        <li><img src="/photos/{{$photo->id}}.jpg" alt="" height="auto" width="100px"><small>{{ $photo->caption }}</small></li>
+                        <li>
+                            <img src="/photos/{{$photo->id}}.jpg" alt="" height="auto" width="100px">
+                            <p><small>{{ $photo->caption }}</small></p>
+                        <form class="photo-tag-form" action="{{ route("photos.tag") }}" method="post">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="photo_id" value="{{ $photo->id }}">
+                            {{ Form::select('tagbook_id',$tagboard,null,['class'=>'btn btn-xs btn-default add-to-ideabook']) }}
+
+                        </form>
+                        </li>
                     @endforeach
                 </ul>
 
@@ -49,4 +58,31 @@
         </div>
     </div>
 
+@endsection
+
+@section('scripts')
+    <script type="text/javascript">
+        $("document").ready(function(){
+            var ideabookBtn = $(".add-to-ideabook");
+            ideabookBtn.on('change',function(e){
+                var el = $(this);
+                var tagBook = parseInt(el.val());
+                if(tagBook != 0){
+                    var form = el.closest('form');
+                    form.submit();
+                }
+            });
+
+            var forms = $(".photo-tag-form");
+
+            forms.on('submit',function(e){
+                e.preventDefault();
+                var el = $(this);
+                var url = el.attr('action');
+                $.post(url,el.serialize(),function(data){
+                    console.log(data);
+                });
+            });
+        });
+    </script>
 @endsection

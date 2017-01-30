@@ -16,9 +16,6 @@ class IdeabookController extends Controller {
 	public function index(Request $request)
 	{
 		$ideabooks = $request->user()->ideabooks()->orderBy('id', 'desc')->paginate(10);
-
-
-
 		return view('ideabooks.index', compact('ideabooks'));
 	}
 
@@ -61,7 +58,7 @@ class IdeabookController extends Controller {
 	 */
 	public function show(Request $request, $id)
 	{
-		$ideabook = $request->user()->ideabooks()->findOrFail($id);
+		$ideabook = $request->user()->ideabooks()->with('articles','albums','photos')->findOrFail($id);
 
 		return view('ideabooks.show', compact('ideabook'));
 	}
@@ -118,8 +115,8 @@ class IdeabookController extends Controller {
     {
         $ideabook = $request->user()->getDefaultIdeabook();
 
-        $articles = $ideabook->articles;
-        return view('ideabooks.ideas',compact('articles'));
+        //$articles = $ideabook->articles;
+        return view('ideabooks.ideas',compact('ideabook'));
 	}
 
 }

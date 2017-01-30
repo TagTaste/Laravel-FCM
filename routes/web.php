@@ -121,12 +121,15 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("experiences","ExperienceController");
     Route::resource("awards","AwardController");
     Route::resource("certifications","CertificationController");
+
+    Route::post("albums/tag",['uses'=>'AlbumController@tag','as'=>'albums.tag']);
     Route::resource("albums","AlbumController");
 
     Route::get("photos/{id}.jpg",function($id){
         $file = \App\Photo::find($id);
         return response()->file(storage_path("app/" . $file->file));
     });
+    Route::post("photos/tag",['uses'=>'PhotoController@tag','as'=>'photos.tag']);
     Route::resource("photos","PhotoController");
 
 

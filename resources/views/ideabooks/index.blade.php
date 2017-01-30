@@ -30,8 +30,8 @@
                             <tr>
                                 <td>{{$ideabook->id}}</td>
                                 <td>{{$ideabook->name}}</td>
-                    <td>{{$ideabook->description}}</td>
-                    <td>{{$ideabook->privacy->name}}</td>
+                                <td>{{$ideabook->description}}</td>
+                                <td>{{$ideabook->privacy->name}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('ideabooks.show', $ideabook->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('ideabooks.edit', $ideabook->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>

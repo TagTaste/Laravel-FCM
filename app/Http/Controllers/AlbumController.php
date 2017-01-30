@@ -11,11 +11,11 @@ class AlbumController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		$albums = Album::orderBy('id', 'desc')->paginate(10);
-
-		return view('albums.index', compact('albums'));
+		$tagboard = [0=>'Tag to Board'] + $request->user()->ideabooks->pluck('name','id')->toArray();
+		return view('albums.index', compact('albums','tagboard'));
 	}
 
 	/**
@@ -53,11 +53,12 @@ class AlbumController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $id)
 	{
 		$album = Album::with('photos')->findOrFail($id);
+        $tagboard = [0=>'Tag to Board'] + $request->user()->ideabooks->pluck('name','id')->toArray();
 
-		return view('albums.show', compact('album'));
+		return view('albums.show', compact('album','tagboard'));
 	}
 
 	/**
@@ -105,6 +106,27 @@ class AlbumController extends Controller {
 		$album->delete();
 
 		return redirect()->route('albums.index')->with('message', 'Item deleted successfully.');
+	}
+
+    public function tag(Request $request)
+    {
+        $albumId = $request->input('album_id');
+        $tagBookId = $request->input('tagbook_id');
+
+        $user = $request->user();
+        $album = $user->profile->albums->find($albumId);
+        if(!$album){
+            throw new \Exception("The requested Album does not belong to the user.");
+        }
+
+        $tagbook = $user->ideabooks->find($tagBookId);
+
+        if(!$tagbook){
+            throw new \Exception("The requested Tag Book does not belong to the user.");
+        }
+
+        $tagbook->albums()->attach($albumId);
+        return response()->json(['message'=>"Done."]);
 	}
 
 }

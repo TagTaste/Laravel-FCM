@@ -14,7 +14,6 @@ class PhotoController extends Controller {
 	public function index()
 	{
 		$photos = Photo::orderBy('id', 'desc')->paginate(10);
-
 		return view('photos.index', compact('photos'));
 	}
 
@@ -23,8 +22,9 @@ class PhotoController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create(Request $request)
 	{
+
 		return view('photos.create');
 	}
 
@@ -114,5 +114,25 @@ class PhotoController extends Controller {
 
 		return redirect()->route('photos.index')->with('message', 'Item deleted successfully.');
 	}
+
+    public function tag(Request $request)
+    {
+        $photoId = $request->input('photo_id');
+        $tagBookId = $request->input('tagbook_id');
+
+        $user = $request->user();
+        $photo = $user->profile->photos->find($photoId);
+        if(!$photo){
+            throw new \Exception("The requested photo does not belong to the user.");
+        }
+
+        $tagbook = $user->ideabooks->find($tagBookId);
+        if(!$tagbook){
+            throw new \Exception("The requested Tag Book does not belong to the user.");
+        }
+
+        $tagbook->photos()->attach($photoId);
+        return response()->json(['message'=>"Done."]);
+    }
 
 }

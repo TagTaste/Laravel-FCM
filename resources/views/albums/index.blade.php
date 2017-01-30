@@ -19,8 +19,7 @@
                         <tr>
                             <th>ID</th>
                             <th>NAME</th>
-                        <th>DESCRIPTION</th>
-                        <th>PROFILE_ID</th>
+                            <th>DESCRIPTION</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -39,6 +38,12 @@
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash"></i> Delete</button>
                                     </form>
+                                    <form class="album-tag-form" action="{{ route("albums.tag") }}" method="post">
+                                        {{ csrf_field() }}
+                                        <input type="hidden" name="album_id" value="{{ $album->id }}">
+                                        {{ Form::select('tagbook_id',$tagboard,null,['class'=>'btn btn-xs btn-default add-to-ideabook']) }}
+
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -52,4 +57,31 @@
         </div>
     </div>
 
+@endsection
+
+@section('scripts')
+    <script type="text/javascript">
+        $("document").ready(function(){
+            var ideabookBtn = $(".add-to-ideabook");
+            ideabookBtn.on('change',function(e){
+                var el = $(this);
+                var tagBook = parseInt(el.val());
+                if(tagBook != 0){
+                   var form = el.closest('form');
+                   form.submit();
+                }
+            });
+
+            var forms = $(".album-tag-form");
+
+            forms.on('submit',function(e){
+                e.preventDefault();
+                var el = $(this);
+                var url = el.attr('action');
+                $.post(url,el.serialize(),function(data){
+                    console.log(data);
+                });
+            });
+        });
+    </script>
 @endsection
