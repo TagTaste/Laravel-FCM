@@ -15,7 +15,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-4">
 
             <form action="#">
                 <div class="form-group">
@@ -30,14 +30,22 @@
                      <label for="description">DESCRIPTION</label>
                      <p class="form-control-static">{{$album->description}}</p>
                 </div>
-                    <div class="form-group">
-                     <label for="profile_id">PROFILE_ID</label>
-                     <p class="form-control-static">{{$album->profile_id}}</p>
-                </div>
+
+
             </form>
 
             <a class="btn btn-link" href="{{ route('albums.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
 
+        </div>
+        <div class="col-md-8">
+            @if($album->photos->count())
+                <ul class="list-unstyled">
+                    @foreach($album->photos as $photo)
+                        <li><img src="/photos/{{$photo->id}}.jpg" alt="" height="auto" width="100px"><small>{{ $photo->caption }}</small></li>
+                    @endforeach
+                </ul>
+
+            @endif
         </div>
     </div>
 

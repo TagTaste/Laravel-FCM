@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Album;
+use App\Http\Requests;
 use Illuminate\Http\Request;
 
 class AlbumController extends Controller {
@@ -57,7 +55,7 @@ class AlbumController extends Controller {
 	 */
 	public function show($id)
 	{
-		$album = Album::findOrFail($id);
+		$album = Album::with('photos')->findOrFail($id);
 
 		return view('albums.show', compact('album'));
 	}

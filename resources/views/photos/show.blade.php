@@ -30,13 +30,10 @@
                      <label for="file">FILE</label>
                      <p class="form-control-static">{{$photo->file}}</p>
                 </div>
+
                     <div class="form-group">
-                     <label for="album_id">ALBUM_ID</label>
-                     <p class="form-control-static">{{$photo->album_id}}</p>
-                </div>
-                    <div class="form-group">
-                     <label for="album_id">ALBUM_ID</label>
-                     <p class="form-control-static">{{$photo->album_id}}</p>
+                     <label for="album_id">ALBUM</label>
+                     <p class="form-control-static">{{$photo->album->name}}</p>
                 </div>
             </form>
 

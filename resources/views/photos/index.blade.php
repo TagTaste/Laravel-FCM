@@ -20,8 +20,7 @@
                             <th>ID</th>
                             <th>CAPTION</th>
                         <th>FILE</th>
-                        <th>ALBUM_ID</th>
-                        <th>ALBUM_ID</th>
+                        <th>ALBUM</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -31,9 +30,8 @@
                             <tr>
                                 <td>{{$photo->id}}</td>
                                 <td>{{$photo->caption}}</td>
-                    <td><img src="photos/{{$photo->id}}.jpg" alt="" height="auto" width="100px"></td>
-                    <td>{{$photo->album_id}}</td>
-                    <td>{{$photo->album_id}}</td>
+                                <td><img src="photos/{{$photo->id}}.jpg" alt="" height="auto" width="100px"></td>
+                                <td>{{$photo->album->name}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('photos.show', $photo->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('photos.edit', $photo->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
