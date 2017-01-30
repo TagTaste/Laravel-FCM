@@ -43,7 +43,6 @@ class PhotoController extends Controller {
 		$photo->caption = $request->input("caption");
         $photo->file = $request->input("file");
         $photo->album_id = $request->input("album_id");
-        $photo->album_id = $request->input("album_id");
 
 		$photo->save();
 
@@ -89,7 +88,6 @@ class PhotoController extends Controller {
 
 		$photo->caption = $request->input("caption");
         $photo->file = $request->input("file");
-        $photo->album_id = $request->input("album_id");
         $photo->album_id = $request->input("album_id");
 
 		$photo->save();
