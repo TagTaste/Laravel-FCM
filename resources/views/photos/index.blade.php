@@ -31,7 +31,7 @@
                             <tr>
                                 <td>{{$photo->id}}</td>
                                 <td>{{$photo->caption}}</td>
-                    <td>{{$photo->file}}</td>
+                    <td><img src="photos/{{$photo->id}}.jpg" alt="" height="auto" width="100px"></td>
                     <td>{{$photo->album_id}}</td>
                     <td>{{$photo->album_id}}</td>
                                 <td class="text-right">

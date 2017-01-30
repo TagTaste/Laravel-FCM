@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Photo;
 use Illuminate\Http\Request;
 
@@ -41,7 +39,11 @@ class PhotoController extends Controller {
 		$photo = new Photo();
 
 		$photo->caption = $request->input("caption");
-        $photo->file = $request->input("file");
+		if($request->hasFile('file')){
+		    $profileId = $request->user()->profile->id;
+		    $photo->file = $request->file
+                ->store('profile/' . $profileId . "/albums/" . $request->input('album_id'));
+        }
         $photo->album_id = $request->input("album_id");
 
 		$photo->save();
@@ -87,7 +89,11 @@ class PhotoController extends Controller {
 		$photo = Photo::findOrFail($id);
 
 		$photo->caption = $request->input("caption");
-        $photo->file = $request->input("file");
+        if($request->hasFile('file')){
+            $profileId = $request->user()->profile->id;
+            $photo->file = $request->file
+                ->store('profile/' . $profileId . "/albums/" . $request->input('album_id'));
+        }
         $photo->album_id = $request->input("album_id");
 
 		$photo->save();

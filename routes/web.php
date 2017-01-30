@@ -122,6 +122,11 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("awards","AwardController");
     Route::resource("certifications","CertificationController");
     Route::resource("albums","AlbumController");
+
+    Route::get("photos/{id}.jpg",function($id){
+        $file = \App\Photo::find($id);
+        return response()->file(storage_path("app/" . $file->file));
+    });
     Route::resource("photos","PhotoController");
 
 
