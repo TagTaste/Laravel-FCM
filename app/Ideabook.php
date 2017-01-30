@@ -39,4 +39,14 @@ class Ideabook extends Model
         return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id');
     }
 
+    public function albums()
+    {
+        return $this->belongsToMany('\App\Album','ideabook_albums','ideabook_id','album_id');
+    }
+
+    public function photos()
+    {
+        return $this->belongsToMany('\App\Photo','ideabook_photos','ideabook_id','photo_id');
+    }
+
 }

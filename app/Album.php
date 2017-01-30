@@ -12,4 +12,14 @@ class Album extends Model
     {
         return $this->hasMany('App\Photo');
     }
+
+    public function ideabooks()
+    {
+        return $this->belongsToMany('\App\Album','ideabook_albums','album_id','ideabook_id');
+    }
+
+    public function profile()
+    {
+        return $this->belongsTo('App\Profile');
+    }
 }
