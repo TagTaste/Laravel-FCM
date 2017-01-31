@@ -31,7 +31,7 @@ Route::group(['namespace'=>'Api',
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
 
-            Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}'],function(){
+            Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.'],function(){
                 Route::resource('albums','AlbumController');
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
                     Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);

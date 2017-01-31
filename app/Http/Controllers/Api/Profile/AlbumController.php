@@ -81,9 +81,12 @@ class AlbumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId, $id)
     {
-        //
+        $album = $request->user()->profile->albums()
+            ->where('id',$request->input('id'))->update($request->only('name','description'));
+        $response = new Response($album);
+        return $response->json();
     }
 
     /**
