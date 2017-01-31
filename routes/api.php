@@ -33,9 +33,10 @@ Route::group(['namespace'=>'Api',
 
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}'],function(){
                 Route::resource('albums','AlbumController');
-                    Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
-                        Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
-                    });
+                Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
+                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
+                    Route::resource('photos','PhotoController');
+                });
             });
 
             Route::resource('albums','AlbumController');

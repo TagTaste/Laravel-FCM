@@ -8,7 +8,7 @@ class Photo extends Model
 {
     protected $fillable = ['caption','file','album_id'];
 
-    protected $visible = ['id','caption','file','created_at'];
+    protected $visible = ['id','caption','file','created_at','album'];
 
     public function album()
     {

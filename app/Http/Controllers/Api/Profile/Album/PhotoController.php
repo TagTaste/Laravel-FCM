@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile\Album;
 
+use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
+use App\Photo;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
@@ -44,9 +46,22 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($profileId,$albumId,$id)
     {
-        //
+        $photo = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
+            ->whereHas('album.profile',function($query) use ($profileId) {
+            $query->where("profile_id",$profileId);
+        })->first();
+
+        if(!$photo){
+            throw new \Exception("Profile does not have the photo.");
+        }
+
+        $response = new Response($photo);
+        return $response->json();
+
+
+
     }
 
     /**
