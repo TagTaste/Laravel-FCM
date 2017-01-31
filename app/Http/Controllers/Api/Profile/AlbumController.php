@@ -59,7 +59,6 @@ class AlbumController extends Controller
             throw new \Exception("Album not found.");
         }
 
-
         $response = new Response($album);
         return $response->json();
     }
