@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Profile;
 
+use App\Album;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -13,9 +14,12 @@ class AlbumController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $profileId = null)
+    public function index($profileId)
     {
-        $albums = $request->user()->profile->albums;
+        if(!$profileId){
+            throw new \Exception("Missing Profile Id");
+        }
+        $albums = Album::where('profile_id',$profileId)->get();
         $response = new Response($albums);
         return $response->json();
     }
@@ -47,9 +51,17 @@ class AlbumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($profileId,$albumId)
     {
-        //
+        $album = Album::with('photos')->where('profile_id',$profileId)->where('id',$albumId)->first();
+
+        if(!$album){
+            throw new \Exception("Album not found.");
+        }
+
+
+        $response = new Response($album);
+        return $response->json();
     }
 
     /**
