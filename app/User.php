@@ -28,9 +28,9 @@ class User extends Authenticatable
         'name', 'email', 'password', 'is_active', 'social_registration'
     ];
 
-    protected $with = ['profile','articles'];
+    protected $with = ['profile','articles','ideabooks'];
 
-    protected $visible = ['name','email','profile','articles','recommend'];
+    protected $visible = ['name','email','profile','articles','recommend','ideabooks'];
 
     protected $appends = ['recommend'];
 
