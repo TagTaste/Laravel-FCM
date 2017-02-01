@@ -18,8 +18,8 @@ class CreateFollowersTable extends Migration {
             $table->integer('follows_id')->unsigned();
             $table->timestamps();
 
-            $table->foreign('follower_id')->references('id')->on('profiles');
-            $table->foreign('follows_id')->references('id')->on('profiles');
+            $table->foreign('follower_id')->references('id')->on('profiles')->onDelete('cascade');
+            $table->foreign('follows_id')->references('id')->on('profiles')->onDelete('cascade');
         });
 	}
 

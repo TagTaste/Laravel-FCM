@@ -11,8 +11,8 @@ class CreateIdeabooksPhotos extends Migration
             $table->integer('ideabook_id')->unsigned();
             $table->integer('photo_id')->unsigned();
 
-            $table->foreign('ideabook_id')->references('id')->on('ideabooks');
-            $table->foreign('photo_id')->references('id')->on('photos');
+            $table->foreign('ideabook_id')->references('id')->on('ideabooks')->onDelete('cascade');
+            $table->foreign('photo_id')->references('id')->on('photos')->onDelete('cascade');
         });
     }
 

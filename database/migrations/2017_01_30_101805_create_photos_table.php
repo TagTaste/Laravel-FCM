@@ -17,7 +17,7 @@ class CreatephotosTable extends Migration {
             $table->string('caption');
             $table->string('file');
             $table->integer('album_id')->unsigned();
-            $table->foreign('album_id')->references('id')->on('albums');
+            $table->foreign('album_id')->references('id')->on('albums')->onDelete('cascade');
             $table->timestamps();
         });
 	}

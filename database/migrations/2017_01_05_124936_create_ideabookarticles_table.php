@@ -19,8 +19,8 @@ class CreateIdeabookArticlesTable extends Migration {
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign("ideabook_id")->references("id")->on("ideabooks");
-            $table->foreign("article_id")->references("id")->on("articles");
+            $table->foreign("ideabook_id")->references("id")->on("ideabooks")->onDelete('cascade');
+            $table->foreign("article_id")->references("id")->on("articles")->onDelete('cascade');
 
         });
 	}

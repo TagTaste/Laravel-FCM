@@ -11,8 +11,8 @@ class CreateIdeabooksAlbum extends Migration
             $table->integer('ideabook_id')->unsigned();
             $table->integer('album_id')->unsigned();
 
-            $table->foreign('ideabook_id')->references('id')->on('ideabooks');
-            $table->foreign('album_id')->references('id')->on('albums');
+            $table->foreign('ideabook_id')->references('id')->on('ideabooks')->onDelete('cascade');
+            $table->foreign('album_id')->references('id')->on('albums')->onDelete('cascade');
         });
     }
 
