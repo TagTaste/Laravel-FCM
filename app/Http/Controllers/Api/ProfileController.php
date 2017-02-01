@@ -91,7 +91,10 @@ class ProfileController extends Controller
     public function image($id)
     {
         $profile = Profile::select('image')->findOrFail($id);
-        return response()->file(storage_path("app/" . $profile->image));
+        if(file_exists(storage_path("app/" . $profile->image))){
+            return response()->file(storage_path("app/" . $profile->image));
+        }
+        return;
     }
 
     public function heroImage($id)

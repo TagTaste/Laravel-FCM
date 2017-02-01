@@ -42,7 +42,9 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $album = $request->user()->profile->albums()->create($request->only(['name','description']));
+        $response = new Response($album);
+        return $response->json();
     }
 
     /**
@@ -95,7 +97,7 @@ class AlbumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request,$profileId,$id)
     {
         $album = $request->user()->profile->albums()->where('id',$id)->delete();
         $response = new Response($album);
