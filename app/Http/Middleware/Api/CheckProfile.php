@@ -15,7 +15,7 @@ class CheckProfile
      */
     public function handle($request, Closure $next)
     {
-        if(!$request->has('profileId')){
+        if(!$request->profileId){
             return response()->json(['error'=>"Missing ProfileId."]);
         }
         return $next($request);
