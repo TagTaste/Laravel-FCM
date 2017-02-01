@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Album;
-use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Scope\SendsJsonResponse;
 use Illuminate\Http\Request;
@@ -42,8 +41,7 @@ class AlbumController extends Controller
     public function store(Request $request)
     {
         $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
-        $response = new Response($album);
-        return $response->json();
+        $this->sendResponse();
     }
 
     /**
@@ -85,8 +83,7 @@ class AlbumController extends Controller
     {
         $this->model = $request->user()->profile->albums()
             ->where('id',$request->input('id'))->update($request->only('name','description'));
-        $response = new Response($album);
-        return $response->json();
+        $this->sendResponse();
     }
 
     /**
@@ -98,7 +95,6 @@ class AlbumController extends Controller
     public function destroy(Request $request,$profileId,$id)
     {
         $this->model = $request->user()->profile->albums()->where('id',$id)->delete();
-        $response = new Response($album);
-        return $response->json();
+        $this->sendResponse();
     }
 }
