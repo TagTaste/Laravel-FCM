@@ -49,4 +49,11 @@ class Ideabook extends Model
         return $this->belongsToMany('\App\Photo','ideabook_photos','ideabook_id','photo_id');
     }
 
+    public function scopeProfile($query,$profileId)
+    {
+       return $query->whereHas('user.profile',function($query) use ($profileId){
+           return $query->where('id',$profileId);
+       });
+    }
+
 }
