@@ -39,7 +39,9 @@ class TagBoardController extends Controller
      */
     public function store(Request $request)
     {
-        $tagboard = $request->user()->ideabooks->create($request->only(['name','description']));
+        $params = ['privacy_id'=>1];
+        $params = array_merge($params,$request->only(['name','description']));
+        $tagboard = $request->user()->ideabooks()->create($params);
         $response = new Response($tagboard);
         return $response->json();
 
@@ -83,9 +85,10 @@ class TagBoardController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $tagboard = $request->user()->ideabooks
-                ->where('id',$id)->udpate($request->only(['name','description']));
-        $response = new Request($tagboard);
+        $tagboard = $request->user()->ideabooks()
+                ->where('id',$id)
+                ->update($request->only(['name','description']));
+        $response = new Response($tagboard);
         return $response->json();
     }
 
@@ -95,11 +98,11 @@ class TagBoardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request, $profileId, $id)
     {
         $tagboard = $request->user()->ideabooks()
             ->where('id',$id)->delete();
-        $response = new Request($tagboard);
+        $response = new Response($tagboard);
         return $response->json();
     }
 }
