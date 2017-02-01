@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Profile;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -74,7 +76,51 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = array_filter($request->all());
+        if(!empty($data['name'])){
+            $name = $data['name'];
+            unset($data['name']);
+            $request->user()->update(['name'=>$name]);
+        }
+        if(!empty($data['image'])){
+
+            $directory = storage_path("app/profile/{$id}/images/");
+            if(!file_exists($directory)){
+                mkdir($directory,0664,true);
+            }
+
+            $client = new Client();
+            $imageName = str_random(32) . ".jpg";
+            $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
+                'form_params' => [
+                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
+                    'file' => $data['image']
+                ],
+                'sink'=>storage_path("app/profile/{$id}/images/" . $imageName)
+            ]);
+            $data['image'] = $imageName;
+        }
+
+        if(!empty($data['hero_image'])){
+            $directory = storage_path("app/profile/{$id}/hero_images/");
+            if(!file_exists($directory)){
+                mkdir($directory,0664,true);
+            }
+            $client = new Client();
+            $imageName = str_random(32) . ".jpg";
+            $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
+                'form_params' => [
+                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
+                    'file' => $data['hero_image']
+                ],
+                'sink'=>storage_path($directory . $imageName)
+            ]);
+            $data['hero_image'] = $imageName;
+        }
+        $profile = $request->user()->profile()->update($data);
+        $response = new Response($profile);
+
+        return $response->json();
     }
 
     /**
