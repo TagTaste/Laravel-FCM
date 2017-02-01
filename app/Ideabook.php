@@ -13,6 +13,8 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
+    protected $visible = ['id','name','description'];
+
     public static function boot()
     {
         parent::boot();
