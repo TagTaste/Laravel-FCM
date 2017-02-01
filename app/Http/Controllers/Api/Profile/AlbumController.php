@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Album;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
+use App\Scope\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class AlbumController extends Controller
 {
+    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -16,9 +18,9 @@ class AlbumController extends Controller
      */
     public function index($profileId)
     {
-        $albums = Album::where('profile_id',$profileId)->get();
-        $response = new Response($albums);
-        return $response->json();
+        $this->model = Album::where('profile_id',$profileId)->get();
+        return $this->sendResponse();
+
     }
 
     /**
@@ -39,7 +41,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $album = $request->user()->profile->albums()->create($request->only(['name','description']));
+        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
         $response = new Response($album);
         return $response->json();
     }
@@ -52,14 +54,13 @@ class AlbumController extends Controller
      */
     public function show($profileId,$albumId)
     {
-        $album = Album::with('photos')->where('profile_id',$profileId)->where('id',$albumId)->first();
+        $this->model = Album::with('photos')->where('profile_id',$profileId)->where('id',$albumId)->first();
 
-        if(!$album){
+        if(!$this->model){
             throw new \Exception("Album not found.");
         }
 
-        $response = new Response($album);
-        return $response->json();
+        return $this->sendResponse();
     }
 
     /**
@@ -82,7 +83,7 @@ class AlbumController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $album = $request->user()->profile->albums()
+        $this->model = $request->user()->profile->albums()
             ->where('id',$request->input('id'))->update($request->only('name','description'));
         $response = new Response($album);
         return $response->json();
@@ -96,7 +97,7 @@ class AlbumController extends Controller
      */
     public function destroy(Request $request,$profileId,$id)
     {
-        $album = $request->user()->profile->albums()->where('id',$id)->delete();
+        $this->model = $request->user()->profile->albums()->where('id',$id)->delete();
         $response = new Response($album);
         return $response->json();
     }

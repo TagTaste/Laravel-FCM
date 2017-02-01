@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Profile\Award;
+use App\Scope\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class AwardController extends Controller
 {
-    private $model;
+    use SendsJsonResponse;
     private $fields = ['name','description','date'];
     /**
      * Display a listing of the resource.
@@ -96,11 +96,5 @@ class AwardController extends Controller
         $this->model = $request-user()->profile->awards()
             ->where('id',$id)->delete();
         $this->sendResponse();
-    }
-
-    public function sendResponse()
-    {
-        $response = new Response($this->model);
-        return $response->json();
     }
 }
