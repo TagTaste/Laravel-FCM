@@ -2,10 +2,15 @@
 
 namespace App;
 
+use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
 
 class Album extends Model
 {
+    use ScopeProfile {
+        ScopeProfile::scopeProfile as sProfile;
+    }
+
     protected $fillable = ['name','description','profile_id'];
 
     protected $visible = ['id','name','description','profile_id','photos'];

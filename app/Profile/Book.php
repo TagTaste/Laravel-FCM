@@ -2,7 +2,7 @@
 
 namespace App\Profile;
 
-use App\Scope\Profile;
+use App\Scopes\Profile;
 use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model

@@ -2,7 +2,7 @@
 
 namespace App\Profile;
 
-use App\Scope\Profile;
+use App\Scopes\Profile;
 use App\Traits\StartEndDate;
 use Illuminate\Database\Eloquent\Model;
 

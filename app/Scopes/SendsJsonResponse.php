@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Scope;
+namespace App\Scopes;
 
 
 use App\Http\Api\Response;
