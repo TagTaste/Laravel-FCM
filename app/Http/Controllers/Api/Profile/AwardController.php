@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
+use App\Profile\Award;
 use Illuminate\Http\Request;
 
-class AlbumController extends Controller
+class AwardController extends Controller
 {
+    private $model;
+    private $fields = ['name','description','date'];
     /**
      * Display a listing of the resource.
      *
@@ -15,9 +18,8 @@ class AlbumController extends Controller
      */
     public function index(Request $request, $profileId = null)
     {
-        $albums = $request->user()->profile->albums;
-        $response = new Response($albums);
-        return $response->json();
+        $this->model = $request->user()->profile->awards;
+        return $this->sendResponse();
     }
 
     /**
@@ -27,7 +29,7 @@ class AlbumController extends Controller
      */
     public function create()
     {
-
+        //
     }
 
     /**
@@ -38,9 +40,8 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $album = $request->user()->profile->albums()->create($request->only(['name','description']));
-        $response = new Response($album);
-        return $response->json();
+        $this->model = $request->user()->profile->awards()->create($request->only($this->fields));
+        return $this->sendResponse();
     }
 
     /**
@@ -49,9 +50,14 @@ class AlbumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($profileId,$id)
     {
-        //
+        $this->model = Award::profile($profileId)->where('id',$id)->first();
+
+        if(!$this->model){
+            throw new \Exception("Award not found.");
+        }
+        return $this->sendResponse();
     }
 
     /**
@@ -72,9 +78,11 @@ class AlbumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId,$id)
     {
-        //
+        $this->model = $request->user()->profile->awards
+            ->where('id',$id)->update($request->only($this->fields));
+        $this->sendResponse();
     }
 
     /**
@@ -83,8 +91,16 @@ class AlbumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $profileId, $id)
     {
-        //
+        $this->model = $request-user()->profile->awards()
+            ->where('id',$id)->delete();
+        $this->sendResponse();
+    }
+
+    public function sendResponse()
+    {
+        $response = new Response($this->model);
+        return $response->json();
     }
 }

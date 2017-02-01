@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Profile;
 
-use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class AlbumController extends Controller
+class ProjectMemberController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $profileId = null)
+    public function index()
     {
-        $albums = $request->user()->profile->albums;
-        $response = new Response($albums);
-        return $response->json();
+        //
     }
 
     /**
@@ -27,7 +24,7 @@ class AlbumController extends Controller
      */
     public function create()
     {
-
+        //
     }
 
     /**
@@ -38,9 +35,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $album = $request->user()->profile->albums()->create($request->only(['name','description']));
-        $response = new Response($album);
-        return $response->json();
+        //
     }
 
     /**

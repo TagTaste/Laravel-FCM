@@ -46,6 +46,14 @@ Route::group(['namespace'=>'Api',
             Route::resource('company','CompanyController');
             Route::resource('tagboard','TagBoardController');
 
+            Route::resource("books","ProfileBookController");
+            Route::resource("shows","ProfileShowController");
+            Route::resource("projects","ProjectController");
+            Route::resource("experiences","ExperienceController");
+            Route::resource("awards","AwardController");
+            Route::resource("certifications","CertificationController");
+
+
 
         });
 });
