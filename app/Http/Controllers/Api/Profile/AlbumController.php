@@ -16,9 +16,6 @@ class AlbumController extends Controller
      */
     public function index($profileId)
     {
-        if(!$profileId){
-            throw new \Exception("Missing Profile Id");
-        }
         $albums = Album::where('profile_id',$profileId)->get();
         $response = new Response($albums);
         return $response->json();
