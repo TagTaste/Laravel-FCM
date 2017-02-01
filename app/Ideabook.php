@@ -52,7 +52,7 @@ class Ideabook extends Model
     public function scopeProfile($query,$profileId)
     {
        return $query->whereHas('user.profile',function($query) use ($profileId){
-           return $query->where('id',$profileId);
+           return $query->where('profiles.id',$profileId);
        });
     }
 
