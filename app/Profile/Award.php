@@ -2,10 +2,13 @@
 
 namespace App\Profile;
 
+use App\Scope\Profile;
 use Illuminate\Database\Eloquent\Model;
 
 class Award extends Model
 {
+    use Profile;
+
     protected $fillable = ['name','description','date','profile_id'];
 
     protected $visible = ['name','description','date'];
@@ -22,6 +25,5 @@ class Award extends Model
         }
         return date("d-m-Y",strtotime($value));
     }
-
 
 }
