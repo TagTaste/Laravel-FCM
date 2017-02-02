@@ -3,18 +3,24 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
+use App\Profile\Show;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class ShowController extends Controller
 {
+    use SendsJsonResponse;
+
+    private $fields = ['title','description','channel','current','start_date','end_Date','url','appeared_as'];
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($profileId)
     {
-        //
+        $this->model = Show::where('profile_id',$profileId)->get();
+        return $this->sendResponse();
     }
 
     /**
@@ -35,7 +41,8 @@ class ShowController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->model = $request->user()->profile->tvshows()->create($request->only($this->fields));
+        return $this->sendResponse();
     }
 
     /**
@@ -44,9 +51,15 @@ class ShowController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($profileId, $id)
     {
-        //
+        $this->model =  Show::with('photos')->where('profile_id',$profileId)->where('id',$id)->first();
+
+        if(!$this->model){
+            throw new \Exception("TV Show not found.");
+        }
+
+        return $this->sendResponse();
     }
 
     /**
@@ -67,9 +80,11 @@ class ShowController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId, $id)
     {
-        //
+        $this->model = $request->user()->profile->tvshows()
+            ->where('id',$id)->update($request->only($this->fields));
+        return $this->sendResponse();
     }
 
     /**
@@ -78,8 +93,9 @@ class ShowController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $profileId, $id)
     {
-        //
+        $this->model = $request->user()->profile->tvshows()->where('id',$id)->delete();
+        return $this->sendResponse();
     }
 }

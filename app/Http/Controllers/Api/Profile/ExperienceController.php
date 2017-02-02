@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
+use App\Profile\Experience;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class ExperienceController extends Controller
 {
+    use SendsJsonResponse;
+
+    private $fields = ['company','designation','location','start_date','end_date','current_company'];
     /**
      * Display a listing of the resource.
      *
@@ -44,9 +49,15 @@ class ExperienceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($profileId, $id)
     {
-        //
+        $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->first();
+
+        if(!$this->model){
+            throw new \Exception("Experience not found.");
+        }
+
+        return $this->sendResponse();
     }
 
     /**
@@ -69,7 +80,9 @@ class ExperienceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->model = $request->user()->profile->experience()
+            ->where('id',$request->input('id'))->update($request->only($this->fields));
+        return $this->sendResponse();
     }
 
     /**
@@ -78,8 +91,9 @@ class ExperienceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
-        //
+        $this->model = $request->user()->profile->experience()->where('id',$id)->delete();
+        return $this->sendResponse();
     }
 }

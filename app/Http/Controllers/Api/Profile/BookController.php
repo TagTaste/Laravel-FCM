@@ -3,18 +3,24 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
+use App\Profile\Book;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
+    use SendsJsonResponse;
+
+    private $fields = ['title','description','publisher','release_date','url','isbn'];
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($profileId)
     {
-        //
+        $this->model = Book::where('profile_id',$profileId)->get();
+        return $this->sendResponse();
     }
 
     /**
@@ -35,7 +41,9 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->model = $request->user()->profile->books()
+            ->create($request->only($this->fields));
+        $this->sendResponse();
     }
 
     /**
@@ -44,9 +52,13 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($profileId,$id)
     {
-        //
+        $this->model = Book::where('profile_id',$profileId)->where('id',$id)->first();
+        if(!$this->model){
+            throw new \Exception("Book not found.");
+        }
+        return $this->sendResponse();
     }
 
     /**
@@ -67,9 +79,11 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId, $id)
     {
-        //
+        $this->model = $request->user()->profile->books()->
+            where('id',$id)->update($this->fields);
+        return $this->sendResponse();
     }
 
     /**
@@ -78,8 +92,9 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $profileId, $id)
     {
-        //
+        $this->model = $request->user()->profile->books()->where('id',$id)->delete();
+        return $this->sendResponse();
     }
 }

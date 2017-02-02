@@ -41,7 +41,7 @@ class AlbumController extends Controller
     public function store(Request $request)
     {
         $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
-        $this->sendResponse();
+        return $this->sendResponse();
     }
 
     /**
@@ -83,7 +83,7 @@ class AlbumController extends Controller
     {
         $this->model = $request->user()->profile->albums()
             ->where('id',$request->input('id'))->update($request->only('name','description'));
-        $this->sendResponse();
+        return $this->sendResponse();
     }
 
     /**
@@ -95,6 +95,6 @@ class AlbumController extends Controller
     public function destroy(Request $request,$profileId,$id)
     {
         $this->model = $request->user()->profile->albums()->where('id',$id)->delete();
-        $this->sendResponse();
+        return $this->sendResponse();
     }
 }
