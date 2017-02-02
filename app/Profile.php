@@ -13,14 +13,14 @@ class Profile extends Model
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
-    protected $with = ['experience','awards','certifications','tvshows','books','albums'];
+    protected $with = ['experience','awards','certifications','tvshows','books','albums','projects'];
 
     protected $visible = ['id','tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
         'youtube_channel',
         'followers','following',
         'experience','awards','certifications','tvshows','books','followingProfiles', 'followerProfiles',
-        'name','albums'];
+        'name','albums','projects'];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
 
@@ -140,6 +140,11 @@ class Profile extends Model
     public function photos()
     {
         return $this->hasManyThrough('App\Photo','App\Album');
+    }
+
+    public function projects()
+    {
+        return $this->hasMany('App\Projects');
     }
 
 
