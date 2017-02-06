@@ -113,7 +113,7 @@ class ProfileController extends Controller
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['hero_image']
                 ],
-                'sink'=>storage_path($directory . $imageName)
+                'sink'=>$directory . "/" . $imageName
             ]);
             $data['hero_image'] = $imageName;
         }
@@ -136,18 +136,18 @@ class ProfileController extends Controller
 
     public function image($id)
     {
-        $profile = Profile::select('image')->findOrFail($id);
-        if(file_exists(storage_path("app/" . $profile->image))){
-            return response()->file(storage_path("app/" . $profile->image));
+        $profile = Profile::select('id','image')->findOrFail($id);
+        if(file_exists(storage_path("app/profile/{$profile->id}/images/" . $profile->image))){
+            return response()->file(storage_path("app/profile/{$profile->id}/images/" . $profile->image));
         }
         return;
     }
 
     public function heroImage($id)
     {
-        $profile = Profile::select('hero_image')->findOrFail($id);
+        $profile = Profile::select('id','hero_image')->findOrFail($id);
 
-        return response()->file(storage_path("app/" . $profile->hero_image));
+        return response()->file(storage_path("app/profile/{$profile->id}/hero_images/" . $profile->hero_image));
     }
 
     public function dishImages($id)
