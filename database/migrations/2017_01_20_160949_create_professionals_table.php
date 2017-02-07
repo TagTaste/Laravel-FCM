@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateProfessionalsTable extends Migration {
 
@@ -16,6 +16,7 @@ class CreateProfessionalsTable extends Migration {
             $table->increments('id');
             $table->text('ingredients')->nullable();
             $table->text('favourite_moments')->nullable();
+            $table->text('famous_recipes')->nullable();
             $table->integer('profile_id')->unsigned();
             $table->timestamps();
             $table->softDeletes();
