@@ -39,7 +39,9 @@ Route::group(['namespace'=>'Api',
                     Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
                     Route::resource('photos','PhotoController');
                 });
-            });
+                Route::resource("experiences","ExperienceController");
+
+                });
 
             Route::resource('albums','AlbumController');
             Route::resource('photos','PhotoController');

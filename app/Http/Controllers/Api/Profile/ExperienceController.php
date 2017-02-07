@@ -17,9 +17,10 @@ class ExperienceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($profileId)
     {
-        //
+        $this->model = Experience::where('profile_id',$profileId)->get();
+        return $this->sendResponse();
     }
 
     /**
@@ -40,7 +41,9 @@ class ExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->model = $request->user()->profile->experience()->create($request->only($this->fields));
+        return $this->sendResponse();
+
     }
 
     /**
