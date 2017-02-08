@@ -132,6 +132,11 @@ Route::group(['middleware'=>'auth'],function(){
     });
     Route::post("photos/tag",['uses'=>'PhotoController@tag','as'=>'photos.tag']);
     Route::resource("photos","PhotoController");
-
+    Route::resource("companies","CompanyController");
+    Route::resource("company_websites","Company_websiteController");
+    Route::resource("company_blogs","Company_blogController");
+    Route::resource("company_statuses","Company_statusController"); // Add this line in routes.php
+    Route::resource("company_types","CompanyTypeController");
+    Route::resource("advertisements","AdvertisementController");
 
 });

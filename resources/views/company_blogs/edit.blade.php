@@ -1,0 +1,64 @@
+@extends('layout')
+@section('css')
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/css/bootstrap-datepicker.css" rel="stylesheet">
+@endsection
+@section('header')
+    <div class="page-header">
+        <h1><i class="glyphicon glyphicon-edit"></i> Company_blogs / Edit #{{$company_blog->id}}</h1>
+    </div>
+@endsection
+
+@section('content')
+    @include('error')
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <form action="{{ route('company_blogs.update', $company_blog->id) }}" method="POST">
+                <input type="hidden" name="_method" value="PUT">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                <div class="form-group @if($errors->has('name')) has-error @endif">
+                       <label for="name-field">Name</label>
+                    <input type="text" id="name-field" name="name" class="form-control" value="{{ is_null(old("name")) ? $company_blog->name : old("name") }}"/>
+                       @if($errors->has("name"))
+                        <span class="help-block">{{ $errors->first("name") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('url')) has-error @endif">
+                       <label for="url-field">Url</label>
+                    <input type="text" id="url-field" name="url" class="form-control" value="{{ is_null(old("url")) ? $company_blog->url : old("url") }}"/>
+                       @if($errors->has("url"))
+                        <span class="help-block">{{ $errors->first("url") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('company_id')) has-error @endif">
+                       <label for="company_id-field">Company_id</label>
+                    <input type="text" id="company_id-field" name="company_id" class="form-control" value="{{ is_null(old("company_id")) ? $company_blog->company_id : old("company_id") }}"/>
+                       @if($errors->has("company_id"))
+                        <span class="help-block">{{ $errors->first("company_id") }}</span>
+                       @endif
+                    </div>
+                    <div class="form-group @if($errors->has('company_id')) has-error @endif">
+                       <label for="company_id-field">Company_id</label>
+                    <input type="text" id="company_id-field" name="company_id" class="form-control" value="{{ is_null(old("company_id")) ? $company_blog->company_id : old("company_id") }}"/>
+                       @if($errors->has("company_id"))
+                        <span class="help-block">{{ $errors->first("company_id") }}</span>
+                       @endif
+                    </div>
+                <div class="well well-sm">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a class="btn btn-link pull-right" href="{{ route('company_blogs.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+@endsection
+@section('scripts')
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js"></script>
+  <script>
+    $('.date-picker').datepicker({
+    });
+  </script>
+@endsection
