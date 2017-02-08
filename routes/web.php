@@ -125,7 +125,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("establishment_types","EstablishmentTypeController");
     Route::post("albums/tag",['uses'=>'AlbumController@tag','as'=>'albums.tag']);
     Route::resource("albums","AlbumController");
-
+    Route::resource("education","EducationController");
     Route::get("photos/{id}.jpg",function($id){
         $file = \App\Photo::find($id);
         return response()->file(storage_path("app/" . $file->file));

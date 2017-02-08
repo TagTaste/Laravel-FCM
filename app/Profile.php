@@ -147,4 +147,9 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Project');
     }
 
+    public function education()
+    {
+        return $this->hasMany('App\Education');
+    }
+
 }
