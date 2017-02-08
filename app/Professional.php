@@ -16,4 +16,9 @@ class Professional extends Model
     {
         return $this->belongsToMany('App\Cuisine','cuisine_professionals','professional_id','cuisine_id');
     }
+
+    public function expertAtEstablishmentTypes()
+    {
+        return $this->belongsToMany('App\EstablishmentTypes','establishment_type_professionals','professional_id','establishment_type_id');
+    }
 }

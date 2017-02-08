@@ -122,6 +122,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("awards","AwardController");
     Route::resource("certifications","CertificationController");
     Route::resource("cuisines","CuisineController");
+    Route::resource("establishment_types","EstablishmentTypeController");
     Route::post("albums/tag",['uses'=>'AlbumController@tag','as'=>'albums.tag']);
     Route::resource("albums","AlbumController");
 
