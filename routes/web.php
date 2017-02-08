@@ -121,7 +121,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("experiences","ExperienceController");
     Route::resource("awards","AwardController");
     Route::resource("certifications","CertificationController");
-
+    Route::resource("cuisines","CuisineController");
     Route::post("albums/tag",['uses'=>'AlbumController@tag','as'=>'albums.tag']);
     Route::resource("albums","AlbumController");
 
