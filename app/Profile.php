@@ -17,7 +17,7 @@ class Profile extends Model
 
     protected $visible = ['id','tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
         'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
-        'youtube_channel',
+        'youtube_channel','interested_in_opportunities',
         'followers','following',
         'experience','awards','certifications','tvshows','books','followingProfiles', 'followerProfiles',
         'name','albums','projects'];
