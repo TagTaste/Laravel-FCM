@@ -17,8 +17,6 @@ class CreateAwardsTable extends Migration {
             $table->string('name');
             $table->text('description');
             $table->date('date');
-            $table->integer('profile_id')->unsigned();
-            $table->foreign('profile_id')->references('id')->on('profiles');
             $table->timestamps();
         });
 	}
