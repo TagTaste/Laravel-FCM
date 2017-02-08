@@ -15,11 +15,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call(DefaultAdminValues::class);
         //$this->call(DefaultRoleUserValues::class);
-        $this->call(ProfileTypeTableSeeder::class);
-        $this->call(ProfileAttributeIdSeeder::class);
-        $this->call(ProfileAttributeTableSeeder::class);
+
         $this->call(PrivacyTableSeeder::class);
-        $this->call(AttributeValueTableSeeder::class);
+        //$this->call(AttributeValueTableSeeder::class);
         $this->call(TemplateTypeTableSeeder::class);
         $this->call(TemplateTableSeeder::class);
     }

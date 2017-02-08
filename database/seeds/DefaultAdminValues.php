@@ -16,7 +16,7 @@ class DefaultAdminValues extends Seeder
     	$user = User::create([
             'name' => 'Admin',
             'email' => 'admin@tagtaste.com',
-            'password' => bcrypt('shadowqwerty'),
+            'password' => bcrypt('qwerty'),
         ]);
 
     	$admin = Role::where('name','like','admin')->first();

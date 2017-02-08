@@ -134,7 +134,7 @@ class Profile extends Model
 
     public function albums()
     {
-        return $this->hasMany('App\Album');
+        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
     }
 
     public function photos()
