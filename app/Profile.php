@@ -49,7 +49,7 @@ class Profile extends Model
 
     public function awards()
     {
-        return $this->hasMany('App\Profile\Award');
+        return $this->belongsToMany('App\Profile\Award','profile_awards','profile_id','award_id');
     }
 
     public function certifications()
@@ -134,7 +134,7 @@ class Profile extends Model
 
     public function albums()
     {
-        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
+        return $this->belongsToMany('App\Album','profile_albums','profile_id','albun)');
     }
 
     public function photos()
