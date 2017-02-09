@@ -42,4 +42,9 @@ class Company extends Model
     {
         return $this->belongsTo('App\Company\Type','type');
     }
+
+    public function websites()
+    {
+        return $this->hasMany('App\Company\Website','company_id','id');
+    }
 }

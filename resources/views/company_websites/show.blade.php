@@ -2,11 +2,11 @@
 @section('header')
 <div class="page-header">
         <h1>Company_websites / Show #{{$company_website->id}}</h1>
-        <form action="{{ route('company_websites.destroy', $company_website->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
+        <form action="{{ route('companies.websites.destroy', ['companyId'=>$companyId,'id'=>$company_website->id]) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
             <input type="hidden" name="_method" value="DELETE">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <div class="btn-group pull-right" role="group" aria-label="...">
-                <a class="btn btn-warning btn-group" role="group" href="{{ route('company_websites.edit', $company_website->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+                <a class="btn btn-warning btn-group" role="group" href="{{ route('companies.websites.edit', ['companyId'=>$companyId,'id'=>$company_website->id]) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
                 <button type="submit" class="btn btn-danger">Delete <i class="glyphicon glyphicon-trash"></i></button>
             </div>
         </form>
@@ -40,7 +40,7 @@
                 </div>
             </form>
 
-            <a class="btn btn-link" href="{{ route('company_websites.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
+            <a class="btn btn-link" href="{{ route('companies.websites.index',['companyId'=>$companyId]) }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
 
         </div>
     </div>

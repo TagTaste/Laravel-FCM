@@ -10,6 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
@@ -132,11 +133,20 @@ Route::group(['middleware'=>'auth'],function(){
     });
     Route::post("photos/tag",['uses'=>'PhotoController@tag','as'=>'photos.tag']);
     Route::resource("photos","PhotoController");
+
     Route::resource("companies","CompanyController");
-    Route::resource("company_websites","Company_websiteController");
-    Route::resource("company_blogs","Company_blogController");
-    Route::resource("company_statuses","Company_statusController"); // Add this line in routes.php
-    Route::resource("company_types","CompanyTypeController");
-    Route::resource("advertisements","AdvertisementController");
+
+    Route::group(['namespace'=>'Company','prefix'=>'company','as'=>'company.'],function(){
+        Route::resource("status","StatusController");
+        Route::resource("types","TypeController");
+    });
+
+    Route::group(['namespace'=>'Company','prefix'=>"companies/{companyId}",'as'=>'companies.'],function(){
+        Route::resource("websites","WebsiteController");
+        Route::resource("blogs","BlogController");
+        Route::resource("advertisements","AdvertisementController");
+
+    });
+
 
 });

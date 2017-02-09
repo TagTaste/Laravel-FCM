@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-md-12">
 
-            <form action="{{ route('company_websites.store') }}" method="POST">
+            <form action="{{ route('companies.websites.store',['companyId'=>$companyId]) }}" method="POST">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                 <div class="form-group @if($errors->has('name')) has-error @endif">
@@ -32,22 +32,14 @@
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('company_id')) has-error @endif">
-                       <label for="company_id-field">Company_id</label>
-                    <input type="text" id="company_id-field" name="company_id" class="form-control" value="{{ old("company_id") }}"/>
-                       @if($errors->has("company_id"))
-                        <span class="help-block">{{ $errors->first("company_id") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('company_id')) has-error @endif">
-                       <label for="company_id-field">Company_id</label>
-                    <input type="text" id="company_id-field" name="company_id" class="form-control" value="{{ old("company_id") }}"/>
+                    <input type="hidden" id="company_id-field" name="company_id" class="form-control" value="{{ $companyId }}"/>
                        @if($errors->has("company_id"))
                         <span class="help-block">{{ $errors->first("company_id") }}</span>
                        @endif
                     </div>
                 <div class="well well-sm">
                     <button type="submit" class="btn btn-primary">Create</button>
-                    <a class="btn btn-link pull-right" href="{{ route('company_websites.index') }}"><i class="glyphicon glyphicon-backward"></i> Back</a>
+                    <a class="btn btn-link pull-right" href="{{ route('companies.websites.index',['companyId'=>$companyId]) }}"><i class="glyphicon glyphicon-backward"></i> Back</a>
                 </div>
             </form>
 

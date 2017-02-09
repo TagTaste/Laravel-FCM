@@ -4,7 +4,7 @@
     <div class="page-header clearfix">
         <h1>
             <i class="glyphicon glyphicon-align-justify"></i> Company_websites
-            <a class="btn btn-success pull-right" href="{{ route('company_websites.create') }}"><i class="glyphicon glyphicon-plus"></i> Create</a>
+            <a class="btn btn-success pull-right" href="{{ route('companies.websites.create',['companyId'=>$companyId]) }}"><i class="glyphicon glyphicon-plus"></i> Create</a>
         </h1>
 
     </div>
@@ -19,9 +19,8 @@
                         <tr>
                             <th>ID</th>
                             <th>NAME</th>
-                        <th>URL</th>
-                        <th>COMPANY_ID</th>
-                        <th>COMPANY_ID</th>
+                            <th>URL</th>
+                            {{--<th>COMPANY</th>--}}
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -31,13 +30,12 @@
                             <tr>
                                 <td>{{$company_website->id}}</td>
                                 <td>{{$company_website->name}}</td>
-                    <td>{{$company_website->url}}</td>
-                    <td>{{$company_website->company_id}}</td>
-                    <td>{{$company_website->company_id}}</td>
+                                <td>{{$company_website->url}}</td>
+                                {{--<td>{{$company_website->company->name}}</td>--}}
                                 <td class="text-right">
-                                    <a class="btn btn-xs btn-primary" href="{{ route('company_websites.show', $company_website->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
-                                    <a class="btn btn-xs btn-warning" href="{{ route('company_websites.edit', $company_website->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-                                    <form action="{{ route('company_websites.destroy', $company_website->id) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
+                                    <a class="btn btn-xs btn-primary" href="{{ route('companies.websites.show', ['companyId'=>$companyId,'websiteId'=>$company_website->id]) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
+                                    <a class="btn btn-xs btn-warning" href="{{ route('companies.websites.edit', ['companyId'=>$companyId,'websiteId'=>$company_website->id]) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+                                    <form action="{{ route('companies.websites.destroy', ['companyId'=>$companyId,'websiteId'=>$company_website->id]) }}" method="POST" style="display: inline;" onsubmit="if(confirm('Delete? Are you sure?')) { return true } else {return false };">
                                         <input type="hidden" name="_method" value="DELETE">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-xs btn-danger"><i class="glyphicon glyphicon-trash"></i> Delete</button>
