@@ -3,10 +3,10 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Company_blog;
+use App\Company\Blog;
 use Illuminate\Http\Request;
 
-class Company_blogController extends Controller {
+class CompanyBlogController extends Controller {
 
 	/**
 	 * Display a listing of the resource.
@@ -15,7 +15,7 @@ class Company_blogController extends Controller {
 	 */
 	public function index()
 	{
-		$company_blogs = Company_blog::orderBy('id', 'desc')->paginate(10);
+		$company_blogs = Blog::orderBy('id', 'desc')->paginate(10);
 
 		return view('company_blogs.index', compact('company_blogs'));
 	}
@@ -38,7 +38,7 @@ class Company_blogController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$company_blog = new Company_blog();
+		$company_blog = new Blog();
 
 		$company_blog->name = $request->input("name");
         $company_blog->url = $request->input("url");
@@ -58,7 +58,7 @@ class Company_blogController extends Controller {
 	 */
 	public function show($id)
 	{
-		$company_blog = Company_blog::findOrFail($id);
+		$company_blog = Blog::findOrFail($id);
 
 		return view('company_blogs.show', compact('company_blog'));
 	}
@@ -71,7 +71,7 @@ class Company_blogController extends Controller {
 	 */
 	public function edit($id)
 	{
-		$company_blog = Company_blog::findOrFail($id);
+		$company_blog = Blog::findOrFail($id);
 
 		return view('company_blogs.edit', compact('company_blog'));
 	}
@@ -85,7 +85,7 @@ class Company_blogController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$company_blog = Company_blog::findOrFail($id);
+		$company_blog = Blog::findOrFail($id);
 
 		$company_blog->name = $request->input("name");
         $company_blog->url = $request->input("url");
@@ -105,7 +105,7 @@ class Company_blogController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$company_blog = Company_blog::findOrFail($id);
+		$company_blog = Blog::findOrFail($id);
 		$company_blog->delete();
 
 		return redirect()->route('company_blogs.index')->with('message', 'Item deleted successfully.');
