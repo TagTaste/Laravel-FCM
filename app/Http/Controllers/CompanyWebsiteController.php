@@ -3,10 +3,10 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Company_website;
+use App\Company\Website;
 use Illuminate\Http\Request;
 
-class Company_websiteController extends Controller {
+class CompanyWebsiteController extends Controller {
 
 	/**
 	 * Display a listing of the resource.
@@ -15,7 +15,7 @@ class Company_websiteController extends Controller {
 	 */
 	public function index()
 	{
-		$company_websites = Company_website::orderBy('id', 'desc')->paginate(10);
+		$company_websites = Website::orderBy('id', 'desc')->paginate(10);
 
 		return view('company_websites.index', compact('company_websites'));
 	}
@@ -38,7 +38,7 @@ class Company_websiteController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$company_website = new Company_website();
+		$company_website = new Website();
 
 		$company_website->name = $request->input("name");
         $company_website->url = $request->input("url");
@@ -58,7 +58,7 @@ class Company_websiteController extends Controller {
 	 */
 	public function show($id)
 	{
-		$company_website = Company_website::findOrFail($id);
+		$company_website = Website::findOrFail($id);
 
 		return view('company_websites.show', compact('company_website'));
 	}
@@ -71,7 +71,7 @@ class Company_websiteController extends Controller {
 	 */
 	public function edit($id)
 	{
-		$company_website = Company_website::findOrFail($id);
+		$company_website = Website::findOrFail($id);
 
 		return view('company_websites.edit', compact('company_website'));
 	}
@@ -85,7 +85,7 @@ class Company_websiteController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$company_website = Company_website::findOrFail($id);
+		$company_website = Website::findOrFail($id);
 
 		$company_website->name = $request->input("name");
         $company_website->url = $request->input("url");
@@ -105,7 +105,7 @@ class Company_websiteController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$company_website = Company_website::findOrFail($id);
+		$company_website = Website::findOrFail($id);
 		$company_website->delete();
 
 		return redirect()->route('company_websites.index')->with('message', 'Item deleted successfully.');

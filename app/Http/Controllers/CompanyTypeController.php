@@ -3,7 +3,7 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\CompanyType;
+use App\Company\CompanyType;
 use Illuminate\Http\Request;
 
 class CompanyTypeController extends Controller {

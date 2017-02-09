@@ -3,10 +3,10 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Company_status;
+use App\Company\Status;
 use Illuminate\Http\Request;
 
-class Company_statusController extends Controller {
+class StatusController extends Controller {
 
 	/**
 	 * Display a listing of the resource.
@@ -15,7 +15,7 @@ class Company_statusController extends Controller {
 	 */
 	public function index()
 	{
-		$company_statuses = Company_status::orderBy('id', 'desc')->paginate(10);
+		$company_statuses = Status::orderBy('id', 'desc')->paginate(10);
 
 		return view('company_statuses.index', compact('company_statuses'));
 	}
@@ -38,7 +38,7 @@ class Company_statusController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$company_status = new Company_status();
+		$company_status = new Status();
 
 		$company_status->name = $request->input("name");
         $company_status->description = $request->input("description");
@@ -56,7 +56,7 @@ class Company_statusController extends Controller {
 	 */
 	public function show($id)
 	{
-		$company_status = Company_status::findOrFail($id);
+		$company_status = Status::findOrFail($id);
 
 		return view('company_statuses.show', compact('company_status'));
 	}
@@ -69,7 +69,7 @@ class Company_statusController extends Controller {
 	 */
 	public function edit($id)
 	{
-		$company_status = Company_status::findOrFail($id);
+		$company_status = Status::findOrFail($id);
 
 		return view('company_statuses.edit', compact('company_status'));
 	}
@@ -83,7 +83,7 @@ class Company_statusController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$company_status = Company_status::findOrFail($id);
+		$company_status = Status::findOrFail($id);
 
 		$company_status->name = $request->input("name");
         $company_status->description = $request->input("description");
@@ -101,7 +101,7 @@ class Company_statusController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$company_status = Company_status::findOrFail($id);
+		$company_status = Status::findOrFail($id);
 		$company_status->delete();
 
 		return redirect()->route('company_statuses.index')->with('message', 'Item deleted successfully.');
