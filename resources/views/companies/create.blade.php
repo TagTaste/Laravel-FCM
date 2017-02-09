@@ -75,28 +75,14 @@
                     </div>
                     <div class="form-group @if($errors->has('status_id')) has-error @endif">
                        <label for="status_id-field">Status_id</label>
-                    <input type="text" id="status_id-field" name="status_id" class="form-control" value="{{ old("status_id") }}"/>
-                       @if($errors->has("status_id"))
-                        <span class="help-block">{{ $errors->first("status_id") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('status_id')) has-error @endif">
-                       <label for="status_id-field">Status_id</label>
-                    <input type="text" id="status_id-field" name="status_id" class="form-control" value="{{ old("status_id") }}"/>
+                        {{ Form::select("status_id",$status,null,['class'=>'form-control','value'=> old('status_id')]) }}
                        @if($errors->has("status_id"))
                         <span class="help-block">{{ $errors->first("status_id") }}</span>
                        @endif
                     </div>
                     <div class="form-group @if($errors->has('type')) has-error @endif">
                        <label for="type-field">Type</label>
-                    <input type="text" id="type-field" name="type" class="form-control" value="{{ old("type") }}"/>
-                       @if($errors->has("type"))
-                        <span class="help-block">{{ $errors->first("type") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('type')) has-error @endif">
-                       <label for="type-field">Type</label>
-                    <input type="text" id="type-field" name="type" class="form-control" value="{{ old("type") }}"/>
+                        {{ Form::select('type',$types,null,['class'=>'form-control','value'=>old('type')]) }}
                        @if($errors->has("type"))
                         <span class="help-block">{{ $errors->first("type") }}</span>
                        @endif
@@ -176,20 +162,6 @@
                     <input type="text" id="google_plus_url-field" name="google_plus_url" class="form-control" value="{{ old("google_plus_url") }}"/>
                        @if($errors->has("google_plus_url"))
                         <span class="help-block">{{ $errors->first("google_plus_url") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('user_id')) has-error @endif">
-                       <label for="user_id-field">User_id</label>
-                    <input type="text" id="user_id-field" name="user_id" class="form-control" value="{{ old("user_id") }}"/>
-                       @if($errors->has("user_id"))
-                        <span class="help-block">{{ $errors->first("user_id") }}</span>
-                       @endif
-                    </div>
-                    <div class="form-group @if($errors->has('user_id')) has-error @endif">
-                       <label for="user_id-field">User_id</label>
-                    <input type="text" id="user_id-field" name="user_id" class="form-control" value="{{ old("user_id") }}"/>
-                       @if($errors->has("user_id"))
-                        <span class="help-block">{{ $errors->first("user_id") }}</span>
                        @endif
                     </div>
                 <div class="well well-sm">

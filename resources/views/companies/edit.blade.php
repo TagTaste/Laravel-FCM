@@ -76,22 +76,18 @@
                     </div>
                     <div class="form-group @if($errors->has('status_id')) has-error @endif">
                        <label for="status_id-field">Status_id</label>
-                    <input type="text" id="status_id-field" name="status_id" class="form-control" value="{{ is_null(old("status_id")) ? $company->status_id : old("status_id") }}"/>
-                       @if($errors->has("status_id"))
+                        {{ Form::select("status_id",$status,null,['class'=>'form-control','value'=> is_null(old("status_id")) ? $company->status_id : old("status_id")]) }}
+
+                    @if($errors->has("status_id"))
                         <span class="help-block">{{ $errors->first("status_id") }}</span>
                        @endif
                     </div>
-                    <div class="form-group @if($errors->has('status_id')) has-error @endif">
-                       <label for="status_id-field">Status_id</label>
-                    <input type="text" id="status_id-field" name="status_id" class="form-control" value="{{ is_null(old("status_id")) ? $company->status_id : old("status_id") }}"/>
-                       @if($errors->has("status_id"))
-                        <span class="help-block">{{ $errors->first("status_id") }}</span>
-                       @endif
-                    </div>
+
                     <div class="form-group @if($errors->has('type')) has-error @endif">
                        <label for="type-field">Type</label>
-                    <input type="text" id="type-field" name="type" class="form-control" value="{{ is_null(old("type")) ? $company->type : old("type") }}"/>
-                       @if($errors->has("type"))
+                        {{ Form::select('type',$types,null,['class'=>'form-control','value'=>is_null(old("type")) ? $company->type : old("type")]) }}
+
+                    @if($errors->has("type"))
                         <span class="help-block">{{ $errors->first("type") }}</span>
                        @endif
                     </div>

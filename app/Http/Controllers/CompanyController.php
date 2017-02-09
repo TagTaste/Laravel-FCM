@@ -15,7 +15,7 @@ class CompanyController extends Controller {
 	 */
 	public function index()
 	{
-		$companies = Company::orderBy('id', 'desc')->paginate(10);
+		$companies = Company::with('status','types')->orderBy('id', 'desc')->paginate(10);
 
 		return view('companies.index', compact('companies'));
 	}
@@ -26,8 +26,10 @@ class CompanyController extends Controller {
 	 * @return Response
 	 */
 	public function create()
-	{
-		return view('companies.create');
+    {
+        $types = Company\Type::all()->pluck('name','id');
+	    $status = Company\Status::all()->pluck('name','id');
+		return view('companies.create',compact('types','status'));
 	}
 
 	/**
@@ -49,8 +51,6 @@ class CompanyController extends Controller {
         $company->registered_address = $request->input("registered_address");
         $company->established_on = $request->input("established_on");
         $company->status_id = $request->input("status_id");
-        $company->status_id = $request->input("status_id");
-        $company->type = $request->input("type");
         $company->type = $request->input("type");
         $company->employee_count = $request->input("employee_count");
         $company->client_count = $request->input("client_count");
@@ -63,8 +63,7 @@ class CompanyController extends Controller {
         $company->youtube_url = $request->input("youtube_url");
         $company->pinterest_url = $request->input("pinterest_url");
         $company->google_plus_url = $request->input("google_plus_url");
-        $company->user_id = $request->input("user_id");
-        $company->user_id = $request->input("user_id");
+        $company->user_id = $request->user()->id;
 
 		$company->save();
 
@@ -92,9 +91,11 @@ class CompanyController extends Controller {
 	 */
 	public function edit($id)
 	{
+        $types = Company\Type::all()->pluck('name','id');
+        $status = Company\Status::all()->pluck('name','id');
 		$company = Company::findOrFail($id);
 
-		return view('companies.edit', compact('company'));
+		return view('companies.edit', compact('company','types','status'));
 	}
 
 	/**
@@ -131,8 +132,7 @@ class CompanyController extends Controller {
         $company->youtube_url = $request->input("youtube_url");
         $company->pinterest_url = $request->input("pinterest_url");
         $company->google_plus_url = $request->input("google_plus_url");
-        $company->user_id = $request->input("user_id");
-        $company->user_id = $request->input("user_id");
+        $company->user_id = $request->user()->id;
 
 		$company->save();
 

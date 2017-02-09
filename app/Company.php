@@ -6,6 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
+    protected $fillable = ['name','about','logo','hero_image','phone',
+        'email','registered_address','established_on', 'status_id',
+        'type','employee_count','client_count','annual_revenue_start',
+        'annual_revenue_end',
+        'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+    ];
+
+    public function setEstablishedOnAttribute($value)
+    {
+        $this->attributes['established_on'] = date("Y-m-d",strtotime($value));
+    }
+
     public function albums()
     {
         return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
@@ -19,5 +31,15 @@ class Company extends Model
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo('App\Company\Status','status_id');
+    }
+
+    public function types()
+    {
+        return $this->belongsTo('App\Company\Type','type');
     }
 }

@@ -19,30 +19,27 @@
                         <tr>
                             <th>ID</th>
                             <th>NAME</th>
-                        <th>ABOUT</th>
-                        <th>LOGO</th>
-                        <th>HERO_IMAGE</th>
-                        <th>PHONE</th>
-                        <th>EMAIL</th>
-                        <th>REGISTERED_ADDRESS</th>
-                        <th>ESTABLISHED_ON</th>
-                        <th>STATUS_ID</th>
-                        <th>STATUS_ID</th>
-                        <th>TYPE</th>
-                        <th>TYPE</th>
-                        <th>EMPLOYEE_COUNT</th>
-                        <th>CLIENT_COUNT</th>
-                        <th>ANNUAL_REVENUE_START</th>
-                        <th>ANNUAL_REVENUE_END</th>
-                        <th>FACEBOOK_URL</th>
-                        <th>TWITTER_URL</th>
-                        <th>LINKEDIN_URL</th>
-                        <th>INSTAGRAM_URL</th>
-                        <th>YOUTUBE_URL</th>
-                        <th>PINTEREST_URL</th>
-                        <th>GOOGLE_PLUS_URL</th>
-                        <th>USER_ID</th>
-                        <th>USER_ID</th>
+                            <th>ABOUT</th>
+                            <th>LOGO</th>
+                            <th>HERO IMAGE</th>
+                            <th>PHONE</th>
+                            <th>EMAIL</th>
+                            <th>REGISTERED ADDRESS</th>
+                            <th>ESTABLISHED ON</th>
+                            <th>STATUS</th>
+                            <th>TYPE</th>
+                            <th>EMPLOYEE COUNT</th>
+                            <th>CLIENT COUNT</th>
+                            <th>ANNUAL REVENUE START</th>
+                            <th>ANNUAL REVENUE END</th>
+                            <th>FACEBOOK URL</th>
+                            <th>TWITTER URL</th>
+                            <th>LINKEDIN URL</th>
+                            <th>INSTAGRAM URL</th>
+                            <th>YOUTUBE URL</th>
+                            <th>PINTEREST URL</th>
+                            <th>GOOGLE PLUS URL</th>
+                            <th>USER NAME</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -52,30 +49,27 @@
                             <tr>
                                 <td>{{$company->id}}</td>
                                 <td>{{$company->name}}</td>
-                    <td>{{$company->about}}</td>
-                    <td>{{$company->logo}}</td>
-                    <td>{{$company->hero_image}}</td>
-                    <td>{{$company->phone}}</td>
-                    <td>{{$company->email}}</td>
-                    <td>{{$company->registered_address}}</td>
-                    <td>{{$company->established_on}}</td>
-                    <td>{{$company->status_id}}</td>
-                    <td>{{$company->status_id}}</td>
-                    <td>{{$company->type}}</td>
-                    <td>{{$company->type}}</td>
-                    <td>{{$company->employee_count}}</td>
-                    <td>{{$company->client_count}}</td>
-                    <td>{{$company->annual_revenue_start}}</td>
-                    <td>{{$company->annual_revenue_end}}</td>
-                    <td>{{$company->facebook_url}}</td>
-                    <td>{{$company->twitter_url}}</td>
-                    <td>{{$company->linkedin_url}}</td>
-                    <td>{{$company->instagram_url}}</td>
-                    <td>{{$company->youtube_url}}</td>
-                    <td>{{$company->pinterest_url}}</td>
-                    <td>{{$company->google_plus_url}}</td>
-                    <td>{{$company->user_id}}</td>
-                    <td>{{$company->user_id}}</td>
+                                <td>{{$company->about}}</td>
+                                <td>{{$company->logo}}</td>
+                                <td>{{$company->hero_image}}</td>
+                                <td>{{$company->phone}}</td>
+                                <td>{{$company->email}}</td>
+                                <td>{{$company->registered_address}}</td>
+                                <td>{{$company->established_on}}</td>
+                                <td>{{$company->status->name}}</td>
+                                <td>{{$company->types->name}}</td>
+                                <td>{{$company->employee_count}}</td>
+                                <td>{{$company->client_count}}</td>
+                                <td>{{$company->annual_revenue_start}}</td>
+                                <td>{{$company->annual_revenue_end}}</td>
+                                <td>{{$company->facebook_url}}</td>
+                                <td>{{$company->twitter_url}}</td>
+                                <td>{{$company->linkedin_url}}</td>
+                                <td>{{$company->instagram_url}}</td>
+                                <td>{{$company->youtube_url}}</td>
+                                <td>{{$company->pinterest_url}}</td>
+                                <td>{{$company->google_plus_url}}</td>
+                                <td>{{$company->user->name}}</td>
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('companies.show', $company->id) }}"><i class="glyphicon glyphicon-eye-open"></i> View</a>
                                     <a class="btn btn-xs btn-warning" href="{{ route('companies.edit', $company->id) }}"><i class="glyphicon glyphicon-edit"></i> Edit</a>

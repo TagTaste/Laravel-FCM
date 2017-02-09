@@ -56,20 +56,14 @@
                 </div>
                     <div class="form-group">
                      <label for="status_id">STATUS_ID</label>
-                     <p class="form-control-static">{{$company->status_id}}</p>
+                     <p class="form-control-static">{{$company->status->name}}</p>
                 </div>
-                    <div class="form-group">
-                     <label for="status_id">STATUS_ID</label>
-                     <p class="form-control-static">{{$company->status_id}}</p>
-                </div>
+
                     <div class="form-group">
                      <label for="type">TYPE</label>
-                     <p class="form-control-static">{{$company->type}}</p>
+                     <p class="form-control-static">{{$company->types->name}}</p>
                 </div>
-                    <div class="form-group">
-                     <label for="type">TYPE</label>
-                     <p class="form-control-static">{{$company->type}}</p>
-                </div>
+
                     <div class="form-group">
                      <label for="employee_count">EMPLOYEE_COUNT</label>
                      <p class="form-control-static">{{$company->employee_count}}</p>
@@ -115,12 +109,8 @@
                      <p class="form-control-static">{{$company->google_plus_url}}</p>
                 </div>
                     <div class="form-group">
-                     <label for="user_id">USER_ID</label>
-                     <p class="form-control-static">{{$company->user_id}}</p>
-                </div>
-                    <div class="form-group">
-                     <label for="user_id">USER_ID</label>
-                     <p class="form-control-static">{{$company->user_id}}</p>
+                     <label for="user_id">User</label>
+                     <p class="form-control-static">{{$company->user->name}}</p>
                 </div>
             </form>
 
