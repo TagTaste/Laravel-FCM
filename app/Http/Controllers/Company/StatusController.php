@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers\Company;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -45,7 +45,7 @@ class StatusController extends Controller {
 
 		$company_status->save();
 
-		return redirect()->route('company_statuses.index')->with('message', 'Item created successfully.');
+		return redirect()->route('company.status.index')->with('message', 'Item created successfully.');
 	}
 
 	/**
@@ -90,7 +90,7 @@ class StatusController extends Controller {
 
 		$company_status->save();
 
-		return redirect()->route('company_statuses.index')->with('message', 'Item updated successfully.');
+		return redirect()->route('company.status.index')->with('message', 'Item updated successfully.');
 	}
 
 	/**
@@ -104,7 +104,7 @@ class StatusController extends Controller {
 		$company_status = Status::findOrFail($id);
 		$company_status->delete();
 
-		return redirect()->route('company_statuses.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('company.status.index')->with('message', 'Item deleted successfully.');
 	}
 
 }

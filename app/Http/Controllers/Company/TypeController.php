@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers\Company;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
