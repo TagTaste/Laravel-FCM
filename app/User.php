@@ -28,9 +28,9 @@ class User extends Authenticatable
         'name', 'email', 'password', 'is_active', 'social_registration'
     ];
 
-    protected $with = ['profile','articles','ideabooks'];
+    protected $with = ['profile','articles','ideabooks','companies'];
 
-    protected $visible = ['name','email','profile','articles','recommend','ideabooks'];
+    protected $visible = ['name','email','profile','articles','recommend','ideabooks','companies'];
 
     protected $appends = ['recommend'];
 
@@ -303,5 +303,10 @@ class User extends Authenticatable
         $recommendations = Recommend::get();
 
         return $recommendations;
+    }
+
+    public function companies()
+    {
+        return $this->belongsTo('App\Company');
     }
 }
