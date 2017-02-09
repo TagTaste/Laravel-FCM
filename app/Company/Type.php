@@ -4,7 +4,7 @@ namespace App\Company;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CompanyType extends Model
+class Type extends Model
 {
     //
 }

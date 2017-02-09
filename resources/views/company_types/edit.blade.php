@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-md-12">
 
-            <form action="{{ route('company_types.update', $company_type->id) }}" method="POST">
+            <form action="{{ route('company.types.update', $company_type->id) }}" method="POST">
                 <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
@@ -34,7 +34,7 @@
                     </div>
                 <div class="well well-sm">
                     <button type="submit" class="btn btn-primary">Save</button>
-                    <a class="btn btn-link pull-right" href="{{ route('company_types.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
+                    <a class="btn btn-link pull-right" href="{{ route('company.types.index') }}"><i class="glyphicon glyphicon-backward"></i>  Back</a>
                 </div>
             </form>
 

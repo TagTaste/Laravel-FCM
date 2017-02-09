@@ -3,10 +3,10 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use App\Company\CompanyType;
+use App\Company\Type;
 use Illuminate\Http\Request;
 
-class CompanyTypeController extends Controller {
+class TypeController extends Controller {
 
 	/**
 	 * Display a listing of the resource.
@@ -15,7 +15,7 @@ class CompanyTypeController extends Controller {
 	 */
 	public function index()
 	{
-		$company_types = CompanyType::orderBy('id', 'desc')->paginate(10);
+		$company_types = Type::orderBy('id', 'desc')->paginate(10);
 
 		return view('company_types.index', compact('company_types'));
 	}
@@ -38,14 +38,14 @@ class CompanyTypeController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$company_type = new CompanyType();
+		$company_type = new Type();
 
 		$company_type->name = $request->input("name");
         $company_type->description = $request->input("description");
 
 		$company_type->save();
 
-		return redirect()->route('company_types.index')->with('message', 'Item created successfully.');
+		return redirect()->route('company.types.index')->with('message', 'Item created successfully.');
 	}
 
 	/**
@@ -56,7 +56,7 @@ class CompanyTypeController extends Controller {
 	 */
 	public function show($id)
 	{
-		$company_type = CompanyType::findOrFail($id);
+		$company_type = Type::findOrFail($id);
 
 		return view('company_types.show', compact('company_type'));
 	}
@@ -69,7 +69,7 @@ class CompanyTypeController extends Controller {
 	 */
 	public function edit($id)
 	{
-		$company_type = CompanyType::findOrFail($id);
+		$company_type = Type::findOrFail($id);
 
 		return view('company_types.edit', compact('company_type'));
 	}
@@ -83,14 +83,14 @@ class CompanyTypeController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$company_type = CompanyType::findOrFail($id);
+		$company_type = Type::findOrFail($id);
 
 		$company_type->name = $request->input("name");
         $company_type->description = $request->input("description");
 
 		$company_type->save();
 
-		return redirect()->route('company_types.index')->with('message', 'Item updated successfully.');
+		return redirect()->route('company.types.index')->with('message', 'Item updated successfully.');
 	}
 
 	/**
@@ -101,10 +101,10 @@ class CompanyTypeController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		$company_type = CompanyType::findOrFail($id);
+		$company_type = Type::findOrFail($id);
 		$company_type->delete();
 
-		return redirect()->route('company_types.index')->with('message', 'Item deleted successfully.');
+		return redirect()->route('company.types.index')->with('message', 'Item deleted successfully.');
 	}
 
 }

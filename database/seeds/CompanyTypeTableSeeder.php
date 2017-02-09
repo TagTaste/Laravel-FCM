@@ -9,7 +9,13 @@ class CompanyTypeTableSeeder extends Seeder {
 
     public function run()
     {
-        // TestDummy::times(20)->create('App\Post');
+        $types = "privately held, government agency, non profit, partnership firm, one person company, educational";
+        $types = explode(",",ucwords($types));
+        $models = [];
+        foreach($types as $type){
+            $models[]['name'] = $type;
+        }
+        \App\Company\Type::insert($models);
     }
 
 }
