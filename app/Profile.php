@@ -134,7 +134,7 @@ class Profile extends Model
 
     public function albums()
     {
-        return $this->belongsToMany('App\Album','profile_albums','profile_id','albun)');
+        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
     }
 
     public function photos()
@@ -150,6 +150,11 @@ class Profile extends Model
     public function education()
     {
         return $this->hasMany('App\Education');
+    }
+
+    public function companies()
+    {
+        return $this->hasManyThrough('\App\Company','App\User');
     }
 
 }

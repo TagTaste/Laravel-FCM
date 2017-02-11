@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 | and reside in App\Http\Controllers\Api folder. Duh.
 |
 */
+//has prefix api/
 Route::group(['namespace'=>'Api',
     'as' => 'api.' //note the dot.
     ],function(){
@@ -24,6 +25,22 @@ Route::group(['namespace'=>'Api',
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
 
+        Route::group(['namespace'=>'Profile','prefix'=>'profile/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
+            Route::resource('albums','AlbumController');
+            Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
+                Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
+                Route::resource('photos','PhotoController');
+            });
+            Route::resource('companies','CompanyController');
+
+            Route::resource('tagboards','TagBoardController');
+            Route::resource("experiences","ExperienceController");
+
+        });
+
+
+    Route::resource('companies','CompanyController');
+
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
 
@@ -31,17 +48,7 @@ Route::group(['namespace'=>'Api',
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
 
-            Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
-                Route::resource('albums','AlbumController');
-                Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
-                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
-                    Route::resource('photos','PhotoController');
-                });
 
-                Route::resource('tagboards','TagBoardController');
-                Route::resource("experiences","ExperienceController");
-
-                });
 
             Route::resource('albums','AlbumController');
             Route::resource('photos','PhotoController');
@@ -54,9 +61,6 @@ Route::group(['namespace'=>'Api',
             Route::resource("experiences","ExperienceController");
             Route::resource("awards","AwardController");
             Route::resource("certifications","CertificationController");
-
-
-
         });
 });
 

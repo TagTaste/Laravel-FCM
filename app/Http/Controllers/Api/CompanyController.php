@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use App\Company;
 class CompanyController extends Controller
 {
+    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $this->model = Company::orderBy('id', 'desc')->paginate(10);
+        return $this->sendResponse();
+
     }
 
     /**
@@ -35,7 +39,8 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+//        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
+//        return $this->sendResponse();
     }
 
     /**
@@ -46,7 +51,13 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        //
+        $this->model = Company::find($id);
+
+        if(!$this->model){
+            throw new \Exception("Company not found.");
+        }
+
+        return $this->sendResponse();
     }
 
     /**
@@ -67,9 +78,11 @@ class CompanyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId, $id)
     {
-        //
+        $this->model = $request->user()->profile->albums()
+            ->where('id',$request->input('id'))->update($request->only('name','description'));
+        return $this->sendResponse();
     }
 
     /**
@@ -78,8 +91,9 @@ class CompanyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request,$profileId,$id)
     {
-        //
+        $this->model = $request->user()->profile->albums()->where('id',$id)->delete();
+        return $this->sendResponse();
     }
 }

@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\Http\Controllers\Controller;
-use App\Profile\Book;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Company;
 
-class BookController extends Controller
+class CompanyController extends Controller
 {
     use SendsJsonResponse;
-
-    private $fields = ['title','description','publisher','release_date','url','isbn'];
     /**
      * Display a listing of the resource.
-     *N
+     *
      * @return \Illuminate\Http\Response
      */
     public function index($profileId)
     {
-        $this->model = Book::where('profile_id',$profileId)->get();
+        $this->model = Company::whereHas('user.profile',function($query) use ($profileId) {
+            $query->where('profiles.id',$profileId);
+        })->first();
         return $this->sendResponse();
     }
 
@@ -41,9 +41,8 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->books()
-            ->create($request->only($this->fields));
-        $this->sendResponse();
+        $this->model = $request->user()->profile->companies()->create($request->only(['name','description']));
+        return $this->sendResponse();
     }
 
     /**
@@ -54,10 +53,12 @@ class BookController extends Controller
      */
     public function show($profileId,$id)
     {
-        $this->model = Book::where('profile_id',$profileId)->where('id',$id)->first();
+        $this->model = Company::where('profile_id',$profileId)->where('id',$albumId)->first();
+
         if(!$this->model){
-            throw new \Exception("Book not found.");
+            throw new \Exception("Company not found.");
         }
+
         return $this->sendResponse();
     }
 
@@ -81,8 +82,8 @@ class BookController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->books()->
-            where('id',$id)->update($this->fields);
+        $this->model = $request->user()->profile->companies()
+            ->where('id',$request->input('id'))->update($request->only('name','description'));
         return $this->sendResponse();
     }
 
@@ -92,9 +93,9 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $profileId, $id)
+    public function destroy(Request $request,$profileId,$id)
     {
-        $this->model = $request->user()->profile->books()->where('id',$id)->delete();
+        $this->model = $request->user()->profile->companies()->where('id',$id)->delete();
         return $this->sendResponse();
     }
 }

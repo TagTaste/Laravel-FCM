@@ -20,5 +20,7 @@ class DatabaseSeeder extends Seeder
         //$this->call(AttributeValueTableSeeder::class);
         $this->call(TemplateTypeTableSeeder::class);
         $this->call(TemplateTableSeeder::class);
+        //company related
+        $this->call(CompanyTypeTableSeeder::class);
     }
 }

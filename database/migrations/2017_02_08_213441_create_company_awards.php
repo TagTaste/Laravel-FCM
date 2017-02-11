@@ -17,7 +17,7 @@ class CreateCompanyAwards extends Migration
             $table->integer('company_id')->unsigned();
             $table->integer('award_id')->unsigned();
 
-            $table->foreign('company')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('award_id')->references('id')->on('awards')->onDelete('cascade');
         });
     }
