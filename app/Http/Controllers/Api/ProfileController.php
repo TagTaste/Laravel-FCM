@@ -76,19 +76,14 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = array_filter($request->all());
+        $data = array_filter($request->input('profile'));
+        //update user name
         if(!empty($data['name'])){
-            $name = $data['name'];
-            unset($data['name']);
+            $name = array_pull($data, 'name');
             $request->user()->update(['name'=>$name]);
         }
+
         if(!empty($data['image'])){
-
-            $directory = storage_path("app/profile/{$id}/images/");
-            if(!file_exists($directory)){
-                mkdir($directory,0664,true);
-            }
-
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
             $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
@@ -96,16 +91,13 @@ class ProfileController extends Controller
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['image']
                 ],
-                'sink'=>storage_path("app/profile/{$id}/images/" . $imageName)
+                'sink'=> Profile::getImagePath($id, $imageName)
             ]);
             $data['image'] = $imageName;
         }
 
         if(!empty($data['hero_image'])){
-            $directory = storage_path("app/profile/{$id}/hero_images/");
-            if(!file_exists($directory)){
-                mkdir($directory,0664,true);
-            }
+
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
             $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
@@ -113,7 +105,8 @@ class ProfileController extends Controller
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['hero_image']
                 ],
-                'sink'=>$directory . "/" . $imageName
+
+                'sink'=> Profile::getHeroImagePath($id, $imageName)
             ]);
             $data['hero_image'] = $imageName;
         }
@@ -136,18 +129,17 @@ class ProfileController extends Controller
 
     public function image($id)
     {
-        $profile = Profile::select('id','image')->findOrFail($id);
-        if(file_exists(storage_path("app/profile/{$profile->id}/images/" . $profile->image))){
-            return response()->file(storage_path("app/profile/{$profile->id}/images/" . $profile->image));
-        }
-        return;
+
+        $profile = Profile::select('image')->findOrFail($id);
+
+        return response()->file(Profile::getImagePath($id,$profile->image));
     }
 
     public function heroImage($id)
     {
         $profile = Profile::select('id','hero_image')->findOrFail($id);
 
-        return response()->file(storage_path("app/profile/{$profile->id}/hero_images/" . $profile->hero_image));
+        return response()->file(Profile::getHeroImagePath($id,$profile->hero_image));
     }
 
     public function dishImages($id)
