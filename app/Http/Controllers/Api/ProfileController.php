@@ -129,17 +129,15 @@ class ProfileController extends Controller
     public function image($id)
     {
         $profile = Profile::select('image')->findOrFail($id);
-        if(file_exists(storage_path("app/" . $profile->image))){
-            return response()->file(storage_path("app/" . $profile->image));
-        }
-        return;
+
+        return response()->file(Profile::getHeroImagePath($id,$profile->image));
     }
 
     public function heroImage($id)
     {
         $profile = Profile::select('hero_image')->findOrFail($id);
 
-        return response()->file(storage_path("app/" . $profile->hero_image));
+        return response()->file(Profile::getHeroImagePath($id,$profile->hero_image));
     }
 
     public function dishImages($id)
