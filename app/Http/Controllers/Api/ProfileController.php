@@ -130,7 +130,7 @@ class ProfileController extends Controller
     {
         $profile = Profile::select('image')->findOrFail($id);
 
-        return response()->file(Profile::getHeroImagePath($id,$profile->image));
+        return response()->file(Profile::getImagePath($id,$profile->image));
     }
 
     public function heroImage($id)
