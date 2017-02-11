@@ -147,5 +147,28 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Project');
     }
 
+    public static function getImagePath($id, $filename)
+    {
+        $directory = storage_path("app/profile/{$id}/images/");
+        static::createDirectory($directory);
+
+        return $directory . $filename;
+    }
+
+    public static function createDirectory($directory)
+    {
+        if(!mkdir($directory,0664,true) && !is_dir($directory)){
+            throw new \Exception("Could not create directory for profile images.");
+        }
+    }
+
+    public static function getHeroImagePath($id, $filename)
+    {
+        $directory = storage_path("app/profile/{$id}/hero_images/");
+        static::create($directory);
+
+        return $directory . $filename;
+    }
+
 
 }

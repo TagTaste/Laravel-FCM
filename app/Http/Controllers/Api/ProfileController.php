@@ -84,12 +84,6 @@ class ProfileController extends Controller
         }
 
         if(!empty($data['image'])){
-            //directory create and then check.
-            $directory = storage_path("app/profile/{$id}/images/");
-            if(!mkdir($directory,0664,true) && !is_dir($directory)){
-                throw new \Exception("Could not create directory for profile images.");
-            }
-
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
             $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
@@ -97,16 +91,13 @@ class ProfileController extends Controller
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['image']
                 ],
-                'sink'=>storage_path("app/profile/{$id}/images/" . $imageName)
+                'sink'=> Profile::getImagePath($id, $imageName)
             ]);
             $data['image'] = $imageName;
         }
 
         if(!empty($data['hero_image'])){
-            $directory = storage_path("app/profile/{$id}/hero_images/");
-            if(!mkdir($directory,0664,true) && !is_dir($directory)){
-                throw new \Exception("Could not create directory for hero images.");
-            }
+
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
             $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
@@ -114,7 +105,7 @@ class ProfileController extends Controller
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['hero_image']
                 ],
-                'sink'=>storage_path($directory . $imageName)
+                'sink'=> Profile::getHeroImagePath($id, $imageName)
             ]);
             $data['hero_image'] = $imageName;
         }
