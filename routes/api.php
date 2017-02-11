@@ -38,6 +38,10 @@ Route::group(['namespace'=>'Api',
 
             Route::resource('tagboards','TagBoardController');
             Route::resource("experiences","ExperienceController");
+            Route::resource("books","BookController");
+            Route::resource("shows","ShowController");
+            Route::resource("projects","ProjectController");
+            Route::resource("experiences","ExperienceController");
 
         });
 
@@ -58,7 +62,7 @@ Route::group(['namespace'=>'Api',
             Route::resource('company','CompanyController');
             Route::resource('tagboard','TagBoardController');
 
-            Route::resource("books","ProfileBookController");
+            Route::resource("books","BookController");
             Route::resource("shows","ProfileShowController");
             Route::resource("projects","ProjectController");
             Route::resource("experiences","ExperienceController");
