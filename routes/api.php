@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 | and reside in App\Http\Controllers\Api folder. Duh.
 |
 */
+use Illuminate\Support\Facades\Route;
+
 Route::group(['namespace'=>'Api',
     'as' => 'api.' //note the dot.
     ],function(){
