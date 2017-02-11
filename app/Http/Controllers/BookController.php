@@ -4,7 +4,7 @@ use App\Http\Requests;
 use App\Profile\Book;
 use Illuminate\Http\Request;
 
-class ProfileBookController extends Controller {
+class BookController extends Controller {
 
 	/**
 	 * Display a listing of the resource.
