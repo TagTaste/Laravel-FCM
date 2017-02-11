@@ -76,17 +76,18 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = array_filter($request->all());
+        $data = array_filter($request->input('profile'));
+        //update user name
         if(!empty($data['name'])){
-            $name = $data['name'];
-            unset($data['name']);
+            $name = array_pull($data, 'name');
             $request->user()->update(['name'=>$name]);
         }
-        if(!empty($data['image'])){
 
+        if(!empty($data['image'])){
+            //directory create and then check.
             $directory = storage_path("app/profile/{$id}/images/");
-            if(!file_exists($directory)){
-                mkdir($directory,0664,true);
+            if(!mkdir($directory,0664,true) && !is_dir($directory)){
+                throw new \Exception("Could not create directory for profile images.");
             }
 
             $client = new Client();
@@ -103,8 +104,8 @@ class ProfileController extends Controller
 
         if(!empty($data['hero_image'])){
             $directory = storage_path("app/profile/{$id}/hero_images/");
-            if(!file_exists($directory)){
-                mkdir($directory,0664,true);
+            if(!mkdir($directory,0664,true) && !is_dir($directory)){
+                throw new \Exception("Could not create directory for hero images.");
             }
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
