@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
@@ -150,22 +151,15 @@ class Profile extends Model
     public static function getImagePath($id, $filename)
     {
         $directory = storage_path("app/profile/{$id}/images/");
-        static::createDirectory($directory);
-
+        Storage::makeDirectory($directory);
         return $directory . $filename;
     }
 
-    public static function createDirectory($directory)
-    {
-        if(!mkdir($directory,0664,true) && !is_dir($directory)){
-            throw new \Exception("Could not create directory for profile images.");
-        }
-    }
 
     public static function getHeroImagePath($id, $filename)
     {
         $directory = storage_path("app/profile/{$id}/hero_images/");
-        static::create($directory);
+        Storage::makeDirectory($directory);
 
         return $directory . $filename;
     }
