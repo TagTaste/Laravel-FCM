@@ -28,24 +28,6 @@ Route::group(['namespace'=>'Api',
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
 
-        Route::group(['namespace'=>'Profile','prefix'=>'profile/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
-            Route::resource('albums','AlbumController');
-            Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
-                Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
-                Route::resource('photos','PhotoController');
-            });
-            Route::resource('companies','CompanyController');
-
-            Route::resource('tagboards','TagBoardController');
-            Route::resource("experiences","ExperienceController");
-            Route::resource("books","BookController");
-            Route::resource("shows","ShowController");
-            Route::resource("projects","ProjectController");
-            Route::resource("experiences","ExperienceController");
-
-        });
-
-
     Route::resource('companies','CompanyController');
 
     //authenticated routes.
@@ -55,19 +37,36 @@ Route::group(['namespace'=>'Api',
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
 
+            //namespace profile
+            Route::group(['namespace'=>'Profile','prefix'=>'profile/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
+                Route::resource('albums','AlbumController');
+                Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
+                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
+                    Route::resource('photos','PhotoController');
+                });
+                Route::resource('companies','CompanyController');
 
+                Route::resource('tagboards','TagBoardController');
+                Route::resource("experiences","ExperienceController");
+                Route::resource("books","BookController");
+                Route::resource("shows","ShowController");
+                Route::resource("projects","ProjectController");
+                Route::resource("experiences","ExperienceController");
+                Route::resource("awards","AwardController");
+                Route::resource("certifications","CertificationController");
 
-            Route::resource('albums','AlbumController');
-            Route::resource('photos','PhotoController');
+            });
+
             Route::resource('company','CompanyController');
             Route::resource('tagboard','TagBoardController');
-
-            Route::resource("books","BookController");
-            Route::resource("shows","ProfileShowController");
-            Route::resource("projects","ProjectController");
-            Route::resource("experiences","ExperienceController");
-            Route::resource("awards","AwardController");
-            Route::resource("certifications","CertificationController");
+//            Route::resource('albums','AlbumController');
+//            Route::resource('photos','PhotoController');
+//            Route::resource("books","BookController");
+//            Route::resource("shows","ProfileShowController");
+//            Route::resource("projects","ProjectController");
+//            Route::resource("experiences","ExperienceController");
+//            Route::resource("awards","AwardController");
+//            Route::resource("certifications","CertificationController");
         });
 });
 
