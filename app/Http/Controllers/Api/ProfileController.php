@@ -53,7 +53,7 @@ class ProfileController extends Controller
             $query->where('id','=',$id);
         })->first();
 
-        return response()->json($profile);
+        return $profile;
     }
 
     /**
