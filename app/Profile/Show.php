@@ -12,6 +12,6 @@ class Show extends Model
 
     protected $table = 'profile_shows';
 
-    protected $visible = ['title','description','channel',
+    protected $visible = ['id','title','description','channel',
         'current','start_date','end_date','url','appeared_as'];
 }
