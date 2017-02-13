@@ -10,7 +10,7 @@ class Response
     protected $errors = [];
     protected $messages = [];
 
-    function __construct($data, $errors = [], $messages = [])
+    public function __construct($data, $errors = [], $messages = [])
     {
         $this->data = $data;
         $this->errors = $errors;
