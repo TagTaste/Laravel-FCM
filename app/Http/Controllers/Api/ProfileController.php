@@ -82,7 +82,6 @@ class ProfileController extends Controller
             $name = array_pull($data, 'name');
             $request->user()->update(['name'=>$name]);
         }
-
         if(!empty($data['image'])){
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
