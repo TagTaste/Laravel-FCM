@@ -81,8 +81,14 @@ class BookController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        $input = $request->only($this->fields);
+        $input = array_filter($input);
+        if(isset($input['release_date'])){
+            $input['release_date'] = date('Y-m-d',strtotime($input['release_date']));
+        }
+
         $this->model = $request->user()->profile->books()->
-            where('id',$id)->update($this->fields);
+            where('id',$id)->update($input);
         return $this->sendResponse();
     }
 

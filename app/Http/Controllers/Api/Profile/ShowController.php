@@ -53,7 +53,7 @@ class ShowController extends Controller
      */
     public function show($profileId, $id)
     {
-        $this->model =  Show::with('photos')->where('profile_id',$profileId)->where('id',$id)->first();
+        $this->model =  Show::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){
             throw new \Exception("TV Show not found.");
@@ -82,8 +82,17 @@ class ShowController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        $input = $request->only($this->fields);
+        $input = array_filter($input);
+        if(isset($input['start_date'])){
+            $input['start_date'] = date('Y-m-d',strtotime($input['start_date']));
+        }
+        if(isset($input['end_date'])){
+            $input['end_date'] = date('Y-m-d',strtotime($input['end_date']));
+        }
+
         $this->model = $request->user()->profile->tvshows()
-            ->where('id',$id)->update($request->only($this->fields));
+            ->where('id',$id)->update($input);
         return $this->sendResponse();
     }
 
