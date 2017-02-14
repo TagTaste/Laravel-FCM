@@ -11,7 +11,9 @@ class ExperienceController extends Controller
 {
     use SendsJsonResponse;
 
-    private $fields = ['company','designation','location','start_date','end_date','current_company'];
+    private $fields = ['company','designation','description','location',
+        'start_date','end_date','current_company','profile_id'];
+
     /**
      * Display a listing of the resource.
      *
@@ -41,7 +43,14 @@ class ExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->experience()->create($request->only($this->fields));
+        $experiences = $request->input('work');
+        if(empty($experiences)){
+            throw new \Exception("Received empty experiences.");
+        }
+        foreach($experiences as $experience){
+            $fields = array_only($experience,$this->fields);
+            $this->model = $request->user()->profile->experience()->create($fields);
+        }
         return $this->sendResponse();
 
     }
@@ -78,13 +87,22 @@ class ExperienceController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  int  $profileId
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->experience()
-            ->where('id',$request->input('id'))->update($request->only($this->fields));
+        $input = $request->only($this->fields);
+        $input = array_filter($input);
+        if(isset($input['start_date'])){
+            $input['start_date'] = date('Y-m-d',strtotime($input['start_date']));
+        }
+        if(isset($input['end_date'])){
+            $input['end_date'] = date('Y-m-d',strtotime($input['end_date']));
+        }
+        $experience = Experience::where('profile_id',$profileId)->where('id',$id)->update($input);
+        \Log::info($experience);
         return $this->sendResponse();
     }
 
