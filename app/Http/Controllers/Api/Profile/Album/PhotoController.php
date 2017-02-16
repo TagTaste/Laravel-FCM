@@ -14,9 +14,10 @@ class PhotoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($profileId,$albumId)
     {
-        //
+        $this->model = Photo::where('profile_id',$profileId)->where('album_id',$albumId)->paginate(10);
+        return $this->sendResponse();
     }
 
     /**
@@ -37,7 +38,7 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
     }
 
     /**

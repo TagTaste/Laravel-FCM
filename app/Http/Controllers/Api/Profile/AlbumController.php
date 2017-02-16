@@ -17,7 +17,7 @@ class AlbumController extends Controller
      */
     public function index($profileId)
     {
-        $this->model = Album::where('profile_id',$profileId)->get();
+        $this->model = Album::where('profile_id',$profileId)->paginate(10);
         return $this->sendResponse();
 
     }
