@@ -17,7 +17,8 @@ class AlbumController extends Controller
      */
     public function index($profileId)
     {
-        $this->model = Album::where('profile_id',$profileId)->paginate(10);
+        $this->model = Album::forProfile($profileId)->paginate(10);
+
         return $this->sendResponse();
 
     }
@@ -52,7 +53,7 @@ class AlbumController extends Controller
      */
     public function show($profileId,$albumId)
     {
-        $this->model = Album::with('photos')->where('profile_id',$profileId)->where('id',$albumId)->first();
+        $this->model = Album::forProfile($profileId)->with('photos')->where('id',$albumId)->first();
 
         if(!$this->model){
             throw new \Exception("Album not found.");

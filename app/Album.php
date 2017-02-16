@@ -7,9 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Album extends Model
 {
-    use ScopeProfile {
-        ScopeProfile::scopeProfile as sProfile;
-    }
+    use ScopeProfile;
 
     protected $fillable = ['name','description','profile_id'];
 
@@ -40,7 +38,7 @@ class Album extends Model
 
     public function profile()
     {
-        return $this->belongsToMany('App\Profile','profile_albums','album_id','profile_id');
+        return $this->belongsToMany('App\Profile','profile_albums','album_id','profile_id')->withPivot('profile_id');
     }
 
     public function company()
