@@ -38,7 +38,8 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-
+        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
+        return $this->sendResponse();
     }
 
     /**
