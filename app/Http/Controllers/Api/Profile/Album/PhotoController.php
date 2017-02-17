@@ -53,7 +53,9 @@ class PhotoController extends Controller
         $photo = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
             ->whereHas('album.profile',function($query) use ($profileId) {
             $query->where("profile_id",$profileId);
-        })->first();
+        })->with(['comments' => function($query){
+            $query->orderBy('created_at','desc');
+            }])->first();
 
         if(!$photo){
             throw new \Exception("Profile does not have the photo.");
