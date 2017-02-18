@@ -9,7 +9,7 @@ class Profile extends Model
 {
     protected $fillable = ['tagline','about','image',
         'hero_image','phone','address','dob','interests',
-    'website_url','blog_url','facebook_url','linkedin_url','instagram_link',
+    'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients',
     'youtube_channel','followers','following','user_id'];
 
     //if you add a relation here, make sure you remove it from
@@ -171,5 +171,11 @@ class Profile extends Model
         Storage::makeDirectory($directory);
 
         return $directory . $filename;
+    }
+
+
+    public function professional()
+    {
+        return $this->hasOne('\App\Professional');
     }
 }

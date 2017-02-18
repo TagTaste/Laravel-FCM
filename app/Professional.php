@@ -2,10 +2,14 @@
 
 namespace App;
 
+use App\Scopes\Profile;
 use Illuminate\Database\Eloquent\Model;
 
 class Professional extends Model
 {
+    use Profile;
+
+    protected $fillable = ['ingredients','cuisine','favourite_moments','famous_recipes','profile_id'];
 
     public function profile()
     {
