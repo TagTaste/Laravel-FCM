@@ -32,9 +32,4 @@ class Professional extends Model
     {
         return array_filter(explode(",", $value));
     }
-
-    public function getFavouriteMomentsAttribute($value)
-    {
-        return array_filter(explode(",",$value));
-    }
 }
