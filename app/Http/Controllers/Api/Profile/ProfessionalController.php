@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Api\Profile\ProfessionalController;
+<?php namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -39,7 +39,8 @@ class ProfessionalController extends Controller {
 	 */
 	public function store(Request $request, $profileId)
 	{
-	    $this->model = $request->user()->profile->professional()->create($request->only(['ingredients','cuisine','favourite_moments','famous_recipes']));
+        $input = array_filter($request->only('favourite_moments','famous_recipes','cuisine'));
+	    $this->model = $request->user()->profile->professional()->create($input);
 		return $this->sendResponse();
     }
 
@@ -78,10 +79,11 @@ class ProfessionalController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(Request $request, $id)
+	public function update(Request $request, $profileId, $id)
 	{
+	    $input = $request->only(['cuisine','favourite_moments','famous_recipes']);
 		$this->model = $request->user()->profile->professional()->where('id',$id)
-            ->update($request->only(['ingredients','cuisine','favourite_moments','famous_recipes']));
+            ->update($input);
         return $this->sendResponse();
 	}
 
@@ -91,7 +93,7 @@ class ProfessionalController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy(Request $request,$id)
+	public function destroy(Request $request,$profileId, $id)
 	{
         $this->model = $request->user()->profile->professional()->where('id',$id)->delete();
         return $this->sendResponse();
