@@ -60,6 +60,7 @@ Route::group(['namespace'=>'Api',
                 Route::resource("experiences","ExperienceController");
                 Route::resource("awards","AwardController");
                 Route::resource("certifications","CertificationController");
+                Route::resource("professional","ProfessionalController");
 
             });
 
