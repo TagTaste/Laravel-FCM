@@ -11,7 +11,7 @@ class Album extends Model
 
     protected $fillable = ['name','description','profile_id'];
 
-    protected $visible = ['id','name','description','profile_id','photos'];
+    protected $visible = ['id','name','description','photos'];
 
     public static function boot()
     {
@@ -38,7 +38,7 @@ class Album extends Model
 
     public function profile()
     {
-        return $this->belongsToMany('App\Profile','profile_albums','album_id','profile_id')->withPivot('profile_id');
+        return $this->belongsToMany('App\Profile','profile_albums','album_id','profile_id');
     }
 
     public function company()
