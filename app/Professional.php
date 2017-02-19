@@ -2,14 +2,16 @@
 
 namespace App;
 
-use App\Scopes\Profile;
+use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
 
 class Professional extends Model
 {
-    use Profile;
+    use ScopeProfile;
 
-    protected $fillable = ['ingredients','cuisine','favourite_moments','famous_recipes','profile_id'];
+    protected $fillable = ['cuisine','favourite_moments','famous_recipes','profile_id'];
+
+    protected $visible = ['id','cuisine','favourite_moments','famous_recipes'];
 
     public function profile()
     {
@@ -24,5 +26,15 @@ class Professional extends Model
     public function expertAtEstablishmentTypes()
     {
         return $this->belongsToMany('App\EstablishmentTypes','establishment_type_professionals','professional_id','establishment_type_id');
+    }
+
+    public function getCuisineAttribute($value)
+    {
+        return array_filter(explode(",", $value));
+    }
+
+    public function getFavouriteMomentsAttribute($value)
+    {
+        return array_filter(explode(",",$value));
     }
 }
