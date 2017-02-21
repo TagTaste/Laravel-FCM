@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDesignation extends Migration
+class CreateDesignationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,8 @@ class CreateDesignation extends Migration
     {
         Schema::create('designations', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('desig_name');
+            $table->string('desig_name', 255);
+            $table->string('desig_desc', 2040);
             $table->timestamps();
         });
     }

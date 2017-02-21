@@ -91,7 +91,7 @@ Route::group(['middleware'=>'auth'],function(){
 	Route::resource("articles","ArticleController");
 	Route::get("articles/edit/{id}/{type}", ['as'=>'articles.edit','uses'=>'ArticleController@edit']);
 	Route::resource("dish_articles","DishArticleController");
-	
+
 	Route::resource("recipe_articles","RecipeArticleController");
 	Route::get("recipe/create/{id}", ['as'=>'recipe_articles.create','uses'=>'RecipeArticleController@create']);
 	Route::post("recipe/delete", ['uses'=>'RecipeArticleController@delete']);
@@ -147,6 +147,8 @@ Route::group(['middleware'=>'auth'],function(){
         Route::resource("advertisements","AdvertisementController");
 
     });
+
+    Route::get("designations", "DesignationController@index");
 
 
 });
