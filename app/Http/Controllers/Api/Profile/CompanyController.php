@@ -41,7 +41,13 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->companies()->create($request->only(['name','description']));
+        $inputs = $request->only(['name','about','logo','hero_image','phone',
+            'email','registered_address','established_on', 'status_id',
+            'type','employee_count','client_count','annual_revenue_start',
+            'annual_revenue_end',
+            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+        ]);
+        $this->model = $request->user()->companies()->create(array_filter($inputs));
         return $this->sendResponse();
     }
 
