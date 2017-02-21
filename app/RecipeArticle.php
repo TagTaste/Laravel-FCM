@@ -10,7 +10,7 @@ class RecipeArticle extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['dish_id','step','content','template_id','parent_id'];
+    protected $fillable = ['dish_id','step','difficulty_level','content','template_id','parent_id'];
 
     protected $dates = ['deleted_at'];
 
