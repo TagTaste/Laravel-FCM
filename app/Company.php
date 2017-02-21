@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Album;
 use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
@@ -13,6 +14,18 @@ class Company extends Model
         'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function(Company $company){
+            $album = Album::createDefault();
+
+            $company->albums()->attach($album->id);
+        });
+
+    }
+
     public function setEstablishedOnAttribute($value)
     {
         $this->attributes['established_on'] = date("Y-m-d",strtotime($value));
@@ -20,7 +33,7 @@ class Company extends Model
 
     public function albums()
     {
-        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
+        return $this->belongsToMany('App\Album','company_albums','company_id','album_id');
     }
 
     public function awards()

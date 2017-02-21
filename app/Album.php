@@ -45,4 +45,9 @@ class Album extends Model
     {
         return $this->belongsToMany('App\Profile','company_albums','album_id','company_id');
     }
+
+    public static function createDefault()
+    {
+        return static::create(['name'=>"Default Album", 'description'=>"Default Album"]);
+    }
 }
