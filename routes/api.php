@@ -23,7 +23,8 @@ Route::group(['namespace'=>'Api',
 
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
-        Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
+        Route::get("profile
+        /images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
