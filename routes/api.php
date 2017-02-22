@@ -23,8 +23,7 @@ Route::group(['namespace'=>'Api',
 
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
-        Route::get("profile
-        /images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
+        Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
@@ -38,10 +37,11 @@ Route::group(['namespace'=>'Api',
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
 
-            //Profile
+            //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
-//Album         //Album
+
                 Route::resource('albums','AlbumController');
+                //namespace albums
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
 
                     Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
@@ -51,16 +51,14 @@ Route::group(['namespace'=>'Api',
                         Route::resource('comments','CommentController');
                     });
                 });
-
-                //Company
                 Route::resource('companies','CompanyController');
+
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::resource("websites","WebsiteController");
                     Route::resource("blogs","BlogController");
                     Route::resource("advertisements","AdvertisementController");
                     Route::resource("addresses","AddressController");
                 });
-
                 Route::resource('tagboards','TagBoardController');
                 Route::resource("experiences","ExperienceController");
                 Route::resource("books","BookController");
