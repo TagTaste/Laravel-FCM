@@ -60,4 +60,9 @@ class Company extends Model
     {
         return $this->hasMany('App\Company\Website','company_id','id');
     }
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Company\Location','company_id','id');
+    }
 }
