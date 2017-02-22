@@ -3,6 +3,9 @@
 namespace App\Http\Middleware\Api;
 
 use Closure;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Middleware\GetUserFromToken;
 
 class Auth extends GetUserFromToken
@@ -22,11 +25,12 @@ class Auth extends GetUserFromToken
 
         try {
             $user = $this->auth->authenticate($token);
-
         } catch (TokenExpiredException $e) {
-            return $this->respond('tymon.jwt.expired', 'token_expired', $e->getStatusCode(), [$e]);
+            return response()->json(['error'=>'token_expired'], $e->getStatusCode());
+        } catch (TokenInvalidException $e) {
+            return response()->json(['error'=>'token_invalid'], $e->getStatusCode());
         } catch (JWTException $e) {
-            return $this->respond('tymon.jwt.invalid', 'token_invalid', $e->getStatusCode(), [$e]);
+            return response()->json(['error'=>'token_absent'], $e->getStatusCode());
         }
 
         if (! $user) {
