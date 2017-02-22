@@ -100,7 +100,7 @@ class ProfileController extends Controller {
 	public function update(Request $request, $id)
 	{
 	    $userId = $request->user()->id;
-		$profile = Profile::findOrFail($id);
+			$profile = Profile::findOrFail($id);
 
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
