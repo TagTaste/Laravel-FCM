@@ -135,6 +135,8 @@ Route::group(['middleware'=>'auth'],function(){
     Route::resource("photos","PhotoController");
 
     Route::resource("companies","CompanyController");
+    Route::resource("company_locations","CompanyLocationController"); // Add this line in routes.php
+
 
     Route::group(['namespace'=>'Company','prefix'=>'company','as'=>'company.'],function(){
         Route::resource("status","StatusController");
