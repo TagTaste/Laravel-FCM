@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Album;
+use App\Company\Address;
 use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
@@ -11,8 +12,11 @@ class Company extends Model
         'email','registered_address','established_on', 'status_id',
         'type','employee_count','client_count','annual_revenue_start',
         'annual_revenue_end',
-        'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+        'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url'
     ];
+
+    protected $with = ['addresses'];
+
 
     public static function boot()
     {
@@ -63,6 +67,6 @@ class Company extends Model
 
     public function addresses()
     {
-        return $this->hasMany('App\Company\Address','company_id','id');
+        return $this->hasMany(Address::class);
     }
 }
