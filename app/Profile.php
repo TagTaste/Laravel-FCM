@@ -9,7 +9,7 @@ class Profile extends Model
 {
     protected $fillable = ['tagline','about','image',
         'hero_image','phone','address','dob','interests',
-    'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients',
+    'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients', 'favourite_moments', 'verified',
     'youtube_channel','followers','following','user_id'];
 
     //if you add a relation here, make sure you remove it from
@@ -17,7 +17,7 @@ class Profile extends Model
     protected $with = ['experience','awards','certifications','tvshows','books','albums','projects','professional'];
 
     protected $visible = ['id','tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
-        'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients',
+        'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients', 'favourite_moments', 'verified',
         'youtube_channel','interested_in_opportunities',
         'followers','following',
         'experience','awards','certifications','tvshows','books','followingProfiles', 'followerProfiles',
