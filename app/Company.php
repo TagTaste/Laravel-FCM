@@ -63,6 +63,6 @@ class Company extends Model
 
     public function addresses()
     {
-        return $this->hasMany('App\Company\Location','company_id','id');
+        return $this->hasMany('App\Company\Address','company_id','id');
     }
 }

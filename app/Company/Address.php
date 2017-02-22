@@ -4,9 +4,11 @@ namespace App\Company;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Location extends Model
+class Address extends Model
 {
-    protected $table = ['company_locations'];
+    protected $table = ['company_addresses'];
+
+    protected $fillable = ['address','country','phone','company_id'];
 
     public function company()
     {

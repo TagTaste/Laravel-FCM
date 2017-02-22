@@ -38,9 +38,9 @@ Route::group(['namespace'=>'Api',
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
 
-            //namespace profile
+            //Profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
-
+//Album         //Album
                 Route::resource('albums','AlbumController');
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
 
@@ -51,7 +51,15 @@ Route::group(['namespace'=>'Api',
                         Route::resource('comments','CommentController');
                     });
                 });
+
+                //Company
                 Route::resource('companies','CompanyController');
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
+                    Route::resource("websites","WebsiteController");
+                    Route::resource("blogs","BlogController");
+                    Route::resource("advertisements","AdvertisementController");
+                    Route::resource("addresses","AddressController");
+                });
 
                 Route::resource('tagboards','TagBoardController');
                 Route::resource("experiences","ExperienceController");
