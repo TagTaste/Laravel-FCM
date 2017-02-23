@@ -160,6 +160,6 @@ class ProfileController extends Controller
     public function userloggedIn()
     {
       $loggedinId = Auth::id();
-      return $request->user()->profile->loggedinId;
+      return $loggedinId;
     }
 }
