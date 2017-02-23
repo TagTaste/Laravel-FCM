@@ -86,6 +86,8 @@ class Profile extends Model
     {
         $this->iAmFollowing()->attach($followsId);
         $this->save();
+        \DB::table('profiles')->whereId($this->id)->increment('followers');
+        \DB::table('profiles')->whereId($followsId)->increment('following');
     }
 
     public function unfollow($followsId)
