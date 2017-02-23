@@ -214,13 +214,13 @@ class Profile extends Model
     {
         return $this->hasManyThrough('\App\Company','App\User');
     }
+
     public static function getImagePath($id, $filename)
     {
         $directory = storage_path("app/profile/{$id}/images/");
         Storage::makeDirectory($directory);
         return $directory . $filename;
     }
-
 
     public static function getHeroImagePath($id, $filename)
     {
@@ -230,9 +230,9 @@ class Profile extends Model
         return $directory . $filename;
     }
 
-
     public function professional()
     {
         return $this->hasOne('\App\Professional');
     }
+
 }

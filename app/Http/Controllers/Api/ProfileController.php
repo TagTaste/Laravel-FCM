@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Profile;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -17,7 +18,8 @@ class ProfileController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json($request->user());
+        $requests = $request->user();
+        return response()->json($requests);
     }
 
     /**
@@ -153,5 +155,11 @@ class ProfileController extends Controller
         $request->user()->profile->follow($id);
         //have a better response.
         return response()->json(['success'=>'done']);
+    }
+
+    public function userloggedIn()
+    {
+      $loggedinId = Auth::id();
+      return $request->user()->profile->loggedinId;
     }
 }
