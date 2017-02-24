@@ -32,7 +32,7 @@ class CreatePatentsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('patents');
+		Schema::drop('company_patents');
 	}
 
 }
