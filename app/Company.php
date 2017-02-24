@@ -3,6 +3,10 @@
 namespace App;
 
 use App\Album;
+use App\Company\Address;
+use App\Company\Advertisement;
+use App\Company\Book;
+use App\Company\Patent;
 use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
@@ -11,8 +15,11 @@ class Company extends Model
         'email','registered_address','established_on', 'status_id',
         'type','employee_count','client_count','annual_revenue_start',
         'annual_revenue_end',
-        'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+        'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url'
     ];
+
+    protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents','books'];
+
 
     public static function boot()
     {
@@ -51,7 +58,7 @@ class Company extends Model
         return $this->belongsTo('App\Company\Status','status_id');
     }
 
-    public function types()
+    public function type()
     {
         return $this->belongsTo('App\Company\Type','type');
     }
@@ -59,5 +66,25 @@ class Company extends Model
     public function websites()
     {
         return $this->hasMany('App\Company\Website','company_id','id');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function advertisements()
+    {
+        return $this->hasMany(Advertisement::class);
+    }
+
+    public function patents()
+    {
+        return $this->hasMany(Patent::class);
+    }
+
+    public function books()
+    {
+        return $this->hasMany(Book::class);
     }
 }

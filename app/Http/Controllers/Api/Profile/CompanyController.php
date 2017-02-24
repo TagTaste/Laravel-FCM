@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Company;
 
 class CompanyController extends Controller
 {
@@ -15,11 +14,9 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($profileId)
+    public function index(Request $request, $profileId)
     {
-        $this->model = Company::whereHas('user.profile',function($query) use ($profileId) {
-            $query->where('profiles.id',$profileId);
-        })->first();
+        $this->model = $request->user()->companies;
         return $this->sendResponse();
     }
 
@@ -57,9 +54,9 @@ class CompanyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$id)
+    public function show(Request $request, $profileId,$id)
     {
-        $this->model = Company::where('profile_id',$profileId)->where('id',$albumId)->first();
+        $this->model = $request->user()->companies()->where('id',$id)->first();
 
         if(!$this->model){
             throw new \Exception("Company not found.");
@@ -88,8 +85,8 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->companies()
-            ->where('id',$request->input('id'))->update($request->only('name','description'));
+        $this->model = $request->user()->companies()
+            ->where('id',$id)->update($request->only(['address','phone','country']));
         return $this->sendResponse();
     }
 
@@ -101,7 +98,7 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request,$profileId,$id)
     {
-        $this->model = $request->user()->profile->companies()->where('id',$id)->delete();
+        $this->model = $request->user()->companies()->where('id',$id)->delete();
         return $this->sendResponse();
     }
 }

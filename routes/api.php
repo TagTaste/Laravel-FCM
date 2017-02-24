@@ -41,6 +41,7 @@ Route::group(['namespace'=>'Api',
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
 
                 Route::resource('albums','AlbumController');
+                //namespace albums
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
 
                     Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
@@ -52,6 +53,14 @@ Route::group(['namespace'=>'Api',
                 });
                 Route::resource('companies','CompanyController');
 
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
+                    Route::resource("websites","WebsiteController");
+                    Route::resource("blogs","BlogController");
+                    Route::resource("advertisements","AdvertisementController");
+                    Route::resource("addresses","AddressController");
+                    Route::resource("books","BookController");
+
+                });
                 Route::resource('tagboards','TagBoardController');
                 Route::resource("experiences","ExperienceController");
                 Route::resource("books","BookController");

@@ -136,17 +136,17 @@ Route::group(['middleware'=>'auth'],function(){
 
     Route::resource("companies","CompanyController");
 
-    Route::group(['namespace'=>'Company','prefix'=>'company','as'=>'company.'],function(){
-        Route::resource("status","StatusController");
-        Route::resource("types","TypeController");
-    });
+        Route::group(['namespace'=>'Company','prefix'=>'company','as'=>'company.'],function(){
+            Route::resource("status","StatusController");
+            Route::resource("types","TypeController");
+        });
 
-    Route::group(['namespace'=>'Company','prefix'=>"companies/{companyId}",'as'=>'companies.'],function(){
-        Route::resource("websites","WebsiteController");
-        Route::resource("blogs","BlogController");
-        Route::resource("advertisements","AdvertisementController");
-
-    });
+        Route::group(['namespace'=>'Company','prefix'=>"companies/{companyId}",'as'=>'companies.'],function(){
+            Route::resource("websites","WebsiteController");
+            Route::resource("blogs","BlogController");
+            Route::resource("advertisements","AdvertisementController");
+            Route::resource("addresses","AddressController");
+        });
 
     Route::get("designations", "DesignationController@index");
 

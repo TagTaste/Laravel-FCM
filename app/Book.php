@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Profile;
+namespace App;
 
 use App\Scopes\Profile;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +10,7 @@ class Book extends Model
     use Profile;
 
     protected $table = 'profile_books';
+    protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
 
     protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
 
