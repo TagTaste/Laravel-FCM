@@ -157,9 +157,4 @@ class ProfileController extends Controller
         return response()->json(['success'=>'done']);
     }
 
-    public function userloggedIn()
-    {
-      $loggedinId = Auth::id();
-      return $loggedinId;
-    }
 }
