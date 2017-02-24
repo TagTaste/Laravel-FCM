@@ -5,6 +5,7 @@ namespace App;
 use App\Album;
 use App\Company\Address;
 use App\Company\Advertisement;
+use App\Company\Book;
 use App\Company\Patent;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,7 +18,7 @@ class Company extends Model
         'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url'
     ];
 
-    protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents'];
+    protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents','books'];
 
 
     public static function boot()
@@ -80,5 +81,10 @@ class Company extends Model
     public function patents()
     {
         return $this->hasMany(Patent::class);
+    }
+
+    public function books()
+    {
+        return $this->hasMany(Book::class);
     }
 }

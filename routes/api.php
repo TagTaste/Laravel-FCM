@@ -58,6 +58,8 @@ Route::group(['namespace'=>'Api',
                     Route::resource("blogs","BlogController");
                     Route::resource("advertisements","AdvertisementController");
                     Route::resource("addresses","AddressController");
+                    Route::resource("books","BookController");
+
                 });
                 Route::resource('tagboards','TagBoardController');
                 Route::resource("experiences","ExperienceController");
