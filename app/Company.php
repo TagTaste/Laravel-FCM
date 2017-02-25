@@ -93,11 +93,11 @@ class Company extends Model
 
     public function getStatusesAttribute($value = null)
     {
-        return Status::all();
+        return Status::all()->pluck('name','id');
     }
 
     public function getCompanyTypesAttribute($value = null)
     {
-        return Type::all();
+        return Type::all()->pluck('name','id');
     }
 }

@@ -14,7 +14,10 @@ use Illuminate\Http\Request;
 */
 
 use Illuminate\Support\Facades\Route;
-
+Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
+    Route::resource('statuses','StatusController');
+    Route::resource('types','TypeController');
+});
 //has prefix api/
 Route::group(['namespace'=>'Api',
     'as' => 'api.' //note the dot.
@@ -51,6 +54,8 @@ Route::group(['namespace'=>'Api',
                         Route::resource('comments','CommentController');
                     });
                 });
+
+
                 Route::resource('companies','CompanyController');
 
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
@@ -73,7 +78,8 @@ Route::group(['namespace'=>'Api',
 
             });
 
-            Route::resource('company','CompanyController');
+            //Route::resource('company','CompanyController');
+
             Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
