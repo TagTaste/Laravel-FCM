@@ -36,9 +36,9 @@ class WebsiteController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request,$companyId)
+	public function store(Request $request,$profileId,$companyId)
 	{
-	    $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = $request->user()->companies()->where('id',$companyId)->first();
         if(!$company){
             throw new \Exception("You don't have the rights to add websites to this company.");
         }
@@ -53,7 +53,7 @@ class WebsiteController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($companyId, $id)
+	public function show($profileId,$companyId, $id)
 	{
 		$this->model = Website::where('company_id',$companyId)->where('id',$id)->first();
 
@@ -66,7 +66,7 @@ class WebsiteController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit(Request $request, $companyId,$id)
+	public function edit(Request $request, $profileId, $companyId,$id)
 	{
         $company = $request->user()->companies()->where('companies.id','=',$companyId)->first();
         if(!$company){
@@ -83,7 +83,7 @@ class WebsiteController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(Request $request, $companyId, $id)
+	public function update(Request $request, $profileId, $companyId, $id)
 	{
         $company = $request->user()->companies()->where('id',$companyId)->first();
         if(!$company){
@@ -99,7 +99,7 @@ class WebsiteController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy(Request $request, $companyId, $id)
+	public function destroy(Request $request, $profileId,$companyId, $id)
 	{
         $company = $request->user()->companies()->where('id',$companyId)->first();
         if(!$company){

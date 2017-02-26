@@ -64,6 +64,8 @@ Route::group(['namespace'=>'Api',
                     Route::resource("advertisements","AdvertisementController");
                     Route::resource("addresses","AddressController");
                     Route::resource("books","BookController");
+                    Route::resource("patents","PatentController");
+                    Route::resource("awards","AwardController");
 
                 });
                 Route::resource('tagboards','TagBoardController');

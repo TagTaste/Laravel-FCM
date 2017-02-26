@@ -13,7 +13,6 @@ class Book extends Model
 
     protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
 
-
     protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
 
     public function setReleaseDateAttribute($value)
