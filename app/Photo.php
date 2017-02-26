@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
 class Photo extends Model
 {
     protected $fillable = ['caption','file','album_id'];
@@ -42,5 +42,12 @@ class Photo extends Model
     public function comments()
     {
         return $this->belongsToMany('App\Comment','comments_photos','photo_id','comment_id');
+    }
+
+    public static function getProfileImagePath($profileId,$albumId,$filename)
+    {
+        $directory = "profile/$profileId/albums/$albumId/photos/";
+        $status = Storage::makeDirectory($directory,0644,true);
+        return storage_path("app/".$directory) . $filename;
     }
 }
