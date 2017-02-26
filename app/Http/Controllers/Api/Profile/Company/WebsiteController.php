@@ -4,20 +4,21 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Company\Website;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class WebsiteController extends Controller {
 
+    use SendsJsonResponse;
 	/**
 	 * Display a listing of the resource.
 	 *
 	 * @return Response
 	 */
-	public function index($companyId)
+	public function index($profileId, $companyId)
 	{
-		$company_websites = Website::orderBy('id', 'desc')->paginate(10);
-
-		return view('company_websites.index', compact('company_websites','companyId'));
+		$this->model = Website::where('company_id',$companyId)->paginate(10);
+        return $this->sendResponse();
 	}
 
 	/**
@@ -27,7 +28,6 @@ class WebsiteController extends Controller {
 	 */
 	public function create($companyId)
 	{
-		return view('company_websites.create',compact('companyId'));
 	}
 
 	/**
@@ -43,9 +43,8 @@ class WebsiteController extends Controller {
             throw new \Exception("You don't have the rights to add websites to this company.");
         }
 
-        $company->websites()->create(['name'=>$request->input('name'),'url'=>$request->input('url')]);
-
-		return redirect()->route('companies.websites.index',['companyId'=>$companyId])->with('message', 'Website created.');
+        $this->model = $company->websites()->create(['name'=>$request->input('name'),'url'=>$request->input('url')]);
+        return $this->sendResponse();
 	}
 
 	/**
@@ -56,9 +55,9 @@ class WebsiteController extends Controller {
 	 */
 	public function show($companyId, $id)
 	{
-		$company_website = Website::findOrFail($id);
+		$this->model = Website::where('company_id',$companyId)->where('id',$id)->first();
 
-		return view('company_websites.show', compact('companyId','company_website'));
+		return $this->sendResponse();
 	}
 
 	/**
@@ -73,9 +72,8 @@ class WebsiteController extends Controller {
         if(!$company){
             throw new \Exception("You don't have the rights to edit websites of this company.");
         }
-        $company_website = $company->websites()->where('id',$id)->first();
-
-		return view('company_websites.edit', compact('companyId','company_website'));
+        $this->model = $company->websites()->where('id',$id)->first();
+        return $this->sendResponse();
 	}
 
 	/**
@@ -91,9 +89,8 @@ class WebsiteController extends Controller {
         if(!$company){
             throw new \Exception("You don't have the rights to update websites of this company.");
         }
-        $website = $company->websites()->where('id',$id)->update(['name'=>$request->input('name'),'url'=>$request->input('url')]);
-
-		return redirect()->route('companies.websites.index',['companyId'=>$companyId])->with('message', 'Website updated.');
+        $this->model = $company->websites()->where('id',$id)->update(['name'=>$request->input('name'),'url'=>$request->input('url')]);
+        return $this->sendResponse();
 	}
 
 	/**
@@ -108,9 +105,8 @@ class WebsiteController extends Controller {
         if(!$company){
             throw new \Exception("You don't have the rights to delete websites of this company.");
         }
-        $company->websites()->where("id",$id)->delete();
-
-		return redirect()->route('companies.websites.index',['companyId'=>$companyId])->with('message', 'Website deleted.');
+        $this->model = $company->websites()->where("id",$id)->delete();
+        return $this->sendResponse();
 	}
 
 }
