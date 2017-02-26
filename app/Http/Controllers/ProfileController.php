@@ -36,7 +36,7 @@ class ProfileController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-		$profile = new Profile();
+				$profile = new Profile();
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
         if($request->hasFile('image')){
@@ -59,9 +59,9 @@ class ProfileController extends Controller {
         $profile->instagram_link = $request->input("instagram_link");
         $profile->youtube_channel = $request->input("youtube_channel");
         $profile->user_id = $request->user()->id;
-		$profile->save();
+				$profile->save();
 
-		return redirect()->route('profiles.index')->with('message', 'Profile created.');
+				return redirect()->route('profiles.index')->with('message', 'Profile created.');
 	}
 
 	/**
@@ -100,7 +100,7 @@ class ProfileController extends Controller {
 	public function update(Request $request, $id)
 	{
 	    $userId = $request->user()->id;
-		$profile = Profile::findOrFail($id);
+			$profile = Profile::findOrFail($id);
 
         $profile->tagline = $request->input("tagline");
         $profile->about = $request->input("about");
@@ -127,9 +127,9 @@ class ProfileController extends Controller {
         $profile->youtube_channel = $request->input("youtube_channel");
         $profile->user_id = $userId;
 
-		$profile->save();
+				$profile->save();
 
-		return redirect()->route('profiles.index')->with('message', 'Profile updated.');
+				return redirect()->route('profiles.index')->with('message', 'Profile updated.');
 	}
 
 	/**
@@ -146,17 +146,17 @@ class ProfileController extends Controller {
 		return redirect()->route('profiles.index')->with('message', 'Profile deleted.');
 	}
 
-    public function image($id)
-    {
-        $profile = Profile::select('image')->findOrFail($id);
-        return response()->file(storage_path("app/" . $profile->image));
+  public function image($id)
+	{
+  	$profile = Profile::select('image')->findOrFail($id);
+  	return response()->file(storage_path("app/" . $profile->image));
 	}
 
-    public function heroImage($id)
-    {
-        $profile = Profile::select('hero_image')->findOrFail($id);
+  public function heroImage($id)
+  {
+  	$profile = Profile::select('hero_image')->findOrFail($id);
 
-        return response()->file(storage_path("app/" . $profile->hero_image));
-    }
+    return response()->file(storage_path("app/" . $profile->hero_image));
+  }
 
 }

@@ -39,8 +39,7 @@ class FollowerController extends Controller {
 		$follower = new Follower();
 
 		$follower->follows_id = $chefId;
-        $follower->follower_id = $request->user()->id;
-
+    $follower->follower_id = $request->user()->id;
 		$follower->save();
 
 		return redirect()->route('followers.index')->with('message', 'Item created successfully.');
@@ -84,7 +83,7 @@ class FollowerController extends Controller {
 		$follower = Follower::findOrFail($id);
 
 		$follower->follows_id = $request->input("chef_id");
-        $follower->follower_id = $request->input("follower_id");
+    $follower->follower_id = $request->input("follower_id");
 
 		$follower->save();
 
@@ -103,15 +102,13 @@ class FollowerController extends Controller {
 		if($follower){
 			$follower->delete();
 		}
-
-		
 	}
 
 	public function follow(Request $request, $chefId){
 		$follower = new Follower();
 
 		$follower->follows_id = $chefId;
-        $follower->follower_id = $request->user()->id;
+    $follower->follower_id = $request->user()->id;
 
 		$follower->save();
 
@@ -120,7 +117,7 @@ class FollowerController extends Controller {
 	}
 
 	public function unfollow(Request $request, $chefId){
-		
+
 		$this->destroy($chefId, $request->user()->id);
 
 		return redirect()->back()->with('message', 'Item deleted successfully.');

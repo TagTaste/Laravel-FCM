@@ -7,21 +7,76 @@ use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
-    protected $fillable = ['tagline','about','image',
-        'hero_image','phone','address','dob','interests',
-    'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients',
-    'youtube_channel','followers','following','user_id'];
+    protected $fillable = [
+                            'tagline',
+                            'about',
+                            'image',
+                            'hero_image',
+                            'phone',
+                            'address',
+                            'dob',
+                            'interests',
+                            'website_url',
+                            'blog_url',
+                            'facebook_url',
+                            'linkedin_url',
+                            'instagram_link',
+                            'ingredients',
+                            'favourite_moments',
+                            'verified',
+                            'youtube_channel',
+                            'followers',
+                            'following',
+                            'user_id'
+                          ];
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
-    protected $with = ['experience','awards','certifications','tvshows','books','albums','projects','professional'];
+    protected $with = [
+                        'experience',
+                        'awards',
+                        'certifications',
+                        'tvshows',
+                        'books',
+                        'albums',
+                        'projects',
+                        'professional'
+                      ];
 
-    protected $visible = ['id','tagline','about','phone','address','dob','interests', 'imageUrl','heroImageUrl',
-        'website_url','blog_url','facebook_url','linkedin_url','instagram_link','ingredients',
-        'youtube_channel','interested_in_opportunities',
-        'followers','following',
-        'experience','awards','certifications','tvshows','books','followingProfiles', 'followerProfiles',
-        'name','albums','projects','professional'];
+    protected $visible = [
+                          'id',
+                          'tagline',
+                          'about',
+                          'phone',
+                          'address',
+                          'dob',
+                          'interests',
+                          'imageUrl',
+                          'heroImageUrl',
+                          'website_url',
+                          'blog_url',
+                          'facebook_url',
+                          'linkedin_url',
+                          'instagram_link',
+                          'ingredients',
+                          'favourite_moments',
+                          'verified',
+                          'youtube_channel',
+                          'interested_in_opportunities',
+                          'followers',
+                          'following',
+                          'experience',
+                          'awards',
+                          'certifications',
+                          'tvshows',
+                          'books',
+                          'followingProfiles',
+                          'followerProfiles',
+                          'name',
+                          'albums',
+                          'projects',
+                          'professional'
+                        ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
 
@@ -86,6 +141,8 @@ class Profile extends Model
     {
         $this->iAmFollowing()->attach($followsId);
         $this->save();
+        \DB::table('profiles')->whereId($this->id)->increment('following');
+        \DB::table('profiles')->whereId($followsId)->increment('followers');
     }
 
     public function unfollow($followsId)
@@ -157,13 +214,13 @@ class Profile extends Model
     {
         return $this->hasManyThrough('\App\Company','App\User');
     }
+
     public static function getImagePath($id, $filename)
     {
         $directory = storage_path("app/profile/{$id}/images/");
         Storage::makeDirectory($directory);
         return $directory . $filename;
     }
-
 
     public static function getHeroImagePath($id, $filename)
     {
@@ -173,9 +230,9 @@ class Profile extends Model
         return $directory . $filename;
     }
 
-
     public function professional()
     {
         return $this->hasOne('\App\Professional');
     }
+
 }
