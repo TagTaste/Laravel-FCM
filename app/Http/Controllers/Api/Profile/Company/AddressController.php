@@ -47,8 +47,7 @@ class AddressController extends Controller {
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
         }
-
-        $this->model = $company->addresses()->create(['address','country','phone']);
+        $this->model = $company->addresses()->create($request->only(['address','country','phone']));
         return $this->sendResponse();
 	}
 
@@ -65,7 +64,7 @@ class AddressController extends Controller {
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
         }
-		$this->model = $company->addresses;
+		$this->model = $company->addresses()->where('id',$id)->first();
         return $this->sendResponse();
 
 	}
