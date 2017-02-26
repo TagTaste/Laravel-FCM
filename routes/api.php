@@ -30,8 +30,8 @@ Route::group(['namespace'=>'Api',
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
-
-    Route::resource('companies','CompanyController');
+    //why is this here? remove if it's unneeded.
+    //Route::resource('companies','CompanyController');
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
@@ -57,7 +57,7 @@ Route::group(['namespace'=>'Api',
 
 
                 Route::resource('companies','CompanyController');
-
+                //namespace company
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::resource("websites","WebsiteController");
                     Route::resource("blogs","BlogController");

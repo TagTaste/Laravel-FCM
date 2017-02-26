@@ -88,8 +88,15 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        $inputs = $request->only(['name','about','logo','hero_image','phone',
+            'email','registered_address','established_on', 'status_id',
+            'type','employee_count','client_count','annual_revenue_start',
+            'annual_revenue_end',
+            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+        ]);
+        $inputs = array_filter($inputs);
         $this->model = $request->user()->companies()
-            ->where('id',$id)->update($request->only(['address','phone','country']));
+            ->where('id',$id)->update($inputs);
         return $this->sendResponse();
     }
 
