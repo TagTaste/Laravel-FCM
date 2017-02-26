@@ -64,7 +64,6 @@ class CompanyController extends Controller
         if(!$this->model){
             throw new \Exception("Company not found.");
         }
-
         return $this->sendResponse();
     }
 
