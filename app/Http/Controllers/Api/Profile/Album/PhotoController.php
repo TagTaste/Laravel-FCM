@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\Profile\Album;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
 {
+    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +18,7 @@ class PhotoController extends Controller
      */
     public function index($profileId,$albumId)
     {
-        $this->model = Photo::where('profile_id',$profileId)->where('album_id',$albumId)->paginate(10);
+        $this->model = Photo::where('album_id',$albumId)->paginate(10);
         return $this->sendResponse();
     }
 
