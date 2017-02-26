@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Company;
 
 class CompanyController extends Controller
 {
@@ -56,7 +57,9 @@ class CompanyController extends Controller
      */
     public function show(Request $request, $profileId,$id)
     {
-        $this->model = $request->user()->companies()->where('id',$id)->first();
+        $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
+            $query->where('id',$profileId);
+        })->where('id',$id)->first();
 
         if(!$this->model){
             throw new \Exception("Company not found.");
