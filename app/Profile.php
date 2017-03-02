@@ -217,19 +217,20 @@ class Profile extends Model
         return $this->hasManyThrough('\App\Company','App\User');
     }
 
+    //there should be a better way to write the paths.
     public static function getImagePath($id, $filename)
     {
-        $directory = storage_path("app/profile/{$id}/images/");
+        $directory = "profile/{$id}/images";
         Storage::makeDirectory($directory);
-        return $directory . $filename;
+        return storage_path("app/" . $directory) . "/" . $filename;
     }
-
+    
+    //there should be a better way to write the paths.
     public static function getHeroImagePath($id, $filename)
     {
-        $directory = storage_path("app/profile/{$id}/hero_images/");
+        $directory = "profile/{$id}/hero_images";
         Storage::makeDirectory($directory);
-
-        return $directory . $filename;
+        return storage_path("app/" . $directory) . $filename;
     }
 
     public function professional()
