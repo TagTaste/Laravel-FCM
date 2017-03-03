@@ -56,7 +56,8 @@ class ShowController extends Controller
         $this->model =  Show::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){
-            throw new \Exception("TV Show not found.");
+          return;
+            //throw new \Exception("TV Show not found.");
         }
 
         return $this->sendResponse();
