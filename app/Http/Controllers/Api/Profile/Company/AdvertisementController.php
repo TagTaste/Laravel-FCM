@@ -4,115 +4,122 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Company\Advertisement;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class AdvertisementController extends Controller {
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		$advertisements = Advertisement::orderBy('id', 'desc')->paginate(10);
+    use SendsJsonResponse;
 
-		return view('advertisements.index', compact('advertisements'));
-	}
+    private $fields = ['id','title','description','youtube_url','video'];
+    /**
+     * Display a listing of the resource.
+     *N
+     * @return \Illuminate\Http\Response
+     */
+    public function index($profileId, $companyId)
+    {
+        $this->model = Advertisement::where('company_id',$companyId)->paginate(10);
+        return $this->sendResponse();
+    }
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		return view('advertisements.create');
-	}
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function store(Request $request)
-	{
-		$advertisement = new Advertisement();
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request, $profileId, $companyId)
+    {
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
-		$advertisement->title = $request->input("title");
-        $advertisement->description = $request->input("description");
-        $advertisement->youtube_url = $request->input("youtube_url");
-        $advertisement->video = $request->input("video");
-        $advertisement->company_id = $request->input("company_id");
-        $advertisement->company_id = $request->input("company_id");
+        if(!$company){
+            throw new \Exception("This company does not belong to user.");
+        }
 
-		$advertisement->save();
+        $this->model = $company->advertisements()->create(array_filter($request->only($this->fields)));
 
-		return redirect()->route('advertisements.index')->with('message', 'Item created successfully.');
-	}
+        return $this->sendResponse();
+    }
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		$advertisement = Advertisement::findOrFail($id);
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($profileId,$companyId,$id)
+    {
+        $this->model = Advertisement::where('company_id',$companyId)->where('id',$id)->first();
+        if(!$this->model){
+            throw new \Exception("Advertisement not found.");
+        }
+        return $this->sendResponse();
+    }
 
-		return view('advertisements.show', compact('advertisement'));
-	}
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
 
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$advertisement = Advertisement::findOrFail($id);
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $profileId, $companyId, $id)
+    {
+        $input = $request->only($this->fields);
+        $input = array_filter($input);
+        if(isset($input['release_date'])){
+            $input['release_date'] = date('Y-m-d',strtotime($input['release_date']));
+        }
 
-		return view('advertisements.edit', compact('advertisement'));
-	}
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function update(Request $request, $id)
-	{
-		$advertisement = Advertisement::findOrFail($id);
+        if(!$company){
+            throw new \Exception("This company does not belong to user.");
+        }
 
-		$advertisement->title = $request->input("title");
-        $advertisement->description = $request->input("description");
-        $advertisement->youtube_url = $request->input("youtube_url");
-        $advertisement->video = $request->input("video");
-        $advertisement->company_id = $request->input("company_id");
-        $advertisement->company_id = $request->input("company_id");
+        $this->model = $company->advertisements()->where('id',$id)->update($input);
 
-		$advertisement->save();
+        return $this->sendResponse();
+    }
 
-		return redirect()->route('advertisements.index')->with('message', 'Item updated successfully.');
-	}
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, $profileId, $companyId, $id)
+    {
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy($id)
-	{
-		$advertisement = Advertisement::findOrFail($id);
-		$advertisement->delete();
+        if(!$company){
+            throw new \Exception("This company does not belong to user.");
+        }
 
-		return redirect()->route('advertisements.index')->with('message', 'Item deleted successfully.');
-	}
+        $this->model = $company->advertisements()->where('id',$id)->delete();
 
+        return $this->sendResponse();
+    }
 }
