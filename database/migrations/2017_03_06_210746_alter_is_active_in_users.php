@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddValidationKeyToUser extends Migration
+class AlterIsActiveInUsers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class AddValidationKeyToUser extends Migration
      */
     public function up()
     {
-        //
-        Schema::table('users', function($table) {
-            $table->string('validation_key', 250);
-        });
+      Schema::table('users', function($table) {
+        $table->integer('is_active')->default(0)->change();
+      });
     }
 
     /**
@@ -26,9 +25,8 @@ class AddValidationKeyToUser extends Migration
      */
     public function down()
     {
-        //
-        Schema::table('users', function($table) {
-            $table->dropColumn('validation_key');
-        });
+      Schema::table('users', function($table) {
+        $table->integer('is_active')->default(1)->change();
+      });
     }
 }

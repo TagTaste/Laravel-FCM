@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeDefaultIsActiveToOne extends Migration
+class AddValidationKeyUsers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class ChangeDefaultIsActiveToOne extends Migration
      */
     public function up()
     {
-        //
-        Schema::table('users', function ($table) {
-            $table->integer('is_active')->default(0)->change();
-        });
+      Schema::table('users', function($table) {
+          $table->string('validation_key', 250)->nullable();;
+      });
     }
 
     /**
@@ -26,9 +25,8 @@ class ChangeDefaultIsActiveToOne extends Migration
      */
     public function down()
     {
-        //
-        Schema::table('users', function ($table) {
-            $table->integer('is_active')->default(1)->change();
-        });
+      Schema::table('users', function($table) {
+          $table->dropColumn('validation_key');
+      });
     }
 }
