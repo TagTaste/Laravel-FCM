@@ -14,7 +14,7 @@ class PatentController extends Controller {
 	 */
 	public function index(Request $request, $profileId, $companyId)
 	{
-		$this->model = Patent::where('company_id',$companyId)->get();
+		$this->model = Patent::where('company_id',$companyId)->paginate(10);
         return $this->sendResponse();
 	}
 
@@ -54,7 +54,7 @@ class PatentController extends Controller {
 	 */
 	public function show($profileId, $companyId, $id)
 	{
-		$this->model = Parent::where('id',$id)->where('company_id',$companyId)->first();
+		$this->model = Patent::where('id',$id)->where('company_id',$companyId)->first();
 		return $this->sendResponse();
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Company;
 
 class CompanyController extends Controller
 {
@@ -56,12 +57,13 @@ class CompanyController extends Controller
      */
     public function show(Request $request, $profileId,$id)
     {
-        $this->model = $request->user()->companies()->where('id',$id)->first();
+        $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
+            $query->where('id',$profileId);
+        })->where('id',$id)->first();
 
         if(!$this->model){
             throw new \Exception("Company not found.");
         }
-
         return $this->sendResponse();
     }
 
@@ -85,8 +87,15 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        $inputs = $request->only(['name','about','logo','hero_image','phone',
+            'email','registered_address','established_on', 'status_id',
+            'type','employee_count','client_count','annual_revenue_start',
+            'annual_revenue_end',
+            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+        ]);
+        $inputs = array_filter($inputs);
         $this->model = $request->user()->companies()
-            ->where('id',$id)->update($request->only(['address','phone','country']));
+            ->where('id',$id)->update($inputs);
         return $this->sendResponse();
     }
 

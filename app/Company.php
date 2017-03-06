@@ -7,12 +7,14 @@ use App\Company\Address;
 use App\Company\Advertisement;
 use App\Company\Book;
 use App\Company\Patent;
+use App\Company\Status;
+use App\Company\Type;
 use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
     protected $fillable = ['name','about','logo','hero_image','phone',
-        'email','registered_address','established_on', 'status_id',
+        'email','registered_address','established_on',
         'type','employee_count','client_count','annual_revenue_start',
         'annual_revenue_end',
         'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url'
@@ -20,6 +22,7 @@ class Company extends Model
 
     protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents','books'];
 
+    protected $appends = ['statuses','companyTypes'];
 
     public static function boot()
     {
@@ -86,5 +89,15 @@ class Company extends Model
     public function books()
     {
         return $this->hasMany(Book::class);
+    }
+
+    public function getStatusesAttribute($value = null)
+    {
+        return Status::all()->pluck('name','id');
+    }
+
+    public function getCompanyTypesAttribute($value = null)
+    {
+        return Type::all()->pluck('name','id');
     }
 }

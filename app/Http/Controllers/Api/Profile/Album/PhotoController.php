@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\Profile\Album;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
+use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class PhotoController extends Controller
 {
+    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +19,7 @@ class PhotoController extends Controller
      */
     public function index($profileId,$albumId)
     {
-        $this->model = Photo::where('profile_id',$profileId)->where('album_id',$albumId)->paginate(10);
+        $this->model = Photo::where('album_id',$albumId)->paginate(10);
         return $this->sendResponse();
     }
 
@@ -36,9 +39,29 @@ class PhotoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $profileId, $albumId)
     {
-        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
+        $album = $request->user()->profile->albums()->where('id',$albumId)->first();
+
+        if (!$album) {
+            throw new \Exception("Album not found.");
+        }
+        $data = $request->only(['caption','file']);
+        if(!empty($data['file'])){
+            $imageName = str_random(32) . ".jpg";
+            $sinkPath = Photo::getProfileImagePath($profileId, $albumId, $imageName);
+            $client = new Client();
+            $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
+                'form_params' => [
+                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
+                    'file' => $data['file']
+                ],
+                'sink'=> $sinkPath
+            ]);
+            $data['file'] = $imageName;
+        }
+
+        $this->model = $album->photos()->create($data);
         return $this->sendResponse();
     }
 
@@ -86,9 +109,16 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $profileId,$albumId,$id)
     {
-        //
+        $album = $request->user()->profile->albums()->where('id',$albumId)->first();
+
+        if (!$album) {
+            throw new \Exception("Album not found.");
+        }
+
+        $this->model = $album->photos()->where('id',$id)->update($request->only(['caption','file']));
+        return $this->sendResponse();
     }
 
     /**
@@ -97,14 +127,21 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $profileId, $albumId, $id)
     {
-        //
+        $album = $request->user()->profile->albums()->where('id',$albumId)->first();
+
+        if (!$album) {
+            throw new \Exception("Album not found.");
+        }
+
+        $this->model = $album->photos()->where('id',$id)->delete();
+        return $this->sendResponse();
     }
 
-    public function apiImage($id)
+    public function image($profileId, $albumId, $id)
     {
-        $file = \App\Photo::find($id);
-        return response()->file(storage_path("app/" . $file->file));
+        $photo = \App\Photo::select('file')->find($id);
+        return response()->file(Photo::getProfileImagePath($profileId, $albumId, $photo->file));
     }
 }

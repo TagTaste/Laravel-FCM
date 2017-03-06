@@ -43,11 +43,18 @@ class Album extends Model
 
     public function company()
     {
-        return $this->belongsToMany('App\Profile','company_albums','album_id','company_id');
+        return $this->belongsToMany('App\Company','company_albums','album_id','company_id');
     }
 
     public static function createDefault()
     {
         return static::create(['name'=>"Default Album", 'description'=>"Default Album"]);
+    }
+
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->whereHas('company',function($q) use ($companyId){
+            $q->where('company_id',$companyId);
+        });
     }
 }

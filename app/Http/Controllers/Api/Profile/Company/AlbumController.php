@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Album;
+use App\Company;
 use App\Http\Controllers\Controller;
-use App\Company\Book;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
-class BookController extends Controller
+class AlbumController extends Controller
 {
     use SendsJsonResponse;
-
-    private $fields = ['title','description','publisher','release_date','url','isbn'];
     /**
      * Display a listing of the resource.
-     *N
+     *
      * @return \Illuminate\Http\Response
      */
     public function index($profileId, $companyId)
     {
-        $this->model = Book::where('company_id',$companyId)->paginate(10);
+        $this->model = Album::forCompany($companyId)->paginate(10);
+
         return $this->sendResponse();
+
     }
 
     /**
@@ -41,14 +42,14 @@ class BookController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
+        $userId = $request->user()->id;
         $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
 
-        $this->model = $company->books()->create(array_filter($request->only($this->fields)));
-
+        $this->model = $company->albums()->create($request->only(['name','description']));
         return $this->sendResponse();
     }
 
@@ -58,12 +59,14 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$companyId,$id)
+    public function show($profileId, $companyId, $id)
     {
-        $this->model = Book::where('company_id',$companyId)->where('id',$id)->first();
+        $this->model = Album::forCompany($companyId)->with('photos')->where('id',$id)->first();
+
         if(!$this->model){
-            throw new \Exception("Book not found.");
+            throw new \Exception("Album not found.");
         }
+
         return $this->sendResponse();
     }
 
@@ -87,19 +90,15 @@ class BookController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $input = $request->only($this->fields);
-        $input = array_filter($input);
-        if(isset($input['release_date'])){
-            $input['release_date'] = date('Y-m-d',strtotime($input['release_date']));
-        }
-
         $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
+        $input = $request->only(['name','description']);
+        $input = array_filter($input);
 
-        $this->model = $company->books()->where('id',$id)->update($input);
+        $this->model = $company->albums()->where('id',$id)->update($input);
 
         return $this->sendResponse();
     }
@@ -110,16 +109,17 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $profileId, $companyId, $id)
+    public function destroy(Request $request, $profileId, $companyId,$id)
     {
         $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
+        $input = $request->only(['name','description']);
+        $input = array_filter($input);
 
-        $this->model = $company->books()->where('id',$id)->delete();
-
+        $this->model = $company->albums()->where('id',$id)->delete();
         return $this->sendResponse();
     }
 }

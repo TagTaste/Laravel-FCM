@@ -14,7 +14,10 @@ use Illuminate\Http\Request;
 */
 
 use Illuminate\Support\Facades\Route;
-
+Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
+    Route::resource('statuses','StatusController');
+    Route::resource('types','TypeController');
+});
 //has prefix api/
 Route::group(['namespace'=>'Api',
     'as' => 'api.' //note the dot.
@@ -27,8 +30,8 @@ Route::group(['namespace'=>'Api',
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
-
-    Route::resource('companies','CompanyController');
+    //why is this here? remove if it's unneeded.
+    //Route::resource('companies','CompanyController');
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
@@ -44,21 +47,26 @@ Route::group(['namespace'=>'Api',
                 //namespace albums
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
 
-                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@apiImage']);
+                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
 
                     Route::resource('photos','PhotoController');
                     Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                         Route::resource('comments','CommentController');
                     });
                 });
-                Route::resource('companies','CompanyController');
 
+
+                Route::resource('companies','CompanyController');
+                //namespace company
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::resource("websites","WebsiteController");
                     Route::resource("blogs","BlogController");
                     Route::resource("advertisements","AdvertisementController");
                     Route::resource("addresses","AddressController");
                     Route::resource("books","BookController");
+                    Route::resource("patents","PatentController");
+                    Route::resource("awards","AwardController");
+                    Route::resource("albums","AlbumController");
 
                 });
                 Route::resource('tagboards','TagBoardController');
@@ -73,7 +81,8 @@ Route::group(['namespace'=>'Api',
 
             });
 
-            Route::resource('company','CompanyController');
+            //Route::resource('company','CompanyController');
+
             Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');

@@ -45,7 +45,8 @@ class ExperienceController extends Controller
     {
         $experiences = $request->input('work');
         if(empty($experiences)){
-            throw new \Exception("Received empty experiences.");
+          return;
+            //throw new \Exception("Received empty experiences.");
         }
         foreach($experiences as $experience){
             $fields = array_only($experience,$this->fields);

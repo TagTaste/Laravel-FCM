@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Company;
 use App\Http\Controllers\Controller;
-use App\Company\Book;
+use App\Company\Award;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
-class BookController extends Controller
+class AwardController extends Controller
 {
     use SendsJsonResponse;
-
-    private $fields = ['title','description','publisher','release_date','url','isbn'];
+    private $fields = ['name','description','date'];
     /**
      * Display a listing of the resource.
-     *N
+     *
      * @return \Illuminate\Http\Response
      */
-    public function index($profileId, $companyId)
+    public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Book::where('company_id',$companyId)->paginate(10);
+        $this->model = Award::forCompany($companyId)->paginate(10);
         return $this->sendResponse();
     }
 
@@ -39,16 +39,16 @@ class BookController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $profileId, $companyId)
+    public function store(Request $request,$profileId, $companyId)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $userId = $request->user()->id;
+        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
 
         if(!$company){
-            throw new \Exception("This company does not belong to user.");
+            throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = $company->books()->create(array_filter($request->only($this->fields)));
-
+        $this->model = $company->awards()->create($request->only($this->fields));
         return $this->sendResponse();
     }
 
@@ -60,9 +60,10 @@ class BookController extends Controller
      */
     public function show($profileId,$companyId,$id)
     {
-        $this->model = Book::where('company_id',$companyId)->where('id',$id)->first();
+        $this->model = Award::forCompany($companyId)->where('id',$id)->first();
+
         if(!$this->model){
-            throw new \Exception("Book not found.");
+            throw new \Exception("Award not found.");
         }
         return $this->sendResponse();
     }
@@ -85,21 +86,18 @@ class BookController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $profileId, $companyId, $id)
+    public function update(Request $request, $profileId,$companyId,$id)
     {
-        $input = $request->only($this->fields);
-        $input = array_filter($input);
-        if(isset($input['release_date'])){
-            $input['release_date'] = date('Y-m-d',strtotime($input['release_date']));
-        }
-
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $userId = $request->user()->id;
+        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
 
         if(!$company){
-            throw new \Exception("This company does not belong to user.");
+            throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = $company->books()->where('id',$id)->update($input);
+        $this->model = Award::forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
+            $query->where('id',$userId);
+        })->update($request->only($this->fields));
 
         return $this->sendResponse();
     }
@@ -112,13 +110,16 @@ class BookController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $userId = $request->user()->id;
+        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
 
         if(!$company){
-            throw new \Exception("This company does not belong to user.");
+            throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = $company->books()->where('id',$id)->delete();
+        $this->model = Award::forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
+            $query->where('id',$userId);
+        })->delete();
 
         return $this->sendResponse();
     }

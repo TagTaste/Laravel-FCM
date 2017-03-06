@@ -14,7 +14,7 @@ class AddressController extends Controller {
 	 */
 	public function index(Request $request, $profileId, $companyId)
 	{
-		$company = $request->user()->companies()->where('company_id',$companyId)->first();
+		$company = $request->user()->companies()->where('id',$companyId)->first();
 
 		if(!$company){
 		    throw new \Exception("No company with id " . $companyId . ".");
@@ -42,13 +42,12 @@ class AddressController extends Controller {
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-        $company = $request->user()->companies()->where('company_id',$companyId)->first();
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
         }
-
-        $this->model = $company->addresses()->create(['address','country','phone']);
+        $this->model = $company->addresses()->create($request->only(['address','country','phone']));
         return $this->sendResponse();
 	}
 
@@ -60,12 +59,12 @@ class AddressController extends Controller {
 	 */
 	public function show(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->companies()->where('company_id',$companyId)->first();
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
         }
-		$this->model = $company->addresses;
+		$this->model = $company->addresses()->where('id',$id)->first();
         return $this->sendResponse();
 
 	}
@@ -89,7 +88,7 @@ class AddressController extends Controller {
 	 */
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->companies()->where('company_id',$companyId)->first();
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
@@ -108,7 +107,7 @@ class AddressController extends Controller {
 	 */
 	public function destroy(Request $request, $profileId, $companyId,$id)
 	{
-        $company = $request->user()->companies()->where('company_id',$companyId)->first();
+        $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
