@@ -18,7 +18,7 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
     Route::resource('statuses','StatusController');
     Route::resource('types','TypeController');
 });
-//has prefix api/
+//has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api',
     'as' => 'api.' //note the dot.
     ],function(){
@@ -29,13 +29,14 @@ Route::group(['namespace'=>'Api',
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
         Route::get('profile/{id}',['uses'=>'ProfileController@show']);
+    
 
     //why is this here? remove if it's unneeded.
     //Route::resource('companies','CompanyController');
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-
+            Route::get("designations", "DesignationController@index");
             Route::resource('profile','ProfileController');
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);

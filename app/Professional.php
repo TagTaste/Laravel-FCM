@@ -9,9 +9,9 @@ class Professional extends Model
 {
     use ScopeProfile;
 
-    protected $fillable = ['cuisine','favourite_moments','famous_recipes','profile_id'];
+    protected $fillable = ['cuisine','favourite_moments','famous_recipes','designation_id','profile_id'];
 
-    protected $visible = ['id','cuisine','favourite_moments','famous_recipes'];
+    protected $visible = ['id','cuisine','favourite_moments','famous_recipes','designation_id'];
 
     public function profile()
     {
