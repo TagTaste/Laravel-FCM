@@ -148,7 +148,7 @@ Route::group(['middleware'=>'auth'],function(){
             Route::resource("addresses","AddressController");
         });
 
-    Route::get("designations", "DesignationController@index");
+    Route::resource("designations", "DesignationController");
 
 
 });

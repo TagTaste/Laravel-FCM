@@ -209,9 +209,6 @@ class DesignationTableSeeder extends Seeder
                   ]
                 ];
 
-      foreach($desigs as $desig)
-      {
-        Designation::create($desig);
-      }
+      Designation::insert($desigs);
     }
 }
