@@ -43,15 +43,15 @@ class ExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        $experiences = $request->input('work');
+        $experiences = $request->all();
         if(empty($experiences)){
           return;
             //throw new \Exception("Received empty experiences.");
         }
-        foreach($experiences as $experience){
-            $fields = array_only($experience,$this->fields);
-            $this->model = $request->user()->profile->experience()->create($fields);
-        }
+        
+        $fields = array_only($experiences,$this->fields);
+        $this->model = $request->user()->profile->experience()->create($fields);
+        
         return $this->sendResponse();
 
     }
