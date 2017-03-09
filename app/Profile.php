@@ -28,7 +28,8 @@ class Profile extends Model
                             'youtube_channel',
                             'followers',
                             'following',
-                            'user_id'
+                            'user_id',
+                            'created_at'
                           ];
 
     //if you add a relation here, make sure you remove it from
@@ -77,7 +78,8 @@ class Profile extends Model
                           'name',
                           'albums',
                           'projects',
-                          'professional'
+                          'professional',
+                          'created_at'
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
@@ -224,7 +226,7 @@ class Profile extends Model
         Storage::makeDirectory($directory);
         return storage_path("app/" . $directory) . "/" . $filename;
     }
-    
+
     //there should be a better way to write the paths.
     public static function getHeroImagePath($id, $filename)
     {
