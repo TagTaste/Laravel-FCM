@@ -17,7 +17,7 @@ class DesignationController extends Controller
      */
     public function index()
     {
-        $this->model  = Designation::all();
+        $this->model  = Designation::select('desig_name')->get()->pluck('desig_name');
         return $this->sendResponse();
     }
 

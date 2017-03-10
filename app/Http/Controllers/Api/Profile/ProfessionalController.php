@@ -39,7 +39,7 @@ class ProfessionalController extends Controller {
 	 */
 	public function store(Request $request, $profileId)
 	{
-        $input = array_filter($request->only('favourite_moments','famous_recipes','cuisine','designation_id'));
+        $input = array_filter($request->only('favourite_moments','famous_recipes','cuisine','designation'));
 	    $this->model = $request->user()->profile->professional()->create($input);
 		return $this->sendResponse();
     }
@@ -81,7 +81,7 @@ class ProfessionalController extends Controller {
 	 */
 	public function update(Request $request, $profileId, $id)
 	{
-	    $input = $request->only(['favourite_moments','famous_recipes','cuisine','designation_id']);
+	    $input = $request->only(['favourite_moments','famous_recipes','cuisine','designation']);
 		$this->model = $request->user()->profile->professional()->where('id',$id)
             ->update($input);
         return $this->sendResponse();
