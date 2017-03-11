@@ -14,7 +14,6 @@ class AlterProfessionalDesignation extends Migration
     public function up()
     {
         Schema::table('professionals',function(Blueprint $table){
-            $table->dropColumn(['designation_id']);
             $table->string('designation')->nullable();
         });
     }
@@ -28,8 +27,6 @@ class AlterProfessionalDesignation extends Migration
     {
         Schema::table('professionals',function(Blueprint $table){
             $table->dropColumn('designation');
-            $table->integer('designation_id')->unsigned()->nullable();
-            $table->foreign('designation_id')->references('id')->on('designations');
         });
     }
 }
