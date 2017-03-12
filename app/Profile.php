@@ -236,7 +236,7 @@ class Profile extends Model
     {
         $directory = "profile/{$id}/hero_images";
         Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory) . $filename;
+        return storage_path("app/" . $directory ) . "/" . $filename;
     }
 
     public function professional()
