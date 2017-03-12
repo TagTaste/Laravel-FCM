@@ -14,7 +14,7 @@ class AlterProfilesAddPincode extends Migration
     public function up()
     {
         Schema::table('profiles',function($table){
-            $table->string('pincode');
+            $table->string('pincode')->nullable();
         });
     }
 
