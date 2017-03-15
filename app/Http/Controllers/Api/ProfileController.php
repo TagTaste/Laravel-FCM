@@ -79,8 +79,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         
-        $data = array_filter($request->input('profile'));
-        \Log::info($request->all());
+        $data = $request->input('profile');
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
