@@ -13,11 +13,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
-    protected $fillable = ['name','about','logo','hero_image','phone',
-        'email','registered_address','established_on',
-        'type','employee_count','client_count','annual_revenue_start',
+    protected $fillable = [
+        'name',
+        'about',
+        'logo',
+        'hero_image',
+        'phone',
+        'email',
+        'registered_address',
+        'established_on',
+        'type',
+        'employee_count',
+        'client_count',
+        'annual_revenue_start',
         'annual_revenue_end',
-        'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url'
+        'facebook_url',
+        'twitter_url',
+        'linkedin_url',
+        'instagram_url',
+        'youtube_url',
+        'pinterest_url',
+        'google_plus_url',
+        'tagline',
+        'establishments',
+        'cuisines'
     ];
 
     protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents','books'];

@@ -92,6 +92,7 @@ class CompanyController extends Controller
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
             'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+            'tagline','establishments','cuisines'
         ]);
         $inputs = array_filter($inputs);
         $this->model = $request->user()->companies()
