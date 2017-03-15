@@ -41,9 +41,8 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->books()
-            ->create($request->only($this->fields));
-        $this->sendResponse();
+        $this->model = $request->user()->profile->books()->create($request->only($this->fields));
+        return $this->sendResponse();
     }
 
     /**
