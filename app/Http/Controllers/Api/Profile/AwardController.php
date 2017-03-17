@@ -50,10 +50,9 @@ class AwardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$id)
+    public function show(Request $request, $profileId,$id)
     {
-        $this->model = Award::profile($profileId)->where('id',$id)->first();
-
+        $this->model = Award::ForProfile($profileId)->where('id',$id)->first();
         if(!$this->model){
             throw new \Exception("Award not found.");
         }
@@ -80,8 +79,15 @@ class AwardController extends Controller
      */
     public function update(Request $request, $profileId,$id)
     {
+        \Log::info($request->all());
         $this->model = $request->user()->profile->awards
-            ->where('id',$id)->update($request->only($this->fields));
+            ->where('id',$id)->first();
+        \Log::info($this->model);
+        if($this->model){
+            $this->model->update(array_filter($request->only($this->fields)));
+            \Log::info(array_filter($request->only($this->fields)));
+        }
+        
         $this->sendResponse();
     }
 

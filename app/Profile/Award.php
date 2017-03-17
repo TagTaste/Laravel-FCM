@@ -11,7 +11,7 @@ class Award extends Model
 
     protected $fillable = ['name','description','date','profile_id'];
 
-    protected $visible = ['name','description','date'];
+    protected $visible = ['id','name','description','date'];
 
     public function setDateAttribute($value)
     {
@@ -24,6 +24,11 @@ class Award extends Model
             return;
         }
         return date("d-m-Y",strtotime($value));
+    }
+    
+    public function profile()
+    {
+        return $this->belongsToMany('App\Profile','profile_awards','award_id','profile_id');
     }
 
 }
