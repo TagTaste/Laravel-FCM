@@ -86,7 +86,7 @@ class AwardController extends Controller
             $this->model->update(array_filter($request->only($this->fields)));
         }
         
-        $this->sendResponse();
+        return $this->sendResponse();
     }
 
     /**
@@ -100,8 +100,9 @@ class AwardController extends Controller
         $this->model = $request->user()->profile->awards
             ->where('id',$id)->first();
         if($this->model){
-            $this->model->delete();
+            $this->model = $this->model->delete();
+        return    $this->sendResponse();
         }
-        $this->sendResponse();
+        
     }
 }
