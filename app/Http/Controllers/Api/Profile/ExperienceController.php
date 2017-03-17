@@ -116,6 +116,7 @@ class ExperienceController extends Controller
     public function destroy(Request $request,$id)
     {
         $this->model = $request->user()->profile->experience()->where('id',$id)->delete();
+        \Log::info($this->model);
         return $this->sendResponse();
     }
 }
