@@ -21,4 +21,17 @@ class Experience extends Model
         return $this->belongsTo('App\Profile');
     }
 
+    public function setCurrentCompanyAttribute($value){
+      if(is_null(trim($value))){
+        $this->attributes['current_company'] = 0;
+      }
+    }
+
+    public function getCurrentCompanyAttribute($value){
+      if(is_null($value)){
+        return false;
+      }
+      return $value;
+    }
+
 }
