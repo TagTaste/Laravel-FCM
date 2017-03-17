@@ -82,10 +82,8 @@ class AwardController extends Controller
         \Log::info($request->all());
         $this->model = $request->user()->profile->awards
             ->where('id',$id)->first();
-        \Log::info($this->model);
         if($this->model){
             $this->model->update(array_filter($request->only($this->fields)));
-            \Log::info(array_filter($request->only($this->fields)));
         }
         
         $this->sendResponse();
@@ -99,8 +97,11 @@ class AwardController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request-user()->profile->awards()
-            ->where('id',$id)->delete();
+        $this->model = $request->user()->profile->awards
+            ->where('id',$id)->first();
+        if($this->model){
+            $this->model->delete();
+        }
         $this->sendResponse();
     }
 }
