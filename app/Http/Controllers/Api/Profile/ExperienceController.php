@@ -113,7 +113,7 @@ class ExperienceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request,$profileId,$id)
     {
         $this->model = $request->user()->profile->experience()->where('id',$id)->delete();
         \Log::info($this->model);
