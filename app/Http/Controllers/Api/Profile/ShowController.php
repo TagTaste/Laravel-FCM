@@ -11,7 +11,7 @@ class ShowController extends Controller
 {
     use SendsJsonResponse;
 
-    private $fields = ['title','description','channel','current','start_date','end_Date','url','appeared_as'];
+    private $fields = ['title','description','channel','current','start_date','end_date','url','appeared_as'];
     /**
      * Display a listing of the resource.
      *
