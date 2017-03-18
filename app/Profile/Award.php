@@ -11,7 +11,9 @@ class Award extends Model
 
     protected $fillable = ['name','description','date','profile_id'];
 
-    protected $visible = ['id','name','description','date'];
+    protected $visible = ['id','name','description','date','total'];
+    
+    protected $appends = ['total'];
 
     public function setDateAttribute($value)
     {
@@ -29,6 +31,12 @@ class Award extends Model
     public function profile()
     {
         return $this->belongsToMany('App\Profile','profile_awards','award_id','profile_id');
+    }
+    
+    public function getTotalAttribute()
+    {
+        $profileId = $this->profile->first()->id;
+        return $this->ForProfile($profileId)->count();
     }
 
 }

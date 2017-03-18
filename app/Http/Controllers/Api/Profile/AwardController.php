@@ -79,7 +79,6 @@ class AwardController extends Controller
      */
     public function update(Request $request, $profileId,$id)
     {
-        \Log::info($request->all());
         $this->model = $request->user()->profile->awards
             ->where('id',$id)->first();
         if($this->model){
