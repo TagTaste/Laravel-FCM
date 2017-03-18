@@ -29,7 +29,8 @@ class Profile extends Model
                             'followers',
                             'following',
                             'user_id',
-                            'created_at'
+                            'created_at',
+                            'pincode'
                           ];
 
     //if you add a relation here, make sure you remove it from
@@ -79,7 +80,8 @@ class Profile extends Model
                           'albums',
                           'projects',
                           'professional',
-                          'created_at'
+                          'created_at',
+                          'pincode'
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
@@ -133,7 +135,7 @@ class Profile extends Model
         if($this->image){
             return "/profile/images/" . $this->id . '.jpg';
         }
-        
+
     }
 
     //specific to API
