@@ -13,7 +13,9 @@ class Book extends Model
 
     protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
 
-    protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
+    protected $visible = ['id','title','description','publisher','release_date','url','isbn','total'];
+    
+    protected $appends = ['total'];
 
     public function setReleaseDateAttribute($value)
     {
@@ -26,5 +28,10 @@ class Book extends Model
             return;
         }
         return date("d-m-Y",strtotime($value));
+    }
+    
+    public function getTotalAttribute()
+    {
+        return $this->where('profile_id',$this->profile_id)->count();
     }
 }
