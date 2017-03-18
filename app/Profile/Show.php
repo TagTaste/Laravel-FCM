@@ -14,5 +14,12 @@ class Show extends Model
     protected $fillable = ['id','title','description','channel',
         'current','start_date','end_date','url','appeared_as'];
     protected $visible = ['id','title','description','channel',
-        'current','start_date','end_date','url','appeared_as'];
+        'current','start_date','end_date','url','appeared_as','total'];
+    
+    protected $appends = ['total'];
+    
+    public function getTotalAttribute()
+    {
+        return $this->where('profile_id',$this->profile_id)->count();
+    }
 }
