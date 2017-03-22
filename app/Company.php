@@ -64,7 +64,8 @@ class Company extends Model
         'tagline',
         'establishments',
         'cuisines',
-        'websites'
+        'websites',
+        'advertisements','addresses','type','status','awards','albums','patents','books'
     ];
 
 
