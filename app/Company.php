@@ -38,6 +38,34 @@ class Company extends Model
         'cuisines',
         'websites'
     ];
+    
+    protected $visible = [
+        'id',
+        'name',
+        'about',
+        'logo',
+        'hero_image',
+        'phone',
+        'email',
+        'registered_address',
+        'established_on',
+        'type',
+        'employee_count',
+        'client_count',
+        'annual_revenue_start',
+        'annual_revenue_end',
+        'facebook_url',
+        'twitter_url',
+        'linkedin_url',
+        'instagram_url',
+        'youtube_url',
+        'pinterest_url',
+        'google_plus_url',
+        'tagline',
+        'establishments',
+        'cuisines',
+        'websites'
+    ];
 
     protected $with = ['advertisements','addresses','type','status','awards','albums','patents','books'];
 
