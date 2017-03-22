@@ -39,7 +39,11 @@ class Company extends Model
         'websites'
     ];
 
+<<<<<<< HEAD
     protected $with = ['advertisements','addresses', 'type','status','awards','albums','patents','books'];
+=======
+    protected $with = ['advertisements','addresses','type','status','awards','albums','patents','books'];
+>>>>>>> origin/develop
 
     protected $appends = ['statuses','companyTypes'];
 
