@@ -22,9 +22,7 @@ class Experience extends Model
     }
 
     public function setCurrentCompanyAttribute($value){
-      if(is_null(trim($value))){
-        $this->attributes['current_company'] = 0;
-      }
+        $this->attributes['current_company'] = empty($value) ? 0 : 1;
     }
 
     public function getCurrentCompanyAttribute($value){
@@ -32,6 +30,16 @@ class Experience extends Model
         return false;
       }
       return $value;
+    }
+    
+    public function setStartDateAttribute($value)
+    {
+        $this->attributes['start_date'] = empty($value) ? null : date("Y-m-d",strtotime(trim($value)));
+    }
+    
+    public function setEndDateAttribute($value)
+    {
+        $this->attributes['end_date'] = empty($value) ? null : date("Y-m-d",strtotime(trim($value)));
     }
 
 }
