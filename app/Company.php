@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Album;
 use App\Company\Address;
 use App\Company\Advertisement;
 use App\Company\Book;
@@ -36,7 +35,8 @@ class Company extends Model
         'google_plus_url',
         'tagline',
         'establishments',
-        'cuisines'
+        'cuisines',
+        'websites'
     ];
 
     protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents','books'];
