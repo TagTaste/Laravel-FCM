@@ -39,7 +39,7 @@ class Company extends Model
         'websites'
     ];
 
-    protected $with = ['advertisements','addresses','websites','type','status','awards','albums','patents','books'];
+    protected $with = ['advertisements','addresses','type','status','awards','albums','patents','books'];
 
     protected $appends = ['statuses','companyTypes'];
 

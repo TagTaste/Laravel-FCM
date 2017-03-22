@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Company;
+use App\Http\Controllers\Controller;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Company;
 
 class CompanyController extends Controller
 {
@@ -43,7 +43,7 @@ class CompanyController extends Controller
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
-            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
+            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url','websites'
         ]);
         $this->model = $request->user()->companies()->create(array_filter($inputs));
         return $this->sendResponse();
@@ -92,7 +92,7 @@ class CompanyController extends Controller
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
             'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
-            'tagline','establishments','cuisines'
+            'tagline','establishments','cuisines','websites'
         ]);
         $inputs = array_filter($inputs);
         $this->model = $request->user()->companies()
