@@ -19,15 +19,16 @@ class Book extends Model
 
     public function setReleaseDateAttribute($value)
     {
-        $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
+        if(!empty($value)){
+            $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
+        }
     }
 
     public function getReleaseDateAttribute($value)
     {
-        if(!$value){
-            return;
+        if(!empty($value)){
+            return date("d-m-Y",strtotime($value));
         }
-        return date("d-m-Y",strtotime($value));
     }
     
     public function getTotalAttribute()

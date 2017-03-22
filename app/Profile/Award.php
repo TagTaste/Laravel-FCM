@@ -17,15 +17,16 @@ class Award extends Model
 
     public function setDateAttribute($value)
     {
-        $this->attributes['date'] = date('Y-m-d',strtotime($value));
+        if(!empty($value)){
+            $this->attributes['date'] = date('Y-m-d',strtotime($value));
+        }
     }
 
     public function getDateAttribute($value)
     {
         if(!$value){
-            return;
+            return date("d-m-Y",strtotime($value));
         }
-        return date("d-m-Y",strtotime($value));
     }
     
     public function profile()
