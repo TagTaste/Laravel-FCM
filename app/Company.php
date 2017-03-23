@@ -65,7 +65,8 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','albums','patents','books'
+        'advertisements','addresses','type','status','awards','albums','patents','books',
+        'created_at'
     ];
 
 
