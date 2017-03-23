@@ -146,6 +146,7 @@ Route::group(['middleware'=>'auth'],function(){
             Route::resource("blogs","BlogController");
             Route::resource("advertisements","AdvertisementController");
             Route::resource("addresses","AddressController");
+            Route::resource("portfolios","PortfolioController");
         });
 
     Route::resource("designations", "DesignationController");
