@@ -66,12 +66,12 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','albums','patents','books',
+        'advertisements','addresses','type','status','awards','albums','patents','books','portfolio',
         'created_at'
     ];
 
 
-    protected $with = ['advertisements','addresses','type','status','awards','albums','patents','books'];
+    protected $with = ['advertisements','addresses','type','status','awards','albums','patents','books','portfolio'];
 
 
     protected $appends = ['statuses','companyTypes'];
