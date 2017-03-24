@@ -6,6 +6,7 @@ use App\Company\Address;
 use App\Company\Advertisement;
 use App\Company\Book;
 use App\Company\Patent;
+use App\Company\Portfolio;
 use App\Company\Status;
 use App\Company\Type;
 use Illuminate\Database\Eloquent\Model;
@@ -150,5 +151,10 @@ class Company extends Model
     public function getCompanyTypesAttribute($value = null)
     {
         return Type::all()->pluck('name','id');
+    }
+    
+    public function portfolio()
+    {
+        return $this->hasMany(Portfolio::class);
     }
 }
