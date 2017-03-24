@@ -37,7 +37,7 @@ class PatentController extends Controller {
         if(!$company){
             throw new \Exception("This user does not own this company.");
         }
-        $inputs = $request->only(['title','description','number','issued_by','awarded_on']);
+        $inputs = $request->only(['title','description','number','issued_by','awarded_on','url']);
         $inputs['company_id'] = $company->id;
 
         $this->model = Patent::create(array_filter($inputs));
@@ -69,7 +69,7 @@ class PatentController extends Controller {
     public function update(Request $request, $profileId, $companyId, $id)
     {
         $userId = $request->user()->id;
-        $inputs = $request->only(['title','description','number','issued_by','awarded_on']);
+        $inputs = $request->only(['title','description','number','issued_by','awarded_on','url']);
         $inputs = array_filter($inputs);
 
         $this->model = Patent::whereHas('company.user',function($query) use ($userId){
