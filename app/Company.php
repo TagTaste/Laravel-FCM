@@ -155,6 +155,6 @@ class Company extends Model
     
     public function portfolio()
     {
-        return $this->hasMany(Portfolio::class);
+        return $this->hasMany(\App\Company\Portfolio::class);
     }
 }

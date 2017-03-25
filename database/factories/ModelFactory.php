@@ -22,3 +22,23 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'remember_token' => str_random(10),
     ];
 });
+
+$factory->define(App\Profile::class, function (Faker\Generator $faker) {
+    static $userId;
+    
+   return [ 'user_id' => $userId ];
+});
+
+
+$factory->define(App\Company::class,function(Faker\Generator $faker){
+    $faker->addProvider(new Faker\Provider\en_US\Company($faker));
+    
+    static $userId;
+    
+    return [
+        'name' => $faker->company,
+        'about' =>  $faker->realText(),
+        'registered_address' => $faker->address,
+        'user_id' => $userId
+    ];
+});
