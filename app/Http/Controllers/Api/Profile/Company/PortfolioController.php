@@ -1,9 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Company\Portfolio;
+use App\Http\Controllers\Controller;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 
@@ -63,7 +61,7 @@ class PortfolioController extends Controller {
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
         $userId = $request->user()->id;
-        $inputs = $request->only(['worked_on','description']);
+        $inputs = $request->only(['worked_for','description']);
         
         $this->model = Portfolio::whereHas('company.user',function($query) use ($userId){
             $query->where('id',$userId);
