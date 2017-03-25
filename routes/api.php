@@ -40,6 +40,7 @@ Route::group(['namespace'=>'Api',
             Route::resource('profile','ProfileController');
             Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
+            Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
 
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){

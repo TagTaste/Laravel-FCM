@@ -157,5 +157,13 @@ class ProfileController extends Controller
         //have a better response.
         return response()->json(['success'=>'done']);
     }
+    
+    public function unfollow(Request $request)
+    {
+        $id = $request->input('id');
+        $request->user()->profile->unfollow($id);
+        //have a better response.
+        return response()->json(['success'=>'done']);
+    }
 
 }

@@ -161,6 +161,8 @@ class Profile extends Model
     {
         $this->iAmFollowing()->detach($followsId);
         $this->save();
+        \DB::table('profiles')->whereId($this->id)->decrement('following');
+        \DB::table('profiles')->whereId($followsId)->decrement('followers');
     }
 
     //profiles which are following this profile
