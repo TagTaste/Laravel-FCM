@@ -88,7 +88,7 @@ class ProfileController extends Controller
         if(!empty($data['image'])){
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
-            $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
+            $response = $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
                 'form_params' => [
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['image']
@@ -102,7 +102,7 @@ class ProfileController extends Controller
 
             $client = new Client();
             $imageName = str_random(32) . ".jpg";
-            $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
+            $response = $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
                 'form_params' => [
                     'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
                     'file' => $data['hero_image']
@@ -131,13 +131,12 @@ class ProfileController extends Controller
 
     public function image($id)
     {
-
         $profile = Profile::select('image')->findOrFail($id);
-
         return response()->file(Profile::getImagePath($id,$profile->image));
     }
 
     public function heroImage($id)
+    
     {
         $profile = Profile::select('id','hero_image')->findOrFail($id);
 

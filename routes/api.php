@@ -59,6 +59,9 @@ Route::group(['namespace'=>'Api',
 
 
                 Route::resource('companies','CompanyController');
+                Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
+                Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
+    
                 //namespace company
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::resource("websites","WebsiteController");

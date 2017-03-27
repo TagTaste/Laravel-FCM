@@ -10,6 +10,7 @@ use App\Company\Portfolio;
 use App\Company\Status;
 use App\Company\Type;
 use Illuminate\Database\Eloquent\Model;
+use Storage;
 
 class Company extends Model
 {
@@ -156,5 +157,21 @@ class Company extends Model
     public function portfolio()
     {
         return $this->hasMany(\App\Company\Portfolio::class);
+    }
+    
+    //there should be a better way to write the paths.
+    public static function getLogoPath($profileId,$id, $filename)
+    {
+        $directory = "profile/{$profileId}/companies/{$id}/logos";
+        Storage::makeDirectory($directory);
+        return storage_path("app/" . $directory) . "/" . $filename;
+    }
+    
+    //there should be a better way to write the paths.
+    public static function getHeroImagePath($profileId, $id, $filename)
+    {
+        $directory = "profile/{$profileId}/companies/{$id}/hero_images";
+        Storage::makeDirectory($directory);
+        return storage_path("app/" . $directory ) . "/" . $filename;
     }
 }
