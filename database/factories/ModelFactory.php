@@ -42,3 +42,9 @@ $factory->define(App\Company::class,function(Faker\Generator $faker){
         'user_id' => $userId
     ];
 });
+
+$factory->define(App\Company\Portfolio::class, function (Faker\Generator $faker) {
+    $faker->addProvider(new Faker\Provider\en_US\Company($faker));
+    
+    return ['worked_for'=>$faker->company,'description'=>$faker->realText()];
+});
