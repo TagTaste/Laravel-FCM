@@ -41,7 +41,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request, $profileId)
     {
-        $inputs = $request->only(['name','about','logo','hero_image','phone',
+        $inputs = $request->intersect(['name','about','phone',
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
@@ -50,47 +50,28 @@ class CompanyController extends Controller
         
         $imageName = null;
         $heroImageName = null;
-    
-        if(!empty($inputs['logo'])){
+        if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
-        }
-        
-        if(!empty($inputs['heroImage'])){
-            $heroImageName = str_random(32) . ".jpg";
-        }
-        
-        $company = $request->user()->companies()->create(array_filter($inputs));
-        $companyId = $company->id;
-    
-        if(!empty($inputs['logo'])){
-            $client = new Client();
-            $sink = \App\Company::getLogoPath($profileId, $companyId,$imageName);
-            $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $inputs['logo']
-                ],
-                'sink'=> $sink
-            ]);
             $inputs['logo'] = $imageName;
-            $company->logo = $imageName;
-            
-        }
-    
-        if(!empty($inputs['hero_image'])){
-            $client = new Client();
-            $sink = \App\Company::getHeroImagePath($profileId, $companyId,$imageName);
-            $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $inputs['hero_image']
-                ],
-                'sink'=> $sink
-            ]);
-            $inputs['hero_image'] = $imageName;
-            $company->hero_image = $imageName;
         }
         
+        if($request->hasFile('heroImage')){
+            $heroImageName = str_random(32) . ".jpg";
+            $inputs['hero_image'] = $heroImageName;
+        }
+    
+        $company = $request->user()->companies()->create(array_filter($inputs));
+        \App\Company::getLogoPath($profileId, $company->id);
+        $companyId = $company->id;
+        
+        if($request->hasFile('logo') && $imageName !== null){
+            $path = \App\Company::getLogoPath($profileId, $companyId);
+            $response = $request->file('logo')->storeAs($path, $imageName);
+        }
+    
+        if($request->hasFile('heroImage')){
+            $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $companyId),$imageName);
+        }
         
         if($company->isDirty()){
             $company->update();
@@ -201,14 +182,17 @@ class CompanyController extends Controller
     
     public function logo($profileId,$id)
     {
-        $company = Company::without(['advertisements','addresses','type','status','awards','albums','patents','books','portfolio'])->select('logo')->findOrFail($id);
-        return response()->file(Company::getLogoPath($profileId, $id,$company->logo));
+        $company = \DB::table('companies')->select('logo')->find($id);
+        $path = Company::getLogoPath($profileId, $id,$company->logo);
+      
+      
+        return response()->file($path);
     }
     
     public function heroImage($profileId, $id)
     {
-        $company = Company::select('hero_image')->findOrFail($id);
-        
-        return response()->file(Company::getHeroImagePath($profileId, $id,$company->hero_image));
+        $company = DB::table('companies')->select('hero_image')->find($id);
+        $path = Company::getHeroImagePath($profileId, $id,$company->hero_image);
+        return response()->file($path);
     }
 }

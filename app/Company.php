@@ -160,18 +160,25 @@ class Company extends Model
     }
     
     //there should be a better way to write the paths.
-    public static function getLogoPath($profileId,$id, $filename)
+    public static function getLogoPath($profileId,$id, $filename = null)
     {
-        $directory = "profile/{$profileId}/companies/{$id}/logos";
-        Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory) . "/" . $filename;
+        $relativePath = "profile/{$profileId}/companies/{$id}/logos";
+        Storage::makeDirectory($relativePath);
+        if($filename === null){
+            return $relativePath;
+        }
+        return storage_path("app/" . $relativePath . "/" . $filename);
+        
     }
     
     //there should be a better way to write the paths.
-    public static function getHeroImagePath($profileId, $id, $filename)
+    public static function getHeroImagePath($profileId, $id, $filename = null)
     {
-        $directory = "profile/{$profileId}/companies/{$id}/hero_images";
-        Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory ) . "/" . $filename;
+        $relativePath = "profile/{$profileId}/companies/{$id}/hero_images";
+        Storage::makeDirectory($relativePath);
+        if($filename == null){
+            return $relativePath;
+        }
+        return storage_path("app/" . $relativePath . "/" . $filename);;
     }
 }
