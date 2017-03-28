@@ -98,7 +98,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $inputs = $request->only(['name','about','logo','hero_image','phone',
+        $inputs = $request->intersect(['name','about','logo','hero_image','phone',
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
