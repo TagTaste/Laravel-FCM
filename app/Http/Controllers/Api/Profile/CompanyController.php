@@ -50,17 +50,15 @@ class CompanyController extends Controller
             $inputs['hero_image'] = $heroImageName;
         }
     
-        $company = $request->user()->companies()->create(array_filter($inputs));
-        \App\Company::getLogoPath($profileId, $company->id);
-        $companyId = $company->id;
+        $company = $request->user()->companies()->create($inputs);
         
         if($request->hasFile('logo') && $imageName !== null){
-            $path = \App\Company::getLogoPath($profileId, $companyId);
+            $path = \App\Company::getLogoPath($profileId, $company->id);
             $response = $request->file('logo')->storeAs($path, $imageName);
         }
     
         if($request->hasFile('heroImage')){
-            $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $companyId),$imageName);
+            $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName);
         }
         
         if($company->isDirty()){
@@ -105,45 +103,25 @@ class CompanyController extends Controller
             'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
             'tagline','establishments','cuisines','websites'
         ]);
-        //$inputs = array_filter($inputs);
-        $imageName = null;
-        $heroImageName = null;
-        
-        if(!empty($inputs['heroImage'])){
-            $heroImageName = str_random(32) . ".jpg";
-        }
     
-    
-        if(!empty($inputs['logo'])){
-            $client = new Client();
-            $sink = \App\Company::getLogoPath($profileId, $id,$imageName);
+        if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
-            $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $inputs['logo']
-                ],
-                'sink'=> $sink
-            ]);
-            $inputs['logo'] = $imageName;
-        
+            $path = \App\Company::getLogoPath($profileId, $id);
+            $response = $request->file('logo')->storeAs($path, $imageName);
+            if($response !== false){
+                $inputs['logo'] = $imageName;
+            }
         }
     
-        if(!empty($inputs['hero_image'])){
-            $client = new Client();
-            $sink = \App\Company::getHeroImagePath($profileId, $id,$imageName);
-            $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $inputs['hero_image']
-                ],
-                'sink'=> $sink
-            ]);
-            $inputs['hero_image'] = $imageName;
+        if($request->hasFile('heroImage')){
+            $imageName = str_random(32) . ".jpg";
+            $response = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $id),$imageName);
+            if($response !== false){
+                $inputs['hero_image'] = $imageName;
+            }
         }
         
-        $this->model = $request->user()->companies()
-            ->where('id',$id)->update($inputs);
+        $this->model = $request->user()->companies()->where('id',$id)->update($inputs);
         return $this->sendResponse();
     }
     
