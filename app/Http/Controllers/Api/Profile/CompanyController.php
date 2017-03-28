@@ -22,22 +22,12 @@ class CompanyController extends Controller
         $this->model = $request->user()->companies;
         return $this->sendResponse();
     }
-
+    
+    
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $profileId Profile id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $profileId)
     {
@@ -80,14 +70,15 @@ class CompanyController extends Controller
         $this->model = $company;
         return $this->sendResponse();
     }
-
+    
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $profileId
+     * @param $id Company Id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
-    public function show(Request $request, $profileId,$id)
+    public function show(Request $request, $profileId, $id)
     {
         $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
             $query->where('id',$profileId);
@@ -98,24 +89,12 @@ class CompanyController extends Controller
         }
         return $this->sendResponse();
     }
-
+    
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $profileId
+     * @param $id Company Id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $profileId, $id)
     {
@@ -167,28 +146,41 @@ class CompanyController extends Controller
             ->where('id',$id)->update($inputs);
         return $this->sendResponse();
     }
-
+    
+    
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $profileId Profile Id
+     * @param $id Company Id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request,$profileId,$id)
+    public function destroy(Request $request, $profileId, $id)
     {
         $this->model = $request->user()->companies()->where('id',$id)->delete();
         return $this->sendResponse();
     }
     
-    public function logo($profileId,$id)
+    /**
+     * Returns company logo
+     *
+     * @param $profileId
+     * @param $id Company id
+     * @return mixed
+     */
+    public function logo($profileId, $id)
     {
         $company = \DB::table('companies')->select('logo')->find($id);
         $path = Company::getLogoPath($profileId, $id,$company->logo);
-      
-      
         return response()->file($path);
     }
     
+    /**
+     * Returns Company Hero Image
+     *
+     * @param $profileId
+     * @param $id Company Id
+     * @return mixed
+     */
     public function heroImage($profileId, $id)
     {
         $company = DB::table('companies')->select('hero_image')->find($id);
