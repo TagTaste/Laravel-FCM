@@ -48,3 +48,9 @@ $factory->define(App\Company\Portfolio::class, function (Faker\Generator $faker)
     
     return ['worked_for'=>$faker->company,'description'=>$faker->realText()];
 });
+
+$factory->define(App\Album::class,function (Faker\Generator $faker) {
+     $faker->addProvider(new Faker\Provider\en_US\Company($faker));
+
+     return ['name'=>$faker->name,'description'=>$faker->realText()];
+});
