@@ -38,7 +38,9 @@ class Company extends Model
         'tagline',
         'establishments',
         'cuisines',
-        'websites'
+        'websites',
+        'milestones',
+        'speciality'
     ];
     
     protected $visible = [
@@ -68,7 +70,9 @@ class Company extends Model
         'cuisines',
         'websites',
         'advertisements','addresses','type','status','awards','albums','patents','books','portfolio',
-        'created_at'
+        'created_at',
+        'milestones',
+        'speciality'
     ];
 
 

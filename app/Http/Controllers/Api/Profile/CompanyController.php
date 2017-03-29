@@ -35,7 +35,9 @@ class CompanyController extends Controller
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
-            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url','websites'
+            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url','websites',
+            'milestones',
+            'speciality'
         ]);
         
         $imageName = null;
@@ -101,7 +103,8 @@ class CompanyController extends Controller
             'type','employee_count','client_count','annual_revenue_start',
             'annual_revenue_end',
             'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
-            'tagline','establishments','cuisines','websites'
+            'tagline','establishments','cuisines','websites','milestones',
+            'speciality'
         ]);
     
         if($request->hasFile('logo')){
