@@ -48,8 +48,11 @@ class AlbumController extends Controller
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
-
-        $this->model = $company->albums()->create($request->only(['name','description']));
+        
+        $album = Album::create($request->only(['name','description']));
+        \DB::table('company_albums')->insert(['company_id'=>$company->id,'album_id'=>$album->id]);
+        
+        $this->model = $album;
         return $this->sendResponse();
     }
 
@@ -96,9 +99,8 @@ class AlbumController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
         $input = $request->only(['name','description']);
-        $input = array_filter($input);
-
-        $this->model = $company->albums()->where('id',$id)->update($input);
+        
+        $this->model = Album::where('id',$id)->update($input);
 
         return $this->sendResponse();
     }
@@ -116,10 +118,10 @@ class AlbumController extends Controller
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
-        $input = $request->only(['name','description']);
-        $input = array_filter($input);
-
-        $this->model = $company->albums()->where('id',$id)->delete();
+        
+        $this->model = Album::where('id',$id)->delete();
+        \DB::table('companies')->where('company_id',$company->id)->where('album_id',$id)->delete();
+        
         return $this->sendResponse();
     }
 }
