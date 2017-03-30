@@ -59,7 +59,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //namespace company
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::resource("websites","WebsiteController");
-                    Route::resource("blogs","BlogController");
+                    //Route::resource("blogs","BlogController");
                     Route::resource("advertisements","AdvertisementController");
                     Route::resource("addresses","AddressController");
                     Route::resource("books","BookController");

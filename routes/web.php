@@ -116,8 +116,8 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get("profiles/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
     Route::resource("profiles","ProfileController");
     Route::resource("professionals","ProfessionalController");
-    Route::resource("profile_books","ProfileBookController");
-    Route::resource("profile_shows","ProfileShowController");
+    //Route::resource("profile_books","ProfileBookController");
+    //Route::resource("profile_shows","ProfileShowController");
     Route::resource("projects","ProjectController");
     Route::resource("experiences","ExperienceController");
     Route::resource("awards","AwardController");
@@ -146,7 +146,7 @@ Route::group(['middleware'=>'auth'],function(){
             Route::resource("blogs","BlogController");
             Route::resource("advertisements","AdvertisementController");
             Route::resource("addresses","AddressController");
-            Route::resource("portfolios","PortfolioController");
+            //Route::resource("portfolios","PortfolioController");
         });
 
     Route::resource("designations", "DesignationController");
