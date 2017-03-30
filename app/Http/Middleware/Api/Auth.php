@@ -19,6 +19,19 @@ class Auth extends GetUserFromToken
      */
     public function handle($request, Closure $next)
     {
+        if(env('APP_ENV') === 'local'){
+            \Log::info("Auth disabled for local environment.");
+            $user = \App\User::first();
+    
+            $token = \JWTAuth::fromUser($user);
+    
+            $request->setUserResolver(function() use ($user){
+                return $user;
+            });
+    
+            return $next($request);
+    
+        }
         if (! $token = $this->auth->setRequest($request)->getToken()) {
             return $this->respond('tymon.jwt.absent', 'token_not_provided', 400);
         }
@@ -45,4 +58,6 @@ class Auth extends GetUserFromToken
 
         return $next($request);
     }
+    
+    
 }
