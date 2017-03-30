@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company\Album;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
+use App\Album;
 use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
@@ -38,12 +39,15 @@ class PhotoController extends Controller
         }
         
         $data = $request->only(['caption','file']);
-        
-        if($request->hasFile('file')) {
-            $imageName = str_random(32) . ".jpg";
-            $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId, $albumId), $imageName);
-            $data['file'] = $imageName;
+        if(!$request->hasFile('file') && empty($request->input('file)'))){
+            $this->errors = ['Empty file sent.'];
+            return $this->sendResponse();
         }
+        
+        $imageName = str_random(32) . ".jpg";
+        $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId, $albumId), $imageName);
+        $data['file'] = $imageName;
+       
 
         $this->model = $album->photos()->create($data);
         return $this->sendResponse();
