@@ -32,17 +32,13 @@ class AlbumController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
-        $userId = $request->user()->id;
         $company = $request->user()->companies()->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
-        
-        $album = Album::create($request->only(['name','description']));
-        \DB::table('company_albums')->insert(['company_id'=>$company->id,'album_id'=>$album->id]);
-        
-        $this->model = $album;
+        $inputs = $request->intersect(['name','description']);
+        $this->model = $company->albums()->create($inputs);
         return $this->sendResponse();
     }
 
@@ -77,10 +73,10 @@ class AlbumController extends Controller
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
-        $input = $request->only(['name','description']);
         
-        $this->model = Album::where('id',$id)->update($input);
-
+        $input = $request->intersect(['name','description']);
+        $this->model = $company->albums()->where('id',$id)->update($input);
+        
         return $this->sendResponse();
     }
 
@@ -98,8 +94,8 @@ class AlbumController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
         
-        $this->model = Album::where('id',$id)->delete();
-        \DB::table('companies')->where('company_id',$company->id)->where('album_id',$id)->delete();
+        $this->model = $company->albums()->where('id',$id)->delete();
+        //\DB::table('companies')->where('company_id',$company->id)->where('album_id',$id)->delete();
         
         return $this->sendResponse();
     }
