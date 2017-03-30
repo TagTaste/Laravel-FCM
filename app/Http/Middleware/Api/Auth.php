@@ -19,8 +19,8 @@ class Auth extends GetUserFromToken
      */
     public function handle($request, Closure $next)
     {
-        if(env('APP_ENV') === 'local'){
-            \Log::warning("Auth disabled for local environment.");
+        if(env('APP_ENV') === 'testing'){
+            \Log::warning("Auth disabled for testing environment.");
             $user = \App\User::first();
     
             $token = \JWTAuth::fromUser($user);
