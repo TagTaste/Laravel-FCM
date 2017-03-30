@@ -22,16 +22,7 @@ class AlbumController extends Controller
         return $this->sendResponse();
 
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -41,7 +32,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
+        $this->model = $request->user()->profile->albums()->create($request->intersect(['name','description']));
         return $this->sendResponse();
     }
 
@@ -63,17 +54,6 @@ class AlbumController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -83,7 +63,7 @@ class AlbumController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $this->model = $request->user()->profile->albums()
-            ->where('id',$request->input('id'))->update($request->only('name','description'));
+            ->where('id',$id)->update($request->intersect('name','description'));
         return $this->sendResponse();
     }
 
@@ -91,7 +71,7 @@ class AlbumController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response`
      */
     public function destroy(Request $request,$profileId,$id)
     {
