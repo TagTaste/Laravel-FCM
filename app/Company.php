@@ -183,6 +183,6 @@ class Company extends Model
         if($filename == null){
             return $relativePath;
         }
-        return storage_path("app/" . $relativePath . "/" . $filename);;
+        return storage_path("app/" . $relativePath . "/" . $filename);
     }
 }

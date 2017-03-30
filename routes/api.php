@@ -71,7 +71,20 @@ Route::group(['namespace'=>'Api',
                     Route::resource("books","BookController");
                     Route::resource("patents","PatentController");
                     Route::resource("awards","AwardController");
+                    
                     Route::resource("albums","AlbumController");
+    
+                    //namespace albums
+                    Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
+        
+                        Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
+        
+                        Route::resource('photos','PhotoController');
+                        Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
+                            Route::resource('comments','CommentController');
+                        });
+                    });
+                    
                     Route::resource("portfolio","PortfolioController");
     
     

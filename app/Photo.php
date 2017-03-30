@@ -44,10 +44,23 @@ class Photo extends Model
         return $this->belongsToMany('App\Comment','comments_photos','photo_id','comment_id');
     }
 
-    public static function getProfileImagePath($profileId,$albumId,$filename)
+    public static function getProfileImagePath($profileId,$albumId,$filename = null)
     {
-        $directory = "profile/$profileId/albums/$albumId/photos/";
-        $status = Storage::makeDirectory($directory,0644,true);
-        return storage_path("app/".$directory) . $filename;
+        $relativePath = "profile/$profileId/albums/$albumId/photos";
+        $status = Storage::makeDirectory($relativePath,0644,true);
+        if($filename === null){
+            return $relativePath;
+        }
+        return storage_path("app/".$relativePath) . "/" . $filename;
+    }
+    
+    public static function getCompanyImagePath($profileId,$companyId, $albumId,$filename = null)
+    {
+        $relativePath = "profile/$profileId/companies/$companyId/albums/$albumId/photos";
+        $status = Storage::makeDirectory($relativePath,0644,true);
+        if($filename === null){
+            return $relativePath;
+        }
+        return storage_path("app/".$relativePath) . "/" . $filename;
     }
 }
