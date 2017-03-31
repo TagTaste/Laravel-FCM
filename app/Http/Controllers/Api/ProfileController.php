@@ -78,8 +78,12 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $data = $request->all();
         
-        $data = $request->input('profile');
+        if(isset($data['verified'])){
+            $data['verified'] = empty($data['verified']) ? 0 : 1;
+        }
+        
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
@@ -112,7 +116,7 @@ class ProfileController extends Controller
             ]);
             $data['hero_image'] = $imageName;
         }
-        $profile = $request->user()->profile()->update($data);
+        $profile = $request->user()->profile->update($data);
         $response = new Response($profile);
 
         return $response->json();

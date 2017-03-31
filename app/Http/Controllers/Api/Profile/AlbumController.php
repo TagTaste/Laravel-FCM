@@ -30,7 +30,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
+        $this->model = $request->user()->profile->albums()->create($request->intersect(['name','description']));
         return $this->sendResponse();
     }
 
