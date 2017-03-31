@@ -18,9 +18,7 @@ class AlbumController extends Controller
     public function index($profileId)
     {
         $this->model = Album::forProfile($profileId)->paginate(10);
-
         return $this->sendResponse();
-
     }
     
 
@@ -32,7 +30,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->albums()->create($request->intersect(['name','description']));
+        $this->model = $request->user()->profile->albums()->create($request->only(['name','description']));
         return $this->sendResponse();
     }
 
@@ -63,7 +61,7 @@ class AlbumController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $this->model = $request->user()->profile->albums()
-            ->where('id',$id)->update($request->intersect('name','description'));
+            ->where('id',$id)->update($request->only('name','description'));
         return $this->sendResponse();
     }
 
