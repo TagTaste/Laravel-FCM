@@ -230,19 +230,19 @@ class Profile extends Model
     }
 
     //there should be a better way to write the paths.
-    public static function getImagePath($id, $filename)
+    public static function getImagePath($id, $filename = null)
     {
-        $directory = "profile/{$id}/images";
-        Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory) . "/" . $filename;
+        $relativePath = "profile/{$id}/images";
+        Storage::makeDirectory($relativePath);
+        return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 
     //there should be a better way to write the paths.
-    public static function getHeroImagePath($id, $filename)
+    public static function getHeroImagePath($id, $filename = null)
     {
-        $directory = "profile/{$id}/hero_images";
-        Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory ) . "/" . $filename;
+        $relativePath = "profile/{$id}/hero_images";
+        Storage::makeDirectory($relativePath);
+        return $filename === null ? $relativePath : storage_path("app/" . $relativePath ) . "/" . $filename;
     }
 
     public function professional()

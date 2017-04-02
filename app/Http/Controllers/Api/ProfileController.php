@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Profile;
+use App\Scopes\SendsJsonResponse;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
+    use SendsJsonResponse;
+    
     /**
      * Display a listing of the resource.
      *
@@ -19,6 +22,7 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $requests = $request->user();
+        
         return response()->json($requests);
     }
 
@@ -78,8 +82,9 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->all();
+        $data = $request->except(["_method","_token"]);
         
+        //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
         }
@@ -87,39 +92,38 @@ class ProfileController extends Controller
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
-            $request->user()->update(['name'=>$name]);
+            $request->user()->update(['name'=>trim($name)]);
         }
-        if(!empty($data['image'])){
-            $client = new Client();
-            $imageName = str_random(32) . ".jpg";
-            $response = $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $data['image']
-                ],
-                'sink'=> Profile::getImagePath($id, $imageName)
-            ]);
-            $data['image'] = $imageName;
+        
+        //save profile image
+        $path = \App\Profile::getImagePath($id);
+        $this->saveFileToData("image",$path,$request,$data);
+        
+        //save hero image
+        $path = \App\Profile::getHeroImagePath($id);
+        $this->saveFileToData("hero_image",$path,$request,$data);
+
+        //save the model
+        $this->model = $request->user()->profile->update($data);
+        
+        return $this->sendResponse();
+    }
+    
+    private function saveFileToData($key,$path,&$request,&$data)
+    {
+        if($request->hasFile($key)){
+            $data[$key] = $this->saveFile($path,$request,$key);
         }
-
-        if(!empty($data['hero_image'])){
-
-            $client = new Client();
-            $imageName = str_random(32) . ".jpg";
-            $response = $client->request("POST", env('WEBSITE_API_URL') . '/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $data['hero_image']
-                ],
-
-                'sink'=> Profile::getHeroImagePath($id, $imageName)
-            ]);
-            $data['hero_image'] = $imageName;
+    }
+    
+    private function saveFile($path,&$request,$key)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $response = $request->file($key)->storeAs($path,$imageName);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        $profile = $request->user()->profile->update($data);
-        $response = new Response($profile);
-
-        return $response->json();
+        return $imageName;
     }
 
     /**
