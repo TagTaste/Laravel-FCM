@@ -47,22 +47,28 @@ class PhotoController extends Controller
             throw new \Exception("Album not found.");
         }
         $data = $request->only(['caption','file']);
-        if(!empty($data['file'])){
-            $imageName = str_random(32) . ".jpg";
-            $sinkPath = Photo::getProfileImagePath($profileId, $albumId, $imageName);
-            $client = new Client();
-            $response = $client->request("POST", 'http://website.app/api/ramukaka/filedena',[
-                'form_params' => [
-                    'token' => 'ZZ0vWANeIksiv07HJK5Dj74y%@VjwiXW',
-                    'file' => $data['file']
-                ],
-                'sink'=> $sinkPath
-            ]);
-            $data['file'] = $imageName;
-        }
-
+        $path = Photo::getProfileImagePath($profileId, $albumId);
+        $this->saveFileToData("file",$path,$request,$data);
+        
         $this->model = $album->photos()->create($data);
         return $this->sendResponse();
+    }
+    
+    private function saveFileToData($key,$path,&$request,&$data)
+    {
+        if($request->hasFile($key)){
+            $data[$key] = $this->saveFile($path,$request,$key);
+        }
+    }
+    
+    private function saveFile($path,&$request,$key)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $response = $request->file($key)->storeAs($path,$imageName);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        return $imageName;
     }
 
     /**
