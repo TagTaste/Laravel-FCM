@@ -122,8 +122,11 @@ class PhotoController extends Controller
         if (!$album) {
             throw new \Exception("Album not found.");
         }
-
-        $this->model = $album->photos()->where('id',$id)->update($request->only(['caption','file']));
+        $data = $request->only(['caption','file']);
+        $path = Photo::getProfileImagePath($profileId, $albumId);
+        $this->saveFileToData("file",$path,$request,$data);
+        
+        $this->model = $album->photos()->where('id',$id)->update($data);
         return $this->sendResponse();
     }
 
