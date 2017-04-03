@@ -6,6 +6,7 @@ use App\Scopes\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+
 class NotificationController extends Controller
 {
     use SendsJsonResponse;
@@ -49,7 +50,7 @@ class NotificationController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $this->model =  $request->user()->notifications-where('id',$id)->first();
+        $this->model =  $request->user()->notifications->where('id',$id)->first();
         return $this->sendResponse();
     }
 
@@ -84,7 +85,7 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $this->model = $request->user()->notification()->where('id',$id)->delete();
+        $this->model = $request->user()->notifications()->where('id',$id)->delete();
         return $this->sendResponse();
     }
     
@@ -98,7 +99,7 @@ class NotificationController extends Controller
      */
     public function read(Request $request, $id)
     {
-        $this->model = $request->user()->notification->where('id',$id)
+        $this->model = $request->user()->notifications()->where('id',$id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
@@ -110,7 +111,7 @@ class NotificationController extends Controller
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function unread(Request $request, $id)
+    public function unread(Request $request)
     {
         $this->model = $request->user()->unreadNotifications;
         return $this->sendResponse();

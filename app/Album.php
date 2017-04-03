@@ -2,12 +2,14 @@
 
 namespace App;
 
+use App\Notifications\NewAlbum;
 use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Album extends Model
 {
-    use ScopeProfile;
+    use ScopeProfile, Notifiable;
 
     protected $fillable = ['name','description','profile_id'];
 
@@ -22,6 +24,12 @@ class Album extends Model
 
             $album->ideabooks()->detach();
             return;
+        });
+        
+        
+        static::created(function($album){
+            $user = User::find(1);
+            $user->notify(new NewAlbum($album));
         });
         
     }
