@@ -116,14 +116,15 @@ class CompanyController extends Controller
             }
         }
     
-        if($request->hasFile('heroImage')){
+        if($request->hasFile('hero_image')){
             $imageName = str_random(32) . ".jpg";
-            $response = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $id),$imageName);
+            $path = \App\Company::getHeroImagePath($profileId, $id);
+            $response = $request->file('hero_image')->storeAs($path,$imageName);
             if($response !== false){
                 $inputs['hero_image'] = $imageName;
             }
         }
-        
+
         $this->model = $request->user()->companies()->where('id',$id)->update($inputs);
         return $this->sendResponse();
     }
@@ -164,7 +165,7 @@ class CompanyController extends Controller
      */
     public function heroImage($profileId, $id)
     {
-        $company = DB::table('companies')->select('hero_image')->find($id);
+        $company = \DB::table('companies')->select('hero_image')->find($id);
         $path = Company::getHeroImagePath($profileId, $id,$company->hero_image);
         return response()->file($path);
     }
