@@ -30,6 +30,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            Route::get('notifications/unread','NotificationController@unread');
+            Route::post("notifications/read/{id}",'NotificationController@markRead');
+            Route::resource("notifications",'NotificationController');
+
             Route::get("designations", "DesignationController@index");
             Route::resource('profile','ProfileController');
             Route::get('dish/image/{id}','DishController@dishImages');
