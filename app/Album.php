@@ -26,12 +26,6 @@ class Album extends Model
             return;
         });
         
-        
-        static::created(function($album){
-            $user = User::find(1);
-            $user->notify(new NewAlbum($album));
-        });
-        
     }
     
     public function photos()
