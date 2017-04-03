@@ -84,6 +84,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
                     
                     Route::resource("portfolio","PortfolioController");
+                    Route::resource("jobs","JobController");
     
     
                 });

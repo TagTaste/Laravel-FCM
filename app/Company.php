@@ -185,4 +185,9 @@ class Company extends Model
         }
         return storage_path("app/" . $relativePath . "/" . $filename);
     }
+    
+    public function jobs()
+    {
+        return $this->hasMany(\App\Job::class);
+    }
 }
