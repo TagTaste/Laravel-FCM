@@ -110,4 +110,41 @@ class JobController extends Controller
         return $this->sendResponse();
         
     }
+    
+    public function apply(Request $request, $profileId, $companyId, $id, $applicantId)
+    {
+        $company = $request->user()->companies()->where('id',$companyId)->first();
+    
+        if(!$company){
+            throw new \Exception("This company does not belong to user.");
+        }
+    
+        $job = $company->jobs()->where('id',$id)->first();
+        
+        if(!$job){
+            throw new \Exception("Job not found.");
+        }
+        
+        $this->model = $job->apply($applicantId);
+        return $this->sendResponse();
+    }
+    
+    public function unapply(Request $request, $profileId, $companyId, $id, $applicantId)
+    {
+        $company = $request->user()->companies()->where('id',$companyId)->first();
+        
+        if(!$company){
+            throw new \Exception("This company does not belong to user.");
+        }
+        
+        $job = $company->jobs()->where('id',$id)->first();
+        
+        if(!$job){
+            throw new \Exception("Job not found.");
+        }
+        
+        $this->model = $job->unapply($applicantId);
+        
+        return $this->sendResponse();
+    }
 }

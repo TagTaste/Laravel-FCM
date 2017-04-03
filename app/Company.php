@@ -190,4 +190,11 @@ class Company extends Model
     {
         return $this->hasMany(\App\Job::class);
     }
+    
+    public function applications()
+    {
+        return $this->jobs()->join('applications','jobs.id','=','applications.job_id')
+            ->join('profiles','applications.profile_id','=','profiles.id')
+            ->where('jobs.company_id',$this->id)->get();
+    }
 }

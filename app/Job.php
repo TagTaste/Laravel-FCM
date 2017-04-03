@@ -12,4 +12,20 @@ class Job extends Model
     {
         return $this->belongsTo(\App\Company::class);
     }
+    
+    public function applications()
+    {
+        return $this->hasManyThrough(\App\Profile::class,\App\Application::class);
+    }
+    
+    public function apply($profileId)
+    {
+        return \DB::table('applications')->insert(['job_id'=>$this->id,'profile_id'=>$profileId]);
+    }
+    
+    public function unapply($profileId)
+    {
+        return \DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete();
+    
+    }
 }
