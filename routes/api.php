@@ -30,6 +30,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            Route::resource("jobs","JobController");
+    
             Route::get('notifications/unread','NotificationController@unread');
             Route::post("notifications/read/{id}",'NotificationController@read');
             Route::resource("notifications",'NotificationController');
@@ -87,6 +89,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("jobs/{id}/apply/{applicantId}","JobController@apply");
                     Route::post("jobs/{id}/unapply/{applicantId}","JobController@unapply");
                     Route::resource("jobs","JobController");
+                    Route::resource("products","ProductController");
     
     
                 });
