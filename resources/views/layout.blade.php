@@ -123,7 +123,6 @@
             var socket = io('{{ env('APP_URL') }}');
             socket.on("notifications", function(message){
                 toastr.success(message.message[0]);
-
             });
         });
     </script>

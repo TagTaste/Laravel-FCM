@@ -23,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\Auth\Registered' => [
             'App\Listeners\Auth\Registered'
+        ],
+        'App\Events\TestEvent' => [
+            'App\Listeners\TestListener'
         ]
     ];
 
