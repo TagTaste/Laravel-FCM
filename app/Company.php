@@ -197,4 +197,9 @@ class Company extends Model
             ->join('profiles','applications.profile_id','=','profiles.id')
             ->where('jobs.company_id',$this->id)->get();
     }
+    
+    public function products()
+    {
+        return $this->hasMany(\App\Company\Product::class);
+    }
 }
