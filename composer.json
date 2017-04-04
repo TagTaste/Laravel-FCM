@@ -34,7 +34,7 @@
         },
         {
             "type": "vcs",
-            "url":  "../api/response"
+            "url":  "https://github.com/TagTaste/api-response.git"
         }
 
     ],
