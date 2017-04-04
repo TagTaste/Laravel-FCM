@@ -15,7 +15,8 @@
         "predis/predis": "~1.0",
         "elasticsearch/elasticsearch": "~5.0",
         "tymon/jwt-auth": "0.5.*",
-        "guzzlehttp/guzzle": "^6.2"
+        "guzzlehttp/guzzle": "^6.2",
+        "tagtaste/api-response": "^1.0"
     },
 
     "require-dev": {
@@ -30,7 +31,12 @@
         {
             "type": "vcs",
             "url":  "https://github.com/cjwilburn/l5scaffold.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "../api/response"
         }
+
     ],
 
     "autoload": {
@@ -39,7 +45,8 @@
         ],
         "psr-4": {
             "App\\": "app/",
-            "Test\\": "tests/"
+            "Test\\": "tests/",
+            "App\\Http\\Api\\": "Api/"
         }
     },
     "autoload-dev": {

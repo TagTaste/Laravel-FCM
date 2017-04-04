@@ -6,7 +6,7 @@ use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
 use App\Album;
-use App\Http\Api\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 

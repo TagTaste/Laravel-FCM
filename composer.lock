@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "02e27ed6d638efbd9b5b803df8b08456",
+    "content-hash": "31e5e1d2ecb3dc3d4f644e1fb5a796d0",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2740,6 +2740,29 @@
                 "dump"
             ],
             "time": "2017-02-20T13:45:48+00:00"
+        },
+        {
+            "name": "tagtaste/api-response",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "../api/response",
+                "reference": "384b3a1faa38bac2ad0e8a38edd915a6f556d889"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tagtaste\\Api\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Amitabh Dhiwal",
+                    "email": "amitabh@tagtaste.com"
+                }
+            ],
+            "description": "Uniform way to send json responses accross tagtaste universe",
+            "time": "2017-04-04T13:58:24+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
