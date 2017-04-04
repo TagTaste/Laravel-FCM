@@ -4,10 +4,11 @@ namespace App\Profile;
 
 use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\PositionInCollection;
 
 class Book extends Model
 {
-    use ScopeProfile;
+    use ScopeProfile, PositionInCollection;
 
     protected $table = 'profile_books';
 
@@ -31,8 +32,15 @@ class Book extends Model
         }
     }
     
+    
+    /**
+     * Should have been named Count
+     *
+     * @return mixed
+     */
     public function getTotalAttribute()
     {
-        return $this->where('profile_id',$this->profile_id)->count();
+        $books = $this->select('id')->where('profile_id',$this->profile_id)->orderBy('created_at','asc')->get();
+        return $this->getCount($books);
     }
 }

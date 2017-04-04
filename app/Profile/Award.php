@@ -3,11 +3,12 @@
 namespace App\Profile;
 
 use App\Scopes\Profile;
+use App\Traits\PositionInCollection;
 use Illuminate\Database\Eloquent\Model;
 
 class Award extends Model
 {
-    use Profile;
+    use Profile, PositionInCollection;
 
     protected $fillable = ['name','description','date','profile_id'];
 
@@ -37,7 +38,11 @@ class Award extends Model
     public function getTotalAttribute()
     {
         $profileId = $this->profile->first()->id;
-        return $this->ForProfile($profileId)->count();
+        $collection = $this->select('id')->whereHas('profile',function($query) use ($profileId){
+            $query->where('profile_id',$profileId);
+        })->orderBy('created_at','asc')->get();
+        return $this->getCount($collection);
+        
     }
 
 }
