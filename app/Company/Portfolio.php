@@ -20,7 +20,9 @@ class Portfolio extends Model
     
     public function getTotalAttribute()
     {
-        return 0;
+        $collection = $this->select('id')->where('company_id',$this->company_id)->orderBy('created_at','asc')->get();
+        $count = $this->getCount($collection);
+        return $count;
         
     }
 }
