@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Profile\Project;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller

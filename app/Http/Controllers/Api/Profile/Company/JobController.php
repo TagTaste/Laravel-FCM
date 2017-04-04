@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Job;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 

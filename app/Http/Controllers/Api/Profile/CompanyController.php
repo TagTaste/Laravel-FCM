@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\Http\Controllers\Controller;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 

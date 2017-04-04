@@ -3,7 +3,7 @@
 
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller as HttpController;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 
 
 class Controller extends HttpController

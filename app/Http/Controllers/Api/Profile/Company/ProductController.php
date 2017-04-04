@@ -3,7 +3,7 @@
 use App\Http\Requests;
 use App\Company\Product;
 use App\ProfileType;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 

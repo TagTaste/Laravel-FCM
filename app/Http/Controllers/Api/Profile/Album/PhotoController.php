@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Album;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 

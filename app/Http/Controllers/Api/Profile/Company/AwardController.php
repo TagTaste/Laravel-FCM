@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\Company;
 use App\Http\Controllers\Controller;
 use App\Company\Award;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class AwardController extends Controller
