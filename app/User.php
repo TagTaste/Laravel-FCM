@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Api\Recommend;
+use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Jobs\FetchUserAvatar;
 use App\Notifications\NotifyUserAvatarUpdateComplete;
@@ -257,7 +258,8 @@ class User extends Authenticatable
         }
 
         $user->createDefaultIdeabook();
-
+        
+        event(new Registered($user));
         return $user;
     }
 

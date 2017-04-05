@@ -2,12 +2,14 @@
 
 namespace App;
 
+use App\Notifications\NewAlbum;
 use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Album extends Model
 {
-    use ScopeProfile;
+    use ScopeProfile, Notifiable;
 
     protected $fillable = ['name','description','profile_id'];
 

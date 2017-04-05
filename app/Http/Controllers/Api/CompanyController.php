@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Company;

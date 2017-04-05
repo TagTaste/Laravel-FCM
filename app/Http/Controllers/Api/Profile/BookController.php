@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Profile\Book;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class BookController extends Controller

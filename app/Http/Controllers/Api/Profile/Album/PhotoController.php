@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile\Album;
 
-use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
@@ -21,16 +20,6 @@ class PhotoController extends Controller
     {
         $this->model = Photo::where('album_id',$albumId)->paginate(10);
         return $this->sendResponse();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -79,33 +68,18 @@ class PhotoController extends Controller
      */
     public function show($profileId,$albumId,$id)
     {
-        $photo = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
+        $this->model = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
             ->whereHas('album.profile',function($query) use ($profileId) {
             $query->where("profile_id",$profileId);
         })->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
             }])->first();
 
-        if(!$photo){
+        if(!$this->model){
             throw new \Exception("Profile does not have the photo.");
         }
-
-        $response = new Response($photo);
-        return $response->json();
-
-
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        
+        return $this->sendResponse();
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "02e27ed6d638efbd9b5b803df8b08456",
+    "content-hash": "0d5f3b5b9b5c69bf59d9313cf06bc805",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2740,6 +2740,39 @@
                 "dump"
             ],
             "time": "2017-02-20T13:45:48+00:00"
+        },
+        {
+            "name": "tagtaste/api-response",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:TagTaste/api-response.git",
+                "reference": "25d283c028f9e8b6ba8fd43b7ad9508cc7822dd0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TagTaste/api-response/zipball/25d283c028f9e8b6ba8fd43b7ad9508cc7822dd0",
+                "reference": "25d283c028f9e8b6ba8fd43b7ad9508cc7822dd0",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tagtaste\\Api\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Amitabh Dhiwal",
+                    "email": "amitabh@dhiwal.com"
+                }
+            ],
+            "description": "Uniform way to send json responses accross tagtaste universe",
+            "support": {
+                "source": "https://github.com/TagTaste/api-response/tree/v1.0.2",
+                "issues": "https://github.com/TagTaste/api-response/issues"
+            },
+            "time": "2017-04-04T14:19:17+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",

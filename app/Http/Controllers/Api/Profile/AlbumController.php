@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Album;
 use App\Http\Controllers\Controller;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class AlbumController extends Controller

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\Http\Controllers\Controller;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
@@ -98,6 +98,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        \Log::info($request->all());
         $inputs = $request->intersect(['name','about','logo','hero_image','phone',
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Profile;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
