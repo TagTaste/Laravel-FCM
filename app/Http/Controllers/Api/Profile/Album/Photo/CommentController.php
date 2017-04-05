@@ -17,11 +17,13 @@ class CommentController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index($profileId, $albumId, $photoId)
 	{
-		$comments = Comment::orderBy('created_at', 'desc')->paginate(10);
-
-		return view('comments.index', compact('comments'));
+		$this->model = Comment::whereHas('photo',function($query) use ($photoId){
+		    $query->where('photo_id',$photoId);
+        })->orderBy('created_at', 'desc')->paginate(10);
+		
+		return $this->sendResponse();
 	}
 
 	/**
@@ -63,22 +65,8 @@ class CommentController extends Controller {
 	 */
 	public function show($id)
 	{
-		$comment = Comment::findOrFail($id);
-
-		return view('comments.show', compact('comment'));
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$comment = Comment::findOrFail($id);
-
-		return view('comments.edit', compact('comment'));
+		$this->model = Comment::findOrFail($id);
+        return $this->sendResponse();
 	}
 
 	/**
@@ -93,13 +81,12 @@ class CommentController extends Controller {
 		$comment = Comment::findOrFail($id);
 
 		$comment->content = $request->input("content");
-        $comment->user_id = $request->input("user_id");
-        $comment->user_id = $request->input("user_id");
-        $comment->flag = $request->input("flag");
+//        $comment->user_id = $request->input("user_id");
+//        $comment->flag = $request->input("flag");
 
-		$comment->save();
+		$this->model = $comment->save();
 
-		return redirect()->route('comments.index')->with('message', 'Item updated successfully.');
+		return $this->sendResponse();
 	}
 
 	/**
@@ -111,9 +98,9 @@ class CommentController extends Controller {
 	public function destroy($id)
 	{
 		$comment = Comment::findOrFail($id);
-		$comment->delete();
+		$this->model = $comment->delete();
 
-		return redirect()->route('comments.index')->with('message', 'Item deleted successfully.');
+		return $this->sendResponse();
 	}
 
 }

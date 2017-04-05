@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    protected $visible = ['name','content'];
+    protected $visible = ['name','content','id'];
     protected $appends = ['name'];
 
     public function photo()
@@ -22,5 +22,12 @@ class Comment extends Model
     public function getNameAttribute()
     {
         return $this->user->name;
+    }
+    
+    public function scopeForPhoto($query,$id)
+    {
+        return $query->whereHas("photo",function($query) use ($id){
+            $query->where('photo_id',$id);
+    });
     }
 }
