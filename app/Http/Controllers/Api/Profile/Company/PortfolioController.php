@@ -2,12 +2,10 @@
 
 use App\Company\Portfolio;
 use App\Http\Controllers\Api\Controller;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class PortfolioController extends Controller {
 
-    use SendsJsonResponse;
 	/**
 	 * Display a listing of the resource.
 	 *
