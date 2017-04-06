@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers\Company;
 
-use App\Http\Requests;
 use App\Http\Controllers\Api\Controller;
-
 use App\Company\Status;
 use Illuminate\Http\Request;
 
