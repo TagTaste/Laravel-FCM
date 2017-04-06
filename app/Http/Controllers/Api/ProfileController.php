@@ -2,17 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\Controller;
 use App\Profile;
-use \Tagtaste\Api\SendsJsonResponse;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
-    use SendsJsonResponse;
-    
     /**
      * Display a listing of the resource.
      *
