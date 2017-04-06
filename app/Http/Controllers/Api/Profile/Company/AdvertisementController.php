@@ -1,16 +1,12 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Http\Requests;
 use App\Http\Controllers\Api\Controller;
 
 use App\Company\Advertisement;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class AdvertisementController extends Controller {
-
-    use SendsJsonResponse;
-
+    
     private $fields = ['id','title','description','youtube_url','video'];
     /**
      * Display a listing of the resource.
