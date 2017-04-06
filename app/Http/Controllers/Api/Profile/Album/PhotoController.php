@@ -6,11 +6,9 @@ use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 
 class PhotoController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -21,7 +19,14 @@ class PhotoController extends Controller
         $this->model = Photo::where('album_id',$albumId)->paginate(10);
         return $this->sendResponse();
     }
-
+    
+    private function saveFileToData($key,$path,&$request,&$data)
+    {
+        if($request->hasFile($key)){
+            $data[$key] = $this->saveFile($path,$request,$key);
+        }
+    }
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -41,13 +46,6 @@ class PhotoController extends Controller
         
         $this->model = $album->photos()->create($data);
         return $this->sendResponse();
-    }
-    
-    private function saveFileToData($key,$path,&$request,&$data)
-    {
-        if($request->hasFile($key)){
-            $data[$key] = $this->saveFile($path,$request,$key);
-        }
     }
     
     private function saveFile($path,&$request,$key)
