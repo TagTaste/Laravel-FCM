@@ -47,7 +47,7 @@ class PhotoController extends Controller
             throw new \Exception("Album not found.");
         }
         $data = $request->only(['file','caption']);
-        \Log::info($data);
+       
         $path = Photo::getProfileImagePath($profileId, $albumId);
         $this->saveFileToData("file",$path,$request,$data);
         

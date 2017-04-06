@@ -55,7 +55,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                         Route::resource('comments','CommentController');
                         Route::resource('like','PhotoLikeController');
-                         Route::post('unlike','PhotoLikeController@unlike');
+                         
                     });
                 });
 
