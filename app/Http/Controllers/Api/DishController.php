@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\DishArticle;
-use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 
 class DishController extends Controller
