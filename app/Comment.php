@@ -3,10 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Comment extends Model
 {
-    protected $visible = ['name','content','id','profileImage'];
+    protected $visible = ['name','content','id','profileImage','created_at'];
     protected $appends = ['name','profileImage'];
 
     public function photo()
@@ -27,6 +28,12 @@ class Comment extends Model
     public function getProfileImageAttribute()
     {
         return $this->user->profile->imageUrl;
+    }
+    
+    public function getCreatedAtAttribute()
+    {
+        $createdAt =new Carbon($this->attributes['created_at']);
+        return $createdAt->diffForHumans();
     }
     
     public function scopeForPhoto($query,$id)
