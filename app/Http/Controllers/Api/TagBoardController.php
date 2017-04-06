@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Ideabook;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class TagBoardController extends Controller
 {

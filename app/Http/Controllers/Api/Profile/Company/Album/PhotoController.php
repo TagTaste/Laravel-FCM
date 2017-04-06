@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers\Api\Profile\Company\Album;
 
-use App\Http\Api\Response;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use App\Album;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 
 class PhotoController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *

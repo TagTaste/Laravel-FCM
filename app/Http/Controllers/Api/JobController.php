@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Job;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class JobController extends Controller
 {
-    use SendsJsonResponse;
 	/**
 	 * Variable to model
 	 *

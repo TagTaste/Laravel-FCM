@@ -5,7 +5,7 @@ use App\Company\Product;
 use App\ProfileType;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 class ProductController extends Controller {
 

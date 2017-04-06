@@ -16,7 +16,6 @@ class Photo extends Model
      protected $appends = ['count','hasliked'];
 
 
-
     public static function boot()
     {
         parent::boot();
