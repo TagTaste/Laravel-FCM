@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Api\Profile\Album;
 
-
-use Tagtaste\Api\Response;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use Illuminate\Http\Request;

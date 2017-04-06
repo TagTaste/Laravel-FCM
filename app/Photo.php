@@ -9,11 +9,11 @@ class Photo extends Model
 {
     protected $fillable = ['caption','file','album_id'];
 
-    protected $visible = ['id','caption','file','created_at','album','comments','count','hasliked'];
+    protected $visible = ['id','caption','file','created_at','album','comments','count','hasLiked'];
 
     protected $with = ['album','comments','like'];
 
-     protected $appends = ['count','hasliked'];
+     protected $appends = ['count','hasLiked'];
 
 
     public static function boot()
@@ -78,18 +78,10 @@ class Photo extends Model
     {
         return $this->like->count();
     }
-    public function getHaslikedAttribute($profileId)
+    
+    public function getHasLikedAttribute()
     {
-        
-        if($this->like->where('profile_id',$profileId)->first() != null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-           
+       return $this->like->count() === 1;
     }
    
 }

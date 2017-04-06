@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Api\Profile\Album\Photo;
 
 use App\PhotoLike;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Tagataste\Api\Response;
+use App\Http\Controllers\Api\Controller;
 
 class PhotoLikeController extends Controller
 {
-	use SendsJsonResponse;
 	/**
 	 * Variable to model
 	 *
@@ -56,18 +53,14 @@ class PhotoLikeController extends Controller
 	 */
 	public function store(Request $request, $profileId, $albumId, $photoId)
 	{
-		$profileId = $request->user()->profile->id;	
-		$photoLike = PhotoLike::where('profile_id',$profileId)->where('photo_id',$photoId)->first(); 
-		if($photoLike != null)
-		{
-			$this->model = PhotoLike::where('profile_id',$profileId)->where('photo_id',$photoId)->delete();
-			
-		}
-			else
-			{
-			$this->model = PhotoLike::create(['profile_id'=>$profileId,'photo_id'=>$photoId]);
-			}	
-			return $this->sendResponse();
+        $profileId = $request->user()->profile->id;
+        $photoLike = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->first();
+        if($photoLike != null) {
+            $this->model = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->delete();
+        } else {
+            $this->model = PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
+        }
+        return $this->sendResponse();
 	}
 
 	
