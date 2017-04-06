@@ -18,6 +18,7 @@ class PhotoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index($profileId,$albumId)
     {
         $this->model = Photo::where('album_id',$albumId)->paginate(10);
@@ -69,13 +70,17 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$albumId,$id)
+    public function show(Request $request,$profileId,$albumId,$id)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $this->model = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
             ->whereHas('album.profile',function($query) use ($profileId) {
             $query->where("profile_id",$profileId);
         })->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
+            }])
+        ->with(['like'=>function($query) use ($loggedInProfileId){
+                $query->where('profile_id',$loggedInProfileId);
             }])->first();
 
         if(!$this->model){
