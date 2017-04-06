@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Http\Controllers\Api\Controller;
 use App\Company\Book;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
-    use SendsJsonResponse;
 
     private $fields = ['title','description','publisher','release_date','url','isbn'];
     /**
