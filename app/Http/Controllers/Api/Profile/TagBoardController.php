@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Api\Response;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use App\Ideabook;
 use Illuminate\Http\Request;
 

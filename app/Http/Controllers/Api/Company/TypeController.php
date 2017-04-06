@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Company;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 use App\Company\Type;
 use \Tagtaste\Api\SendsJsonResponse;

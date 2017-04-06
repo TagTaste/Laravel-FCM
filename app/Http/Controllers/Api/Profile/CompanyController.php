@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;

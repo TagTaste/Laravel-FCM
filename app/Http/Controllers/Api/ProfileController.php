@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Api\Response;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use App\Profile;
 use \Tagtaste\Api\SendsJsonResponse;
 use GuzzleHttp\Client;

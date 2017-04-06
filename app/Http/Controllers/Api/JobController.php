@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Job;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 class JobController extends Controller
 {

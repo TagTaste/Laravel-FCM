@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Album;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;

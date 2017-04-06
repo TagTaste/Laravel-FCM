@@ -6,7 +6,7 @@ use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\SocialAccount;
 use App\User;
 use App\Role;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
