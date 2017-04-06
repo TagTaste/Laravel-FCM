@@ -11,7 +11,7 @@ class Photo extends Model
 
     protected $visible = ['id','caption','file','created_at','album','comments'];
 
-    protected $with = ['album','comments'];
+    protected $with = ['album'];
 
     public static function boot()
     {
