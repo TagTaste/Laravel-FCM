@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Album;
 
-use App\Http\Api\Response;
+use Tagtaste\Api\Response;
 use App\Http\Controllers\Controller;
 use App\Photo;
 use \Tagtaste\Api\SendsJsonResponse;
@@ -46,7 +46,8 @@ class PhotoController extends Controller
         if (!$album) {
             throw new \Exception("Album not found.");
         }
-        $data = $request->only(['caption','file']);
+        $data = $request->only(['file','caption']);
+        \Log::info($data);
         $path = Photo::getProfileImagePath($profileId, $albumId);
         $this->saveFileToData("file",$path,$request,$data);
         

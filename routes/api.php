@@ -31,7 +31,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
             Route::resource("jobs","JobController");
-    
+            
             Route::get('notifications/unread','NotificationController@unread');
             Route::post("notifications/read/{id}",'NotificationController@read');
             Route::resource("notifications",'NotificationController');
@@ -54,6 +54,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource('photos','PhotoController');
                     Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                         Route::resource('comments','CommentController');
+                        Route::resource('like','PhotoLikeController');
+                         Route::post('unlike','PhotoLikeController@unlike');
                     });
                 });
 
@@ -82,6 +84,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource('photos','PhotoController');
                         Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                             Route::resource('comments','CommentController');
+
                         });
                     });
                     

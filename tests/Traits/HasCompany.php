@@ -1,4 +1,5 @@
-<?php namespace Test\Traits;
+<?php 
+namespace Test\Traits;
 
 
 trait HasCompany
