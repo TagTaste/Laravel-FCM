@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    protected $visible = ['name','content','id'];
-    protected $appends = ['name'];
+    protected $visible = ['name','content','id','profileImage'];
+    protected $appends = ['name','profileImage'];
 
     public function photo()
     {
@@ -22,6 +22,11 @@ class Comment extends Model
     public function getNameAttribute()
     {
         return $this->user->name;
+    }
+    
+    public function getProfileImageAttribute()
+    {
+        return $this->user->profile->imageUrl;
     }
     
     public function scopeForPhoto($query,$id)
