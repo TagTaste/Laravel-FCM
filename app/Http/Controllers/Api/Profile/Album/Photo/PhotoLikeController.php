@@ -35,10 +35,9 @@ class PhotoLikeController extends Controller
 	 */
 	public function index(Request $request,$profileId,$albumId,$photoId)
 	{
-		$photoLike = PhotoLike::where('photo_id',$photoId)->get();
+		$photoLike = PhotoLike::where('photo_id',$photoId)->count();
 		
-		$count =  count($photoLike);
-		return $like_count;
+		return $photoLike;
 		
 	}
 
@@ -62,11 +61,13 @@ class PhotoLikeController extends Controller
 		if($photoLike != null)
 		{
 			$this->model = PhotoLike::where('profile_id',$profileId)->where('photo_id',$photoId)->delete();
-			return $this->sendResponse();
+			
 		}
-	else
-		{$this->model = PhotoLike::create(['profile_id'=>$profileId,'photo_id'=>$photoId]);
-		return $this->sendResponse();}	
+			else
+			{
+			$this->model = PhotoLike::create(['profile_id'=>$profileId,'photo_id'=>$photoId]);
+			}	
+			return $this->sendResponse();
 	}
 
 	
