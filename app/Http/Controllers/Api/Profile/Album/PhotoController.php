@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Profile\Album;
 
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
