@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Company;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 
 
 class CompanyController extends Controller
@@ -37,7 +36,10 @@ class CompanyController extends Controller
             'milestones',
             'speciality'
         ]);
-        
+        if(empty($inputs)){
+            $this->errors[] = ["Empty request received."];
+            return $this->sendResponse();
+        }
         $imageName = null;
         $heroImageName = null;
         if($request->hasFile('logo')){
