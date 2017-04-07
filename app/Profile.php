@@ -83,10 +83,11 @@ class Profile extends Model
                           'projects',
                           'professional',
                           'created_at',
-                          'pincode'
+                          'pincode',
+                            'isTagged'
                         ];
 
-    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
+    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
 
     public function user()
     {
@@ -250,6 +251,20 @@ class Profile extends Model
     public function professional()
     {
         return $this->hasOne('\App\Professional');
+    }
+    
+    /**
+     * Just the pivot relationship. Ideabook of a user is defined in \App\User
+     */
+    
+    public function ideabooks()
+    {
+        return $this->belongsToMany('\App\Ideabook','ideabook_profiles','profile_id','ideabook_id');
+    }
+    
+    public function getIsTaggedAttribute()
+    {
+        return $this->ideabooks->count() === 1;
     }
 
 }
