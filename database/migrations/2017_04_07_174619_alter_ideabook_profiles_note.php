@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterIdeabookProfilesKeywords extends Migration
+class AlterIdeabookProfilesNote extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AlterIdeabookProfilesKeywords extends Migration
     public function up()
     {
         Schema::table('ideabook_profiles',function(Blueprint $table){
-            $table->string('keywords')->nullable();
+            $table->string('note')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterIdeabookProfilesKeywords extends Migration
     public function down()
     {
         Schema::table('ideabook_profiles',function(Blueprint $table){
-            $table->dropColumn('keywords');
+            $table->dropColumn('note');
         });
     }
 }
