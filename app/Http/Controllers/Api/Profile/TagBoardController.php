@@ -29,7 +29,7 @@ class TagBoardController extends Controller
     public function store(Request $request)
     {
         $params = ['privacy_id'=>1];
-        $params = array_merge($params,$request->only(['name','description']));
+        $params = array_merge($params,$request->only(['name','description','keywords']));
         $this->model = $request->user()->ideabooks()->create($params);
         return $this->sendResponse();
 
@@ -63,7 +63,7 @@ class TagBoardController extends Controller
     {
         $this->model = $request->user()->ideabooks()
                 ->where('id',$id)
-                ->update($request->intersect(['name','description']));
+                ->update($request->intersect(['name','description','keywords']));
         return $this->sendResponse();
     }
 

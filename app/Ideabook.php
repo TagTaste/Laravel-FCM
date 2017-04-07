@@ -9,11 +9,11 @@ class Ideabook extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name','description','privacy_id','user_id'];
+    protected $fillable = ['name','description','privacy_id','user_id','keywords'];
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['id','name','description','profiles'];
+    protected $visible = ['id','name','description','profiles','keywords'];
     
     public static function boot()
     {
