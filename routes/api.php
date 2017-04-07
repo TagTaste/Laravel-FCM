@@ -18,6 +18,7 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
     Route::resource('statuses','StatusController');
     Route::resource('types','TypeController');
 });
+Route::get('privacy','Api\PrivacyController@index');
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
