@@ -44,7 +44,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
-
+                Route::post('tag/{tagboardId}',['as'=>'tag','uses'=>'\App\Http\Controllers\Api\TagController@profile']);
                 Route::resource('albums','AlbumController');
                 //namespace albums
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
@@ -55,7 +55,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                         Route::resource('comments','CommentController');
                         Route::resource('like','PhotoLikeController');
-                         
+                        Route::post('tag/{tagboardId}',['as'=>'tag','uses'=>'\App\Http\Controllers\Api\TagController@photo']);
+                        
                     });
                 });
 

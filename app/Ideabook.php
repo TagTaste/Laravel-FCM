@@ -13,8 +13,8 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['id','name','description'];
-
+    protected $visible = ['id','name','description','profiles'];
+    
     public static function boot()
     {
         parent::boot();
@@ -35,6 +35,11 @@ class Ideabook extends Model
     {
         return $this->belongsTo('\App\Privacy');
     }
+    
+    public function profiles()
+    {
+        return $this->belongsToMany('\App\Profile','ideabook_profiles','ideabook_id','profile_id');
+    }
 
     public function articles()
     {
@@ -50,12 +55,44 @@ class Ideabook extends Model
     {
         return $this->belongsToMany('\App\Photo','ideabook_photos','ideabook_id','photo_id');
     }
-
-    public function scopeProfile($query,$profileId)
+    
+    /**
+     * Checks whether the current tagboard belongs to $profileId
+     *
+     * @param $query
+     * @param $profileId
+     * @return mixed
+     */
+    public function scopeProfile($query, $profileId)
     {
        return $query->whereHas('user.profile',function($query) use ($profileId){
            return $query->where('profiles.id',$profileId);
        });
     }
-
+    
+    /**
+     * Checks whether the current tag has already been attached
+     *
+     * @param $query
+     * @param $profileId
+     * @return mixed
+     */
+    
+    public function scopeAlreadyTagged($query, $relationship, $modelId, $columnName = null)
+    {
+        $columnName = $columnName !== null ?: str_singular($relationship) . "_id";
+        return $query->wherehas($relationship,function($query) use ($columnName, $modelId){
+            $query->where($columnName,$modelId);
+        });
+    }
+    
+    public function tag($relationship,$modelId)
+    {
+        return $this->{$relationship}()->attach($modelId);
+    }
+    
+    public function untag($relationship,$modelId)
+    {
+        return $this->{$relationship}()->detach($modelId);
+    }
 }
