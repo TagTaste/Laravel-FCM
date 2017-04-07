@@ -42,7 +42,7 @@ class Profile extends Model
                         'certifications',
                         'tvshows',
                         'books',
-                        'albums',
+                        //'albums',
                         'projects',
                         'professional'
                       ];
@@ -106,7 +106,6 @@ class Profile extends Model
         if(!empty($value)){
             return date("d-m-Y",strtotime($value));
         }
-        
     }
 
     public function experience()
