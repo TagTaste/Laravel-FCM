@@ -13,7 +13,7 @@ class AlterIdeabookAddKeywords extends Migration
      */
     public function up()
     {
-        Schema::table('ideabook_profiles',function(Blueprint $table){
+        Schema::table('ideabooks',function(Blueprint $table){
             $table->text('keywords')->nullable();
         });
     }
@@ -25,7 +25,7 @@ class AlterIdeabookAddKeywords extends Migration
      */
     public function down()
     {
-        Schema::table('ideabook_profiles',function(Blueprint $table){
+        Schema::table('ideabooks',function(Blueprint $table){
             $table->dropColumn('keywords');
         });
     }

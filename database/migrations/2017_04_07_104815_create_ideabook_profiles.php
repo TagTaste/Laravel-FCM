@@ -29,6 +29,6 @@ class CreateIdeabookProfiles extends Migration
      */
     public function down()
     {
-        Schema::dropTable('ideabook_profiles');
+        Schema::drop('ideabook_profiles');
     }
 }
