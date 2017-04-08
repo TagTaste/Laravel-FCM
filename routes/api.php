@@ -85,7 +85,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         
                         Route::resource('photos','PhotoController');
                         Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
-                            Route::resource('comments','CommentController');
+                            //Route::resource('comments','CommentController');
 
                         });
                     });
@@ -112,7 +112,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //Route::resource('company','CompanyController');
 
-            Route::resource('tagboard','TagBoardController');
+            //Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
 //            Route::resource("books","BookController");

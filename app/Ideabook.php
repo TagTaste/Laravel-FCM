@@ -40,7 +40,7 @@ class Ideabook extends Model
     
     public function profiles()
     {
-        return $this->belongsToMany('\App\Profile','ideabook_profiles','ideabook_id','profile_id')
+        return $this->belongsToMany(\App\Ideabook\Profile::class,'ideabook_profiles','ideabook_id','profile_id')
             ->withPivot('note');
     }
 

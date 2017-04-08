@@ -89,9 +89,15 @@ class Profile extends Model
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
 
+    
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+    
+    public function getNameAttribute()
+    {
+        return $this->user->name;
     }
 
     public function setDobAttribute($value)
