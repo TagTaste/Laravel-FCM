@@ -13,7 +13,7 @@ class Photo extends Model
 
     protected $with = ['album','comments','like'];
 
-     protected $appends = ['count','hasLiked'];
+    protected $appends = ['count','hasLiked'];
 
 
     public static function boot()

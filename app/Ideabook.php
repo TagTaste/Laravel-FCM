@@ -13,9 +13,9 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
-    //protected $visible = ['id','name','description','profiles','keywords','privacy','profiles.pivot'];
+    protected $visible = ['id','name','description','profiles','keywords','privacy'];
     
-    protected $with = ['privacy','profiles'];
+    protected $with = ['privacy','profiles','photos'];
     
     public static function boot()
     {
@@ -58,7 +58,7 @@ class Ideabook extends Model
 
     public function photos()
     {
-        return $this->belongsToMany('\App\Photo','ideabook_photos','ideabook_id','photo_id')
+        return $this->belongsToMany(\App\Ideabook\Photo::class,'ideabook_photos','ideabook_id','photo_id')
             ->withPivot('note');
     }
     
