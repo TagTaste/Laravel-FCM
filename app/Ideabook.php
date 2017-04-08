@@ -13,9 +13,9 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['id','name','description','profiles','keywords','privacy'];
+    //protected $visible = ['id','name','description','profiles','keywords','privacy','profiles.pivot'];
     
-    protected $with = ['privacy'];
+    protected $with = ['privacy','profiles'];
     
     public static function boot()
     {
@@ -40,22 +40,26 @@ class Ideabook extends Model
     
     public function profiles()
     {
-        return $this->belongsToMany('\App\Profile','ideabook_profiles','ideabook_id','profile_id');
+        return $this->belongsToMany('\App\Profile','ideabook_profiles','ideabook_id','profile_id')
+            ->withPivot('note');
     }
 
     public function articles()
     {
-        return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id');
+        return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id')
+            ->withPivot('note');
     }
 
     public function albums()
     {
-        return $this->belongsToMany('\App\Album','ideabook_albums','ideabook_id','album_id');
+        return $this->belongsToMany('\App\Album','ideabook_albums','ideabook_id','album_id')
+            ->withPivot('note');
     }
 
     public function photos()
     {
-        return $this->belongsToMany('\App\Photo','ideabook_photos','ideabook_id','photo_id');
+        return $this->belongsToMany('\App\Photo','ideabook_photos','ideabook_id','photo_id')
+            ->withPivot('note');
     }
     
     /**
@@ -88,9 +92,11 @@ class Ideabook extends Model
         });
     }
     
-    public function tag($relationship,$modelId)
+    public function tag($relationship,$modelId, $note = null)
     {
-        return $this->{$relationship}()->attach($modelId);
+        $model = $this->{$relationship}()->attach($modelId);
+         $this->{$relationship}()->updateExistingPivot($modelId,['note'=>$note]);
+        return $model;
     }
     
     public function untag($relationship,$modelId)

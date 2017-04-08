@@ -55,8 +55,8 @@ class TagController extends Controller
         }
         
         $alreadyTagged = $tagboard->where('id',$tagboardId)->alreadyTagged($relationship,$relationshipId)->first();
-        
-        $response = $alreadyTagged === null ? $tagboard->tag($relationship,$relationshipId) : $tagboard->untag($relationship,$relationshipId);
+        $note = $request->input('note');
+        $response = $alreadyTagged === null ? $tagboard->tag($relationship,$relationshipId,$note) : $tagboard->untag($relationship,$relationshipId);
         
         $this->model['tagged'] = $response === 1 ? false : true;
         
