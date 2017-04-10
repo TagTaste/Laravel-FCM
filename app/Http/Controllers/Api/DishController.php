@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\DishArticle;
+use App\Dish;
 use Illuminate\Http\Request;
 
 class DishController extends Controller
@@ -14,28 +14,8 @@ class DishController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+        $this->model = Dish::orderBy('created_at')->get();
+        return $this->sendResponse();
     }
 
     /**
@@ -46,47 +26,14 @@ class DishController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $this->model = Dish::where('id',$id)->first();
+        return $this->sendResponse();
     }
 
     public function dishImages($id)
     {
-        $dish = DishArticle::select('image')->findOrFail($id);
-        $path = storage_path("app/" . DishArticle::$fileInputs['image'] . "/" . $dish->image);
+        $dish = Dish::select('image')->findOrFail($id);
+        $path = storage_path("app/" . Dish::$fileInputs['image'] . "/" . $dish->image);
         return response()->file($path);
     }
 }
