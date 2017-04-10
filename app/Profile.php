@@ -195,7 +195,19 @@ class Profile extends Model
             ->join('users','users.id','=','followers.follows_id')
             ->where('followers.follower_id','=',$this->id)->get();
 
-        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+            $count = $profiles->count();
+            if($count > 1000000)
+            {
+                 $count = $count/1000000;
+                $count = $count."M";
+            }
+            elseif($count > 1000)
+            {
+                $count = $count/1000;
+                $count = $count."K";
+            }
+
+        return ['count'=> $count, 'profiles' => $profiles];
 
     }
 
@@ -208,7 +220,20 @@ class Profile extends Model
             ->join('users','users.id','=','followers.follower_id')
             ->where('followers.follows_id','=',$this->id)->get();
 
-        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+             $count = $profiles->count();
+            if($count > 1000000)
+            {
+                 $count = round($count/1000000, 1);
+                $count = $count."M";
+            }
+            elseif($count > 1000)
+            {
+               
+                $count = round($count/1000, 1);
+                $count = $count."K";
+            }
+
+        return ['count'=> $count, 'profiles' => $profiles];
 
     }
 
