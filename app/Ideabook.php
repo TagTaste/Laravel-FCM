@@ -15,7 +15,7 @@ class Ideabook extends Model
 
     //protected $visible = ['id','name','description','profiles','keywords','privacy','photos'];
     
-    protected $with = ['privacy','profiles','photos'];
+    protected $with = ['privacy','profiles','photos', 'products'];
     
     public static function boot()
     {
@@ -43,18 +43,26 @@ class Ideabook extends Model
         return $this->belongsToMany(\App\Ideabook\Profile::class,'ideabook_profiles','ideabook_id','profile_id')
             ->withPivot('note');
     }
-
-    public function articles()
+    
+    public function products()
     {
-        return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id')
+        return $this->belongsToMany(\App\Ideabook\Product::class,'ideabook_products','ideabook_id','product_id')
             ->withPivot('note');
     }
+    
+//Not used yet.
+//    public function articles()
+//    {
+//        return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id')
+//            ->withPivot('note');
+//    }
 
-    public function albums()
-    {
-        return $this->belongsToMany('\App\Album','ideabook_albums','ideabook_id','album_id')
-            ->withPivot('note');
-    }
+// Not used anymore
+//    public function albums()
+//    {
+//        return $this->belongsToMany('\App\Album','ideabook_albums','ideabook_id','album_id')
+//            ->withPivot('note');
+//    }
 
     public function photos()
     {
