@@ -9,7 +9,7 @@ class Dish extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['showcase','description','hasRecipe','article_id', 'ingredients', 'category', 'serving', 'calorie', 'time', 'image'];
+    protected $fillable = ['showcase','description','hasRecipe', 'ingredients', 'category', 'serving', 'calorie', 'time', 'image'];
 
     protected $dates = ['deleted_at'];
 
@@ -30,7 +30,7 @@ class Dish extends Model
         });
     }
 
-    public function chef() {
+    public function profile() {
     	return $this->belongsTo('\App\Profile','chef_id');
     }
 
