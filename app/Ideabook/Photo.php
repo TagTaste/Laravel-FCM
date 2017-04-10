@@ -6,7 +6,7 @@ use App\Photo as BasePhoto;
 
 class Photo extends BasePhoto
 {
-    protected $visible = ['id','caption','file','hasLiked','pivot','likeCount'];
+    protected $visible = ['id','caption','hasLiked','pivot','likeCount','photoUrl'];
     
-    protected $appends = ['likeCount'];
+    protected $appends = ['likeCount','photoUrl'];
 }
