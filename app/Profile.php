@@ -198,13 +198,11 @@ class Profile extends Model
             $count = $profiles->count();
             if($count > 1000000)
             {
-                 $count = round($count/1000000, 1);
-                $count = $count."M";
+                 $count = round($count/1000000, 1) . "m";
             }
             elseif($count > 1000)
             {
-                $count = round($count/1000, 1);
-                $count = $count."K";
+                $count = round($count/1000, 1) . "k";
             }
 
         return ['count'=> $count, 'profiles' => $profiles];
