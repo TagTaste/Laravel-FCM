@@ -95,8 +95,13 @@ class Ideabook extends Model
     public function tag($relationship,$modelId, $note = null)
     {
         $model = $this->{$relationship}()->attach($modelId);
-         $this->{$relationship}()->updateExistingPivot($modelId,['note'=>$note]);
+        $this->updateNote($relationship,$modelId,$note);
         return $model;
+    }
+    
+    public function updateNote(&$relationship, &$modelId, &$note = null)
+    {
+        return $this->{$relationship}()->updateExistingPivot($modelId,['note'=>$note]);
     }
     
     public function untag($relationship,$modelId)
