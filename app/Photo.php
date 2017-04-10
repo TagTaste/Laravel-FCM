@@ -11,7 +11,7 @@ class Photo extends Model
 
     protected $visible = ['id','caption','file','created_at','album','comments','count','hasLiked'];
 
-    protected $with = ['album','comments','like'];
+    protected $with = ['album','like'];
 
     protected $appends = ['count','hasLiked'];
 
