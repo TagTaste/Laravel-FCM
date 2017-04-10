@@ -58,17 +58,42 @@ class TagController extends Controller
         $alreadyTagged = $tagboard->where('id',$tagboardId)->alreadyTagged($relationship,$relationshipId)->first();
         $note = $request->input('note');
         
-        if($alreadyTagged !== null && $note !== null){
-            $this->model = $tagboard->updateNote($relationship,$relationshipId,$note);
-            return $this->sendResponse();
-        }
-        
         $response = $alreadyTagged === null ? $tagboard->tag($relationship,$relationshipId,$note) : $tagboard->untag($relationship,$relationshipId);
         
         $this->model['tagged'] = $response === 1 ? false : true;
         
         return $this->sendResponse();
         
+    }
+    
+    public function updateNote(Request $request, $tagboardId, $relationship, $relationshipId)
+    {
+        $tagboard = $this->getTagboard($request,$tagboardId);
+    
+        if(!$tagboard){
+            $this->errors[] = ["Tagboard doesn't exist or the user doesn't belong to the tagboard."];
+            return $this->sendResponse();
+        }
+    
+        //check if relationship has been defined in Tagboard
+        if(!method_exists($tagboard,$relationship)){
+            $this->errors[] = [$relationship . " isn't taggable."];
+            return $this->sendResponse();
+        }
+    
+        $model = $this->getRelationshipModel($relationship);
+    
+        //check if model exists
+    
+        $exists = $model::find($relationshipId);
+    
+        if($exists === null){
+            $this->errors[] = ["Model doesn't exist."];
+            return $this->sendResponse();
+        }
+        $note = $request->input('note');
+        $this->model = $tagboard->updateNote($relationship,$relationshipId,$note);
+        return $this->sendResponse();
     }
     
     /**
