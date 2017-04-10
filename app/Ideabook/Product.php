@@ -6,5 +6,5 @@ use App\Company\Product as BaseProduct;
 
 class Product extends BaseProduct
 {
-    protected $visible = ['name','pivot'];
+    protected $visible = ['name','pivot','imageUrl'];
 }

@@ -16,9 +16,12 @@ class Product extends Model
 
 	public static $modes = ['Frozen','Fresh'];
 
-    protected $fillable = ['name','price','image','moq'];
+    protected $fillable = ['name','price','image','moq','imageUrl'];
 
     protected $dates = ['deleted_at'];
+    
+    protected $appends = ['imageUrl'];
+    
     
     public function company()
     {
@@ -33,5 +36,10 @@ class Product extends Model
     public function getType()
     {
         return self::$types[$this->type];
+    }
+    
+    public function getImageUrlAttribute()
+    {
+        return "/product/image/" . $this->image;
     }
 }
