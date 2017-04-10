@@ -15,8 +15,9 @@ class TagController extends Controller
      * @var array
      */
     private $relationshipModels = [
-        'profiles' => '\App\Profile',
-        'photos'=> '\App\Photo'
+        'profiles' => '\App\Ideabook\Profile',
+        'photos'=> '\App\Ideabook\Photo',
+        'products' => '\App\Ideabook\Profile'
     ];
     
     /**
@@ -56,6 +57,12 @@ class TagController extends Controller
         
         $alreadyTagged = $tagboard->where('id',$tagboardId)->alreadyTagged($relationship,$relationshipId)->first();
         $note = $request->input('note');
+        
+        if($alreadyTagged !== null && $note !== null){
+            $this->model = $tagboard->updateNote($relationship,$relationshipId,$note);
+            return $this->sendResponse();
+        }
+        
         $response = $alreadyTagged === null ? $tagboard->tag($relationship,$relationshipId,$note) : $tagboard->untag($relationship,$relationshipId);
         
         $this->model['tagged'] = $response === 1 ? false : true;
@@ -72,7 +79,10 @@ class TagController extends Controller
      */
     private function getRelationshipModel($relationshipName)
     {
-        return !array_key_exists($relationshipName,$this->relationshipModels) ?: $this->relationshipModels[$relationshipName];
+        if(!array_key_exists($relationshipName,$this->relationshipModels)){
+            throw new \Exception("relationshipModel for '$relationshipName' not defined in Ideabook.");
+        }
+        return $this->relationshipModels[$relationshipName];
     }
     
     

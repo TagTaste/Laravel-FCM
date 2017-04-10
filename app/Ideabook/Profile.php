@@ -23,6 +23,8 @@ class Profile extends BaseProfile
         'followingProfiles',
         'followerProfiles',
         'name',
+        'pivot'
+        
     ];
     
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','name'];

@@ -9,11 +9,11 @@ class Photo extends Model
 {
     protected $fillable = ['caption','file','album_id'];
 
-    protected $visible = ['id','caption','file','created_at','album','comments','count','hasLiked'];
+    protected $visible = ['id','caption','photoUrl','created_at','album','comments','likeCount','hasLiked'];
 
-    protected $with = ['album','comments','like'];
+    protected $with = ['album','like'];
 
-    protected $appends = ['count','hasLiked'];
+    protected $appends = ['likeCount','hasLiked','photoUrl'];
 
 
     public static function boot()
@@ -29,7 +29,7 @@ class Photo extends Model
 
     public function album()
     {
-        return $this->belongsTo('App\Album');
+        return $this->belongsTo(\App\Album::class);
     }
 
 
@@ -74,7 +74,7 @@ class Photo extends Model
         return storage_path("app/".$relativePath) . "/" . $filename;
     }
 
-    public function getCountAttribute()
+    public function getLikeCountAttribute()
     {
         return $this->like->count();
     }
@@ -82,6 +82,11 @@ class Photo extends Model
     public function getHasLikedAttribute()
     {
        return $this->like->count() === 1;
+    }
+    
+    public function getPhotoUrlAttribute()
+    {
+        return "/profiles/" . $this->album->profile->first()->id . "/albums/" . $this->album->id . "/photos/" . $this->id . ".jpg";
     }
    
 }
