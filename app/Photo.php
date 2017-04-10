@@ -76,7 +76,19 @@ class Photo extends Model
 
     public function getCountAttribute()
     {
-        return $this->like->count();
+        if($this->like->count() >1000000)
+        {
+            $count = round($this->like->count()/1000000, 1);
+
+        }
+        elseif ($this->like->count()>1000) {
+            $count = round($this->like->count()/1000, 1);
+        }
+        else
+        {
+            $count = $this->like->count();
+        }
+        return $count;
     }
     
     public function getHasLikedAttribute()
