@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DishArticle extends Model
+class Dish extends Model
 {
     use SoftDeletes;
 
@@ -30,16 +30,12 @@ class DishArticle extends Model
         });
     }
 
-    public function article() {
-    	return $this->belongsTo('\App\Article','article_id');
-    }
-
     public function chef() {
     	return $this->belongsTo('\App\Profile','chef_id');
     }
 
     public function recipe() {
-    	return $this->hasMany('\App\RecipeArticle','dish_id');
+    	return $this->hasMany(\App\Recipe::class,'dish_id');
     }
 
     public static function getAsArray($userId,$profileTypeId) {

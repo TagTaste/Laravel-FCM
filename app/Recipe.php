@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
-class RecipeArticle extends Model
+class Recipe extends Model
 {
     use SoftDeletes;
 
@@ -19,7 +19,7 @@ class RecipeArticle extends Model
     }
 
     public function dish() {
-    	return $this->belongsTo('\App\DishArticle','dish_id');
+    	return $this->belongsTo(\App\Dish::class,'dish_id');
     }
 
     public function template(){
@@ -27,6 +27,6 @@ class RecipeArticle extends Model
     }
 
     public function parent() {
-    	return $this->belongsTo('\App\RecipeArticle','parent_id');
+    	return $this->belongsTo(self::class,'parent_id');
     }
 }
