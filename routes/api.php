@@ -33,6 +33,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}',['uses'=>'ProfileController@show']);
     
             Route::resource("jobs","JobController");
+            Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("Collaborate","CollaborateController");
             
             Route::get('recipes/image/{id}','RecipeController@recipeImages');

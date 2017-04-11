@@ -56,14 +56,18 @@ class CollaborateController extends Controller
     
         if($request->has('company_id')){
             //company wants to apply
+            $companyId = $request->input('company_id');
+            $company =  $request->user()->companies()->find($companyId);
+            if(!$company){
+                throw new \Exception("Company does not belong to the user.");
+            }
             $this->model = $collaborate->companies()->attach($companyId);
-    
         }
         
         if($request->has('profile_id')){
             //individual wants to apply
+            $profileId = $request->user()->profile->id;
             $this->model = $collaborate->profiles()->attach($profileId);
-    
         }
         return $this->sendResponse();
     }
