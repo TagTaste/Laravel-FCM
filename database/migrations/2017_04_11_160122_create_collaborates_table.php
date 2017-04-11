@@ -21,8 +21,8 @@ class CreateCollaboratesTable extends Migration {
             $table->text('deliverables')->nullable();
             $table->text('who_can_help')->nullable();
             $table->datetime('expires_on')->nullable();
-            $table->integer('profile_id')->unsigned();
-            $table->integer('company_id')->unsigned();
+            $table->integer('profile_id')->unsigned()->nullable();
+            $table->integer('company_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('profile_id')->references('id')->on('profiles');
