@@ -48,4 +48,23 @@ class CollaborateController extends Controller
 		return $this->sendResponse();
 		
 	}
+    
+    public function apply(Request $request, $id)
+    {
+        
+        $collaborate = $this->model->where('id',$id)->first();
+    
+        if($request->has('company_id')){
+            //company wants to apply
+            $this->model = $collaborate->companies()->attach($companyId);
+    
+        }
+        
+        if($request->has('profile_id')){
+            //individual wants to apply
+            $this->model = $collaborate->profiles()->attach($profileId);
+    
+        }
+        return $this->sendResponse();
+    }
 }
