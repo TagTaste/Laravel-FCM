@@ -17,7 +17,8 @@ class TagController extends Controller
     private $relationshipModels = [
         'profiles' => '\App\Ideabook\Profile',
         'photos'=> '\App\Ideabook\Photo',
-        'products' => '\App\Ideabook\Profile'
+        'products' => '\App\Ideabook\Profile',
+        'recipes' => '\App\Ideabook\Recipe'
     ];
     
     /**
@@ -105,7 +106,7 @@ class TagController extends Controller
     private function getRelationshipModel($relationshipName)
     {
         if(!array_key_exists($relationshipName,$this->relationshipModels)){
-            throw new \Exception("relationshipModel for '$relationshipName' not defined in Ideabook.");
+            throw new \Exception("relationshipModel for '$relationshipName' not defined in TagController.");
         }
         return $this->relationshipModels[$relationshipName];
     }

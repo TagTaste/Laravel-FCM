@@ -6,7 +6,7 @@ use \App\Recipe as BaseRecipe;
 
 class Recipe extends BaseRecipe
 {
-    protected $visible = ['description','imageUrl'];
+    protected $visible = ['name','description','imageUrl'];
     
     protected $fillable = ['note'];
     
