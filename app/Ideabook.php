@@ -22,12 +22,6 @@ class Ideabook extends Model
     public static function boot()
     {
         parent::boot();
-
-        self::deleting(function($ideabook){
-            if($ideabook->articles->count()){
-                $ideabook->articles->delete();
-            }
-        });
     }
 
     public function user()
