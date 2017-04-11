@@ -34,7 +34,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
             Route::resource("jobs","JobController");
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
-            Route::resource("Collaborate","CollaborateController");
+            Route::resource("collaborate","CollaborateController");
             
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
             Route::resource("recipes","RecipeController");
@@ -55,7 +55,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 Route::resource('albums','AlbumController');
                 Route::resource("recipes","RecipeController");
-                Route::resource("Collaborate","CollaborateController");
+                Route::resource("collaborate","CollaborateController");
     
                 //namespace albums
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
@@ -83,7 +83,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("books","BookController");
                     Route::resource("patents","PatentController");
                     Route::resource("awards","AwardController");
-                    Route::resource("Collaborate","CollaborateController");
+                    Route::resource("collaborate","CollaborateController");
     
                     Route::resource("albums","AlbumController");
     
