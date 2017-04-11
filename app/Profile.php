@@ -138,6 +138,11 @@ class Profile extends Model
     {
         return $this->hasMany('App\Profile\Book');
     }
+    
+    public function recipes()
+    {
+        return $this->hasMany(\App\Recipe::class);
+    }
 
     //specific to API
     public function getImageUrlAttribute()
