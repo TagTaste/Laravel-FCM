@@ -8,4 +8,6 @@ class Recipe extends BaseRecipe
 {
     protected $visible = ['description','imageUrl'];
     
+    protected $fillable = ['note'];
+    
 }

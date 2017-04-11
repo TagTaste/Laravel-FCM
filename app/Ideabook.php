@@ -15,7 +15,7 @@ class Ideabook extends Model
 
     //protected $visible = ['id','name','description','profiles','keywords','privacy','photos'];
     
-    protected $with = ['privacy','profiles','photos', 'products'];
+    protected $with = ['privacy','profiles','photos', 'products','recipes'];
     
     public static function boot()
     {
@@ -49,6 +49,13 @@ class Ideabook extends Model
         return $this->belongsToMany(\App\Ideabook\Product::class,'ideabook_products','ideabook_id','product_id')
             ->withPivot('note');
     }
+    
+    public function recipes()
+    {
+        return $this->belongsToMany(\App\Ideabook\Recipe::class,'ideabook_recipes','ideabook_id','recipe_id')
+            ->withPivot('note');
+    }
+    
     
 //Not used yet.
 //    public function articles()
