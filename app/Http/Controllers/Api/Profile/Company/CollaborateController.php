@@ -107,7 +107,7 @@ class CollaborateController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
         
-        $collaborate = $this->model->where('company_id',$companyId)->first();
+        $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         
         if($collaborate === null){
             $this->errors[] = "Could not find the specified Collaborate project.";

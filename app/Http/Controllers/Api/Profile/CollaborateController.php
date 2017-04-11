@@ -97,7 +97,7 @@ class CollaborateController extends Controller
 	{
         $profileId = $request->user()->profile->id;
         
-        $collaborate = $this->model->where('profile_id',$profileId)->first();
+        $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         
         if($collaborate === null){
             $this->errors[] = "Could not find the specified Collaborate project.";
@@ -107,4 +107,9 @@ class CollaborateController extends Controller
         $this->model = $collaborate->delete();
         return $this->sendResponse();
 	}
+    
+    public function apply($profileId, $id)
+    {
+        $collaborate = $this->model->where('profile_id',$profileId)->first();
+    }
 }
