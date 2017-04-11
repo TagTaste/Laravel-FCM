@@ -24,7 +24,7 @@ class CreateCollaboratesTable extends Migration {
             $table->integer('profile_id')->unsigned();
             $table->integer('company_id')->unsigned();
             $table->timestamps();
-            
+            $table->softDeletes();
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->foreign('company_id')->references('id')->on('companies');
         });
