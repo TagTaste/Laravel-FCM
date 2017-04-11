@@ -202,4 +202,9 @@ class Company extends Model
     {
         return $this->hasMany(\App\Company\Product::class);
     }
+    
+    public function collaborate()
+    {
+        return $this->hasMany(\App\Collaborate::class);
+    }
 }

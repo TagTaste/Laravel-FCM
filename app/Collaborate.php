@@ -6,5 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Collaborate extends Model
 {
-    protected $fillable = ['title', 'i_am', 'looking_for', 'purpose', 'deliverables', 'who_can_help', 'expires_on', 'profile_id', 'company_id'];
+    protected $fillable = ['title', 'i_am', 'looking_for',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on',
+        'profile_id', 'company_id'];
+    
+    public function profiles()
+    {
+        return $this->belongsTo(\App\Profile::class);
+    }
+    
+    public function companies()
+    {
+        return $this->belongsTo(\App\Company::class);
+    }
 }

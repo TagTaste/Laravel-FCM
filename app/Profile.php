@@ -299,5 +299,10 @@ class Profile extends Model
     {
         return $this->ideabooks->count() === 1;
     }
+    
+    public function collaborate()
+    {
+        return $this->hasMany(\App\Collaborate::class);
+    }
 
 }
