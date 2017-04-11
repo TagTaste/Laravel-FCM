@@ -51,21 +51,6 @@ class Ideabook extends Model
         return $this->belongsToMany(\App\Ideabook\Recipe::class,'ideabook_recipes','ideabook_id','recipe_id')
             ->withPivot('note');
     }
-    
-    
-//Not used yet.
-//    public function articles()
-//    {
-//        return $this->belongsToMany('\App\Article','ideabook_articles','ideabook_id','article_id')
-//            ->withPivot('note');
-//    }
-
-// Not used anymore
-//    public function albums()
-//    {
-//        return $this->belongsToMany('\App\Album','ideabook_albums','ideabook_id','album_id')
-//            ->withPivot('note');
-//    }
 
     public function photos()
     {
