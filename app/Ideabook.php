@@ -13,9 +13,11 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
-    //protected $visible = ['id','name','description','profiles','keywords','privacy','photos'];
+    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar'];
     
     protected $with = ['privacy','profiles','photos', 'products','recipes'];
+    
+    protected $appends = ['similar'];
     
     public static function boot()
     {
@@ -122,5 +124,10 @@ class Ideabook extends Model
     public function untag($relationship,$modelId)
     {
         return $this->{$relationship}()->detach($modelId);
+    }
+    
+    public function getSimilarAttribute()
+    {
+        return \DB::table('ideabooks')->take(4)->get();
     }
 }
