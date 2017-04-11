@@ -33,7 +33,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}',['uses'=>'ProfileController@show']);
     
             Route::resource("jobs","JobController");
-            Route::resource("dishes","DishController");
+            
+            Route::get('recipes/image/{id}','RecipeController@recipeImages');
+            Route::resource("recipes","RecipeController");
     
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
@@ -44,13 +46,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("designations", "DesignationController@index");
             Route::resource('profile','ProfileController');
-            Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
 
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 Route::resource('albums','AlbumController');
+                Route::resource("recipes","RecipeController");
+    
                 //namespace albums
                 Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
 
