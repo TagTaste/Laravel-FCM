@@ -86,7 +86,7 @@ class CollaborateController extends Controller
 		$collaborate = $this->model->where('company_id',$company->id)->first();
 		
 		if($collaborate === null){
-		    $this->errors[] = "Could not find the specified collaborate project.";
+		    $this->errors[] = "Could not find the specified Collaborate project.";
 		    return $this->sendResponse();
         }
 		$this->model = $collaborate->update($inputs);
@@ -110,7 +110,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->first();
         
         if($collaborate === null){
-            $this->errors[] = "Could not find the specified collaborate project.";
+            $this->errors[] = "Could not find the specified Collaborate project.";
             return $this->sendResponse();
         }
         
