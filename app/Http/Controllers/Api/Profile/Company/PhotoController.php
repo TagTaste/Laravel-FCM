@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Profile\Company\Album;
+namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
