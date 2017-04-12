@@ -16,7 +16,9 @@ class TagBoardController extends Controller
      */
     public function index(Request $request,$profileId)
     {
-        $this->model = Ideabook::profile($profileId)->get();
+        $this->model['tagboards'] = Ideabook::profile($profileId)->get();
+        $this->model['similar'] = Ideabook::similar();
+    
         return $this->sendResponse();
     }
 
@@ -48,8 +50,6 @@ class TagBoardController extends Controller
         if(!$this->model){
             throw new \Exception("Tag Board not found.");
         }
-        $this->model->setAttribute("similar",$this->model->similar());
-
         return $this->sendResponse();
     }
 

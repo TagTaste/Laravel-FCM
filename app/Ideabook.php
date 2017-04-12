@@ -105,8 +105,8 @@ class Ideabook extends Model
         return $this->{$relationship}()->detach($modelId);
     }
 
-    public function similar()
+    public static function similar()
     {
-        return \DB::table("ideabooks")->take(4)->get();
+        return self::select('id','name')->get();
     }
 }
