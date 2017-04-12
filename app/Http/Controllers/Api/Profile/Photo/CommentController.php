@@ -63,12 +63,14 @@ class CommentController extends Controller {
 	 */
 	public function update(Request $request, $id)
 	{
-		$comment = Comment::findOrFail($id);
-
+        $userId = $request->user()->id;
+        $comment = Comment::where('user_id',$userId)->find($id);
+        if($comment === null){
+            $this->errors[] = 'Comment does not belong to the user';
+            return $this->sendResponse();
+        }
+        
 		$comment->content = $request->input("content");
-//        $comment->user_id = $request->input("user_id");
-//        $comment->flag = $request->input("flag");
-
 		$this->model = $comment->save();
 
 		return $this->sendResponse();
@@ -80,9 +82,14 @@ class CommentController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $id)
 	{
-		$comment = Comment::findOrFail($id);
+        $userId = $request->user()->id;
+        $comment = Comment::where('user_id',$userId)->find($id);
+        if($comment === null){
+            $this->errors[] = 'Comment does not belong to the user';
+            return $this->sendResponse();
+        }
 		$this->model = $comment->delete();
 
 		return $this->sendResponse();
