@@ -14,9 +14,9 @@ class PhotoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($profileId,$companyId, $albumId)
+    public function index($profileId,$companyId)
     {
-        $this->model = Photo::where('album_id',$albumId)->paginate(10);
+        $this->model = Photo::forCompany($companyId)->paginate(10);
         return $this->sendResponse();
     }
 
@@ -26,12 +26,13 @@ class PhotoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $profileId, $companyId, $albumId)
+    public function store(Request $request, $profileId, $companyId)
     {
-        $album = Album::where('id',$albumId)->first();
-
-        if (!$album) {
-            throw new \Exception("Album not found.");
+        $company = $request->user()->companies()->find($companyId);
+        
+        if(!$company){
+            $this->errors[] = "This company does not belong to the user.";
+            return $this->sendResponse();
         }
         
         $data = $request->only(['caption','file']);
@@ -41,11 +42,11 @@ class PhotoController extends Controller
         }
         
         $imageName = str_random(32) . ".jpg";
-        $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId, $albumId), $imageName);
+        $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
         $data['file'] = $imageName;
        
 
-        $this->model = $album->photos()->create($data);
+        $this->model = $company->photos()->create($data);
         return $this->sendResponse();
     }
 
@@ -55,24 +56,17 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$companyId,$albumId,$id)
+    public function show($profileId,$companyId,$id)
     {
-        $photo = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
-            ->whereHas('album.company',function($query) use ($companyId) {
-            $query->where("company_id",$companyId);
-        })->with(['comments' => function($query){
+        $this->model = Photo::where('id',$id)->forCompany($companyId)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
             }])->first();
 
-        if(!$photo){
-            throw new \Exception("Profile does not have the photo.");
+        if(!$this->model){
+            throw new \Exception("Company does not have the photo.");
         }
 
-        $response = new Response($photo);
-        return $response->json();
-
-
-
+        return $this->sendResponse();
     }
 
     /**
@@ -82,21 +76,22 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $profileId,$companyId,$albumId,$id)
+    public function update(Request $request, $profileId,$companyId,$id)
     {
-        $album = Album::where('id',$albumId)->first();
-
-        if (!$album) {
-            throw new \Exception("Album not found.");
+        $company = $request->user()->companies()->find($companyId);
+    
+        if(!$company){
+            $this->errors[] = "This company does not belong to the user.";
+            return $this->sendResponse();
         }
     
         if($request->hasFile('file')) {
             $imageName = str_random(32) . ".jpg";
-            $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId, $albumId), $imageName);
+            $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
             $data['file'] = $imageName;
         }
 
-        $this->model = $album->photos()->where('id',$id)->update($request->only(['caption','file']));
+        $this->model = $company->photos()->where('id',$id)->update($request->only(['caption','file']));
         return $this->sendResponse();
     }
 
@@ -106,21 +101,22 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $profileId, $companyId, $albumId, $id)
+    public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $album = Album::where('id',$albumId)->first();
-
-        if (!$album) {
-            throw new \Exception("Album not found.");
+        $company = $request->user()->companies()->find($companyId);
+    
+        if(!$company){
+            $this->errors[] = "This company does not belong to the user.";
+            return $this->sendResponse();
         }
 
-        $this->model = $album->photos()->where('id',$id)->delete();
+        $this->model = $company->photos()->where('id',$id)->delete();
         return $this->sendResponse();
     }
 
     public function image($profileId, $companyId, $albumId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
-        return response()->file(Photo::getCompanyImagePath($profileId, $companyId, $albumId, $photo->file));
+        return response()->file(Photo::getCompanyImagePath($profileId, $companyId, $photo->file));
     }
 }
