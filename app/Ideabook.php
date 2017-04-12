@@ -17,7 +17,7 @@ class Ideabook extends Model
     
     protected $with = ['privacy','profiles','photos', 'products','recipes'];
     
-    protected $appends = ['similar'];
+    //protected $appends = ['similar'];
     
     public static function boot()
     {
@@ -104,9 +104,9 @@ class Ideabook extends Model
     {
         return $this->{$relationship}()->detach($modelId);
     }
-    
-    public function getSimilarAttribute()
+
+    public function similar()
     {
-        return \DB::table('ideabooks')->take(4)->get();
+        return \DB::table("ideabooks")->take(4)->get();
     }
 }

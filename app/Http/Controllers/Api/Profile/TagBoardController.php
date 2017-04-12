@@ -48,6 +48,7 @@ class TagBoardController extends Controller
         if(!$this->model){
             throw new \Exception("Tag Board not found.");
         }
+        $this->model->setAttribute("similar",$this->model->similar());
 
         return $this->sendResponse();
     }
