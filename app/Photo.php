@@ -52,7 +52,7 @@ class Photo extends Model
         return $this->hasMany('App\PhotoLike','photo_id');
     }
     
-    public static function getProfileImagePath($profileId,$albumId=null,$filename = null)
+    public static function getProfileImagePath($profileId,$filename = null)
     {
         $relativePath = "profile/$profileId/photos";
         $status = Storage::makeDirectory($relativePath,0644,true);
@@ -62,9 +62,9 @@ class Photo extends Model
         return storage_path("app/".$relativePath) . "/" . $filename;
     }
     
-    public static function getCompanyImagePath($profileId,$companyId, $albumId,$filename = null)
+    public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "profile/$profileId/companies/$companyId/albums/$albumId/photos";
+        $relativePath = "profile/$profileId/companies/$companyId/photos";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
