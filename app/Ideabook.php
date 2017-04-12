@@ -13,7 +13,7 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar'];
+    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar','recipes'];
     
     protected $with = ['privacy','profiles','photos', 'products','recipes'];
     
