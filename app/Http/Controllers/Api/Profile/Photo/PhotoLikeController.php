@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Profile\Album\Photo;
+namespace App\Http\Controllers\Api\Profile\Photo;
 
 use App\PhotoLike;
 use Illuminate\Http\Request;

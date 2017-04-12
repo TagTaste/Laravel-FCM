@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Api\Profile\Album\Photo;
+<?php namespace App\Http\Controllers\Api\Profile\Photo;
 
 use App\Comment;
 use App\Photo;
