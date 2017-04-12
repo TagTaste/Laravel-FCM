@@ -9,12 +9,12 @@ class Recipe extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['showcase','description','content', 'ingredients',
+    protected $fillable = ['name','showcase','description','content', 'ingredients',
         'category', 'serving', 'calorie', 'time', 'image','profile_id'];
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['description','ingredients','imageUrl','category','serving', 'calorie', 'time'];
+    protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie', 'time','pivot'];
 
     public static $expectsFiles = true;
 
