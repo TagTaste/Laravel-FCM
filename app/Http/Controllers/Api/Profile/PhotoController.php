@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Profile\Album;
+namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
@@ -14,9 +14,9 @@ class PhotoController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function index($profileId,$albumId)
+    public function index($profileId)
     {
-        $this->model = Photo::where('album_id',$albumId)->paginate(10);
+        $this->model = Photo::forProfile($profileId)->paginate(10);
         return $this->sendResponse();
     }
     
@@ -33,19 +33,15 @@ class PhotoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $profileId, $albumId)
+    public function store(Request $request)
     {
-        $album = $request->user()->profile->albums()->where('id',$albumId)->first();
-
-        if (!$album) {
-            throw new \Exception("Album not found.");
-        }
+        $profileId = $request->user()->profile->id;
         $data = $request->only(['file','caption']);
        
-        $path = Photo::getProfileImagePath($profileId, $albumId);
+        $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
-        $this->model = $album->photos()->create($data);
+        $this->model = $request->user()->profile->photos()->create($data);
         return $this->sendResponse();
     }
     
@@ -65,13 +61,10 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$profileId,$albumId,$id)
+    public function show(Request $request,$profileId,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = Photo::with('album')->where('id',$id)->where('album_id',$albumId)
-            ->whereHas('album.profile',function($query) use ($profileId) {
-            $query->where("profile_id",$profileId);
-        })->with(['comments' => function($query){
+        $this->model = Photo::where('id',$id)->forProfile($profileId)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
             }])
         ->with(['like'=>function($query) use ($loggedInProfileId){
@@ -92,18 +85,13 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $profileId,$albumId,$id)
+    public function update(Request $request, $profileId,$id)
     {
-        $album = $request->user()->profile->albums()->where('id',$albumId)->first();
-
-        if (!$album) {
-            throw new \Exception("Album not found.");
-        }
-        $data = $request->only(['caption','file']);
-        $path = Photo::getProfileImagePath($profileId, $albumId);
+        $data = $request->intersect(['caption','file']);
+        $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
-        $this->model = $album->photos()->where('id',$id)->update($data);
+        $this->model = $request->user()->profile->photos()->where('id',$id)->update($data);
         return $this->sendResponse();
     }
 
@@ -113,21 +101,15 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $profileId, $albumId, $id)
+    public function destroy(Request $request, $profileId, $id)
     {
-        $album = $request->user()->profile->albums()->where('id',$albumId)->first();
-
-        if (!$album) {
-            throw new \Exception("Album not found.");
-        }
-
-        $this->model = $album->photos()->where('id',$id)->delete();
+        $this->model =  $request->user()->profile->photos()->where('id',$id)->delete();
         return $this->sendResponse();
     }
 
-    public function image($profileId, $albumId, $id)
+    public function image($profileId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
-        return response()->file(Photo::getProfileImagePath($profileId, $albumId, $photo->file));
+        return response()->file(Photo::getProfileImagePath($profileId, $photo->file));
     }
 }

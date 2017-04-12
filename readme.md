@@ -1,9 +1,9 @@
 The API for TagTaste.
 
-###Setup
+### Setup
 Either setup laravel homestead or have laravel dependencies on your choice of environment.
 
-####Non-exhaustive list of things
+#### Non-exhaustive list of things
 - PHP 7.1
 - Nginx
 - MySQL
@@ -13,8 +13,8 @@ Either setup laravel homestead or have laravel dependencies on your choice of en
 
 Make sure you run the migration with seed option.
 
-####IDE
+#### IDE
 Use any IDE that you prefer, just make sure the code is clean.
 
-####Coding Standards
+#### Coding Standards
 PSR-0, PSR-1, PSR-2 and PSR-4 to be strictly followed.

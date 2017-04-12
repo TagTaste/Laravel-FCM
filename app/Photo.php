@@ -5,13 +5,17 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use \App\Scopes\Profile as ScopeProfile;
+use \App\Scopes\Company as ScopeCompany;
 class Photo extends Model
 {
-    protected $fillable = ['caption','file','album_id'];
+    use ScopeProfile, ScopeCompany;
+    
+    protected $fillable = ['caption','file'];
 
-    protected $visible = ['id','caption','photoUrl','created_at','album','comments','likeCount','hasLiked'];
+    protected $visible = ['id','caption','photoUrl','created_at','comments','likeCount','hasLiked'];
 
-    protected $with = ['album','like'];
+    protected $with = ['like'];
 
     protected $appends = ['likeCount','hasLiked','photoUrl'];
 
@@ -25,11 +29,6 @@ class Photo extends Model
                 $photo->ideabooks()->detach();
 //            });
         });
-    }
-
-    public function album()
-    {
-        return $this->belongsTo(\App\Album::class);
     }
 
 
@@ -53,10 +52,9 @@ class Photo extends Model
         return $this->hasMany('App\PhotoLike','photo_id');
     }
     
-
-    public static function getProfileImagePath($profileId,$albumId,$filename = null)
+    public static function getProfileImagePath($profileId,$filename = null)
     {
-        $relativePath = "profile/$profileId/albums/$albumId/photos";
+        $relativePath = "profile/$profileId/photos";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
@@ -64,9 +62,9 @@ class Photo extends Model
         return storage_path("app/".$relativePath) . "/" . $filename;
     }
     
-    public static function getCompanyImagePath($profileId,$companyId, $albumId,$filename = null)
+    public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "profile/$profileId/companies/$companyId/albums/$albumId/photos";
+        $relativePath = "profile/$profileId/companies/$companyId/photos";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
@@ -98,7 +96,21 @@ class Photo extends Model
     
     public function getPhotoUrlAttribute()
     {
-        return "/profiles/" . $this->album->profile->first()->id . "/albums/" . $this->album->id . "/photos/" . $this->id . ".jpg";
+        return "/profiles/photos/" . $this->id . ".jpg";
+    }
+    
+    public function profile()
+    {
+        return $this->belongsToMany('App\Profile','profile_photos','photo_id','profile_id');
+    }
+    
+    public function getProfile(){
+        return $this->profile->first();
+    }
+    
+    public function company()
+    {
+        return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
     }
    
 }

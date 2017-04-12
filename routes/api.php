@@ -53,21 +53,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
-                Route::resource('albums','AlbumController');
+                //Route::resource('albums','AlbumController');
                 Route::resource("recipes","RecipeController");
                 Route::resource("collaborate","CollaborateController");
-    
-                //namespace albums
-                Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
 
-                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
+                Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
 
-                    Route::resource('photos','PhotoController');
-                    Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
-                        Route::resource('comments','CommentController');
-                        Route::resource('like','PhotoLikeController');
-                    });
+                Route::resource('photos','PhotoController');
+                Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
+                    Route::resource('comments','CommentController');
+                    Route::resource('like','PhotoLikeController');
                 });
+               
 
 
                 Route::resource('companies','CompanyController');
@@ -84,19 +81,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("patents","PatentController");
                     Route::resource("awards","AwardController");
                     Route::resource("collaborate","CollaborateController");
-    
-                    Route::resource("albums","AlbumController");
-    
-                    //namespace albums
-                    Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
-        
-                        Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
-        
-                        Route::resource('photos','PhotoController');
-                        Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
-                            //Route::resource('comments','CommentController');
 
-                        });
+                    
+                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
+    
+                    Route::resource('photos','PhotoController');
+                    Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
+                        Route::resource('comments','CommentController');
                     });
                     
                     Route::resource("portfolio","PortfolioController");
