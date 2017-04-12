@@ -54,7 +54,7 @@ class Photo extends Model
 
     public static function getProfileImagePath($profileId,$albumId=null,$filename = null)
     {
-        $relativePath = "profile/$profileId/albums/$albumId/photos";
+        $relativePath = "profile/$profileId/photos";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
