@@ -114,7 +114,7 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
 
-    public function image($profileId, $companyId, $albumId, $id)
+    public function image($profileId, $companyId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
         return response()->file(Photo::getCompanyImagePath($profileId, $companyId, $photo->file));
