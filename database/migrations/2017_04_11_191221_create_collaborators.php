@@ -15,10 +15,11 @@ class CreateCollaborators extends Migration
     {
         Schema::create('collaborators',function(Blueprint $table){
             $table->integer('collaborate_id')->unsigned();
-            $table->integer('profile_id')->unsigned();
-            $table->integer('company_id')->unsigned();
+            $table->integer('profile_id')->unsigned()->nullable();
+            $table->integer('company_id')->unsigned()->nullable();
             $table->dateTime('applied_on')->nullable();
             $table->dateTime('approved_on')->nullable();
+            $table->dateTime('rejected_on')->nullable();
             
             $table->foreign('collaborate_id')->references('id')->on('collaborates');
             $table->foreign('profile_id')->references('id')->on('profiles');

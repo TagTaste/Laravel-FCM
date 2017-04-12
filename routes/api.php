@@ -55,6 +55,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');
                 Route::resource("recipes","RecipeController");
+                Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::resource("collaborate","CollaborateController");
 
                 Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
@@ -64,9 +65,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource('comments','CommentController');
                     Route::resource('like','PhotoLikeController');
                 });
-               
-
-
+                
                 Route::resource('companies','CompanyController');
                 Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);

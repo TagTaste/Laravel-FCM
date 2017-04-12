@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
+use App\Company;
+use App\Profile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CollaborateController extends Controller
@@ -51,9 +54,13 @@ class CollaborateController extends Controller
     
     public function apply(Request $request, $id)
     {
-        
         $collaborate = $this->model->where('id',$id)->first();
-    
+        
+        if($collaborate === null){
+            $this->errors[] = "Invalid Collaboration project.";
+            return $this->sendResponse();
+        }
+        
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
@@ -61,14 +68,36 @@ class CollaborateController extends Controller
             if(!$company){
                 throw new \Exception("Company does not belong to the user.");
             }
+            
+            $exists = $collaborate->companies()->find($companyId);
+    
+            if($exists !== null){
+                $this->errors[] = "You have already applied on " . (new Carbon($exists->applied_on))->toFormattedDateString();
+                $this->model = $exists->pivot;
+                return $this->sendResponse();
+            }
+            
             $this->model = $collaborate->companies()->attach($companyId);
+            $collaborate->companies()->updateExistingPivot($companyId,['applied_on'=>Carbon::now()->toDateTimeString()]);
         }
         
         if($request->has('profile_id')){
             //individual wants to apply
             $profileId = $request->user()->profile->id;
+            $exists = $collaborate->profiles()->find($profileId);
+            
+            if($exists !== null){
+                $this->errors[] = "You have already applied on " . (new Carbon($exists->applied_on))->toFormattedDateString();
+                $this->model = $exists->pivot;
+                return $this->sendResponse();
+            }
+            
             $this->model = $collaborate->profiles()->attach($profileId);
+            $collaborate->profiles()->updateExistingPivot($profileId,['applied_on'=>Carbon::now()->toDateTimeString()]);
+    
         }
         return $this->sendResponse();
     }
+    
+    
 }

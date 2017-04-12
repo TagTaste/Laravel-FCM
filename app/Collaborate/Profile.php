@@ -17,11 +17,6 @@ class Profile extends BaseProfile
         'tagline',
         'about',
         'imageUrl',
-        'heroImageUrl',
-        'followers',
-        'following',
-        'followingProfiles',
-        'followerProfiles',
         'name',
         'pivot'
         
