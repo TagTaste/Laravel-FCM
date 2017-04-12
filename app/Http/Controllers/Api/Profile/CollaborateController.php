@@ -143,4 +143,9 @@ class CollaborateController extends Controller
             return $collaborate->approveProfile($profile);
         }
     }
+    
+    public function reject()
+    {
+        
+    }
 }
