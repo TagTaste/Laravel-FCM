@@ -17,7 +17,7 @@ class TagBoardController extends Controller
     public function index(Request $request,$profileId)
     {
         $this->model['tagboards'] = Ideabook::profile($profileId)->get();
-        $this->model['similar'] = Ideabook::similar();
+        $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
     
         return $this->sendResponse();
     }

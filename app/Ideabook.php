@@ -13,7 +13,7 @@ class Ideabook extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar','recipes','products'];
+    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar','recipes','products','profileId'];
     
     protected $with = ['privacy','profiles','photos', 'products','recipes'];
     
@@ -105,8 +105,12 @@ class Ideabook extends Model
         return $this->{$relationship}()->detach($modelId);
     }
 
-    public static function similar()
+    public static function similar($profileId, $loggedInUser)
     {
-        return self::select('id','name')->get();
+        $similar = self::select('ideabooks.id','name','profiles.id as profileId')
+            ->join('profiles','profiles.user_id','=','ideabooks.user_id')
+            ->where('profiles.id','!=',$profileId)->where('profiles.id','!=',$loggedInUser)
+            ->get();
+        return $similar;
     }
 }
