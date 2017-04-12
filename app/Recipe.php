@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Recipe extends Model
 {
     use SoftDeletes;
+    
+    protected $fillable = ['name','showcase','description','content', 'ingredients',
+        'category', 'serving', 'calorie', 'time', 'image','profile_id'];
 
-    protected $fillable = ['id','showcase','description','content', 'ingredients',
-        'category', 'serving', 'calorie', 'time', 'image','profile_id','pivot'];
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['description','ingredients','imageUrl','category','serving', 'calorie', 'time'];
+    protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie', 'time','pivot'];
 
     public static $expectsFiles = true;
 
