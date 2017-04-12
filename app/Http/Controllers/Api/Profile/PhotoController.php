@@ -33,7 +33,7 @@ class PhotoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $profileId)
+    public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
         $data = $request->only(['file','caption']);
