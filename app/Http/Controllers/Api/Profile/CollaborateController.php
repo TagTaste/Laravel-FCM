@@ -107,9 +107,4 @@ class CollaborateController extends Controller
         $this->model = $collaborate->delete();
         return $this->sendResponse();
 	}
-    
-    public function apply($profileId, $id)
-    {
-        $collaborate = $this->model->where('profile_id',$profileId)->first();
-    }
 }
