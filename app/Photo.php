@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \App\Scopes\Profile as ScopeProfile;
+use \App\Scopes\Company as ScopeCompany;
 class Photo extends Model
 {
-    use ScopeProfile;
+    use ScopeProfile, ScopeCompany;
     
     protected $fillable = ['caption','file'];
 
