@@ -5,8 +5,11 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use \App\Scopes\Profile as ScopeProfile;
 class Photo extends Model
 {
+    use ScopeProfile;
+    
     protected $fillable = ['caption','file','album_id'];
 
     protected $visible = ['id','caption','photoUrl','created_at','album','comments','likeCount','hasLiked'];
@@ -49,7 +52,7 @@ class Photo extends Model
     }
     
 
-    public static function getProfileImagePath($profileId,$albumId,$filename = null)
+    public static function getProfileImagePath($profileId,$albumId=null,$filename = null)
     {
         $relativePath = "profile/$profileId/albums/$albumId/photos";
         $status = Storage::makeDirectory($relativePath,0644,true);
