@@ -79,7 +79,7 @@ class Profile extends Model
                           'followingProfiles',
                           'followerProfiles',
                           'name',
-                          'albums',
+                          'photos',
                           'projects',
                           'professional',
                           'created_at',
@@ -240,14 +240,9 @@ class Profile extends Model
 
     }
 
-    public function albums()
-    {
-        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
-    }
-
     public function photos()
     {
-        return $this->hasManyThrough('App\Photo','App\Album');
+        return $this->belongsToMany('App\Photo','profile_photos','profile_id','photo_id');
     }
 
     public function projects()

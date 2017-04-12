@@ -27,11 +27,6 @@ class Photo extends Model
         });
     }
 
-    public function album()
-    {
-        return $this->belongsTo(\App\Album::class);
-    }
-
 
     public function ideabooks()
     {
@@ -99,6 +94,20 @@ class Photo extends Model
     public function getPhotoUrlAttribute()
     {
         return "/profiles/" . $this->album->profile->first()->id . "/albums/" . $this->album->id . "/photos/" . $this->id . ".jpg";
+    }
+    
+    public function profile()
+    {
+        return $this->belongsToMany('App\Profile','profile_photos','photo_id','profile_id');
+    }
+    
+    public function getProfile(){
+        return $this->profile->first();
+    }
+    
+    public function company()
+    {
+        return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
     }
    
 }
