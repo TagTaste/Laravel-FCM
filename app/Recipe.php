@@ -9,8 +9,8 @@ class Recipe extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['showcase','description','content', 'ingredients',
-        'category', 'serving', 'calorie', 'time', 'image','profile_id'];
+    protected $fillable = ['id','showcase','description','content', 'ingredients',
+        'category', 'serving', 'calorie', 'time', 'image','profile_id','pivot'];
 
     protected $dates = ['deleted_at'];
 
