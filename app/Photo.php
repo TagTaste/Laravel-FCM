@@ -10,11 +10,11 @@ class Photo extends Model
 {
     use ScopeProfile;
     
-    protected $fillable = ['caption','file','album_id'];
+    protected $fillable = ['caption','file'];
 
-    protected $visible = ['id','caption','photoUrl','created_at','album','comments','likeCount','hasLiked'];
+    protected $visible = ['id','caption','photoUrl','created_at','comments','likeCount','hasLiked'];
 
-    protected $with = ['album','like'];
+    protected $with = ['like'];
 
     protected $appends = ['likeCount','hasLiked','photoUrl'];
 
@@ -51,7 +51,6 @@ class Photo extends Model
         return $this->hasMany('App\PhotoLike','photo_id');
     }
     
-
     public static function getProfileImagePath($profileId,$albumId=null,$filename = null)
     {
         $relativePath = "profile/$profileId/photos";
@@ -96,7 +95,7 @@ class Photo extends Model
     
     public function getPhotoUrlAttribute()
     {
-        return "/profiles/" . $this->album->profile->first()->id . "/albums/" . $this->album->id . "/photos/" . $this->id . ".jpg";
+        return "/profiles/photos/" . $this->id . ".jpg";
     }
     
     public function profile()
