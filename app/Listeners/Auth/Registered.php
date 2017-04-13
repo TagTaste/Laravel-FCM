@@ -27,6 +27,7 @@ class Registered
      */
     public function handle(RegisteredEvent $event)
     {
-        $event->user->notify(new UserWelcome());
+        \Log::warning("NOT SENDING WELCOME EMAIL.");
+        //$event->user->notify(new UserWelcome());
     }
 }
