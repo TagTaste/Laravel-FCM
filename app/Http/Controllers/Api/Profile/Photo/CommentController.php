@@ -12,7 +12,7 @@ class CommentController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index($profileId, $albumId, $photoId)
+	public function index($profileId, $photoId)
 	{
 		$this->model = Comment::whereHas('photo',function($query) use ($photoId){
 		    $query->where('photo_id',$photoId);
@@ -27,7 +27,7 @@ class CommentController extends Controller {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request, $profileId, $albumId, $photoId)
+	public function store(Request $request, $profileId, $photoId)
 	{
 		$comment = new Comment();
 
