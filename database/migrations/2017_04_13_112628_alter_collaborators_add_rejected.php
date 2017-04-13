@@ -13,9 +13,9 @@ class AlterCollaboratorsAddRejected extends Migration
      */
     public function up()
     {
-        Schema::table('collaborators',function(Blueprint $table){
-            $table->dateTime("rejected_on")->nullable();
-        });
+//        Schema::table('collaborators',function(Blueprint $table){
+//            $table->dateTime("rejected_on")->nullable();
+//        });
     }
 
     /**
@@ -25,8 +25,8 @@ class AlterCollaboratorsAddRejected extends Migration
      */
     public function down()
     {
-        Schema::table('collaborators',function(Blueprint $table){
-            $table->dropColumn('rejected_on');
-        });
+//        Schema::table('collaborators',function(Blueprint $table){
+//            $table->dropColumn('rejected_on');
+//        });
     }
 }
