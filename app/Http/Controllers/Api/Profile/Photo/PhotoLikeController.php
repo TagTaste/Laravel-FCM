@@ -51,7 +51,7 @@ class PhotoLikeController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request, $profileId, $albumId, $photoId)
+	public function store(Request $request, $profileId, $photoId)
 	{
         $profileId = $request->user()->profile->id;
         $photoLike = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->first();
