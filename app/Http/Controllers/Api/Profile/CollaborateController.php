@@ -144,8 +144,33 @@ class CollaborateController extends Controller
         }
     }
     
-    public function reject()
+    public function reject(Request $request, $profileId, $id)
     {
+        $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
+    
+        if($collaborate === null){
+            $this->errors[] = "Invalid Collaboration project.";
+            return $this->sendResponse();
+        }
+    
+        if($request->has('company_id')){
+            $companyId = $request->input('company_id');
+            $company =  Company::find($companyId);
+            if(!$company){
+                throw new \Exception("Company does not exist.");
+            }
         
+            return $collaborate->rejectCompany($company);
+        }
+    
+        if($request->has('profile_id')){
+            $inputProfileId = $request->input('profile_id');
+            $profile =  Profile::find($inputProfileId);
+            if(!$profile){
+                throw new \Exception("Profile does not exist.");
+            }
+        
+            return $collaborate->rejectCompany($profile);
+        }
     }
 }

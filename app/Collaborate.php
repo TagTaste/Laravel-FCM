@@ -78,8 +78,15 @@ class Collaborate extends Model
         //should it be still shown to the creator?
     }
     
-    public function reject()
+    public function rejectProfile(Profile $profile)
     {
-        
+        $approvedOn = Carbon::now()->toDateTimeString();
+        return $this->profiles()->updateExistingPivot($profile->id,['rejected_on'=>$approvedOn]);
+    }
+    
+    public function rejectCompany(Company $company)
+    {
+        $approvedOn = Carbon::now()->toDateTimeString();
+        return $this->companies()->updateExistingPivot($company->id,['rejected_on'=>$approvedOn]);
     }
 }
