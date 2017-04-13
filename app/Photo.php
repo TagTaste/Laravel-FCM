@@ -3,13 +3,14 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \App\Scopes\Profile as ScopeProfile;
 use \App\Scopes\Company as ScopeCompany;
 class Photo extends Model
 {
-    use ScopeProfile, ScopeCompany;
+    use ScopeProfile, ScopeCompany, SoftDeletes;
     
     protected $fillable = ['caption','file'];
 
@@ -18,7 +19,8 @@ class Photo extends Model
     protected $with = ['like'];
 
     protected $appends = ['likeCount','hasLiked','photoUrl'];
-
+    
+    protected $dates = ['deleted_at'];
 
     public static function boot()
     {
