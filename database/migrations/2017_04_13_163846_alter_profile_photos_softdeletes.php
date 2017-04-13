@@ -13,7 +13,7 @@ class AlterProfilePhotosSoftdeletes extends Migration
      */
     public function up()
     {
-        Schema::table('profile_photos',function(Blueprint $table){
+        Schema::table('photos',function(Blueprint $table){
             $table->softDeletes();
         });
     }
@@ -25,7 +25,7 @@ class AlterProfilePhotosSoftdeletes extends Migration
      */
     public function down()
     {
-        Schema::table('profile_photos',function(Blueprint $table){
+        Schema::table('photos',function(Blueprint $table){
             $table->dropColumn('deleted_at');
         });
     }
