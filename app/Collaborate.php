@@ -38,7 +38,7 @@ class Collaborate extends Model
     public function profiles()
     {
         return $this->belongsToMany(\App\Collaborate\Profile::class,'collaborators',
-            'collaborate_id','profile_id')->withPivot('applied_on','approved_on');
+            'collaborate_id','profile_id')->withPivot('applied_on','approved_on','rejected_on');
     }
     
     /**
@@ -47,7 +47,7 @@ class Collaborate extends Model
     public function companies()
     {
         return $this->belongsToMany(\App\Collaborate\Company::class,'collaborators',
-            'collaborate_id','company_id')->withPivot('applied_on','approved_on');
+            'collaborate_id','company_id')->withPivot('applied_on','approved_on','rejected_on');
     }
     
     public function applications()
