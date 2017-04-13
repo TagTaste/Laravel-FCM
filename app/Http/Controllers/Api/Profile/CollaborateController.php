@@ -170,7 +170,7 @@ class CollaborateController extends Controller
                 throw new \Exception("Profile does not exist.");
             }
         
-            return $collaborate->rejectCompany($profile);
+            return $collaborate->rejectProfile($profile);
         }
     }
 }
