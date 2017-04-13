@@ -89,4 +89,9 @@ class Collaborate extends Model
         $approvedOn = Carbon::now()->toDateTimeString();
         return $this->companies()->updateExistingPivot($company->id,['rejected_on'=>$approvedOn]);
     }
+    
+    public function comments()
+    {
+        return $this->belongsToMany(Comment::class,'comments_collaborates','collaborate_id','comment_id');
+    }
 }

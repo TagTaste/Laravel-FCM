@@ -35,7 +35,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("jobs","JobController");
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate","CollaborateController");
-            
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collarabote.'],function(){
+                Route::resource('comments','CommentController');
+            });
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
             Route::resource("recipes","RecipeController");
     

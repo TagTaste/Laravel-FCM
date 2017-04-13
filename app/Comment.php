@@ -19,6 +19,11 @@ class Comment extends Model
     {
         return $this->belongsTo('App\User');
     }
+    
+    public function collaborate()
+    {
+        return $this->belongsToMany(Collaborate::class,'comments_collaborates','comment_id','collaborate_id')->withPivot('collaborate_id');
+    }
 
     public function getNameAttribute()
     {
