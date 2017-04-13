@@ -6,7 +6,12 @@ use App\Photo as BasePhoto;
 
 class Photo extends BasePhoto
 {
-    protected $visible = ['id','caption','hasLiked','pivot','likeCount','photoUrl'];
+    protected $visible = ['id','caption','hasLiked','pivot','likeCount','photoUrl','profile_id'];
     
-    protected $appends = ['likeCount','photoUrl'];
+    protected $appends = ['likeCount','photoUrl','profile_id'];
+    
+    public function getProfileIdAttribute()
+    {
+        return $this->getProfile()->id;
+    }
 }
