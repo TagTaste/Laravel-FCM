@@ -107,7 +107,7 @@ class Photo extends Model
     }
     
     public function getProfile(){
-        return $this->profile()->first();
+        return $this->profile->first();
     }
     
     public function company()
