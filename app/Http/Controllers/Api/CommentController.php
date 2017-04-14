@@ -9,7 +9,9 @@ class CommentController extends Controller {
     
     private $models = [
         'photo' => \App\Photo::class,
-        'tagboard' => \App\Ideabook::class
+        'tagboard' => \App\Ideabook::class,
+        'collaborate'=> \App\Collaborate::class,
+        'recipe' => \App\Recipe::class
     ];
     
     private function getModel(&$model){

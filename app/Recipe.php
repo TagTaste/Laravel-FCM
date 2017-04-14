@@ -33,4 +33,9 @@ class Recipe extends Model
         return "/profile/recipe/" . $this->id . '.jpg';
 
     }
+    
+    public function comments()
+    {
+        return $this->belongsToMany('App\Comment','comments_recipes','recipe_id','comment_id');
+    }
 }
