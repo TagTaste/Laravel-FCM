@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6a76dcfe19ac6dbdfad8c967575b7c66",
+    "content-hash": "535ab6ba5867f72ffe127efaa38dd410",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2743,16 +2743,16 @@
         },
         {
             "name": "tagtaste/api-response",
-            "version": "v0.0.0",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:TagTaste/api-response.git",
-                "reference": "76381ef25a2ab5d6d5c55da1662f5277d5778836"
+                "reference": "27c44175e4e5bd1ea28d8c89539854dfbc4020d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TagTaste/api-response/zipball/76381ef25a2ab5d6d5c55da1662f5277d5778836",
-                "reference": "76381ef25a2ab5d6d5c55da1662f5277d5778836",
+                "url": "https://api.github.com/repos/TagTaste/api-response/zipball/27c44175e4e5bd1ea28d8c89539854dfbc4020d4",
+                "reference": "27c44175e4e5bd1ea28d8c89539854dfbc4020d4",
                 "shasum": ""
             },
             "type": "library",
@@ -2769,10 +2769,10 @@
             ],
             "description": "Uniform way to send json responses accross tagtaste universe",
             "support": {
-                "source": "https://github.com/TagTaste/api-response/tree/v1.0.3",
+                "source": "https://github.com/TagTaste/api-response/tree/v0.1.0",
                 "issues": "https://github.com/TagTaste/api-response/issues"
             },
-            "time": "2017-04-04T14:40:07+00:00"
+            "time": "2017-04-14T09:10:16+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
