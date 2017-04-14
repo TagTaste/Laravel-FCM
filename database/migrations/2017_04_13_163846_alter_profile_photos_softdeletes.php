@@ -14,7 +14,7 @@ class AlterProfilePhotosSoftdeletes extends Migration
     public function up()
     {
         Schema::table('photos',function(Blueprint $table){
-            $table->softDeletes();
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 
@@ -25,7 +25,11 @@ class AlterProfilePhotosSoftdeletes extends Migration
      */
     public function down()
     {
+        if(!Schema::hasColumn('deleted_at','photos')) {
+            return;
+        }
         Schema::table('photos',function(Blueprint $table){
+            
             $table->dropColumn('deleted_at');
         });
     }
