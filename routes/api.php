@@ -44,7 +44,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
-            
+    
+            Route::get('comments/{model}/{modelId}','CommentController@index');
+            Route::post('comments/{model}/{modelId}','CommentController@store');
+    
             Route::get('notifications/unread','NotificationController@unread');
             Route::post("notifications/read/{id}",'NotificationController@read');
             Route::resource("notifications",'NotificationController');
