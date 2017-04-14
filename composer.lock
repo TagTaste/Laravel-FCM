@@ -2743,16 +2743,16 @@
         },
         {
             "name": "tagtaste/api-response",
-            "version": "v0.1.0",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:TagTaste/api-response.git",
-                "reference": "27c44175e4e5bd1ea28d8c89539854dfbc4020d4"
+                "reference": "436788f5f60ca61570fe66445a1d0254376fe57a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TagTaste/api-response/zipball/27c44175e4e5bd1ea28d8c89539854dfbc4020d4",
-                "reference": "27c44175e4e5bd1ea28d8c89539854dfbc4020d4",
+                "url": "https://api.github.com/repos/TagTaste/api-response/zipball/436788f5f60ca61570fe66445a1d0254376fe57a",
+                "reference": "436788f5f60ca61570fe66445a1d0254376fe57a",
                 "shasum": ""
             },
             "type": "library",
@@ -2769,10 +2769,10 @@
             ],
             "description": "Uniform way to send json responses accross tagtaste universe",
             "support": {
-                "source": "https://github.com/TagTaste/api-response/tree/v0.1.0",
+                "source": "https://github.com/TagTaste/api-response/tree/v0.1.1",
                 "issues": "https://github.com/TagTaste/api-response/issues"
             },
-            "time": "2017-04-14T09:10:16+00:00"
+            "time": "2017-04-14T09:37:35+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -3204,12 +3204,12 @@
             "version": "0.9.9",
             "source": {
                 "type": "git",
-                "url": "https://github.com/padraic/mockery.git",
+                "url": "https://github.com/mockery/mockery.git",
                 "reference": "6fdb61243844dc924071d3404bb23994ea0b6856"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/padraic/mockery/zipball/6fdb61243844dc924071d3404bb23994ea0b6856",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/6fdb61243844dc924071d3404bb23994ea0b6856",
                 "reference": "6fdb61243844dc924071d3404bb23994ea0b6856",
                 "shasum": ""
             },
