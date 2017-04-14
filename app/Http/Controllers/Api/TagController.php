@@ -35,14 +35,12 @@ class TagController extends Controller
         $tagboard = $this->getTagboard($request,$tagboardId);
     
         if(!$tagboard){
-            $this->errors[] = ["Tagboard doesn't exist or the user doesn't belong to the tagboard."];
-            return $this->sendResponse();
+            throw new \Exception("Tagboard doesn't exist or the user doesn't belong to the tagboard.");
         }
         
         //check if relationship has been defined in Tagboard
         if(!method_exists($tagboard,$relationship)){
-            $this->errors[] = [$relationship . " isn't taggable."];
-            return $this->sendResponse();
+            throw new \Exception($relationship . " isn't taggable.");
         }
         
         $model = $this->getRelationshipModel($relationship);
@@ -52,8 +50,7 @@ class TagController extends Controller
         $exists = $model::find($relationshipId);
         
         if($exists === null){
-            $this->errors[] = ["Model doesn't exist."];
-            return $this->sendResponse();
+            throw new \Exception("Model doesn't exist.");
         }
         
         $alreadyTagged = $tagboard->where('id',$tagboardId)->alreadyTagged($relationship,$relationshipId)->first();
@@ -72,14 +69,12 @@ class TagController extends Controller
         $tagboard = $this->getTagboard($request,$tagboardId);
     
         if(!$tagboard){
-            $this->errors[] = ["Tagboard doesn't exist or the user doesn't belong to the tagboard."];
-            return $this->sendResponse();
+            throw new \Exception("Tagboard doesn't exist or the user doesn't belong to the tagboard.");
         }
     
         //check if relationship has been defined in Tagboard
         if(!method_exists($tagboard,$relationship)){
-            $this->errors[] = [$relationship . " isn't taggable."];
-            return $this->sendResponse();
+            throw new \Exception($relationship . " isn't taggable.");
         }
     
         $model = $this->getRelationshipModel($relationship);
@@ -89,8 +84,7 @@ class TagController extends Controller
         $exists = $model::find($relationshipId);
     
         if($exists === null){
-            $this->errors[] = ["Model doesn't exist."];
-            return $this->sendResponse();
+            throw new \Exception("Model doesn't exist.");
         }
         $note = $request->input('note');
         $this->model = $tagboard->updateNote($relationship,$relationshipId,$note);

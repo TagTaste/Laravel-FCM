@@ -66,8 +66,7 @@ class CommentController extends Controller {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
         if($comment === null){
-            $this->errors[] = 'Comment does not belong to the user';
-            return $this->sendResponse();
+           throw new \Exception('Comment does not belong to the user');
         }
         
 		$comment->content = $request->input("content");
@@ -87,8 +86,7 @@ class CommentController extends Controller {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
         if($comment === null){
-            $this->errors[] = 'Comment does not belong to the user';
-            return $this->sendResponse();
+            throw new \Exception('Comment does not belong to the user');
         }
 		$this->model = $comment->delete();
 

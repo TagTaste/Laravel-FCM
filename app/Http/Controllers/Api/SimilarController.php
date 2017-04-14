@@ -23,14 +23,11 @@ class SimilarController extends Controller
         $model = $this->getModel($relationship);
         
         if(!$model){
-            $this->errors[] = "Relationship not defined.";
-            
-            return $this->sendResponse();
+            throw new \Exception("Relationship not defined.");
         }
         
         if(!method_exists($model,'similar')){
-            $this->errors[] = "Similars not defined.";
-            return $this->sendResponse();
+            throw new \Exception("Similars not defined.");
         }
     
         $this->model = $model->similar();

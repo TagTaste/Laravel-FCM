@@ -37,8 +37,7 @@ class CompanyController extends Controller
             'speciality'
         ]);
         if(empty($inputs)){
-            $this->errors[] = ["Empty request received."];
-            return $this->sendResponse();
+            throw new \Exception("Empty request received.");
         }
         $imageName = null;
         $heroImageName = null;

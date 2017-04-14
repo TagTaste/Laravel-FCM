@@ -57,8 +57,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('id',$id)->first();
         
         if($collaborate === null){
-            $this->errors[] = "Invalid Collaboration project.";
-            return $this->sendResponse();
+            throw new \Exception("Invalid Collaboration project.");
         }
         
         if($request->has('company_id')){

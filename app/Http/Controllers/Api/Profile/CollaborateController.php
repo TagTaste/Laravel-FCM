@@ -66,7 +66,7 @@ class CollaborateController extends Controller
 	{
 		$this->model = $this->model->where('profile_id',$profileId)->find($id);
 		if($this->model === null){
-		    $this->errors[] = "Invalid Collaboration Project.";
+		   throw new \Exception("Invalid Collaboration Project.");
         }
 		return $this->sendResponse();
 	}
@@ -86,8 +86,7 @@ class CollaborateController extends Controller
 		$collaborate = $this->model->where('profile_id',$profileId)->first();
 		
 		if($collaborate === null){
-		    $this->errors[] = "Could not find the specified Collaborate project.";
-		    return $this->sendResponse();
+		    throw new \Exception("Could not find the specified Collaborate project.");
         }
 		$this->model = $collaborate->update($inputs);
         return $this->sendResponse();
@@ -106,8 +105,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         
         if($collaborate === null){
-            $this->errors[] = "Could not find the specified Collaborate project.";
-            return $this->sendResponse();
+            throw new \Exception("Could not find the specified Collaborate project.");
         }
         
         $this->model = $collaborate->delete();
@@ -119,8 +117,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         
         if($collaborate === null){
-            $this->errors[] = "Invalid Collaboration project.";
-            return $this->sendResponse();
+            throw new \Exception("Invalid Collaboration project.");
         }
         
         if($request->has('company_id')){
@@ -149,8 +146,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
     
         if($collaborate === null){
-            $this->errors[] = "Invalid Collaboration project.";
-            return $this->sendResponse();
+            throw new \Exception("Invalid Collaboration project.");
         }
     
         if($request->has('company_id')){
