@@ -60,8 +60,8 @@ class RecipeController extends Controller
         
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
         
-        if($recipe){
-            $this->errors[] = ['Recipe doesn\'t belong to the user.'];
+        if($recipe === null){
+            throw new \Exception("Recipe doesn't belong to the user.");
         }
         
         $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profiel_id']));
@@ -82,7 +82,7 @@ class RecipeController extends Controller
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
     
         if($recipe){
-            $this->errors[] = ['Recipe doesn\'t belong to the user.'];
+            throw new \Exception("Recipe doesn't belong to the user.");
         }
     
         $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->delete();

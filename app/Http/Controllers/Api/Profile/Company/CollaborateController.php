@@ -86,8 +86,7 @@ class CollaborateController extends Controller
 		$collaborate = $this->model->where('company_id',$company->id)->first();
 		
 		if($collaborate === null){
-		    $this->errors[] = "Could not find the specified Collaborate project.";
-		    return $this->sendResponse();
+		    throw new \Exception("Could not find the specified Collaborate project.");
         }
 		$this->model = $collaborate->update($inputs);
         return $this->sendResponse();
@@ -110,8 +109,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         
         if($collaborate === null){
-            $this->errors[] = "Could not find the specified Collaborate project.";
-            return $this->sendResponse();
+            throw new \Exception( "Could not find the specified Collaborate project.");
         }
         
         $this->model = $collaborate->delete();
@@ -123,8 +121,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         
         if($collaborate === null){
-            $this->errors[] = "Invalid Collaboration project.";
-            return $this->sendResponse();
+            throw new \Exception("Invalid Collaboration project.");
         }
         
         if($request->has('company_id')){
@@ -153,8 +150,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
     
         if($collaborate === null){
-            $this->errors[] = "Invalid Collaboration project.";
-            return $this->sendResponse();
+            throw new \Exception("Invalid Collaboration project.");
         }
     
         if($request->has('company_id')){

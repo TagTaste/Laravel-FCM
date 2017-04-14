@@ -31,14 +31,12 @@ class PhotoController extends Controller
         $company = $request->user()->companies()->find($companyId);
         
         if(!$company){
-            $this->errors[] = "This company does not belong to the user.";
-            return $this->sendResponse();
+            throw new \Exception( "This company does not belong to the user.");
         }
         
         $data = $request->only(['caption','file']);
         if(!$request->hasFile('file') && empty($request->input('file)'))){
-            $this->errors = ['Empty file sent.'];
-            return $this->sendResponse();
+            throw new \Exception('Empty file sent.');
         }
         
         $imageName = str_random(32) . ".jpg";
@@ -81,8 +79,7 @@ class PhotoController extends Controller
         $company = $request->user()->companies()->find($companyId);
     
         if(!$company){
-            $this->errors[] = "This company does not belong to the user.";
-            return $this->sendResponse();
+           throw new \Exception("This company does not belong to the user.");
         }
     
         if($request->hasFile('file')) {
@@ -106,8 +103,7 @@ class PhotoController extends Controller
         $company = $request->user()->companies()->find($companyId);
     
         if(!$company){
-            $this->errors[] = "This company does not belong to the user.";
-            return $this->sendResponse();
+            throw new \Exception("This company does not belong to the user.");
         }
 
         $this->model = $company->photos()->where('id',$id)->delete();
