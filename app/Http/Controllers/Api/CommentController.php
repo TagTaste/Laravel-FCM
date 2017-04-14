@@ -2,6 +2,7 @@
 
 use App\Comment;
 use App\Photo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -14,8 +15,31 @@ class CommentController extends Controller {
         'recipe' => \App\Recipe::class
     ];
     
-    private function getModel(&$model){
-        return isset($this->models[$model]) ? new $this->models[$model] : false;
+    private function getModel(&$modelName, &$modelId){
+        $model = isset($this->models[$modelName]) ? new $this->models[$modelName] : false;
+        
+        if(!$model){
+            throw new \Exception("Invalid model $modelName.");
+        }
+        
+        return $this->fetchModel($model,$modelId);
+    }
+    
+    private function fetchModel($model, $modelId)
+    {
+        $model = $model->find($modelId);
+    
+        if(!$model){
+            throw new ModelNotFoundException("Could not find model with provided id.");
+        }
+        
+        return $model;
+    }
+    
+    private function checkRelationship(&$model){
+        if(!method_exists($model, 'comments')){
+            throw new \Exception("This model does not have comments defined.");
+        }
     }
  
 	/**
@@ -25,23 +49,9 @@ class CommentController extends Controller {
 	 */
 	public function index($model, $modelId)
 	{
-	    $model = $this->getModel($model);
-	    if(!$model){
-	        $this->errors[] = "Invalid model $model.";
-	        return $this->sendResponse();
-        }
+	    $model = $this->getModel($model, $modelId);
         
-        $model = $model->where('id',$modelId)->first();
-	    
-	    if(!$model){
-	        $this->errors[] = "Model doesn't exist.";
-	        return $this->sendResponse();
-        }
-        
-        if(!method_exists($model, 'comments')){
-	       $this->errors[] = "$model doesn't have comments.";
-	       return $this->sendResponse();
-        }
+        $this->checkRelationship($model);
         
         $this->model = $model->comments()->orderBy('created_at','desc')->paginate(10);
         return $this->sendResponse();
@@ -55,22 +65,12 @@ class CommentController extends Controller {
 	 */
 	public function store(Request $request, $model, $modelId)
 	{
-        $model = $this->getModel($model);
-        if(!$model){
-            $this->errors[] = "Invalid model $model.";
-            return $this->sendResponse();
-        }
+        $model = $this->getModel($model,$modelId);
         
-        $model = $model->where('id',$modelId)->first();
-        
-        if(!$model){
-            $this->errors[] = "Model doesn't exist.";
-            return $this->sendResponse();
-        }
+        $this->checkRelationship($model);
         
         if(!method_exists($model, 'comments')){
-            $this->errors[] = "$model doesn't have comments.";
-            return $this->sendResponse();
+            throw new \Exception("This model does not have comments defined.");
         }
         
 		$comment = new Comment();
