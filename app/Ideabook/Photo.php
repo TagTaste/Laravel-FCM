@@ -8,7 +8,7 @@ class Photo extends BasePhoto
 {
     protected $visible = ['id','caption','hasLiked','pivot','likeCount','photoUrl','profile_id'];
     
-    protected $appends = ['likeCount','photoUrl','profile_id'];
+    protected $appends = ['likeCount','photoUrl'];
     
     public function getProfileIdAttribute()
     {
