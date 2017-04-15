@@ -9,6 +9,11 @@ class Comment extends Model
 {
     protected $visible = ['name','content','id','profileImage','created_at'];
     protected $appends = ['name','profileImage'];
+    
+    public function recipe()
+    {
+        return $this->belongsToMany('App\Recipe','comments_recipes','comment_id','recipe_id')->withPivot('recipe_id');
+    }
 
     public function photo()
     {
