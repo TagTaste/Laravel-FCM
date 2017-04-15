@@ -323,12 +323,12 @@ class Profile extends Model
     
     public function addSubscriber(Profile $profile)
     {
-        $channelName = 'profile.' . $this->id;
+        $channelName = 'network.' . $this->id;
         $channel = $this->channels()->where('name','like',$channelName)->first();
         
         if(!$channel){
             //create channel
-            $channel = $this->channels()->create(['name'=>$channelName,'profile_id'=>$this->id]);
+            $channel = $this->channels()->create(['name'=>$channelName]);
         }
         return $channel->subscribe($profile->id);
     }
