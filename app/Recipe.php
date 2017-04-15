@@ -10,12 +10,19 @@ class Recipe extends Model
     use SoftDeletes;
     
     protected $fillable = ['name','showcase','description','content', 'ingredients',
-        'category', 'serving', 'calorie', 'time', 'image','profile_id'];
+        'category', 'serving', 'calorie', 'time', 'image',
+        'preparation_time','cooking_time','level','tags',
+        'profile_id'];
 
 
-    protected $dates = ['deleted_at'];
+    protected $dates = ['created_at','deleted_at'];
 
-    protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie', 'time','pivot'];
+    protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie',
+        'preparation_time','cooking_time','level','tags',
+        'created_at',
+        'time','pivot','profile'];
+    
+    protected $with = ['profile'];
 
     public static $expectsFiles = true;
 
@@ -24,7 +31,7 @@ class Recipe extends Model
     protected $appends = ['imageUrl'];
 
     public function profile() {
-    	return $this->belongsTo('\App\Profile','chef_id');
+    	return $this->belongsTo(\App\Recipe\Profile::class);
     }
 
     //specific for API
