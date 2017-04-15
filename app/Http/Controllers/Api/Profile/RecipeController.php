@@ -64,7 +64,7 @@ class RecipeController extends Controller
             throw new \Exception("Recipe doesn't belong to the user.");
         }
         
-        $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profiel_id']));
+        $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profile_id']));
         
         return $this->sendResponse();
     }
