@@ -40,8 +40,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('comments','CommentController');
             });
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
+            Route::post("recipes/{id}/like","RecipeController@like");
             Route::resource("recipes","RecipeController");
-    
+            
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
     

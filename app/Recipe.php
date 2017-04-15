@@ -20,7 +20,7 @@ class Recipe extends Model
     protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
         'created_at',
-        'time','pivot','profile'];
+        'time','pivot','profile','likeCount'];
     
     protected $with = ['profile'];
 
@@ -28,7 +28,7 @@ class Recipe extends Model
 
     public static $fileInputs = ['image' => 'recipes/images'];
 
-    protected $appends = ['imageUrl'];
+    protected $appends = ['imageUrl','likeCount'];
 
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
@@ -44,5 +44,27 @@ class Recipe extends Model
     public function comments()
     {
         return $this->belongsToMany('App\Comment','comments_recipes','recipe_id','comment_id');
+    }
+    
+    public function like()
+    {
+        return $this->hasMany('App\RecipeLike','photo_id');
+    }
+    
+    public function getLikeCountAttribute()
+    {
+        $count = $this->like->count();
+        
+        if($count >1000000)
+        {
+            $count = round($count/1000000, 1);
+            $count = $count."M";
+            
+        }
+        elseif ($count>1000) {
+            $count = round($count/1000, 1);
+            $count = $count."K";
+        }
+        return $count;
     }
 }
