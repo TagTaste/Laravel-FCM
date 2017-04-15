@@ -105,14 +105,14 @@ class RecipeController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function like(Request $request, $profileId, $recipeId)
+    public function like(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-        $photoLike = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $recipeId)->first();
+        $photoLike = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->first();
         if($photoLike != null) {
-            $this->model = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $recipeId)->delete();
+            $this->model = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
         } else {
-            $this->model = RecipeLike::create(['profile_id' => $profileId, 'recipe_id' => $recipeId]);
+            $this->model = RecipeLike::create(['profile_id' => $profileId, 'recipe_id' => $id]);
         }
         return $this->sendResponse();
     }
