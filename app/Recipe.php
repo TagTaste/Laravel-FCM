@@ -9,25 +9,18 @@ class Recipe extends Model
 {
     use SoftDeletes;
     
+    public static $expectsFiles = true;
+    public static $fileInputs = ['image' => 'recipes/images'];
     protected $fillable = ['name','showcase','description','content', 'ingredients',
         'category', 'serving', 'calorie', 'time', 'image',
         'preparation_time','cooking_time','level','tags',
         'profile_id'];
-
-
     protected $dates = ['created_at','deleted_at'];
-
     protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
         'created_at',
         'time','pivot','profile','likeCount'];
-    
     protected $with = ['profile'];
-
-    public static $expectsFiles = true;
-
-    public static $fileInputs = ['image' => 'recipes/images'];
-
     protected $appends = ['imageUrl','likeCount'];
 
     public function profile() {
@@ -48,7 +41,7 @@ class Recipe extends Model
     
     public function like()
     {
-        return $this->hasMany('App\RecipeLike','photo_id');
+        return $this->hasMany('App\RecipeLike', 'recipe_id');
     }
     
     public function getLikeCountAttribute()
