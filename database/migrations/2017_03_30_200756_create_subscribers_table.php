@@ -17,6 +17,7 @@ class CreateSubscribersTable extends Migration {
             $table->string('channel_name');
             $table->integer('profile_id')->unsigned();
             $table->timestamps();
+            $table->datetime("timestamp");
         });
 	}
 
