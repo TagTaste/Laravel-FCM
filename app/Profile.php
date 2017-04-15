@@ -21,6 +21,7 @@ class Profile extends Model
                             'facebook_url',
                             'linkedin_url',
                             'instagram_link',
+                            'pinterest_url',
                             'other_links',
                             'ingredients',
                             'favourite_moments',
@@ -41,7 +42,7 @@ class Profile extends Model
                         'certifications',
                         'tvshows',
                         'books',
-                        'albums',
+                        //'albums',
                         'projects',
                         'professional'
                       ];
@@ -61,7 +62,8 @@ class Profile extends Model
                           'facebook_url',
                           'linkedin_url',
                           'instagram_link',
-                          'other_links',
+                            'pinterest_url',
+                            'other_links',
                           'ingredients',
                           'favourite_moments',
                           'verified',
@@ -77,18 +79,25 @@ class Profile extends Model
                           'followingProfiles',
                           'followerProfiles',
                           'name',
-                          'albums',
+                          'photos',
                           'projects',
                           'professional',
                           'created_at',
-                          'pincode'
+                          'pincode',
+                            'isTagged'
                         ];
 
-    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
+    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
 
+    
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+    
+    public function getNameAttribute()
+    {
+        return $this->user->name;
     }
 
     public function setDobAttribute($value)
@@ -103,7 +112,6 @@ class Profile extends Model
         if(!empty($value)){
             return date("d-m-Y",strtotime($value));
         }
-        
     }
 
     public function experience()
@@ -129,6 +137,11 @@ class Profile extends Model
     public function books()
     {
         return $this->hasMany('App\Profile\Book');
+    }
+    
+    public function recipes()
+    {
+        return $this->hasMany(\App\Recipe::class);
     }
 
     //specific to API
@@ -187,7 +200,17 @@ class Profile extends Model
             ->join('users','users.id','=','followers.follows_id')
             ->where('followers.follower_id','=',$this->id)->get();
 
-        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+            $count = $profiles->count();
+            if($count > 1000000)
+            {
+                 $count = round($count/1000000, 1) . "m";
+            }
+            elseif($count > 1000)
+            {
+                $count = round($count/1000, 1) . "k";
+            }
+
+        return ['count'=> $count, 'profiles' => $profiles];
 
     }
 
@@ -200,18 +223,26 @@ class Profile extends Model
             ->join('users','users.id','=','followers.follower_id')
             ->where('followers.follows_id','=',$this->id)->get();
 
-        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+             $count = $profiles->count();
+            if($count > 1000000)
+            {
+                 $count = round($count/1000000, 1);
+                $count = $count."M";
+            }
+            elseif($count > 1000)
+            {
+               
+                $count = round($count/1000, 1);
+                $count = $count."K";
+            }
 
-    }
+        return ['count'=> $count, 'profiles' => $profiles];
 
-    public function albums()
-    {
-        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
     }
 
     public function photos()
     {
-        return $this->hasManyThrough('App\Photo','App\Album');
+        return $this->belongsToMany('App\Photo','profile_photos','profile_id','photo_id');
     }
 
     public function projects()
@@ -230,24 +261,43 @@ class Profile extends Model
     }
 
     //there should be a better way to write the paths.
-    public static function getImagePath($id, $filename)
+    public static function getImagePath($id, $filename = null)
     {
-        $directory = "profile/{$id}/images";
-        Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory) . "/" . $filename;
+        $relativePath = "profile/{$id}/images";
+        Storage::makeDirectory($relativePath);
+        return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 
     //there should be a better way to write the paths.
-    public static function getHeroImagePath($id, $filename)
+    public static function getHeroImagePath($id, $filename = null)
     {
-        $directory = "profile/{$id}/hero_images";
-        Storage::makeDirectory($directory);
-        return storage_path("app/" . $directory ) . "/" . $filename;
+        $relativePath = "profile/{$id}/hero_images";
+        Storage::makeDirectory($relativePath);
+        return $filename === null ? $relativePath : storage_path("app/" . $relativePath ) . "/" . $filename;
     }
 
     public function professional()
     {
         return $this->hasOne('\App\Professional');
+    }
+    
+    /**
+     * Just the pivot relationship. Ideabook of a user is defined in \App\User
+     */
+    
+    public function ideabooks()
+    {
+        return $this->belongsToMany('\App\Ideabook','ideabook_profiles','profile_id','ideabook_id');
+    }
+    
+    public function getIsTaggedAttribute()
+    {
+        return $this->ideabooks->count() === 1;
+    }
+    
+    public function collaborate()
+    {
+        return $this->hasMany(\App\Collaborate::class);
     }
 
 }

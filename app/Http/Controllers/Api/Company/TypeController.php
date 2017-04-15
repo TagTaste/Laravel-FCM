@@ -1,10 +1,10 @@
 <?php namespace App\Http\Controllers\Api\Company;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 use App\Company\Type;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class TypeController extends Controller {

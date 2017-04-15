@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
-use App\Http\Controllers\Controller;
-use App\Scopes\SendsJsonResponse;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 
 
 class CompanyController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -39,7 +36,9 @@ class CompanyController extends Controller
             'milestones',
             'speciality'
         ]);
-        
+        if(empty($inputs)){
+            throw new \Exception("Empty request received.");
+        }
         $imageName = null;
         $heroImageName = null;
         if($request->hasFile('logo')){
@@ -98,6 +97,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        \Log::info($request->all());
         $inputs = $request->intersect(['name','about','logo','hero_image','phone',
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',
@@ -116,14 +116,15 @@ class CompanyController extends Controller
             }
         }
     
-        if($request->hasFile('heroImage')){
+        if($request->hasFile('hero_image')){
             $imageName = str_random(32) . ".jpg";
-            $response = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $id),$imageName);
+            $path = \App\Company::getHeroImagePath($profileId, $id);
+            $response = $request->file('hero_image')->storeAs($path,$imageName);
             if($response !== false){
                 $inputs['hero_image'] = $imageName;
             }
         }
-        
+
         $this->model = $request->user()->companies()->where('id',$id)->update($inputs);
         return $this->sendResponse();
     }
@@ -164,7 +165,7 @@ class CompanyController extends Controller
      */
     public function heroImage($profileId, $id)
     {
-        $company = DB::table('companies')->select('hero_image')->find($id);
+        $company = \DB::table('companies')->select('hero_image')->find($id);
         $path = Company::getHeroImagePath($profileId, $id,$company->hero_image);
         return response()->file($path);
     }

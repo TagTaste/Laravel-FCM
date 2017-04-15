@@ -18,6 +18,7 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
     Route::resource('statuses','StatusController');
     Route::resource('types','TypeController');
 });
+Route::get('privacy','Api\PrivacyController@index');
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
@@ -26,32 +27,52 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::post('/user/register',['uses'=>'UserController@register']);
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
-        Route::get('profile/{id}',['uses'=>'ProfileController@show']);
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            Route::get('profile/{id}',['uses'=>'ProfileController@show']);
+    
+            Route::resource("jobs","JobController");
+            Route::post("similar/{relationship}/{relationshipId}",'SimilarController@similar');
+            Route::post("collaborate/{id}/apply","CollaborateController@apply");
+            Route::resource("collaborate","CollaborateController");
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collarabote.'],function(){
+                Route::resource('comments','CommentController');
+            });
+            Route::get('recipes/image/{id}','RecipeController@recipeImages');
+            Route::resource("recipes","RecipeController");
+    
+            Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
+            Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
+    
+            Route::get('comments/{model}/{modelId}','CommentController@index');
+            Route::post('comments/{model}/{modelId}','CommentController@store');
+    
+            Route::get('notifications/unread','NotificationController@unread');
+            Route::post("notifications/read/{id}",'NotificationController@read');
+            Route::resource("notifications",'NotificationController');
+
             Route::get("designations", "DesignationController@index");
             Route::resource('profile','ProfileController');
-            Route::get('dish/image/{id}','DishController@dishImages');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
 
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
+                //Route::resource('albums','AlbumController');
+                Route::resource("recipes","RecipeController");
+                Route::post("collaborate/{id}/approve","CollaborateController@approve");
+                Route::post("collaborate/{id}/reject","CollaborateController@reject");
+                Route::resource("collaborate","CollaborateController");
 
-                Route::resource('albums','AlbumController');
-                //namespace albums
-                Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
+                Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
 
-                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
-
-                    Route::resource('photos','PhotoController');
-                    Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
-                        Route::resource('comments','CommentController');
-                    });
+                Route::resource('photos','PhotoController');
+                Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
+                    Route::resource('comments','CommentController');
+                    Route::resource('like','PhotoLikeController');
                 });
-
-
+                
                 Route::resource('companies','CompanyController');
                 Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
@@ -65,21 +86,24 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("books","BookController");
                     Route::resource("patents","PatentController");
                     Route::resource("awards","AwardController");
-                    
-                    Route::resource("albums","AlbumController");
     
-                    //namespace albums
-                    Route::group(['namespace'=>'Album','prefix'=>'albums/{albumId}'],function(){
-        
-                        Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
-        
-                        Route::resource('photos','PhotoController');
-                        Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
-                            Route::resource('comments','CommentController');
-                        });
+                    Route::post("collaborate/{id}/approve","CollaborateController@approve");
+                    Route::post("collaborate/{id}/reject","CollaborateController@reject");
+                    Route::resource("collaborate","CollaborateController");
+
+                    
+                    Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
+    
+                    Route::resource('photos','PhotoController');
+                    Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
+                        Route::resource('comments','CommentController');
                     });
                     
                     Route::resource("portfolio","PortfolioController");
+                    Route::post("jobs/{id}/apply/{applicantId}","JobController@apply");
+                    Route::post("jobs/{id}/unapply/{applicantId}","JobController@unapply");
+                    Route::resource("jobs","JobController");
+                    Route::resource("products","ProductController");
     
     
                 });
@@ -97,7 +121,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //Route::resource('company','CompanyController');
 
-            Route::resource('tagboard','TagBoardController');
+            //Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
 //            Route::resource("books","BookController");

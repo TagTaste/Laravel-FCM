@@ -69,38 +69,26 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','albums','patents','books','portfolio',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio',
         'created_at',
         'milestones',
         'speciality'
     ];
 
 
-    protected $with = ['advertisements','addresses','type','status','awards','albums','patents','books','portfolio'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
 
 
     protected $appends = ['statuses','companyTypes'];
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::created(function(Company $company){
-            $album = Album::createDefault();
-
-            $company->albums()->attach($album->id);
-        });
-
-    }
 
     public function setEstablishedOnAttribute($value)
     {
         $this->attributes['established_on'] = date("Y-m-d",strtotime($value));
     }
-
-    public function albums()
+    
+    public function photos()
     {
-        return $this->belongsToMany('App\Album','company_albums','company_id','album_id');
+        return $this->belongsToMany('App\Photo','company_photos','company_id','photo_id');
     }
 
     public function awards()
@@ -184,5 +172,27 @@ class Company extends Model
             return $relativePath;
         }
         return storage_path("app/" . $relativePath . "/" . $filename);
+    }
+    
+    public function jobs()
+    {
+        return $this->hasMany(\App\Job::class);
+    }
+    
+    public function applications()
+    {
+        return $this->jobs()->join('applications','jobs.id','=','applications.job_id')
+            ->join('profiles','applications.profile_id','=','profiles.id')
+            ->where('jobs.company_id',$this->id)->get();
+    }
+    
+    public function products()
+    {
+        return $this->hasMany(\App\Company\Product::class);
+    }
+    
+    public function collaborate()
+    {
+        return $this->hasMany(\App\Collaborate::class);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use App\Profile\Show;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class ShowController extends Controller

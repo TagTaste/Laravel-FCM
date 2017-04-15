@@ -17,7 +17,7 @@ class TemplateTableSeeder extends Seeder {
             throw new \Exception("Could not find dish template type.");
         }
 
-        Template::create(['name'=>'Dish Article','view'=>'templates.article_dish','template_type_id'=>$dishTemplateType->id]);
+        Template::create(['name'=>'Recipe Article','view'=>'templates.article_dish','template_type_id'=>$dishTemplateType->id]);
 
         $blogTemplateType = TemplateType::where('name','like','%blog%')->first();
 

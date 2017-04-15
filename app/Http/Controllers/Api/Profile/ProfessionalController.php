@@ -1,10 +1,10 @@
 <?php namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 use App\Professional;
-use App\Scopes\SendsJsonResponse;
+use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class ProfessionalController extends Controller {

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 
 class ProjectMemberController extends Controller

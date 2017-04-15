@@ -12,14 +12,19 @@ class CreateDishArticlesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('dish_articles', function(Blueprint $table) {
+		Schema::create('dishes', function(Blueprint $table) {
             $table->increments('id');
+            $table->text('description');
+            $table->text('ingredients');
+            $table->string('image')->nullable();
             $table->boolean('showcase')->default(0);
             $table->boolean('hasRecipe')->default(0);
-            $table->integer('article_id')->unsigned();
+            $table->string('category');
+            $table->string('serving');
+            $table->string('calorie');
+            $table->string('time');
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign("article_id")->references("id")->on("articles");
         });
 	}
 
@@ -30,7 +35,7 @@ class CreateDishArticlesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('dish_articles');
+		Schema::drop('dishes');
 	}
 
 }

@@ -10,7 +10,9 @@ class Privacy extends Model
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];
-
+    
+    protected $visible = ['id','name'];
+    
     public static function boot()
     {
         parent::boot();

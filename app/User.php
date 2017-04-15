@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Api\Recommend;
+use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Jobs\FetchUserAvatar;
 use App\Notifications\NotifyUserAvatarUpdateComplete;
@@ -28,11 +29,11 @@ class User extends Authenticatable
         'name', 'email', 'password', 'is_active', 'social_registration'
     ];
 
-    protected $with = ['profile','articles','ideabooks','companies'];
+    protected $with = ['profile','companies']; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile','articles','recommend','ideabooks','companies'];
+    protected $visible = ['name','email','profile','companies']; //'articles','recommend','ideabooks',
 
-    protected $appends = ['recommend'];
+    //protected $appends = ['recommend'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -257,7 +258,8 @@ class User extends Authenticatable
         }
 
         $user->createDefaultIdeabook();
-
+        
+        event(new Registered($user));
         return $user;
     }
 

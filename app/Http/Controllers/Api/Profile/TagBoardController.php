@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\Http\Api\Response;
-use App\Http\Controllers\Controller;
+use Tagtaste\Api\Response;
+use App\Http\Controllers\Api\Controller;
 use App\Ideabook;
 use Illuminate\Http\Request;
 
@@ -16,19 +16,10 @@ class TagBoardController extends Controller
      */
     public function index(Request $request,$profileId)
     {
-        $tagboards = Ideabook::profile($profileId)->get();
-        $response = new Response($tagboards);
-        return $response->json();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $this->model['tagboards'] = Ideabook::profile($profileId)->get();
+        $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
+    
+        return $this->sendResponse();
     }
 
     /**
@@ -40,10 +31,9 @@ class TagBoardController extends Controller
     public function store(Request $request)
     {
         $params = ['privacy_id'=>1];
-        $params = array_merge($params,$request->only(['name','description']));
-        $tagboard = $request->user()->ideabooks()->create($params);
-        $response = new Response($tagboard);
-        return $response->json();
+        $params = array_merge($params,$request->only(['name','description','keywords','privacy_id']));
+        $this->model = $request->user()->ideabooks()->create($params);
+        return $this->sendResponse();
 
     }
 
@@ -55,25 +45,12 @@ class TagBoardController extends Controller
      */
     public function show($profileId,$id)
     {
-        $tagboard = Ideabook::where('id',$id)->profile($profileId)->first();
+        $this->model = Ideabook::where('id',$id)->profile($profileId)->first();
 
-        if(!$tagboard){
+        if(!$this->model){
             throw new \Exception("Tag Board not found.");
         }
-
-        $response = new Response($tagboard);
-        return $response->json();
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return $this->sendResponse();
     }
 
     /**
@@ -83,13 +60,12 @@ class TagBoardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        $tagboard = $request->user()->ideabooks()
+    public function update(Request $request, $profileId, $id)
+    {\Log::info($request->all());
+        $this->model = $request->user()->ideabooks()
                 ->where('id',$id)
-                ->update($request->only(['name','description']));
-        $response = new Response($tagboard);
-        return $response->json();
+                ->update($request->intersect(['name','description','keywords','privacy_id']));
+        return $this->sendResponse();
     }
 
     /**
@@ -100,9 +76,8 @@ class TagBoardController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $tagboard = $request->user()->ideabooks()
+        $this->model = $request->user()->ideabooks()
             ->where('id',$id)->delete();
-        $response = new Response($tagboard);
-        return $response->json();
+        return $this->sendResponse();
     }
 }
