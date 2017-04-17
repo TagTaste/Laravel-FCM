@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Job extends Model
 {
-    protected $fillable = ['title', 'description', 'type', 'location', 'annual_salary', 'functional_area', 'key_skills', 'expected_role', 'experience_required', 'company_id'];
+    protected $fillable = ['title', 'description', 'type', 'location',
+        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
+        'experience_required', 'company_id', 'profile_id'];
     
     protected $with = ['company'];
+    
+    protected $appends = ['type', 'profile_id'];
     
     public function company()
     {
@@ -23,12 +27,18 @@ class Job extends Model
     
     public function getTypeAttribute()
     {
-        return $this->type->name;
+        return $this->jobType->name;
     }
     
-    public function type()
+    public function jobType()
     {
-        return $this->hasOne(Type::class);
+        return $this->belongsTo(Type::class, 'type_id');
+    }
+    
+    
+    public function getProfileIdAttribute()
+    {
+        return $this->company->user->profile->id;
     }
     
     public function apply($profileId)
@@ -41,4 +51,5 @@ class Job extends Model
         return \DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete();
         
     }
+    
 }
