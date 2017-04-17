@@ -166,6 +166,7 @@ class JobController extends Controller
         }
         
         $this->model = $job->applications;
+        \Log::info($this->model);
         return $this->sendResponse();
     }
 }
