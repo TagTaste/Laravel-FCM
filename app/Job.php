@@ -22,7 +22,7 @@ class Job extends Model
     
     public function apply($profileId)
     {
-        return \DB::table('applications')->create(['job_id' => $this->id, 'profile_id' => $profileId]);
+        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId]);
     }
     
     public function unapply($profileId)

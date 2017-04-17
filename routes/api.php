@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,7 +14,6 @@ use Illuminate\Http\Request;
 |
 */
 
-use Illuminate\Support\Facades\Route;
 Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
     Route::resource('statuses','StatusController');
     Route::resource('types','TypeController');
@@ -101,8 +101,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
                     
                     Route::resource("portfolio","PortfolioController");
-                    Route::post("jobs/{id}/apply/{applicantId}","JobController@apply");
-                    Route::post("jobs/{id}/unapply/{applicantId}","JobController@unapply");
+                    Route::post("jobs/{id}/apply", "JobController@apply");
+                    Route::post("jobs/{id}/unapply", "JobController@unapply");
+                    Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
     

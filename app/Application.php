@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Application extends Model
 {
     protected $fillable = ['job_id', 'profile_id'];
+    protected $visible = ['created_at', 'profile'];
+    protected $with = ['profile'];
     
-    public function jobs()
+    public function job()
     {
-        return $this->belongsToMany(\App\Job::class);
+        return $this->belongsTo(\App\Job::class);
     }
     
-    public function profiles()
+    public function profile()
     {
-        return $this->belongsToMany(\App\Profile::class);
+        return $this->belongsTo(\App\Profile::class);
     }
 }
