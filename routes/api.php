@@ -32,6 +32,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
             Route::get('profile/{id}',['uses'=>'ProfileController@show']);
     
+            Route::get("jobs/filters", "JobController@filters");
             Route::resource("jobs","JobController");
             Route::post("similar/{relationship}/{relationshipId}",'SimilarController@similar');
             Route::post("collaborate/{id}/apply","CollaborateController@apply");

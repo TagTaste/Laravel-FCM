@@ -23,6 +23,16 @@ class JobController extends Controller
 	{
 		$this->model = $model;
 	}
+    
+    public function filters()
+    {
+        $filters = [];
+        
+        $filters['location'] = Job::select('location')->groupBy('location')->get();
+        $filters['types'] = Job\Type::select('id', 'name')->get();
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
 
 	/**
 	 * Display a listing of the resource.

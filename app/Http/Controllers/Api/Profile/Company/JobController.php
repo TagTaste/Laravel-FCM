@@ -165,7 +165,9 @@ class JobController extends Controller
             throw new \Exception("Job not found.");
         }
     
-        $this->model = $job->applications()->paginate();
+        $this->model = ['applications' => $job->applications()->paginate()];
+        $this->model['count'] = $job->applications()->count();
+        
         return $this->sendResponse();
     }
 }
