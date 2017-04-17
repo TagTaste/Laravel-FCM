@@ -14,7 +14,7 @@ class AlterJobsRenameColumn extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->renameColumn('expected_role', 'xpected_role');
+            $table->renameColumn('xpected_role', 'expected_role');
         });
     }
     
@@ -26,7 +26,7 @@ class AlterJobsRenameColumn extends Migration
     public function down()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->renameColumn('xpected_role', 'expected_role');
+            $table->renameColumn('expected_role', 'xpected_role');
         });
     }
 }
