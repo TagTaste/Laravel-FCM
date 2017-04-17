@@ -22,12 +22,12 @@ class Profile extends BaseProfile
         'current'
     ];
     
-    protected $appends = ['current'];
+    protected $appends = ['current', 'name', 'imageUrl'];
     
     //todo: if user is adding an experience as "currently working" make sure there are no other experiences marked as current.
     public function getCurrentAttribute()
     {
-        $experience = $this->experience->select('company', 'designation')->whereNull("end_date")->first();
+        $experience = $this->experience()->select('company', 'designation')->whereNull("end_date")->first();
         
         if (!$experience) {
             return;
