@@ -164,8 +164,8 @@ class JobController extends Controller
         if(!$job){
             throw new \Exception("Job not found.");
         }
-        
-        $this->model = $job->applications;
+    
+        $this->model = $job->applications()->paginate();
         return $this->sendResponse();
     }
 }
