@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Job\Type;
 use Illuminate\Database\Eloquent\Model;
 
 class Job extends Model
@@ -20,6 +21,16 @@ class Job extends Model
         return $this->hasMany(\App\Application::class);
     }
     
+    public function getTypeAttribute()
+    {
+        return $this->type->name;
+    }
+    
+    public function type()
+    {
+        return $this->hasOne(Type::class);
+    }
+    
     public function apply($profileId)
     {
         return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId]);
@@ -28,6 +39,6 @@ class Job extends Model
     public function unapply($profileId)
     {
         return \DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete();
-    
+        
     }
 }
