@@ -37,8 +37,8 @@
 	<label for="key_skills-field">Key_skills</label>
 	<textarea name="key_skills" id="key_skills-field" class="form-control" rows="3"></textarea>
 </div> <div class="form-group">
-	<label for="xpected_role-field">Xpected_role</label>
-	<input class="form-control" type="text" name="xpected_role" id="xpected_role-field" value="" />
+					<label for="expected_role-field">Expected_role</label>
+					<input class="form-control" type="text" name="expected_role" id="expected_role-field" value=""/>
 </div> <div class="form-group">
 	<label for="experience_required-field">Experience_required</label>
 	<input class="form-control" type="text" name="experience_required" id="experience_required-field" value="" />

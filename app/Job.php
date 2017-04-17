@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Job extends Model
 {
-    protected $fillable = ['title', 'description', 'type', 'location', 'annual_salary', 'functional_area', 'key_skills', 'xpected_role', 'experience_required', 'company_id'];
+    protected $fillable = ['title', 'description', 'type', 'location', 'annual_salary', 'functional_area', 'key_skills', 'expected_role', 'experience_required', 'company_id'];
     
     protected $with = ['company'];
     
