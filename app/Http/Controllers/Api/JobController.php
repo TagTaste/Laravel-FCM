@@ -29,9 +29,19 @@ class JobController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+    public function index(Request $request)
 	{
-		$this->model = $this->model->paginate();
+        $jobs = $this->model;
+        $filters = $request->input('filters');
+        if (!empty($filters['location'])) {
+            $jobs = $jobs->whereIn('location', $filters['location']);
+        }
+        
+        if (!empty($filters['type_id'])) {
+            $jobs = $jobs->whereIn('type_id', $filters['type_id']);
+        }
+        
+        $this->model = $jobs->paginate();
 
 		return $this->sendResponse();
 	}
