@@ -30,6 +30,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            //feeds
+                Route::get("feed",'FeedController@feed');
+                Route::get("feed/profile",'FeedController@profile');
+                Route::get("feed/network",'FeedController@network');
+            
             Route::get('profile/{id}',['uses'=>'ProfileController@show']);
     
             Route::get("jobs/filters", "JobController@filters");

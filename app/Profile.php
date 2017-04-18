@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -378,6 +379,48 @@ class Profile extends Model
         
         return $channel->addPayload($data);
         
+    }
+    
+    /**
+     * Feed for the logged in user's profile
+     *
+     * @return mixed
+     */
+    public function feed()
+    {
+        $profileId = $this->id;
+        return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
+            $query->where('channel_name','feed.' . $profileId);
+        })->get();
+    }
+    
+    /**
+     * Feed which a user would see if he visits his /profile page.
+     */
+    public function profileFeed()
+    {
+        $profileId = $this->id;
+        return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
+            $query->where('channel_name','profile.' . $profileId);
+        })->get();
+    }
+    
+    /**
+     * Feed of the subscribed network of the user.
+     *
+     * @return mixed
+     */
+    public function subscribedNetworksFeed()
+    {
+        $profileId = $this->id;
+        $channels = Channel::select('name')->whereHas("subscribers", function ($query) use ($profileId) {
+            $query->where('profile_id', $profileId)->where('name', 'like', 'network.%')
+                ->where('name', 'not like', 'network.' . $profileId);
+        })->get()->toArray();
+        
+        return Payload::select('payload')->whereHas('channel', function ($query) use ($channels) {
+            $query->whereIn('channel_name', $channels);
+        })->get();
     }
 
 }
