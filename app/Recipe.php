@@ -22,6 +22,16 @@ class Recipe extends Model
         'time','pivot','profile','likeCount'];
     protected $with = ['profile'];
     protected $appends = ['imageUrl','likeCount'];
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Recipe $recipe){
+            //todo: check for privacy
+            $recipe->profile->pushToMyFeed($recipe);
+        });
+    }
 
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
