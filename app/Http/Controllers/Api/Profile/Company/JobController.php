@@ -33,12 +33,13 @@ class JobController extends Controller
      */
     public function index($profileId, $companyId)
     {
-        $this->model = $this->model->where('company_id', $companyId)
+        $this->model = [];
+        $this->model['jobs'] = Job::where('company_id', $companyId)
             ->with(['applications' => function ($query) use ($profileId) {
                 $query->where('applications.profile_id', $profileId);
             }])
             ->paginate();
-        
+        $this->model['count'] = Job::where('company_id',$companyId)->count();
         return $this->sendResponse();
     }
     
