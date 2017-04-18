@@ -33,7 +33,11 @@ class JobController extends Controller
      */
     public function index($profileId, $companyId)
     {
-        $this->model = $this->model->where('company_id',$companyId)->paginate();
+        $this->model = $this->model->where('company_id', $companyId)
+            ->with(['applications' => function ($query) use ($profileId) {
+                $query->where('applications.profile_id', $profileId);
+            }])
+            ->paginate();
         
         return $this->sendResponse();
     }
@@ -164,9 +168,10 @@ class JobController extends Controller
         if(!$job){
             throw new \Exception("Job not found.");
         }
-        
-        $this->model = $job->applications;
-        \Log::info($this->model);
+    
+        $this->model = ['applications' => $job->applications()->paginate()];
+        $this->model['count'] = $job->applications()->count();
+
         return $this->sendResponse();
     }
 }
