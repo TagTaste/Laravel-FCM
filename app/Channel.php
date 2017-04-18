@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,5 +32,10 @@ class Channel extends Model
     public function unsubscribe($subscriberProfileId)
     {
         return $this->subscribers()->where('profile_id',$subscriberProfileId)->delete();
+    }
+    
+    public function payload()
+    {
+        return $this->hasMany(Payload::class,'channel_name','name');
     }
 }
