@@ -16,7 +16,7 @@ class Recipe extends Model
         'preparation_time','cooking_time','level','tags',
         'profile_id','privacy_id'];
     protected $dates = ['created_at','deleted_at'];
-    protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie',
+    protected $visible = ['id','name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
         'created_at',
         'time','pivot','profile','likeCount'];
