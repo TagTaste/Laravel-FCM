@@ -299,5 +299,38 @@ class Profile extends Model
     {
         return $this->hasMany(\App\Collaborate::class);
     }
+    
+    public function channels()
+    {
+        return $this->hasMany(Channel::class);
+    }
+    
+    public function subscribers()
+    {
+        return $this->hasMany(Subscriber::class);
+    }
+    
+    public function subscribe($channel)
+    {
+        $channel = $this->channels->where('name','like',$channel)->first();
+        
+        if(!$channel){
+            throw new \Exception("Channel not found."); //or should it be created?
+        }
+        
+        return $channel->subscribe($this->id);
+    }
+    
+    public function addSubscriber(Profile $profile)
+    {
+        $channelName = 'network.' . $this->id;
+        $channel = $this->channels()->where('name','like',$channelName)->first();
+        
+        if(!$channel){
+            //create channel
+            $channel = $this->channels()->create(['name'=>$channelName]);
+        }
+        return $channel->subscribe($profile->id);
+    }
 
 }
