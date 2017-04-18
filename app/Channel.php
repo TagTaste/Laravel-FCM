@@ -38,4 +38,10 @@ class Channel extends Model
     {
         return $this->hasMany(Payload::class,'channel_name','name');
     }
+    
+    public function addPayload(&$data)
+    {
+        $json = json_encode($data);
+        return $this->payload()->create(['payload'=>$json]);
+    }
 }

@@ -359,5 +359,25 @@ class Profile extends Model
         }
         return $channel->subscribe($profile->id);
     }
+    
+    public function pushToNetwork($data)
+    {
+        return $this->pushToChannel("network." . $this->id,$data);
+    }
+    
+    public function pushToChannel($channelName,&$data)
+    {
+        $channel = $this->channels()->where('name',$channelName)->first();
+        
+        if(!$channel){
+            //since a user can post even if he has no network (i.e. no followers)
+            //throwing an exception here might cause some problem.
+            //Throw an error if you feel like. Make sure it doesn't break anything.
+            return false;
+        }
+        
+        return $channel->addPayload($data);
+        
+    }
 
 }
