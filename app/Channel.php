@@ -16,7 +16,7 @@ class Channel extends Model
     
     public function subscribers()
     {
-        return Subscriber::where('channel_name','like',$this->name)->get();
+        return $this->hasMany(Subscriber::class,'channel_name','name');
     }
     
     public function subscribe($subscriberProfileId)
@@ -26,5 +26,10 @@ class Channel extends Model
             'channel_name'=>$this->name,
             'profile_id'=>$subscriberProfileId,
             'timestamp'=>Carbon::now()->toDateTimeString()]);
+    }
+    
+    public function unsubscribe($subscriberProfileId)
+    {
+        return $this->subscribers()->where('profile_id',$subscriberProfileId)->delete();
     }
 }

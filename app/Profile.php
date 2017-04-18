@@ -311,6 +311,11 @@ class Profile extends Model
         return $this->hasMany(Subscriber::class);
     }
     
+    /**
+     * Subscribe the owner's network
+     * @param Profile $owner
+     * @return mixed
+     */
     public function subscribeNetworkOf(Profile $owner)
     {
         return $this->subscribe("network." . $owner->id,$owner->id);
@@ -325,6 +330,22 @@ class Profile extends Model
         }
         
         return $channel->subscribe($this->id);
+    }
+    
+    public function unsubscribeNetworkOf(Profile $owner)
+    {
+        return $this->unsubscribe("network." . $owner->id,$owner->id);
+    }
+    
+    public function unsubscribe($channelName)
+    {
+        $channel = $this->channels->where('name','like',$channelName)->first();
+        
+        if(!$channel){
+            throw new ModelNotFoundException();
+        }
+        
+        return $channel->unsubscribe($this->id);
     }
     
     public function addSubscriber(Profile $profile)
