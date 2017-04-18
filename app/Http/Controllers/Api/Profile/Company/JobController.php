@@ -33,7 +33,11 @@ class JobController extends Controller
      */
     public function index($profileId, $companyId)
     {
-        $this->model = $this->model->where('company_id',$companyId)->paginate();
+        $this->model = $this->model->where('company_id', $companyId)
+            ->with(['applications' => function ($query) use ($profileId) {
+                $query->where('applications.profile_id', $profileId);
+            }])
+            ->paginate();
         
         return $this->sendResponse();
     }

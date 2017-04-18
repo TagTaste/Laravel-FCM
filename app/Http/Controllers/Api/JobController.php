@@ -50,8 +50,11 @@ class JobController extends Controller
         if (!empty($filters['type_id'])) {
             $jobs = $jobs->whereIn('type_id', $filters['type_id']);
         }
+        $profileId = $request->user()->profile->id;
         
-        $this->model = $jobs->paginate();
+        $this->model = $jobs->with(['applications' => function ($query) use ($profileId) {
+            $query->where('applications.profile_id', $profileId);
+        }])->paginate();
 
 		return $this->sendResponse();
 	}
