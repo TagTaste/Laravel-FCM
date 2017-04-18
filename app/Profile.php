@@ -90,7 +90,15 @@ class Profile extends Model
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
-
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Profile $profile){
+            Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+        });
+    }
     
     public function user()
     {
@@ -361,7 +369,15 @@ class Profile extends Model
         return $channel->subscribe($profile->id);
     }
     
-    public function pushToNetwork($data)
+    public function pushToMyFeed(&$data)
+    {
+        //push to my feed
+        $this->pushToChannel("feed." . $this->id,$data);
+        
+        //push to my channel
+        return $this->pushToNetwork($data);
+    }
+    public function pushToNetwork(&$data)
     {
         return $this->pushToChannel("network." . $this->id,$data);
     }
@@ -390,7 +406,7 @@ class Profile extends Model
     {
         $profileId = $this->id;
         return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
-            $query->where('channel_name','feed.' . $profileId);
+            $query->where('channels.profile_id',$profileId);
         })->get();
     }
     
