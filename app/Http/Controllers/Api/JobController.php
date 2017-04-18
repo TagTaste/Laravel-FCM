@@ -28,8 +28,8 @@ class JobController extends Controller
     {
         $filters = [];
         
-        $filters['location'] = Job::select('location')->groupBy('location')->get();
-        $filters['types'] = Job\Type::select('id', 'name')->get();
+        $filters['location'] = \App\Filter\Job::select('location')->groupBy('location')->get();
+        $filters['types'] = Job\Type::with([])->select('id', 'name')->get();
         $this->model = $filters;
         return $this->sendResponse();
     }

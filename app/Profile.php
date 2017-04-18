@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
@@ -88,7 +90,15 @@ class Profile extends Model
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
-
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Profile $profile){
+            Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+        });
+    }
     
     public function user()
     {
@@ -310,15 +320,41 @@ class Profile extends Model
         return $this->hasMany(Subscriber::class);
     }
     
-    public function subscribe($channel)
+    /**
+     * Subscribe the owner's network
+     * @param Profile $owner
+     * @return mixed
+     */
+    public function subscribeNetworkOf(Profile $owner)
     {
-        $channel = $this->channels->where('name','like',$channel)->first();
+        return $this->subscribe("network." . $owner->id,$owner->id);
+    }
+    
+    public function subscribe($channelName, $ownerId)
+    {
+        $channel = $this->channels->where('name','like',$channelName)->first();
         
         if(!$channel){
-            throw new \Exception("Channel not found."); //or should it be created?
+            $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
         }
         
         return $channel->subscribe($this->id);
+    }
+    
+    public function unsubscribeNetworkOf(Profile $owner)
+    {
+        return $this->unsubscribe("network." . $owner->id,$owner->id);
+    }
+    
+    public function unsubscribe($channelName)
+    {
+        $channel = $this->channels->where('name','like',$channelName)->first();
+        
+        if(!$channel){
+            throw new ModelNotFoundException();
+        }
+        
+        return $channel->unsubscribe($this->id);
     }
     
     public function addSubscriber(Profile $profile)
@@ -331,6 +367,76 @@ class Profile extends Model
             $channel = $this->channels()->create(['name'=>$channelName]);
         }
         return $channel->subscribe($profile->id);
+    }
+    
+    public function pushToMyFeed(&$data)
+    {
+        //push to my feed
+        $this->pushToChannel("feed." . $this->id,$data);
+        
+        //push to my channel
+        return $this->pushToNetwork($data);
+    }
+    public function pushToNetwork(&$data)
+    {
+        return $this->pushToChannel("network." . $this->id,$data);
+    }
+    
+    public function pushToChannel($channelName,&$data)
+    {
+        $channel = $this->channels()->where('name',$channelName)->first();
+        
+        if(!$channel){
+            //since a user can post even if he has no network (i.e. no followers)
+            //throwing an exception here might cause some problem.
+            //Throw an error if you feel like. Make sure it doesn't break anything.
+            return false;
+        }
+        
+        return $channel->addPayload($data);
+        
+    }
+    
+    /**
+     * Feed for the logged in user's profile
+     *
+     * @return mixed
+     */
+    public function feed()
+    {
+        $profileId = $this->id;
+        return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
+            $query->where('channels.profile_id',$profileId);
+        })->get();
+    }
+    
+    /**
+     * Feed which a user would see if he visits his /profile page.
+     */
+    public function profileFeed()
+    {
+        $profileId = $this->id;
+        return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
+            $query->where('channel_name','profile.' . $profileId);
+        })->get();
+    }
+    
+    /**
+     * Feed of the subscribed network of the user.
+     *
+     * @return mixed
+     */
+    public function subscribedNetworksFeed()
+    {
+        $profileId = $this->id;
+        $channels = Channel::select('name')->whereHas("subscribers", function ($query) use ($profileId) {
+            $query->where('profile_id', $profileId)->where('name', 'like', 'network.%')
+                ->where('name', 'not like', 'network.' . $profileId);
+        })->get()->toArray();
+        
+        return Payload::select('payload')->whereHas('channel', function ($query) use ($channels) {
+            $query->whereIn('channel_name', $channels);
+        })->get();
     }
 
 }

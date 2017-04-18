@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Channel\Payload;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
@@ -15,12 +17,31 @@ class Channel extends Model
     
     public function subscribers()
     {
-        return Subscriber::where('channel_name','like',$this->name)->get();
+        return $this->hasMany(Subscriber::class,'channel_name','name');
     }
     
-    public function subscribe($profileId)
+    public function subscribe($subscriberProfileId)
     {
         //todo: notify the channel owner after new subscription
-        return Subscriber::create(['channel_name'=>$this->name,'profile_id'=>$profileId]);
+        return Subscriber::create([
+            'channel_name'=>$this->name,
+            'profile_id'=>$subscriberProfileId,
+            'timestamp'=>Carbon::now()->toDateTimeString()]);
+    }
+    
+    public function unsubscribe($subscriberProfileId)
+    {
+        return $this->subscribers()->where('profile_id',$subscriberProfileId)->delete();
+    }
+    
+    public function payload()
+    {
+        return $this->hasMany(Payload::class,'channel_name','name');
+    }
+    
+    public function addPayload(&$data)
+    {
+        $json = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
+        return $this->payload()->create(['payload'=>json_encode($json)]);
     }
 }

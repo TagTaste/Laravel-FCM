@@ -3,10 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscriber extends Model
 {
-    protected $fillable = ['channel_name', 'profile_id'];
+    use SoftDeletes;
+    protected $fillable = ['channel_name', 'profile_id','timestamp'];
     
     public function profile()
     {

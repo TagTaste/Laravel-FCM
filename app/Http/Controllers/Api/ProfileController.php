@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Profile;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -135,10 +136,14 @@ class ProfileController extends Controller
 
     public function follow(Request $request)
     {
-        $id = $request->input('id');
-        $request->user()->profile->follow($id);
-        //have a better response.
-        return response()->json(['success'=>'done']);
+        $channelOwnerProfileId = $request->input('id');
+        //$request->user()->profile->follow($id);
+        $channelOwner = Profile::find($channelOwnerProfileId);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        return $this->sendResponse();
     }
     
     public function unfollow(Request $request)

@@ -14,14 +14,24 @@ class Recipe extends Model
     protected $fillable = ['name','showcase','description','content', 'ingredients',
         'category', 'serving', 'calorie', 'time', 'image',
         'preparation_time','cooking_time','level','tags',
-        'profile_id'];
+        'profile_id','privacy_id'];
     protected $dates = ['created_at','deleted_at'];
-    protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie',
+    protected $visible = ['id','name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
         'created_at',
         'time','pivot','profile','likeCount'];
     protected $with = ['profile'];
     protected $appends = ['imageUrl','likeCount'];
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Recipe $recipe){
+            //todo: check for privacy
+            $recipe->profile->pushToMyFeed($recipe);
+        });
+    }
 
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
