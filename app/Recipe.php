@@ -14,7 +14,7 @@ class Recipe extends Model
     protected $fillable = ['name','showcase','description','content', 'ingredients',
         'category', 'serving', 'calorie', 'time', 'image',
         'preparation_time','cooking_time','level','tags',
-        'profile_id'];
+        'profile_id','privacy_id'];
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
