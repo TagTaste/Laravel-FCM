@@ -17,7 +17,7 @@ class Job extends Model
     protected $visible = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
-        'company_id', 'type_id', 'company',
+        'company_id', 'type_id', 'company', 'profile_id',
         'applications'
     ];
     
