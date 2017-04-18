@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
@@ -310,12 +311,17 @@ class Profile extends Model
         return $this->hasMany(Subscriber::class);
     }
     
-    public function subscribe($channel)
+    public function subscribeNetworkOf(Profile $owner)
     {
-        $channel = $this->channels->where('name','like',$channel)->first();
+        return $this->subscribe("network." . $owner->id,$owner->id);
+    }
+    
+    public function subscribe($channelName, $ownerId)
+    {
+        $channel = $this->channels->where('name','like',$channelName)->first();
         
         if(!$channel){
-            throw new \Exception("Channel not found."); //or should it be created?
+            $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
         }
         
         return $channel->subscribe($this->id);

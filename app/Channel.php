@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
@@ -18,9 +19,12 @@ class Channel extends Model
         return Subscriber::where('channel_name','like',$this->name)->get();
     }
     
-    public function subscribe($profileId)
+    public function subscribe($subscriberProfileId)
     {
         //todo: notify the channel owner after new subscription
-        return Subscriber::create(['channel_name'=>$this->name,'profile_id'=>$profileId]);
+        return Subscriber::create([
+            'channel_name'=>$this->name,
+            'profile_id'=>$subscriberProfileId,
+            'timestamp'=>Carbon::now()->toDateTimeString()]);
     }
 }
