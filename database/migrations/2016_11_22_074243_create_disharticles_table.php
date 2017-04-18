@@ -12,6 +12,7 @@ class CreateDishArticlesTable extends Migration {
 	 */
 	public function up()
 	{
+        //this table gets renamed later to recipes.
 		Schema::create('dishes', function(Blueprint $table) {
             $table->increments('id');
             $table->text('description');

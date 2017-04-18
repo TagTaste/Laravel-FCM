@@ -17,7 +17,16 @@
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
-                            <th>Title</th> <th>Description</th> <th>Type</th> <th>Location</th> <th>Annual_salary</th> <th>Functional_area</th> <th>Key_skills</th> <th>Xpected_role</th> <th>Experience_required</th> <th>Company_id</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Annual_salary</th>
+                            <th>Functional_area</th>
+                            <th>Key_skills</th>
+                            <th>Expected_role</th>
+                            <th>Experience_required</th>
+                            <th>Company_id</th>
                             <th class="text-right">OPTIONS</th>
                         </tr>
                     </thead>
@@ -27,7 +36,16 @@
                             <tr>
                                 <td class="text-center"><strong>{{$job->id}}</strong></td>
 
-                                <td>{{$job->title}}</td> <td>{{$job->description}}</td> <td>{{$job->type}}</td> <td>{{$job->location}}</td> <td>{{$job->annual_salary}}</td> <td>{{$job->functional_area}}</td> <td>{{$job->key_skills}}</td> <td>{{$job->xpected_role}}</td> <td>{{$job->experience_required}}</td> <td>{{$job->company_id}}</td>
+                                <td>{{$job->title}}</td>
+                                <td>{{$job->description}}</td>
+                                <td>{{$job->type}}</td>
+                                <td>{{$job->location}}</td>
+                                <td>{{$job->annual_salary}}</td>
+                                <td>{{$job->functional_area}}</td>
+                                <td>{{$job->key_skills}}</td>
+                                <td>{{$job->expected_role}}</td>
+                                <td>{{$job->experience_required}}</td>
+                                <td>{{$job->company_id}}</td>
                                 
                                 <td class="text-right">
                                     <a class="btn btn-xs btn-primary" href="{{ route('jobs.show', $job->id) }}">

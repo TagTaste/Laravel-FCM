@@ -23,15 +23,38 @@ class JobController extends Controller
 	{
 		$this->model = $model;
 	}
+    
+    public function filters()
+    {
+        $filters = [];
+        
+        $filters['location'] = Job::select('location')->groupBy('location')->get();
+        $filters['types'] = Job\Type::select('id', 'name')->get();
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
 
 	/**
 	 * Display a listing of the resource.
 	 *
 	 * @return Response
 	 */
-	public function index()
+    public function index(Request $request)
 	{
-		$this->model = $this->model->paginate();
+        $jobs = $this->model;
+        $filters = $request->input('filters');
+        if (!empty($filters['location'])) {
+            $jobs = $jobs->whereIn('location', $filters['location']);
+        }
+        
+        if (!empty($filters['type_id'])) {
+            $jobs = $jobs->whereIn('type_id', $filters['type_id']);
+        }
+        $profileId = $request->user()->profile->id;
+        
+        $this->model = $jobs->with(['applications' => function ($query) use ($profileId) {
+            $query->where('applications.profile_id', $profileId);
+        }])->paginate();
 
 		return $this->sendResponse();
 	}

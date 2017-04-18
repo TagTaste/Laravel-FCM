@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,7 +14,6 @@ use Illuminate\Http\Request;
 |
 */
 
-use Illuminate\Support\Facades\Route;
 Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
     Route::resource('statuses','StatusController');
     Route::resource('types','TypeController');
@@ -32,6 +32,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
             Route::get('profile/{id}',['uses'=>'ProfileController@show']);
     
+            Route::get("jobs/filters", "JobController@filters");
             Route::resource("jobs","JobController");
             Route::post("similar/{relationship}/{relationshipId}",'SimilarController@similar');
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
@@ -40,8 +41,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('comments','CommentController');
             });
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
+            Route::post("recipes/{id}/like","RecipeController@like");
             Route::resource("recipes","RecipeController");
-    
+            
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
     
@@ -100,13 +102,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
                     
                     Route::resource("portfolio","PortfolioController");
-                    Route::post("jobs/{id}/apply/{applicantId}","JobController@apply");
-                    Route::post("jobs/{id}/unapply/{applicantId}","JobController@unapply");
+                    Route::post("jobs/{id}/apply", "JobController@apply");
+                    Route::post("jobs/{id}/unapply", "JobController@unapply");
+                    Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
-    
-    
                 });
+    
                 Route::resource('tagboards','TagBoardController');
                 Route::resource("experiences","ExperienceController");
                 Route::resource("books","BookController");

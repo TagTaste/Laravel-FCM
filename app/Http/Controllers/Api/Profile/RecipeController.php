@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
+use App\RecipeLike;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -30,6 +31,7 @@ class RecipeController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->all();
         $inputs['profile_id'] = $profileId;
+        
         $this->model = Recipe::create($inputs);
         return $this->sendResponse();
     }
@@ -64,7 +66,7 @@ class RecipeController extends Controller
             throw new \Exception("Recipe doesn't belong to the user.");
         }
         
-        $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profiel_id']));
+        $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profile_id']));
         
         return $this->sendResponse();
     }
@@ -95,5 +97,23 @@ class RecipeController extends Controller
         $recipe = Recipe::select('image')->findOrFail($id);
         $path = storage_path("app/" . Recipe::$fileInputs['image'] . "/" . $recipe->image);
         return response()->file($path);
+    }
+    
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function like(Request $request, $profileId, $id)
+    {
+        $profileId = $request->user()->profile->id;
+        $photoLike = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->first();
+        if($photoLike != null) {
+            $this->model = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
+        } else {
+            $this->model = RecipeLike::create(['profile_id' => $profileId, 'recipe_id' => $id]);
+        }
+        return $this->sendResponse();
     }
 }
