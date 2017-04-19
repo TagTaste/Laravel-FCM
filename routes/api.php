@@ -46,7 +46,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('comments','CommentController');
             });
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
-            Route::post("recipes/{id}/like","RecipeController@like");
             Route::resource("recipes","RecipeController");
             
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
@@ -67,6 +66,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');
+                Route::post("recipes/{id}/like","RecipeController@like");
                 Route::resource("recipes","RecipeController");
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
