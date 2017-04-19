@@ -54,4 +54,24 @@ class Privacy extends Model
     {
         return $this->hasMany('\App\Ideabook');
     }
+    
+    protected function isPublic()
+    {
+       return $this->hasVisiblity('public');
+    }
+    
+    protected function isPrivate()
+    {
+        return $this->hasVisiblity('private');
+    }
+    
+    protected function isNetwork()
+    {
+        return $this->hasVisiblity('network');
+    }
+    
+    private function hasVisiblity($visibility)
+    {
+        return strtolower($this->name) == $visibility;
+    }
 }

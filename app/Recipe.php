@@ -59,4 +59,9 @@ class Recipe extends Model
         }
         return $count;
     }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
 }
