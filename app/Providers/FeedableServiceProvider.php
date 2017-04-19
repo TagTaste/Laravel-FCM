@@ -3,11 +3,19 @@
 namespace App\Providers;
 
 use App\Observers\FeedableObserver;
-use App\Recipe;
+
 use Illuminate\Support\ServiceProvider;
 
 class FeedableServiceProvider extends ServiceProvider
 {
+    /**
+     * Namespaced class names which would appear on feeds.
+     *
+     * @var array
+     */
+    private $feedables = [
+        \App\Recipe::class
+    ];
     /**
      * Bootstrap the application services.
      *
@@ -15,7 +23,21 @@ class FeedableServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Recipe::observe(FeedableObserver::class);
+        if(empty($this->feedables)){
+            return;
+        }
+        
+        $this->setFeedableObserver();
+    }
+    
+    /**
+     * Assigns observers to all $feedables.
+     */
+    private function setFeedableObserver()
+    {
+        foreach($this->feedables as $feedable){
+            $feedable::observe(FeedableObserver::class);
+        }
     }
 
     /**
