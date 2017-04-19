@@ -10,7 +10,7 @@ class FeedableObserver {
         
         $model->profile->pushToMyFeed($model);
         
-        if(!method_exists($model,'privacy')){
+        if(!method_exists($model,'privacy') || is_null($model->privacy)){
             //if Privacy is not defined on the model,
             //don't throw an Exception.
             
@@ -20,12 +20,12 @@ class FeedableObserver {
             return;
         }
         
-        if($model->privacy->isNetwork() || $model->privacy->isPublic()){
-            $model->profile->pushToMyNetwork($model);
-        }
-        
-        if($model->privacy->isPublic()){
-            $model->profile->pushToPublic($model);
-        }
+//        if($model->privacy->isNetwork() || $model->privacy->isPublic()){
+//            $model->profile->pushToMyNetwork($model);
+//        }
+//
+//        if($model->privacy->isPublic()){
+//            $model->profile->pushToPublic($model);
+//        }
     }
 }
