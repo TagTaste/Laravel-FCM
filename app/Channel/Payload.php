@@ -11,6 +11,21 @@ class Payload extends Model
     
     protected $fillable = ['channel_name', 'payload'];
     
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Payload $payload){
+            $payload->publish();
+        });
+    
+    }
+    
+    private function publish()
+    {
+        \Redis::publish($this->channel->name, $this->payload);
+    }
+    
     public function channel()
     {
         return $this->belongsTo(Channel::class,'channel_name','name');
