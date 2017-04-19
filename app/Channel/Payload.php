@@ -23,7 +23,7 @@ class Payload extends Model
     
     private function publish()
     {
-        \Redis::publish($this->channel, $this->payload);
+        \Redis::publish($this->channel->name, $this->payload);
     }
     
     public function channel()
