@@ -44,4 +44,13 @@ class Channel extends Model
         $json = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
         return $this->payload()->create(['payload'=>json_encode($json)]);
     }
+    
+    public static function names($id)
+    {
+        $names = ['feed','network','public'];
+        foreach($names as &$name){
+            $name = $name . "." . $id;
+        }
+        return $names;
+    }
 }
