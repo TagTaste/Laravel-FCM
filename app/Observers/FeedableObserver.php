@@ -19,13 +19,12 @@ class FeedableObserver {
             \Log::warning("Not publishing it to network or public feed.");
             return;
         }
-        
-//        if($model->privacy->isNetwork() || $model->privacy->isPublic()){
-//            $model->profile->pushToMyNetwork($model);
-//        }
-//
-//        if($model->privacy->isPublic()){
-//            $model->profile->pushToPublic($model);
-//        }
+        if($model->privacy->isNetwork() || $model->privacy->isPublic()){
+            $model->profile->pushToNetwork($model);
+        }
+
+        if($model->privacy->isPublic()){
+            $model->profile->pushToPublic($model);
+        }
     }
 }
