@@ -15,7 +15,7 @@ class FeedableObserver {
             //don't throw an Exception.
             
             //Don't push it to his network or public feed.
-            \Log::warning("Privacy not defiend for Feedable " . class_basename($model));
+            \Log::warning("Privacy not defined for Feedable " . class_basename($model));
             \Log::warning("Not publishing it to network or public feed.");
             return;
         }
