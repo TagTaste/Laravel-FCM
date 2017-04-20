@@ -106,10 +106,9 @@ class JobController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($request, $profileId, $companyId, $id)
+    public function destroy(Request $request, $profileId, $companyId, $id)
     {
         $company = $request->user()->companies()->where('id',$companyId)->first();
-        
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
