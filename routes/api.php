@@ -29,6 +29,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            //collaborate templates
+            Route::resource("collaborate/templates","CollaborateTemplateController");
+    
+    
             //channel names for socket.io
                 Route::get('channels',function(Request $request){
                     $userId = $request->user()->id;
@@ -44,7 +48,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
             Route::get("jobs/filters", "JobController@filters");
             Route::resource("jobs","JobController");
-            Route::post("similar/{relationship}/{relationshipId}",'SimilarController@similar');
+            Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate","CollaborateController");
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collarabote.'],function(){
