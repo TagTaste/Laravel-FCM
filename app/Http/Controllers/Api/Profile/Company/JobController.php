@@ -176,4 +176,10 @@ class JobController extends Controller
         
         return $this->sendResponse();
     }
+    
+    public function shortlist($profileId, $companyId, $id, $shortlistedProfileId)
+    {
+        $this->model = true;
+        return $this->sendResponse();
+    }
 }

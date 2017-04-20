@@ -113,6 +113,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
                     
                     Route::resource("portfolio","PortfolioController");
+                    Route::post("jobs/{id}/shortlist/{shortlistedProfileId}","JobController@shortlist");
                     Route::post("jobs/{id}/apply", "JobController@apply");
                     Route::post("jobs/{id}/unapply", "JobController@unapply");
                     Route::get('jobs/{id}/applications', 'JobController@applications');
