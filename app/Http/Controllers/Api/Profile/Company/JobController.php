@@ -106,10 +106,9 @@ class JobController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($request, $profileId, $companyId, $id)
+    public function destroy(Request $request, $profileId, $companyId, $id)
     {
         $company = $request->user()->companies()->where('id',$companyId)->first();
-        
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
@@ -174,6 +173,12 @@ class JobController extends Controller
         $this->model = ['applications' => $job->applications()->paginate()];
         $this->model['count'] = $job->applications()->count();
 
+        return $this->sendResponse();
+    }
+    
+    public function shortlist($profileId, $companyId, $id, $shortlistedProfileId)
+    {
+        $this->model = true;
         return $this->sendResponse();
     }
 }
