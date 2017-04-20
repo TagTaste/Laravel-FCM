@@ -16,7 +16,7 @@ class SimilarController extends Controller
         'profile' => Profile::class,
         'photo' => Photo::class,
         'product' => Product::class,
-        'Recipe' => Recipe::class
+        'recipe' => Recipe::class
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)
