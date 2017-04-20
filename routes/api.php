@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,7 +30,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
             //channel names for socket.io
-                Route::get('channels',function(Illuminate\Http\Request $request){
+                Route::get('channels',function(Request $request){
                     $userId = $request->user()->id;
                     return response()->json(\App\Channel::names($userId));
                 });
