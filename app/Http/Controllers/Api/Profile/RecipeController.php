@@ -112,7 +112,7 @@ class RecipeController extends Controller
         if($photoLike != null) {
             $this->model = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
         } else {
-            $this->model = RecipeLike::create(['profile_id' => $profileId, 'recipe_id' => $id]);
+            $this->model = RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
         }
         return $this->sendResponse();
     }

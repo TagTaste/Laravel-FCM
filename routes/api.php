@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +29,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            //channel names for socket.io
+                Route::get('channels',function(Illuminate\Http\Request $request){
+                    $userId = $request->user()->id;
+                    return response()->json(\App\Channel::names($userId));
+                });
+            
             //feeds
                 Route::get("feed",'FeedController@feed');
                 Route::get("feed/profile",'FeedController@profile');
@@ -46,7 +51,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('comments','CommentController');
             });
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
-            Route::post("recipes/{id}/like","RecipeController@like");
             Route::resource("recipes","RecipeController");
             
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
@@ -67,7 +71,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');
+                Route::post("recipes/{id}/like","RecipeController@like");
                 Route::resource("recipes","RecipeController");
+                
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
                 Route::resource("collaborate","CollaborateController");

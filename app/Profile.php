@@ -97,6 +97,7 @@ class Profile extends Model
         
         self::created(function(Profile $profile){
             Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+            Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
         });
     }
     
@@ -377,9 +378,15 @@ class Profile extends Model
         //push to my channel
         return $this->pushToNetwork($data);
     }
+    
     public function pushToNetwork(&$data)
     {
         return $this->pushToChannel("network." . $this->id,$data);
+    }
+    
+    public function pushToPublic(&$data)
+    {
+        return $this->pushToChannel("public." . $this->id,$data);
     }
     
     public function pushToChannel($channelName,&$data)
@@ -390,6 +397,7 @@ class Profile extends Model
             //since a user can post even if he has no network (i.e. no followers)
             //throwing an exception here might cause some problem.
             //Throw an error if you feel like. Make sure it doesn't break anything.
+            \Log::warning("Channel " . $channelName . " does not exist.");
             return false;
         }
         

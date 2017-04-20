@@ -31,8 +31,9 @@ class JobController extends Controller
      *
      * @return Response
      */
-    public function index($profileId, $companyId)
+    public function index(Request $request, $profileId, $companyId)
     {
+        $profileId = $request->user()->id;
         $this->model = [];
         $this->model['jobs'] = Job::where('company_id', $companyId)
             ->with(['applications' => function ($query) use ($profileId) {
