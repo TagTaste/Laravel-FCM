@@ -172,7 +172,7 @@ class JobController extends Controller
     
         $this->model = ['applications' => $job->applications()->paginate()];
         $this->model['count'] = $job->applications()->count();
-        
+
         return $this->sendResponse();
     }
     
