@@ -18,9 +18,9 @@ class Recipe extends Model
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['id','name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
-        'created_at','pivot','profile','likeCount'];
+        'created_at','pivot','profile','likeCount','hasLiked'];
     protected $with = ['profile'];
-    protected $appends = ['imageUrl','likeCount'];
+    protected $appends = ['imageUrl','likeCount','hasLiked'];
 
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
@@ -36,6 +36,11 @@ class Recipe extends Model
     public function comments()
     {
         return $this->belongsToMany('App\Comment','comments_recipes','recipe_id','comment_id');
+    }
+    
+    public function getHasLikedAttribute()
+    {
+        return $this->like->count() === 1;
     }
     
     public function like()
