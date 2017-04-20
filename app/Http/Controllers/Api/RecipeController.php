@@ -35,7 +35,7 @@ class RecipeController extends Controller
      * @param $id
      * @return mixed
      */
-    public function dishImages($id)
+    public function recipeImages($id)
     {
         $recipe = Recipe::select('image')->findOrFail($id);
         $path = storage_path("app/" . Recipe::$fileInputs['image'] . "/" . $recipe->image);
