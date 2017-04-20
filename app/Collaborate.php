@@ -9,9 +9,12 @@ class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on',
-        'profile_id', 'company_id'];
+        'profile_id', 'company_id','additionalFields'];
     
     protected $with = ['profiles','companies'];
+    
+    protected $appends = ['additionalFields'];
+    
     /**
      * Which profile created the collaboration project.
      *
@@ -93,5 +96,16 @@ class Collaborate extends Model
     public function comments()
     {
         return $this->belongsToMany(Comment::class,'comments_collaborates','collaborate_id','comment_id');
+    }
+    
+    
+    public function template()
+    {
+        return $this->belongsTo(CollaborateTemplate::class);
+    }
+    
+    public function getAdditionalFieldsAttribute()
+    {
+        return $this->template->fields;
     }
 }
