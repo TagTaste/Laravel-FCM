@@ -3,12 +3,15 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
+    use PushesToChannel;
+    
     protected $fillable = [
                             'tagline',
                             'about',
@@ -370,40 +373,6 @@ class Profile extends Model
         return $channel->subscribe($profile->id);
     }
     
-    public function pushToMyFeed(&$data)
-    {
-        //push to my feed
-        $this->pushToChannel("feed." . $this->id,$data);
-        
-        //push to my channel
-        return $this->pushToNetwork($data);
-    }
-    
-    public function pushToNetwork(&$data)
-    {
-        return $this->pushToChannel("network." . $this->id,$data);
-    }
-    
-    public function pushToPublic(&$data)
-    {
-        return $this->pushToChannel("public." . $this->id,$data);
-    }
-    
-    public function pushToChannel($channelName,&$data)
-    {
-        $channel = $this->channels()->where('name',$channelName)->first();
-        
-        if(!$channel){
-            //since a user can post even if he has no network (i.e. no followers)
-            //throwing an exception here might cause some problem.
-            //Throw an error if you feel like. Make sure it doesn't break anything.
-            \Log::warning("Channel " . $channelName . " does not exist.");
-            return false;
-        }
-        
-        return $channel->addPayload($data);
-        
-    }
     
     /**
      * Feed for the logged in user's profile
