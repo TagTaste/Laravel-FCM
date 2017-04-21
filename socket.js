@@ -53,6 +53,6 @@ io.on('connection', function(socket){
     }).end();
 });
 
-http.listen(3001, function(){
+http.listen(3000, function(){
     //console.log('Listening on Port 3001');
 });
