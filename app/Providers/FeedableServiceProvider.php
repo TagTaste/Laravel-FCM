@@ -16,10 +16,6 @@ class FeedableServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(empty($this->feedables)){
-            return;
-        }
-        
         $this->setFeedableObserver();
     }
     
