@@ -2,23 +2,31 @@
 
 namespace App;
 
+use App\Interfaces\Feedable;
+use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \App\Scopes\Profile as ScopeProfile;
 use \App\Scopes\Company as ScopeCompany;
-class Photo extends Model
+
+class Photo extends Model implements Feedable
 {
     use ScopeProfile, ScopeCompany, SoftDeletes;
     
+    use IdentifiesOwner;
+    
     protected $fillable = ['caption','file'];
 
-    protected $visible = ['id','caption','photoUrl','created_at','comments','likeCount','hasLiked'];
+    protected $visible = ['id','caption','photoUrl',
+        'created_at','comments','likeCount','hasLiked',
+        'profile_id','company_id'
+        ];
 
     protected $with = ['like'];
 
-    protected $appends = ['likeCount','hasLiked','photoUrl'];
+    protected $appends = ['likeCount','hasLiked','photoUrl','profile_id','company_id'];
     
     protected $dates = ['deleted_at'];
 
@@ -113,6 +121,30 @@ class Photo extends Model
     public function company()
     {
         return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
+    }
+    
+    public function getCompany()
+    {
+        return $this->company->first();
+    }
+    
+    public function getProfileIdAttribute()
+    {
+        $profile = $this->getProfile();
+        
+        return $profile !== null ? $profile->id : null;
+    }
+    
+    public function getCompanyIdAttribute()
+    {
+        $company = $this->getCompany();
+        
+        return $company !== null ? $company->id : null;
+    }
+    
+    public function owner()
+    {
+        return $this->getOwner();
     }
    
 }

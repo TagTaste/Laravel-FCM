@@ -2,10 +2,11 @@
 
 namespace App;
 
+use App\Interfaces\Feedable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Recipe extends Model
+class Recipe extends Model implements Feedable
 {
     use SoftDeletes;
     
@@ -68,5 +69,10 @@ class Recipe extends Model
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
+    }
+    
+    public function owner()
+    {
+        return $this->profile;
     }
 }
