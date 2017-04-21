@@ -8,15 +8,6 @@ use Illuminate\Support\ServiceProvider;
 
 class FeedableServiceProvider extends ServiceProvider
 {
-    /**
-     * Namespaced class names which would appear on feeds.
-     *
-     * @var array
-     */
-    private $feedables = [
-        \App\Recipe::class,
-        \App\Photo::class,
-    ];
     
     /**
      * Bootstrap the application services.
@@ -37,9 +28,8 @@ class FeedableServiceProvider extends ServiceProvider
      */
     private function setFeedableObserver()
     {
-        foreach($this->feedables as $feedable){
-            $feedable::observe(FeedableObserver::class);
-        }
+        \App\Recipe::observe(FeedableObserver::class);
+        \App\Photo::observe(FeedableObserver::class);
     }
 
     /**
