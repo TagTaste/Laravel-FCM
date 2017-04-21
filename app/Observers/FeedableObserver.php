@@ -21,11 +21,11 @@ class FeedableObserver {
         }
         
         if($model->privacy->isNetwork() || $model->privacy->isPublic()){
-            $model->profile->pushToNetwork($model);
+            $model->owner()->pushToNetwork($model);
         }
 
         if($model->privacy->isPublic()){
-            $model->profile->pushToPublic($model);
+            $model->owner()->pushToPublic($model);
         }
     }
 }
