@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Designation;
 
 class DesignationController extends Controller
 {
-    use SendsJsonResponse;
     
     /**
      * Display a listing of the resource.

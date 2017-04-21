@@ -1,15 +1,12 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 use App\Company\Website;
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
 class WebsiteController extends Controller {
 
-    use SendsJsonResponse;
 	/**
 	 * Display a listing of the resource.
 	 *

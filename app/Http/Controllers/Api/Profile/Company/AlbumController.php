@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Album;
-use App\Company;
-use App\Http\Controllers\Controller;
-use \Tagtaste\Api\SendsJsonResponse;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 
 class AlbumController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *

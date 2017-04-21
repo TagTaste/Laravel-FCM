@@ -1,13 +1,11 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company\Portfolio;
-use App\Http\Controllers\Controller;
-use \Tagtaste\Api\SendsJsonResponse;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 
 class PortfolioController extends Controller {
 
-    use SendsJsonResponse;
 	/**
 	 * Display a listing of the resource.
 	 *

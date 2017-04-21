@@ -10,7 +10,9 @@ class Privacy extends Model
     use SoftDeletes;
 
     protected $dates = ['deleted_at'];
-
+    
+    protected $visible = ['id','name'];
+    
     public static function boot()
     {
         parent::boot();
@@ -51,5 +53,25 @@ class Privacy extends Model
     public function ideabooks()
     {
         return $this->hasMany('\App\Ideabook');
+    }
+    
+    public function isPublic()
+    {
+       return $this->hasVisiblity('public');
+    }
+    
+    public function isPrivate()
+    {
+        return $this->hasVisiblity('private');
+    }
+    
+    public function isNetwork()
+    {
+        return $this->hasVisiblity('network');
+    }
+    
+    private function hasVisiblity($visibility)
+    {
+        return strtolower($this->name) == $visibility;
     }
 }

@@ -12,19 +12,21 @@ class CreateRecipeArticlesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('recipe_articles', function(Blueprint $table) {
+		Schema::create('recipes', function(Blueprint $table) {
             $table->increments('id');
             $table->integer('dish_id')->unsigned()->nullable();
             $table->integer('step');
             $table->text('content');
             $table->integer('template_id')->unsigned()->nullable();
             $table->integer('parent_id')->unsigned()->nullable();
+            $table->integer('difficulty_level')->default(0);
+            
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign("dish_id")->references("id")->on("dish_articles");
+            $table->foreign("dish_id")->references("id")->on("dishes");
             $table->foreign("template_id")->references("id")->on("templates");
-            $table->foreign("parent_id")->references("id")->on("recipe_articles");
+            $table->foreign("parent_id")->references("id")->on("recipes");
         });
 	}
 
@@ -35,7 +37,7 @@ class CreateRecipeArticlesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('recipe_articles');
+		Schema::drop('recipes');
 	}
 
 }

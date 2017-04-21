@@ -5,7 +5,7 @@ use App\Company\Product;
 use App\ProfileType;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 class ProductController extends Controller {
 
@@ -40,7 +40,7 @@ class ProductController extends Controller {
 
 		$product->name = $request->input("name");
         $product->price = $request->input("price");
-
+        $product->image = "http://placehold.it/10x10";
         if($request->hasFile('image')){
         	$filename = $request->user()->id . str_random(25) . ".jpeg";
         	$request->image->storeAs('product_images',$filename);

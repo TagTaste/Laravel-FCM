@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateJobsTable extends Migration {
 
@@ -21,7 +21,7 @@ class CreateJobsTable extends Migration {
             $table->string('annual_salary')->nullable();
             $table->string('functional_area')->nullable();
             $table->text('key_skills')->nullable();
-            $table->string('xpected_role')->nullable();
+            $table->string('xpected_role')->nullable(); //it is renamed later.
             $table->string('experience_required')->nullable();
             $table->integer('company_id')->unsigned();
             $table->dateTime("expires_on")->nullable();

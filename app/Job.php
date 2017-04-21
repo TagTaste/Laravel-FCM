@@ -2,30 +2,71 @@
 
 namespace App;
 
+use App\Job\Type;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Job extends Model
 {
-    protected $fillable = ['title', 'description', 'type', 'location', 'annual_salary', 'functional_area', 'key_skills', 'xpected_role', 'experience_required', 'company_id'];
+    use SoftDeletes;
+    protected $fillable = ['title', 'description', 'type', 'location',
+        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
+        'experience_required',
+        'company_id', 'type_id'
+
+    ];
+    protected $visible = ['id','title', 'description', 'type', 'location',
+        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
+        'experience_required',
+        'company_id', 'type_id', 'company', 'profile_id',
+        'applications'
+    ];
+    
+    protected $with = ['company', 'applications'];
+    
+    protected $appends = ['type', 'profile_id'];
+    
+    public function hasApplied($profileId)
+    {
+        return $this->applications()->where('profile_id', $profileId)->count() == 1;
+    }
+    
+    public function applications()
+    {
+        return $this->hasMany(\App\Application::class);
+    }
     
     public function company()
     {
         return $this->belongsTo(\App\Company::class);
     }
     
-    public function applications()
+    public function getTypeAttribute()
     {
-        return $this->hasManyThrough(\App\Profile::class,\App\Application::class);
+        return $this->jobType->name;
+    }
+    
+    public function jobType()
+    {
+        return $this->belongsTo(Type::class, 'type_id');
+    }
+    
+    
+    public function getProfileIdAttribute()
+    {
+        return $this->company->user->profile->id;
     }
     
     public function apply($profileId)
     {
-        return \DB::table('applications')->insert(['job_id'=>$this->id,'profile_id'=>$profileId]);
+        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId, 'created_at' => Carbon::now()->toDateTimeString()]);
     }
     
     public function unapply($profileId)
     {
         return \DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete();
-    
+        
     }
+    
 }

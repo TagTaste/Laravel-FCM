@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Api\Response;
-use App\Http\Controllers\Controller;
 use App\Profile;
-use \Tagtaste\Api\SendsJsonResponse;
-use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
-    use SendsJsonResponse;
-    
     /**
      * Display a listing of the resource.
      *
@@ -27,38 +21,23 @@ class ProfileController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
+        $userId = $request->user()->id;
+        
         $profile = \App\User::whereHas('profile',function($query) use ($id) {
             $query->where('id','=',$id);
-        })->first();
-
+        })->with(['ideabooks'=>function($query) use ($userId) {
+            $query->where('user_id',$userId);
+        }])->with(['profile.ideabooks'=>function($query) use ($id){
+            $query->where('profile_id',$id);
+        }])->first();
+        
         return $profile;
     }
 
@@ -157,10 +136,14 @@ class ProfileController extends Controller
 
     public function follow(Request $request)
     {
-        $id = $request->input('id');
-        $request->user()->profile->follow($id);
-        //have a better response.
-        return response()->json(['success'=>'done']);
+        $channelOwnerProfileId = $request->input('id');
+        //$request->user()->profile->follow($id);
+        $channelOwner = Profile::find($channelOwnerProfileId);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        return $this->sendResponse();
     }
     
     public function unfollow(Request $request)

@@ -5,9 +5,11 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Tagtaste\Api\SendsJsonResponse;
 
 class Handler extends ExceptionHandler
 {
+    use SendsJsonResponse;
     /**
      * A list of the exception types that should not be reported.
      *
@@ -45,8 +47,9 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         if ($request->expectsJson()) {
-            $message = $exception->getMessage();
-            return response()->json($message);
+            $this->errors[] = $exception->getMessage();
+            $this->status = 400;
+            return $this->sendResponse();
         }
         
         return parent::render($request, $exception);

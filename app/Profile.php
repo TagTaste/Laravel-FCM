@@ -2,11 +2,16 @@
 
 namespace App;
 
+use App\Channel\Payload;
+use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
+    use PushesToChannel;
+    
     protected $fillable = [
                             'tagline',
                             'about',
@@ -21,6 +26,7 @@ class Profile extends Model
                             'facebook_url',
                             'linkedin_url',
                             'instagram_link',
+                            'pinterest_url',
                             'other_links',
                             'ingredients',
                             'favourite_moments',
@@ -41,7 +47,7 @@ class Profile extends Model
                         'certifications',
                         'tvshows',
                         'books',
-                        'albums',
+                        //'albums',
                         'projects',
                         'professional'
                       ];
@@ -61,7 +67,8 @@ class Profile extends Model
                           'facebook_url',
                           'linkedin_url',
                           'instagram_link',
-                          'other_links',
+                            'pinterest_url',
+                            'other_links',
                           'ingredients',
                           'favourite_moments',
                           'verified',
@@ -77,18 +84,34 @@ class Profile extends Model
                           'followingProfiles',
                           'followerProfiles',
                           'name',
-                          'albums',
+                          'photos',
                           'projects',
                           'professional',
                           'created_at',
-                          'pincode'
+                          'pincode',
+                            'isTagged'
                         ];
 
-    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles'];
-
+    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Profile $profile){
+            Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+            Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
+        });
+    }
+    
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+    
+    public function getNameAttribute()
+    {
+        return $this->user->name;
     }
 
     public function setDobAttribute($value)
@@ -103,7 +126,6 @@ class Profile extends Model
         if(!empty($value)){
             return date("d-m-Y",strtotime($value));
         }
-        
     }
 
     public function experience()
@@ -129,6 +151,11 @@ class Profile extends Model
     public function books()
     {
         return $this->hasMany('App\Profile\Book');
+    }
+    
+    public function recipes()
+    {
+        return $this->hasMany(\App\Recipe::class);
     }
 
     //specific to API
@@ -187,7 +214,17 @@ class Profile extends Model
             ->join('users','users.id','=','followers.follows_id')
             ->where('followers.follower_id','=',$this->id)->get();
 
-        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+            $count = $profiles->count();
+            if($count > 1000000)
+            {
+                 $count = round($count/1000000, 1) . "m";
+            }
+            elseif($count > 1000)
+            {
+                $count = round($count/1000, 1) . "k";
+            }
+
+        return ['count'=> $count, 'profiles' => $profiles];
 
     }
 
@@ -200,18 +237,26 @@ class Profile extends Model
             ->join('users','users.id','=','followers.follower_id')
             ->where('followers.follows_id','=',$this->id)->get();
 
-        return ['count'=> $profiles->count(), 'profiles' => $profiles];
+             $count = $profiles->count();
+            if($count > 1000000)
+            {
+                 $count = round($count/1000000, 1);
+                $count = $count."M";
+            }
+            elseif($count > 1000)
+            {
+               
+                $count = round($count/1000, 1);
+                $count = $count."K";
+            }
 
-    }
+        return ['count'=> $count, 'profiles' => $profiles];
 
-    public function albums()
-    {
-        return $this->belongsToMany('App\Album','profile_albums','profile_id','album_id');
     }
 
     public function photos()
     {
-        return $this->hasManyThrough('App\Photo','App\Album');
+        return $this->belongsToMany('App\Photo','profile_photos','profile_id','photo_id');
     }
 
     public function projects()
@@ -248,6 +293,127 @@ class Profile extends Model
     public function professional()
     {
         return $this->hasOne('\App\Professional');
+    }
+    
+    /**
+     * Just the pivot relationship. Ideabook of a user is defined in \App\User
+     */
+    
+    public function ideabooks()
+    {
+        return $this->belongsToMany('\App\Ideabook','ideabook_profiles','profile_id','ideabook_id');
+    }
+    
+    public function getIsTaggedAttribute()
+    {
+        return $this->ideabooks->count() === 1;
+    }
+    
+    public function collaborate()
+    {
+        return $this->hasMany(\App\Collaborate::class);
+    }
+    
+    public function channels()
+    {
+        return $this->hasMany(Channel::class);
+    }
+    
+    public function subscribers()
+    {
+        return $this->hasMany(Subscriber::class);
+    }
+    
+    /**
+     * Subscribe the owner's network
+     * @param Profile $owner
+     * @return mixed
+     */
+    public function subscribeNetworkOf(Profile $owner)
+    {
+        return $this->subscribe("network." . $owner->id,$owner->id);
+    }
+    
+    public function subscribe($channelName, $ownerId)
+    {
+        $channel = $this->channels->where('name','like',$channelName)->first();
+        
+        if(!$channel){
+            $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
+        }
+        
+        return $channel->subscribe($this->id);
+    }
+    
+    public function unsubscribeNetworkOf(Profile $owner)
+    {
+        return $this->unsubscribe("network." . $owner->id,$owner->id);
+    }
+    
+    public function unsubscribe($channelName)
+    {
+        $channel = $this->channels->where('name','like',$channelName)->first();
+        
+        if(!$channel){
+            throw new ModelNotFoundException();
+        }
+        
+        return $channel->unsubscribe($this->id);
+    }
+    
+    public function addSubscriber(Profile $profile)
+    {
+        $channelName = 'network.' . $this->id;
+        $channel = $this->channels()->where('name','like',$channelName)->first();
+        
+        if(!$channel){
+            //create channel
+            $channel = $this->channels()->create(['name'=>$channelName]);
+        }
+        return $channel->subscribe($profile->id);
+    }
+    
+    
+    /**
+     * Feed for the logged in user's profile
+     *
+     * @return mixed
+     */
+    public function feed()
+    {
+        $profileId = $this->id;
+        return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
+            $query->where('channels.profile_id',$profileId);
+        })->get();
+    }
+    
+    /**
+     * Feed which a user would see if he visits his /profile page.
+     */
+    public function profileFeed()
+    {
+        $profileId = $this->id;
+        return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
+            $query->where('channel_name','profile.' . $profileId);
+        })->get();
+    }
+    
+    /**
+     * Feed of the subscribed network of the user.
+     *
+     * @return mixed
+     */
+    public function subscribedNetworksFeed()
+    {
+        $profileId = $this->id;
+        $channels = Channel::select('name')->whereHas("subscribers", function ($query) use ($profileId) {
+            $query->where('profile_id', $profileId)->where('name', 'like', 'network.%')
+                ->where('name', 'not like', 'network.' . $profileId);
+        })->get()->toArray();
+        
+        return Payload::select('payload')->whereHas('channel', function ($query) use ($channels) {
+            $query->whereIn('channel_name', $channels);
+        })->get();
     }
 
 }

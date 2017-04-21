@@ -183,15 +183,12 @@ return [
 
         //Custom Service Providers
         App\Providers\ViewComponents::class,
-
+        App\Providers\FeedableServiceProvider::class,
+        
         //Package Service Providers
         Laralib\L5scaffold\GeneratorsServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class
-
-
-
-
     ],
 
     /*

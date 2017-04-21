@@ -44,9 +44,9 @@
 </p> <label>Key_skills</label>
 <p>
 	{{ $job->key_skills }}
-</p> <label>Xpected_role</label>
+</p> <label>Expected_role</label>
 <p>
-	{{ $job->xpected_role }}
+    {{ $job->expected_role }}
 </p> <label>Experience_required</label>
 <p>
 	{{ $job->experience_required }}

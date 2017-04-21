@@ -43,6 +43,10 @@ class Album extends Model
         return $this->belongsToMany('App\Profile','profile_albums','album_id','profile_id');
     }
 
+    public function getProfile(){
+        return $this->profile->first();
+    }
+
     public function company()
     {
         return $this->belongsToMany('App\Company','company_albums','album_id','company_id');

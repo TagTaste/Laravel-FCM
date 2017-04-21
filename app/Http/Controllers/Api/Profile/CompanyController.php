@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
-use App\Http\Controllers\Controller;
-use \Tagtaste\Api\SendsJsonResponse;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 
 
 class CompanyController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -39,7 +36,9 @@ class CompanyController extends Controller
             'milestones',
             'speciality'
         ]);
-        
+        if(empty($inputs)){
+            throw new \Exception("Empty request received.");
+        }
         $imageName = null;
         $heroImageName = null;
         if($request->hasFile('logo')){
