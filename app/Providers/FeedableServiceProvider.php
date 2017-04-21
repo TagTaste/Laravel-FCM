@@ -14,8 +14,10 @@ class FeedableServiceProvider extends ServiceProvider
      * @var array
      */
     private $feedables = [
-        \App\Recipe::class
+        \App\Recipe::class,
+        \App\Photo::class,
     ];
+    
     /**
      * Bootstrap the application services.
      *
