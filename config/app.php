@@ -186,10 +186,8 @@ return [
         App\Providers\FeedableServiceProvider::class,
         
         //Package Service Providers
-        Laralib\L5scaffold\GeneratorsServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
-        //Maknz\Slack\Laravel\ServiceProvider::class,
     ],
 
     /*
