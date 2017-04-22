@@ -384,7 +384,7 @@ class Profile extends Model
         $profileId = $this->id;
         return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
             $query->where('channels.profile_id',$profileId);
-        })->get();
+        })->orderBy('created_at','desc')->get();
     }
     
     /**
@@ -395,7 +395,7 @@ class Profile extends Model
         $profileId = $this->id;
         return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
             $query->where('channel_name','profile.' . $profileId);
-        })->get();
+        })->orderBy('created_at','desc')->get();
     }
     
     /**
@@ -413,7 +413,7 @@ class Profile extends Model
         
         return Payload::select('payload')->whereHas('channel', function ($query) use ($channels) {
             $query->whereIn('channel_name', $channels);
-        })->get();
+        })->orderBy('created_at','desc')->get();
     }
     
     public function shoutouts()

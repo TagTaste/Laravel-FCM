@@ -16,7 +16,7 @@ class RecipeController extends Controller
      */
     public function index($profileId)
     {
-        $this->model = Recipe::where('profile_id',$profileId)->orderBy('created_at')->get();
+        $this->model = Recipe::where('profile_id',$profileId)->orderBy('created_at','desc')->get();
         return $this->sendResponse();
     }
 
