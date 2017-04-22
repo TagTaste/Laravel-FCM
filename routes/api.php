@@ -31,8 +31,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
             //collaborate templates
             Route::resource("collaborate/templates","CollaborateTemplateController");
-    
-    
+            
+            //shoutouts
+            Route::resource("shoutout/{model}/{modelId}",'ShoutoutController');
+            
             //channel names for socket.io
                 Route::get('channels',function(Request $request){
                     $userId = $request->user()->id;
