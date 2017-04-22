@@ -12,7 +12,7 @@ class Shoutout extends Model implements Feedable
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag'];
     
-    protected $visible = ['content','profile_id','company_id','owner'];
+    protected $visible = ['content','profile_id','company_id','owner','created_at','likeCount'];
     
     protected $appends = ['owner'];
     
@@ -29,5 +29,10 @@ class Shoutout extends Model implements Feedable
     public function getOwnerAttribute()
     {
         return $this->owner();
+    }
+    
+    public function getlikeCountAttribute()
+    {
+        return 0;
     }
 }
