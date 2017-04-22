@@ -189,7 +189,7 @@ return [
         Laralib\L5scaffold\GeneratorsServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
-        Maknz\Slack\Laravel\ServiceProvider::class,
+        //Maknz\Slack\Laravel\ServiceProvider::class,
     ],
 
     /*
