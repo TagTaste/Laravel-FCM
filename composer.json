@@ -15,7 +15,8 @@
         "elasticsearch/elasticsearch": "~5.0",
         "tymon/jwt-auth": "0.5.*",
         "guzzlehttp/guzzle": "^6.2",
-        "tagtaste/api-response": "^0.1"
+        "tagtaste/api-response": "^0.1",
+        "maknz/slack-laravel": "1.0.0"
     },
 
     "require-dev": {
