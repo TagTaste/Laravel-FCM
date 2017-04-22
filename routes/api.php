@@ -33,7 +33,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("collaborate/templates","CollaborateTemplateController");
             
             //shoutouts
-            Route::resource("shoutout/{model}/{modelId}",'ShoutoutController');
+            Route::resource("shoutout",'ShoutoutController');
             
             //channel names for socket.io
                 Route::get('channels',function(Request $request){

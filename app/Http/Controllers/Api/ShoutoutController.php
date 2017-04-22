@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Shoutout;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class ShoutoutController extends Controller
 {
@@ -34,17 +33,7 @@ class ShoutoutController extends Controller
 	{
 		$shoutouts = $this->model->paginate();
 
-		return view('shoutouts.index', compact('shoutouts'));
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		return view('shoutouts.create');
+		return $this->sendResponse();
 	}
 
 	/**
@@ -56,9 +45,16 @@ class ShoutoutController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-		$this->model->create($inputs);
-
-		return redirect()->route('shoutouts.index')->with('message', 'Item created successfully.');
+		
+		try {
+            $this->verifyOwner($request);
+        } catch (\Exception $e){
+		    //if there's an error, just throw it.
+		    throw $e;
+        }
+        
+		$this->model = $this->model->create($inputs);
+		return $this->sendResponse();
 	}
 
 	/**
@@ -67,24 +63,18 @@ class ShoutoutController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $id)
 	{
-		$shoutout = $this->model->findOrFail($id);
+        try {
+            $this->verifyOwner($request);
+        } catch (\Exception $e){
+            //if there's an error, just throw it.
+            throw $e;
+        }
+        
+		$this->model = $this->model->findOrFail($id);
 		
-		return view('shoutouts.show', compact('shoutout'));
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$shoutout = $this->model->findOrFail($id);
-		
-		return view('shoutouts.edit', compact('shoutout'));
+		return $this->sendResponse();
 	}
 
 	/**
@@ -96,12 +86,19 @@ class ShoutoutController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
+        try {
+            $this->verifyOwner($request);
+        } catch (\Exception $e){
+            //if there's an error, just throw it.
+            throw $e;
+        }
+        
 		$inputs = $request->all();
 
-		$shoutout = $this->model->findOrFail($id);		
-		$shoutout->update($inputs);
+		$this->model = $this->model->findOrFail($id);
+		$this->model = $this->model->update($inputs);
 
-		return redirect()->route('shoutouts.index')->with('message', 'Item updated successfully.');
+		return $this->sendResponse();
 	}
 
 	/**
@@ -112,8 +109,32 @@ class ShoutoutController extends Controller
 	 */
 	public function destroy($id)
 	{
-		$this->model->destroy($id);
-
-		return redirect()->route('shoutouts.index')->with('message', 'Item deleted successfully.');
+        try {
+            $this->verifyOwner($request);
+        } catch (\Exception $e){
+            //if there's an error, just throw it.
+            throw $e;
+        }
+        
+		$this->model = $this->model->destroy($id);
+        return $this->sendResponse();
+	}
+    
+    private function verifyOwner(Request &$request)
+    {
+        if($request->has('company_id') && $request->input('company_id') !== null){
+            $company = $request->user()->company()
+                ->where('id',$request->input('company_id'))->first();
+            if(!$company){
+                throw new \Exception("User doesn't belong to this company.");
+            }
+        }
+    
+        if($request->has('profile_id') && $request->input('profile_id') !== null){
+            $profile = $request->user()->profile()->where('id',$request->input('profile_id'))->first();
+            if(!$profile){
+                throw new \Exception("User doesn't belong to this profile.");
+            }
+        }
 	}
 }
