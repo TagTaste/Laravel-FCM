@@ -46,6 +46,11 @@ class ShoutoutController extends Controller
 	{
 		$inputs = $request->all();
 		
+		//move this to validator
+        if(empty($inputs['profile_id']) && empty($inputs['company_id'])){
+            throw new \Exception("Missing owner information");
+        }
+  
 		try {
             $this->verifyOwner($request);
         } catch (\Exception $e){
@@ -136,6 +141,8 @@ class ShoutoutController extends Controller
                 throw new \Exception("User doesn't belong to this profile.");
             }
         }
+        
+        throw new \Exception("Missing Profile Id or company id");
 	}
     
     public function like(Request $request)
