@@ -16,6 +16,15 @@ class Shoutout extends Model implements Feedable
     
     protected $appends = ['owner'];
     
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class);
+    }
+    
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
     public function getOwnerAttribute()
     {
         return $this->owner();
