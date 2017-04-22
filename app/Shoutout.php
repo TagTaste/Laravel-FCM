@@ -31,7 +31,7 @@ class Shoutout extends Model implements Feedable
         return $this->owner();
     }
     
-    public function getlikeCountAttribute()
+    public function getLikeCountAttribute()
     {
         return 0;
     }
