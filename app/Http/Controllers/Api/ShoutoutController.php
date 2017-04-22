@@ -137,4 +137,9 @@ class ShoutoutController extends Controller
             }
         }
 	}
+    
+    public function like(Request $request)
+    {
+        return;
+	}
 }
