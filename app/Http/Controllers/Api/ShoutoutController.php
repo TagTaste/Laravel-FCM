@@ -127,6 +127,7 @@ class ShoutoutController extends Controller
     
     private function verifyOwner(Request &$request)
     {
+        \Log::info($request->has('profile_id') && $request->input('profile_id') !== null);
         if($request->has('company_id') && $request->input('company_id') !== null){
             $company = $request->user()->company()
                 ->where('id',$request->input('company_id'))->first();
@@ -142,7 +143,9 @@ class ShoutoutController extends Controller
             }
         }
         
-        throw new \Exception("Missing Profile Id or company id");
+        if($request->input('company_id') !== null && $request->input('profile_id') !== null){
+            throw new \Exception("Missing Profile Id or company id");
+        }
 	}
     
     public function like(Request $request)
