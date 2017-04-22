@@ -18,18 +18,19 @@ trait IdentifiesOwner
      */
     public function getOwner()
     {
-        if(property_exists($this,'company_id')){
-            if($this->company_id !== null){
-                return $this->getCompany();
-            }
+        if(property_exists($this,'company_id') && $this->company_id !== null){
+           return $this->getCompany();
         }
         
-        if(property_exists($this,'profile_id')){
-            if($this->profile_id !== null){
-                return $this->getProfile();
-            }
+        if(property_exists($this,'profile_id') && $this->profile_id !== null){
+            return $this->getProfile();
         }
         
         throw new \Exception("IdentifiesOwner Trait used, but this " . self::class . " belongs to neither Profile Nor Company");
+    }
+    
+    public function owner()
+    {
+        return $this->getOwner();
     }
 }
