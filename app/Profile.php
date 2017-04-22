@@ -415,5 +415,10 @@ class Profile extends Model
             $query->whereIn('channel_name', $channels);
         })->get();
     }
+    
+    public function shoutouts()
+    {
+        return $this->hasMany(Shoutout::class);
+    }
 
 }

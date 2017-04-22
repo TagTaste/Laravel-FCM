@@ -195,4 +195,9 @@ class Company extends Model
     {
         return $this->hasMany(\App\Collaborate::class);
     }
+    
+    public function shoutouts()
+    {
+        return $this->hasMany(Shoutout::class);
+    }
 }
