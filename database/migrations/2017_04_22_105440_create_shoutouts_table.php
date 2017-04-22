@@ -19,6 +19,10 @@ class CreateShoutoutsTable extends Migration {
             $table->integer('company_id')->unsigned()->nullable();
             $table->integer('flag')->default(0);
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->foreign('profile_id')->references('id')->on('profiles');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
 	}
 
