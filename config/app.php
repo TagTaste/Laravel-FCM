@@ -242,7 +242,6 @@ return [
         'Html' => Collective\Html\HtmlFacade::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
-        'Slack' => Maknz\Slack\Laravel\Facade::class,
 
     ],
 
