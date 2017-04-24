@@ -142,12 +142,13 @@ class ProfileController extends Controller
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
-        try {
-            $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        
+            $subscriber = $request->user()->profile->subscribeNetworkOf($channelOwner);
     
-        } catch (\Exception $e){
-            throw $e;
+        if(!$subscriber){
+            throw new \Exception("You are already following this profile.");
         }
+        
         return $this->sendResponse();
     }
     
@@ -159,11 +160,11 @@ class ProfileController extends Controller
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
-        try {
-            $this->model = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
-        }
-        catch (\Exception $e){
-            throw $e;
+        
+            $subscriber = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
+        
+        if(!$subscriber){
+            throw new \Exception("You are not following this profile.");
         }
         return $this->sendResponse();
     }

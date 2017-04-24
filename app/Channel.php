@@ -25,7 +25,7 @@ class Channel extends Model
         //todo: notify the channel owner after new subscription
         $subscriber = Subscriber::where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
         if($subscriber){
-            throw new \Exception("You are already following this profile.");
+            return false;
         }
        
         $subscriber = Subscriber::create([
@@ -41,7 +41,7 @@ class Channel extends Model
         $subscriber = Subscriber::where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
         
         if(!$subscriber){
-            throw new \Exception("You are not following this profile.");
+            return false;
         }
         
         return $subscriber->delete();
