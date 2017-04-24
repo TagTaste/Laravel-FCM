@@ -23,8 +23,11 @@ class Channel extends Model
     public function subscribe($subscriberProfileId)
     {
         //todo: notify the channel owner after new subscription
-        $subscriber = Subscriber::where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
+        $subscriber = Subscriber::withTrashed()->where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
         if($subscriber){
+            if($subscriber->trashed()){
+                return $subscriber->restore();
+            }
             return false;
         }
        
