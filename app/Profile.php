@@ -237,7 +237,11 @@ class Profile extends Model
         $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
-            ->where('subscribers.channel_name','like','network.' . $this->id)->get();
+            ->where('subscribers.channel_name','like','network.' . $this->id)
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->whereNull('users.deleted_at')
+            ->get();
 
              $count = $profiles->count();
             if($count > 1000000)
