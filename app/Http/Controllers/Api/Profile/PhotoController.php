@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use Illuminate\Http\Request;
@@ -42,6 +43,7 @@ class PhotoController extends Controller
         $this->saveFileToData("file",$path,$request,$data);
         
         $this->model = $request->user()->profile->photos()->create($data);
+        event(new NewFeedable($this->model));
         return $this->sendResponse();
     }
     
