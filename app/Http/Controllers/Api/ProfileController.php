@@ -148,10 +148,14 @@ class ProfileController extends Controller
     
     public function unfollow(Request $request)
     {
-        $id = $request->input('id');
-        $request->user()->profile->unfollow($id);
-        //have a better response.
-        return response()->json(['success'=>'done']);
+        $channelOwnerProfileId = $request->input('id');
+        //$request->user()->profile->follow($id);
+        $channelOwner = Profile::find($channelOwnerProfileId);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $this->model = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
+        return $this->sendResponse();
     }
 
 }
