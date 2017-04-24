@@ -211,7 +211,7 @@ class Profile extends Model
 
         $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
-            ->join('users','users.id','=','followers.follows_id')
+            ->join('users','users.id','=','profiles.user_id')
             ->where('subscribers.channel_name','like','network.' . $this->id)->get();
         
             $count = $profiles->count();
