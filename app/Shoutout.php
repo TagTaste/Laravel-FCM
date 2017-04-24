@@ -10,11 +10,13 @@ class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id'];
     
-    protected $visible = ['content','profile_id','company_id','owner','created_at','likeCount'];
+    protected $visible = ['content','profile_id','company_id','owner','created_at','likeCount','privacy_id','privacy'];
     
     protected $appends = ['owner','likeCount'];
+    
+    protected $with = ['privacy'];
     
     public function profile()
     {
