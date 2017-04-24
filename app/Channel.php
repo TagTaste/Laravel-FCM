@@ -63,10 +63,15 @@ class Channel extends Model
     
     public static function names($id)
     {
-        $names = ['feed','network','public'];
-        foreach($names as &$name){
+        $default = ['feed','network','public'];
+        foreach($default as &$name){
             $name = $name . "." . $id;
         }
-        return $names;
+        $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
+        if($subscribedChannels){
+           $subscribed = $subscribedChannels->pluck('channel_name');
+           $default = array_merge($subscribed->toArray(), $default);
+        }
+        return $default;
     }
 }
