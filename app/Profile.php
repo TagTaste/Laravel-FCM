@@ -337,7 +337,9 @@ class Profile extends Model
     public function subscribe($channelName, $ownerId)
     {
         $channel = $this->channels()->where('name','like',$channelName)->first();
-        
+        \Log::info(Channel::where("name",'like',$channelName)->first());
+        \Log::info($channelName);
+        \Log::info($channel);
         if($channel === null){
             $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
         }
