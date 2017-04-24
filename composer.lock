@@ -3955,6 +3955,61 @@
             "time": "2017-03-03T06:30:20+00:00"
         },
         {
+            "name": "razorpay/slack",
+            "version": "v1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/razorpay/slack.git",
+                "reference": "7b1100bcae7611dd11d6a759225569abe3260def"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/razorpay/slack/zipball/7b1100bcae7611dd11d6a759225569abe3260def",
+                "reference": "7b1100bcae7611dd11d6a759225569abe3260def",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "~6.0|~5.0|~4.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "illuminate/queue": "5.*",
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "4.2.*"
+            },
+            "suggest": {
+                "nexylan/slack-bundle": "Required for Symfony bundle support",
+                "razorpay/slack-laravel": "Required for Laravel support"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Razorpay\\Slack\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "maknz",
+                    "email": "github@mak.geek.nz"
+                },
+                {
+                    "name": "Team Razorpay",
+                    "email": "support@razorpay.com"
+                }
+            ],
+            "description": "A simple PHP package for sending messages to Slack, with a focus on ease of use and elegant syntax.",
+            "keywords": [
+                "laravel",
+                "slack"
+            ],
+            "time": "2017-03-10T06:17:18+00:00"
+        },
+        {
             "name": "sebastian/code-unit-reverse-lookup",
             "version": "1.0.1",
             "source": {
