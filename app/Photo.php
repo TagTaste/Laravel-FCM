@@ -146,7 +146,7 @@ class Photo extends Model implements Feedable
     {
         $profile = $this->getProfile();
         
-        if($profile !== null){
+        if($profile){
             return $profile;
         }
         
