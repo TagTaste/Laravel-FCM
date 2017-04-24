@@ -38,7 +38,7 @@ class Channel extends Model
     
     public function unsubscribe($subscriberProfileId)
     {
-        $subscriber = Subscriber::where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
+        $subscriber = Subscriber::where('channel_name','like',$this->name)->where('profile_id',$subscriberProfileId)->first();
         
         if(!$subscriber){
             return false;
