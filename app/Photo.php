@@ -105,7 +105,8 @@ class Photo extends Model implements Feedable
     
     public function getPhotoUrlAttribute()
     {
-        return "/profiles/photos/" . $this->id . ".jpg";
+        $profileId = $this->getProfile()->id;
+        return "/profiles/" . $profileId . "photos/" . $this->id . ".jpg";
     }
     
     public function profile()
