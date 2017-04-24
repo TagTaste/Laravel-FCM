@@ -92,7 +92,7 @@ class Profile extends Model
                             'isTagged'
                         ];
 
-    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
+    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged','name'];
     
     public static function boot()
     {
