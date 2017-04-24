@@ -144,7 +144,13 @@ class Photo extends Model implements Feedable
     
     public function owner()
     {
-        return $this->getOwner();
+        $profile = $this->getProfile();
+        
+        if($profile !== null){
+            return $profile;
+        }
+        
+        return $this->getCompany();
     }
    
 }
