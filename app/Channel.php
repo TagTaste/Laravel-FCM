@@ -63,7 +63,11 @@ class Channel extends Model
     
     public static function names($id)
     {
-        $default = ['feed','network','public'];
+        //it's ok to have public channel here.
+        //because, in socket.js, it would be
+        //connected to a namespaced socket.io :D
+        //G Maane Genious.
+        $default = ['feed','public'];
         foreach($default as &$name){
             $name = $name . "." . $id;
         }
@@ -72,6 +76,7 @@ class Channel extends Model
            $subscribed = $subscribedChannels->pluck('channel_name');
            $default = array_merge($subscribed->toArray(), $default);
         }
+        \Log::info($default);
         return $default;
     }
 }
