@@ -23,15 +23,28 @@ class Channel extends Model
     public function subscribe($subscriberProfileId)
     {
         //todo: notify the channel owner after new subscription
-        return Subscriber::create([
+        $subscriber = Subscriber::where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
+        if($subscriber){
+            throw new \Exception("You are already following this profile.");
+        }
+       
+        $subscriber = Subscriber::create([
             'channel_name'=>$this->name,
             'profile_id'=>$subscriberProfileId,
             'timestamp'=>Carbon::now()->toDateTimeString()]);
+        
+        return $subscriber;
     }
     
     public function unsubscribe($subscriberProfileId)
     {
-        return $this->subscribers()->where('profile_id',$subscriberProfileId)->delete();
+        $subscriber = Subscriber::where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
+        
+        if(!$subscriber){
+            throw new \Exception("You are not following this profile.");
+        }
+        
+        return $subscriber->delete();
     }
     
     public function payload()
