@@ -7,33 +7,43 @@ var requester = require("http");
 var logErr = function(err,count){
     if(err !== null) console.log(err);
 };
-
-var emit = function(pattern, channel, message){
+//socketio namespaces
+var feedNamespace = io.of('/feed');
+var feedEmit = function(pattern, channel, message){
     message = JSON.parse(message);
-    io.emit(channel, message);
+    //io.emit(channel, message);
+    feedNamespace.to(channel).emit("message", message);
+};
+
+var publicNamespace = io.of("/public");
+
+var publicEmit = function(pattern, channel, message){
+    message = JSON.parse(message);
+    //io.emit(channel, message);
+    publicNamespace.to(channel).emit("message", message);
 };
 
 var feed = new Redis();
 feed.psubscribe('feed.*', logErr);
-feed.on('pmessage', emit);
+feed.on('pmessage', feedEmit);
 
 var network = new Redis();
 network.psubscribe('network.*',logErr);
-network.on('pmessage',emit);
+network.on('pmessage',feedEmit);
 
 var public = new Redis();
 public.psubscribe('public.*',logErr);
-public.on('pmessage',emit);
+public.on('pmessage',publicEmit);
 
 io.on('disconnect', function(){
     //console.log('user disconnected');
 });
 
-io.on('connection', function(socket){
+var makeConnection = function(socket){
     //console.log('connected');
     var token = socket.handshake.query['token'];
     var options = {
-        host: 'web.app',
+        host: 'testapi.tagtaste.com:8080',
         path : '/api/channels',
         method: 'get',
         headers: {
@@ -42,16 +52,22 @@ io.on('connection', function(socket){
         }
     };
     requester.request(options, function(response) {
-        console.log(response.statusCode);
         if(response.statusCode !== 200){
             socket.disconnect(true);
         }
         response.setEncoding('utf8');
         response.on('data',function(body){
-            socket.join(body);
+            body = JSON.parse(body);
+            var rooms = Object.keys(body).map(function(k) { return body[k] });
+            for(var i in rooms){
+                socket.join(rooms[i]);
+            }
         })
     }).end();
-});
+};
+
+feedNamespace.on('connection', makeConnection);
+publicNamespace.on('connection', makeConnection);
 
 http.listen(3001, function(){
     //console.log('Listening on Port 3001');
