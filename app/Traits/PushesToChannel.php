@@ -31,9 +31,6 @@ trait PushesToChannel
     {
         //push to my feed
         $this->pushToChannel("feed." . $this->id,$data);
-        
-        //push to my channel
-        return $this->pushToNetwork($data);
     }
     
     public function pushToNetwork(&$data)
