@@ -24,6 +24,7 @@ trait IdentifiesOwner
             
             //if there's a custom implementation, call that.
             if(method_exists($this,'getCompany')){
+                \Log::info("Calling custom company method.");
                 return $this->getCompany();
             }
             
@@ -35,6 +36,8 @@ trait IdentifiesOwner
             
             //there's a custom implementation, call that.
             if(method_exists($this,'getProfile')){
+                \Log::info("Calling profile company method.");
+    
                 return $this->getProfile();
             }
             
