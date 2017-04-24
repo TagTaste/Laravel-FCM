@@ -210,11 +210,12 @@ class Profile extends Model
         //if you use \App\Profile here, it would end up nesting a lot of things.
 
         $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
-            ->join('followers','followers.follows_id','=','profiles.id')
+            ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','followers.follows_id')
-            ->where('followers.follower_id','=',$this->id)->get();
-
+            ->where('subscribers.channel_name','like','network.' . $this->id)->get();
+        
             $count = $profiles->count();
+            
             if($count > 1000000)
             {
                  $count = round($count/1000000, 1) . "m";
