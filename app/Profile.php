@@ -212,7 +212,8 @@ class Profile extends Model
         $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
-            ->where('subscribers.channel_name','like','network.' . $this->id)->get();
+            ->where('subscribers.channel_name','like','network.%')
+            ->where('subscribers.profile_id','=',$this->id)->get();
         
             $count = $profiles->count();
             
@@ -232,11 +233,11 @@ class Profile extends Model
     public function getFollowerProfilesAttribute()
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
-
+    
         $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
-            ->join('followers','followers.follower_id','=','profiles.id')
-            ->join('users','users.id','=','followers.follower_id')
-            ->where('followers.follows_id','=',$this->id)->get();
+            ->join('subscribers','subscribers.profile_id','=','profiles.id')
+            ->join('users','users.id','=','profiles.user_id')
+            ->where('subscribers.channel_name','like','network.' . $this->id)->get();
 
              $count = $profiles->count();
             if($count > 1000000)
