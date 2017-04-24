@@ -21,12 +21,11 @@ class Photo extends Model implements Feedable
 
     protected $visible = ['id','caption','photoUrl',
         'created_at','comments','likeCount','hasLiked',
-        'profile_id','company_id'
-        ];
+        'profile_id','company_id','owner'];
 
     protected $with = ['like'];
 
-    protected $appends = ['likeCount','hasLiked','photoUrl','profile_id','company_id'];
+    protected $appends = ['likeCount','hasLiked','photoUrl','profile_id','company_id','owner'];
     
     protected $dates = ['deleted_at'];
 
@@ -151,6 +150,11 @@ class Photo extends Model implements Feedable
         }
         
         return $this->getCompany();
+    }
+    
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
     }
    
 }
