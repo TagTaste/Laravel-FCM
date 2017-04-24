@@ -336,9 +336,9 @@ class Profile extends Model
     
     public function subscribe($channelName, $ownerId)
     {
-        $channel = $this->channels->where('name','like',$channelName)->first();
+        $channel = $this->channels()->where('name','like',$channelName)->first();
         
-        if(!$channel){
+        if($channel === null){
             $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
         }
         
@@ -352,7 +352,7 @@ class Profile extends Model
     
     public function unsubscribe($channelName)
     {
-        $channel = $this->channels->where('name','like',$channelName)->first();
+        $channel = $this->channels()->where('name','like',$channelName)->first();
         
         if(!$channel){
             throw new ModelNotFoundException();
