@@ -35,4 +35,9 @@ class Shoutout extends Model implements Feedable
     {
         return 0;
     }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
 }
