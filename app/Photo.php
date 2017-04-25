@@ -17,11 +17,12 @@ class Photo extends Model implements Feedable
     
     use IdentifiesOwner;
     
-    protected $fillable = ['caption','file'];
+    protected $fillable = ['caption','file','privacy_id'];
 
     protected $visible = ['id','caption','photoUrl',
         'created_at','comments','likeCount','hasLiked',
-        'profile_id','company_id','owner'];
+        'profile_id','company_id','privacy_id',
+        'owner'];
 
     protected $with = ['like'];
 
@@ -156,6 +157,11 @@ class Photo extends Model implements Feedable
     public function getOwnerAttribute()
     {
         return $this->owner();
+    }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
     }
    
 }
