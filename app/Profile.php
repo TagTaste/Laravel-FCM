@@ -99,8 +99,19 @@ class Profile extends Model
         parent::boot();
         
         self::created(function(Profile $profile){
-            Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
-            Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
+            
+            //create profile's feed channel
+            $feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+            
+            //subscribe to own feed channel
+            $profile->subscribe($feed->name,$profile->id);
+            
+            //create profile's public channel
+            $public  = Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
+            
+            //subscribe to own public channel
+            $profile->subscribe($public->name,$public->id);
+    
         });
     }
     
@@ -388,7 +399,9 @@ class Profile extends Model
     {
         $profileId = $this->id;
         return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
-            $query->where('channels.profile_id',$profileId);
+            $query->where('channels.profile_id',$profileId)
+            ->where('channels.name','not like','network.' . $profileId)
+            ->where('channels.name','not like','public.' . $profileId);
         })->orderBy('created_at','desc')->get();
     }
     
