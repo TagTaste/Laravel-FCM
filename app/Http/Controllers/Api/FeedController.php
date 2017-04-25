@@ -17,7 +17,7 @@ class FeedController extends Controller
             ->where('subscribers.channel_name','not like','network.' . $profileId)
             ->where('subscribers.channel_name','not like','public.' . $profileId)
             ->orderBy('channel_payloads.created_at','desc')
-            ->paginate();
+            ->get();
         return $this->sendResponse();
     }
     
@@ -27,7 +27,7 @@ class FeedController extends Controller
         $profileId = $request->user()->profile->id;
         $this->model = Payload::select('payload')
             ->where('channel_name','public.' . $profileId)
-            ->orderBy('created_at','desc')->paginate();
+            ->orderBy('created_at','desc')->get();
         return $this->sendResponse();
     }
     
@@ -41,7 +41,7 @@ class FeedController extends Controller
             ->where('subscribers.channel_name','not like','feed.' . $profileId)
             ->where('subscribers.channel_name','not like','profile.' . $profileId)
             ->where('subscribers.channel_name','not like','network.' . $profileId)
-            ->paginate();
+            ->get();
         return $this->sendResponse();
     }
 }
