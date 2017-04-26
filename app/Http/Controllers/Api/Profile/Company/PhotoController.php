@@ -33,8 +33,9 @@ class PhotoController extends Controller
         if(!$company){
             throw new \Exception( "This company does not belong to the user.");
         }
+    
+        $data = $request->except(['_method','_token','company_id']);
         
-        $data = $request->only(['caption','file']);
         if(!$request->hasFile('file') && empty($request->input('file)'))){
             throw new \Exception('Empty file sent.');
         }
@@ -43,7 +44,10 @@ class PhotoController extends Controller
         $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
         $data['file'] = $imageName;
        
-
+        if(!isset($data['privacy_id'])){
+            $data['privacy_id'] = 1;
+        }
+        
         $this->model = $company->photos()->create($data);
         return $this->sendResponse();
     }
@@ -81,14 +85,18 @@ class PhotoController extends Controller
         if(!$company){
            throw new \Exception("This company does not belong to the user.");
         }
+        
+        $data = $request->except(['_method','_token','company_id']);
     
         if($request->hasFile('file')) {
             $imageName = str_random(32) . ".jpg";
             $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
             $data['file'] = $imageName;
         }
-
-        $this->model = $company->photos()->where('id',$id)->update($request->only(['caption','file']));
+        if(!isset($data['privacy_id'])){
+            $data['privacy_id'] = 1;
+        }
+        $this->model = $company->photos()->where('id',$id)->update($data);
         return $this->sendResponse();
     }
 

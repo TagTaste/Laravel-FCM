@@ -37,8 +37,10 @@ class PhotoController extends Controller
     public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $data = $request->only(['file','caption']);
-       
+        $data = $request->except(['_method','_token','profile_id']);
+        if(!isset($data['privacy_id'])){
+            $data['privacy_id'] = 1;
+        }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
@@ -89,7 +91,10 @@ class PhotoController extends Controller
      */
     public function update(Request $request, $profileId,$id)
     {
-        $data = $request->intersect(['caption','file']);
+        $data = $request->except(['_method','_token','profile_id']);
+        if(!isset($data['privacy_id'])){
+            $data['privacy_id'] = 1;
+        }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
