@@ -16,7 +16,7 @@ class FeedableObserver {
         event(new UpdateFeedable($model));
     }
     
-    public function deleted($model)
+    public function deleting($model)
     {
         event(new DeleteFeedable($model));
     }
