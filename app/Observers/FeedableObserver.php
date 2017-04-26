@@ -16,7 +16,7 @@ class FeedableObserver {
         event(new UpdateFeedable($model));
     }
     
-    public function deleting($model)
+    public function deleted($model)
     {
         \Log::info('deleting');
         \Log::info($model);
