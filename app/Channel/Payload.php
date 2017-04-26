@@ -4,9 +4,12 @@ namespace App\Channel;
 
 use App\Channel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payload extends Model
 {
+    use SoftDeletes;
+    
     protected $table = 'channel_payloads';
     
     protected $fillable = ['channel_name', 'payload'];
