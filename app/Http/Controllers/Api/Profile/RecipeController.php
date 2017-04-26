@@ -78,7 +78,7 @@ class RecipeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
     
@@ -93,7 +93,7 @@ class RecipeController extends Controller
         return $this->sendResponse();
     }
 
-    public function recipeImages($id)
+    public function recipeImages($profileId, $id)
     {
         $recipe = Recipe::select('image')->find($id);
         
