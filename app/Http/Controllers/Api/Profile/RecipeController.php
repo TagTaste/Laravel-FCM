@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
 use App\RecipeLike;
@@ -86,7 +87,7 @@ class RecipeController extends Controller
         if($recipe === null){
             throw new \Exception("Recipe doesn't belong to the user.");
         }
-    
+        event(new DeleteFeedable($recipe));
         $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->delete();
     
         return $this->sendResponse();
