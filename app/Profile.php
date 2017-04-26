@@ -101,16 +101,15 @@ class Profile extends Model
         self::created(function(Profile $profile){
             
             //create profile's feed channel
-            $feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+            //$feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
             
             //subscribe to own feed channel
-            $profile->subscribe($feed->name,$profile->id);
+            $profile->subscribe("feed." . $profile->id,$profile->id);
             
             //create profile's public channel
-            $public  = Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
-            
+            //$public  = Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
             //subscribe to own public channel
-            $profile->subscribe($public->name,$public->id);
+            $profile->subscribe("public." . $profile->id,$profile->id);
     
         });
     }
@@ -354,6 +353,7 @@ class Profile extends Model
     public function subscribe($channelName, $ownerId)
     {
         $channel = Channel::where('profile_id',$ownerId)->where('name','like',$channelName)->first();
+        
         if($channel === null){
             $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
         }
