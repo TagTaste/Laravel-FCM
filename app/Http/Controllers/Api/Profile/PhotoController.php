@@ -7,6 +7,7 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
@@ -123,6 +124,10 @@ class PhotoController extends Controller
     public function image($profileId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
+        
+        if(!$photo){
+            throw new ModelNotFoundException("Could not find photo with id " . $id);
+        }
         return response()->file(Photo::getProfileImagePath($profileId, $photo->file));
     }
 }

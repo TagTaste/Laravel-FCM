@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
 use App\RecipeLike;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -94,7 +95,11 @@ class RecipeController extends Controller
 
     public function recipeImages($id)
     {
-        $recipe = Recipe::select('image')->findOrFail($id);
+        $recipe = Recipe::select('image')->find($id);
+        
+        if($recipe === null){
+            throw new ModelNotFoundException("Could not find recipe with id " . $id);
+        }
         $path = storage_path("app/" . Recipe::$fileInputs['image'] . "/" . $recipe->image);
         return response()->file($path);
     }
