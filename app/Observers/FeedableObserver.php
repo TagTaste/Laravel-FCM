@@ -2,7 +2,7 @@
 
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
-use App\Listeners\DeleteFeedable;
+use App\Events\DeleteFeedable;
 
 class FeedableObserver {
     
@@ -18,7 +18,7 @@ class FeedableObserver {
     
     public function deleting($model)
     {
-        \Log::info('deleting ');
+        \Log::info('deleting');
         \Log::info($model);
         event(new DeleteFeedable($model));
     }
