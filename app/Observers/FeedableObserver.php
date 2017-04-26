@@ -8,4 +8,12 @@ class FeedableObserver {
     {
         event(new NewFeedable($model));
     }
+    
+    public function updated($model)
+    {
+        if(method_exists($model,'payload')){
+            $model->payload->update(['payload'=>$model]);
+        }
+        
+    }
 }

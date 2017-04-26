@@ -30,4 +30,10 @@ class Payload extends Model
     {
         return $this->belongsTo(Channel::class,'channel_name','name');
     }
+    
+    public function setPayloadAttribute($data)
+    {
+        $payload = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
+        $this->attributes['payload'] = json_encode($payload);
+    }
 }

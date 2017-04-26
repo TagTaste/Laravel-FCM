@@ -57,8 +57,7 @@ class Channel extends Model
     
     public function addPayload(&$data)
     {
-        $json = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
-        return $this->payload()->create(['payload'=>json_encode($json)]);
+        return $this->payload()->create(['payload'=>$data]);
     }
     
     public static function names($id)

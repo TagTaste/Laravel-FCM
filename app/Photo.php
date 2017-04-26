@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +41,9 @@ class Photo extends Model implements Feedable
 //            });
         });
         
+        self::updated(function($photo){
+            $photo->payload->update(['payload'=>$photo]);
+        });
     }
 
 
@@ -163,6 +167,11 @@ class Photo extends Model implements Feedable
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
     }
    
 }
