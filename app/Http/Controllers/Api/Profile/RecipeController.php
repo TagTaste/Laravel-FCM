@@ -84,7 +84,7 @@ class RecipeController extends Controller
     
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
     
-        if($recipe){
+        if($recipe === null){
             throw new \Exception("Recipe doesn't belong to the user.");
         }
     
