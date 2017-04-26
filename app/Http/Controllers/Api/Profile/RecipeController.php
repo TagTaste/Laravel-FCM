@@ -81,8 +81,6 @@ class RecipeController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-        \Log::info($profileId);
-        \Log::info($id);
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
     
         if($recipe === null){
