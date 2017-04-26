@@ -347,7 +347,8 @@ class Profile extends Model
      */
     public function subscribeNetworkOf(Profile $owner)
     {
-        return $this->subscribe("network." . $owner->id,$owner->id);
+        $this->subscribe("network." . $owner->id,$owner->id);
+        return $this->subscribe("public." . $owner->id,$owner->id);
     }
     
     public function subscribe($channelName, $ownerId)
@@ -363,7 +364,8 @@ class Profile extends Model
     
     public function unsubscribeNetworkOf(Profile $owner)
     {
-        return $this->unsubscribe("network." . $owner->id,$owner->id);
+        $this->unsubscribe("network." . $owner->id,$owner->id);
+        return $this->unsubscribe("public." . $owner->id,$owner->id);
     }
     
     public function unsubscribe($channelName, $ownerId)
