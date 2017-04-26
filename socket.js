@@ -33,6 +33,7 @@ network.on('pmessage',feedEmit);
 
 var public = new Redis();
 public.psubscribe('public.*',logErr);
+public.on('pmessage',feedEmit);
 public.on('pmessage',publicEmit);
 
 io.on('disconnect', function(){
