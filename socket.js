@@ -44,7 +44,8 @@ var makeConnection = function(socket){
     //console.log('connected');
     var token = socket.handshake.query['token'];
     var options = {
-        host: 'testapi.tagtaste.com:8080',
+        host: 'testapi.tagtaste.com',
+        port: 8080,
         path : '/api/channels',
         method: 'get',
         headers: {
