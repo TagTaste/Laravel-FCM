@@ -1,6 +1,8 @@
 <?php namespace App\Observers;
 
 use App\Events\NewFeedable;
+use App\Events\UpdateFeedable;
+use App\Listeners\DeleteFeedable;
 
 class FeedableObserver {
     
@@ -11,9 +13,13 @@ class FeedableObserver {
     
     public function updated($model)
     {
-        if(method_exists($model,'payload')){
-            $model->payload->update(['payload'=>$model]);
-        }
-        
+        event(new UpdateFeedable($model));
     }
+    
+    public function deleted($model)
+    {
+        event(new DeleteFeedable($model));
+    }
+    
+    
 }
