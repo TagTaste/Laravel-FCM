@@ -15,7 +15,7 @@ class Recipe extends Model implements Feedable
     protected $fillable = ['name','showcase','description','content', 'ingredients',
         'category', 'serving', 'calorie', 'image',
         'preparation_time','cooking_time','level','tags',
-        'profile_id','privacy_id'];
+        'profile_id','privacy_id','payload_id'];
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['id','name','description','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
@@ -74,5 +74,10 @@ class Recipe extends Model implements Feedable
     public function owner()
     {
         return $this->profile;
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
     }
 }

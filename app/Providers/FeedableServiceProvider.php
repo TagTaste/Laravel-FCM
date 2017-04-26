@@ -25,7 +25,7 @@ class FeedableServiceProvider extends ServiceProvider
     private function setFeedableObserver()
     {
         \App\Recipe::observe(FeedableObserver::class);
-        //\App\Photo::observe(FeedableObserver::class);
+        \App\Photo::observe(FeedableObserver::class);
         \App\Shoutout::observe(FeedableObserver::class);
     }
 

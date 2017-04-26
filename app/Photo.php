@@ -18,7 +18,7 @@ class Photo extends Model implements Feedable
     
     use IdentifiesOwner;
     
-    protected $fillable = ['caption','file','privacy_id'];
+    protected $fillable = ['caption','file','privacy_id','payload_id'];
 
     protected $visible = ['id','caption','photoUrl',
         'created_at','comments','likeCount','hasLiked',
@@ -39,10 +39,6 @@ class Photo extends Model implements Feedable
 //            \DB::transaction(function() use ($photo){
                 $photo->ideabooks()->detach();
 //            });
-        });
-        
-        self::updated(function($photo){
-            $photo->payload->update(['payload'=>$photo]);
         });
     }
 
