@@ -4,6 +4,7 @@ namespace App;
 
 use App\Interfaces\Feedable;
 use App\Traits\IdentifiesOwner;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Shoutout extends Model implements Feedable
@@ -41,5 +42,11 @@ class Shoutout extends Model implements Feedable
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
+    }
+    
+    public function getCreatedAtAttribute()
+    {
+        $createdAt =new Carbon($this->attributes['created_at']);
+        return $createdAt->diffForHumans();
     }
 }
