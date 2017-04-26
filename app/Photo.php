@@ -147,7 +147,6 @@ class Photo extends Model implements Feedable
     public function owner()
     {
         $profile = $this->getProfile();
-        \Log::info($profile);
         if($profile){
             return $profile;
         }

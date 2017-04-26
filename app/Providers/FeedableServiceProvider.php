@@ -25,7 +25,11 @@ class FeedableServiceProvider extends ServiceProvider
     private function setFeedableObserver()
     {
         \App\Recipe::observe(FeedableObserver::class);
-        \App\Photo::observe(FeedableObserver::class);
+        
+        //dont add photos here.
+        //laravel doesn't fire created event on pivot.
+//        \App\Photo::observe(FeedableObserver::class);
+        
         \App\Shoutout::observe(FeedableObserver::class);
     }
 

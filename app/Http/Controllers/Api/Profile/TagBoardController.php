@@ -61,7 +61,7 @@ class TagBoardController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $profileId, $id)
-    {\Log::info($request->all());
+    {
         $this->model = $request->user()->ideabooks()
                 ->where('id',$id)
                 ->update($request->intersect(['name','description','keywords','privacy_id']));

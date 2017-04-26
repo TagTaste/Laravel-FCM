@@ -75,7 +75,6 @@ class Channel extends Model
            $subscribed = $subscribedChannels->pluck('channel_name');
            $default = array_merge($subscribed->toArray(), $default);
         }
-        \Log::info($default);
         return $default;
     }
 }

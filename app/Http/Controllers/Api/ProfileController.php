@@ -144,7 +144,6 @@ class ProfileController extends Controller
         }
         
         $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
-        \Log::info($this->model);
         if(!$this->model){
             throw new \Exception("You are already following this profile.");
         }
