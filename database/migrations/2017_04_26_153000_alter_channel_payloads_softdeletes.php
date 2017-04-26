@@ -14,7 +14,7 @@ class AlterChannelPayloadsSoftdeletes extends Migration
     public function up()
     {
         Schema::table('channel_payloads',function(Blueprint $table){
-           $table->timestamp('deleted_at');
+           $table->timestamp('deleted_at')->nullable();
         });
     }
 
