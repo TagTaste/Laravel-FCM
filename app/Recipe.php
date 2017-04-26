@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
