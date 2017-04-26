@@ -222,9 +222,14 @@ class Profile extends Model
         $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
+            ->join('channels','channels.profile_id','=','profiles.id')
+            ->where("channels.profile_id",'!=',$this->id)
             ->where('subscribers.channel_name','like','network.%')
-            ->where('subscribers.profile_id','=',$this->id)->get();
-        
+            ->where('subscribers.profile_id','=',$this->id)
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->whereNull('users.deleted_at')
+            ->get();
             $count = $profiles->count();
             
             if($count > 1000000)
@@ -248,6 +253,7 @@ class Profile extends Model
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
             ->where('subscribers.channel_name','like','network.' . $this->id)
+            ->where('subscribers.profile_id','!=',$this->id)
             ->whereNull('profiles.deleted_at')
             ->whereNull('subscribers.deleted_at')
             ->whereNull('users.deleted_at')
