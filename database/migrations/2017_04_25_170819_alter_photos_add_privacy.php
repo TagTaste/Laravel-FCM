@@ -15,7 +15,6 @@ class AlterPhotosAddPrivacy extends Migration
     {
         Schema::table('photos',function(Blueprint $table){
             $table->integer("privacy_id")->unsigned()->default(1);
-            
             $table->foreign("privacy_id")->references('id')->on('privacies');
         });
     }
@@ -28,7 +27,7 @@ class AlterPhotosAddPrivacy extends Migration
     public function down()
     {
         Schema::table('photos',function(Blueprint $table){
-            $table->dropForeign('privacy_id');
+            $table->dropForeign('photos_privacy_id_foreign');
             $table->dropColumn('privacy_id');
         });
     }
