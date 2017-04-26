@@ -157,25 +157,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("certifications","CertificationController");
         });
 });
-Route::get('resetnow',function(){
-    $profiles = \DB::table('profiles')->select('id')->get();
-    $channels = [];
-    $subscribers = [];
-    foreach($profiles as $profile){
-            
-            
-            $channels[] =        ['name'=>"feed." . $profile->id,'profile_id'=>$profile->id];
-        $channels[] =        ['name'=>"network." . $profile->id,'profile_id'=>$profile->id];
-        $channels[] =            ['name'=>"public." . $profile->id,'profile_id'=>$profile->id];
-            
-            
-            $subscribers[] =  ['channel_name'=>"feed." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->toDateTimeString()];
-            $subscribers[] =  ['channel_name'=>"network." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->toDateTimeString()];
-            $subscribers[] =  ['channel_name'=>"public." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->toDateTimeString()_];
-    }
-    \App\Channel::insert($channels);
-    \App\Subscriber::insert($subscribers);
-});
+
 Route::post('login',function(Request $request){
     $credentials = $request->only('email','password');
 
