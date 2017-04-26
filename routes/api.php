@@ -158,7 +158,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         });
 });
 Route::get('resetnow',function(){
-    $profiles = \DB::table('profiles')->select('id')->all();
+    $profiles = \DB::table('profiles')->select('id')->get();
     $channels = [];
     $subscribers = [];
     foreach($profiles as $profile){
