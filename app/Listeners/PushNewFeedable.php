@@ -19,7 +19,7 @@ class PushNewFeedable
     }
 
     /**
-     * Handle the event.
+     * Push model to only one of the feeds (public, network, or private)
      *
      * @param  NewFeedable  $event
      * @return void
@@ -29,8 +29,6 @@ class PushNewFeedable
         if(!method_exists($event->model,'owner')){
             throw new \Exception("Owner not defined on Feedable " . class_basename($event->model));
         }
-    
-        $event->model->owner()->pushToMyFeed($event->model);
     
         if(!method_exists($event->model,'privacy') || is_null($event->model->privacy)){
             //if Privacy is not defined on the model,
@@ -42,12 +40,16 @@ class PushNewFeedable
             return;
         }
     
-        if($event->model->privacy->isNetwork() || $event->model->privacy->isPublic()){
-            $event->model->owner()->pushToNetwork($event->model);
-        }
-    
         if($event->model->privacy->isPublic()){
             $event->model->owner()->pushToPublic($event->model);
+            return;
         }
+        
+        if($event->model->privacy->isNetwork()){
+            $event->model->owner()->pushToNetwork($event->model);
+            return;
+        }
+        
+        $event->model->owner()->pushToMyFeed($event->model);
     }
 }
