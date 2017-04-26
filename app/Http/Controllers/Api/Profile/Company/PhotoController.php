@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Events\NewFeedable;
+use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use App\Album;
@@ -49,6 +51,7 @@ class PhotoController extends Controller
         }
         
         $this->model = $company->photos()->create($data);
+        event(new NewFeedable($this->model));
         return $this->sendResponse();
     }
 
@@ -97,6 +100,8 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $this->model = $company->photos()->where('id',$id)->update($data);
+        event(new UpdateFeedable($this->model));
+    
         return $this->sendResponse();
     }
 
