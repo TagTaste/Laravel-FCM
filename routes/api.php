@@ -169,9 +169,9 @@ Route::get('resetnow',function(){
         $channels[] =            ['name'=>"public." . $profile->id,'profile_id'=>$profile->id];
             
             
-            $subscribers[] =  ['channel_name'=>"feed." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->timestamp];
-            $subscribers[] =  ['channel_name'=>"network." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->timestamp];
-            $subscribers[] =  ['channel_name'=>"public." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->timestamp];
+            $subscribers[] =  ['channel_name'=>"feed." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->toDateTimeString()];
+            $subscribers[] =  ['channel_name'=>"network." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->toDateTimeString()];
+            $subscribers[] =  ['channel_name'=>"public." . $profile->id,'profile_id'=>$profile->id,'timestamp'=>\Carbon\Carbon::now()->toDateTimeString()_];
     }
     \App\Channel::insert($channels);
     \App\Subscriber::insert($subscribers);
