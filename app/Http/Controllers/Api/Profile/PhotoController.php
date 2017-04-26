@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -113,7 +114,9 @@ class PhotoController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model =  $request->user()->profile->photos()->where('id',$id)->delete();
+        $this->model =  $request->user()->profile->photos()->where('id',$id)->first();
+        event(new DeleteFeedable($this->model));
+        $this->model = $this->model->delete();
         return $this->sendResponse();
     }
 

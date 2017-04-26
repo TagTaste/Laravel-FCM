@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -119,7 +120,10 @@ class PhotoController extends Controller
             throw new \Exception("This company does not belong to the user.");
         }
 
-        $this->model = $company->photos()->where('id',$id)->delete();
+        $this->model = $company->photos()->where('id',$id)->first();
+        event(new DeleteFeedable($this->model));
+        
+        $this->model = $this->model->delete();
         return $this->sendResponse();
     }
 
