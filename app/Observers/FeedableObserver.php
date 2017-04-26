@@ -18,8 +18,6 @@ class FeedableObserver {
     
     public function deleted($model)
     {
-        \Log::info('deleting');
-        \Log::info($model);
         event(new DeleteFeedable($model));
     }
     
