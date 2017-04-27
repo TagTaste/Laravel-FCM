@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\ShoutoutLike;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Profile;
 
 class ShoutoutLikeController extends Controller
@@ -31,7 +30,7 @@ class ShoutoutLikeController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index($shoutoutId,Request $request)
+	public function index(Request $request, $shoutoutId)
 	{
 		$profileId = $request->user()->profile->id;
 		if(Shoutoutlike::where('shoutout_id',$shoutoutId)->where('profile_id',$profileId)->first())
@@ -64,25 +63,18 @@ class ShoutoutLikeController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request,$shoutoutId)
-	{
-		$profileId = $request->user()->profile->id;
-		$shoutoutlike = ShoutoutLike::where('profile_id',$profileId)->where('shoutout_id',$shoutoutId)->first();
-		if($shoutoutlike != null)
-			{
-				$shoutoutlike->delete();
-				return 0;
-			}
-			else
-			{
-				$shoutoutlike = ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $shoutoutId]);
-				return 1;
-			}
-			
-		
-
-		
-	}
+    public function store(Request $request, $id)
+    {
+        $profileId = $request->user()->profile->id;
+        $shoutoutlike = ShoutoutLike::where('profile_id', $profileId)->where('shoutout_id', $id)->first();
+        if ($shoutoutlike != null) {
+            $this->model = $shoutoutlike->delete();
+        } else {
+            $this->model = ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
+        }
+        
+        return $this->sendRespones();
+    }
 
 	/**
 	 * Display the specified resource.
