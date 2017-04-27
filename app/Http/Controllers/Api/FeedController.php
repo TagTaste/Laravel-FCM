@@ -18,7 +18,7 @@ class FeedController extends Controller
 //            ->where('subscribers.channel_name','like','public.' . $profileId)
 //            ->where('subscribers.channel_name','like','public.' . $profileId)
             ->orderBy('channel_payloads.created_at','desc')
-            ->where('channel_payloads.created_at','>','subscribers.created_at')
+    //        ->where('channel_payloads.created_at','>','subscribers.created_at')
             ->get();
         return $this->sendResponse();
     }
@@ -44,7 +44,7 @@ class FeedController extends Controller
             ->where('subscribers.channel_name','not like','feed.' . $profileId)
             ->where('subscribers.channel_name','not like','public.' . $profileId)
             ->where('subscribers.channel_name','not like','network.' . $profileId)
-            ->where('channel_payloads.created_at','>','subscribers.created_at')
+    //        ->where('channel_payloads.created_at','>','subscribers.created_at')
             ->get();
         return $this->sendResponse();
     }
