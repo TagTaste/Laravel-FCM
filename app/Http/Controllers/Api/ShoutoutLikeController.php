@@ -31,9 +31,19 @@ class ShoutoutLikeController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index($shoutoutId)
+	public function index($shoutoutId,Request $request)
 	{
-		$shoutoutlike = ShoutoutLike::where('shoutout_id',$shoutoutId)->count();
+		$profileId = $request->user()->profile->id;
+		if(Shoutoutlike::where('shoutout_id',$shoutoutId)->where('profile_id',$profileId)->first())
+		{
+			$shoutoutlike['hasliked'] = true;
+		}
+		else
+		{
+			$shoutoutlike['hasliked']= false;
+		}
+		$shoutoutlike['count'] = ShoutoutLike::where('shoutout_id',$shoutoutId)->count();
+		
 		
 		return $shoutoutlike;
 	}
