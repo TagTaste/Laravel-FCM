@@ -32,7 +32,7 @@ trait IdentifiesOwner
         }
         
        
-        if($this->getAttribute('profile_id') !== null){
+        elseif($this->getAttribute('profile_id') !== null){
             
             //there's a custom implementation, call that.
             if(method_exists($this,'getProfile')){
