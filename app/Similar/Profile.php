@@ -14,7 +14,7 @@ class Profile extends BaseProfile
     {
         return self::join('subscribers','subscribers.profile_id','=','profiles.id')
             ->where('subscribers.profile_id','!=',$this->id)
-            ->where('subscribers.channel_name','like','public.*')
+            ->where('subscribers.channel_name','like','public.%')
             ->paginate(5);
     }
     
