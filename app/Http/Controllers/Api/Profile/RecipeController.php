@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
 use App\RecipeLike;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -77,24 +79,27 @@ class RecipeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-    
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
     
-        if($recipe){
+        if($recipe === null){
             throw new \Exception("Recipe doesn't belong to the user.");
         }
-    
+        event(new DeleteFeedable($recipe));
         $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->delete();
     
         return $this->sendResponse();
     }
 
-    public function recipeImages($id)
+    public function recipeImages($profileId, $id)
     {
-        $recipe = Recipe::select('image')->findOrFail($id);
+        $recipe = Recipe::select('image')->find($id);
+        
+        if($recipe === null){
+            throw new ModelNotFoundException("Could not find recipe with id " . $id);
+        }
         $path = storage_path("app/" . Recipe::$fileInputs['image'] . "/" . $recipe->image);
         return response()->file($path);
     }

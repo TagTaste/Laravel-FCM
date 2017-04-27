@@ -7,6 +7,7 @@ use App\Similar\Photo;
 use App\Similar\Product;
 use App\Similar\Profile;
 use App\Similar\Recipe;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class SimilarController extends Controller
@@ -25,6 +26,11 @@ class SimilarController extends Controller
         
         if(!$model){
             throw new \Exception("Relationship not defined.");
+        }
+        $model = $model->find($relationshipId);
+        
+        if(!$model){
+            throw new ModelNotFoundException("Could not find " . $relationship . " with id " . $relationshipId);
         }
         
         if(!method_exists($model,'similar')){

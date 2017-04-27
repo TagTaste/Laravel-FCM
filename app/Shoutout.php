@@ -2,17 +2,19 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\IdentifiesOwner;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
     
-    protected $visible = ['content','profile_id','company_id','owner','created_at','likeCount','privacy_id','privacy'];
+    protected $visible = ['id','content','profile_id','company_id','owner','created_at','likeCount','privacy_id','privacy'];
     
     protected $appends = ['owner','likeCount'];
     
@@ -41,5 +43,10 @@ class Shoutout extends Model implements Feedable
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
     }
 }

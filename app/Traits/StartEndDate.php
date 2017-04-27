@@ -26,7 +26,6 @@ trait StartEndDate
 
     public function setEndDateAttribute($value)
     {
-        \Log::info($value);
         $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
     }
 

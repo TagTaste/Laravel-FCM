@@ -10,7 +10,9 @@ var logErr = function(err,count){
 //socketio namespaces
 var feedNamespace = io.of('/feed');
 var feedEmit = function(pattern, channel, message){
-    message = JSON.parse(message);
+    console.log(channel);
+    var message = JSON.parse(message);
+    console.log(message);
     //io.emit(channel, message);
     feedNamespace.to(channel).emit("message", message);
 };
@@ -18,7 +20,7 @@ var feedEmit = function(pattern, channel, message){
 var publicNamespace = io.of("/public");
 
 var publicEmit = function(pattern, channel, message){
-    message = JSON.parse(message);
+    var message = JSON.parse(message);
     //io.emit(channel, message);
     publicNamespace.to(channel).emit("message", message);
 };
@@ -33,7 +35,11 @@ network.on('pmessage',feedEmit);
 
 var public = new Redis();
 public.psubscribe('public.*',logErr);
-public.on('pmessage',publicEmit);
+public.on('pmessage',function(pattern,channel,message){
+    var message = JSON.parse(message);
+    feedNamespace.to(channel).emit("message",message);
+    publicNamespace.to(channel).emit("message",message);
+});
 
 io.on('disconnect', function(){
     //console.log('user disconnected');
@@ -43,7 +49,8 @@ var makeConnection = function(socket){
     //console.log('connected');
     var token = socket.handshake.query['token'];
     var options = {
-        host: 'testapi.tagtaste.com:8080',
+        host: 'testapi.tagtaste.com',
+        port: 8080,
         path : '/api/channels',
         method: 'get',
         headers: {

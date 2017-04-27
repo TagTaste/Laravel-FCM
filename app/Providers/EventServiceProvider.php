@@ -24,7 +24,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Auth\Registered' => [
             'App\Listeners\Auth\Registered'
         ],
-        'App\Events\NewFeedable' => ['App\Listeners\PushNewFeedable']
+        'App\Events\NewFeedable' => ['App\Listeners\PushNewFeedable'],
+        'App\Events\UpdateFeedable' => ['App\Listeners\UpdateFeedable'],
+        'App\Events\DeleteFeedable' => ['App\Listeners\DeleteFeedable'],
+        
     ];
 
     /**

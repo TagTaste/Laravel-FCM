@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
@@ -17,11 +18,12 @@ class Photo extends Model implements Feedable
     
     use IdentifiesOwner;
     
-    protected $fillable = ['caption','file'];
+    protected $fillable = ['caption','file','privacy_id','payload_id'];
 
     protected $visible = ['id','caption','photoUrl',
         'created_at','comments','likeCount','hasLiked',
-        'profile_id','company_id','owner'];
+        'profile_id','company_id','privacy_id',
+        'owner'];
 
     protected $with = ['like'];
 
@@ -33,7 +35,7 @@ class Photo extends Model implements Feedable
     {
         parent::boot();
 
-        static::deleting(function($photo){
+        self::deleting(function($photo){
 //            \DB::transaction(function() use ($photo){
                 $photo->ideabooks()->detach();
 //            });
@@ -44,11 +46,6 @@ class Photo extends Model implements Feedable
     public function ideabooks()
     {
         return $this->belongsToMany('\App\Ideabook','ideabook_photos','photo_id','ideabook_id');
-    }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return date("d-m-Y",strtotime($value));
     }
 
     public function comments()
@@ -145,7 +142,6 @@ class Photo extends Model implements Feedable
     public function owner()
     {
         $profile = $this->getProfile();
-        \Log::info($profile);
         if($profile){
             return $profile;
         }
@@ -156,6 +152,16 @@ class Photo extends Model implements Feedable
     public function getOwnerAttribute()
     {
         return $this->owner();
+    }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
     }
    
 }

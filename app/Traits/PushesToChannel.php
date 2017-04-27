@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait PushesToChannel
 {
-    public function pushToChannel($channelName,&$data)
+    public function pushToChannel($channelName,&$model)
     {
         if(!method_exists($this,'channels')){
             
@@ -23,7 +23,12 @@ trait PushesToChannel
             return false;
         }
         
-        return $channel->addPayload($data);
+        $payload = $channel->addPayload($model);
+        //update model id
+        $model->payload_id = $payload->id;
+        $model->save();
+        //
+        return $payload;
         
     }
     

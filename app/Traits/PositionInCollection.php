@@ -14,7 +14,6 @@ trait PositionInCollection
         $count = 1;
         foreach($collection as $model){
             if($model->id == $this->id){
-                \Log::info($count);
                 return $count;
             }
             $count++;
