@@ -214,22 +214,35 @@ class Profile extends Model
         return $this->belongsToMany('App\Profile','followers','follower_id','follows_id');
 
     }
-
+    
+    /**
+     * Get people I am following.
+     *
+     * @return array
+     */
     public function getFollowingProfilesAttribute()
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
-
-        $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
-            ->join('subscribers','subscribers.profile_id','=','profiles.id')
+        $profiles = \DB::table('subscribers')
+            ->select('profiles.id','users.name','tagline','subscribers.channel_name')
+            ->join('channels','subscribers.channel_name','=','channels.name')
+            ->join('profiles','profiles.id','=','channels.profile_id')
             ->join('users','users.id','=','profiles.user_id')
-            ->join('channels','channels.profile_id','=','profiles.id')
-            ->where("channels.profile_id",'!=',$this->id)
-            ->where('subscribers.channel_name','like','network.%')
             ->where('subscribers.profile_id','=',$this->id)
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('subscribers.deleted_at')
-            ->whereNull('users.deleted_at')
+            ->where('subscribers.channel_name','not like','feed.' . $this->id)
+            ->where('subscribers.channel_name','not like','network.' . $this->id)
+            ->where('subscribers.channel_name','not like','public.' . $this->id)
             ->get();
+//        $profiles = \DB::table('profiles')
+//            ->select('profiles.id','users.name','tagline','subscribers.channel_name')
+//            ->join('users','users.id','=','profiles.user_id')
+//            ->join('subscribers','subscribers.profile_id','=','profiles.id')
+//            ->where('subscribers.profile_id','=',$this->id)
+//            ->where('subscribers.channel_name','not like','feed.' . $this->id)
+//            ->where('subscribers.channel_name','not like','network.' . $this->id)
+//            ->where('subscribers.channel_name','not like','public.' . $this->id)
+//            ->get();
+        
             $count = $profiles->count();
             
             if($count > 1000000)
@@ -244,12 +257,17 @@ class Profile extends Model
         return ['count'=> $count, 'profiles' => $profiles];
 
     }
-
+    
+    /**
+     * Get people following me.
+     *
+     * @return array
+     */
     public function getFollowerProfilesAttribute()
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
-    
-        $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
+        $profiles = \DB::table('profiles')
+            ->select('profiles.id','users.name','tagline')
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
             ->where('subscribers.channel_name','like','network.' . $this->id)
@@ -258,7 +276,6 @@ class Profile extends Model
             ->whereNull('subscribers.deleted_at')
             ->whereNull('users.deleted_at')
             ->get();
-
              $count = $profiles->count();
             if($count > 1000000)
             {
