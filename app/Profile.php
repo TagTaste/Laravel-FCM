@@ -232,6 +232,10 @@ class Profile extends Model
             ->where('subscribers.channel_name','not like','feed.' . $this->id)
             ->where('subscribers.channel_name','not like','network.' . $this->id)
             ->where('subscribers.channel_name','not like','public.' . $this->id)
+            ->whereNull('subscribers.deleted_at')
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('channels.deleted_at')
+            ->whereNull('users.deleted_at')
             ->get();
 //        $profiles = \DB::table('profiles')
 //            ->select('profiles.id','users.name','tagline','subscribers.channel_name')
