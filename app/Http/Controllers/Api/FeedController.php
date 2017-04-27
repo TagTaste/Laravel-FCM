@@ -14,11 +14,11 @@ class FeedController extends Controller
         $this->model = Payload::select('payload')
             ->join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
-//            ->where('subscribers.channel_name','like','network.' . $profileId)
-//            ->where('subscribers.channel_name','like','public.' . $profileId)
-//            ->where('subscribers.channel_name','like','public.' . $profileId)
+            //Query Builder's where clause doesn't work here for some reason.
+            //Don't remove this where query.
+            //Ofcourse, unless you know what you are doing.
+            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
-    //        ->where('channel_payloads.created_at','>','subscribers.created_at')
             ->get();
         return $this->sendResponse();
     }
@@ -44,7 +44,11 @@ class FeedController extends Controller
             ->where('subscribers.channel_name','not like','feed.' . $profileId)
             ->where('subscribers.channel_name','not like','public.' . $profileId)
             ->where('subscribers.channel_name','not like','network.' . $profileId)
-    //        ->where('channel_payloads.created_at','>','subscribers.created_at')
+    
+            //Query Builder's where clause doesn't work here for some reason.
+            //Don't remove this where query.
+            //Ofcourse, unless you know what you are doing.
+            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->get();
         return $this->sendResponse();
     }
