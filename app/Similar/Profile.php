@@ -12,9 +12,10 @@ class Profile extends BaseProfile
     
     public function similar()
     {
-        return self::join('subscribers','subscribers.profile_id','=','profiles.id')
+        return self::join('channels','channels.profile_id','=','profiles.id')
+            ->join('subscribers','subscribers.channel_name','=','channels.name')
+            ->where('channels.profile_id','!=',$this->id)
             ->where('subscribers.profile_id','!=',$this->id)
-            ->where('subscribers.channel_name','like','public.%')
             ->paginate(5);
     }
     
