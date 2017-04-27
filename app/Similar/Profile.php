@@ -12,11 +12,28 @@ class Profile extends BaseProfile
     
     public function similar()
     {
-        return self::join('channels','channels.profile_id','=','profiles.id')
-            ->join('subscribers','subscribers.channel_name','=','channels.name')
-            ->where('profiles.id','!=',$this->id)
-            ->where('subscribers.profile_id','!=',$this->id)
-            ->paginate(5);
+        /*
+select distinct profiles.id from profiles
+where profiles.id not in
+(select distinct profiles.id from profiles
+ join subscribers on subscribers.profile_id = profiles.id
+ where subscribers.channel_name like "network.2"
+)
+        */
+        $distinctProfiles = \DB::table('profiles')->selectRaw(\DB::raw('distinct profiles.id'))
+            ->whereRaw(
+                \DB::raw(
+                    'profiles.id not in (select distinct profiles.id from profiles join subscribers on subscribers.profile_id = profiles.id where subscribers.channel_name like "network.'. $this->id . '")'
+                )
+            )
+            ->get();
+        
+        if($distinctProfiles->count()){
+            $dist = $distinctProfiles->pluck('id')->toArray();
+            $profiles = self::whereIn('id',$dist)->paginate();
+            return $profiles;
+        }
+        return false;
     }
     
 }
