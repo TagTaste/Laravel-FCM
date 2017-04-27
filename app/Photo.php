@@ -48,11 +48,6 @@ class Photo extends Model implements Feedable
         return $this->belongsToMany('\App\Ideabook','ideabook_photos','photo_id','ideabook_id');
     }
 
-    public function getCreatedAtAttribute($value)
-    {
-        return date("d-m-Y",strtotime($value));
-    }
-
     public function comments()
     {
         return $this->belongsToMany('App\Comment','comments_photos','photo_id','comment_id');
