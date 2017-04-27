@@ -112,7 +112,7 @@ class ShoutoutController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $id)
 	{
         try {
             $this->verifyOwner($request);
@@ -127,7 +127,6 @@ class ShoutoutController extends Controller
     
     private function verifyOwner(Request &$request)
     {
-        \Log::info($request->has('profile_id') && $request->input('profile_id') !== null);
         if($request->has('company_id') && $request->input('company_id') !== null){
             $company = $request->user()->company()
                 ->where('id',$request->input('company_id'))->first();
