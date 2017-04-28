@@ -41,7 +41,19 @@ class Shoutout extends Model implements Feedable
     
     public function getLikeCountAttribute()
     {
-        return 0;
+        $count = $this->like->count();
+    
+        if($count >1000000)
+        {
+            $count = round($count/1000000, 1);
+            $count = $count."M";
+        
+        }
+        elseif ($count>1000) {
+            $count = round($count/1000, 1);
+            $count = $count."K";
+        }
+        return $count;
     }
     
     public function privacy()
@@ -59,7 +71,7 @@ class Shoutout extends Model implements Feedable
         return $this->hasMany(ShoutoutLike::class,'shoutout_id');
     }
     
-    public function hasLiked()
+    public function getHasLikedAttribute()
     {
         return $this->like->count() === 1;
     }
