@@ -13,17 +13,15 @@ class Profile extends BaseProfile
     public function similar()
     {
         /*
-select distinct profiles.id from profiles
-where profiles.id not in
-(select distinct profiles.id from profiles
- join subscribers on subscribers.profile_id = profiles.id
- where subscribers.channel_name like "network.2"
-)
+            select distinct profiles.id from profiles
+            where profiles.id not in (select distinct channels.profile_id from channels
+            join subscribers on subscribers.channel_name = channels.name
+            where subscribers.channel_name like 'network.6' or subscribers.profile_id = 6)
         */
         $distinctProfiles = \DB::table('profiles')->selectRaw(\DB::raw('distinct profiles.id'))
             ->whereRaw(
                 \DB::raw(
-                    'profiles.id not in (select distinct profiles.id from profiles join subscribers on subscribers.profile_id = profiles.id where subscribers.channel_name like "network.'. $this->id . '" or subscribers.profile_id != ' . $this->id . ')'
+                    'profiles.id not in (select distinct channels.profile_id from channels join subscribers on subscribers.channel_name = channels.name where subscribers.channel_name like \'network.' . $this->id .'\' or subscribers.profile_id = ' . $this->id . ')'
                 )
             )
             ->get();
