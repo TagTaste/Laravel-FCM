@@ -23,7 +23,7 @@ where profiles.id not in
         $distinctProfiles = \DB::table('profiles')->selectRaw(\DB::raw('distinct profiles.id'))
             ->whereRaw(
                 \DB::raw(
-                    'profiles.id not in (select distinct profiles.id from profiles join subscribers on subscribers.profile_id = profiles.id where subscribers.channel_name like "network.'. $this->id . '")'
+                    'profiles.id not in (select distinct profiles.id from profiles join subscribers on subscribers.profile_id = profiles.id where subscribers.channel_name like "network.'. $this->id . '" or where subscribers.profile_id != ' . $this->id . ')'
                 )
             )
             ->get();
