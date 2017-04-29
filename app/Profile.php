@@ -4,6 +4,7 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Traits\PushesToChannel;
+use App\Events\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -111,6 +112,13 @@ class Profile extends Model
             //subscribe to own public channel
             $profile->subscribe("public." . $profile->id,$profile->id);
     
+            // anything below this condition would not be executed
+            // for the admin user.
+            if($profile->id === 1){
+                return;
+            }
+            //create the document for searching
+            \App\Documents\Profile::create($profile);
         });
     }
     
