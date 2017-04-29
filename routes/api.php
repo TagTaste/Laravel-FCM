@@ -71,6 +71,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('comments/{model}/{modelId}','CommentController@index');
             Route::post('comments/{model}/{modelId}','CommentController@store');
             
+            //search
+                Route::get("search/{type}",'SearchController@search');
+                Route::get("suggest/{type}",'SearchController@suggest');
             Route::post('like/{model}/{modelId}','LikeController@store');
             
             Route::get('notifications/unread','NotificationController@unread');
@@ -176,4 +179,46 @@ Route::post('login',function(Request $request){
 
     return response()->json(compact('token'));
 
+});
+
+Route::get("/build",function(){
+    // $userId = $profile->user->id;
+    
+    $client =  \Elasticsearch\ClientBuilder::create()->build();
+    $deleteParams = [
+        'index' => 'profiles'
+    ];
+    $response = $client->indices()->delete($deleteParams);
+    foreach($users as $user){
+        $profileSearchable = [
+            'index' => 'profiles',
+            'type' => 'profile',
+            'id' => $user->id,
+            'body'=> $user->toArray()
+        ];
+        
+        $client->index($profileSearchable);
+    }
+    
+    
+    
+    // $response = $client->index($profileSearchable);
+});
+Route::get("/foo",function(){
+    $userId = 2;
+    $body = \App\Profile::whereHas('attribute',function($query){
+        $query->where('enabled',1);
+    })->where('user_id','=', $userId)->with('type','attribute','user')->orderBy('id', 'asc')->first();
+    
+    
+    $profileSearchable = [
+        'index' => 'profiles',
+        'type' => 'profile',
+        'id' => $userId,
+        'body'=> $body->toArray()
+    ];
+    
+    $client = \Elasticsearch\ClientBuilder::create()->build();
+    
+    $response = $client->get($profileSearchable);
 });
