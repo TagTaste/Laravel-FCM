@@ -7,10 +7,10 @@ use Illuminate\Http\Request;
 class SearchController extends Controller
 {
 
-//index = db
-//type = table
-//document = row
-//field = column
+    //index = db
+    //type = table
+    //document = row
+    //field = column
 
     public function search(Request $request, $type)
     {
@@ -35,25 +35,11 @@ class SearchController extends Controller
                 ]
             ]
         ];
-//    $params = [
-//            'index' => 'profiles',
-//            'type' => 'profile',
-//            'body' => [
-//                'query' => [
-//                    'match' => $match
-//                ]
-//            ]
-//        ];
-//
+
         $client = \Elasticsearch\ClientBuilder::create()->build();
     
         $response = $client->search($params);
-//    if($response['hits']['total'] > 0){
-//        foreach($response['hits']['hits'] as $hit){
-//            echo $hit['_id'] . " - " . $hit['_source']['name'] . "<br/>";
-//        }
-//    }
-    
+
         return response()->json($response);
     }
     
