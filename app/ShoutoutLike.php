@@ -20,8 +20,14 @@ class ShoutoutLike extends Model
             
         //UpdateFeedable is called and not DeleteFeedable
         //since a like is child of the feed payload, and not the payload itself.
+        //cannot use 'touches' property since a like is never updated.
+        //it is either created or destroyed.
         
-            self::deleting(function($like){
+        //event is fired on 'deleted' and not on 'deleting' because
+        //Shoutout checks whether this like exists or not.
+        //on "deleting", Shoutout::hasLiked() would return true, but on 'deleted' event, the model
+        //has been deleted. So Shoutout::hasLiked() won't return true.
+            self::deleted(function($like){
                 event(new UpdateFeedable($like->shoutout));
             });
     }
