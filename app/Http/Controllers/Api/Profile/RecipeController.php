@@ -34,6 +34,18 @@ class RecipeController extends Controller
         $inputs = $request->all();
         $inputs['profile_id'] = $profileId;
         
+        //move this to validator.
+        if(!$request->hasFile('image')){
+            throw new \Exception("Image is required");
+        }
+    
+        $imageName = str_random("32") . ".jpg";
+        $path = Recipe::$fileInputs['image'];
+        $response = $request->file('image')->storeAs($path,$imageName);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $inputs['image'] = $imageName;
         $this->model = Recipe::create($inputs);
         return $this->sendResponse();
     }
@@ -66,6 +78,16 @@ class RecipeController extends Controller
         
         if($recipe === null){
             throw new \Exception("Recipe doesn't belong to the user.");
+        }
+        
+        if($request->hasFile('image')){
+            $imageName = str_random("32") . ".jpg";
+            $path = Recipe::$fileInputs['image'];
+            $response = $request->file('image')->storeAs($path,$imageName);
+            if(!$response){
+                throw new \Exception("Could not save image " . $imageName . " at " . $path);
+            }
+            $inputs['image'] = $imageName;
         }
         
         $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profile_id']));
