@@ -18,7 +18,7 @@ class Recipe extends Model implements Feedable
         'preparation_time','cooking_time','level','tags',
         'profile_id','privacy_id','payload_id'];
     protected $dates = ['created_at','deleted_at'];
-    protected $visible = ['id','name','description','ingredients','imageUrl','category','serving', 'calorie',
+    protected $visible = ['id','name','description','content','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
         'created_at','pivot','profile','likeCount','hasLiked'];
     protected $with = ['profile'];
