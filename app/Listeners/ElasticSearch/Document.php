@@ -3,7 +3,7 @@
 namespace App\Listeners\ElasticSearch;
 
 use App\Events\Searchable;
-use Elasticsearch\ClientBuilder;
+use App\SearchClient;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -27,7 +27,7 @@ class Document
      */
     public function handle(Searchable $event)
     {
-        $client =  ClientBuilder::create()->build();
+        $client =  SearchClient::get();
         $client->index($event->document->toArray());
     }
 }

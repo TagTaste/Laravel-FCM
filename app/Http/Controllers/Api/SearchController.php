@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\SearchClient;
 use Illuminate\Http\Request;
 
 class SearchController extends Controller
@@ -36,7 +37,7 @@ class SearchController extends Controller
             ]
         ];
 
-        $client = \Elasticsearch\ClientBuilder::create()->build();
+        $client = SearchClient::get();
     
         $response = $client->search($params);
 
@@ -62,7 +63,7 @@ class SearchController extends Controller
             ]
         ];
         
-        $client = \Elasticsearch\ClientBuilder::create()->build();
+        $client = SearchClient::get();
     
         $response = $client->search($params);
     
