@@ -15,7 +15,7 @@ class AlterPayloadsAddClass extends Migration
     {
         Schema::table('channel_payloads',function(Blueprint $table){
             $table->string('model')->nullable();
-            $table->integer('model_id')->unsigned();
+            $table->integer('model_id')->unsigned()->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ class AlterPayloadsAddClass extends Migration
     public function down()
     {
         Schema::table('channel_payloads',function(Blueprint $table){
-            $table->string('model')->nullable();
-            $table->integer('model_id')->unsigned();
+            $table->dropColumn('model');
+            $table->dropColumn('model_id');
         });
     }
 }
