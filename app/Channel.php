@@ -57,7 +57,7 @@ class Channel extends Model
     
     public function addPayload(&$data)
     {
-        return $this->payload()->create(['payload'=>$data]);
+        return $this->payload()->create(['payload'=>$data,'model'=>get_class($data),'model_id'=>$data->id]);
     }
     
     public static function names($id)
