@@ -71,4 +71,19 @@ class JobController extends Controller
 		
 		return $this->sendResponse();
 	}
+    
+    /**
+     * Returns all Jobs created by an individual and by all of his companies
+     *
+     */
+    public function all(Request $request)
+    {
+        $userId = $request->user()->id;
+        $this->model = \App\Job::
+            join('companies','companies.id','=','jobs.company_id')
+            ->where('companies.user_id','=',$userId)
+            ->get();
+        
+        return $this->sendResponse();
+	}
 }
