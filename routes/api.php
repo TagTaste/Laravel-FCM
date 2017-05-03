@@ -95,9 +95,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
                 Route::resource("collaborate","CollaborateController");
-
+    
+                Route::post("jobs/{id}/shortlist/{shortlistedProfileId}","JobController@shortlist");
+                Route::post("jobs/{id}/apply", "JobController@apply");
+                Route::post("jobs/{id}/unapply", "JobController@unapply");
+                Route::get('jobs/{id}/applications', 'JobController@applications');
+                Route::resource("jobs","JobController");
+                
                 Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
-
                 Route::resource('photos','PhotoController');
                 Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                     Route::resource('comments','CommentController');

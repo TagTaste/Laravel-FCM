@@ -474,5 +474,10 @@ class Profile extends Model
     {
         return $this->hasMany(Shoutout::class);
     }
+    
+    public function jobs()
+    {
+        return $this->hasMany(Job::class);
+    }
 
 }
