@@ -26,7 +26,12 @@ class Payload extends Model
     
     private function publish()
     {
-        \Redis::publish($this->channel->name, $this->payload);
+        try {
+            \Redis::publish($this->channel->name, $this->payload);
+        } catch (\Exception $e){
+            \Log::warning("Could not publish.");
+            \Log::info($e->getMessage());
+        }
     }
     
     public function channel()
