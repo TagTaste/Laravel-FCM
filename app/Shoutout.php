@@ -15,12 +15,10 @@ class Shoutout extends Model implements Feedable
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
     
     protected $visible = ['id','content','profile_id','company_id','owner',
-        'created_at','likeCount','privacy_id','privacy',
-        'hasLiked'
-    
+        'created_at','likeCount','privacy_id','privacy'
     ];
     
-    protected $appends = ['owner','likeCount','hasLiked'];
+    protected $appends = ['owner','likeCount'];
     
     protected $with = ['privacy'];
     
@@ -71,8 +69,10 @@ class Shoutout extends Model implements Feedable
         return $this->hasMany(ShoutoutLike::class,'shoutout_id');
     }
     
-    public function getHasLikedAttribute()
+    public function getMetaFor($profileId)
     {
-        return $this->like->count() === 1;
+        $meta = [];
+        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
+        return $meta;
     }
 }

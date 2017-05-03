@@ -66,7 +66,13 @@ class Job extends Model
     public function unapply($profileId)
     {
         return \DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete();
-        
+    }
+    
+    public function getMetaFor($profileId)
+    {
+        $meta = [];
+        $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
+        return $meta;
     }
     
 }
