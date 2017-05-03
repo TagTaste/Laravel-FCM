@@ -31,9 +31,8 @@ class ShoutoutController extends Controller
 	 */
 	public function index()
 	{
-		$shoutouts = $this->model->paginate();
-
-		return $this->sendResponse();
+		//we never return all of the shoutouts
+        return;
 	}
 
 	/**
