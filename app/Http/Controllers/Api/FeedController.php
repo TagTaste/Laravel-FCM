@@ -10,8 +10,9 @@ class FeedController extends Controller
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
     {
+        $this->model = [];
         $profileId = $request->user()->profile->id;
-        $this->model = Payload::select('payload')
+        $payloads = Payload::select('payload','model','model_id')
             ->join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             //Query Builder's where clause doesn't work here for some reason.
@@ -20,6 +21,20 @@ class FeedController extends Controller
             ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
             ->get();
+        
+        foreach($payloads as $payload){
+            $data = [];
+            $data['payload'] = $payload->payload;
+            if($payload->model !== null){
+                $model = $payload->model;
+                $model = $model::find($payload->model_id);
+                if($model && method_exists($model, 'getMetaFor')){
+                    $data['meta'] = $model->getMetaFor($profileId);
+                }
+            }
+           
+            $this->model[] = $data;
+        }
         return $this->sendResponse();
     }
     
