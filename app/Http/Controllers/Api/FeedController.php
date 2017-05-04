@@ -22,7 +22,7 @@ class FeedController extends Controller
             ->orderBy('channel_payloads.created_at','desc')
             ->get();
         
-        $this->getMeta($payloads);
+        $this->getMeta($payloads,$profileId);
         
         return $this->sendResponse();
     }
@@ -35,7 +35,7 @@ class FeedController extends Controller
             ->where('channel_name','public.' . $profileId)
             ->orderBy('created_at','desc')->get();
     
-        $this->getMeta($payloads);
+        $this->getMeta($payloads,$profileId);
     
         return $this->sendResponse();
     }
@@ -58,12 +58,12 @@ class FeedController extends Controller
             ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->get();
     
-        $this->getMeta($payloads);
+        $this->getMeta($payloads,$profileId);
     
         return $this->sendResponse();
     }
     
-    private function getMeta(&$payloads)
+    private function getMeta(&$payloads, &$profileId)
     {
         foreach($payloads as $payload){
             $data = [];
