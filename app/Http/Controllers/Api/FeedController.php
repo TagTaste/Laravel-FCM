@@ -22,19 +22,8 @@ class FeedController extends Controller
             ->orderBy('channel_payloads.created_at','desc')
             ->get();
         
-        foreach($payloads as $payload){
-            $data = [];
-            $data['payload'] = $payload->payload;
-            if($payload->model !== null){
-                $model = $payload->model;
-                $model = $model::find($payload->model_id);
-                if($model && method_exists($model, 'getMetaFor')){
-                    $data['meta'] = $model->getMetaFor($profileId);
-                }
-            }
-           
-            $this->model[] = $data;
-        }
+        $this->getMeta($payloads);
+        
         return $this->sendResponse();
     }
     
@@ -42,9 +31,12 @@ class FeedController extends Controller
     public function public(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = Payload::select('payload')
+        $payloads = Payload::select('payload')
             ->where('channel_name','public.' . $profileId)
             ->orderBy('created_at','desc')->get();
+    
+        $this->getMeta($payloads);
+    
         return $this->sendResponse();
     }
     
@@ -52,7 +44,7 @@ class FeedController extends Controller
     public function network(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = Payload::select('payload')
+        $payloads = Payload::select('payload')
             ->join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             //not my things, but what others have posted.
@@ -65,6 +57,26 @@ class FeedController extends Controller
             //Ofcourse, unless you know what you are doing.
             ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->get();
+    
+        $this->getMeta($payloads);
+    
         return $this->sendResponse();
+    }
+    
+    private function getMeta(&$payloads)
+    {
+        foreach($payloads as $payload){
+            $data = [];
+            $data['payload'] = $payload->payload;
+            if($payload->model !== null){
+                $model = $payload->model;
+                $model = $model::find($payload->model_id);
+                if($model && method_exists($model, 'getMetaFor')){
+                    $data['meta'] = $model->getMetaFor($profileId);
+                }
+            }
+        
+            $this->model[] = $data;
+        }
     }
 }
