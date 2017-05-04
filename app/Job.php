@@ -16,7 +16,7 @@ class Job extends Model
         'company_id', 'type_id'
 
     ];
-    protected $visible = ['id','title', 'description', 'type', 'location',
+    protected $visible = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
         'company_id', 'type_id', 'company', 'profile_id',
@@ -25,8 +25,12 @@ class Job extends Model
     
     protected $with = ['company', 'applications'];
     
-    protected $appends = ['type', 'profile_id'];
+    protected $appends = ['type', 'profile_id','job_id'];
     
+    public function getJobIdAttribute()
+    {
+        return $this->id;
+    }
     public function hasApplied($profileId)
     {
         return $this->applications()->where('profile_id', $profileId)->count() == 1;
