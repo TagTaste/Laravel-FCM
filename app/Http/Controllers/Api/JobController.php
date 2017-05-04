@@ -80,9 +80,11 @@ class JobController extends Controller
     {
         $userId = $request->user()->id;
         $this->model = \App\Job::
-            join('companies','companies.id','=','jobs.company_id')
-            ->where('companies.user_id','=',$userId)
-            ->get();
+            whereHas('company',function($query) use ($userId) {
+            $query->where('user_id',$userId);
+        })->orWhereHas('profile',function($query) use ($userId){
+            $query->where('user_id',$userId);
+        })->get();
         
         return $this->sendResponse();
 	}

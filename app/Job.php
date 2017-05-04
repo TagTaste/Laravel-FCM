@@ -42,6 +42,11 @@ class Job extends Model
         return $this->belongsTo(\App\Company::class);
     }
     
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class);
+    }
+    
     public function getTypeAttribute()
     {
         return $this->jobType->name;
