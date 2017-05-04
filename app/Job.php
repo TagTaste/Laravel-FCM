@@ -20,7 +20,7 @@ class Job extends Model
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
         'company_id', 'type_id', 'company', 'profile_id',
-        'applications','created_at', 'expires_on'
+        'applications','created_at', 'expires_on','job_id'
     ];
     
     protected $with = ['company', 'applications'];
