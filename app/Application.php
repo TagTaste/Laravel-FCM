@@ -23,11 +23,16 @@ class Application extends Model
     
     public function shortlist(Profile $shortlister)
     {
+        if($this->shortlisted === 1){
+            return false;
+        }
+        
         $this->shortlisted = 1;
         $this->update();
         
-        return $this->profile->user->notify(
-            new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
+        $this->profile->user->notify(new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
+        
+        return true;
     }
     
 }
