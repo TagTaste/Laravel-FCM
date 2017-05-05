@@ -24,7 +24,7 @@ class Application extends Model
     public function shortlist(Profile $shortlister)
     {
         return $this->profile->user->notify(
-            new ShortlistApplication($shortlister->name, $shortlister->user->email, $this->job));
+            new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
     }
     
 }
