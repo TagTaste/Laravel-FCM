@@ -146,12 +146,8 @@ class JobController extends Controller
     
     public function applications(Request $request, $profileId, $id)
     {
-        $profile = Profile::find($profileId);
-        if(!$profile){
-            throw new \Exception("Invalid profile.");
-        }
-    
-        $job = $profile->jobs()->where('id',$id)->first();
+        $job = $request->user()->profile->jobs()->where('id',$id)->first();
+        
         if(!$job){
             throw new \Exception("Job not found.");
         }
