@@ -23,12 +23,12 @@ class Job extends Model implements Feedable
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
         'company_id', 'type_id', 'company', 'profile_id',
-        'applications','created_at', 'expires_on'
+        'applications','created_at', 'expires_on','job_id'
     ];
     
     protected $with = ['company', 'applications'];
     
-    protected $appends = ['type', 'profile_id','job_id'];
+    protected $appends = ['type','job_id'];
     
     public function getJobIdAttribute()
     {
@@ -65,10 +65,10 @@ class Job extends Model implements Feedable
     }
     
     
-    public function getProfileIdAttribute()
-    {
-        return $this->company->user->profile->id;
-    }
+//    public function getProfileIdAttribute()
+//    {
+//        return $this->company->user->profile->id;
+//    }
     
     public function apply($profileId)
     {
