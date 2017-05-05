@@ -158,8 +158,23 @@ class JobController extends Controller
         return $this->sendResponse();
     }
     
-    public function shortlist($profileId, $id, $shortlistedProfileId)
+    public function shortlist(Request $request, $profileId, $id, $shortlistedProfileId)
     {
-        throw new \Exception("Not implemented yet.");
+        $profile = $request->user()->profile;
+        
+        $job = $profile->jobs()->where('id',$id)->first();
+        
+        if(!$job){
+            throw new \Exception("Job not found.");
+        }
+        
+        $shortlistedApplication = $job->applications()->where('profile_id',$shortlistedProfileId)->first();
+        
+        if(!$shortlistedApplication){
+            throw new \Exception("Application not found.");
+        }
+        
+        $this->model = $shortlistedApplication->shortlist($profile);
+        return $this->sendResponse();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Notifications\ShortlistApplication;
 use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
@@ -18,6 +19,12 @@ class Application extends Model
     public function profile()
     {
         return $this->belongsTo(\App\Application\Profile::class);
+    }
+    
+    public function shortlist(Profile $shortlister)
+    {
+        return $this->profile->user->notify(
+            new ShortlistApplication($shortlister->name, $shortlister->user->email, $this->job));
     }
     
 }

@@ -2,14 +2,17 @@
 
 namespace App;
 
+use App\Interfaces\Feedable;
 use App\Job\Type;
+use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Job extends Model
+class Job extends Model implements Feedable
 {
-    use SoftDeletes;
+    use SoftDeletes, IdentifiesOwner;
+    
     protected $fillable = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
