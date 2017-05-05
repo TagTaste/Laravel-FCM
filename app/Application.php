@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Application extends Model
 {
     protected $fillable = ['job_id', 'profile_id','shortlisted'];
-    protected $visible = ['created_at', 'profile'];
+    protected $visible = ['created_at', 'profile','shortlisted'];
     protected $with = ['profile'];
     
     public function job()
