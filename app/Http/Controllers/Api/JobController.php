@@ -84,7 +84,7 @@ class JobController extends Controller
             $query->where('user_id',$userId);
         })->orWhereHas('profile',function($query) use ($userId){
             $query->where('user_id',$userId);
-        })->get();
+        })->orderBy('jobs.created_at','desc')->get();
         
         return $this->sendResponse();
 	}
