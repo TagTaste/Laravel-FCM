@@ -59,6 +59,7 @@ class JobController extends Controller
         }
         
         $inputs = $request->except(['_method','_token']);
+        $inputs['profile_id'] = $request->user()->profile->id;
         $this->model = $company->jobs()->create($inputs);
         
         return $this->sendResponse();
