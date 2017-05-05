@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
-    protected $fillable = ['job_id', 'profile_id'];
+    protected $fillable = ['job_id', 'profile_id','shortlisted'];
     protected $visible = ['created_at', 'profile'];
     protected $with = ['profile'];
     
@@ -23,6 +23,9 @@ class Application extends Model
     
     public function shortlist(Profile $shortlister)
     {
+        $this->shortlisted = 1;
+        $this->update();
+        
         return $this->profile->user->notify(
             new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
     }

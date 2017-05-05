@@ -87,4 +87,9 @@ class Job extends Model implements Feedable
         return $meta;
     }
     
+    public function shortlisted()
+    {
+        return $this->applications()->where('shortlisted',1)->get();
+    }
+    
 }
