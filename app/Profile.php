@@ -399,7 +399,11 @@ class Profile extends Model
      */
     public function subscribeNetworkOf(&$owner)
     {
-        $this->subscribe("network",$owner);
+        //only individual can publish things in network.
+        if($owner instanceof Company === false){
+            $this->subscribe("network",$owner);
+        }
+        
         return $this->subscribe("public",$owner);
     }
     
