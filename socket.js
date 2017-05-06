@@ -81,6 +81,6 @@ feedNamespace.on('connection', makeConnection);
 publicNamespace.on('connection', makeConnection);
 companyFeedNamespace.on('connection', makeConnection);
 
-http.listen(3000, function(){
+http.listen(3001, function(){
     //console.log('Listening on Port 3001');
 });
