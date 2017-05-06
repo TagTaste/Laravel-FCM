@@ -203,4 +203,9 @@ class Company extends Model
     {
         return $this->hasMany(Shoutout::class);
     }
+    
+    public function channels()
+    {
+        return $this->hasMany(Channel::class);
+    }
 }
