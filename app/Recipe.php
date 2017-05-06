@@ -80,7 +80,7 @@ class Recipe extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
+        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
         $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
