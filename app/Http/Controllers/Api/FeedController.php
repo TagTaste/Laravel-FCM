@@ -4,36 +4,51 @@ namespace App\Http\Controllers\Api;
 
 use App\Channel\Payload;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Cache;
 
 class FeedController extends Controller
 {
+    protected $model = [];
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
     {
-        $this->model = [];
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        
         $profileId = $request->user()->profile->id;
-        $payloads = Payload::select('payload','model','model_id')
-            ->join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
             ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
+            ->skip($skip)
+            ->take($take)
             ->get();
-        
         $this->getMeta($payloads,$profileId);
-        
+    
+        //$this->model = new Paginator($this->model,$take);
         return $this->sendResponse();
     }
     
     //things that is deplayed on my public feed
     public function public(Request $request)
     {
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        
         $profileId = $request->user()->profile->id;
         $payloads = Payload::select('payload')
             ->where('channel_name','public.' . $profileId)
-            ->orderBy('created_at','desc')->get();
+            ->orderBy('created_at','desc')
+            ->skip($skip)
+            ->take($take)
+            ->get();
     
         $this->getMeta($payloads,$profileId);
     
@@ -43,6 +58,9 @@ class FeedController extends Controller
     //things that are posted by my network
     public function network(Request $request)
     {
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
         $profileId = $request->user()->profile->id;
         $payloads = Payload::select('payload')
             ->join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -56,8 +74,11 @@ class FeedController extends Controller
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
             ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
+            ->skip($skip)
+            ->take($take)
             ->get();
-    
+        
+        
         $this->getMeta($payloads,$profileId);
     
         return $this->sendResponse();
