@@ -78,7 +78,7 @@ class Photo extends Model implements Feedable
         return storage_path("app/".$relativePath) . "/" . $filename;
     }
 
-    public function getLikeCount()
+    public function getLikeCountAttribute()
     {
         $count = $this->like->count();
         
@@ -163,7 +163,7 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
-        $meta['likeCount'] = $this->getLikeCount();
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
    

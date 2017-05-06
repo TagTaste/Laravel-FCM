@@ -20,9 +20,9 @@ class Recipe extends Model implements Feedable
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['id','name','description','content','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags',
-        'created_at','pivot','profile','likeCount'];
+        'created_at','pivot','profile'];
     protected $with = ['profile'];
-    protected $appends = ['imageUrl','likeCount'];
+    protected $appends = ['imageUrl'];
     
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
@@ -81,6 +81,7 @@ class Recipe extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
 }
