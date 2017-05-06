@@ -48,6 +48,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //feeds
                 Route::get("feed",'FeedController@feed');
                 Route::get("feed/{profileId}",'FeedController@public');
+                Route::get("feed/companies/{companyId}",'FeedController@company');
                 //is the network feed required?
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
