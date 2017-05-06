@@ -9,11 +9,14 @@ use App\Company\Patent;
 use App\Company\Portfolio;
 use App\Company\Status;
 use App\Company\Type;
+use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Storage;
 
 class Company extends Model
 {
+    use PushesToChannel;
+    
     protected $fillable = [
         'name',
         'about',
