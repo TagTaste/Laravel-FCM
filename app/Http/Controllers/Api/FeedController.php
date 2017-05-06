@@ -36,13 +36,12 @@ class FeedController extends Controller
     }
     
     //things that is deplayed on my public feed
-    public function public(Request $request)
+    public function public(Request $request, $profileId)
     {
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page * $take) - $take: 0;
         
-        $profileId = $request->user()->profile->id;
         $payloads = Payload::select('payload')
             ->where('channel_name','public.' . $profileId)
             ->orderBy('created_at','desc')
