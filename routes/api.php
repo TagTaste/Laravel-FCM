@@ -110,6 +110,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource('like','PhotoLikeController');
                 });
                 
+                Route::post('companies/{id}/follow','CompanyController@follow');
+                Route::post('companies/{id}/unfollow','CompanyController@unfollow');
                 Route::resource('companies','CompanyController');
                 Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
