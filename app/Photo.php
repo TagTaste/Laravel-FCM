@@ -21,13 +21,13 @@ class Photo extends Model implements Feedable
     protected $fillable = ['caption','file','privacy_id','payload_id'];
 
     protected $visible = ['id','caption','photoUrl',
-        'created_at','comments','likeCount',
+        'created_at','comments',
         'profile_id','company_id','privacy_id',
         'owner'];
 
     protected $with = ['like'];
 
-    protected $appends = ['likeCount','photoUrl','profile_id','company_id','owner'];
+    protected $appends = ['photoUrl','profile_id','company_id','owner'];
     
     protected $dates = ['deleted_at'];
 
@@ -78,7 +78,7 @@ class Photo extends Model implements Feedable
         return storage_path("app/".$relativePath) . "/" . $filename;
     }
 
-    public function getLikeCountAttribute()
+    public function getLikeCount()
     {
         $count = $this->like->count();
         
@@ -163,6 +163,7 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
+        $meta['likeCount'] = $this->getLikeCount();
         return $meta;
     }
    
