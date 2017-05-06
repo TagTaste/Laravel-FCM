@@ -66,15 +66,7 @@ class Channel extends Model
         //because, in socket.js, it would be
         //connected to a namespaced socket.io :D
         //G Maane Genious.
-        $default = ['feed','public'];
-        foreach($default as &$name){
-            $name = $name . "." . $id;
-        }
         $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
-        if($subscribedChannels){
-           $subscribed = $subscribedChannels->pluck('channel_name');
-           $default = array_merge($subscribed->toArray(), $default);
-        }
-        return $default;
+        return $subscribedChannels->pluck('channel_name')->toArray();
     }
 }
