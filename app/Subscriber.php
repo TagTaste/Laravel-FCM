@@ -14,4 +14,9 @@ class Subscriber extends Model
     {
         return $this->belongsTo('profile_id');
     }
+    
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class,'channel_name','name');
+    }
 }
