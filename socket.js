@@ -9,38 +9,41 @@ var logErr = function(err,count){
     if(err !== null) console.log(err);
 };
 //socketio namespaces
-var feedNamespace = io.of('/feed');
-var feedEmit = function(pattern, channel, message){
-    console.log(channel);
-    var message = JSON.parse(message);
-    console.log(message);
-    //io.emit(channel, message);
-    feedNamespace.to(channel).emit("message", message);
-};
+    //private profile feed
+        var feedNamespace = io.of('/feed');
+        var feedEmit = function(pattern, channel, message){
 
-var publicNamespace = io.of("/public");
+        };
+        var feed = new Redis();
+        feed.psubscribe('feed.*', logErr);
+        feed.on('pmessage', feedEmit);
 
-var publicEmit = function(pattern, channel, message){
-    var message = JSON.parse(message);
-    //io.emit(channel, message);
-    publicNamespace.to(channel).emit("message", message);
-};
+    //public and network profile feed
+        var publicNamespace = io.of("/public");
 
-var feed = new Redis();
-feed.psubscribe('feed.*', logErr);
-feed.on('pmessage', feedEmit);
+        var network = new Redis();
+        network.psubscribe('network.*',logErr);
+        network.on('pmessage',feedEmit);
 
-var network = new Redis();
-network.psubscribe('network.*',logErr);
-network.on('pmessage',feedEmit);
+        var public = new Redis();
+        public.psubscribe('public.*',logErr);
+        public.on('pmessage',function(pattern,channel,message){
+            var message = JSON.parse(message);
+            feedNamespace.to(channel).emit("message",message);
+            publicNamespace.to(channel).emit("message",message);
+        });
 
-var public = new Redis();
-public.psubscribe('public.*',logErr);
-public.on('pmessage',function(pattern,channel,message){
-    var message = JSON.parse(message);
-    feedNamespace.to(channel).emit("message",message);
-    publicNamespace.to(channel).emit("message",message);
-});
+
+    //public company feed
+        var companyFeedNamespace = io.of("/company/public");
+        var companyPublicEmit = function(pattern, channel, message){
+            var message = JSON.parse(message);
+            companyFeedNamespace.to(channel).emit("message", message);
+        };
+
+        var companyPublic = new Redis();
+        companyPublic.psubscribe('company.public.*',logErr);
+        companyPublic.on('pmessage',companyPublicEmit);
 
 io.on('disconnect', function(){
     //console.log('user disconnected');
@@ -51,7 +54,7 @@ var makeConnection = function(socket){
     var token = socket.handshake.query['token'];
     var options = {
         host: 'testapi.tagtaste.com',
-        port: 8080,
+        port: 3001,
         path : '/api/channels',
         method: 'get',
         headers: {
@@ -76,7 +79,8 @@ var makeConnection = function(socket){
 
 feedNamespace.on('connection', makeConnection);
 publicNamespace.on('connection', makeConnection);
+companyFeedNamespace.on('connection', makeConnection);
 
-http.listen(3001, function(){
+http.listen(3000, function(){
     //console.log('Listening on Port 3001');
 });
