@@ -42,8 +42,7 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page * $take) - $take: 0;
         
-        $payloads = Payload::select('payload')
-            ->where('channel_name','public.' . $profileId)
+        $payloads = Payload::where('channel_name','public.' . $profileId)
             ->orderBy('created_at','desc')
             ->skip($skip)
             ->take($take)
@@ -61,8 +60,7 @@ class FeedController extends Controller
         $take = 20;
         $skip = $page > 1 ? ($page * $take) - $take: 0;
         $profileId = $request->user()->profile->id;
-        $payloads = Payload::select('payload')
-            ->join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             //not my things, but what others have posted.
             ->where('subscribers.channel_name','not like','feed.' . $profileId)
@@ -88,6 +86,7 @@ class FeedController extends Controller
         foreach($payloads as $payload){
             $data = [];
             $data['payload'] = $payload->payload;
+            \Log::info($payload->model);
             if($payload->model !== null){
                 $model = $payload->model;
                 $model = $model::find($payload->model_id);
