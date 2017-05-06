@@ -35,7 +35,7 @@ class FeedController extends Controller
         return $this->sendResponse();
     }
     
-    //things that is deplayed on my public feed
+    //things that is displayed on my public feed
     public function public(Request $request, $profileId)
     {
         $page = $request->input('page',1);
@@ -97,5 +97,23 @@ class FeedController extends Controller
         
             $this->model[] = $data;
         }
+    }
+    
+    //things that is displayed on company's public feed
+    public function company(Request $request, $profileId)
+    {
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        
+        $payloads = Payload::where('channel_name','company.public.' . $profileId)
+            ->orderBy('created_at','desc')
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        
+        $this->getMeta($payloads,$profileId);
+        
+        return $this->sendResponse();
     }
 }
