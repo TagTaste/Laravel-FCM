@@ -29,7 +29,7 @@ class Shoutout extends Model implements Feedable
     
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(\App\Shoutout\Company::class);
     }
     
     public function getOwnerAttribute()
