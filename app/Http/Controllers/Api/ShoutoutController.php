@@ -127,7 +127,7 @@ class ShoutoutController extends Controller
     private function verifyOwner(Request &$request)
     {
         if($request->has('company_id') && $request->input('company_id') !== null){
-            $company = $request->user()->company()
+            $company = $request->user()->companies()
                 ->where('id',$request->input('company_id'))->first();
             if(!$company){
                 throw new \Exception("User doesn't belong to this company.");
