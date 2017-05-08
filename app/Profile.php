@@ -243,6 +243,7 @@ class Profile extends Model
             ->whereNull('subscribers.deleted_at')
             ->whereNull('profiles.deleted_at')
             ->whereNull('users.deleted_at')
+            ->where('subscribers.channel_name','like','network.%')
             ->get();
 //        $profiles = \DB::table('profiles')
 //            ->select('profiles.id','users.name','tagline','subscribers.channel_name')
