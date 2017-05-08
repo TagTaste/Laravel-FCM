@@ -36,7 +36,7 @@ class JobController extends Controller
         $profileId = $request->user()->id;
         $this->model = [];
         $this->model['jobs'] = Job::where('company_id', $companyId)
-            ->with(['applications' => function ($query) use ($profileId) {
+            ->with(['company','applications' => function ($query) use ($profileId) {
                 $query->where('applications.profile_id', $profileId);
             }])
             ->paginate();
