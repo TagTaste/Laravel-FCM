@@ -15,7 +15,7 @@ class Job extends Model implements Feedable
     
     protected $fillable = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required',
+        'experience_required','profile_id',
         'company_id', 'type_id'
 
     ];
