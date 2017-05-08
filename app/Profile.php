@@ -105,12 +105,12 @@ class Profile extends Model
             //$feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
             
             //subscribe to own feed channel
-            $profile->subscribe("feed." . $profile->id,$profile->id);
+            $profile->subscribe("feed", $profile);
             
             //create profile's public channel
             //$public  = Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
             //subscribe to own public channel
-            $profile->subscribe("public." . $profile->id,$profile->id);
+            $profile->subscribe("public", $profile);
     
             // anything below this condition would not be executed
             // for the admin user.
