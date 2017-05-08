@@ -9,11 +9,14 @@ use App\Company\Patent;
 use App\Company\Portfolio;
 use App\Company\Status;
 use App\Company\Type;
+use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Storage;
 
 class Company extends Model
 {
+    use PushesToChannel;
+    
     protected $fillable = [
         'name',
         'about',
@@ -205,5 +208,10 @@ class Company extends Model
     public function shoutouts()
     {
         return $this->hasMany(Shoutout::class);
+    }
+    
+    public function channels()
+    {
+        return $this->hasMany(Channel::class);
     }
 }

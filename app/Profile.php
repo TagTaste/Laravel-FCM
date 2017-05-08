@@ -105,12 +105,12 @@ class Profile extends Model
             //$feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
             
             //subscribe to own feed channel
-            $profile->subscribe("feed." . $profile->id,$profile->id);
+            $profile->subscribe("feed", $profile);
             
             //create profile's public channel
             //$public  = Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
             //subscribe to own public channel
-            $profile->subscribe("public." . $profile->id,$profile->id);
+            $profile->subscribe("public", $profile);
     
             // anything below this condition would not be executed
             // for the admin user.
@@ -374,46 +374,57 @@ class Profile extends Model
         return $this->hasMany(Subscriber::class);
     }
     
+    private function getChannel(&$channelName, &$owner, $createIfNotExist = true)
+    {
+        $prefix = $owner instanceof Company ? "company." : null;
+        $whereClause = $owner instanceof Company ? "company_id" : "profile_id";
+        $channelName = $prefix . $channelName . "." . $owner->id;
+        
+        $channel = Channel::where($whereClause,$owner->id)->where('name','like',$channelName)->first();
+    
+        if($channel === null){
+            if(!$createIfNotExist) {
+                throw new ModelNotFoundException("Channel not found.");
+            }
+    
+            $channel = Channel::create(['name'=>$channelName,$whereClause=>$owner->id]);
+        }
+        
+        return $channel;
+    }
     /**
      * Subscribe the owner's network
-     * @param Profile $owner
+     * @param Profile|Company $owner
      * @return mixed
      */
-    public function subscribeNetworkOf(Profile $owner)
+    public function subscribeNetworkOf(&$owner)
     {
-        $this->subscribe("network." . $owner->id,$owner->id);
-        return $this->subscribe("public." . $owner->id,$owner->id);
-    }
-    
-    public function subscribe($channelName, $ownerId)
-    {
-        $channel = Channel::where('profile_id',$ownerId)->where('name','like',$channelName)->first();
-        
-        if($channel === null){
-            $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
+        //only individual can publish things in network.
+        if($owner instanceof Company === false){
+            $this->subscribe("network",$owner);
         }
         
-        return $channel->subscribe($this->id);
+        return $this->subscribe("public",$owner);
     }
     
-    public function unsubscribeNetworkOf(Profile $owner)
+    public function subscribe($channelName, &$owner)
     {
-        $this->unsubscribe("network." . $owner->id,$owner->id);
-        return $this->unsubscribe("public." . $owner->id,$owner->id);
+        return $this->getChannel($channelName,$owner,true)->subscribe($this->id);
     }
     
-    public function unsubscribe($channelName, $ownerId)
+    public function unsubscribeNetworkOf(&$owner)
     {
-        $channel = Channel::where('profile_id',$ownerId)->where('name','like',$channelName)->first();
-        
-        if(!$channel){
-            throw new ModelNotFoundException();
-        }
-        
-        return $channel->unsubscribe($this->id);
+        $this->unsubscribe("network",$owner);
+        return $this->unsubscribe("public",$owner);
     }
     
-    public function addSubscriber(Profile $profile)
+    public function unsubscribe($channelName, &$owner)
+    {
+        return $this->getChannel($channelName,$owner,false)->unsubscribe($this->id);
+    }
+    
+    //todo: remove this method if not used.
+    private function addSubscriber(Profile $owner)
     {
         $channelName = 'network.' . $this->id;
         $channel = $this->channels()->where('name','like',$channelName)->first();
@@ -422,7 +433,7 @@ class Profile extends Model
             //create channel
             $channel = $this->channels()->create(['name'=>$channelName]);
         }
-        return $channel->subscribe($profile->id);
+        return $channel->subscribe($owner->id);
     }
     
     

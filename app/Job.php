@@ -2,17 +2,20 @@
 
 namespace App;
 
+use App\Interfaces\Feedable;
 use App\Job\Type;
+use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Job extends Model
+class Job extends Model implements Feedable
 {
-    use SoftDeletes;
+    use SoftDeletes, IdentifiesOwner;
+    
     protected $fillable = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required',
+        'experience_required','profile_id',
         'company_id', 'type_id'
 
     ];
@@ -20,12 +23,12 @@ class Job extends Model
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
         'company_id', 'type_id', 'company', 'profile_id',
-        'applications','created_at', 'expires_on'
+        'applications','created_at', 'expires_on','job_id'
     ];
     
     protected $with = ['company', 'applications'];
     
-    protected $appends = ['type', 'profile_id','job_id'];
+    protected $appends = ['type','job_id'];
     
     public function getJobIdAttribute()
     {
@@ -62,10 +65,10 @@ class Job extends Model
     }
     
     
-    public function getProfileIdAttribute()
-    {
-        return $this->company->user->profile->id;
-    }
+//    public function getProfileIdAttribute()
+//    {
+//        return $this->company->user->profile->id;
+//    }
     
     public function apply($profileId)
     {
@@ -82,6 +85,11 @@ class Job extends Model
         $meta = [];
         $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
         return $meta;
+    }
+    
+    public function shortlisted()
+    {
+        return $this->applications()->where('shortlisted',1)->get();
     }
     
 }

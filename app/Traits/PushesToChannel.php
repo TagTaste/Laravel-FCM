@@ -2,10 +2,15 @@
 namespace App\Traits;
 
 
+use App\Channel;
+use App\Company;
+
 trait PushesToChannel
 {
     public function pushToChannel($channelName,&$model)
     {
+        $channelName = $this->getChannelName($channelName);
+        
         if(!method_exists($this,'channels')){
             
             \Log::info("Cannot push to " . $channelName);
@@ -32,21 +37,26 @@ trait PushesToChannel
         
     }
     
+    private function getChannelName($name)
+    {
+        $prefix = $this instanceof Company ? "company." : null;
+        return $prefix . $name . "." . $this->id;
+    }
+    
     public function pushToMyFeed(&$data)
     {
         //push to my feed
-        $this->pushToChannel("feed." . $this->id,$data);
+        $this->pushToChannel("feed",$data);
     }
     
     public function pushToNetwork(&$data)
     {
-        return $this->pushToChannel("network." . $this->id,$data);
+        return $this->pushToChannel("network",$data);
     }
     
     public function pushToPublic(&$data)
     {
-        return $this->pushToChannel("public." . $this->id,$data);
+        return $this->pushToChannel("public",$data);
     }
-    
     
 }

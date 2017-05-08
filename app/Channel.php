@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
 {
-    protected $fillable = ['name', 'profile_id'];
+    protected $fillable = ['name', 'profile_id','company_id'];
     
     public function profile()
     {
@@ -66,15 +66,9 @@ class Channel extends Model
         //because, in socket.js, it would be
         //connected to a namespaced socket.io :D
         //G Maane Genious.
-        $default = ['feed','public'];
-        foreach($default as &$name){
-            $name = $name . "." . $id;
-        }
         $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
-        if($subscribedChannels){
-           $subscribed = $subscribedChannels->pluck('channel_name');
-           $default = array_merge($subscribed->toArray(), $default);
-        }
-        return $default;
+        $channels = $subscribedChannels->pluck('channel_name')->toArray();
+        \Log::info($channels);
+        return $channels;
     }
 }

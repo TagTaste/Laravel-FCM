@@ -19,8 +19,8 @@ class Recipe extends Model implements Feedable
         'profile_id','privacy_id','payload_id'];
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['id','name','description','content','ingredients','imageUrl','category','serving', 'calorie',
-        'preparation_time','cooking_time','level','tags',
-        'created_at','pivot','profile','likeCount'];
+        'preparation_time','cooking_time','level','tags','likeCount',
+        'created_at','pivot','profile'];
     protected $with = ['profile'];
     protected $appends = ['imageUrl','likeCount'];
     
@@ -80,7 +80,8 @@ class Recipe extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
+        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
 }

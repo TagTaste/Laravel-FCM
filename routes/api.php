@@ -47,7 +47,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //feeds
                 Route::get("feed",'FeedController@feed');
-                Route::get("feed/public",'FeedController@public');
+                Route::get("feed/{profileId}",'FeedController@public');
+                Route::get("feed/companies/{companyId}",'FeedController@company');
                 //is the network feed required?
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
@@ -96,10 +97,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
                 Route::resource("collaborate","CollaborateController");
     
-                Route::post("jobs/{id}/shortlist/{shortlistedProfileId}","JobController@shortlist");
                 Route::post("jobs/{id}/apply", "JobController@apply");
                 Route::post("jobs/{id}/unapply", "JobController@unapply");
                 Route::get('jobs/{id}/applications', 'JobController@applications');
+                Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
+    
                 Route::resource("jobs","JobController");
                 
                 Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
@@ -109,6 +111,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource('like','PhotoLikeController');
                 });
                 
+                Route::post('companies/{id}/follow','CompanyController@follow');
+                Route::post('companies/{id}/unfollow','CompanyController@unfollow');
                 Route::resource('companies','CompanyController');
                 Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
@@ -136,10 +140,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
                     
                     Route::resource("portfolio","PortfolioController");
-                    Route::post("jobs/{id}/shortlist/{shortlistedProfileId}","JobController@shortlist");
                     Route::post("jobs/{id}/apply", "JobController@apply");
                     Route::post("jobs/{id}/unapply", "JobController@unapply");
                     Route::get('jobs/{id}/applications', 'JobController@applications');
+                    Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
+    
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
                     Route::resource("companyUsers","CompanyUserController");

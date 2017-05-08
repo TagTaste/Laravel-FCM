@@ -15,7 +15,7 @@ class Shoutout extends Model implements Feedable
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
     
     protected $visible = ['id','content','profile_id','company_id','owner',
-        'created_at','likeCount','privacy_id','privacy'
+        'created_at','privacy_id','privacy'
     ];
     
     protected $appends = ['owner','likeCount'];
@@ -29,7 +29,7 @@ class Shoutout extends Model implements Feedable
     
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(\App\Shoutout\Company::class);
     }
     
     public function getOwnerAttribute()
@@ -73,6 +73,7 @@ class Shoutout extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
 }
