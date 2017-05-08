@@ -96,9 +96,15 @@ class Company extends Model
         return $this->belongsToMany('App\Company\Award','company_awards','company_id','award_id');
     }
 
+    //company creater user 
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+ 
+    public function users()
+    {
+        return $this->belongsToMany('App\User','company_users','company_id','user_id');
     }
 
     public function status()
