@@ -19,10 +19,10 @@ class Recipe extends Model implements Feedable
         'profile_id','privacy_id','payload_id'];
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['id','name','description','content','ingredients','imageUrl','category','serving', 'calorie',
-        'preparation_time','cooking_time','level','tags',
+        'preparation_time','cooking_time','level','tags','likeCount',
         'created_at','pivot','profile'];
     protected $with = ['profile'];
-    protected $appends = ['imageUrl'];
+    protected $appends = ['imageUrl','likeCount'];
     
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
