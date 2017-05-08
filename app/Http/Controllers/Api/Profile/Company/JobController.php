@@ -36,7 +36,7 @@ class JobController extends Controller
         $profileId = $request->user()->id;
         $this->model = [];
         $this->model['jobs'] = Job::where('company_id', $companyId)
-            ->with(['company','applications' => function ($query) use ($profileId) {
+            ->with(['applications' => function ($query) use ($profileId) {
                 $query->where('applications.profile_id', $profileId);
             }])
             ->paginate();
@@ -60,8 +60,8 @@ class JobController extends Controller
         
         $inputs = $request->except(['_method','_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
-        $this->model = $company->jobs()->create($inputs);
-        
+        $job = $company->jobs()->create($inputs);
+        $this->model = Job::find($job->id);
         return $this->sendResponse();
     }
     
