@@ -86,7 +86,6 @@ class FeedController extends Controller
         foreach($payloads as $payload){
             $data = [];
             $data['payload'] = $payload->payload;
-            \Log::info($payload->model);
             if($payload->model !== null){
                 $model = $payload->model;
                 $model = $model::find($payload->model_id);
