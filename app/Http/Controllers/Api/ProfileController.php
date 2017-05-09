@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Profile;
 use App\Subscriber;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -29,9 +30,11 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $profile = Profile::find($id);
+        $this->model = User::whereHas("profile",function($query) use ($id){
+            $query->where('user_id',$id);
+        })->get();
         
-        if($profile === null){
+        if($this->model === null){
             throw new ModelNotFoundException("Could not find profile.");
         }
 //        $profileId = $profile->id;
@@ -40,7 +43,7 @@ class ProfileController extends Controller
 //        }
 //
         
-        return $profile;
+        return $this->sendResponse();
     }
 
     /**
