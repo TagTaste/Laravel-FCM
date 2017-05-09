@@ -205,7 +205,7 @@ class ProfileController extends Controller
         if($alreadySubscribed->count() > 0){
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as $profile){
-                $channel = $alreadySubscribed->get('network.' , $profile->id);
+                $channel = $alreadySubscribed->get('network.' . $profile->id);
     \Log::info($profile->id);
     \Log::info($channel);
                 if($channel === null){
