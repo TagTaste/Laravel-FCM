@@ -261,6 +261,23 @@ class Profile extends Model
 
     }
     
+    public static function getFollowers($id)
+    {
+        return \DB::table('profiles')
+            ->select('profiles.id','users.name','tagline','profiles.about',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
+            ->join('subscribers','subscribers.profile_id','=','profiles.id')
+            ->join('users','users.id','=','profiles.user_id')
+            //searching for either network or public channel is enough.
+            ->where('subscribers.channel_name','like','network.' . $id)
+            //since the user follows himself by default, don't include him in the result set
+            ->where('subscribers.profile_id','!=',$id)
+            //excludes soft deletes
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->whereNull('users.deleted_at')
+            ->get();
+    }
+    
     /**
      * Get people following me.
      *
@@ -269,22 +286,9 @@ class Profile extends Model
     public function getFollowerProfilesAttribute()
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
-        $profiles = \DB::table('profiles')
-            ->select('profiles.id','users.name','tagline','profiles.about',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
-            ->join('subscribers','subscribers.profile_id','=','profiles.id')
-            ->join('users','users.id','=','profiles.user_id')
-            //searching for either network or public channel is enough.
-            ->where('subscribers.channel_name','like','network.' . $this->id)
-            //since the user follows himself by default, don't include him in the result set
-            ->where('subscribers.profile_id','!=',$this->id)
-            //excludes soft deletes
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('subscribers.deleted_at')
-            ->whereNull('users.deleted_at')
-            ->get();
-
+        $profiles = Profile::getFollowers($this->id);
         
-             $count = $profiles->count();
+        $count = $profiles->count();
             if($count > 1000000)
             {
                  $count = round($count/1000000, 1);
