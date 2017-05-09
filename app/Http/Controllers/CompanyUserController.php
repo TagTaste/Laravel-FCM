@@ -30,9 +30,9 @@ class CompanyUserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request, $profileId, $companyId)
 	{
-		$company_users = $this->model->paginate();
+		$company_users = $this->model->paginate(10);
 
 		return view('company_users.index', compact('company_users'));
 	}
@@ -57,7 +57,7 @@ class CompanyUserController extends Controller
 	{
 		$inputs = $request->all();
 		$this->model->create($inputs);
-
+		console.log($request);
 		return redirect()->route('company_users.index')->with('message', 'Item created successfully.');
 	}
 
@@ -116,4 +116,5 @@ class CompanyUserController extends Controller
 
 		return redirect()->route('company_users.index')->with('message', 'Item deleted successfully.');
 	}
+	
 }

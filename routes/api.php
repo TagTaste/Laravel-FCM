@@ -147,7 +147,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
-                    Route::resource("companyUsers","CompanyUserController");
+                    Route::resource("companyusers","CompanyUserController");
                 });
     
                 Route::resource('tagboards','TagBoardController');

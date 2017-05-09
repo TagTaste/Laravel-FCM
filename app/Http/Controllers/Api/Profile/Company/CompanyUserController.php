@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\CompanyUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Company;
 
 class CompanyUserController extends Controller
 {
@@ -30,11 +31,10 @@ class CompanyUserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request,$profileId,$companyId)
 	{
-		$company_users = $this->model->paginate();
-
-		return view('company_users.index', compact('company_users'));
+		$this->model=CompanyUser::where('company_id',$companyId)->get();
+		return $this->model;
 	}
 
 	/**
@@ -44,7 +44,7 @@ class CompanyUserController extends Controller
 	 */
 	public function create()
 	{
-		return view('company_users.create');
+		//
 	}
 
 	/**
@@ -53,12 +53,22 @@ class CompanyUserController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request)
+	public function store(Request $request,$profileId,$companyId)
 	{
-		$inputs = $request->all();
+		$inputs=$request->all();
+		$userId = $request->input('user_id');
+		$activeUserId = $request->user()->id;
+		$company=Company::where('id',$companyId)->where('user_id',$activeUserId)->first();
+        $companyUser = CompanyUser::where('company_id',$companyId)->where('user_id',$userId)->first();
+        if(!$company){
+            throw new \Exception("Company does not belongs this user.");
+        }
+		if($companyUser){
+            throw new \Exception("User already exist to this company.");
+        }
 		$this->model->create($inputs);
 
-		return redirect()->route('company_users.index')->with('message', 'Item created successfully.');
+		return $this->model;
 	}
 
 	/**
