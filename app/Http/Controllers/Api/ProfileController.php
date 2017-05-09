@@ -242,7 +242,6 @@ class ProfileController extends Controller
         $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
             ->whereNull('deleted_at')
             ->get();
-        \Log::info($alreadySubscribed);
         $result = [];
     
         foreach($following as $profile){
