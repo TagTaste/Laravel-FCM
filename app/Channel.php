@@ -46,7 +46,7 @@ class Channel extends Model
         \Log::info("from");
         \Log::info($this->name);
         $subscriber = Subscriber::where('channel_name','like',$this->name)->where('profile_id',$subscriberProfileId)->first();
-        
+        \Log::info($subscriber);
         if(!$subscriber){
             return false;
         }
