@@ -64,10 +64,8 @@ class Channel extends Model
         //it's ok to have public channel here.
         //because, in socket.js, it would be
         //connected to a namespaced socket.io :D
-        //G Maane Genious.
+        //G Maane Genius.
         $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
-        $channels = $subscribedChannels->pluck('channel_name')->toArray();
-        \Log::info($channels);
-        return $channels;
+        return $subscribedChannels->pluck('channel_name')->toArray();
     }
 }
