@@ -499,9 +499,7 @@ class Profile extends Model
     
     public static function isFollowing($profileId, $followerProfileId)
     {
-        $result = Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','network.' . $profileId)->count() === 1;
-        \Log::info($result);
-        return $result;
+        return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','network.' . $profileId)->count() === 1;
     }
 
 }
