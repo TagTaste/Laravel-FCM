@@ -30,11 +30,11 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $this->model = User::whereHas("profile",function($query) use ($id){
+        $profile = User::whereHas("profile",function($query) use ($id){
             $query->where('user_id',$id);
-        })->get();
+        })->first();
         
-        if($this->model === null){
+        if($profile === null){
             throw new ModelNotFoundException("Could not find profile.");
         }
 //        $profileId = $profile->id;
@@ -43,7 +43,7 @@ class ProfileController extends Controller
 //        }
 //
         
-        return $this->sendResponse();
+        return response()->json($profile);
     }
 
     /**
