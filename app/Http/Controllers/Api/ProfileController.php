@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Profile;
+use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,12 @@ class ProfileController extends Controller
         if($profile === null){
             throw new ModelNotFoundException("Could not find profile.");
         }
+//        $profileId = $profile->id;
+//        foreach($profile->followerProfiles['profiles'] as &$follower){
+//            $follower->isFollowing = Profile::isFollowing($profileId,$follower->id);
+//        }
+//
+        
         return $profile;
     }
 
@@ -160,6 +167,49 @@ class ProfileController extends Controller
         if(!$this->model){
             throw new \Exception("You are not following this profile.");
         }
+        return $this->sendResponse();
+    }
+    
+    public function followers(Request $request, $id)
+    {
+        $profiles = Profile::getFollowers($id);
+        if(!$profiles){
+            throw new ModelNotFoundException("Profile not found.");
+        }
+        
+        $loggedInProfileId = $request->user()->profile->id;
+        
+        $followerProfileIds = $profiles->pluck('id')->toArray();
+        //build network names
+        $networks = [];
+        foreach($followerProfileIds as $profileId){
+            if($profileId != $loggedInProfileId){
+                $networks[] = 'network.' . $profileId;
+            }
+        }
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)->get();
+        $result = [];
+    
+        foreach($profiles as $profile){
+            $temp = $profile;
+            $temp->isFollowing = false;
+            $temp->self = false;
+            $result[] = $temp;
+        }
+        
+        if($alreadySubscribed->count() > 0){
+            $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
+            foreach($result as $profile){
+                $channel = $alreadySubscribed->get('network.' , $profile->id);
+                if($channel === $loggedInProfileId){
+                    $profile->self = true;
+                    continue;
+                }
+                
+                $profile->isFollowing = true;
+            }
+        }
+        $this->model = $result;
         return $this->sendResponse();
     }
 
