@@ -85,8 +85,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("designations", "DesignationController@index");
             Route::resource('profile','ProfileController');
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
+            Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
-
+            
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');
