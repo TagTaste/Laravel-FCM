@@ -228,23 +228,28 @@ class Profile extends Model
      *
      * @return array
      */
-    public function getFollowingProfilesAttribute()
+    
+    public static function getFollowing($id)
     {
-        //if you use \App\Profile here, it would end up nesting a lot of things.
-        $profiles = \DB::table('subscribers')
+        return \DB::table('subscribers')
             ->select('profiles.id','users.name','tagline','profiles.about','subscribers.channel_name',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
             ->join('channels','subscribers.channel_name','=','channels.name')
             ->join('profiles','profiles.id','=','channels.profile_id')
             ->join('users','users.id','=','profiles.user_id')
-            ->where('subscribers.profile_id','=',$this->id)
-            ->where('subscribers.channel_name','not like','feed.' . $this->id)
-            ->where('subscribers.channel_name','not like','network.' . $this->id)
-            ->where('subscribers.channel_name','not like','public.' . $this->id)
+            ->where('subscribers.profile_id','=',$id)
+            ->where('subscribers.channel_name','not like','feed.' . $id)
+            ->where('subscribers.channel_name','not like','network.' . $id)
+            ->where('subscribers.channel_name','not like','public.' . $id)
             ->whereNull('subscribers.deleted_at')
             ->whereNull('profiles.deleted_at')
             ->whereNull('users.deleted_at')
             ->where('subscribers.channel_name','like','network.%')
             ->get();
+    }
+    public function getFollowingProfilesAttribute()
+    {
+        //if you use \App\Profile here, it would end up nesting a lot of things.
+        $profiles = self::getFollowing($this->id);
         
             $count = $profiles->count();
             
