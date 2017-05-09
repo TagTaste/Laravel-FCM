@@ -21,17 +21,12 @@ class Auth extends GetUserFromToken
     {
         if(env('APP_ENV') === 'testing'){
             \Log::warning("Auth disabled for testing environment.");
-            $user = \App\User::first();
-    
-            $token = \JWTAuth::fromUser($user);
-    
-            $request->setUserResolver(function() use ($user){
-                return $user;
+            $request->setUserResolver(function(){
+                return \App\User::find(1);
             });
-    
             return $next($request);
-    
         }
+        
         if (! $token = $this->auth->setRequest($request)->getToken()) {
             return $this->respond('tymon.jwt.absent', 'token_not_provided', 400);
         }
