@@ -172,14 +172,14 @@ class ProfileController extends Controller
     
     public function followers(Request $request, $id)
     {
-        $profiles = Profile::getFollowers($id);
-        if(!$profiles){
-            throw new ModelNotFoundException("Profile not found.");
+        $followers = Profile::getFollowers($id);
+        if(!$followers){
+            throw new ModelNotFoundException("Followers not found.");
         }
         
         $loggedInProfileId = $request->user()->profile->id;
         
-        $followerProfileIds = $profiles->pluck('id')->toArray();
+        $followerProfileIds = $followers->pluck('id')->toArray();
         //build network names
         $networks = [];
         foreach($followerProfileIds as $profileId){
@@ -190,7 +190,7 @@ class ProfileController extends Controller
         $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)->get();
         $result = [];
     
-        foreach($profiles as $profile){
+        foreach($followers as $profile){
             $temp = $profile;
             $temp->isFollowing = false;
             $temp->self = false;
@@ -211,6 +211,51 @@ class ProfileController extends Controller
         }
         $this->model = $result;
         return $this->sendResponse();
+    }
+    
+    public function following(Request $request, $id)
+    {
+        $following = Profile::getFollowing($id);
+        if(!$following){
+            throw new ModelNotFoundException("Following profiles not found.");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+    
+        $followingProfileIds = $following->pluck('id')->toArray();
+    
+        //build network names
+        $networks = [];
+        foreach($followingProfileIds as $profileId){
+            if($profileId != $loggedInProfileId){
+                $networks[] = 'network.' . $profileId;
+            }
+        }
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)->get();
+        $result = [];
+    
+        foreach($following as $profile){
+            $temp = $profile;
+            $temp->isFollowing = false;
+            $temp->self = false;
+            $result[] = $temp;
+        }
+    
+        if($alreadySubscribed->count() > 0){
+            $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
+            foreach($result as $profile){
+                $channel = $alreadySubscribed->get('network.' , $profile->id);
+                if($channel === $loggedInProfileId){
+                    $profile->self = true;
+                    continue;
+                }
+            
+                $profile->isFollowing = true;
+            }
+        }
+        $this->model = $result;
+        return $this->sendResponse();
+        
+        
     }
 
 }
