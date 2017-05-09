@@ -53,8 +53,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
             
-            Route::get('profile/{id}',['uses'=>'ProfileController@show']);
-    
             Route::get("jobs/all","JobController@all");
             Route::get("jobs/filters", "JobController@filters");
             Route::resource("jobs","JobController");
@@ -83,10 +81,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("notifications",'NotificationController');
 
             Route::get("designations", "DesignationController@index");
-            Route::resource('profile','ProfileController');
+            
+            //profile routes
+            
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
-            Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
+            Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
+            Route::resource('profile','ProfileController');
+            
             
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
