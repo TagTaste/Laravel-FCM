@@ -232,7 +232,7 @@ class Profile extends Model
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
         $profiles = \DB::table('subscribers')
-            ->select('profiles.id','users.name','tagline','subscribers.channel_name',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
+            ->select('profiles.id','users.name','tagline','profiles.about','subscribers.channel_name',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
             ->join('channels','subscribers.channel_name','=','channels.name')
             ->join('profiles','profiles.id','=','channels.profile_id')
             ->join('users','users.id','=','profiles.user_id')
@@ -279,7 +279,7 @@ class Profile extends Model
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
         $profiles = \DB::table('profiles')
-            ->select('profiles.id','users.name','tagline',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
+            ->select('profiles.id','users.name','tagline','profiles.about',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
             ->where('subscribers.channel_name','like','network.' . $this->id)
