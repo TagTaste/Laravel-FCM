@@ -52,10 +52,16 @@ io.on('disconnect', function(){
 var makeConnection = function(socket){
     //console.log('connected');
     var token = socket.handshake.query['token'];
+    var profileId = socket.handshake.query['id'];
+    var path = '/api/channels';
+    if(profileId){
+        path = path + '/' + profileId + "/public";
+    }
+
     var options = {
         host: 'testapi.tagtaste.com',
         port: 8080,
-        path : '/api/channels',
+        path : path,
         method: 'get',
         headers: {
             'Content-Type': 'application/json',
