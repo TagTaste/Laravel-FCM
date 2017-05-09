@@ -190,7 +190,8 @@ class ProfileController extends Controller
                 $networks[] = 'network.' . $profileId;
             }
         }
-        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)->get();
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
+            ->whereNull('deleted_at')->get();
         $result = [];
     
         foreach($followers as $profile){
@@ -204,11 +205,15 @@ class ProfileController extends Controller
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as $profile){
                 $channel = $alreadySubscribed->get('network.' , $profile->id);
+    
+                if($channel === null){
+                    continue;
+                }
+                
                 if($channel === $loggedInProfileId){
                     $profile->self = true;
                     continue;
                 }
-                
                 $profile->isFollowing = true;
             }
         }
@@ -233,7 +238,9 @@ class ProfileController extends Controller
                 $networks[] = 'network.' . $profileId;
             }
         }
-        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)->get();
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
+            ->whereNull('deleted_at')
+            ->get();
         $result = [];
     
         foreach($following as $profile){
@@ -247,11 +254,16 @@ class ProfileController extends Controller
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as $profile){
                 $channel = $alreadySubscribed->get('network.' , $profile->id);
+    
+                if($channel === null){
+                    continue;
+                }
+                
                 if($channel === $loggedInProfileId){
                     $profile->self = true;
                     continue;
                 }
-            
+                
                 $profile->isFollowing = true;
             }
         }
