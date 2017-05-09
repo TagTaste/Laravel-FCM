@@ -20,14 +20,14 @@ class Photo extends Model implements Feedable
     
     protected $fillable = ['caption','file','privacy_id','payload_id'];
 
-    protected $visible = ['id','caption','photoUrl',
+    protected $visible = ['id','caption','photoUrl','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id',
         'owner'];
 
     protected $with = ['like'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner'];
+    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount'];
     
     protected $dates = ['deleted_at'];
 
