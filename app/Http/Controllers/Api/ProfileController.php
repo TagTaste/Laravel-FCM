@@ -28,16 +28,11 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $userId = $request->user()->id;
+        $profile = Profile::find($id);
         
-        $profile = \App\User::whereHas('profile',function($query) use ($id) {
-            $query->where('id','=',$id);
-        })->with(['ideabooks'=>function($query) use ($userId) {
-            $query->where('user_id',$userId);
-        }])->with(['profile.ideabooks'=>function($query) use ($id){
-            $query->where('profile_id',$id);
-        }])->first();
-        
+        if($profile){
+            throw new ModelNotFoundException("Could not find profile.");
+        }
         return $profile;
     }
 
