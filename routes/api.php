@@ -40,6 +40,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
            
             
             //channel names for socket.io
+                Route::get('channels/{id}/public',function($id){
+                    return response()->json(['public.' . $id]);
+                });
                 Route::get('channels',function(Request $request){
                     $profileId = $request->user()->profile->id;
                     return response()->json(\App\Channel::names($profileId));
