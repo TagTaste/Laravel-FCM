@@ -66,6 +66,8 @@ class Channel extends Model
         //connected to a namespaced socket.io :D
         //G Maane Genius.
         $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
-        return $subscribedChannels->pluck('channel_name')->toArray();
+        $channels = $subscribedChannels->pluck('channel_name')->toArray();
+        \Log::info($channels);
+        return $channels;
     }
 }
