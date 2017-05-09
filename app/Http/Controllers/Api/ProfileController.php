@@ -192,7 +192,6 @@ class ProfileController extends Controller
         }
         $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
             ->whereNull('deleted_at')->get();
-        \Log::info($alreadySubscribed);
         $result = [];
     
         foreach($followers as $profile){
@@ -241,6 +240,7 @@ class ProfileController extends Controller
         $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
             ->whereNull('deleted_at')
             ->get();
+        \Log::info($alreadySubscribed);
         $result = [];
     
         foreach($following as $profile){
@@ -254,7 +254,8 @@ class ProfileController extends Controller
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as $profile){
                 $channel = $alreadySubscribed->get('network.' . $profile->id);
-    
+                \Log::info($profile->id);
+                \Log::info($channel);
                 if($channel === null){
                     continue;
                 }
