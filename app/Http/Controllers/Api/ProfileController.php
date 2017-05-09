@@ -30,7 +30,7 @@ class ProfileController extends Controller
     {
         $profile = Profile::find($id);
         
-        if($profile){
+        if($profile === null){
             throw new ModelNotFoundException("Could not find profile.");
         }
         return $profile;
