@@ -257,7 +257,7 @@ class Profile extends Model
                 $count = round($count/1000, 1) . "k";
             }
 
-        return ['count'=> $count, 'profiles' => $profiles];
+        return ['count'=> $count, 'profiles' => $profiles->toArray()];
 
     }
     
@@ -273,12 +273,17 @@ class Profile extends Model
             ->select('profiles.id','users.name','tagline','profiles.about',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
             ->join('users','users.id','=','profiles.user_id')
+            //searching for either network or public channel is enough.
             ->where('subscribers.channel_name','like','network.' . $this->id)
+            //since the user follows himself by default, don't include him in the result set
             ->where('subscribers.profile_id','!=',$this->id)
+            //excludes soft deletes
             ->whereNull('profiles.deleted_at')
             ->whereNull('subscribers.deleted_at')
             ->whereNull('users.deleted_at')
             ->get();
+
+        
              $count = $profiles->count();
             if($count > 1000000)
             {
@@ -481,6 +486,13 @@ class Profile extends Model
     public function jobs()
     {
         return $this->hasMany(Job::class);
+    }
+    
+    public static function isFollowing($profileId, $followerProfileId)
+    {
+        $result = Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','network.' . $profileId)->count() === 1;
+        \Log::info($result);
+        return $result;
     }
 
 }
