@@ -245,15 +245,6 @@ class Profile extends Model
             ->whereNull('users.deleted_at')
             ->where('subscribers.channel_name','like','network.%')
             ->get();
-//        $profiles = \DB::table('profiles')
-//            ->select('profiles.id','users.name','tagline','subscribers.channel_name')
-//            ->join('users','users.id','=','profiles.user_id')
-//            ->join('subscribers','subscribers.profile_id','=','profiles.id')
-//            ->where('subscribers.profile_id','=',$this->id)
-//            ->where('subscribers.channel_name','not like','feed.' . $this->id)
-//            ->where('subscribers.channel_name','not like','network.' . $this->id)
-//            ->where('subscribers.channel_name','not like','public.' . $this->id)
-//            ->get();
         
             $count = $profiles->count();
             
