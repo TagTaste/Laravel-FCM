@@ -198,3 +198,9 @@ Route::post('login',function(Request $request){
     return response()->json(compact('token'));
 
 });
+
+Route::get("buildsearch",function(){
+   $profiles = \DB::table('profiles')->select("users.name",'profiles.id','users.email')
+       ->join('users','profiles.user_id','=','users.id')
+       ->get();
+});
