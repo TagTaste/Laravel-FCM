@@ -198,32 +198,3 @@ Route::post('login',function(Request $request){
     return response()->json(compact('token'));
 
 });
-
-Route::get("buildsearch",function(){
-   $profiles = \DB::table('profiles')->select("users.name",'profiles.id','users.email')
-       ->join('users','profiles.user_id','=','users.id')
-       ->get();
-   
-    $client =  \App\SearchClient::get();
-//    $deleteParams = [
-//        'index' => 'users'
-//    ];
-//    $response = $client->indices()->delete($deleteParams);
-    foreach($profiles as $user){
-        $profileSearchable = [
-            'index' => 'users',
-            'type' => 'profile',
-            'id' => $user->id,
-            'body'=> [
-                'name'=>$user->name,
-                'profile_id'=>$user->id,
-                'email'=>$user->email
-            ]
-        ];
-        
-        $client->index($profileSearchable);
-    }
-    
-    
-    
-});
