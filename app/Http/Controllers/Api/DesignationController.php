@@ -16,9 +16,7 @@ class DesignationController extends Controller
      */
     public function index()
     {
-        $this->model = Cache::remember('designations',1440,function(){
-            return Designation::select('desig_name','desig_desc')->get();
-        });
+        $this->model = Designation::all();
         return $this->sendResponse();
     }
 
