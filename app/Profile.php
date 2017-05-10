@@ -231,20 +231,18 @@ class Profile extends Model
     
     public static function getFollowing($id)
     {
-        return \DB::table('subscribers')
-            ->select('profiles.id','users.name','tagline','profiles.about','subscribers.channel_name',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
+        $channelOwnerProfileIds = \DB::table("subscribers")
+            ->select('channels.profile_id')
             ->join('channels','subscribers.channel_name','=','channels.name')
-            ->join('profiles','profiles.id','=','channels.profile_id')
-            ->join('users','users.id','=','profiles.user_id')
             ->where('subscribers.profile_id','=',$id)
+            ->where('subscribers.channel_name','like','network.%')
             ->where('subscribers.channel_name','not like','feed.' . $id)
             ->where('subscribers.channel_name','not like','network.' . $id)
             ->where('subscribers.channel_name','not like','public.' . $id)
             ->whereNull('subscribers.deleted_at')
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('users.deleted_at')
-            ->where('subscribers.channel_name','like','network.%')
             ->get();
+        
+        return \App\Recipe\Profile::whereIn("id",$channelOwnerProfileIds->pluck('id')->toArray())->get();
     }
     public function getFollowingProfilesAttribute()
     {
@@ -268,19 +266,18 @@ class Profile extends Model
     
     public static function getFollowers($id)
     {
-        return \DB::table('profiles')
-            ->select('profiles.id','users.name','tagline','profiles.about',\DB::Raw("concat('/profile/images/',profiles.id,'.jpg') as imageUrl"))
+        //just get the profile ids first
+        //then fire another query to build the required things
+        
+        $profileIds = \DB::table('profiles')->select('profiles.id')
             ->join('subscribers','subscribers.profile_id','=','profiles.id')
-            ->join('users','users.id','=','profiles.user_id')
-            //searching for either network or public channel is enough.
             ->where('subscribers.channel_name','like','network.' . $id)
-            //since the user follows himself by default, don't include him in the result set
             ->where('subscribers.profile_id','!=',$id)
-            //excludes soft deletes
             ->whereNull('profiles.deleted_at')
             ->whereNull('subscribers.deleted_at')
-            ->whereNull('users.deleted_at')
             ->get();
+        
+        return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
     }
     
     /**
