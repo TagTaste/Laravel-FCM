@@ -193,27 +193,27 @@ class ProfileController extends Controller
         $result = [];
     
         foreach($followers as $profile){
-            $temp = $profile;
-            $temp->isFollowing = false;
-            $temp->self = false;
+            $temp = $profile->toArray();
+            $temp['isFollowing'] = false;
+            $temp['self'] = false;
             $result[] = $temp;
         }
     
         if($alreadySubscribed->count() > 0){
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
-            foreach($result as $profile){
+            foreach($result as &$profile){
             
-                if($profile->id === $loggedInProfileId){
-                    $profile->self = true;
+                if($profile['id'] === $loggedInProfileId){
+                    $profile['self'] = true;
                     continue;
                 }
             
-                $channel = $alreadySubscribed->get('network.' . $profile->id);
+                $channel = $alreadySubscribed->get('network.' . $profile['id']);
                 if($channel === null){
                     continue;
                 }
             
-                $profile->isFollowing = true;
+                $profile['isFollowing'] = true;
             }
         }
     
@@ -232,9 +232,7 @@ class ProfileController extends Controller
         if(!$following){
             throw new ModelNotFoundException("Following profiles not found.");
         }
-    
         $followingProfileIds = $following->pluck('id')->toArray();
-    
         //build network names
         $networks = [];
         foreach($followingProfileIds as $profileId){
@@ -247,30 +245,30 @@ class ProfileController extends Controller
             ->get();
         $result = [];
     
-        foreach($following as $profile){
-            $temp = $profile;
-            $temp->isFollowing = false;
-            $temp->self = false;
+        foreach($following as &$profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] = false;
+            $temp['self'] = false;
             $result[] = $temp;
         }
-    
+
         if($alreadySubscribed->count() > 0){
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as $profile){
-                if($profile->id === $loggedInProfileId){
-                    $profile->self = true;
+                if($profile['id'] === $loggedInProfileId){
+                    $profile['self'] = true;
                     continue;
                 }
             
-                $channel = $alreadySubscribed->get('network.' . $profile->id);
+                $channel = $alreadySubscribed->get('network.' . $profile['id']);
             
                 if($channel === null){
                     continue;
                 }
-            
-                $profile->isFollowing = true;
+                $profile['isFollowing'] = true;
             }
         }
+
         return $result;
     }
     public function following(Request $request, $id)
