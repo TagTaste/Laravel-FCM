@@ -219,6 +219,9 @@ class ProfileController extends Controller
                 $profile->isFollowing = true;
             }
         }
+    
+        \Cache::put('followers.' . $id, $result, 1440);
+        return $result;
     }
     
     public function followers(Request $request, $id)
