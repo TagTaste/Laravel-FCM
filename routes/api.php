@@ -205,10 +205,10 @@ Route::get("buildsearch",function(){
        ->get();
    
     $client =  \App\SearchClient::get();
-    $deleteParams = [
-        'index' => 'users'
-    ];
-    $response = $client->indices()->delete($deleteParams);
+//    $deleteParams = [
+//        'index' => 'users'
+//    ];
+//    $response = $client->indices()->delete($deleteParams);
     foreach($profiles as $user){
         $profileSearchable = [
             'index' => 'users',
