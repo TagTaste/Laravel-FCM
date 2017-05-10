@@ -26,6 +26,11 @@ class Shoutout extends Model implements Feedable
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
     }
+
+    public function comments()
+    {
+        return $this->belongsToMany('App\Comment','comments_shoutouts','shoutout_id','comment_id');
+    }
     
     public function company()
     {
