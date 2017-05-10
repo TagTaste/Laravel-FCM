@@ -192,7 +192,7 @@ class ProfileController extends Controller
             ->whereNull('deleted_at')->get();
         $result = [];
     
-        foreach($followers as $profile){
+        foreach($followers as &$profile){
             $temp = $profile->toArray();
             $temp['isFollowing'] = false;
             $temp['self'] = false;
@@ -254,7 +254,7 @@ class ProfileController extends Controller
 
         if($alreadySubscribed->count() > 0){
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
-            foreach($result as $profile){
+            foreach($result as &$profile){
                 if($profile['id'] === $loggedInProfileId){
                     $profile['self'] = true;
                     continue;
