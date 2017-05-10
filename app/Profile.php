@@ -241,8 +241,7 @@ class Profile extends Model
             ->where('subscribers.channel_name','not like','public.' . $id)
             ->whereNull('subscribers.deleted_at')
             ->get();
-        
-        return \App\Recipe\Profile::whereIn("id",$channelOwnerProfileIds->pluck('id')->toArray())->get();
+        return \App\Recipe\Profile::whereIn("id",$channelOwnerProfileIds->pluck('profile_id')->toArray())->get();
     }
     public function getFollowingProfilesAttribute()
     {
@@ -412,15 +411,7 @@ class Profile extends Model
     
     public function subscribe($channelName, &$owner)
     {
-        $subscriber = $this->getChannel($channelName,$owner,true)->subscribe($this->id);
-        
-        if($subscriber === null){
-            return false;
-        }
-        
-        //invalidate cache
-        \Cache::forget("followers." . $owner->id);
-        return true;
+        return $this->getChannel($channelName,$owner,true)->subscribe($this->id);
     }
     
     public function unsubscribeNetworkOf(&$owner)
@@ -431,15 +422,7 @@ class Profile extends Model
     
     public function unsubscribe($channelName, &$owner)
     {
-        $unsubscribe = $this->getChannel($channelName,$owner,false)->unsubscribe($this->id);
-        
-        if($unsubscribe === false){
-            return false;
-        }
-        
-        //invalidate cache
-        \Cache::forget("followers." . $owner->id);
-        return true;
+        return $this->getChannel($channelName,$owner,false)->unsubscribe($this->id);
     }
     
     //todo: remove this method if not used.

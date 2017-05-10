@@ -175,9 +175,6 @@ class ProfileController extends Controller
     
     private function getFollowers($id, $loggedInProfileId)
     {
-        if(\Cache::has('followers.' . $id)){
-            return \Cache::get('followers.' . $id);
-        }
         $followers = Profile::getFollowers($id);
         if(!$followers){
             throw new ModelNotFoundException("Followers not found.");
@@ -220,7 +217,6 @@ class ProfileController extends Controller
             }
         }
     
-        \Cache::put('followers.' . $id, $result, 1440);
         return $result;
     }
     
@@ -232,10 +228,6 @@ class ProfileController extends Controller
     
     private function getFollowing($id, $loggedInProfileId)
     {
-        if(\Cache::has('following.' . $id)){
-            return \Cache::get('following.' . $id);
-        }
-    
         $following = Profile::getFollowing($id);
         if(!$following){
             throw new ModelNotFoundException("Following profiles not found.");
@@ -279,7 +271,6 @@ class ProfileController extends Controller
                 $profile->isFollowing = true;
             }
         }
-        \Cache::put('following.' . $id, $result, 1440);
         return $result;
     }
     public function following(Request $request, $id)
