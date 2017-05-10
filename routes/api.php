@@ -204,7 +204,7 @@ Route::get("buildsearch",function(){
        ->join('users','profiles.user_id','=','users.id')
        ->get();
    
-    $client =  \Elasticsearch\ClientBuilder::create()->build();
+    $client =  \App\SearchClient::get();
     $deleteParams = [
         'index' => 'users'
     ];
