@@ -214,7 +214,11 @@ Route::get("buildsearch",function(){
             'index' => 'users',
             'type' => 'profile',
             'id' => $user->id,
-            'body'=> $user->toArray()
+            'body'=> [
+                'name'=>$user->name,
+                'profile_id'=>$user->id,
+                'email'=>$user->email
+            ]
         ];
         
         $client->index($profileSearchable);
