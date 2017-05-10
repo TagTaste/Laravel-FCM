@@ -230,7 +230,7 @@ class ProfileController extends Controller
     private function getFollowing($id, $loggedInProfileId)
     {
         if(\Cache::has('following.' . $id)){
-            return Cache::get('following.' . $id);
+            return \Cache::get('following.' . $id);
         }
     
         $following = Profile::getFollowing($id);
