@@ -173,14 +173,15 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
     
-    public function followers(Request $request, $id)
+    private function getFollowers($id, $loggedInProfileId)
     {
+        if(\Cache::has('followers.' . $id)){
+            return \Cache::get('followers.' . $id);
+        }
         $followers = Profile::getFollowers($id);
         if(!$followers){
             throw new ModelNotFoundException("Followers not found.");
         }
-        
-        $loggedInProfileId = $request->user()->profile->id;
         
         $followerProfileIds = $followers->pluck('id')->toArray();
         //build network names
@@ -200,35 +201,42 @@ class ProfileController extends Controller
             $temp->self = false;
             $result[] = $temp;
         }
-        
+    
         if($alreadySubscribed->count() > 0){
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as $profile){
-                
+            
                 if($profile->id === $loggedInProfileId){
                     $profile->self = true;
                     continue;
                 }
-                
+            
                 $channel = $alreadySubscribed->get('network.' . $profile->id);
                 if($channel === null){
                     continue;
                 }
-                
+            
                 $profile->isFollowing = true;
             }
         }
-        $this->model = $result;
+    }
+    
+    public function followers(Request $request, $id)
+    {
+        $this->model = $this->getFollowers($id,$request->user()->profile->id);
         return $this->sendResponse();
     }
     
-    public function following(Request $request, $id)
+    private function getFollowing($id, $loggedInProfileId)
     {
+        if(\Cache::has('following.' . $id)){
+            return Cache::get('following.' . $id);
+        }
+    
         $following = Profile::getFollowing($id);
         if(!$following){
             throw new ModelNotFoundException("Following profiles not found.");
         }
-        $loggedInProfileId = $request->user()->profile->id;
     
         $followingProfileIds = $following->pluck('id')->toArray();
     
@@ -258,20 +266,23 @@ class ProfileController extends Controller
                     $profile->self = true;
                     continue;
                 }
-                
+            
                 $channel = $alreadySubscribed->get('network.' . $profile->id);
-
+            
                 if($channel === null){
                     continue;
                 }
-                
+            
                 $profile->isFollowing = true;
             }
         }
-        $this->model = $result;
+        \Cache::put('following.' . $id, $result, 1440);
+        return $result;
+    }
+    public function following(Request $request, $id)
+    {
+        $this->model = $this->getFollowing($id, $request->user()->profile->id);
         return $this->sendResponse();
-        
-        
     }
 
 }
