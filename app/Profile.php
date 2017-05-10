@@ -236,7 +236,9 @@ class Profile extends Model
             ->join('channels','subscribers.channel_name','=','channels.name')
             ->where('subscribers.profile_id','=',$id)
             ->where('subscribers.channel_name','like','network.%')
-            ->where('subscribers.channel_name','not like','%.' . $id)
+            ->where('subscribers.channel_name','not like','feed.' . $id)
+            ->where('subscribers.channel_name','not like','network.' . $id)
+            ->where('subscribers.channel_name','not like','public.' . $id)
             ->whereNull('subscribers.deleted_at')
             ->get();
         
