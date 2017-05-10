@@ -15,14 +15,16 @@ class SearchController extends Controller
 
     public function search(Request $request, $type)
     {
-        if($type !== 'profiles'){
+        if($type !== 'profile'){
             //since we currently only support profile searching
-            return;
+            $this->errors = ['Type ' . $type . ' not supported yet.'];
+            return $this->sendResponse();
         }
         
         if(!$request->has('name')){
             //since we currently search searching based on name.
-            return;
+            $this->errors = ['Name is required to search.'];
+            return $this->sendResponse();
         }
         
         $match = $request->only('name');
