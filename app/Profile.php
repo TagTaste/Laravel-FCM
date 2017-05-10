@@ -415,7 +415,15 @@ class Profile extends Model
     
     public function subscribe($channelName, &$owner)
     {
-        return $this->getChannel($channelName,$owner,true)->subscribe($this->id);
+        $subscriber = $this->getChannel($channelName,$owner,true)->subscribe($this->id);
+        
+        if($subscriber === null){
+            return false;
+        }
+        
+        //invalidate cache
+        \Cache::forget("followers." . $owner->id);
+        return true;
     }
     
     public function unsubscribeNetworkOf(&$owner)
@@ -426,7 +434,15 @@ class Profile extends Model
     
     public function unsubscribe($channelName, &$owner)
     {
-        return $this->getChannel($channelName,$owner,false)->unsubscribe($this->id);
+        $unsubscribe = $this->getChannel($channelName,$owner,false)->unsubscribe($this->id);
+        
+        if($unsubscribe === false){
+            return false;
+        }
+        
+        //invalidate cache
+        \Cache::forget("followers." . $owner->id);
+        return true;
     }
     
     //todo: remove this method if not used.
