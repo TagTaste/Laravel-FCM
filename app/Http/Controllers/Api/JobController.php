@@ -71,4 +71,21 @@ class JobController extends Controller
 		
 		return $this->sendResponse();
 	}
+    
+    /**
+     * Returns all Jobs created by an individual and by all of his companies
+     *
+     */
+    public function all(Request $request)
+    {
+        $userId = $request->user()->id;
+        $this->model = \App\Job::
+            whereHas('company',function($query) use ($userId) {
+            $query->where('user_id',$userId);
+        })->orWhereHas('profile',function($query) use ($userId){
+            $query->where('user_id',$userId);
+        })->orderBy('jobs.created_at','desc')->get();
+        
+        return $this->sendResponse();
+	}
 }

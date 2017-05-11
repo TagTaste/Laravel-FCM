@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\DeleteFeedable;
+use App\Events\NewFeedable;
+use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
@@ -36,12 +40,15 @@ class PhotoController extends Controller
     public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $data = $request->only(['file','caption']);
-       
+        $data = $request->except(['_method','_token','profile_id']);
+        if(!isset($data['privacy_id'])){
+            $data['privacy_id'] = 1;
+        }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
         $this->model = $request->user()->profile->photos()->create($data);
+        event(new NewFeedable($this->model));
         return $this->sendResponse();
     }
     
@@ -87,11 +94,16 @@ class PhotoController extends Controller
      */
     public function update(Request $request, $profileId,$id)
     {
-        $data = $request->intersect(['caption','file']);
+        $data = $request->except(['_method','_token','profile_id']);
+        if(!isset($data['privacy_id'])){
+            $data['privacy_id'] = 1;
+        }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
         $this->model = $request->user()->profile->photos()->where('id',$id)->update($data);
+        event(new UpdateFeedable($this->model));
+    
         return $this->sendResponse();
     }
 
@@ -103,13 +115,19 @@ class PhotoController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model =  $request->user()->profile->photos()->where('id',$id)->delete();
+        $this->model =  $request->user()->profile->photos()->where('id',$id)->first();
+        event(new DeleteFeedable($this->model));
+        $this->model = $this->model->delete();
         return $this->sendResponse();
     }
 
     public function image($profileId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
+        
+        if(!$photo){
+            throw new ModelNotFoundException("Could not find photo with id " . $id);
+        }
         return response()->file(Photo::getProfileImagePath($profileId, $photo->file));
     }
 }

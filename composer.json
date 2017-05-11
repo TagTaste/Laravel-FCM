@@ -16,6 +16,7 @@
         "tymon/jwt-auth": "0.5.*",
         "guzzlehttp/guzzle": "^6.2",
         "tagtaste/api-response": "^0.1"
+
     },
 
     "require-dev": {

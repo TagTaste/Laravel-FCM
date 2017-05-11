@@ -2,23 +2,32 @@
 
 namespace App;
 
+use App\Channel\Payload;
+use App\Interfaces\Feedable;
+use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \App\Scopes\Profile as ScopeProfile;
 use \App\Scopes\Company as ScopeCompany;
-class Photo extends Model
+
+class Photo extends Model implements Feedable
 {
     use ScopeProfile, ScopeCompany, SoftDeletes;
     
-    protected $fillable = ['caption','file'];
+    use IdentifiesOwner;
+    
+    protected $fillable = ['caption','file','privacy_id','payload_id'];
 
-    protected $visible = ['id','caption','photoUrl','created_at','comments','likeCount','hasLiked'];
+    protected $visible = ['id','caption','photoUrl','likeCount',
+        'created_at','comments',
+        'profile_id','company_id','privacy_id',
+        'owner'];
 
     protected $with = ['like'];
 
-    protected $appends = ['likeCount','hasLiked','photoUrl'];
+    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount'];
     
     protected $dates = ['deleted_at'];
 
@@ -26,7 +35,7 @@ class Photo extends Model
     {
         parent::boot();
 
-        static::deleting(function($photo){
+        self::deleting(function($photo){
 //            \DB::transaction(function() use ($photo){
                 $photo->ideabooks()->detach();
 //            });
@@ -37,11 +46,6 @@ class Photo extends Model
     public function ideabooks()
     {
         return $this->belongsToMany('\App\Ideabook','ideabook_photos','photo_id','ideabook_id');
-    }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return date("d-m-Y",strtotime($value));
     }
 
     public function comments()
@@ -91,14 +95,10 @@ class Photo extends Model
         return $count;
     }
     
-    public function getHasLikedAttribute()
-    {
-       return $this->like->count() === 1;
-    }
-    
     public function getPhotoUrlAttribute()
     {
-        return "/profiles/photos/" . $this->id . ".jpg";
+        $profileId = $this->getProfile()->id;
+        return "/profiles/" . $profileId . "/photos/" . $this->id . ".jpg";
     }
     
     public function profile()
@@ -113,6 +113,58 @@ class Photo extends Model
     public function company()
     {
         return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
+    }
+    
+    public function getCompany()
+    {
+        return $this->company->first();
+    }
+    
+    public function getProfileIdAttribute()
+    {
+        $profile = $this->getProfile();
+        
+        return $profile !== null ? $profile->id : null;
+    }
+    
+    public function getCompanyIdAttribute()
+    {
+        $company = $this->getCompany();
+        
+        return $company !== null ? $company->id : null;
+    }
+    
+    public function owner()
+    {
+        $profile = $this->getProfile();
+        if($profile){
+            return $profile;
+        }
+        
+        return $this->getCompany();
+    }
+    
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
+    }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
+    }
+    
+    public function getMetaFor($profileId)
+    {
+        $meta = [];
+        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
+        $meta['likeCount'] = $this->likeCount;
+        return $meta;
     }
    
 }

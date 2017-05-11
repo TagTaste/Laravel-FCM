@@ -94,7 +94,7 @@ class ExperienceController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->only($this->fields);
+        $input = $request->intersect($this->fields);
         if(isset($input['start_date'])){
             $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
         }

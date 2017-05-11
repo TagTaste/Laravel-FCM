@@ -59,8 +59,9 @@ class JobController extends Controller
         }
         
         $inputs = $request->except(['_method','_token']);
-        $this->model = $company->jobs()->create($inputs);
-        
+        $inputs['profile_id'] = $request->user()->profile->id;
+        $job = $company->jobs()->create($inputs);
+        $this->model = Job::find($job->id);
         return $this->sendResponse();
     }
     
@@ -106,10 +107,9 @@ class JobController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($request, $profileId, $companyId, $id)
+    public function destroy(Request $request, $profileId, $companyId, $id)
     {
         $company = $request->user()->companies()->where('id',$companyId)->first();
-        
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
@@ -173,7 +173,7 @@ class JobController extends Controller
     
         $this->model = ['applications' => $job->applications()->paginate()];
         $this->model['count'] = $job->applications()->count();
-        
+
         return $this->sendResponse();
     }
     

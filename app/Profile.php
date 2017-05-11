@@ -3,12 +3,16 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Traits\PushesToChannel;
+use App\Events\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
+    use PushesToChannel;
+    
     protected $fillable = [
                             'tagline',
                             'about',
@@ -89,15 +93,32 @@ class Profile extends Model
                             'isTagged'
                         ];
 
-    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged'];
+    protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged','name'];
     
     public static function boot()
     {
         parent::boot();
         
         self::created(function(Profile $profile){
-            Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
-            Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
+            
+            //create profile's feed channel
+            //$feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
+            
+            //subscribe to own feed channel
+            $profile->subscribe("feed", $profile);
+            
+            //create profile's public channel
+            //$public  = Channel::create(['name'=>"public." . $profile->id,'profile_id'=>$profile->id]);
+            //subscribe to own public channel
+            $profile->subscribe("public", $profile);
+    
+            // anything below this condition would not be executed
+            // for the admin user.
+            if($profile->id === 1){
+                return;
+            }
+            //create the document for searching
+            \App\Documents\Profile::create($profile);
         });
     }
     
@@ -201,17 +222,34 @@ class Profile extends Model
         return $this->belongsToMany('App\Profile','followers','follower_id','follows_id');
 
     }
-
+    
+    /**
+     * Get people I am following.
+     *
+     * @return array
+     */
+    
+    public static function getFollowing($id)
+    {
+        $channelOwnerProfileIds = \DB::table("subscribers")
+            ->select('channels.profile_id')
+            ->join('channels','subscribers.channel_name','=','channels.name')
+            ->where('subscribers.profile_id','=',$id)
+            ->where('subscribers.channel_name','like','network.%')
+            ->where('subscribers.channel_name','not like','feed.' . $id)
+            ->where('subscribers.channel_name','not like','network.' . $id)
+            ->where('subscribers.channel_name','not like','public.' . $id)
+            ->whereNull('subscribers.deleted_at')
+            ->get();
+        return \App\Recipe\Profile::whereIn("id",$channelOwnerProfileIds->pluck('profile_id')->toArray())->get();
+    }
     public function getFollowingProfilesAttribute()
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
-
-        $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
-            ->join('followers','followers.follows_id','=','profiles.id')
-            ->join('users','users.id','=','followers.follows_id')
-            ->where('followers.follower_id','=',$this->id)->get();
-
+        $profiles = self::getFollowing($this->id);
+        
             $count = $profiles->count();
+            
             if($count > 1000000)
             {
                  $count = round($count/1000000, 1) . "m";
@@ -221,20 +259,37 @@ class Profile extends Model
                 $count = round($count/1000, 1) . "k";
             }
 
-        return ['count'=> $count, 'profiles' => $profiles];
+        return ['count'=> $count, 'profiles' => $profiles->toArray()];
 
     }
-
+    
+    public static function getFollowers($id)
+    {
+        //just get the profile ids first
+        //then fire another query to build the required things
+        
+        $profileIds = \DB::table('profiles')->select('profiles.id')
+            ->join('subscribers','subscribers.profile_id','=','profiles.id')
+            ->where('subscribers.channel_name','like','network.' . $id)
+            ->where('subscribers.profile_id','!=',$id)
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->get();
+        
+        return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
+    }
+    
+    /**
+     * Get people following me.
+     *
+     * @return array
+     */
     public function getFollowerProfilesAttribute()
     {
         //if you use \App\Profile here, it would end up nesting a lot of things.
-
-        $profiles = \DB::table('profiles')->select('profiles.id','users.name','tagline')
-            ->join('followers','followers.follower_id','=','profiles.id')
-            ->join('users','users.id','=','followers.follower_id')
-            ->where('followers.follows_id','=',$this->id)->get();
-
-             $count = $profiles->count();
+        $profiles = Profile::getFollowers($this->id);
+        
+        $count = $profiles->count();
             if($count > 1000000)
             {
                  $count = round($count/1000000, 1);
@@ -321,44 +376,57 @@ class Profile extends Model
         return $this->hasMany(Subscriber::class);
     }
     
+    private function getChannel(&$channelName, &$owner, $createIfNotExist = true)
+    {
+        $prefix = $owner instanceof Company ? "company." : null;
+        $whereClause = $owner instanceof Company ? "company_id" : "profile_id";
+        $channelName = $prefix . $channelName . "." . $owner->id;
+        
+        $channel = Channel::where($whereClause,$owner->id)->where('name','like',$channelName)->first();
+    
+        if($channel === null){
+            if(!$createIfNotExist) {
+                throw new ModelNotFoundException("Channel not found.");
+            }
+    
+            $channel = Channel::create(['name'=>$channelName,$whereClause=>$owner->id]);
+        }
+        
+        return $channel;
+    }
     /**
      * Subscribe the owner's network
-     * @param Profile $owner
+     * @param Profile|Company $owner
      * @return mixed
      */
-    public function subscribeNetworkOf(Profile $owner)
+    public function subscribeNetworkOf(&$owner)
     {
-        return $this->subscribe("network." . $owner->id,$owner->id);
-    }
-    
-    public function subscribe($channelName, $ownerId)
-    {
-        $channel = $this->channels->where('name','like',$channelName)->first();
-        
-        if(!$channel){
-            $channel = Channel::create(['name'=>$channelName,'profile_id'=>$ownerId]);
+        //only individual can publish things in network.
+        if($owner instanceof Company === false){
+            $this->subscribe("network",$owner);
         }
         
-        return $channel->subscribe($this->id);
+        return $this->subscribe("public",$owner);
     }
     
-    public function unsubscribeNetworkOf(Profile $owner)
+    public function subscribe($channelName, &$owner)
     {
-        return $this->unsubscribe("network." . $owner->id,$owner->id);
+        return $this->getChannel($channelName,$owner,true)->subscribe($this->id);
     }
     
-    public function unsubscribe($channelName)
+    public function unsubscribeNetworkOf(&$owner)
     {
-        $channel = $this->channels->where('name','like',$channelName)->first();
-        
-        if(!$channel){
-            throw new ModelNotFoundException();
-        }
-        
-        return $channel->unsubscribe($this->id);
+        $this->unsubscribe("network",$owner);
+        return $this->unsubscribe("public",$owner);
     }
     
-    public function addSubscriber(Profile $profile)
+    public function unsubscribe($channelName, &$owner)
+    {
+        return $this->getChannel($channelName,$owner,false)->unsubscribe($this->id);
+    }
+    
+    //todo: remove this method if not used.
+    private function addSubscriber(Profile $owner)
     {
         $channelName = 'network.' . $this->id;
         $channel = $this->channels()->where('name','like',$channelName)->first();
@@ -367,43 +435,9 @@ class Profile extends Model
             //create channel
             $channel = $this->channels()->create(['name'=>$channelName]);
         }
-        return $channel->subscribe($profile->id);
+        return $channel->subscribe($owner->id);
     }
     
-    public function pushToMyFeed(&$data)
-    {
-        //push to my feed
-        $this->pushToChannel("feed." . $this->id,$data);
-        
-        //push to my channel
-        return $this->pushToNetwork($data);
-    }
-    
-    public function pushToNetwork(&$data)
-    {
-        return $this->pushToChannel("network." . $this->id,$data);
-    }
-    
-    public function pushToPublic(&$data)
-    {
-        return $this->pushToChannel("public." . $this->id,$data);
-    }
-    
-    public function pushToChannel($channelName,&$data)
-    {
-        $channel = $this->channels()->where('name',$channelName)->first();
-        
-        if(!$channel){
-            //since a user can post even if he has no network (i.e. no followers)
-            //throwing an exception here might cause some problem.
-            //Throw an error if you feel like. Make sure it doesn't break anything.
-            \Log::warning("Channel " . $channelName . " does not exist.");
-            return false;
-        }
-        
-        return $channel->addPayload($data);
-        
-    }
     
     /**
      * Feed for the logged in user's profile
@@ -414,8 +448,10 @@ class Profile extends Model
     {
         $profileId = $this->id;
         return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
-            $query->where('channels.profile_id',$profileId);
-        })->get();
+            $query->where('channels.profile_id',$profileId)
+            ->where('channels.name','not like','network.' . $profileId)
+            ->where('channels.name','not like','public.' . $profileId);
+        })->orderBy('created_at','desc')->get();
     }
     
     /**
@@ -426,7 +462,7 @@ class Profile extends Model
         $profileId = $this->id;
         return Payload::select('payload')->whereHas('channel',function($query) use ($profileId) {
             $query->where('channel_name','profile.' . $profileId);
-        })->get();
+        })->orderBy('created_at','desc')->get();
     }
     
     /**
@@ -444,7 +480,22 @@ class Profile extends Model
         
         return Payload::select('payload')->whereHas('channel', function ($query) use ($channels) {
             $query->whereIn('channel_name', $channels);
-        })->get();
+        })->orderBy('created_at','desc')->get();
+    }
+    
+    public function shoutouts()
+    {
+        return $this->hasMany(Shoutout::class);
+    }
+    
+    public function jobs()
+    {
+        return $this->hasMany(Job::class);
+    }
+    
+    public static function isFollowing($profileId, $followerProfileId)
+    {
+        return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','network.' . $profileId)->count() === 1;
     }
 
 }

@@ -19,6 +19,8 @@
   "dependencies": {
     "express": "^4.14.0",
     "ioredis": "^2.4.3",
-    "socket.io": "^1.7.2"
+    "newrelic": "^1.38.2",
+    "socket.io": "^1.7.2",
+    "socket.io-cookie-parser": "^1.0.0"
   }
 }

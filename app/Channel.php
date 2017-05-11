@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
 {
-    protected $fillable = ['name', 'profile_id'];
+    protected $fillable = ['name', 'profile_id','company_id'];
     
     public function profile()
     {
@@ -23,15 +23,30 @@ class Channel extends Model
     public function subscribe($subscriberProfileId)
     {
         //todo: notify the channel owner after new subscription
-        return Subscriber::create([
+        $subscriber = Subscriber::withTrashed()->where('channel_name',$this->name)->where('profile_id',$subscriberProfileId)->first();
+        if($subscriber){
+            if($subscriber->trashed()){
+                return $subscriber->restore();
+            }
+            return false;
+        }
+       
+        $subscriber = Subscriber::create([
             'channel_name'=>$this->name,
             'profile_id'=>$subscriberProfileId,
             'timestamp'=>Carbon::now()->toDateTimeString()]);
+        
+        return $subscriber;
     }
     
     public function unsubscribe($subscriberProfileId)
     {
-        return $this->subscribers()->where('profile_id',$subscriberProfileId)->delete();
+        $subscriber = Subscriber::where('channel_name','like',$this->name)->where('profile_id',$subscriberProfileId)->first();
+        if(!$subscriber){
+            return false;
+        }
+        
+        return $subscriber->delete();
     }
     
     public function payload()
@@ -41,16 +56,18 @@ class Channel extends Model
     
     public function addPayload(&$data)
     {
-        $json = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
-        return $this->payload()->create(['payload'=>json_encode($json)]);
+        return $this->payload()->create(['payload'=>$data,'model'=>get_class($data),'model_id'=>$data->id]);
     }
     
     public static function names($id)
     {
-        $names = ['feed','network','public'];
-        foreach($names as &$name){
-            $name = $name . "." . $id;
-        }
-        return $names;
+        //it's ok to have public channel here.
+        //because, in socket.js, it would be
+        //connected to a namespaced socket.io :D
+        //G Maane Genius.
+        $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
+        $channels = $subscribedChannels->pluck('channel_name')->toArray();
+        \Log::info($channels);
+        return $channels;
     }
 }

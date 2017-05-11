@@ -7,8 +7,8 @@ use Carbon\Carbon;
 
 class Comment extends Model
 {
-    protected $visible = ['name','content','id','profileImage','created_at'];
-    protected $appends = ['name','profileImage'];
+    protected $visible = ['name','content','id','profile_id','profileImage','created_at'];
+    protected $appends = ['name','profileImage','profile_id'];
     
     public function recipe()
     {
@@ -51,5 +51,10 @@ class Comment extends Model
         return $query->whereHas("photo",function($query) use ($id){
             $query->where('photo_id',$id);
     });
+    }
+    
+    public function getProfileIdAttribute()
+    {
+        return $this->user->profile->id;
     }
 }

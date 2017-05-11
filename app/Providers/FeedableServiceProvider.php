@@ -8,14 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class FeedableServiceProvider extends ServiceProvider
 {
-    /**
-     * Namespaced class names which would appear on feeds.
-     *
-     * @var array
-     */
-    private $feedables = [
-        \App\Recipe::class
-    ];
+    
     /**
      * Bootstrap the application services.
      *
@@ -23,10 +16,6 @@ class FeedableServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(empty($this->feedables)){
-            return;
-        }
-        
         $this->setFeedableObserver();
     }
     
@@ -35,9 +24,13 @@ class FeedableServiceProvider extends ServiceProvider
      */
     private function setFeedableObserver()
     {
-        foreach($this->feedables as $feedable){
-            $feedable::observe(FeedableObserver::class);
-        }
+        \App\Recipe::observe(FeedableObserver::class);
+        
+        //dont add photos here.
+        //laravel doesn't fire created event on pivot.
+//        \App\Photo::observe(FeedableObserver::class);
+        
+        \App\Shoutout::observe(FeedableObserver::class);
     }
 
     /**

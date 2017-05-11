@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 
@@ -97,7 +98,6 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        \Log::info($request->all());
         $inputs = $request->intersect(['name','about','logo','hero_image','phone',
             'email','registered_address','established_on', 'status_id',
             'type','employee_count','client_count','annual_revenue_start',
@@ -168,5 +168,36 @@ class CompanyController extends Controller
         $company = \DB::table('companies')->select('hero_image')->find($id);
         $path = Company::getHeroImagePath($profileId, $id,$company->hero_image);
         return response()->file($path);
+    }
+    
+    public function follow(Request $request, $profileId, $id)
+    {
+        $channelOwner = Company::find($id);
+        if(!$channelOwner){
+            throw new ModelNotFoundException("Company not found.");
+        }
+        
+        $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        
+        if(!$this->model){
+            throw new \Exception("You are already following this company.");
+        }
+        
+        return $this->sendResponse();
+    }
+    
+    public function unfollow(Request $request, $profileId, $id)
+    {
+        $channelOwner = Company::find($id);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        
+        $this->model = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
+        
+        if(!$this->model){
+            throw new \Exception("You are not following this company.");
+        }
+        return $this->sendResponse();
     }
 }

@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(PrivacyTableSeeder::class);
         //$this->call(AttributeValueTableSeeder::class);
-        $this->call(TemplateTypeTableSeeder::class);
-        $this->call(TemplateTableSeeder::class);
+        //$this->call(TemplateTypeTableSeeder::class);
+        //$this->call(TemplateTableSeeder::class);
         
         //profile related
         $this->call(DesignationTableSeeder::class);
