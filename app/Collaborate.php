@@ -9,7 +9,7 @@ class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on',
-        'profile_id', 'company_id','template_fields'];
+        'profile_id', 'company_id','template_fields','template_id'];
     
     protected $with = ['profiles','companies'];
     
@@ -101,7 +101,7 @@ class Collaborate extends Model
     
     public function template()
     {
-        return $this->belongsTo(CollaborateTemplate::class);
+        return $this->belongsTo(CollaborateTemplate::class,'template_id','id');
     }
     
     public function getAdditionalFieldsAttribute()
