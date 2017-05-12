@@ -35,6 +35,19 @@ class Handler extends ExceptionHandler
     public function report(Exception $exception)
     {
         parent::report($exception);
+        if($exception->getMessage() !== ""){
+            $client =  new \GuzzleHttp\Client();
+            $res = $client->request('POST', env('SLACK_HOOK_DEVELOPMENT'),
+                [
+                    'json' =>
+                        [
+                            "channel" => env('SLACK_CHANNEL'),
+                            "username" => "ramukaka",
+                            "icon_emoji" => ":older_man::skin-tone-3:",
+                            "text" => $exception->getMessage()]
+                ]);
+        }
+        
     }
 
     /**
