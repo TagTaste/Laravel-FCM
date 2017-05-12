@@ -68,7 +68,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //collaborate templates
             Route::resource("collaborate/templates","CollaborateTemplateController");
-            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collarabote.'],function(){
+            
+            //collaborate comments
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::resource('comments','CommentController');
             });
             
