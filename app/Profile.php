@@ -178,13 +178,13 @@ class Profile extends Model
     //specific to API
     public function getImageUrlAttribute()
     {
-        return "images/p/" . $this->id . "/" . $this->image;
+        return $this->image !== null ? "/images/p/" . $this->id . "/" . $this->image : null;
     }
 
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        return "images/p/" . $this->id . "/" . $this->hero_image;
+        return $this->hero_image !== null ? "/images/p/" . $this->id . "/" . $this->hero_image : null;
     }
 
     //$followsId is following $this profile
