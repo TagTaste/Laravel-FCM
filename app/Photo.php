@@ -4,13 +4,12 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
+use App\Scopes\Company as ScopeCompany;
+use App\Scopes\Profile as ScopeProfile;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use \App\Scopes\Profile as ScopeProfile;
-use \App\Scopes\Company as ScopeCompany;
 
 class Photo extends Model implements Feedable
 {
@@ -60,7 +59,7 @@ class Photo extends Model implements Feedable
     
     public static function getProfileImagePath($profileId,$filename = null)
     {
-        $relativePath = "profile/$profileId/photos";
+        $relativePath = "images/ph/$profileId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
@@ -70,7 +69,7 @@ class Photo extends Model implements Feedable
     
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "profile/$profileId/companies/$companyId/photos";
+        $relativePath = "images/ph/$profileId/c/$companyId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
@@ -97,8 +96,7 @@ class Photo extends Model implements Feedable
     
     public function getPhotoUrlAttribute()
     {
-        $profileId = $this->getProfile()->id;
-        return "/profiles/" . $profileId . "/photos/" . $this->id . ".jpg";
+        return $this->file !== null ? "/images/ph/" . $this->profile_id . "/p" . $this->file : null;
     }
     
     public function profile()
