@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Profile;
+namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Collaborate;
 use Illuminate\Http\Request;
@@ -44,13 +44,14 @@ class CollaborateController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $isPartOfCompany = $request->user()->isPartOfCompany($companyId);
         
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
+        if(!$isPartOfCompany){
+           $this->sendError("This company does not belong to user.");
         }
+        
 		$inputs = $request->all();
-		$inputs['company_id'] = $company->id;
+		$inputs['company_id'] = $companyId;
 		$this->model = $this->model->create($inputs);
 
 		return $this->sendResponse();
@@ -78,7 +79,7 @@ class CollaborateController extends Controller
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
 		$inputs = $request->all();
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = $request->user()->isPartOfCompany($companyId);
         
         if(!$company){
             throw new \Exception("This company does not belong to user.");
@@ -100,7 +101,7 @@ class CollaborateController extends Controller
 	 */
 	public function destroy(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = $request->user()->isPartOfCompany($companyId);
         
         if(!$company){
             throw new \Exception("This company does not belong to user.");
