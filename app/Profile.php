@@ -4,7 +4,6 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Traits\PushesToChannel;
-use App\Events\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -329,7 +328,9 @@ class Profile extends Model
     //there should be a better way to write the paths.
     public static function getImagePath($id, $filename = null)
     {
-        $relativePath = "profile/{$id}/images";
+        //$relativePath = "profile/{$id}/images";
+        $relativePath = "images/p/{$id}";
+        
         Storage::makeDirectory($relativePath);
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
@@ -337,7 +338,7 @@ class Profile extends Model
     //there should be a better way to write the paths.
     public static function getHeroImagePath($id, $filename = null)
     {
-        $relativePath = "profile/{$id}/hero_images";
+        $relativePath = "images/p/{$id}/hi";
         Storage::makeDirectory($relativePath);
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath ) . "/" . $filename;
     }
