@@ -31,6 +31,6 @@ class CreateCommentsShoutouts extends Migration
      */
     public function down()
     {
-        Schema::drop('comments_recipes');
+        Schema::drop('comments_shoutouts');
     }
 }
