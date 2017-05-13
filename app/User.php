@@ -311,4 +311,14 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Company');
     }
+    
+    public function isPartOfCompany($companyId)
+    {
+        $company = $this->companies()->find($companyId);
+        if($company){
+            return true;
+        }
+    
+        return CompanyUser::where('company_id',$companyId)->where("user_id",$this->id)->count() === 1;
+    }
 }

@@ -6,7 +6,6 @@ use App\Company\Address;
 use App\Company\Advertisement;
 use App\Company\Book;
 use App\Company\Patent;
-use App\Company\Portfolio;
 use App\Company\Status;
 use App\Company\Type;
 use App\Traits\PushesToChannel;
@@ -99,9 +98,15 @@ class Company extends Model
         return $this->belongsToMany('App\Company\Award','company_awards','company_id','award_id');
     }
 
+    //company creater user 
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+ 
+    public function users()
+    {
+        return $this->belongsToMany('App\User','company_users','company_id','user_id');
     }
 
     public function status()
@@ -207,5 +212,76 @@ class Company extends Model
     public function channels()
     {
         return $this->hasMany(Channel::class);
+    }
+    
+    /**
+     * Get Company User Profiles
+     *
+     * @return \App\Recipe\Profile|null
+     */
+    public function getUsers()
+    {
+        return \App\Recipe\Profile::
+            join('company_users','company_users.user_id','=','profiles.user_id')
+            ->where('company_users.company_id',$this->id)->get();
+    }
+    
+    
+    /**
+     * Add User to Company
+     *
+     * @param $userId
+     * @return bool|void
+     */
+    public function addUser($userId)
+    {
+        $userCount = \DB::table('users')->where('id',$userId)->count();
+        
+        if($userCount === 0){
+            throw new \Exception("User $userId does not exist. Cannot add to company " . $this->name);
+        }
+        
+        //check if already exists
+        
+        $exists = $this->users()->find($userId);
+        
+        if($exists){
+            throw new \Exception("User {$exists->name} already exists in the company " . $this->name);
+        }
+        
+        //attach the user
+        return $this->users()->attach($userId);
+    }
+    
+    /**
+     * Remove user from company;
+     *
+     * @param $userId
+     * @return bool
+     */
+    public function removeUser($userId)
+    {
+        $user = User::find($userId);
+        
+        if(!$user){
+            throw new \Exception("User $userId does not exist. Cannot add to Company " . $this->name);
+        }
+        
+        $user = CompanyUser::where('user_id',$userId)->where('company_id',$this->id)->first();
+        
+        if(!$user){
+            throw new \Exception("User " . $userId ." does not belong to company " . $this->name);
+        }
+    
+        return $user->delete();
+    }
+    
+    public function checkCompanyUser($userId)
+    {
+        if($this->user_id === $userId){
+            return true;
+        }
+        
+        return CompanyUser::where('company_id',$this->id)->where("user_id",$userId)->count() === 1;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company;
 use App\Shoutout;
 use Illuminate\Http\Request;
 
@@ -127,10 +128,14 @@ class ShoutoutController extends Controller
     private function verifyOwner(Request &$request)
     {
         if($request->has('company_id') && $request->input('company_id') !== null){
-            $company = $request->user()->companies()
-                ->where('id',$request->input('company_id'))->first();
+            $company = Company::find($request->input('company_id'));
             if(!$company){
-                throw new \Exception("User doesn't belong to this company.");
+                throw new \Exception("Company doesn't exist.");
+            }
+            $userId = $request->user()->id;
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if(!$userBelongsToCompany){
+                throw new \Exception("User doesn't belong to this company");
             }
         }
     
