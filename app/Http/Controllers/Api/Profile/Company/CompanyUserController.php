@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\CompanyUser;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Company;
+use App\CompanyUser;
+use App\Http\Controllers\Api\Controller;
+use Illuminate\Http\Request;
 
 class CompanyUserController extends Controller
 {
@@ -34,7 +34,7 @@ class CompanyUserController extends Controller
 	public function index(Request $request,$profileId,$companyId)
 	{
 		$this->model=CompanyUser::where('company_id',$companyId)->get();
-		return $this->model;
+		return $this->sendResponse();
 	}
 
 	/**
