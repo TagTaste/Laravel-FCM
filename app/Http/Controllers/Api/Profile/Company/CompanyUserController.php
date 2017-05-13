@@ -63,6 +63,20 @@ class CompanyUserController extends Controller
         
         return $this->sendResponse();
     }
+
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return Response
+	 */
+	public function show($id)
+	{
+		$this->model = $this->model->findOrFail($id);
+		
+		return $this->sendResponse();
+	}
+
 	/**
 	 * Show the form for editing the specified resource.
 	 *
