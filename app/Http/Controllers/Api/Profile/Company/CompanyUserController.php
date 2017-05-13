@@ -43,23 +43,23 @@ class CompanyUserController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request,$profileId,$companyId)
-	{
-		$inputs=$request->all();
-		$userId = $request->input('user_id');
-		$activeUserId = $request->user()->id;
-		$company=Company::where('id',$companyId)->where('user_id',$activeUserId)->first();
-        $companyUser = CompanyUser::where('company_id',$companyId)->where('user_id',$userId)->first();
-        if(!$company){
+    public function store(Request $request, $profileId, $companyId)
+    {
+        $inputs = $request->all();
+        $userId = $request->input('user_id');
+        $loggedInUserId = $request->user()->id;
+        $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
+        $companyUser = CompanyUser::where('company_id', $companyId)->where('user_id', $userId)->first();
+        if (!$company) {
             throw new \Exception("Company does not belongs this user.");
         }
-		if($companyUser){
+        if ($companyUser) {
             throw new \Exception("User already exist to this company.");
         }
-		$this->model->create($inputs);
-
-		return $this->model;
-	}
+        $this->model->create($inputs);
+        
+        return $this->model;
+    }
 
 	/**
 	 * Display the specified resource.
