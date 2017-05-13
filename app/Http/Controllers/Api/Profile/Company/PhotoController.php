@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
@@ -31,16 +32,26 @@ class PhotoController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
-        $company = $request->user()->companies()->find($companyId);
+        //check if company exists
+        $company = Company::find($companyId);
         
         if(!$company){
-            throw new \Exception( "This company does not belong to the user.");
+            throw new \Exception( "This company does not exist");
         }
-    
+        
+        //check if user belongs to the company
+        $userId = $request->user()->id;
+        $userBelongsToCompany = $company->checkCompanyUser($userId);
+        
+        if(!$userBelongsToCompany){
+            return $this->sendError("User does not belong to this company");
+        }
+        
+        //create the photo
         $data = $request->except(['_method','_token','company_id']);
         
         if(!$request->hasFile('file') && empty($request->input('file)'))){
-            throw new \Exception('Empty file sent.');
+           return $this->sendError("Photo missing.");
         }
         
         $imageName = str_random(32) . ".jpg";
@@ -84,10 +95,18 @@ class PhotoController extends Controller
      */
     public function update(Request $request, $profileId,$companyId,$id)
     {
-        $company = $request->user()->companies()->find($companyId);
+        $company = Company::find($companyId);
     
         if(!$company){
            throw new \Exception("This company does not belong to the user.");
+        }
+    
+        //check if user belongs to the company
+        $userId = $request->user()->id;
+        $userBelongsToCompany = $company->checkCompanyUser($userId);
+    
+        if(!$userBelongsToCompany){
+            return $this->sendError("User does not belong to this company");
         }
         
         $data = $request->except(['_method','_token','company_id']);
@@ -114,12 +133,20 @@ class PhotoController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->find($companyId);
+        $company = Company::find($companyId);
     
         if(!$company){
             throw new \Exception("This company does not belong to the user.");
         }
-
+    
+        //check if user belongs to the company
+        $userId = $request->user()->id;
+        $userBelongsToCompany = $company->checkCompanyUser($userId);
+    
+        if(!$userBelongsToCompany){
+            return $this->sendError("User does not belong to this company");
+        }
+        
         $this->model = $company->photos()->where('id',$id)->first();
         event(new DeleteFeedable($this->model));
         
