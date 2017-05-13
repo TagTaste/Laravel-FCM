@@ -135,7 +135,7 @@ class ProfileController extends Controller
         $profile = Profile::select('id','hero_image')->findOrFail($id);
         $file = Profile::getHeroImagePath($id,$profile->hero_image);
         if(file_exists($file)){
-            return response()->file();
+            return response()->file($file);
         }
     }
 
