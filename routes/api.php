@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -166,7 +167,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
-                    Route::resource("companyusers","CompanyUserController");
+                    Route::resource("users","UserController");
                 });
     
                 Route::resource('tagboards','TagBoardController');
