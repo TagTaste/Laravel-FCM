@@ -106,6 +106,6 @@ class Collaborate extends Model
     
     public function getAdditionalFieldsAttribute()
     {
-        return $this->template->fields;
+        return $this->template !== null ? $this->template->fields : null;
     }
 }
