@@ -184,7 +184,7 @@ class Profile extends Model
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        return $this->hero_image !== null ? "/images/p/" . $this->id . "/" . $this->hero_image : null;
+        return $this->hero_image !== null ? "/images/p/" . $this->id . "/hi/" . $this->hero_image : null;
     }
 
     //$followsId is following $this profile
