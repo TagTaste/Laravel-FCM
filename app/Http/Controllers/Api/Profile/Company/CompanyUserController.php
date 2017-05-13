@@ -33,7 +33,7 @@ class CompanyUserController extends Controller
 	 */
 	public function index(Request $request,$profileId,$companyId)
 	{
-		$this->model=CompanyUser::where('company_id',$companyId)->get();
+		$this->model = CompanyUser::where('company_id',$companyId)->get();
 		return $this->sendResponse();
 	}
 
@@ -49,16 +49,19 @@ class CompanyUserController extends Controller
         $userId = $request->input('user_id');
         $loggedInUserId = $request->user()->id;
         $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
-        $companyUser = CompanyUser::where('company_id', $companyId)->where('user_id', $userId)->first();
+        
         if (!$company) {
             throw new \Exception("Company does not belongs this user.");
         }
+        
+        $companyUser = CompanyUser::where('company_id', $companyId)->where('user_id', $userId)->first();
         if ($companyUser) {
             throw new \Exception("User already exist to this company.");
         }
-        $this->model->create($inputs);
         
-        return $this->model;
+        $this->model = $this->model->create($inputs);
+        
+        return $this->sendResponse();
     }
 
 	/**
