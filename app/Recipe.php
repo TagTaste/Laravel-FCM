@@ -12,7 +12,7 @@ class Recipe extends Model implements Feedable
     use SoftDeletes;
     
     public static $expectsFiles = true;
-    public static $fileInputs = ['image' => 'recipes/images'];
+    public static $fileInputs = ['image' => 'images/r'];
     protected $fillable = ['name','showcase','description','content', 'ingredients',
         'category', 'serving', 'calorie', 'image',
         'preparation_time','cooking_time','level','tags',
