@@ -39,6 +39,8 @@ class RecipeController extends Controller
     {
         $recipe = Recipe::select('image')->findOrFail($id);
         $path = storage_path("app/" . Recipe::$fileInputs['image'] . "/" . $recipe->image);
-        return response()->file($path);
+        if(file_exists($path)){
+            return response()->file($path);
+        }
     }
 }

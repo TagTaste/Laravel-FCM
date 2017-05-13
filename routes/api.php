@@ -29,8 +29,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-            //collaborate templates
-            Route::resource("collaborate/templates","CollaborateTemplateController");
             
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
@@ -40,6 +38,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
            
             
             //channel names for socket.io
+                Route::get('channels/{id}/public',function($id){
+                    return response()->json(['public.' . $id]);
+                });
                 Route::get('channels',function(Request $request){
                     $profileId = $request->user()->profile->id;
                     return response()->json(\App\Channel::names($profileId));
@@ -53,23 +54,35 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
             
-            Route::get('profile/{id}',['uses'=>'ProfileController@show']);
-    
+            //jobs
             Route::get("jobs/all","JobController@all");
             Route::get("jobs/filters", "JobController@filters");
             Route::resource("jobs","JobController");
+            
+            //similar
             Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
+            
+            //collaborate
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate","CollaborateController");
-            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collarabote.'],function(){
+            
+            //collaborate templates
+            Route::resource("collaborate/templates","CollaborateTemplateController");
+            
+            //collaborate comments
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::resource('comments','CommentController');
             });
+            
+            //recipes
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
             Route::resource("recipes","RecipeController");
             
+            //tag
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
-    
+            
+            //comments
             Route::get('comments/{model}/{modelId}','CommentController@index');
             Route::post('comments/{model}/{modelId}','CommentController@store');
             
@@ -83,10 +96,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("notifications",'NotificationController');
 
             Route::get("designations", "DesignationController@index");
-            Route::resource('profile','ProfileController');
+            
+            //profile routes
+            
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
-
+            Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
+            Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
+            Route::resource('profile','ProfileController');
+            
+            
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');

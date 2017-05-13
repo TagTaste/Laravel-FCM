@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Designation;
+use \Cache;
 
 class DesignationController extends Controller
 {
@@ -15,7 +16,9 @@ class DesignationController extends Controller
      */
     public function index()
     {
-        $this->model  = Designation::select('desig_name')->get()->pluck('desig_name');
+        $this->model = Cache::remember('designations',1440,function(){
+            return Designation::all();
+        });
         return $this->sendResponse();
     }
 

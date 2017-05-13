@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Profile;
+use App\Subscriber;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -28,17 +30,20 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $userId = $request->user()->id;
+        $profile = User::whereHas("profile",function($query) use ($id){
+            $query->where('user_id',$id);
+        })->first();
         
-        $profile = \App\User::whereHas('profile',function($query) use ($id) {
-            $query->where('id','=',$id);
-        })->with(['ideabooks'=>function($query) use ($userId) {
-            $query->where('user_id',$userId);
-        }])->with(['profile.ideabooks'=>function($query) use ($id){
-            $query->where('profile_id',$id);
-        }])->first();
+        if($profile === null){
+            throw new ModelNotFoundException("Could not find profile.");
+        }
+//        $profileId = $profile->id;
+//        foreach($profile->followerProfiles['profiles'] as &$follower){
+//            $follower->isFollowing = Profile::isFollowing($profileId,$follower->id);
+//        }
+//
         
-        return $profile;
+        return response()->json($profile);
     }
 
     /**
@@ -119,13 +124,19 @@ class ProfileController extends Controller
     public function image($id)
     {
         $profile = Profile::select('image')->findOrFail($id);
-        return response()->file(Profile::getImagePath($id,$profile->image));
+        $file = Profile::getImagePath($id,$profile->image);
+        if(file_exists($file)){
+            return response()->file($file);
+        }
     }
 
     public function heroImage($id)
     {
         $profile = Profile::select('id','hero_image')->findOrFail($id);
-        return response()->file(Profile::getHeroImagePath($id,$profile->hero_image));
+        $file = Profile::getHeroImagePath($id,$profile->hero_image);
+        if(file_exists($file)){
+            return response()->file($file);
+        }
     }
 
     public function dishImages($id)
@@ -165,6 +176,110 @@ class ProfileController extends Controller
         if(!$this->model){
             throw new \Exception("You are not following this profile.");
         }
+        return $this->sendResponse();
+    }
+    
+    private function getFollowers($id, $loggedInProfileId)
+    {
+        $followers = Profile::getFollowers($id);
+        if(!$followers){
+            throw new ModelNotFoundException("Followers not found.");
+        }
+        
+        $followerProfileIds = $followers->pluck('id')->toArray();
+        //build network names
+        $networks = [];
+        foreach($followerProfileIds as $profileId){
+            if($profileId != $loggedInProfileId){
+                $networks[] = 'network.' . $profileId;
+            }
+        }
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
+            ->whereNull('deleted_at')->get();
+        $result = [];
+    
+        foreach($followers as &$profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] = false;
+            $temp['self'] = false;
+            $result[] = $temp;
+        }
+    
+        if($alreadySubscribed->count() > 0){
+            $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
+            foreach($result as &$profile){
+            
+                if($profile['id'] === $loggedInProfileId){
+                    $profile['self'] = true;
+                    continue;
+                }
+            
+                $channel = $alreadySubscribed->get('network.' . $profile['id']);
+                if($channel === null){
+                    continue;
+                }
+            
+                $profile['isFollowing'] = true;
+            }
+        }
+    
+        return $result;
+    }
+    
+    public function followers(Request $request, $id)
+    {
+        $this->model = $this->getFollowers($id,$request->user()->profile->id);
+        return $this->sendResponse();
+    }
+    
+    private function getFollowing($id, $loggedInProfileId)
+    {
+        $following = Profile::getFollowing($id);
+        if(!$following){
+            throw new ModelNotFoundException("Following profiles not found.");
+        }
+        $followingProfileIds = $following->pluck('id')->toArray();
+        //build network names
+        $networks = [];
+        foreach($followingProfileIds as $profileId){
+            if($profileId != $loggedInProfileId){
+                $networks[] = 'network.' . $profileId;
+            }
+        }
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
+            ->whereNull('deleted_at')
+            ->get();
+        $result = [];
+    
+        foreach($following as &$profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] = false;
+            $temp['self'] = false;
+            $result[] = $temp;
+        }
+
+        if($alreadySubscribed->count() > 0){
+            $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
+            foreach($result as &$profile){
+                if($profile['id'] === $loggedInProfileId){
+                    $profile['self'] = true;
+                    continue;
+                }
+            
+                $channel = $alreadySubscribed->get('network.' . $profile['id']);
+            
+                if($channel === null){
+                    continue;
+                }
+                $profile['isFollowing'] = true;
+            }
+        }
+
+        return $result;
+    }
+    public function following(Request $request, $id)
+    {
+        $this->model = $this->getFollowing($id, $request->user()->profile->id);
         return $this->sendResponse();
     }
 

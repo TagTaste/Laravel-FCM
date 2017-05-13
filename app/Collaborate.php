@@ -9,9 +9,12 @@ class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on',
-        'profile_id', 'company_id'];
+        'profile_id', 'company_id','template_fields','template_id'];
     
     protected $with = ['profiles','companies'];
+    
+    protected $appends = ['additionalFields'];
+    
     /**
      * Which profile created the collaboration project.
      *
@@ -38,7 +41,7 @@ class Collaborate extends Model
     public function profiles()
     {
         return $this->belongsToMany(\App\Collaborate\Profile::class,'collaborators',
-            'collaborate_id','profile_id')->withPivot('applied_on','approved_on','rejected_on');
+            'collaborate_id','profile_id')->withPivot('applied_on','approved_on','rejected_on','template_values');
     }
     
     /**
@@ -47,7 +50,7 @@ class Collaborate extends Model
     public function companies()
     {
         return $this->belongsToMany(\App\Collaborate\Company::class,'collaborators',
-            'collaborate_id','company_id')->withPivot('applied_on','approved_on','rejected_on');
+            'collaborate_id','company_id')->withPivot('applied_on','approved_on','rejected_on','template_values');
     }
     
     public function applications()
@@ -93,5 +96,16 @@ class Collaborate extends Model
     public function comments()
     {
         return $this->belongsToMany(Comment::class,'comments_collaborates','collaborate_id','comment_id');
+    }
+    
+    
+    public function template()
+    {
+        return $this->belongsTo(CollaborateTemplate::class,'template_id','id');
+    }
+    
+    public function getAdditionalFieldsAttribute()
+    {
+        return $this->template->fields;
     }
 }

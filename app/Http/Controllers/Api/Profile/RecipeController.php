@@ -11,14 +11,22 @@ use Illuminate\Http\Request;
 
 class RecipeController extends Controller
 {
+    protected $model = [];
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($profileId)
+    public function index(Request $request, $profileId)
     {
-        $this->model = Recipe::where('profile_id',$profileId)->orderBy('created_at','desc')->get();
+        $loggedInProfileId = $request->user()->profile->id;
+        
+        $recipes = Recipe::where('profile_id',$profileId)->orderBy('created_at','desc')->get();
+        foreach($recipes as $recipe){
+            $r = $recipe->toArray();
+            $r['meta'] = $recipe->getMetaFor($loggedInProfileId);
+            $this->model[] = $r;
+        }
         return $this->sendResponse();
     }
 
