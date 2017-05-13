@@ -31,8 +31,7 @@ class Recipe extends Model implements Feedable
     //specific for API
     public function getImageUrlAttribute()
     {
-        return "/profile/recipe/" . $this->id . '.jpg';
-
+        return $this->image !== null ? "/images/r/" . $this->image;
     }
     
     public function comments()
