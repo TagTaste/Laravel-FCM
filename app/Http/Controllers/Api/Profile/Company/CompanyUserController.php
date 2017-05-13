@@ -76,23 +76,6 @@ class CompanyUserController extends Controller
 		
 		return $this->sendResponse();
 	}
-	
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function update(Request $request, $id)
-	{
-		$inputs = $request->all();
-
-		$company_user = $this->model->findOrFail($id);		
-		$company_user->update($inputs);
-
-		return redirect()->route('company_users.index')->with('message', 'Item updated successfully.');
-	}
 
 	/**
 	 * Remove the specified resource from storage.
