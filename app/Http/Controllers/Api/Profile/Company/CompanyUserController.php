@@ -45,8 +45,6 @@ class CompanyUserController extends Controller
 	 */
     public function store(Request $request, $profileId, $companyId)
     {
-        $inputs = $request->all();
-        $userId = $request->input('user_id');
         $loggedInUserId = $request->user()->id;
         $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
         
@@ -54,11 +52,13 @@ class CompanyUserController extends Controller
             throw new \Exception("Company does not belongs this user.");
         }
         
+        $userId = $request->input('user_id');
         $companyUser = CompanyUser::where('company_id', $companyId)->where('user_id', $userId)->first();
         if ($companyUser) {
-            throw new \Exception("User already exist to this company.");
+            throw new \Exception("User already exist in this company.");
         }
         
+        $inputs = $request->all();
         $this->model = $this->model->create($inputs);
         
         return $this->sendResponse();
@@ -70,10 +70,22 @@ class CompanyUserController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $profileId, $companyId, $id)
 	{
-		$this->model = $this->model->findOrFail($id);
-		
+        $loggedInUserId = $request->user()->id;
+        $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
+        
+        if (!$company) {
+            throw new \Exception("Company does not belongs this user.");
+        }
+        
+        $userId = $request->input('user_id');
+        $this->model = CompanyUser::where('company_id', $companyId)->where('user_id', $userId)->first();
+        
+        if ($this->model === null) {
+            throw new \Exception("User does not exist in this company.");
+        }
+        
 		return $this->sendResponse();
 	}
 
@@ -83,11 +95,24 @@ class CompanyUserController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $profileId, $companyId, $id)
 	{
-		$this->model->destroy($id);
+        $loggedInUserId = $request->user()->id;
+        $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
+        
+        if (!$company) {
+            throw new \Exception("Company does not belongs this user.");
+        }
+        
+        $userId = $request->input('user_id');
+        $this->model = CompanyUser::where('company_id', $companyId)->where('user_id', $userId)->first();
+        if ($this->model === null) {
+            throw new \Exception("User does not exist in this company.");
+        }
+        
+		$this->model = $this->model->destroy($id);
 
-		return redirect()->route('company_users.index')->with('message', 'Item deleted successfully.');
+		return $this->sendResponse();
 	}
 
 }
