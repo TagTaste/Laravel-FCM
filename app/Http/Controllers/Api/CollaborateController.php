@@ -77,7 +77,12 @@ class CollaborateController extends Controller
             }
             
             $this->model = $collaborate->companies()->attach($companyId);
-            $collaborate->companies()->updateExistingPivot($companyId,['applied_on'=>Carbon::now()->toDateTimeString()]);
+            $collaborate->companies()
+                ->updateExistingPivot($companyId,
+                    [
+                        'applied_on'=>Carbon::now()->toDateTimeString(),
+                        'template_values' => json_encode($request->input('fields'))
+                    ]);
         }
         
         if($request->has('profile_id')){
@@ -92,8 +97,17 @@ class CollaborateController extends Controller
             }
             
             $this->model = $collaborate->profiles()->attach($profileId);
-            $collaborate->profiles()->updateExistingPivot($profileId,['applied_on'=>Carbon::now()->toDateTimeString()]);
+            $collaborate->profiles()
+                ->updateExistingPivot($profileId,
+                    [
+                        'applied_on'=>Carbon::now()->toDateTimeString(),
+                        'template_values' => json_encode($request->input('fields'))
+                    ]);
     
+        }
+        
+        if($request->has('fields')){
+        
         }
         return $this->sendResponse();
     }

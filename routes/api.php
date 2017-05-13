@@ -29,8 +29,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-            //collaborate templates
-            Route::resource("collaborate/templates","CollaborateTemplateController");
             
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
@@ -56,21 +54,35 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
             
+            //jobs
             Route::get("jobs/all","JobController@all");
             Route::get("jobs/filters", "JobController@filters");
             Route::resource("jobs","JobController");
+            
+            //similar
             Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
+            
+            //collaborate
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate","CollaborateController");
-            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collarabote.'],function(){
+            
+            //collaborate templates
+            Route::resource("collaborate/templates","CollaborateTemplateController");
+            
+            //collaborate comments
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::resource('comments','CommentController');
             });
+            
+            //recipes
             Route::get('recipes/image/{id}','RecipeController@recipeImages');
             Route::resource("recipes","RecipeController");
             
+            //tag
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
             Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
-    
+            
+            //comments
             Route::get('comments/{model}/{modelId}','CommentController@index');
             Route::post('comments/{model}/{modelId}','CommentController@store');
             
