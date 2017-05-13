@@ -275,4 +275,13 @@ class Company extends Model
     
         return $user->delete();
     }
+    
+    public function checkCompanyUser($userId)
+    {
+        if($this->user_id === $userId){
+            return true;
+        }
+        
+        return CompanyUser::where('company_id',$this->id)->where("user_id",$userId)->count() === 1;
+    }
 }
