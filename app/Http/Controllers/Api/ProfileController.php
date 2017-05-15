@@ -36,11 +36,6 @@ class ProfileController extends Controller
         if($profile === null){
             throw new ModelNotFoundException("Could not find profile.");
         }
-//        $profileId = $profile->id;
-//        foreach($profile->followerProfiles['profiles'] as &$follower){
-//            $follower->isFollowing = Profile::isFollowing($profileId,$follower->id);
-//        }
-//
         
         return response()->json($profile);
     }
