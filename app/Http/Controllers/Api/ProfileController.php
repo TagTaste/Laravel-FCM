@@ -18,7 +18,6 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $requests = $request->user();
-        \Log::info($requests);
         return response()->json($requests);
     }
 
