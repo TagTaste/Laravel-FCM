@@ -18,7 +18,7 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $requests = $request->user();
-        
+        \Log::info($requests);
         return response()->json($requests);
     }
 
@@ -31,7 +31,7 @@ class ProfileController extends Controller
     public function show(Request $request,$id)
     {
         $profile = User::whereHas("profile",function($query) use ($id){
-            $query->where('user_id',$id);
+            $query->where('id',$id);
         })->first();
         
         if($profile === null){
