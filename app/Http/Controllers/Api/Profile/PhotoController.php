@@ -128,6 +128,10 @@ class PhotoController extends Controller
         if(!$photo){
             throw new ModelNotFoundException("Could not find photo with id " . $id);
         }
-        return response()->file(Photo::getProfileImagePath($profileId, $photo->file));
+        $file = Photo::getProfileImagePath($profileId, $photo->file);
+        if(file_exists($file)){
+            return response()->file($file);
+    
+        }
     }
 }

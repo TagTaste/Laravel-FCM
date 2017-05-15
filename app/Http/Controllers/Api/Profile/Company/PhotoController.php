@@ -8,7 +8,6 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
-use App\Album;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
@@ -157,6 +156,10 @@ class PhotoController extends Controller
     public function image($profileId, $companyId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
-        return response()->file(Photo::getCompanyImagePath($profileId, $companyId, $photo->file));
+        $file = Photo::getProfileImagePath($profileId, $photo->file);
+        if(file_exists($file)){
+            return response()->file($file);
+        
+        }
     }
 }
