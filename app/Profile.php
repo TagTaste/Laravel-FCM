@@ -118,7 +118,22 @@ class Profile extends Model
             }
             //create the document for searching
             \App\Documents\Profile::create($profile);
+            
+            //bad call inside, would be fixed soon
+            $profile->addToCache();
+    
         });
+        
+        self::updated(function(Profile $profile){
+           //bad call inside, would be fixed soon
+           $profile->addToCache();
+        });
+    }
+    
+    public function addToCache()
+    {
+        $smallProfile = \App\Recipe\Profile::find($this->id);
+        \Redis::set("profile:small:" . $this->id , $smallProfile->toJson());
     }
     
     public function user()
