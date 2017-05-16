@@ -21,16 +21,26 @@ class Payload extends Model
         self::created(function(Payload $payload){
             $payload->publish();
         });
-    
+        
     }
     
     private function publish()
     {
         try {
-            \Redis::publish($this->channel->name, $this->payload);
+            $cacheKeys = json_decode($this->payload);
+            $objects = [];
+            foreach($cacheKeys as $name => $key){
+                $object = \Redis::get($key);
+                if(!$object){
+                    continue;
+                }
+                $objects[$name] = json_decode($object);
+            }
+            \Redis::publish($this->channel->name, json_encode($objects));
         } catch (\Exception $e){
             \Log::warning("Could not publish.");
             \Log::info($e->getMessage());
+            \Log::info($e->getFile() . " " . $e->getLine() . " " . $e->getCode());
         }
     }
     
@@ -41,7 +51,6 @@ class Payload extends Model
     
     public function setPayloadAttribute($data)
     {
-        $payload = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
-        $this->attributes['payload'] = json_encode($payload);
+        $this->attributes['payload'] = json_encode($data);
     }
 }
