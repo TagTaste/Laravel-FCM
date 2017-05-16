@@ -4,12 +4,13 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
+use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Recipe extends Model implements Feedable
 {
-    use SoftDeletes;
+    use SoftDeletes, CachedPayload;
     
     public static $expectsFiles = true;
     public static $fileInputs = ['image' => 'images/r'];
@@ -24,6 +25,13 @@ class Recipe extends Model implements Feedable
     protected $with = ['profile'];
     protected $appends = ['imageUrl','likeCount'];
     
+    public static function boot()
+    {
+        self::created(function($recipe){
+            //$recipe = \DB::table('recipes')->find($recipe->id);
+            \Redis::set("recipe:" . $recipe->id,$recipe->toJson());
+        });
+    }
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
     }

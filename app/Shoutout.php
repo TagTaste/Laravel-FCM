@@ -4,13 +4,14 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
+use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner;
+    use IdentifiesOwner, CachedPayload;
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
     
@@ -22,6 +23,12 @@ class Shoutout extends Model implements Feedable
     
     protected $with = ['privacy'];
     
+    public static function boot()
+    {
+        self::created(function($shoutout){
+            \Redis::set("shoutout:" . $shoutout->id,json_encode(['content'=>$shoutout->content]));
+        });
+    }
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
@@ -80,5 +87,18 @@ class Shoutout extends Model implements Feedable
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
         $meta['likeCount'] = $this->likeCount;
         return $meta;
+    }
+    
+    public function getRelatedKey() : array
+    {
+        
+        $owner = $this->owner();
+        
+        if($owner instanceof \App\Recipe\Profile){
+            return ["profile" => "profile:small:" . $owner->id];
+        } elseif ($owner instanceof \App\Shoutout\Company){
+            return ["company" => "company:small:" . $owner->id];
+        }
+    
     }
 }
