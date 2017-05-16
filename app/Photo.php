@@ -6,6 +6,7 @@ use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
+use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +16,7 @@ class Photo extends Model implements Feedable
 {
     use ScopeProfile, ScopeCompany, SoftDeletes;
     
-    use IdentifiesOwner;
+    use IdentifiesOwner, CachedPayload;
     
     protected $fillable = ['caption','file','privacy_id','payload_id'];
 
