@@ -146,8 +146,12 @@ class RecipeController extends Controller
         $photoLike = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->first();
         if($photoLike != null) {
             $this->model = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
+            \Redis::hIncrBy("photo:" . $id . ":meta","like",-1);
+    
         } else {
             $this->model = RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
+            \Redis::hIncrBy("photo:" . $id . ":meta","like",1);
+    
         }
         return $this->sendResponse();
     }

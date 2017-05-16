@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile\Photo;
 
+use App\Http\Controllers\Api\Controller;
 use App\PhotoLike;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Api\Controller;
 
 class PhotoLikeController extends Controller
 {
@@ -30,8 +30,12 @@ class PhotoLikeController extends Controller
         $photoLike = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->first();
         if($photoLike != null) {
             $this->model = $photoLike->delete();
+            \Redis::hIncrBy("photo:" . $photoId . ":meta","like",-1);
+    
         } else {
             $this->model = PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
+            \Redis::hIncrBy("photo:" . $photoId . ":meta","like",1);
+    
         }
         return $this->sendResponse();
 	}
