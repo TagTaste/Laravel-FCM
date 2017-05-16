@@ -29,14 +29,11 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        
         if($payloads->count() === 0){
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
         $this->getMeta($payloads,$profileId);
-    
-        //$this->model = new Paginator($this->model,$take);
         return $this->sendResponse();
     }
     
@@ -87,14 +84,19 @@ class FeedController extends Controller
     
     private function getMeta(&$payloads, &$profileId)
     {
-        if($payloads->count() === 0){
-            $this->errors[] = 'No more feeds';
-            return;
-        }
+//        if($payloads->count() === 0){
+//            $this->errors[] = 'No more feeds';
+//            return;
+//        }
         
         foreach($payloads as $payload){
             $data = [];
-            $data['payload'] = $payload->payload;
+
+            $cached = json_decode($payload->payload, true);
+            foreach($cached as $name => $key){
+                $data[$name] = \Redis::get($key);
+                $data[$name] = json_decode($data[$name],true);
+            }
             if($payload->model !== null){
                 $model = $payload->model;
                 $model = $model::find($payload->model_id);
