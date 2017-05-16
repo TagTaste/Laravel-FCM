@@ -28,11 +28,10 @@ trait PushesToChannel
             return false;
         }
         
-        $payload = $channel->addPayload($model);
-        //update model id
-        $model->payload_id = $payload->id;
-        $model->save();
-        //
+       
+        $payload = $model->getPayload();
+        $payload = $channel->addPayload(get_class($model),$model->id,$payload);
+        
         return $payload;
         
     }
