@@ -6,7 +6,6 @@ use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Shoutout extends Model implements Feedable
@@ -102,7 +101,7 @@ class Shoutout extends Model implements Feedable
         $key = $prefix . ":small:" . $owner->id;
         
         if(!\Redis::exists($key)){
-            \Redis::set($key);
+            \Redis::set($key, $owner->toJson());
         }
         
         return [$prefix => $key];
