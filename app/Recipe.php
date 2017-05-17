@@ -29,7 +29,7 @@ class Recipe extends Model implements Feedable
     {
         self::created(function($recipe){
             //$recipe = \DB::table('recipes')->find($recipe->id);
-            \Redis::set("recipe:" . $recipe->id,$recipe->toJson());
+            \Redis::set("recipe:" . $recipe->id,$recipe->makeHidden(['profile','likeCount'])->toJson());
         });
     }
     public function profile() {
