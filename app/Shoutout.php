@@ -85,7 +85,7 @@ class Shoutout extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
-        $meta['likeCount'] = $this->likeCount;
+        //$meta['likeCount'] = $this->likeCount;
         return $meta;
     }
     
@@ -93,12 +93,21 @@ class Shoutout extends Model implements Feedable
     {
         
         $owner = $this->owner();
-        
+        $prefix = "profile";
         if($owner instanceof \App\Recipe\Profile){
-            return ["profile" => "profile:small:" . $owner->id];
+            $prefix = "profile";
         } elseif ($owner instanceof \App\Shoutout\Company){
-            return ["company" => "company:small:" . $owner->id];
+            $prefix = "company";
         }
+        $key = $prefix . ":small:" . $owner->id;
+        
+        if(!\Redis::exists($key)){
+            \Redis::set($key);
+        }
+        
+        return [$prefix => $key];
+    
+        
     
     }
 }
