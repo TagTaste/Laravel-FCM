@@ -36,6 +36,7 @@ class Payload extends Model
                 }
                 $objects[$name] = json_decode($object);
             }
+            \Log::info($objects);
             \Redis::publish($this->channel->name, json_encode($objects));
         } catch (\Exception $e){
             \Log::warning("Could not publish.");
