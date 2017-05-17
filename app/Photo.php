@@ -40,6 +40,11 @@ class Photo extends Model implements Feedable
                 $photo->ideabooks()->detach();
 //            });
         });
+    
+        //do not fire self::created methods here.
+        //manage this in the controller.
+        //self::created doesn't fire after the relationship of profile/company has been established.
+        //so it can't be pushed to the feed since there won't be any "owner".
     }
 
 
