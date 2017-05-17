@@ -105,6 +105,7 @@ class PhotoController extends Controller
         $this->saveFileToData("file",$path,$request,$data);
         
         $this->model = $request->user()->profile->photos()->where('id',$id)->update($data);
+        \Log::info($this->model);
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
