@@ -26,8 +26,8 @@ class UpdateFeedable
      */
     public function handle(UpdateFeedableEvent $event)
     {
-        if(method_exists($event->model,'payload')){
-            $event->model->payload->update(['payload'=>$event->model,get_class($event->model),$event->model->id]);
-        }
+//        if(method_exists($event->model,'payload')){
+//            $event->model->payload->update(['payload'=>$event->model,get_class($event->model),$event->model->id]);
+//        }
     }
 }
