@@ -34,7 +34,7 @@ class Payload extends Model
                 if(!$object){
                     continue;
                 }
-                $objects[$name] = json_decode($object);
+                $objects[$name] = json_decode($object,true);
             }
             \Log::info($objects);
             \Redis::publish($this->channel->name, json_encode($objects));
