@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video',
         'profile_id', 'company_id','template_fields','template_id'];
     
     protected $with = ['profiles','companies'];
