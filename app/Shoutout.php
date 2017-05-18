@@ -84,7 +84,7 @@ class Shoutout extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
-        //$meta['likeCount'] = $this->likeCount;
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
     
