@@ -13,7 +13,6 @@ class CreateCollaborationFieldsTable extends Migration {
 	public function up()
 	{
 		Schema::create('collaboration_fields', function(Blueprint $table) {
-            $table->increments('id');
             $table->integer('collaboration_id')->unsigned();
             $table->integer('field_id')->unsigned();
             $table->foreign('collaboration_id')->references('id')->on('collaborates')->onDelete('cascade');
