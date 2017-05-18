@@ -11,7 +11,7 @@ class Collaborate extends Model
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video',
         'profile_id', 'company_id','template_fields','template_id'];
     
-    protected $with = ['profiles','companies'];
+    protected $with = ['profiles','companies','fields'];
     
     //protected $appends = ['additionalFields'];
     
@@ -98,7 +98,6 @@ class Collaborate extends Model
         return $this->belongsToMany(Comment::class,'comments_collaborates','collaborate_id','comment_id');
     }
     
-    
     public function template()
     {
         return $this->belongsTo(CollaborateTemplate::class,'template_id','id');
@@ -112,5 +111,15 @@ class Collaborate extends Model
     public function fields()
     {
         return $this->belongsToMany(Field::class,'collaboration_fields','collaboration_id','field_id');
+    }
+    
+    public function addField(Field $field)
+    {
+        return $this->fields()->attach($field->id);
+    }
+    
+    public function removeField(Field $field)
+    {
+        return $this->fields()->detach($field->id);
     }
 }
