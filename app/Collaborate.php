@@ -13,7 +13,7 @@ class Collaborate extends Model
     
     protected $with = ['profiles','companies'];
     
-    protected $appends = ['additionalFields'];
+    //protected $appends = ['additionalFields'];
     
     /**
      * Which profile created the collaboration project.
@@ -107,5 +107,10 @@ class Collaborate extends Model
     public function getAdditionalFieldsAttribute()
     {
         return $this->template !== null ? $this->template->fields : null;
+    }
+    
+    public function fields()
+    {
+        return $this->belongsToMany(Field::class,'collaboration_fields','collaboration_id','field_id');
     }
 }
