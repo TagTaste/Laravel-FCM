@@ -11,7 +11,7 @@ class Collaborate extends Model
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video',
         'profile_id', 'company_id','template_fields','template_id'];
     
-    protected $with = ['profiles','companies','fields'];
+    protected $with = ['profile','company','fields'];
     
     //protected $appends = ['additionalFields'];
     
