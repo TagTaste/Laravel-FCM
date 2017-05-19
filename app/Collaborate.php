@@ -8,12 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested',
         'profile_id', 'company_id','template_fields','template_id'];
     
     protected $with = ['profile','company','fields'];
     
-    //protected $appends = ['additionalFields'];
+    protected $appends = ['interested'];
     
     /**
      * Which profile created the collaboration project.
@@ -33,6 +33,11 @@ class Collaborate extends Model
     public function company()
     {
         return $this->belongsTo(\App\Company::class);
+    }
+    
+    public function collaborators()
+    {
+        return \DB::table("collaborators")->where("collaborate_id",$this->id)->get();
     }
     
     /**
@@ -140,5 +145,10 @@ class Collaborate extends Model
     public function getTemplateValuesAttribute()
     {
         return !is_null($this->template_values) ? json_decode($this->template_values) : null;
+    }
+    
+    public function getInterestedAttribute()
+    {
+        return \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
     }
 }
