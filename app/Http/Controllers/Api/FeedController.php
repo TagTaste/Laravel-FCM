@@ -94,12 +94,10 @@ class FeedController extends Controller
 
             $cached = json_decode($payload->payload, true);
             foreach($cached as $name => $key){
-                \Log::info($key);
                 $data[$name] = \Redis::get($key);
                 $data[$name] = json_decode($data[$name],true);
             }
             if($payload->model !== null){
-                
                 $model = $payload->model;
                 $model = $model::find($payload->model_id);
                 if($model && method_exists($model, 'getMetaFor')){
