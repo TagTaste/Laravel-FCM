@@ -123,8 +123,13 @@ class Collaborate extends Model
         return $this->fields()->detach($field->id);
     }
     
-    public function syncFields($fieldIds)
+    public function syncFields($fieldIds = [])
     {
+        if(empty($fields)){
+            \Log::warning("Empty fields passed.");
+            return false;
+        }
+        
         $fields = Field::select('id')->whereIn('id',$fieldIds)->get();
     
         if($fields->count()){
