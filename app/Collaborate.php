@@ -136,4 +136,9 @@ class Collaborate extends Model
             return $this->fields()->sync($fields->pluck('id')->toArray());
         }
     }
+    
+    public function getTemplateValuesAttribute()
+    {
+        return !is_null($this->template_values) ? json_decode($this->template_values) : null;
+    }
 }
