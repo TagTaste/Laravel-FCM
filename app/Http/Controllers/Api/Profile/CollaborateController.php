@@ -59,11 +59,8 @@ class CollaborateController extends Controller
         }
 		$this->model = $this->model->create($inputs);
   
-		$fields = Field::select('id')->whereIn('id',$fields)->get();
+		$this->model->syncFields($fields);
 		
-		if($fields->count()){
-            $this->model->fields()->sync($fields->pluck('id')->toArray());
-        }
         $this->model = $this->model->fresh();
 		return $this->sendResponse();
 	}
@@ -101,15 +98,11 @@ class CollaborateController extends Controller
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }
         
-        $fields = $request->has("fields") ? $request->input('fields') : [];
-        
         if(!empty($fields)){
             unset($inputs['fields']);
+            $this->model->syncFields($fields);
         }
         
-        if($fields->count()){
-            $this->model->fields()->sync($fields->pluck('id')->toArray());
-        }
         
         $this->model = $collaborate->update($inputs);
         return $this->sendResponse();

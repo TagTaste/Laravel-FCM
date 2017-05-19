@@ -122,4 +122,13 @@ class Collaborate extends Model
     {
         return $this->fields()->detach($field->id);
     }
+    
+    public function syncFields($fieldIds)
+    {
+        $fields = Field::select('id')->whereIn('id',$fieldIds)->get();
+    
+        if($fields->count()){
+            return $this->fields()->sync($fields->pluck('id')->toArray());
+        }
+    }
 }
