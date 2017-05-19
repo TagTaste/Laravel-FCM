@@ -44,8 +44,17 @@ class CollaborateTemplateController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
+        $fields = null;
+		
+		if($request->has('fields')){
+            $fields =  $request->input('fields');
+            \Log::info($fields);
+		    unset($inputs['fields']);
+        }
 		$this->model = $this->model->create($inputs);
-  
+        
+        $this->model->syncFields($fields);
+        
 		return $this->sendResponse();
 	}
 
@@ -72,7 +81,12 @@ class CollaborateTemplateController extends Controller
 	{
 		$inputs = $request->all();
 
-		$collaborate_template = $this->model->findOrFail($id);		
+		$collaborate_template = $this->model->findOrFail($id);
+        
+        if($request->has('fields')){
+            unset($inputs['fields']);
+            $collaborate_template->syncFields($request->input('fields'));
+        }
         $this->model =	$collaborate_template->update($inputs);
         return $this->sendResponse();
 	}

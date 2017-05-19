@@ -17,7 +17,7 @@ class CreateCollaborateTemplateFields extends Migration
             $table->integer('template_id')->unsigned();
             $table->integer('field_id')->unsigned();
             
-            $table->foreign('template_id')->references("id")->on('templates')->onDelete('cascade');
+            $table->foreign('template_id')->references("id")->on('collaborate_templates')->onDelete('cascade');
             $table->foreign('field_id')->references('id')->on('fields')->onDelete('cascade');
         });
     }
@@ -29,6 +29,6 @@ class CreateCollaborateTemplateFields extends Migration
      */
     public function down()
     {
-        Schema::drop('collaborate_template_fields');
+        Schema::drop('collaboration_template_fields');
     }
 }
