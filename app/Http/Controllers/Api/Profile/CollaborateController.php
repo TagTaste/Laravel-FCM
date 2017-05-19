@@ -83,7 +83,7 @@ class CollaborateController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($profileId, $id)
+	public function show(Request $request, $profileId, $id)
 	{
         $collaboration= $this->model->where('profile_id',$profileId)->find($id);
 		if($collaboration === null){
