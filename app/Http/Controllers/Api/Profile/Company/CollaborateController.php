@@ -32,7 +32,7 @@ class CollaborateController extends Controller
 	 */
 	public function index($profileId,$companyId)
 	{
-		$this->model = $this->model->where('company_id',$companyId)->paginate();
+		$this->model = $this->model->where('company_id',$companyId)->orderBy('created_at','desc')->paginate();
         return $this->sendResponse();
 	}
 

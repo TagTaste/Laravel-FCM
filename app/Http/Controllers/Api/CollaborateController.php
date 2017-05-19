@@ -34,7 +34,7 @@ class CollaborateController extends Controller
 	 */
 	public function index()
 	{
-		$this->model = $this->model->paginate();
+		$this->model = $this->model->orderBy("created_at","desc")->paginate();
 
 		return $this->sendResponse();
 	}
