@@ -13,7 +13,7 @@ class CreateCollaborationLike extends Migration
      */
     public function up()
     {
-        Schema::create("collaboration_like",function(Blueprint $table){
+        Schema::create("collaboration_likes",function(Blueprint $table){
             $table->integer("collaboration_id")->unsigned();
             $table->integer("profile_id")->unsigned();
             
@@ -29,6 +29,6 @@ class CreateCollaborationLike extends Migration
      */
     public function down()
     {
-        Schema::drop('collaboration_like');
+        Schema::drop('collaboration_likes');
     }
 }
