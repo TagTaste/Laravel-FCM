@@ -105,7 +105,7 @@ class CollaborateController extends Controller
                     ]);
     
         }
-        
+        \Redis::hincrby("collaboration:" . $id .":meta",'interested',1);
         if($request->has('fields')){
         
         }
