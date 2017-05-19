@@ -151,4 +151,20 @@ class Collaborate extends Model
     {
         return \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
     }
+    
+    public function getMetaFor($profileId)
+    {
+        $meta = [];
+        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+        
+        return $meta;
+    }
+    
+    public function getMetaForCompany($companyId)
+    {
+        $meta = [];
+        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
+    
+        return $meta;
+    }
 }

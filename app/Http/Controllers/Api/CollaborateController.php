@@ -32,10 +32,15 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$this->model = $this->model->orderBy("created_at","desc")->paginate();
-
+		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
+		$this->model = [];
+		$profileId = $request->user()->profile->id;
+		foreach($collaborations as $collaboration){
+		    $meta = $collaboration->getMetaFor($profileId);
+            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
+        }
 		return $this->sendResponse();
 	}
 
@@ -45,9 +50,12 @@ class CollaborateController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $id)
 	{
-		$this->model = $this->model->findOrFail($id);
+		$collaboration = $this->model->findOrFail($id);
+		$profileId = $request->user()->profile->id;
+		$meta = $collaboration->getMetaFor($profileId);
+		$this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 		
 	}
@@ -105,7 +113,6 @@ class CollaborateController extends Controller
                     ]);
     
         }
-        \Redis::hincrby("collaboration:" . $id .":meta:",'interested',1);
         return $this->sendResponse();
     }
     

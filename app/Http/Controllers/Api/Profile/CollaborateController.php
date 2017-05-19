@@ -34,9 +34,20 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index($profileId)
+	public function index(Request $request, $profileId)
 	{
-		$this->model = $this->model->where('profile_id',$profileId)->orderBy('created_at','desc')->paginate();
+	    $this->model = [];
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
+		$collaborations = $this->model->where('profile_id',$profileId)->orderBy('created_at','desc') ->skip($skip)
+            ->take($take)->get();
+		
+        $profileId = $request->user()->profile->id;
+        foreach($collaborations as $collaboration){
+		        $this->model[] = ['collaboration'=>$collaborations,'meta'=>$collaborations->getMetaFor($profileId)];
+        }
+        
         return $this->sendResponse();
 	}
 
@@ -73,11 +84,15 @@ class CollaborateController extends Controller
 	 */
 	public function show($profileId, $id)
 	{
-		$this->model = $this->model->where('profile_id',$profileId)->find($id);
-		if($this->model === null){
+        $collaboration= $this->model->where('profile_id',$profileId)->find($id);
+		if($collaboration === null){
 		   throw new \Exception("Invalid Collaboration Project.");
         }
-		return $this->sendResponse();
+        $profileId = $request->user()->profile->id;
+        $meta = $collaboration->getMetaFor($profileId);
+        $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
+        
+        return $this->sendResponse();
 	}
 
 	/**

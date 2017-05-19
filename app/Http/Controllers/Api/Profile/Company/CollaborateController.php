@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Collaborate;
+use App\Company;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -30,9 +31,22 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index($profileId,$companyId)
+	public function index(Request $request, $profileId,$companyId)
 	{
-		$this->model = $this->model->where('company_id',$companyId)->orderBy('created_at','desc')->paginate();
+        $this->model = [];
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        
+        $collaborations = $this->model->where('company_id',$companyId)->orderBy('created_at','desc') ->skip($skip)
+            ->take($take)->get();
+        
+        $profileId = $request->user()->profile->id;
+        
+        foreach($collaborations as $collaboration){
+            $this->model[] = ['collaboration'=>$collaborations,'meta'=>$collaborations->getMetaFor($profileId)];
+        }
+        
         return $this->sendResponse();
 	}
 
@@ -72,9 +86,12 @@ class CollaborateController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($profileId, $companyId, $id)
+	public function show(Request $request,$profileId, $companyId, $id)
 	{
-		$this->model = $this->model->where('company_id',$companyId)->find($id);
+        $collaboration = $this->model->where('company_id',$companyId)->findOrFail($id);
+        $profileId = $request->user()->profile->id;
+        $meta = $collaboration->getMetaFor($profileId);
+        $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 	}
 
