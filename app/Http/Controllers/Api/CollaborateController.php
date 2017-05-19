@@ -116,5 +116,30 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
     
+    public function like(Request $request, $id)
+    {
+        $collaborate = Collaborate::find($id);
+        
+        if(!$collaborate){
+            return $this->sendError("Collaboration not found");
+        }
+        
+        $profileId = $request->user()->profile->id;
+        $like = \DB::table("collaborate_likes")->where("collaboration_id",$id)->where('profile_id',$profileId)
+            ->first();
+        
+        if($like){
+            $this->model = \DB::table("collaborate_likes")
+                ->where("collaboration_id",$id)->where('profile_id',$profileId)
+                ->delete();
+            return $this->sendResponse();
+        } else {
+            $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
+            return $this->sendResponse();
+        }
+        
+        return $this->sendError("Something went wrong.");
+    }
+    
     
 }

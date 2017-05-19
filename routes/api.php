@@ -70,6 +70,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("collaborate/templates","CollaborateTemplateController");
             
             //collaborate
+            Route::post("collaborate/{id}/like","CollaborateController@like");
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
             Route::resource("collaborate","CollaborateController");
