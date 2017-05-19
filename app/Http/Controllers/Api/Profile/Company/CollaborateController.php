@@ -33,7 +33,6 @@ class CollaborateController extends Controller
 	 */
 	public function index(Request $request, $profileId,$companyId)
 	{
-        $this->model = [];
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page * $take) - $take: 0;
@@ -42,9 +41,9 @@ class CollaborateController extends Controller
             ->take($take)->get();
         
         $profileId = $request->user()->profile->id;
-        
+        $this->model = [];
         foreach($collaborations as $collaboration){
-            $this->model[] = ['collaboration'=>$collaborations,'meta'=>$collaborations->getMetaFor($profileId)];
+            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
         }
         
         return $this->sendResponse();
