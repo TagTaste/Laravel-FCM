@@ -11,10 +11,10 @@ class FeedableObserver {
         event(new NewFeedable($model));
     }
     
-    public function updated($model)
-    {
-        event(new UpdateFeedable($model));
-    }
+//    public function updated($model)
+//    {
+//        //event(new UpdateFeedable($model));
+//    }
     
     public function deleted($model)
     {
