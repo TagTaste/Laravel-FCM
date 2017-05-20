@@ -16,7 +16,7 @@ class FeedController extends Controller
     {
         $page = $request->input('page',1);
         $take = 20;
-        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        $skip = $page > 1 ? ($page - 1) * $take : 0;
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
