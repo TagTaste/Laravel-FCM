@@ -41,19 +41,21 @@ class PhotoController extends Controller
     {
         \Log::info($request);
         $profileId = $request->user()->profile->id;
+        \Log::info("profile id from request " . $profileId);
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
-        
+        \Log::info($data);
         $this->model = Photo::create($data);
-        $request->user()->profile->photos()->attach($this->model->id);
-        \Log::info($this->model);
+        $Res = $this->model->profile()->attach($profileId);
+        \Log::info($Res);
         \Log::info($request->user()->profile->id);
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
+        \Log::info($this->model);
         event(new NewFeedable($this->model));
         
         return $this->sendResponse();
