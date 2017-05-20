@@ -48,7 +48,8 @@ class PhotoController extends Controller
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         
-        $this->model = $request->user()->profile->photos()->create($data);
+        $this->model = Photo::create($data);
+        $request->user()->profile->photos()->attach($this->model->id);
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model));

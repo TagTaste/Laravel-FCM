@@ -176,7 +176,7 @@ class Photo extends Model implements Feedable
         
         $owner = $this->owner();
         $prefix = "profile";
-        if($owner instanceof \App\Recipe\Profile){
+        if($owner instanceof \App\Profile){
             $prefix = "profile";
         } elseif ($owner instanceof \App\Shoutout\Company){
             $prefix = "company";
