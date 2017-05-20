@@ -22,7 +22,7 @@ class Collaborate extends Model
      */
     public function profile()
     {
-        return $this->belongsTo(\App\Profile::class);
+        return $this->belongsTo(\App\Recipe\Profile::class);
     }
     
     /**
