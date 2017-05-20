@@ -39,7 +39,7 @@ class PushNewFeedable
             \Log::warning("Not publishing it to network or public feed.");
             return;
         }
-        \Log::info("Owner in newfeedl: ");
+        \Log::info("Owner in pushnewfeedable: ");
         \Log::info($event->model->owner()->id);
         if($event->model->privacy->isPublic()){
             $event->model->owner()->pushToPublic($event->model);
