@@ -28,29 +28,38 @@ class Payload extends Model
     {
         try {
             //payload has all the required keys, stored as json.
-                $cacheKeys = json_decode($this->payload,true);
+                $cached = json_decode($this->payload,true);
             
             //get all cached objects at once
-                $objects = \Redis::mget(array_values($cacheKeys));
+                $objects = \Redis::mget(array_values($cached));
             
             //Making a string instead of using objects/arrays (not using json_encode/decode).
             //Why decode an object just to prefix a key to it, and then re-encode it?
     
             //build the json string.
-                $i = 0;
+                $index = 0;
+                $numberOfCachedItems = count($cached);
+            
+                //start json
                 $jsonPayload = "{";
-                $count = count($cacheKeys);
-                foreach($cacheKeys as $name => $key){
-                    $jsonPayload .= "\"{$name}\":"  . $objects[$i];
-                    if($i<$count-1){
-                        $jsonPayload .= ",";
+                    foreach($cached as $name => $key){
+                        //name : object
+                        $jsonPayload .= "\"{$name}\":"  . $objects[$index];
+                        
+                        //separate with comma
+                        if($index<$numberOfCachedItems-1){
+                            $jsonPayload .= ",";
+                        }
+                        
+                        //next object please.
+                        $index++;
                     }
-                    $i++;
-                }
+                //end json
                 $jsonPayload .= "}";
             
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
+            
             //\Redis::sAdd($this->channel->name,json_encode($object));
     
         } catch (\Exception $e){
