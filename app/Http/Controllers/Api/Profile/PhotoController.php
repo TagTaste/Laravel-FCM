@@ -49,15 +49,19 @@ class PhotoController extends Controller
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
         \Log::info($data);
-        $this->model = Photo::create($data);
-        $Res = $this->model->profile()->attach($profileId);
-        \Log::info($Res);
-        \Log::info($request->user()->profile->id);
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
-        \Redis::set("photo:" . $this->model->id,json_encode($data));
-        \Log::info($this->model);
-        event(new NewFeedable($this->model));
-        
+        $photo = Photo::create($data);
+        if($photo){
+            $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
+            \Log::info($Res);
+            \Log::info($request->user()->profile->id);
+            $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
+            \Redis::set("photo:" . $photo->id,json_encode($data));
+            \Log::info($photo);
+            event(new NewFeedable($photo));
+        } else {
+            \Log::info("NO MODEL.");
+        }
+        $this->model = $photo;
         return $this->sendResponse();
     }
     
