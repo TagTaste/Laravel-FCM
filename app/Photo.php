@@ -170,5 +170,27 @@ class Photo extends Model implements Feedable
         $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
+    
+    public function getRelatedKey() : array
+    {
+        
+        $owner = $this->owner();
+        $prefix = "profile";
+        if($owner instanceof \App\Recipe\Profile){
+            $prefix = "profile";
+        } elseif ($owner instanceof \App\Shoutout\Company){
+            $prefix = "company";
+        }
+        $key = $prefix . ":small:" . $owner->id;
+        
+        if(!\Redis::exists($key)){
+            \Redis::set($key, $owner->toJson());
+        }
+        
+        return [$prefix => $key];
+        
+        
+        
+    }
    
 }
