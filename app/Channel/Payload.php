@@ -27,17 +27,32 @@ class Payload extends Model
     private function publish()
     {
         try {
-            $cacheKeys = json_decode($this->payload);
-            $objects = [];
-            foreach($cacheKeys as $name => $key){
-                $object = \Redis::get($key);
-                if(!$object){
-                    continue;
+            //payload has all the required keys, stored as json.
+                $cacheKeys = json_decode($this->payload,true);
+            
+            //get all cached objects at once
+                $objects = \Redis::mget(array_values($cacheKeys));
+            
+            //Making a string instead of using objects/arrays (not using json_encode/decode).
+            //Why decode an object just to prefix a key to it, and then re-encode it?
+    
+            //build the json string.
+                $i = 0;
+                $jsonPayload = "{";
+                $count = count($cacheKeys);
+                foreach($cacheKeys as $name => $key){
+                    $jsonPayload .= "\"{$name}\":"  . $objects[$i];
+                    if($i<$count-1){
+                        $jsonPayload .= ",";
+                    }
+                    $i++;
                 }
-                $objects[$name] = json_decode($object,true);
-            }
-            \Log::info($objects);
-            \Redis::publish($this->channel->name, json_encode($objects));
+                $jsonPayload .= "}";
+            
+            //publish
+            \Redis::publish($this->channel->name, $jsonPayload);
+            //\Redis::sAdd($this->channel->name,json_encode($object));
+    
         } catch (\Exception $e){
             \Log::warning("Could not publish.");
             \Log::info($e->getMessage());
