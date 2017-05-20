@@ -50,7 +50,7 @@ class PhotoController extends Controller
         if($photo){
             $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
-           // \Redis::set("photo:" . $photo->id,json_encode($data));
+            \Redis::set("photo:" . $photo->id,json_encode($data));
             //$photo = $photo->fresh();
             //event(new NewFeedable($photo));
             \Log::info("after event");
