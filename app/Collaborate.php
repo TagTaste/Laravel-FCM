@@ -15,6 +15,25 @@ class Collaborate extends Model
     
     protected $appends = ['interested'];
     
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function($collaboration){
+            \App\Cacheable::set($collaboration);
+            \App\Cacheable::sadd("collaborations");
+        });
+        
+        self::updated(function ($collaboration){
+            \Redis::set("collaboration:" . $collaboration->id,$collaboration->toJson());
+        });
+        
+        self::deleted(function($collaboration){
+            \Redis::del("collaboration:" . $collaboration->id);
+            \Redis::srem("collaborations",$collaboration->id);
+        });
+    }
+    
     /**
      * Which profile created the collaboration project.
      *
