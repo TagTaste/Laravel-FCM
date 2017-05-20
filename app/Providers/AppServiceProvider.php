@@ -27,12 +27,12 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register('Laralib\L5scaffold\GeneratorsServiceProvider');
         }
     
-        \DB::listen(function ($query) {
-            \Log::info([
-                $query->sql,
-                $query->bindings,
-                $query->time
-            ]);
-        });
+//        \DB::listen(function ($query) {
+//            \Log::info([
+//                $query->sql,
+//                $query->bindings,
+//                $query->time
+//            ]);
+//        });
     }
 }
