@@ -175,11 +175,16 @@ class Photo extends Model implements Feedable
     {
         
         $owner = $this->owner();
-        $prefix = "profile";
+        $prefix = null;
         if($owner instanceof \App\Profile){
             $prefix = "profile";
         } elseif ($owner instanceof \App\Shoutout\Company){
             $prefix = "company";
+        }
+        
+        if($prefix === null){
+            \Log::warning("Could not determine owner for Photo " . $this->id);
+            return false;
         }
         $key = $prefix . ":small:" . $owner->id;
         
