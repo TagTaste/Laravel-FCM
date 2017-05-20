@@ -39,6 +39,7 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info($request);
         $profileId = $request->user()->profile->id;
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){

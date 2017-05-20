@@ -186,7 +186,7 @@ class Photo extends Model implements Feedable
         if(!\Redis::exists($key)){
             \Redis::set($key, $owner->toJson());
         }
-        
+        \Log::info([$prefix => $key]);
         return [$prefix => $key];
         
         
