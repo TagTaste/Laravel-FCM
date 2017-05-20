@@ -14,7 +14,7 @@ class AlterProfilePhotosUnique extends Migration
     public function up()
     {
         Schema::table('profile_photos',function(Blueprint $table){
-            $table->integer("photo_id")->unique()->change();
+            $table->integer("photo_id")->unsigned()->unique()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterProfilePhotosUnique extends Migration
     public function down()
     {
         Schema::table('profile_photos',function(Blueprint $table){
-            $table->integer("photo_id")->change();
+            $table->integer("photo_id")->unsigned()->change();
         });
     }
 }
