@@ -39,25 +39,21 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        \Log::info($request);
         $profileId = $request->user()->profile->id;
-        \Log::info("profile id from request " . $profileId);
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
-        \Log::info($data);
         $photo = Photo::create($data);
         if($photo){
             $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
-            \Log::info($Res);
-            \Log::info($request->user()->profile->id);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
             \Redis::set("photo:" . $photo->id,json_encode($data));
-            \Log::info($photo);
             event(new NewFeedable($photo));
+            \Log::info("after event");
+            \Log::info($photo);
         } else {
             \Log::info("NO MODEL.");
         }
