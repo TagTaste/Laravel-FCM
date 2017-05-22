@@ -48,7 +48,6 @@ class CollaborateTemplateController extends Controller
 		
 		if($request->has('fields')){
             $fields =  $request->input('fields');
-            \Log::info($fields);
 		    unset($inputs['fields']);
         }
 		$this->model = $this->model->create($inputs);
