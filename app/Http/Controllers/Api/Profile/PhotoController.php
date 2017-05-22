@@ -51,12 +51,9 @@ class PhotoController extends Controller
             $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
             \Redis::set("photo:" . $photo->id,json_encode($data));
-            \Log::info(json_encode($data));
             event(new NewFeedable($photo, $request->user()->profile));
-            \Log::info("after event");
-            \Log::info($photo);
         } else {
-            \Log::info("NO MODEL.");
+            \Log::warning("NO MODEL.");
         }
         $this->model = $photo;
         return $this->sendResponse();
@@ -112,7 +109,6 @@ class PhotoController extends Controller
         $this->saveFileToData("file",$path,$request,$data);
         
         $this->model = $request->user()->profile->photos()->where('id',$id)->update($data);
-        \Log::info($this->model);
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
