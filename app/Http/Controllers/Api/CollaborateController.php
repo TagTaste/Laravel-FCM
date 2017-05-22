@@ -143,5 +143,19 @@ class CollaborateController extends Controller
         
     }
     
+    public function all(Request $request)
+    {
+        $userId = $request->user()->id;
+        $profileId = $request->user()->profile->id;
+        $this->model = Collaborate::whereHas('company',function($query) use ($userId) {
+            $query->where('user_id',$userId);
+            })
+            ->orWhere('profile_id',$profileId)
+            ->orderBy('collaborates.created_at','desc')
+            ->get();
+        
+        return $this->sendResponse();
+    }
+    
     
 }
