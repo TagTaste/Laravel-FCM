@@ -8,7 +8,7 @@ use Carbon\Carbon;
 class Comment extends Model
 {
     protected $visible = ['name','content','id','profile_id','profileImage','created_at'];
-    protected $appends = ['name','profileImage','profile_id'];
+    protected $appends = ['name','profileImage','profile_id','count'];
     
     public function recipe()
     {
@@ -57,4 +57,5 @@ class Comment extends Model
     {
         return $this->user->profile->id;
     }
+
 }

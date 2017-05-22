@@ -13,7 +13,7 @@ class Collaborate extends Model
     
     protected $with = ['profiles','companies'];
     
-    protected $appends = ['additionalFields'];
+    protected $appends = ['additionalFields','commentCount'];
     
     /**
      * Which profile created the collaboration project.
@@ -108,4 +108,8 @@ class Collaborate extends Model
     {
         return $this->template !== null ? $this->template->fields : null;
     }
+    public function getCommentCountAttribute()
+    {
+            return $this->comments->count();
+    } 
 }
