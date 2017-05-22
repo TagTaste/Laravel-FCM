@@ -67,7 +67,6 @@ class Channel extends Model
         //G Maane Genius.
         $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
         $channels = $subscribedChannels->pluck('channel_name')->toArray();
-        \Log::info($channels);
         return $channels;
     }
 }
