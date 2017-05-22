@@ -21,7 +21,7 @@ class Collaborate extends Model
         
         self::created(function($collaboration){
             \App\Cacheable::set($collaboration);
-            \App\Cacheable::sadd("collaborations");
+            \App\Cacheable::sadd($collaboration,"collaborations");
         });
         
         self::updated(function ($collaboration){
