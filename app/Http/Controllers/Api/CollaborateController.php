@@ -37,10 +37,22 @@ class CollaborateController extends Controller
 		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
 		$this->model = [];
 		$profileId = $request->user()->profile->id;
-		foreach($collaborations as $collaboration){
-		    $meta = $collaboration->getMetaFor($profileId);
-            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
+        $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
+        foreach($allShortlist as $shortlist){
+		    foreach($collaborations as $collaboration){
+                if($collaboration->profile_id===$shortlist->profile_id&&$collaboration->id===$shortlist->collaborate_id){
+                    $isShortlist=1;
+                }
+                else
+                    $isShortlist=0;
+                
+                $this->model[] = ['collaboration'=>$collaboration,'isShortlisted'=>$isShortlist];
+		        $meta = $collaboration->getMetaFor($profileId);
+                $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
+            }
         }
+        dd($this);
+
 		return $this->sendResponse();
 	}
 
@@ -142,6 +154,30 @@ class CollaborateController extends Controller
         return $this->sendResponse();
         
     }
+
+    public function shortlist(Request $request, $id)
+    {
+        $collaborate = Collaborate::find($id);
+
+        if(!$collaborate){
+            return $this->sendError("Collaboration not found");
+        }
+        $profileId = $request->user()->profile->id;
+        $shortlist = \DB::table("collaborate_shortlist")->where("collaborate_id",$id)->where('profile_id',$profileId)
+            ->first();
+        if($shortlist){
+            $unshortlist = \DB::table("collaborate_shortlist")
+                ->where("collaborate_id",$id)->where('profile_id',$profileId)
+                ->delete();
+            //if unliked, return false;
+            //yes, counter-intuitive.
+            $this->model = $unshortlist === 1 ? false : null;
+            return $this->sendResponse();
+        }
+        $this->model = \DB::table("collaborate_shortlist")->insert(["collaborate_id"=>$id,'profile_id'=>$profileId]);
+        return $this->sendResponse();
+    }
+    
     
     
 }

@@ -75,7 +75,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
             Route::resource("collaborate","CollaborateController");
             
-          
+            //collaborates shortlist
+            Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
             
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
