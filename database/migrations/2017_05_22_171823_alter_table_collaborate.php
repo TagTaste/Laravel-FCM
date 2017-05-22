@@ -27,7 +27,7 @@ class AlterTableCollaborate extends Migration
     public function down()
     {
         Schema::table('collaborates',function(Blueprint $table){
-            $table->integer("photo_id")->default(1);
+            $table->boolean("notify")->default(1);
         });
     }
 }
