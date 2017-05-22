@@ -51,7 +51,6 @@ class CollaborateController extends Controller
                 $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
             }
         }
-        dd($this);
 
 		return $this->sendResponse();
 	}
