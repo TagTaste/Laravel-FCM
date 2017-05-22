@@ -9,7 +9,7 @@ class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested',
-        'profile_id', 'company_id','template_fields','template_id'];
+        'profile_id', 'company_id','template_fields','template_id','notify'];
     
     protected $with = ['profile','company','fields'];
     
