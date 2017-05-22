@@ -47,7 +47,7 @@ class Photo extends Model implements Feedable
         //so it can't be pushed to the feed since there won't be any "owner".
         
         self::created(function($photo){
-           \Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
+           //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
     }
 
@@ -111,7 +111,7 @@ class Photo extends Model implements Feedable
     
     public function profile()
     {
-        return $this->belongsToMany('App\Profile','profile_photos','photo_id','profile_id');
+        return $this->belongsToMany('App\Recipe\Profile','profile_photos','photo_id','profile_id');
     }
     
     public function getProfile(){
@@ -173,34 +173,6 @@ class Photo extends Model implements Feedable
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
         $meta['likeCount'] = $this->likeCount;
         return $meta;
-    }
-    
-    public function getRelatedKey() : array
-    {
-        
-        $owner = $this->owner();
-        $prefix = null;
-        if($owner instanceof \App\Profile){
-            $prefix = "profile";
-        } elseif ($owner instanceof \App\Shoutout\Company){
-            $prefix = "company";
-        }
-        
-        if($prefix === null){
-            \Log::warning("Could not determine owner for Photo " . $this->id);
-            return false;
-        }
-        $key = $prefix . ":small:" . $owner->id;
-        
-        if(!\Redis::exists($key)){
-            \Redis::set($key, $owner->toJson());
-        }
-        \Log::info("related");
-        \Log::info([$prefix => $key]);
-        return [$prefix => $key];
-        
-        
-        
     }
    
 }
