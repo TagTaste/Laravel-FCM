@@ -1,7 +1,7 @@
 <?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use \Redis;
+use \Redis as Cache;
 use \DB;
 
 /**
@@ -45,12 +45,6 @@ class Cacheable
         $this->setKey();
         $this->setTable();
         $this->setData();
-        $this->setCache();
-    }
-    
-    private function setCache() : void
-    {
-        $this->cache = new Redis();
     }
     
     private function setKey() : void
@@ -79,9 +73,9 @@ class Cacheable
         return self::getInstance($model)->setString();
     }
     
-    private function setString()
+    public function setString()
     {
-        $status = $this->cache->set($this->key,json_encode($this->data));
+        $status = Cache::set($this->key,json_encode($this->data));
     
         if(!$status) return $status;
     
@@ -95,7 +89,7 @@ class Cacheable
     
     private function delString()
     {
-        $status = $this->cache->del($this->key,json_encode($this->data));
+        $status = Cache::del($this->key,json_encode($this->data));
         
         if(!$status) return $status;
         
@@ -109,7 +103,7 @@ class Cacheable
     
     private function setAdd($models)
     {
-        $status = $this->cache->sAdd($models,$this->model->id);
+        $status = Cache::sAdd($models,$this->model->id);
         
         if(!$status) return $status;
     
@@ -123,7 +117,7 @@ class Cacheable
     
     private function setRemove($models)
     {
-        $status = $this->cache->sRemove($models,$this->model->id);
+        $status = Cache::sRemove($models,$this->model->id);
     
         if(!$status) return $status;
     
@@ -139,7 +133,6 @@ class Cacheable
      */
     public static function __callStatic($method, $parameters)
     {
-        
         return Redis::$method(...$parameters);
     }
 }
