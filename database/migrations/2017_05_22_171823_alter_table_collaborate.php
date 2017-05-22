@@ -14,7 +14,7 @@ class AlterTableCollaborate extends Migration
     public function up()
     {
         //
-         Schema::table('profile_photos',function(Blueprint $table){
+         Schema::table('collaborates',function(Blueprint $table){
             $table->boolean("notify")->default(1);
         });
     }
@@ -26,6 +26,8 @@ class AlterTableCollaborate extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('collaborates',function(Blueprint $table){
+            $table->integer("photo_id")->default(1);
+        });
     }
 }
