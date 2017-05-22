@@ -14,7 +14,7 @@ class Collaborate extends Model
     protected $with = ['profile','company','fields'];
     
 
-    protected $appends = ['interested','commentCount']];
+    protected $appends = ['interested','commentCount','likeCount'];
     
     public static function boot()
     {
@@ -122,6 +122,12 @@ class Collaborate extends Model
     public function comments()
     {
         return $this->belongsToMany(Comment::class,'comments_collaborates','collaborate_id','comment_id');
+    }
+
+    public function getLikeCountAttribute()
+    {
+        return \DB::table("collaboration_likes")->where("collaboration_id",$this->id)
+            ->count();
     }
     
     public function template()
