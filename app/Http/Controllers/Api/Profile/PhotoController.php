@@ -6,7 +6,7 @@ use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
-use App\Photo;
+use App\Profile\Photo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -50,9 +50,9 @@ class PhotoController extends Controller
         if($photo){
             $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
-            //\Redis::set("photo:" . $photo->id,json_encode($data));
-            //$photo = $photo->fresh();
-            event(new NewFeedable($photo));
+            \Redis::set("photo:" . $photo->id,json_encode($data));
+            \Log::info(json_encode($data));
+            event(new NewFeedable($photo, $request->user()->profile));
             \Log::info("after event");
             \Log::info($photo);
         } else {
