@@ -186,4 +186,9 @@ class Collaborate extends Model
     
         return $meta;
     }
+    
+    public function similar()
+    {
+        return self::take(4)->get();
+    }
 }
