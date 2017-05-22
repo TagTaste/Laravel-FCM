@@ -6,15 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class CollaborateTemplate extends Model
 {
-    protected $fillable = ['name', 'fields'];
+    protected $fillable = ['name'];
     
-    public function setFieldsAttribute($value)
+    protected $visible = ['id','name','fields'];
+    
+    protected $with = ['fields'];
+    
+    public function fields()
     {
-        $this->attributes['fields'] = json_encode($value);
+        return $this->belongsToMany(Field::class,'collaboration_template_fields','template_id','field_id');
     }
     
-    public function getFieldsAttribute()
+    public function syncFields($fieldIds = [])
     {
-        return json_decode($this->fields,true);
+        if(empty($fieldIds)){
+            \Log::warning("Empty fields passed.");
+            return false;
+        }
+        
+        $fields = Field::select('id')->whereIn('id',$fieldIds)->get();
+        
+        if($fields->count()){
+            return $this->fields()->sync($fields->pluck('id')->toArray());
+        }
+        
+        return false;
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\CollaborateTemplate;
+use App\Field;
 use Illuminate\Http\Request;
 
-class CollaborateTemplateController extends Controller
+class FieldController extends Controller
 {
 	/**
 	 * Variable to model
 	 *
-	 * @var collaborate_template
+	 * @var field
 	 */
 	protected $model;
 
@@ -19,7 +19,7 @@ class CollaborateTemplateController extends Controller
 	 *
 	 * @return void
 	 */
-	public function __construct(CollaborateTemplate $model)
+	public function __construct(Field $model)
 	{
 		$this->model = $model;
 	}
@@ -44,28 +44,7 @@ class CollaborateTemplateController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-        $fields = null;
-		
-		if($request->has('fields')){
-            $fields =  $request->input('fields');
-		    unset($inputs['fields']);
-        }
 		$this->model = $this->model->create($inputs);
-        
-        $this->model->syncFields($fields);
-        
-		return $this->sendResponse();
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		$this->model = $this->model->findOrFail($id);
         return $this->sendResponse();
 	}
 
@@ -80,14 +59,10 @@ class CollaborateTemplateController extends Controller
 	{
 		$inputs = $request->all();
 
-		$collaborate_template = $this->model->findOrFail($id);
-        
-        if($request->has('fields')){
-            unset($inputs['fields']);
-            $collaborate_template->syncFields($request->input('fields'));
-        }
-        $this->model =	$collaborate_template->update($inputs);
-        return $this->sendResponse();
+		$field = $this->model->findOrFail($id);		
+		$this->model = $field->update($inputs);
+  
+		return $this->sendResponse();
 	}
 
 	/**

@@ -4,13 +4,13 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
+use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner;
+    use IdentifiesOwner, CachedPayload;
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
     
@@ -22,6 +22,12 @@ class Shoutout extends Model implements Feedable
     
     protected $with = ['privacy'];
     
+    public static function boot()
+    {
+        self::created(function($shoutout){
+            \Redis::set("shoutout:" . $shoutout->id,$shoutout->makeHidden(['privacy','owner'])->toJson());
+        });
+    }
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
@@ -78,7 +84,29 @@ class Shoutout extends Model implements Feedable
     {
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
-        $meta['likeCount'] = $this->likeCount;
+        $meta['likeCount'] = \Redis::hget("shoutout:" . $this->id . ":meta","like");
         return $meta;
+    }
+    
+    public function getRelatedKey() : array
+    {
+        
+        $owner = $this->owner();
+        $prefix = "profile";
+        if($owner instanceof \App\Recipe\Profile){
+            $prefix = "profile";
+        } elseif ($owner instanceof \App\Shoutout\Company){
+            $prefix = "company";
+        }
+        $key = $prefix . ":small:" . $owner->id;
+        
+        if(!\Redis::exists($key)){
+            \Redis::set($key, $owner->toJson());
+        }
+        
+        return [$prefix => $key];
+    
+        
+    
     }
 }

@@ -4,7 +4,6 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Traits\PushesToChannel;
-use App\Events\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -119,7 +118,22 @@ class Profile extends Model
             }
             //create the document for searching
             \App\Documents\Profile::create($profile);
+            
+            //bad call inside, would be fixed soon
+            $profile->addToCache();
+    
         });
+        
+        self::updated(function(Profile $profile){
+           //bad call inside, would be fixed soon
+           $profile->addToCache();
+        });
+    }
+    
+    public function addToCache()
+    {
+        $smallProfile = \App\Recipe\Profile::find($this->id);
+        \Redis::set("profile:small:" . $this->id , $smallProfile->toJson());
     }
     
     public function user()
@@ -179,18 +193,13 @@ class Profile extends Model
     //specific to API
     public function getImageUrlAttribute()
     {
-        if($this->image){
-            return "/profile/images/" . $this->id . '.jpg';
-        }
-
+        return $this->image !== null ? "/images/p/" . $this->id . "/" . $this->image : null;
     }
 
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        if($this->hero_image){
-            return "/profile/hero/" . $this->id . '.jpg';
-        }
+        return $this->hero_image !== null ? "/images/p/" . $this->id . "/hi/" . $this->hero_image : null;
     }
 
     //$followsId is following $this profile
@@ -329,7 +338,9 @@ class Profile extends Model
     //there should be a better way to write the paths.
     public static function getImagePath($id, $filename = null)
     {
-        $relativePath = "profile/{$id}/images";
+        //$relativePath = "profile/{$id}/images";
+        $relativePath = "images/p/{$id}";
+        
         Storage::makeDirectory($relativePath);
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
@@ -337,7 +348,7 @@ class Profile extends Model
     //there should be a better way to write the paths.
     public static function getHeroImagePath($id, $filename = null)
     {
-        $relativePath = "profile/{$id}/hero_images";
+        $relativePath = "images/p/{$id}/hi";
         Storage::makeDirectory($relativePath);
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath ) . "/" . $filename;
     }

@@ -63,12 +63,19 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //similar
             Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
             
-            //collaborate
-            Route::post("collaborate/{id}/apply","CollaborateController@apply");
-            Route::resource("collaborate","CollaborateController");
-            
+            //fields for collaboration
+            Route::resource("fields",'FieldController');
+    
             //collaborate templates
             Route::resource("collaborate/templates","CollaborateTemplateController");
+            
+            //collaborate
+            Route::post("collaborate/{id}/like","CollaborateController@like");
+            Route::post("collaborate/{id}/apply","CollaborateController@apply");
+            Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
+            Route::resource("collaborate","CollaborateController");
+            
+          
             
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){

@@ -54,9 +54,9 @@ class Channel extends Model
         return $this->hasMany(Payload::class,'channel_name','name');
     }
     
-    public function addPayload(&$data)
+    public function addPayload($modelName, $modelId, &$data)
     {
-        return $this->payload()->create(['payload'=>$data,'model'=>get_class($data),'model_id'=>$data->id]);
+        return $this->payload()->create(['payload'=>$data,'model'=>$modelName,'model_id'=>$modelId]);
     }
     
     public static function names($id)
@@ -67,7 +67,6 @@ class Channel extends Model
         //G Maane Genius.
         $subscribedChannels = Subscriber::select('channel_name')->where('profile_id',$id)->get();
         $channels = $subscribedChannels->pluck('channel_name')->toArray();
-        \Log::info($channels);
         return $channels;
     }
 }

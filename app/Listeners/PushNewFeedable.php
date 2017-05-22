@@ -26,9 +26,9 @@ class PushNewFeedable
      */
     public function handle(NewFeedable $event)
     {
-        if(!method_exists($event->model,'owner')){
-            throw new \Exception("Owner not defined on Feedable " . class_basename($event->model));
-        }
+//        if(!method_exists($event->model,'owner')){
+//            throw new \Exception("Owner not defined on Feedable " . class_basename($event->model));
+//        }
     
         if(!method_exists($event->model,'privacy') || is_null($event->model->privacy)){
             //if Privacy is not defined on the model,
@@ -39,17 +39,16 @@ class PushNewFeedable
             \Log::warning("Not publishing it to network or public feed.");
             return;
         }
-    
         if($event->model->privacy->isPublic()){
-            $event->model->owner()->pushToPublic($event->model);
+            $event->owner->pushToPublic($event->model);
             return;
         }
         
         if($event->model->privacy->isNetwork()){
-            $event->model->owner()->pushToNetwork($event->model);
+            $event->owner->pushToNetwork($event->model);
             return;
         }
-        
-        $event->model->owner()->pushToMyFeed($event->model);
+    
+        $event->owner->pushToMyFeed($event->model);
     }
 }

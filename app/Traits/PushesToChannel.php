@@ -2,7 +2,6 @@
 namespace App\Traits;
 
 
-use App\Channel;
 use App\Company;
 
 trait PushesToChannel
@@ -28,11 +27,12 @@ trait PushesToChannel
             return false;
         }
         
-        $payload = $channel->addPayload($model);
+       
+        $payload = $model->getPayload();
+        $payload = $channel->addPayload(get_class($model),$model->id,$payload);
         //update model id
         $model->payload_id = $payload->id;
         $model->save();
-        //
         return $payload;
         
     }

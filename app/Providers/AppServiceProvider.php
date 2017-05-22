@@ -26,5 +26,13 @@ class AppServiceProvider extends ServiceProvider
         if($this->app->environment('testing') || $this->app->environment('local')){
             $this->app->register('Laralib\L5scaffold\GeneratorsServiceProvider');
         }
+    
+//        \DB::listen(function ($query) {
+//            \Log::info([
+//                $query->sql,
+//                $query->bindings,
+//                $query->time
+//            ]);
+//        });
     }
 }

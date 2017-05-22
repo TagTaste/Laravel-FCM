@@ -6,7 +6,7 @@ use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
-use App\Photo;
+use App\Profile\Photo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -46,9 +46,16 @@ class PhotoController extends Controller
         }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
-        
-        $this->model = $request->user()->profile->photos()->create($data);
-        event(new NewFeedable($this->model));
+        $photo = Photo::create($data);
+        if($photo){
+            $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
+            $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
+            \Redis::set("photo:" . $photo->id,json_encode($data));
+            event(new NewFeedable($photo, $request->user()->profile));
+        } else {
+            \Log::warning("NO MODEL.");
+        }
+        $this->model = $photo;
         return $this->sendResponse();
     }
     
@@ -102,6 +109,8 @@ class PhotoController extends Controller
         $this->saveFileToData("file",$path,$request,$data);
         
         $this->model = $request->user()->profile->photos()->where('id',$id)->update($data);
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
+        \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
     
         return $this->sendResponse();
@@ -128,6 +137,10 @@ class PhotoController extends Controller
         if(!$photo){
             throw new ModelNotFoundException("Could not find photo with id " . $id);
         }
-        return response()->file(Photo::getProfileImagePath($profileId, $photo->file));
+        $file = Photo::getProfileImagePath($profileId, $photo->file);
+        if(file_exists($file)){
+            return response()->file($file);
+    
+        }
     }
 }

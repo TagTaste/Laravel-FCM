@@ -8,12 +8,33 @@ use Illuminate\Database\Eloquent\Model;
 class Collaborate extends Model
 {
     protected $fillable = ['title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested',
         'profile_id', 'company_id','template_fields','template_id'];
     
-    protected $with = ['profiles','companies'];
+    protected $with = ['profile','company','fields'];
     
-    protected $appends = ['additionalFields','commentCount'];
+
+    protected $appends = ['interested','commentCount']];
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function($collaboration){
+            \App\Cacheable::set($collaboration);
+            \App\Cacheable::sadd("collaborations");
+        });
+        
+        self::updated(function ($collaboration){
+            \Redis::set("collaboration:" . $collaboration->id,$collaboration->toJson());
+        });
+        
+        self::deleted(function($collaboration){
+            \Redis::del("collaboration:" . $collaboration->id);
+            \Redis::srem("collaborations",$collaboration->id);
+        });
+    }
+
     
     /**
      * Which profile created the collaboration project.
@@ -22,7 +43,7 @@ class Collaborate extends Model
      */
     public function profile()
     {
-        return $this->belongsTo(\App\Profile::class);
+        return $this->belongsTo(\App\Recipe\Profile::class);
     }
     
     /**
@@ -33,6 +54,11 @@ class Collaborate extends Model
     public function company()
     {
         return $this->belongsTo(\App\Company::class);
+    }
+    
+    public function collaborators()
+    {
+        return \DB::table("collaborators")->where("collaborate_id",$this->id)->get();
     }
     
     /**
@@ -98,7 +124,6 @@ class Collaborate extends Model
         return $this->belongsToMany(Comment::class,'comments_collaborates','collaborate_id','comment_id');
     }
     
-    
     public function template()
     {
         return $this->belongsTo(CollaborateTemplate::class,'template_id','id');
@@ -108,8 +133,66 @@ class Collaborate extends Model
     {
         return $this->template !== null ? $this->template->fields : null;
     }
+
     public function getCommentCountAttribute()
     {
             return $this->comments->count();
     } 
+
+    
+    public function fields()
+    {
+        return $this->belongsToMany(Field::class,'collaboration_fields','collaboration_id','field_id');
+    }
+    
+    public function addField(Field $field)
+    {
+        return $this->fields()->attach($field->id);
+    }
+    
+    public function removeField(Field $field)
+    {
+        return $this->fields()->detach($field->id);
+    }
+    
+    public function syncFields($fieldIds = [])
+    {
+        if(empty($fields)){
+            \Log::warning("Empty fields passed.");
+            return false;
+        }
+        
+        $fields = Field::select('id')->whereIn('id',$fieldIds)->get();
+    
+        if($fields->count()){
+            return $this->fields()->sync($fields->pluck('id')->toArray());
+        }
+    }
+    
+    public function getTemplateValuesAttribute()
+    {
+        return !is_null($this->template_values) ? json_decode($this->template_values) : null;
+    }
+    
+    public function getInterestedAttribute()
+    {
+        return \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
+    }
+    
+    public function getMetaFor($profileId)
+    {
+        $meta = [];
+        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+        
+        return $meta;
+    }
+    
+    public function getMetaForCompany($companyId)
+    {
+        $meta = [];
+        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
+    
+        return $meta;
+    }
+
 }

@@ -28,7 +28,6 @@ class FeedableServiceProvider extends ServiceProvider
         
         //dont add photos here.
         //laravel doesn't fire created event on pivot.
-//        \App\Photo::observe(FeedableObserver::class);
         
         \App\Shoutout::observe(FeedableObserver::class);
     }

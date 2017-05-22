@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Collaborate;
+use App\Field;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -33,9 +34,21 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index($profileId)
+	public function index(Request $request, $profileId)
 	{
-		$this->model = $this->model->where('profile_id',$profileId)->paginate();
+	    
+        $page = $request->input('page',1);
+        $take = 20;
+        $skip = $page > 1 ? ($page * $take) - $take: 0;
+		$collaborations = $this->model->where('profile_id',$profileId)->orderBy('created_at','desc') ->skip($skip)
+            ->take($take)->get();
+		
+        $profileId = $request->user()->profile->id;
+        $this->model = [];
+        foreach($collaborations as $collaboration){
+		        $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+        }
+        
         return $this->sendResponse();
 	}
 
@@ -51,8 +64,16 @@ class CollaborateController extends Controller
 		$inputs = $request->all();
 		$inputs['profile_id'] = $profileId;
 		$inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+		$fields = $request->has("fields") ? $request->input('fields') : [];
+		
+		if(!empty($fields)){
+		    unset($inputs['fields']);
+        }
 		$this->model = $this->model->create($inputs);
-
+  
+		$this->model->syncFields($fields);
+		
+        $this->model = $this->model->fresh();
 		return $this->sendResponse();
 	}
 
@@ -62,13 +83,17 @@ class CollaborateController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($profileId, $id)
+	public function show(Request $request, $profileId, $id)
 	{
-		$this->model = $this->model->where('profile_id',$profileId)->find($id);
-		if($this->model === null){
+        $collaboration= $this->model->where('profile_id',$profileId)->find($id);
+		if($collaboration === null){
 		   throw new \Exception("Invalid Collaboration Project.");
         }
-		return $this->sendResponse();
+        $profileId = $request->user()->profile->id;
+        $meta = $collaboration->getMetaFor($profileId);
+        $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
+        
+        return $this->sendResponse();
 	}
 
 	/**
@@ -88,7 +113,14 @@ class CollaborateController extends Controller
 		if($collaborate === null){
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }
-		$this->model = $collaborate->update($inputs);
+        
+        if(!empty($fields)){
+            unset($inputs['fields']);
+            $this->model->syncFields($fields);
+        }
+        
+        
+        $this->model = $collaborate->update($inputs);
         return $this->sendResponse();
     }
 

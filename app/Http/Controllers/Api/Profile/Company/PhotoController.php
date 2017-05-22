@@ -8,7 +8,6 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
-use App\Album;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
@@ -63,6 +62,8 @@ class PhotoController extends Controller
         }
         
         $this->model = $company->photos()->create($data);
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
+        \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model));
         return $this->sendResponse();
     }
@@ -120,6 +121,8 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $this->model = $company->photos()->where('id',$id)->update($data);
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
+        \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
     
         return $this->sendResponse();
@@ -157,6 +160,10 @@ class PhotoController extends Controller
     public function image($profileId, $companyId, $id)
     {
         $photo = \App\Photo::select('file')->find($id);
-        return response()->file(Photo::getCompanyImagePath($profileId, $companyId, $photo->file));
+        $file = Photo::getProfileImagePath($profileId, $photo->file);
+        if(file_exists($file)){
+            return response()->file($file);
+        
+        }
     }
 }

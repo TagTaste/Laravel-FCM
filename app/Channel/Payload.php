@@ -21,16 +21,51 @@ class Payload extends Model
         self::created(function(Payload $payload){
             $payload->publish();
         });
-    
+        
     }
     
     private function publish()
     {
         try {
-            \Redis::publish($this->channel->name, $this->payload);
+            //payload has all the required keys, stored as json.
+                $cached = json_decode($this->payload,true);
+            
+            //get all cached objects at once
+                $objects = \Redis::mget(array_values($cached));
+            
+            //Making a string instead of using objects/arrays (not using json_encode/decode).
+            //Why decode an object just to prefix a key to it, and then re-encode it?
+    
+            //build the json string.
+                $index = 0;
+                $numberOfCachedItems = count($cached);
+            
+                //start json
+                $jsonPayload = "{";
+                    foreach($cached as $name => $key){
+                        //name : object
+                        $jsonPayload .= "\"{$name}\":"  . $objects[$index];
+                        
+                        //separate with comma
+                        if($index<$numberOfCachedItems-1){
+                            $jsonPayload .= ",";
+                        }
+                        
+                        //next object please.
+                        $index++;
+                    }
+                //end json
+                $jsonPayload .= "}";
+            
+            //publish
+            \Redis::publish($this->channel->name, $jsonPayload);
+            
+            //\Redis::sAdd($this->channel->name,json_encode($object));
+    
         } catch (\Exception $e){
             \Log::warning("Could not publish.");
             \Log::info($e->getMessage());
+            \Log::info($e->getFile() . " " . $e->getLine() . " " . $e->getCode());
         }
     }
     
@@ -41,7 +76,6 @@ class Payload extends Model
     
     public function setPayloadAttribute($data)
     {
-        $payload = is_object($data) ? [ strtolower(class_basename($data)) => $data] : $data;
-        $this->attributes['payload'] = json_encode($payload);
+        $this->attributes['payload'] = json_encode($data);
     }
 }

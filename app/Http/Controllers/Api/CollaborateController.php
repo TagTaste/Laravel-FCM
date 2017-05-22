@@ -32,10 +32,15 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$this->model = $this->model->paginate();
-
+		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
+		$this->model = [];
+		$profileId = $request->user()->profile->id;
+		foreach($collaborations as $collaboration){
+		    $meta = $collaboration->getMetaFor($profileId);
+            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
+        }
 		return $this->sendResponse();
 	}
 
@@ -45,9 +50,12 @@ class CollaborateController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request, $id)
 	{
-		$this->model = $this->model->findOrFail($id);
+		$collaboration = $this->model->findOrFail($id);
+		$profileId = $request->user()->profile->id;
+		$meta = $collaboration->getMetaFor($profileId);
+		$this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 		
 	}
@@ -105,11 +113,34 @@ class CollaborateController extends Controller
                     ]);
     
         }
-        
-        if($request->has('fields')){
-        
-        }
         return $this->sendResponse();
+    }
+    
+    public function like(Request $request, $id)
+    {
+        
+        $collaborate = Collaborate::find($id);
+
+        if(!$collaborate){
+            return $this->sendError("Collaboration not found");
+        }
+        
+        $profileId = $request->user()->profile->id;
+        $like = \DB::table("collaboration_likes")->where("collaboration_id",$id)->where('profile_id',$profileId)
+            ->first();
+        if($like){
+            $unliked = \DB::table("collaboration_likes")
+                ->where("collaboration_id",$id)->where('profile_id',$profileId)
+                ->delete();
+            //if unliked, return false;
+            //yes, counter-intuitive.
+            $this->model = $unliked === 1 ? false : null;
+            return $this->sendResponse();
+        }
+        
+        $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
+        return $this->sendResponse();
+        
     }
     
     

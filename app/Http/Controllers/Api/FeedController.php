@@ -16,7 +16,7 @@ class FeedController extends Controller
     {
         $page = $request->input('page',1);
         $take = 20;
-        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        $skip = $page > 1 ? ($page - 1) * $take : 0;
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -29,14 +29,11 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        
         if($payloads->count() === 0){
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
         $this->getMeta($payloads,$profileId);
-    
-        //$this->model = new Paginator($this->model,$take);
         return $this->sendResponse();
     }
     
@@ -45,7 +42,7 @@ class FeedController extends Controller
     {
         $page = $request->input('page',1);
         $take = 20;
-        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        $skip = $page > 1 ? ($page - 1) * $take : 0;
         
         $payloads = Payload::where('channel_name','public.' . $profileId)
             ->orderBy('created_at','desc')
@@ -63,7 +60,7 @@ class FeedController extends Controller
     {
         $page = $request->input('page',1);
         $take = 20;
-        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        $skip = $page > 1 ? ($page - 1) * $take : 0;
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
@@ -87,14 +84,19 @@ class FeedController extends Controller
     
     private function getMeta(&$payloads, &$profileId)
     {
-        if($payloads->count() === 0){
-            $this->errors[] = 'No more feeds';
-            return;
-        }
+//        if($payloads->count() === 0){
+//            $this->errors[] = 'No more feeds';
+//            return;
+//        }
         
         foreach($payloads as $payload){
             $data = [];
-            $data['payload'] = $payload->payload;
+
+            $cached = json_decode($payload->payload, true);
+            foreach($cached as $name => $key){
+                $data[$name] = \Redis::get($key);
+                $data[$name] = json_decode($data[$name],true);
+            }
             if($payload->model !== null){
                 $model = $payload->model;
                 $model = $model::find($payload->model_id);
@@ -112,7 +114,7 @@ class FeedController extends Controller
     {
         $page = $request->input('page',1);
         $take = 20;
-        $skip = $page > 1 ? ($page * $take) - $take: 0;
+        $skip = $page > 1 ? ($page - 1) * $take : 0;
         
         $payloads = Payload::where('channel_name','company.public.' . $profileId)
             ->orderBy('created_at','desc')
