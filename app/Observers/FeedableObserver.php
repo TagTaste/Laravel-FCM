@@ -11,6 +11,9 @@ class FeedableObserver {
         event(new NewFeedable($model));
     }
     
+    //we don't need to listen on model because we just store the redis keys as the payload
+    //So the updates to the model need not update the feedable.
+    
 //    public function updated($model)
 //    {
 //        //event(new UpdateFeedable($model));
