@@ -195,7 +195,7 @@ class Collaborate extends Model
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
-        
+        $meta['hasliked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
         return $meta;
     }
     
@@ -203,6 +203,7 @@ class Collaborate extends Model
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
+       
     
         return $meta;
     }
@@ -211,4 +212,6 @@ class Collaborate extends Model
     {
         return self::take(4)->get();
     }
+
+   
 }
