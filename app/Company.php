@@ -75,14 +75,15 @@ class Company extends Model
         'advertisements','addresses','type','status','awards','photos','patents','books','portfolio',
         'created_at',
         'milestones',
-        'speciality'
+        'speciality',
+        'profileId'
     ];
 
 
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
 
 
-    protected $appends = ['statuses','companyTypes'];
+    protected $appends = ['statuses','companyTypes','profileId'];
 
     public function setEstablishedOnAttribute($value)
     {
@@ -163,7 +164,8 @@ class Company extends Model
     //there should be a better way to write the paths.
     public static function getLogoPath($profileId,$id, $filename = null)
     {
-        $relativePath = "profile/{$profileId}/companies/{$id}/logos";
+        $relativePath = "images/c/{$id}/l";
+    
         Storage::makeDirectory($relativePath);
         if($filename === null){
             return $relativePath;
@@ -175,7 +177,7 @@ class Company extends Model
     //there should be a better way to write the paths.
     public static function getHeroImagePath($profileId, $id, $filename = null)
     {
-        $relativePath = "profile/{$profileId}/companies/{$id}/hero_images";
+        $relativePath = "images/c/{$id}/hi";
         Storage::makeDirectory($relativePath);
         if($filename == null){
             return $relativePath;
@@ -284,5 +286,15 @@ class Company extends Model
         }
         
         return CompanyUser::where('company_id',$this->id)->where("user_id",$userId)->count() === 1;
+    }
+    
+    public function getLogoAttribute($value)
+    {
+        return $value !== null ? "images/c/{$this->id}/l/" . $value : false;
+    }
+    
+    public function getProfileIdAttribute()
+    {
+        return $this->user->profile->id;
     }
 }
