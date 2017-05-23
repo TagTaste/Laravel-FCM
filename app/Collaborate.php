@@ -186,4 +186,15 @@ class Collaborate extends Model
     
         return $meta;
     }
+
+    public function isShortList($allShortlist,$id){
+        $isShortedList=0;
+        foreach($allShortlist as $shortlist){
+		    if($id===$shortlist->collaborate_id){
+                $isShortedList=1;
+                break;
+            }
+        }
+        return $isShortedList;
+    }
 }

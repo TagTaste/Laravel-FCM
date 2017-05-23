@@ -48,17 +48,6 @@ class CollaborateController extends Controller
 		return $this->sendResponse();
 	}
 
-    public function isShortList($allShortlist,$id){
-        $isShortedList=0;
-        foreach($allShortlist as $shortlist){
-		    if($id===$shortlist->collaborate_id){
-                $isShortedList=1;
-                break;
-            }
-        }
-        return $isShortedList;
-    }
-
 	/**
 	 * Display the specified resource.
 	 *
