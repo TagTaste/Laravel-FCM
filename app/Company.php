@@ -75,14 +75,15 @@ class Company extends Model
         'advertisements','addresses','type','status','awards','photos','patents','books','portfolio',
         'created_at',
         'milestones',
-        'speciality'
+        'speciality',
+        'profileId'
     ];
 
 
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
 
 
-    protected $appends = ['statuses','companyTypes'];
+    protected $appends = ['statuses','companyTypes','profileId'];
 
     public function setEstablishedOnAttribute($value)
     {
@@ -290,5 +291,10 @@ class Company extends Model
     public function getLogoAttribute($value)
     {
         return $value !== null ? "images/c/{$this->id}/l/" . $value : false;
+    }
+    
+    public function getProfileIdAttribute()
+    {
+        return $this->user()->profile->id;
     }
 }
