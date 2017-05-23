@@ -29,6 +29,7 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
+
         $profile = User::whereHas("profile",function($query) use ($id){
             $query->where('id',$id);
         })->first();
@@ -37,7 +38,7 @@ class ProfileController extends Controller
             throw new ModelNotFoundException("Could not find profile.");
         }
         
-        return response()->json($profile);
+        return response()->json($id);
     }
 
     /**
@@ -61,6 +62,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->except(["_method","_token"]);
+        \Log::info($request->headers);
         
         //proper verified.
         if(isset($data['verified'])){
