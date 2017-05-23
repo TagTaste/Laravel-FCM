@@ -295,6 +295,6 @@ class Company extends Model
     
     public function getProfileIdAttribute()
     {
-        return $this->user()->profile->id;
+        return $this->user->profile->id;
     }
 }
