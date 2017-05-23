@@ -30,7 +30,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-            Route::get('{name}','ProfileController@show');
+           
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
@@ -111,7 +111,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
-            Route::get('handle','HandleController@show');
+           
             Route::resource('profile','ProfileController');
             
             
@@ -202,6 +202,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
         });
+         Route::get('{handle}','ProfileController@show');
 });
 
 Route::post('login',function(Request $request){
