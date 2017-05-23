@@ -168,7 +168,13 @@ class Collaborate extends Model
     
     public function getInterestedAttribute()
     {
-        return \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
+        $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
+        $profileIds = \DB::table("collaborators")->select('profile_id')->where("collaborate_id",$this->id)->get();
+        if($profileIds){
+            $profileIds = $profileIds->pluck('profile_id')->toArray();
+        }
+        $profiles = \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+        return ['count'=>$count,'profiles'=>$profiles];
     }
     
     public function getMetaFor($profileId)
