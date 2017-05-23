@@ -158,14 +158,14 @@ class CollaborateController extends Controller
         
     }
 
-    public function shortlist(Request $request, $id)
+    public function shortlist(Request $request, $id,$profileId)
     {
         $collaborate = Collaborate::find($id);
 
         if(!$collaborate){
             return $this->sendError("Collaboration not found");
         }
-        $profileId = $request->user()->profile->id;
+
         $shortlist = \DB::table("collaborate_shortlist")->where("collaborate_id",$id)->where('profile_id',$profileId)
             ->first();
         if($shortlist){
