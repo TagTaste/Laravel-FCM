@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Collaborate;
 use App\Similar\Job;
 use App\Similar\Photo;
 use App\Similar\Product;
@@ -17,7 +18,8 @@ class SimilarController extends Controller
         'profile' => Profile::class,
         'photo' => Photo::class,
         'product' => Product::class,
-        'recipe' => Recipe::class
+        'recipe' => Recipe::class,
+        'collaborate' => Collaborate::class
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)

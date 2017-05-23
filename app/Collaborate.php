@@ -22,7 +22,7 @@ class Collaborate extends Model
         
         self::created(function($collaboration){
             \App\Cacheable::set($collaboration);
-            \App\Cacheable::sadd("collaborations");
+            \App\Cacheable::sadd($collaboration,"collaborations");
         });
         
         self::updated(function ($collaboration){
@@ -201,4 +201,8 @@ class Collaborate extends Model
         return $meta;
     }
 
+    public function similar()
+    {
+        return self::take(4)->get();
+    }
 }
