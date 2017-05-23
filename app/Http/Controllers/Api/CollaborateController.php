@@ -38,22 +38,26 @@ class CollaborateController extends Controller
 		$this->model = [];
 		$profileId = $request->user()->profile->id;
         $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
-        foreach($allShortlist as $shortlist){
-		    foreach($collaborations as $collaboration){
-                if($collaboration->profile_id===$shortlist->profile_id&&$collaboration->id===$shortlist->collaborate_id){
-                    $isShortlist=1;
-                }
-                else
-                    $isShortlist=0;
-                
-                $this->model[] = ['collaboration'=>$collaboration,'isShortlisted'=>$isShortlist];
-		        $meta = $collaboration->getMetaFor($profileId);
-                $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
-            }
+        foreach($collaborations as $collaboration){
+		    $meta = $collaboration->getMetaFor($profileId);
+            $isShortlisted=$this->isShortList($allShortlist,$collaboration->id);
+            $collaboration['isShortlisted']=$isShortlisted;
+            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
 
 		return $this->sendResponse();
 	}
+
+    public function isShortList($allShortlist,$id){
+        $isShortedList=0;
+        foreach($allShortlist as $shortlist){
+		    if($id===$shortlist->collaborate_id){
+                $isShortedList=1;
+                break;
+            }
+        }
+        return $isShortedList;
+    }
 
 	/**
 	 * Display the specified resource.
