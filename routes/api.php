@@ -111,7 +111,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
-
+            Route::get('handle','HandleController@show');
             Route::resource('profile','ProfileController');
             
             
