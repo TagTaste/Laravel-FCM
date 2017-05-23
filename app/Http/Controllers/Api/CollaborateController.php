@@ -172,8 +172,6 @@ class CollaborateController extends Controller
             $unshortlist = \DB::table("collaborate_shortlist")
                 ->where("collaborate_id",$id)->where('profile_id',$profileId)
                 ->delete();
-            //if unliked, return false;
-            //yes, counter-intuitive.
             $this->model = $unshortlist === 1 ? false : null;
             return $this->sendResponse();
         }
