@@ -147,6 +147,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
     
                 //namespace company
+
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::resource("websites","WebsiteController");
                     //Route::resource("blogs","BlogController");
@@ -188,7 +189,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("awards","AwardController");
                 Route::resource("certifications","CertificationController");
                 Route::resource("professional","ProfessionalController");
-
+                Route::get('{handle}','CompanyController@show');
             });
 
             //Route::resource('company','CompanyController');

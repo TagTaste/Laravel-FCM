@@ -43,7 +43,8 @@ class Company extends Model
         'cuisines',
         'websites',
         'milestones',
-        'speciality'
+        'speciality',
+        'handle'
     ];
     
     protected $visible = [
@@ -76,7 +77,8 @@ class Company extends Model
         'created_at',
         'milestones',
         'speciality',
-        'profileId'
+        'profileId',
+        'handle'
     ];
 
 

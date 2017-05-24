@@ -80,9 +80,10 @@ class CompanyController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
+        
         $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
             $query->where('id',$profileId);
-        })->where('id',$id)->first();
+        })->where('id',$id)->orWhere('handle',$id)->first();
 
         if(!$this->model){
             throw new \Exception("Company not found.");
