@@ -13,7 +13,7 @@ class AlterTableProfileHandle extends Migration
      */
     public function up()
     {
-        Schema::table('fields',function(Blueprint $table){
+        Schema::table('profiles',function(Blueprint $table){
             $table->string('handle')->unique()->nullable();
         });
 
