@@ -8,7 +8,7 @@ class Profile extends BaseProfile
 {
     protected $with = [];
     
-    protected $visible = ['id','name','imageUrl','tagline','followingProfiles','followerProfiles'];
+    protected $visible = ['id','name','imageUrl','tagline','followingProfiles','followerProfiles','handle'];
     
     public function similar()
     {

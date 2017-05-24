@@ -23,7 +23,8 @@ class Profile extends BaseProfile
         'followingProfiles',
         'followerProfiles',
         'name',
-        'pivot'
+        'pivot',
+        'handle'
         
     ];
     
