@@ -34,6 +34,15 @@ class CollaborateTemplateController extends Controller
 		$this->model = $this->model->paginate();
         return $this->sendResponse();
 	}
+    
+    private function addFields(&$fields)
+    {
+        foreach($fields as &$field){
+            $field['template_id'] = $this->model->id;
+        }
+        
+        return \DB::table('collaboration_template_fields')->insert($fields);
+	}
 
 	/**
 	 * Store a newly created resource in storage.
@@ -50,10 +59,18 @@ class CollaborateTemplateController extends Controller
             $fields =  $request->input('fields');
 		    unset($inputs['fields']);
         }
+        
 		$this->model = $this->model->create($inputs);
+  
+		
+		$status = $this->addFields($fields);
+
+		if(!$status){
+		    return $this->sendError("Could not create template.");
+        }
         
-        $this->model->syncFields($fields);
-        
+		$this->model = $this->model->fresh();
+		
 		return $this->sendResponse();
 	}
 
@@ -84,6 +101,18 @@ class CollaborateTemplateController extends Controller
         
         if($request->has('fields')){
             unset($inputs['fields']);
+            $fieldIds = [];
+            
+            $fields = $request->input('fields');
+            
+            foreach($fields as $field){
+                $fieldsIds = $field['field_id'];
+            }
+            
+            \DB::table("collaborate_template_fields")->where("template_id",$collaborate_template->id)->delete();
+            
+            $status = $this->addFields($fields);
+            
             $collaborate_template->syncFields($request->input('fields'));
         }
         $this->model =	$collaborate_template->update($inputs);
