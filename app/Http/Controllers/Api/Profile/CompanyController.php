@@ -83,7 +83,7 @@ class CompanyController extends Controller
         
         $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
             $query->where('id',$profileId);
-        })->where('id',$id)->orWhere('handle',$id)->first();
+        })->where('id',$id)->first();
 
         if(!$this->model){
             throw new \Exception("Company not found.");

@@ -189,7 +189,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("awards","AwardController");
                 Route::resource("certifications","CertificationController");
                 Route::resource("professional","ProfessionalController");
-                Route::get('{handle}','CompanyController@show');
+               
             });
 
             //Route::resource('company','CompanyController');
@@ -204,7 +204,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
         });
-         Route::get('{handle}','ProfileController@show');
+         Route::get('{handle}','HandleController@show');
 });
 
 Route::post('login',function(Request $request){

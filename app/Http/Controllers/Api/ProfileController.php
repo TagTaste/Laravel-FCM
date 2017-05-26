@@ -33,7 +33,7 @@ class ProfileController extends Controller
        //id can either be id or handle
         //we can use both profile/{id} or handle in api call
          $profile = User::whereHas("profile",function($query) use ($id){
-            $query->where('id',$id)->orWhere('handle',$id);
+            $query->where('id',$id);
             })->first();
             
         if($profile === null){
