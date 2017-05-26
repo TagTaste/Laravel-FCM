@@ -101,19 +101,11 @@ class CollaborateTemplateController extends Controller
         
         if($request->has('fields')){
             unset($inputs['fields']);
-            $fieldIds = [];
-            
             $fields = $request->input('fields');
-            
-            foreach($fields as $field){
-                $fieldsIds = $field['field_id'];
-            }
             
             \DB::table("collaborate_template_fields")->where("template_id",$collaborate_template->id)->delete();
             
             $status = $this->addFields($fields);
-            
-            $collaborate_template->syncFields($request->input('fields'));
         }
         $this->model =	$collaborate_template->update($inputs);
         return $this->sendResponse();
