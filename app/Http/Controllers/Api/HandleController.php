@@ -15,19 +15,19 @@ class HandleController extends Controller
 		$profile = User::whereHas("profile",function($query) use ($handle){
             $query->where('handle',$handle);
             })->first();
-            
-        if($profile === null)
-        {
-            $company = Company::has('user.profile')->where('handle',$handle)->first();
 
-        	if($company === null)
-        	{
-            throw new \Exception("Invalid Handle.");
-        	}
-        	return response()->json($company);
-        }
+		if($profile !== null){
+			$this->model = $profile;
+			return $this->sendResponse();
+		}
 
-        return response()->json($profile);
+        $company = Company::where('handle',$handle)->first();
 
+    	if($company !== null)
+    	{
+    		$this->model = ['company'=>$company]; 	 
+    		return $this->sendResponse();
+    	}
+   throw new \Exception("Invalid Handle.");
 	}
 }
