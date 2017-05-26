@@ -17,6 +17,9 @@ class CollaborateShortlist extends Migration
         Schema::create('collaborate_shortlist', function (Blueprint $table) {
             $table->integer('collaborate_id')->unsigned();
             $table->integer('profile_id')->unsigned();
+
+            $table->foreign("collaborate_id")->references('id')->on('collaborators');
+           $table->foreign("profile_id")->references('id')->on('profiles');
             
         });
     }
