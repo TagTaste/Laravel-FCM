@@ -6,7 +6,7 @@ class CacheableObeserver
     public function created($model)
     {
         \App\Cacheable::set($model);
-        \App\Cacheable::sadd($model,$this->getCollectionKey($model));
+        //\App\Cacheable::sadd($model,$this->getCollectionKey($model));
     }
     
     public function updated($model){
@@ -15,7 +15,7 @@ class CacheableObeserver
     
     public function deleted($model){
         \Redis::del($this->getKey($model));
-        \Redis::srem($this->getCollectionKey($model),$model->id);
+        //\Redis::srem($this->getCollectionKey($model),$model->id);
     }
     
     private function getKey(&$model)
