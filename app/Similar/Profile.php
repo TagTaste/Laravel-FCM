@@ -6,9 +6,9 @@ use App\Profile as BaseProfile;
 
 class Profile extends BaseProfile
 {
-    protected $with = [];
+    //protected $with = [];
     
-    protected $visible = ['id','name','imageUrl','tagline','followingProfiles','followerProfiles','handle'];
+    //protected $visible = ['id','name','imageUrl','tagline','followingProfiles','followerProfiles','handle'];
     
     public function similar()
     {
