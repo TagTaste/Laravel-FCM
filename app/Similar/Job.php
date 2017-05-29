@@ -6,7 +6,7 @@ use App\Job as BaseJob;
 
 class Job extends BaseJob
 {
-    protected $visible = ['id'];
+    //protected $visible = ['id'];
     
     public function similar()
     {
