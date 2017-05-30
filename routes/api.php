@@ -203,6 +203,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("certifications","CertificationController");
         });
 });
+                    Route::get("categories/{id}","CategoryController@categoryDataAll");
+
 
 Route::post('login',function(Request $request){
     $credentials = $request->only('email','password');
