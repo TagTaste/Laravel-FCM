@@ -32,10 +32,35 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
+    public function filters()
+    {
+        $filters  = [];
+
+       $filters['location'] = \App\Filter\Collaborate::select('location')->where('keywords','!=','null')->groupBy('location')->get();
+        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->where('keywords','!=','null')->groupBy('keywords')->get();
+        $filters['category'] = \App\CollaborateTemplate::select('id','name')->get();
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
+
 	public function index(Request $request)
 	{
 		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
 		$this->model = [];
+        $filters = $request->input('filters');
+        // return $filters;
+        if (!empty($filters['location'])) {
+            
+            $collaborations = $collaborations->whereIn('location', $filters['location']);
+        }
+        
+        if (!empty($filters['keywords'])) {
+            $collaborations = $collaborations->whereIn('keywords', $filters['keywords']);
+        }
+        if(!empty($filters['category']))
+        {
+            $collaborations = $collaborations->whereIn('template_id',$filters['category']['id']);
+        }
 		$profileId = $request->user()->profile->id;
 		foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
