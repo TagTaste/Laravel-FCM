@@ -70,6 +70,8 @@ class CategoryController extends Controller
 	public function show($id)
 	{
 		$category = $this->model->findOrFail($id);
+
+		
 		return view('categories.show', compact('category'));
 	}
 
@@ -83,9 +85,9 @@ class CategoryController extends Controller
 
 	public function fetchAllCategory($id){
         \Log::info($id);
-        $allCategory = \DB::table("categories as lev1")
-        ->Join('categories as lev2','lev1.id', '=', 'lev2.parent_id')->where('lev1.parent_id',$id)
-            ->get();
+        $allCategory = \DB::table("categories as lev1")->join('categories as lev2', function ($join) {
+            $join->on('lev1.id', '=', 'lev2.parent_id');
+        })->get();
         return $allCategory;
     }
 
