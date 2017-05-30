@@ -58,6 +58,8 @@ class CollaborateController extends Controller
 		$collaboration = $this->model->findOrFail($id);
 		$profileId = $request->user()->profile->id;
 		$meta = $collaboration->getMetaFor($profileId);
+        $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
+        $meta['isShortlisted']=$collaboration->isShortList($allShortlist,$collaboration->id);
 		$this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 		
