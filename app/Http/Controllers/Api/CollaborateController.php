@@ -37,10 +37,8 @@ class CollaborateController extends Controller
 		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
 		$this->model = [];
 		$profileId = $request->user()->profile->id;
-        $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
         foreach($collaborations as $collaboration){
-		    $meta = $collaboration->getMetaFor($profileId);
-            $meta['isShortlisted']=$collaboration->isShortList($allShortlist,$collaboration->id);
+		    $meta = $collaboration->getMetaFor($profileId,$collaboration->id);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
 
@@ -57,9 +55,7 @@ class CollaborateController extends Controller
 	{
 		$collaboration = $this->model->findOrFail($id);
 		$profileId = $request->user()->profile->id;
-		$meta = $collaboration->getMetaFor($profileId);
-        $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
-        $meta['isShortlisted']=$collaboration->isShortList($allShortlist,$collaboration->id);
+		$meta = $collaboration->getMetaFor($profileId,$collaboration->id);
 		$this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 		

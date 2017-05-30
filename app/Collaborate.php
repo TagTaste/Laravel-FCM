@@ -171,11 +171,12 @@ class Collaborate extends Model
         return \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
     }
     
-    public function getMetaFor($profileId)
+    public function getMetaFor($profileId,$collaborationId)
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
-        
+        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$collaborationId)->exists();
+
         return $meta;
     }
     
@@ -183,19 +184,8 @@ class Collaborate extends Model
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
-    
-        return $meta;
-    }
 
-    public function isShortList($allShortlist,$id){
-        $isShortedList=false;
-        foreach($allShortlist as $shortlist){
-		    if($id===$shortlist->collaborate_id){
-                $isShortedList=true;
-                break;
-            }
-        }
-        return $isShortedList;
+        return $meta;
     }
 
     
