@@ -142,6 +142,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
         
     }
+<<<<<<< Updated upstream
     
     public function all(Request $request)
     {
@@ -157,5 +158,8 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
     
+=======
+
+>>>>>>> Stashed changes
     
 }

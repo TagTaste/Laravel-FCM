@@ -15,7 +15,8 @@
         "elasticsearch/elasticsearch": "~5.0",
         "tymon/jwt-auth": "0.5.*",
         "guzzlehttp/guzzle": "^6.2",
-        "tagtaste/api-response": "~1.1.0"
+        "tagtaste/api-response": "~1.1.0",
+        "laravel/tinker": "1.0.x-dev"
 
     },
 

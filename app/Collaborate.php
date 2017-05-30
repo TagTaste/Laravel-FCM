@@ -207,6 +207,7 @@ class Collaborate extends Model
     
         return $meta;
     }
+<<<<<<< Updated upstream
 
     public function similar()
     {
@@ -214,4 +215,8 @@ class Collaborate extends Model
     }
 
    
+=======
+    
+    
+>>>>>>> Stashed changes
 }
