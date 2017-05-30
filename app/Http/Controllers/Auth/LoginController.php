@@ -103,18 +103,17 @@ class LoginController extends Controller
      */
     public function handleProviderCallback($provider)
     {
-
         try {
-            $user = Socialite::driver($provider)->user();
+            $user = Socialite::driver($provider)->stateless()->user();
         } catch (Exception $e) {
             return Redirect::to('/login');
         }
 
         $authUser = $this->findOrCreateUser($user, $provider);
-
-        Auth::login($authUser, true);
-
-        return redirect($this->getRedirectPath());
+        
+        $token = \JWTAuth::fromUser($authUser);
+        
+        return response()->json(compact('token'));
     }
 
     /**

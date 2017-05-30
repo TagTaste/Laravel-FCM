@@ -243,7 +243,7 @@ class User extends Authenticatable
             $user->social()->create([
                 'provider' => $provider,
                 'provider_user_id' => $providerUserId,
-                'profile_type_id' => ProfileType::getTypeId('foodie')
+           //     'profile_type_id' => ProfileType::getTypeId('foodie')
             ]);
 
             //get profile image from $provider
