@@ -171,11 +171,11 @@ class Collaborate extends Model
         return \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
     }
     
-    public function getMetaFor($profileId,$collaborationId)
+    public function getMetaFor($profileId)
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
-        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$collaborationId)->exists();
+        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->exists();
 
         return $meta;
     }

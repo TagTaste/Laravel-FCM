@@ -38,7 +38,7 @@ class CollaborateController extends Controller
 		$this->model = [];
 		$profileId = $request->user()->profile->id;
         foreach($collaborations as $collaboration){
-		    $meta = $collaboration->getMetaFor($profileId,$collaboration->id);
+		    $meta = $collaboration->getMetaFor($profileId);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
 
@@ -55,7 +55,7 @@ class CollaborateController extends Controller
 	{
 		$collaboration = $this->model->findOrFail($id);
 		$profileId = $request->user()->profile->id;
-		$meta = $collaboration->getMetaFor($profileId,$collaboration->id);
+		$meta = $collaboration->getMetaFor($profileId);
 		$this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 		
