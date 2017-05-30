@@ -40,8 +40,7 @@ class CollaborateController extends Controller
         $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
         foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
-            $isShortlisted=$collaboration->isShortList($allShortlist,$collaboration->id);
-            $meta['isShortlisted']=$isShortlisted;
+            $meta['isShortlisted']=$collaboration->isShortList($allShortlist,$collaboration->id);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
 
