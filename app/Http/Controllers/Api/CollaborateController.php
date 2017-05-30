@@ -48,7 +48,7 @@ class CollaborateController extends Controller
 		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
 		$this->model = [];
         $filters = $request->input('filters');
-        // return $filters;
+       
         if (!empty($filters['location'])) {
             
             $collaborations = $collaborations->whereIn('location', $filters['location']);
@@ -59,7 +59,7 @@ class CollaborateController extends Controller
         }
         if(!empty($filters['type']))
         {
-            $collaborations = $collaborations->whereIn('template_id',$filters['category']['id']);
+            $collaborations = $collaborations->whereIn('template_id',$filters['type']['id']);
         }
 		$profileId = $request->user()->profile->id;
 		foreach($collaborations as $collaboration){
