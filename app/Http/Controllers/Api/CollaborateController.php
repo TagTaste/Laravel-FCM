@@ -40,8 +40,8 @@ class CollaborateController extends Controller
         $allShortlist = \DB::table("collaborate_shortlist")->where('profile_id',$profileId)->get();
         foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
-            $isShortlisted=$this->isShortList($allShortlist,$collaboration->id);
-            $collaboration['isShortlisted']=$isShortlisted;
+            $isShortlisted=$collaboration->isShortList($allShortlist,$collaboration->id);
+            $meta['isShortlisted']=$isShortlisted;
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
 
@@ -167,7 +167,5 @@ class CollaborateController extends Controller
         $this->model = \DB::table("collaborate_shortlist")->insert(["collaborate_id"=>$id,'profile_id'=>$profileId]);
         return $this->sendResponse();
     }
-    
-    
     
 }

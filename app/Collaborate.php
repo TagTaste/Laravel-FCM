@@ -188,13 +188,15 @@ class Collaborate extends Model
     }
 
     public function isShortList($allShortlist,$id){
-        $isShortedList=0;
+        $isShortedList=false;
         foreach($allShortlist as $shortlist){
 		    if($id===$shortlist->collaborate_id){
-                $isShortedList=1;
+                $isShortedList=true;
                 break;
             }
         }
         return $isShortedList;
     }
+
+    
 }

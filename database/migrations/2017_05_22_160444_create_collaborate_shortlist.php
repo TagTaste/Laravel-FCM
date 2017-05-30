@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CollaborateShortlist extends Migration
+class CreateCollaborateShortlist extends Migration
 {
     /**
      * Run the migrations.
@@ -18,7 +18,7 @@ class CollaborateShortlist extends Migration
             $table->integer('collaborate_id')->unsigned();
             $table->integer('profile_id')->unsigned();
 
-            $table->foreign("collaborate_id")->references('id')->on('collaborators');
+            $table->foreign("collaborate_id")->references('id')->on('collaborates');
            $table->foreign("profile_id")->references('id')->on('profiles');
             
         });
