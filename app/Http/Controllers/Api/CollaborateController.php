@@ -36,9 +36,9 @@ class CollaborateController extends Controller
     {
         $filters  = [];
 
-       $filters['location'] = \App\Filter\Collaborate::select('location')->where('keywords','!=','null')->groupBy('location')->get();
+       $filters['location'] = \App\Filter\Collaborate::select('location')->where('location','!=','null')->groupBy('location')->get();
         $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->where('keywords','!=','null')->groupBy('keywords')->get();
-        $filters['category'] = \App\CollaborateTemplate::select('id','name')->get();
+        $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
         $this->model = $filters;
         return $this->sendResponse();
     }
@@ -57,7 +57,7 @@ class CollaborateController extends Controller
         if (!empty($filters['keywords'])) {
             $collaborations = $collaborations->whereIn('keywords', $filters['keywords']);
         }
-        if(!empty($filters['category']))
+        if(!empty($filters['type']))
         {
             $collaborations = $collaborations->whereIn('template_id',$filters['category']['id']);
         }
