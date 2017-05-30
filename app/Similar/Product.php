@@ -6,7 +6,7 @@ use App\Product as BaseProduct;
 
 class Product extends BaseProduct
 {
-    protected $visible = ['id'];
+    //protected $visible = ['id'];
     
     public function similar()
     {

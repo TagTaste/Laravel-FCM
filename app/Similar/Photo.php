@@ -6,7 +6,7 @@ use App\Photo as BasePhoto;
 
 class Photo extends BasePhoto
 {
-    protected $visible = ['id'];
+    //protected $visible = ['id'];
     
     public function similar()
     {

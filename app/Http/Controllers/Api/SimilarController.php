@@ -3,23 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
-use App\Similar\Job;
-use App\Similar\Photo;
-use App\Similar\Product;
-use App\Similar\Profile;
-use App\Similar\Recipe;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class SimilarController extends Controller
 {
     private $relationships = [
-        'job' => Job::class,
-        'profile' => Profile::class,
-        'photo' => Photo::class,
-        'product' => Product::class,
-        'recipe' => Recipe::class,
-        'collaborate' => Collaborate::class
+        'job' => \App\Similar\Job::class,
+        'profile' => \App\Similar\Profile::class,
+        'photo' => \App\Similar\Photo::class,
+        'product' => \App\Similar\Product::class,
+        'recipe' => \App\Similar\Recipe::class,
+        'collaborate' => \App\Similar\Collaborate::class
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)
