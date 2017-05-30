@@ -223,3 +223,5 @@ Route::post('login',function(Request $request){
     return response()->json(compact('token'));
 
 });
+
+Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
