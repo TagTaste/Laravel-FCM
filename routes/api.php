@@ -227,4 +227,4 @@ Route::post('login',function(Request $request){
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
 
-Route::get('{handle}','HandleController@show');
+Route::get('{handle}','Api\HandleController@show');
