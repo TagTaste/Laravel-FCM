@@ -54,7 +54,7 @@ class CommentController extends Controller {
         
         $this->checkRelationship($model);
         
-        $this->model = $model->comments()->orderBy('created_at','desc')->paginate(10);
+        $this->model = $model->comments()->orderBy('created_at','asc')->paginate(10);
         return $this->sendResponse();
 	}
 
