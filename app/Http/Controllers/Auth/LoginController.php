@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Auth\SocialAccountUserNotFound;
-use App\SocialAccount;
-use App\User;
-use App\Role;
 use App\Http\Controllers\Api\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -106,6 +103,7 @@ class LoginController extends Controller
         try {
             $user = Socialite::driver($provider)->stateless()->user();
         } catch (Exception $e) {
+            \Log::info($e->getMessage());
             return Redirect::to('/login');
         }
 
