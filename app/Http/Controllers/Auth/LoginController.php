@@ -103,12 +103,11 @@ class LoginController extends Controller
         try {
             $user = Socialite::driver($provider)->stateless()->user();
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
-            return Redirect::to('/login');
+            \Log::warning($e->getMessage());
+            return response()->json(['error'=>"Could not login."],400);
         }
 
         $authUser = $this->findOrCreateUser($user, $provider);
-        
         $token = \JWTAuth::fromUser($authUser);
         
         return response()->json(compact('token'));
@@ -126,7 +125,15 @@ class LoginController extends Controller
         try {
             $user = User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
-            $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+            //check if user exists,
+            //then add social login
+            $user = User::where('email','like',$socialiteUser->getEmail())->first();
+            if($user){
+                //create social account;
+                $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+            } else {
+                $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+            }
         }
 
         return $user;
