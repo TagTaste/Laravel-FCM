@@ -18,4 +18,9 @@ class Category extends Model
 		if($category)
 			throw new \Exception("This category already exists");
 	}
+    
+    public function product()
+    {
+        return $this->belongsToMany('App\product');
+    }
 }

@@ -30,6 +30,8 @@ class ProductController extends Controller {
 	 */
 	public function store(Request $request,$profileid,$companyId)
 	{
+		$product->productCategory()->sync(array($request->input('categories')));
+
         $company = $request->user()->companies()->where('id',$companyId)->first();
         
         if(!$company){
