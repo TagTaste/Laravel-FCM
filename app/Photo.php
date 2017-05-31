@@ -172,6 +172,7 @@ class Photo extends Model implements Feedable
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
         $meta['likeCount'] = $this->likeCount;
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
    

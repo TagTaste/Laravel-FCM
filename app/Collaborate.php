@@ -176,6 +176,7 @@ class Collaborate extends Model
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
     

@@ -95,6 +95,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //comments
             Route::get('comments/{model}/{modelId}','CommentController@index');
             Route::post('comments/{model}/{modelId}','CommentController@store');
+            Route::delete('comments/{id}','CommentController@destroy');
             
             //search
                 Route::get("search/{type}",'SearchController@search');
@@ -205,7 +206,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
         });
-         Route::get('{handle}','HandleController@show');
+        
 });
 
 Route::post('login',function(Request $request){
@@ -224,3 +225,7 @@ Route::post('login',function(Request $request){
     return response()->json(compact('token'));
 
 });
+
+Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+Route::get('{handle}','Api\HandleController@show');

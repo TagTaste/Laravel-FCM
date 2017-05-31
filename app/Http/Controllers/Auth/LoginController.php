@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Auth\SocialAccountUserNotFound;
-use App\SocialAccount;
-use App\User;
-use App\Role;
 use App\Http\Controllers\Api\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -103,18 +100,17 @@ class LoginController extends Controller
      */
     public function handleProviderCallback($provider)
     {
-
         try {
-            $user = Socialite::driver($provider)->user();
+            $user = Socialite::driver($provider)->stateless()->user();
         } catch (Exception $e) {
-            return Redirect::to('/login');
+            \Log::warning($e->getMessage());
+            return response()->json(['error'=>"Could not login."],400);
         }
 
         $authUser = $this->findOrCreateUser($user, $provider);
-
-        Auth::login($authUser, true);
-
-        return redirect($this->getRedirectPath());
+        $token = \JWTAuth::fromUser($authUser);
+        
+        return response()->json(compact('token'));
     }
 
     /**
@@ -129,7 +125,15 @@ class LoginController extends Controller
         try {
             $user = User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
-            $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+            //check if user exists,
+            //then add social login
+            $user = User::where('email','like',$socialiteUser->getEmail())->first();
+            if($user){
+                //create social account;
+                $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+            } else {
+                $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+            }
         }
 
         return $user;
