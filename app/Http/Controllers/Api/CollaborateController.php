@@ -45,13 +45,13 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
+		$collaborations = $this->model->orderBy("created_at","desc")->get();
 		$this->model = [];
         $filters = $request->input('filters');
        
         if (!empty($filters['location'])) {
             
-            $collaborations = $collaborations->whereIn('location', $filters['location']);
+            $collaborations = $collaborations->whereIn('location', $filters['location'])->get();
         }
         
         if (!empty($filters['keywords'])) {
@@ -59,9 +59,10 @@ class CollaborateController extends Controller
         }
         if(!empty($filters['type']))
         {
-            $collaborations = $collaborations->whereIn('template_id',$filters['type']['id']);
+            $collaborations = $collaborations->whereIn('template_id',$filters['type']);
         }
 		$profileId = $request->user()->profile->id;
+        $collaborations = $collaborations->paginate();
 		foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
