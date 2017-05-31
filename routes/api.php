@@ -205,7 +205,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
         });
-         Route::get('{handle}','HandleController@show');
+        
 });
 
 Route::post('login',function(Request $request){
@@ -226,3 +226,5 @@ Route::post('login',function(Request $request){
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+Route::get('{handle}','HandleController@show');
