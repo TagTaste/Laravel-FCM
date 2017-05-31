@@ -207,16 +207,10 @@ class Collaborate extends Model
     
         return $meta;
     }
-<<<<<<< Updated upstream
 
     public function similar()
     {
         return self::take(4)->get();
     }
 
-   
-=======
-    
-    
->>>>>>> Stashed changes
 }

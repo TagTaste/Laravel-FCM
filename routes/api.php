@@ -30,7 +30,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-           
+           //categories
+           Route::resource("categories","CategoryController");
+
+
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
@@ -204,7 +207,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         });
          Route::get('{handle}','HandleController@show');
 });
-                    Route::get("categories/{id}","CategoryController@categoryDataAll");
 
 
 Route::post('login',function(Request $request){

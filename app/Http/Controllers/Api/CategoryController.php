@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Category;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class CategoryController extends Controller
 {
@@ -34,7 +33,7 @@ class CategoryController extends Controller
 	{
 		$categories = $this->model->paginate();
 
-		return view('categories.index', compact('categories'));
+		return $this->sendResponse();
 	}
 
 	/**
@@ -56,9 +55,18 @@ class CategoryController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-		$this->model->create($inputs);
 		
-		return redirect()->route('categories.index')->with('message', 'Item created successfully.');
+		try {
+            Category::checkExistCategory($inputs);
+        } catch (\Exception $e){
+		    //if there's an error, just throw it.
+		    throw $e;
+        }
+
+		$this->model =$this->model->create($inputs);
+		
+		
+		return $this->sendResponse();
 	}
 
 	/**
