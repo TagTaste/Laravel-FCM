@@ -45,13 +45,13 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->orderBy("created_at","desc")->get();
+		$collaborations = $this->model->orderBy("created_at","desc");
 		$this->model = [];
         $filters = $request->input('filters');
        
         if (!empty($filters['location'])) {
             
-            $collaborations = $collaborations->whereIn('location', $filters['location'])->get();
+            $collaborations = $collaborations->whereIn('location', $filters['location']);
         }
         
         if (!empty($filters['keywords'])) {
