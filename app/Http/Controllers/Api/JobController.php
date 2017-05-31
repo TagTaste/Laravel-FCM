@@ -30,7 +30,7 @@ class JobController extends Controller
         
         $filters['location'] = \App\Filter\Job::select('location')->groupBy('location')->get();
         $filters['types'] = Job\Type::with([])->select('id', 'name')->get();
-        $filters['category'] = 
+       
         $this->model = $filters;
         return $this->sendResponse();
     }
@@ -42,7 +42,7 @@ class JobController extends Controller
 	 */
     public function index(Request $request)
 	{
-		return 1;
+		
         $jobs = $this->model;
         $filters = $request->input('filters');
         if (!empty($filters['location'])) {
