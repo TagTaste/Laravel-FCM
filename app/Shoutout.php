@@ -85,6 +85,9 @@ class Shoutout extends Model implements Feedable
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
         $meta['likeCount'] = \Redis::hget("shoutout:" . $this->id . ":meta","like") ?: 0;
+        $idLiked = $this->like()->select('id')->get();
+        $profile = \App\User::whereIn('id',$idLiked)->select('name')->take(3)->get();
+        $meta['peopleLiked'] = $profile;
         return $meta;
     }
     
