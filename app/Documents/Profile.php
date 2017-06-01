@@ -2,7 +2,7 @@
 
 class Profile extends Document
 {
-    public $type = 'profiles';
+    public $type = 'profile';
     
     public $bodyProperties = ['name'];
 }

@@ -2,7 +2,7 @@
 
 class Job extends Document
 {
-    public $type = 'jobs';
+    public $type = 'job';
     
     public $bodyProperties = ['title', 'description', 'location', 'functional_area', 'key_skills', 'expected_role',
         'experience_required'];
