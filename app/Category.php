@@ -8,7 +8,7 @@ class Category extends Model
 {
     protected $fillable = [ 'name', 'parent_id'];
     
-
+    protected $visible=['id','name'];
     public static function checkExistCategory($catData){
         $category=0;
         if(array_key_exists('parent_id', $catData))
@@ -19,8 +19,4 @@ class Category extends Model
 			throw new \Exception("This category already exists");
 	}
     
-    public function product()
-    {
-        return $this->belongsToMany('App\product');
-    }
 }

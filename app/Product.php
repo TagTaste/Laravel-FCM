@@ -40,6 +40,8 @@ class Product extends Model
 
     public function productCategory()
     {
-        return $this->belongsToMany('App\productCategory');
+        \Log::info('hi');
+        return $this->belongsToMany('App\productCategory', 'product_categories', 
+        'category_id', 'products_id');
     }
 }

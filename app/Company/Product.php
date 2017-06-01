@@ -21,6 +21,9 @@ class Product extends Model
     protected $dates = ['deleted_at'];
     
     protected $appends = ['imageUrl'];
+
+    protected $with=['categories'];
+
     
     
     public function company()
@@ -41,5 +44,9 @@ class Product extends Model
     public function getImageUrlAttribute()
     {
         return "/product/image/" . $this->image;
+    }
+    public function categories()
+    {
+        return $this->belongsToMany('App\Category', 'product_categories')->select(['id','name']);
     }
 }

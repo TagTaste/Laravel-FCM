@@ -6,6 +6,8 @@ use App\ProfileType;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\ProductCategory;
+use App\Category;
 
 class ProductController extends Controller {
 
@@ -18,7 +20,6 @@ class ProductController extends Controller {
 	public function index(Request $request, $profileId, $companyId)
 	{
 		$this->model = Product::where('company_id',$companyId)->orderBy('id', 'desc')->paginate(10);
-
 		return $this->sendResponse();
 	}
 
@@ -30,16 +31,13 @@ class ProductController extends Controller {
 	 */
 	public function store(Request $request,$profileid,$companyId)
 	{
-		$product->productCategory()->sync(array($request->input('categories')));
 
-        $company = $request->user()->companies()->where('id',$companyId)->first();
-        
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
-        }
+        $company = $request->user()->companies()->where('id',$companyId)->get();
+        // if(!$company){
+        //     throw new \Exception("This company does not belong to user.");
+        // }
         
 		$product = new Product();
-
 		$product->name = $request->input("name");
         $product->price = $request->input("price");
         $product->image = "http://placehold.it/10x10";
@@ -57,8 +55,10 @@ class ProductController extends Controller {
         $product->portion_size = $request->input("portion_size");
         $product->shelf_life = $request->input("shelf_life");
         $product->mode = $request->input("mode");
-        $product->company_id = $company->id;
+        $product->company_id = 1;
 		$product->save();
+		$catIds=$request->input('categories');
+		$product->categories()->sync($catIds);
         $this->model = $product;
 		return $this->sendResponse();
 	}
@@ -72,7 +72,7 @@ class ProductController extends Controller {
 	public function show($profileId, $companyId, $id)
 	{
 		$this->model = Product::where('id',$id)->where('company_id',$companyId)->first();
-
+		
 		return $this->sendResponse();
 	}
 
@@ -108,6 +108,8 @@ class ProductController extends Controller {
         $product->shelf_life = $request->input("shelf_life");
         $product->mode = $request->input("mode");
 		$product->save();
+		$catIds=$request->input('categories');
+		$product->categories()->sync($catIds);
         $this->model = $product;
 		return $this->sendResponse();
 	}
@@ -121,13 +123,11 @@ class ProductController extends Controller {
 	public function destroy(Request $request, $profileId, $companyId, $id)
 	{
         $company = $request->user()->companies()->where('id',$companyId)->first();
-        
+        \Log::info($request->user()->companies()->where('id',$companyId)->first());
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
-        
         $this->model = $company->products()->where('id',$id)->delete();
-
 		return $this->sendResponse();
 	}
 
