@@ -12,9 +12,9 @@ class Category extends Model
     public static function checkExists( &$categoryDetails){
         $category=false;
         if(array_key_exists('parent_id', $categoryDetails))
-		    $category = Category::where('parent_id', $categoryDetails['parent_id'])->Where('name',$categoryDetails['name'])->exists();
+		    $category = Category::where('parent_id', $categoryDetails['parent_id'])->where('name',$categoryDetails['name'])->exists();
         else
-            $category = Category::Where('name',$categoryDetails['name'])->exists();
+            $category = Category::where('name',$categoryDetails['name'])->exists();
 		return $category;
 	}
     
