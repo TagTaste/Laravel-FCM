@@ -13,32 +13,22 @@ class SearchController extends Controller
     //document = row
     //field = column
 
-    public function search(Request $request, $type)
+    public function search(Request $request, $type = null)
     {
-        if($type !== 'profile'){
-            //since we currently only support profile searching
-            $this->errors = ['Type ' . $type . ' not supported yet.'];
-            return $this->sendResponse();
-        }
-        
-        if(!$request->has('name')){
-            //since we currently search searching based on name.
-            $this->errors = ['Name is required to search.'];
-            return $this->sendResponse();
-        }
-        
-        $match = $request->only('name');
-        
+        $query = $request->input('q');
         $params = [
             'index' => "users",
-            'type' => $type,
             'body' => [
                 'query' => [
-                    'match' => $match
+                    'query_string' => [
+                        'query' => $query
+                    ]
                 ]
             ]
         ];
-
+        if($request->has('type')){
+            $params['type'] = $request->input('type');
+        }
         $client = SearchClient::get();
     
         $response = $client->search($params);
@@ -48,7 +38,7 @@ class SearchController extends Controller
     
     public function suggest(Request $request, $type)
     {
-        $name = $request->input('name');
+        $name = $request->input('description');
         $params = [
             'index' => 'users',
             'type' => $type,
@@ -58,7 +48,7 @@ class SearchController extends Controller
                     'namesuggestion' => [
                         'text' => $name,
                         'term' => [
-                            'field' => 'name'
+                            'field' => 'description'
                         ]
                     ]
                 ]
