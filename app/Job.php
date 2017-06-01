@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Job\Type;
 use App\Traits\CachedPayload;
@@ -17,15 +18,26 @@ class Job extends Model implements Feedable
     protected $fillable = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required','profile_id',
-        'company_id', 'type_id'
+        'company_id', 'type_id','privacy_id'
 
     ];
     protected $visible = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
         'company_id', 'type_id', 'company', 'profile_id',
-        'applications','created_at', 'expires_on','job_id'
+        'applications','created_at', 'expires_on','job_id','privacy_id'
     ];
+    
+    public static function boot()
+    {
+        self::created(function($model){
+            \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
+        });
+    
+        self::updated(function($model){
+            \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
+        });
+    }
     
     protected $with = ['company', 'applications'];
     
@@ -91,6 +103,16 @@ class Job extends Model implements Feedable
     public function shortlisted()
     {
         return $this->applications()->where('shortlisted',1)->get();
+    }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
     }
     
 }

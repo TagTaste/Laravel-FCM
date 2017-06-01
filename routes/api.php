@@ -99,7 +99,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //search
                 Route::get("search/{type}",'SearchController@search');
                 Route::get("suggest/{type}",'SearchController@suggest');
-            Route::post('like/{model}/{modelId}','LikeController@store');
+            //Route::post('like/{model}/{modelId}','LikeController@store');
             
             Route::get('notifications/unread','NotificationController@unread');
             Route::post("notifications/read/{id}",'NotificationController@read');
