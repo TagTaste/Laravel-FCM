@@ -34,8 +34,8 @@ class CollaborateController extends Controller
     {
         $filters  = [];
 
-       $filters['location'] = \App\Filter\Collaborate::select('location')->distinct('location')->where('location','!=','null')->get();
-        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->distinct('keywords')->where('keywords','!=','null')->get();
+        $filters['location'] = \App\Filter\Collaborate::select('location')->groupBy('location')->where('location','!=','null')->get();
+        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->groupBy('keywords')->where('keywords','!=','null')->get();
         $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
         $this->model = $filters;
         return $this->sendResponse();
@@ -44,11 +44,9 @@ class CollaborateController extends Controller
 	public function index(Request $request)
 	{
 		$collaborations = $this->model->orderBy("created_at","desc");
-		$this->model = [];
         $filters = $request->input('filters');
        
         if (!empty($filters['location'])) {
-            
             $collaborations = $collaborations->whereIn('location', $filters['location']);
         }
         
@@ -61,7 +59,9 @@ class CollaborateController extends Controller
         }
 		$profileId = $request->user()->profile->id;
         $collaborations = $collaborations->paginate();
-		foreach($collaborations as $collaboration){
+        $this->model = [];
+        
+        foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
