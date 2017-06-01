@@ -7,7 +7,6 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 class Collaborate extends Model implements Feedable
 {
@@ -21,7 +20,9 @@ class Collaborate extends Model implements Feedable
     
     protected $visible = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','commentCount','likeCount'];
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
+        'profile','company',
+        'commentCount','likeCount'];
     
     protected $appends = ['interested','commentCount','likeCount'];
     
