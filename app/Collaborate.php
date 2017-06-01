@@ -15,11 +15,14 @@ class Collaborate extends Model implements Feedable
     
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
-        'profile_id', 'company_id','template_fields','template_id','notify','commentCount','likeCount','privacy_id'];
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id'];
     
     protected $with = ['profile','company','fields'];
     
-
+    protected $visible = ['title', 'i_am', 'looking_for',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','commentCount','likeCount'];
+    
     protected $appends = ['interested','commentCount','likeCount'];
     
     public static function boot()
@@ -198,6 +201,7 @@ class Collaborate extends Model implements Feedable
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['commentCount'] = $this->comments()->count();
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
     
