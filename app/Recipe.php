@@ -5,12 +5,13 @@ namespace App;
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
+use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Recipe extends Model implements Feedable
 {
-    use SoftDeletes, CachedPayload;
+    use SoftDeletes, CachedPayload, IdentifiesOwner;
     
     public static $expectsFiles = true;
     public static $fileInputs = ['image' => 'images/r'];
