@@ -17,7 +17,7 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
         $params = [
-            'index' => "users",
+            'index' => "api",
             'body' => [
                 'query' => [
                     'query_string' => [
@@ -32,15 +32,27 @@ class SearchController extends Controller
         $client = SearchClient::get();
     
         $response = $client->search($params);
-
-        return response()->json($response);
+        $this->model = [];
+        if($response['hits']['total'] > 0){
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+            
+            foreach($hits as $name => $hit){
+                $class = "\App\\$name";
+                $model = $class::whereIn('id',$hit->pluck('_id'))->get()->toArray();
+                $this->model[$name] = $model;
+            }
+            return $this->sendResponse();
+    
+        }
+        return $this->sendResponse("Nothing found.");
     }
     
     public function suggest(Request $request, $type)
     {
         $name = $request->input('description');
         $params = [
-            'index' => 'users',
+            'index' => 'api',
             'type' => $type,
             'body' => [
             
