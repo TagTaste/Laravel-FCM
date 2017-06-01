@@ -9,14 +9,13 @@ class Category extends Model
     protected $fillable = [ 'name', 'parent_id'];
     
     protected $visible=['id','name'];
-    public static function checkExistCategory($catData){
-        $category=0;
-        if(array_key_exists('parent_id', $catData))
-		    $category = Category::where('parent_id', $catData['parent_id'])->Where('name',$catData['name'])->exists();
+    public static function checkExists( &$categoryDetails){
+        $category=false;
+        if(array_key_exists('parent_id', $categoryDetails))
+		    $category = Category::where('parent_id', $categoryDetails['parent_id'])->Where('name',$categoryDetails['name'])->exists();
         else
-            $category = Category::Where('name',$catData['name'])->exists();
-		if($category)
-			throw new \Exception("This category already exists");
+            $category = Category::Where('name',$categoryDetails['name'])->exists();
+		return $category;
 	}
     
 }

@@ -37,11 +37,4 @@ class Product extends Model
     {
         return self::$types[$this->type];
     }
-
-    public function productCategory()
-    {
-        \Log::info('hi');
-        return $this->belongsToMany('App\productCategory', 'product_categories', 
-        'category_id', 'products_id');
-    }
 }

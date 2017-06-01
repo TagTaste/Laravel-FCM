@@ -55,17 +55,13 @@ class CategoryController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-		
-		try {
-            Category::checkExistCategory($inputs);
-        } catch (\Exception $e){
-		    //if there's an error, just throw it.
-		    throw $e;
-        }
+		$category=Category::checkExists($inputs);
+		if($category)
+		{
+			return $this->sendError("This category already exists.");
+		}
 
 		$this->model =$this->model->create($inputs);
-		
-		
 		return $this->sendResponse();
 	}
 
