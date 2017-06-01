@@ -18,7 +18,7 @@ class Collaborate extends Model implements Feedable
     
     protected $with = ['profile','company','fields'];
     
-    protected $visible = ['title', 'i_am', 'looking_for',
+    protected $visible = ['id','title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company',
