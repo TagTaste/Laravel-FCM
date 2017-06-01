@@ -2,19 +2,35 @@
 
 namespace App;
 
+use App\Interfaces\Feedable;
+use App\Traits\CachedPayload;
+use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class Collaborate extends Model
+class Collaborate extends Model implements Feedable
 {
+    use IdentifiesOwner, CachedPayload;
+    
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
-        'profile_id', 'company_id','template_fields','template_id','notify','commentCount','likeCount'];
+        'profile_id', 'company_id','template_fields','template_id','notify','commentCount','likeCount','privacy_id'];
     
     protected $with = ['profile','company','fields'];
     
 
     protected $appends = ['interested','commentCount','likeCount'];
+    
+    public static function boot()
+    {
+        self::created(function($model){
+            \Redis::set("collaborate:" . $model->id,$model->makeHidden(['interested','privacy','profile','company','commentCount','likeCount','interested'])->toJson());
+        });
+        
+        self::updated(function($model){
+            \Redis::set("collaborate:" . $model->id,$model->makeHidden(['interested','privacy','profile','company','commentCount','likeCount','interested'])->toJson());
+        });
+    }
     
     /**
      * Which profile created the collaboration project.
@@ -184,8 +200,6 @@ class Collaborate extends Model
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
-       
-    
         return $meta;
     }
 
@@ -193,6 +207,15 @@ class Collaborate extends Model
     {
         return self::take(4)->get();
     }
-
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
+    }
    
 }
