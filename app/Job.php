@@ -31,6 +31,9 @@ class Job extends Model implements Feedable
     public static function boot()
     {
         self::created(function($model){
+    
+            \App\Documents\Job::create($model);
+    
             \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
         });
     
