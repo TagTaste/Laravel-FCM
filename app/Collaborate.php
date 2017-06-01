@@ -213,4 +213,5 @@ class Collaborate extends Model
         return self::take(4)->get();
     }
 
+
 }
