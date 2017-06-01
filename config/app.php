@@ -164,7 +164,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         Zizaco\Entrust\EntrustServiceProvider::class,
-        // Laravel\Socialite\SocialiteServiceProvider::class,
+        //Laravel\Socialite\SocialiteServiceProvider::class,
 
         /*
          * Package Service Providers...
