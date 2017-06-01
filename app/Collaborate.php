@@ -7,6 +7,7 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class Collaborate extends Model implements Feedable
 {
@@ -176,7 +177,7 @@ class Collaborate extends Model implements Feedable
         return !is_null($this->template_values) ? json_decode($this->template_values) : null;
     }
     
-    public function getInterestedAttribute()
+    public function getInterestedAttribute() : array
     {
         $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
         $profileIds = \DB::table("collaborators")->select('profile_id')->where("collaborate_id",$this->id)->get();
@@ -187,7 +188,11 @@ class Collaborate extends Model implements Feedable
         return ['count'=>$count,'profiles'=>$profiles];
     }
     
-    public function getMetaFor($profileId)
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getMetaFor(int $profileId) : array
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
@@ -196,7 +201,11 @@ class Collaborate extends Model implements Feedable
         return $meta;
     }
     
-    public function getMetaForCompany($companyId)
+    /**
+     * @param int $companyId
+     * @return array
+     */
+    public function getMetaForCompany(int $companyId) : array
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
