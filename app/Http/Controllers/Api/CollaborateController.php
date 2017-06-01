@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
-use App\Company;
-use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -36,8 +34,8 @@ class CollaborateController extends Controller
     {
         $filters  = [];
 
-       $filters['location'] = \App\Filter\Collaborate::select('location')->where('location','!=','null')->groupBy('location')->get();
-        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->where('keywords','!=','null')->groupBy('keywords')->get();
+       $filters['location'] = \App\Filter\Collaborate::select('location')->distinct('location')->where('location','!=','null')->get();
+        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->distinct('keywords')->where('keywords','!=','null')->get();
         $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
         $this->model = $filters;
         return $this->sendResponse();
