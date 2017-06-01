@@ -32,10 +32,10 @@ class ProductController extends Controller {
 	public function store(Request $request,$profileid,$companyId)
 	{
 
-        $company = $request->user()->companies()->where('id',$companyId)->get();
-        // if(!$company){
-        //     throw new \Exception("This company does not belong to user.");
-        // }
+        $company = $request->user()->companies()->where('id',$companyId)->first();
+        if(!$company){
+            throw new \Exception("This company does not belong to user.");
+        }
         
 		$product = new Product();
 		$product->name = $request->input("name");
@@ -123,7 +123,6 @@ class ProductController extends Controller {
 	public function destroy(Request $request, $profileId, $companyId, $id)
 	{
         $company = $request->user()->companies()->where('id',$companyId)->first();
-        \Log::info($request->user()->companies()->where('id',$companyId)->first());
         if(!$company){
             throw new \Exception("This company does not belong to user.");
         }
