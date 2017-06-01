@@ -55,7 +55,7 @@ class ProductController extends Controller {
         $product->portion_size = $request->input("portion_size");
         $product->shelf_life = $request->input("shelf_life");
         $product->mode = $request->input("mode");
-        $product->company_id = 1;
+        $product->company_id = $company->id;
 		$product->save();
 		$catIds=$request->input('categories');
 		$product->categories()->sync($catIds);
