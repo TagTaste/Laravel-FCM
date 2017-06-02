@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
@@ -229,7 +230,7 @@ class Collaborate extends Model implements Feedable
     
     public function payload()
     {
-        return $this->belongsTo(Payload::class);
+        return $this->belongsTo(Payload::class,'payload_id');
     }
    
 }
