@@ -1,11 +1,16 @@
-<?php namespace app\Strategies;
+<?php namespace App\Strategies;
 
 
 class Paginator
 {
     public $take;
     
-    public static function paginate($page = null,$take = null) : array
+    /**
+     * @param null $page
+     * @param null $take
+     * @return array
+     */
+    public static function paginate($page = null, $take = null) : array
     {
         $self = new self($page,$take);
         return $self->getSkipTake();
