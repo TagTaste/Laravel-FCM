@@ -2,7 +2,6 @@
 
 namespace App\Similar;
 
-use Carbon\Carbon;
 use App\Collaborate as BaseModel;
 
 class Collaborate extends BaseModel
@@ -15,6 +14,6 @@ class Collaborate extends BaseModel
 
     public function similar()
     {
-        return self::take(4)->get();
+        return self::where('location','like',$this->location)->take(4)->get();
     }
 }
