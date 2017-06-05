@@ -10,7 +10,7 @@ class Profile extends BaseProfile
     
     //protected $visible = ['id','name','imageUrl','tagline','followingProfiles','followerProfiles','handle'];
     
-    public function similar()
+    public function similar($skip,$take)
     {
         /*
             select distinct profiles.id from profiles
@@ -28,7 +28,9 @@ class Profile extends BaseProfile
         
         if($distinctProfiles->count()){
             $dist = $distinctProfiles->pluck('id')->toArray();
-            $profiles = self::whereIn('id',$dist)->paginate();
+            $profiles = self::whereIn('id',$dist)->skip($skip)
+                ->take($take)
+                ->get();
             return $profiles;
         }
         return false;

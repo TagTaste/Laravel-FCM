@@ -12,8 +12,10 @@ class Collaborate extends BaseModel
 
     protected $appends = ['interested','commentCount','likeCount'];
 
-    public function similar()
+    public function similar($skip,$take)
     {
-        return self::where('location','like',$this->location)->take(4)->get();
+        return self::where('location','like',$this->location)->skip($skip)
+            ->take($take)
+            ->get();
     }
 }
