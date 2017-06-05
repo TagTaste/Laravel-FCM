@@ -8,6 +8,6 @@ class Recipe extends BaseRecipe
     
     public function similar()
     {
-        return self::take(4)->get();
+        return self::where('level','=',$this->level)->take(4)->get();
     }
 }
