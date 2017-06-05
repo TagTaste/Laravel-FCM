@@ -10,6 +10,8 @@ class Product extends BaseProduct
     
     public function similar()
     {
-        return self::take(4)->get();
+        return self::where('type','like',$this->type)
+            ->orWhere('mode','like',$this->mode)
+            ->take(4)->get();
     }
 }
