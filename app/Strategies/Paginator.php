@@ -18,8 +18,8 @@ class Paginator
      */
     private function __construct($page = null, $take = null)
     {
-        $this->take = $take ?? 20;
         $this->page = $page ?? 1;
+        $this->take = $take ?? 20;
         $this->skip = $this->calculateSkip();
     }
     
