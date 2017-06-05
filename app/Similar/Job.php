@@ -10,6 +10,6 @@ class Job extends BaseJob
     
     public function similar()
     {
-        return self::take(4)->get();
+        return self::where('location','like',$this->location)->take(4)->get();
     }
 }
