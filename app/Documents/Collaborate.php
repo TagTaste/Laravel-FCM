@@ -2,8 +2,8 @@
 
 class Collaborate extends Document
 {
-    public $type = 'job';
+    public $type = 'collaborate';
     
-    public $bodyProperties = ['title', 'description', 'location', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required'];
+    public $bodyProperties = ['id','title', 'i_am', 'looking_for',
+        'purpose', 'deliverables', 'who_can_help', 'keywords','location'];
 }
