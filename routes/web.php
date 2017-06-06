@@ -156,3 +156,11 @@ Route::group(['middleware'=>'auth'],function(){
 
 
 });
+Route::get('/addprof',function()
+{
+    $profile = \App\Profile::get();
+    foreach ($profile as $profile) {
+      \App\Documents\Profile::create($profile);
+      return $profile->name.' added to elastic search';
+    }
+});
