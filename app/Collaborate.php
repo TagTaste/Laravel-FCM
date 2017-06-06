@@ -8,10 +8,11 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collaborate extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload;
+    use IdentifiesOwner, CachedPayload, SoftDeletes;
     
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
