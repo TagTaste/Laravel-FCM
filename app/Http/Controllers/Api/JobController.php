@@ -30,6 +30,7 @@ class JobController extends Controller
         
         $filters['location'] = \App\Filter\Job::select('location')->groupBy('location')->get();
         $filters['types'] = Job\Type::with([])->select('id', 'name')->get();
+        $filters['expected_role'] = \App\Filter\Job::select('expected_role')->groupBy('expected_role')->get();
        
         $this->model = $filters;
         return $this->sendResponse();
@@ -47,6 +48,10 @@ class JobController extends Controller
         $filters = $request->input('filters');
         if (!empty($filters['location'])) {
             $jobs = $jobs->whereIn('location', $filters['location']);
+        }
+        
+        if (!empty($filters['expected_role'])) {
+            $jobs = $jobs->whereIn('expected_role', $filters['expected_role']);
         }
         
         if (!empty($filters['type_id'])) {
