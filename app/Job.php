@@ -24,9 +24,14 @@ class Job extends Model implements Feedable
     protected $visible = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
-        'company_id', 'type_id', 'company', 'profile_id',
+        'company_id', 'type_id', 'company', 'profile', 'profile_id',
         'applications','created_at', 'expires_on','job_id','privacy_id'
     ];
+    
+    protected $with = ['company','profile', 'applications'];
+    
+    protected $appends = ['type','job_id'];
+    
     
     public static function boot()
     {
@@ -41,10 +46,6 @@ class Job extends Model implements Feedable
             \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
         });
     }
-    
-    protected $with = ['company', 'applications'];
-    
-    protected $appends = ['type','job_id'];
     
     public function getJobIdAttribute()
     {
