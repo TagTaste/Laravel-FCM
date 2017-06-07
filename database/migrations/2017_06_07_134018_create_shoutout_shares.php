@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateShoutoutShares extends Migration
 {
@@ -20,9 +20,9 @@ class CreateShoutoutShares extends Migration
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('payload_id')->nullable();
             $table->unique(['shoutout_id','profile_id']);
-            $table->foreign('shoutout_id')->references('id')->on('shoutouts');
-            $table->foreign('profile_id')->references('id')->on('profiles');
-            $table->foreign('payload_id')->references("id")->on("channel_payloads");
+            $table->foreign('shoutout_id')->references('id')->on('shoutouts')->onDelete('cascade');
+            $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
+            $table->foreign('payload_id')->references("id")->on("channel_payloads")->onDelete('cascade');
     
         });
     }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class PhotoShare extends Migration
 {
@@ -19,9 +19,9 @@ class PhotoShare extends Migration
             $table->unsignedInteger('photo_id');
             $table->unsignedInteger('payload_id')->nullable();
             $table->unique(['profile_id','photo_id']);
-            $table->foreign('profile_id')->references("id")->on("profiles");
-            $table->foreign('photo_id')->references("id")->on("photos");
-            $table->foreign('payload_id')->references("id")->on("channel_payloads");
+            $table->foreign('profile_id')->references("id")->on("profiles")->onDelete('cascade');
+            $table->foreign('photo_id')->references("id")->on("photos")->onDelete('cascade');
+            $table->foreign('payload_id')->references("id")->on("channel_payloads")->onDelete('cascade');
             
         });
     }
