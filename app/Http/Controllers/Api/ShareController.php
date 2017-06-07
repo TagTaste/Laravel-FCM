@@ -2,29 +2,61 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\NewFeedable;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
 {
+    private $table = "_shares";
+    private $column = "_id";
+    
+    private function setTable(&$modelName){
+        $this->table = $modelName . $this->table;
+    }
+    
+    private function setColumn(&$modelName)
+    {
+        $this->column = $modelName . $this->column;
+    }
+    
+    private function getModel(&$modelName, &$id){
+        $class = "\\App\\" . $modelName;
+        return $class::find($id);
+    }
+    
     public function share(Request $request, $modelName, $id)
     {
-        $class = "\\App\\" . $modelName;
-        $model = $class::find($id);
+        $this->setTable($modelName);
+        $this->setColumn($modelName);
+        
+        $model = $this->getModel($modelName,$id);
         
         if(!$model){
             return $this->sendError("Nothing found for given Id.");
         }
     
         $loggedInProfileId = $request->user()->profile->id;
-    
-        try {
-            $this->model = (new \App\Share())->setTable($modelName . "_shares")->insert(['profile_id'=>$loggedInProfileId, $modelName . '_id'=>$model->id]);
-        } catch (\Exception $e){
-            \Log::info($e->getMessage());
-            return $this->sendError($modelName . " cannot be shared.");
+        
+        $model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId];
+        
+        $share = (new \App\Share())->setTable($this->table);
+        
+        $exists = $share->where('profile_id',$loggedInProfileId)
+            ->where($this->column,$model->id)->exists();
+        
+        if($exists){
+            return $this->sendError("You have already shared this.");
         }
         
+        $this->model = $share->insert(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
+        
+        event(new NewFeedable($model,$request->user()->profile));
+        
         return $this->sendResponse();
-
+    }
+    
+    private function exists()
+    {
+    
     }
 }
