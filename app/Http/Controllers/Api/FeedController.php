@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Channel\Payload;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
+use App\ShoutoutLike;
+use App\RecipeLike;
+use App\Photolike;
 
 class FeedController extends Controller
 {
@@ -122,5 +125,18 @@ class FeedController extends Controller
         $this->getMeta($payloads,$profileId);
         
         return $this->sendResponse();
+    }
+    public function like(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $model = $request->input('model');
+        $upper = ucFirst($model);
+        $upper = $upper."Like";
+        $model = $model.'_id';
+        $id = $request->input('model_id');
+        $profileLiked = \App::make("\App\\".$upper)->where($model,$id)->select('profile_id')->get();
+        $profile = \App\Profile::whereIn('id',$profileLiked)->get();
+        return response()->json($profile);
+
     }
 }

@@ -49,6 +49,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //feeds
                 Route::get("feed",'FeedController@feed');
+                Route::get("feed/like",'FeedController@like');
                 Route::get("feed/{profileId}",'FeedController@public');
                 Route::get("feed/companies/{companyId}",'FeedController@company');
                 //is the network feed required?
