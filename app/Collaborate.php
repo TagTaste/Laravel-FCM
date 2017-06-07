@@ -2,19 +2,43 @@
 
 namespace App;
 
+use App\Channel\Payload;
+use App\Interfaces\Feedable;
+use App\Traits\CachedPayload;
+use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class Collaborate extends Model
+class Collaborate extends Model implements Feedable
 {
+    use IdentifiesOwner, CachedPayload;
+    
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
-        'profile_id', 'company_id','template_fields','template_id','notify','commentCount','likeCount'];
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id'];
     
     protected $with = ['profile','company','fields'];
     
-
+    protected $visible = ['id','title', 'i_am', 'looking_for',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
+        'profile','company','created_at',
+        'commentCount','likeCount'];
+    
     protected $appends = ['interested','commentCount','likeCount'];
+    
+    public static function boot()
+    {
+        self::created(function($model){
+            \Redis::set("collaborate:" . $model->id,$model->makeHidden(['interested','privacy','profile','company','commentCount','likeCount','interested'])->toJson());
+    
+            \App\Documents\Collaborate::create($model);
+        });
+        
+        self::updated(function($model){
+            \Redis::set("collaborate:" . $model->id,$model->makeHidden(['interested','privacy','profile','company','commentCount','likeCount','interested'])->toJson());
+        });
+    }
     
     /**
      * Which profile created the collaboration project.
@@ -160,7 +184,7 @@ class Collaborate extends Model
         return !is_null($this->template_values) ? json_decode($this->template_values) : null;
     }
     
-    public function getInterestedAttribute()
+    public function getInterestedAttribute() : array
     {
         $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
         $profileIds = \DB::table("collaborators")->select('profile_id')->where("collaborate_id",$this->id)->get();
@@ -171,20 +195,28 @@ class Collaborate extends Model
         return ['count'=>$count,'profiles'=>$profiles];
     }
     
-    public function getMetaFor($profileId)
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getMetaFor(int $profileId) : array
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['likeCount'] = $this->likeCount;
         return $meta;
     }
     
-    public function getMetaForCompany($companyId)
+    /**
+     * @param int $companyId
+     * @return array
+     */
+    public function getMetaForCompany(int $companyId) : array
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
-       
-    
         return $meta;
     }
 
@@ -192,6 +224,15 @@ class Collaborate extends Model
     {
         return self::take(4)->get();
     }
-
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class,'payload_id');
+    }
    
 }

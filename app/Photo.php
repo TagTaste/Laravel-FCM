@@ -38,6 +38,7 @@ class Photo extends Model implements Feedable
         self::deleting(function($photo){
 //            \DB::transaction(function() use ($photo){
                 $photo->ideabooks()->detach();
+                $photo->payload->delete();
 //            });
         });
         
@@ -164,7 +165,7 @@ class Photo extends Model implements Feedable
     
     public function payload()
     {
-        return $this->belongsTo(Payload::class);
+        return $this->belongsTo(Payload::class,'payload_id','id');
     }
     
     public function getMetaFor($profileId)
@@ -172,6 +173,7 @@ class Photo extends Model implements Feedable
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
         $meta['likeCount'] = $this->likeCount;
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
    

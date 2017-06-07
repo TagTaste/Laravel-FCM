@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Collaborate;
+use app\Strategies\Paginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -34,7 +34,11 @@ class SimilarController extends Controller
             throw new \Exception("Similars not defined.");
         }
         
-        $this->model = $model->similar();
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+        $this->model = $model->similar($skip,$take);
         return $this->sendResponse();
     }
     

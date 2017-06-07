@@ -238,29 +238,32 @@ class User extends Authenticatable
 
         //check social registration
         if($socialRegistration){
-
-            //create social account
-            $user->social()->create([
-                'provider' => $provider,
-                'provider_user_id' => $providerUserId,
-           //     'profile_type_id' => ProfileType::getTypeId('foodie')
-            ]);
-
-            //get profile image from $provider
-            if($avatar){
-                $job = (new FetchUserAvatar($user,$avatar))->onQueue('registration')
-                    ->delay(Carbon::now()->addSeconds(10));
-                \Log::info('Queueing job...');
-
-                dispatch($job);
-            }
-
+            $user->createSocialAccount($provider,$providerUserId,$avatar);
         }
 
         $user->createDefaultIdeabook();
         
         event(new Registered($user));
         return $user;
+    }
+    
+    public function createSocialAccount($provider,$providerUserId,$avatar)
+    {
+        //create social account
+        $this->social()->create([
+            'provider' => $provider,
+            'provider_user_id' => $providerUserId,
+            //     'profile_type_id' => ProfileType::getTypeId('foodie')
+        ]);
+    
+        //get profile image from $provider
+        if($avatar){
+            $job = (new FetchUserAvatar($this,$avatar))->onQueue('registration')
+                ->delay(Carbon::now()->addSeconds(10));
+            \Log::info('Queueing job...');
+        
+            dispatch($job);
+        }
     }
 
     public function getSocial($typeId)

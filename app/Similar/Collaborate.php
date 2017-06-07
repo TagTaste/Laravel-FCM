@@ -2,7 +2,6 @@
 
 namespace App\Similar;
 
-use Carbon\Carbon;
 use App\Collaborate as BaseModel;
 
 class Collaborate extends BaseModel
@@ -13,8 +12,10 @@ class Collaborate extends BaseModel
 
     protected $appends = ['interested','commentCount','likeCount'];
 
-    public function similar()
+    public function similar($skip,$take)
     {
-        return self::take(4)->get();
+        return self::where('location','like',$this->location)->skip($skip)
+            ->take($take)
+            ->get();
     }
 }

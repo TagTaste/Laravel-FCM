@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
-use App\Company;
-use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -32,12 +30,38 @@ class CollaborateController extends Controller
 	 *
 	 * @return Response
 	 */
+    public function filters()
+    {
+        $filters  = [];
+
+        $filters['location'] = \App\Filter\Collaborate::select('location')->groupBy('location')->where('location','!=','null')->get();
+        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->groupBy('keywords')->where('keywords','!=','null')->get();
+        $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
+
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->orderBy("created_at","desc")->paginate();
-		$this->model = [];
+		$collaborations = $this->model->orderBy("created_at","desc");
+        $filters = $request->input('filters');
+       
+        if (!empty($filters['location'])) {
+            $collaborations = $collaborations->whereIn('location', $filters['location']);
+        }
+        
+        if (!empty($filters['keywords'])) {
+            $collaborations = $collaborations->whereIn('keywords', $filters['keywords']);
+        }
+        if(!empty($filters['type']))
+        {
+            $collaborations = $collaborations->whereIn('template_id',$filters['type']);
+        }
 		$profileId = $request->user()->profile->id;
-		foreach($collaborations as $collaboration){
+        $collaborations = $collaborations->paginate();
+        $this->model = [];
+        
+        foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }

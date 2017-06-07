@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Channel\Payload;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Cache;
 
 class FeedController extends Controller
 {
@@ -14,9 +12,8 @@ class FeedController extends Controller
     //things that is displayed on my (private) feed, and not on network or public
     public function feed(Request $request)
     {
-        $page = $request->input('page',1);
-        $take = 20;
-        $skip = $page > 1 ? ($page - 1) * $take : 0;
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')

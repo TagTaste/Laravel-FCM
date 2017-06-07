@@ -1,10 +1,8 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Comment;
-use App\Photo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Api\Controller;
 
 class CommentController extends Controller {
     
@@ -54,7 +52,7 @@ class CommentController extends Controller {
         
         $this->checkRelationship($model);
         
-        $this->model = $model->comments()->orderBy('created_at','desc')->paginate(10);
+        $this->model = $model->comments()->orderBy('created_at','asc')->paginate(10);
         return $this->sendResponse();
 	}
 
@@ -84,5 +82,23 @@ class CommentController extends Controller {
         $this->model = $comment;
 		return $this->sendResponse();
 	}
+    
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function destroy(Request $request, $id)
+    {
+        $userId = $request->user()->id;
+        $comment = Comment::where('user_id',$userId)->find($id);
+        if($comment === null){
+            throw new \Exception('Comment does not belong to the user');
+        }
+        $this->model = $comment->delete();
+        
+        return $this->sendResponse();
+    }
 
 }

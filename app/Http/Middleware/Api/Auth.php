@@ -21,9 +21,9 @@ class Auth extends GetUserFromToken
     {
         if(env('APP_ENV') === 'testing'){
             \Log::warning("Auth disabled for testing environment.");
-            $request->setUserResolver(function(){
-                return \App\User::find(1);
-            });
+            $user = \App\User::find(1);
+            $token = \JWTAuth::fromUser($user);
+            $this->auth->authenticate($token);
             return $next($request);
         }
         

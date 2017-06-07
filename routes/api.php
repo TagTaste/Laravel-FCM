@@ -71,6 +71,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //collaborate
             Route::get("collaborate/all","CollaborateController@all");
+            Route::get("collaborate/filters","CollaborateController@filters");
             Route::post("collaborate/{id}/like","CollaborateController@like");
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
@@ -94,11 +95,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //comments
             Route::get('comments/{model}/{modelId}','CommentController@index');
             Route::post('comments/{model}/{modelId}','CommentController@store');
+            Route::delete('comments/{id}','CommentController@destroy');
             
             //search
-                Route::get("search/{type}",'SearchController@search');
+                Route::get("search/{type?}",'SearchController@search');
                 Route::get("suggest/{type}",'SearchController@suggest');
-            Route::post('like/{model}/{modelId}','LikeController@store');
+            //Route::post('like/{model}/{modelId}','LikeController@store');
             
             Route::get('notifications/unread','NotificationController@unread');
             Route::post("notifications/read/{id}",'NotificationController@read');
@@ -204,7 +206,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
         });
-         Route::get('{handle}','HandleController@show');
+        
 });
 
 Route::post('login',function(Request $request){
@@ -225,3 +227,5 @@ Route::post('login',function(Request $request){
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+
+Route::get('{handle}','Api\HandleController@show');
