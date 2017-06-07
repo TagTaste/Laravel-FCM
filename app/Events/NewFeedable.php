@@ -26,15 +26,26 @@ class NewFeedable
      * @var
      */
     public $owner;
+    
+    
+    public $payloadable;
+    
+    
     /**
-     * Create a new event instance.
-     *
-     * @return void
+     * NewFeedable constructor.
+     * @param Model $model The model to push on the feed
+     * @param Model|null $owner The profile on whose feed the $model is pushed to
+     * @param Model|null $payloadable The model which gets the payload_id;
      */
-    public function __construct(Model $model, Model $owner = null)
+    public function __construct(Model $model, Model $owner = null, Model $payloadable = null)
     {
         $this->model = $model;
         $this->owner = $owner;
+        $this->payloadable = $payloadable;
+        
+        if(!$payloadable){
+            $this->payloadable = $model;
+        }
         if(is_null($owner)){
             $this->owner = $model->getOwner();
         }

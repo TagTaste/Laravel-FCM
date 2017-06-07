@@ -43,9 +43,8 @@ class ShareController extends Controller
             return $this->sendError("You have already shared this.");
         }
         
-        $this->model = $share->insert(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
-        
-        event(new NewFeedable($model,$request->user()->profile));
+        $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
+        event(new NewFeedable($model,$request->user()->profile,$this->model));
         
         return $this->sendResponse();
     }
