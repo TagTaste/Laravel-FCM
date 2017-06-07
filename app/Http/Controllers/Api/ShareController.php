@@ -19,7 +19,7 @@ class ShareController extends Controller
         return $class::find($id);
     }
     
-    public function share(Request $request, $modelName, $id)
+    public function store(Request $request, $modelName, $id)
     {
         $this->setColumn($modelName);
         
@@ -48,4 +48,14 @@ class ShareController extends Controller
         
         return $this->sendResponse();
     }
+    
+    public function delete(Request $request, $modelName, $id)
+    {
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+        $this->setColumn($modelName);
+        $loggedInId = $request->user()->profile->id;
+        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->delete() ? true : false;
+        return $this->sendResponse();
+    }
+    
 }

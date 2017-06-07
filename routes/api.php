@@ -32,7 +32,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
             
             //share
-            Route::post("share/{modelName}/{id}",'ShareController@share');
+            Route::post("share/{modelName}/{id}",'ShareController@store');
+            Route::delete("share/{modelName}/{id}",'ShareController@delete');
             
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
