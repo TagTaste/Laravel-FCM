@@ -48,9 +48,4 @@ class ShareController extends Controller
         
         return $this->sendResponse();
     }
-    
-    private function exists()
-    {
-    
-    }
 }
