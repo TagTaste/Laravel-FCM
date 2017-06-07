@@ -2,14 +2,10 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class NewFeedable
 {
@@ -40,7 +36,7 @@ class NewFeedable
         $this->model = $model;
         $this->owner = $owner;
         if(is_null($owner)){
-            $this->owner = $model->getOwner()   ;
+            $this->owner = $model->getOwner();
         }
     }
 }
