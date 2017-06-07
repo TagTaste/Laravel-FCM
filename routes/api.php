@@ -30,7 +30,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-           
+            
+            //share
+            Route::post("share/{modelName}/{id}",'ShareController@share');
+            
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
