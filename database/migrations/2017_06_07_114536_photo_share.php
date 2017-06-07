@@ -16,9 +16,11 @@ class PhotoShare extends Migration
         Schema::create('photo_shares',function(Blueprint $table){
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('photo_id');
+            $table->unsignedInteger('payload_id');
             $table->unique(['profile_id','photo_id']);
             $table->foreign('profile_id')->references("id")->on("profiles");
             $table->foreign('photo_id')->references("id")->on("photos");
+            $table->foreign('payload_id')->references("id")->on("channel_payloads");
             
         });
     }
