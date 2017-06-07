@@ -13,7 +13,7 @@ class PhotoShare extends Migration
      */
     public function up()
     {
-        Schema::table('photo_shares',function(Blueprint $table){
+        Schema::create('photo_shares',function(Blueprint $table){
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('photo_id');
             
