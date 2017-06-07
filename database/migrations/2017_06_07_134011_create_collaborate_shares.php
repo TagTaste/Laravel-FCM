@@ -16,7 +16,7 @@ class CreateCollaborateShares extends Migration
         Schema::create("collaborate_shares",function(Blueprint $table){
             $table->unsignedInteger('collaborate_id');
             $table->unsignedInteger('profile_id');
-            $table->unsignedInteger('payload_id');
+            $table->unsignedInteger('payload_id')->nullable();
             $table->unique(['collaborate_id','profile_id']);
             $table->foreign('collaborate_id')->references('id')->on('collaborates');
             $table->foreign('profile_id')->references('id')->on('profiles');

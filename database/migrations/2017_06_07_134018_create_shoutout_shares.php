@@ -16,8 +16,7 @@ class CreateShoutoutShares extends Migration
         Schema::create("shoutout_shares",function(Blueprint $table){
             $table->unsignedInteger('shoutout_id');
             $table->unsignedInteger('profile_id');
-            $table->unsignedInteger('payload_id');
-            
+            $table->unsignedInteger('payload_id')->nullable();
             $table->unique(['shoutout_id','profile_id']);
             $table->foreign('shoutout_id')->references('id')->on('shoutouts');
             $table->foreign('profile_id')->references('id')->on('profiles');

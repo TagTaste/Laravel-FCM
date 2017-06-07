@@ -16,7 +16,7 @@ class CreateJobShares extends Migration
         Schema::create("job_shares",function(Blueprint $table){
             $table->unsignedInteger('job_id');
             $table->unsignedInteger('profile_id');
-            $table->unsignedInteger('payload_id');
+            $table->unsignedInteger('payload_id')->nullable();
             $table->unique(['job_id','profile_id']);
             $table->foreign('job_id')->references('id')->on('jobs');
             $table->foreign('profile_id')->references('id')->on('profiles');
