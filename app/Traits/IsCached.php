@@ -12,6 +12,12 @@ trait IsCached
     public function getCacheKey() : array
     {
         $name = strtolower(class_basename($this));
-        return [$name => $name . ":" . $this->id];
+        $key = $name . ":" . $this->id;
+        
+        if(!\Redis::exists($key))
+        {
+            \Redis::set($key,$this->toJson());
+        }
+        return [$name => $key];
     }
 }
