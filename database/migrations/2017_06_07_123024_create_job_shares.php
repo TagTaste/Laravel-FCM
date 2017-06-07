@@ -14,6 +14,8 @@ class CreateJobShares extends Migration
     public function up()
     {
         Schema::create("job_shares",function(Blueprint $table){
+            $table->increments('id');
+    
             $table->unsignedInteger('job_id');
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('payload_id')->nullable();

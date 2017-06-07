@@ -14,6 +14,8 @@ class CreateShoutoutShares extends Migration
     public function up()
     {
         Schema::create("shoutout_shares",function(Blueprint $table){
+            $table->increments('id');
+    
             $table->unsignedInteger('shoutout_id');
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('payload_id')->nullable();

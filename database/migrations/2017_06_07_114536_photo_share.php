@@ -14,6 +14,7 @@ class PhotoShare extends Migration
     public function up()
     {
         Schema::create('photo_shares',function(Blueprint $table){
+            $table->increments('id');
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('photo_id');
             $table->unsignedInteger('payload_id')->nullable();
