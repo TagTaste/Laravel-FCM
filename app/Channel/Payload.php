@@ -44,6 +44,9 @@ class Payload extends Model
                 $jsonPayload = "{";
                     foreach($cached as $name => $key){
                         //name : object
+                        if(!$objects[$index]){
+                            throw new \Exception($name . " not in cache (" . $key . ")");
+                        }
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
                         
                         //separate with comma
