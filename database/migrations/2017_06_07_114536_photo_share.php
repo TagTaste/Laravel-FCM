@@ -30,6 +30,6 @@ class PhotoShare extends Migration
      */
     public function down()
     {
-        Schema::dropTable('photo_shares');
+        Schema::drop('photo_shares');
     }
 }
