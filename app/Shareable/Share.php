@@ -35,4 +35,17 @@ class Share extends Model
     {
         return $this->belongsTo(Payload::class,'payload_id');
     }
+    
+    public function getColumnName()
+    {
+        return strtolower(class_basename($this)) . "_id";
+    }
+    
+    public static function getSharedAt($modelName,$id)
+    {
+        $columnName = strtolower($modelName) . "_id";
+        $shareable = "\\App\\Shareable\\" . $modelName;
+        $model = $shareable::where($columnName,$id)->first();
+        return $model !== null && $model->payload !== null ? $model->payload->shared_at : null;
+    }
 }
