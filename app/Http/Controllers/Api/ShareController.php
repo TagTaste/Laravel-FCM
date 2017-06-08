@@ -54,7 +54,11 @@ class ShareController extends Controller
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         $this->setColumn($modelName);
         $loggedInId = $request->user()->profile->id;
-        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->delete() ? true : false;
+        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->first();
+        
+        if($this->model){
+            $this->model = $this->model->delete() ? true : false;
+        }
         return $this->sendResponse();
     }
     
