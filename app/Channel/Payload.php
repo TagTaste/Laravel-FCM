@@ -57,10 +57,13 @@ class Payload extends Model
                         //next object please.
                         $index++;
                     }
+                //append empty meta
+                $jsonPayload .= ",\"meta\":{\"hasLiked\":0,\"likeCount\":0,\"commentCount\":0,\"shareCount\":0}";
                 //end json
                 $jsonPayload .= "}";
             
             //publish
+            \Log::info(json_decode($jsonPayload,true));
             \Redis::publish($this->channel->name, $jsonPayload);
             
             //\Redis::sAdd($this->channel->name,json_encode($object));
