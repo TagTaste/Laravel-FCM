@@ -21,6 +21,7 @@ class CreateJobShares extends Migration
             $table->unsignedInteger('payload_id')->nullable();
             $table->unique(['job_id','profile_id']);
             $table->timestamps();
+            $table->softDeletes();
             $table->foreign('job_id')->references('id')->on('jobs')->onDelete('cascade');
             $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
             $table->foreign('payload_id')->references("id")->on("channel_payloads")->onDelete('cascade');
