@@ -23,12 +23,7 @@ class Share extends Model
             \Log::info("hello");
             $model->payload->delete();
         });
-    
-        self::deleted(function($model){
-            \Log::info("foobar");
-            $model->payload->delete();
-    
-        });
+S
     }
     
     public function payload()
@@ -41,11 +36,11 @@ class Share extends Model
         return strtolower(class_basename($this)) . "_id";
     }
     
-    public static function getSharedAt($modelName,$id)
+    public static function getSharedAt(Model $model)
     {
-        $columnName = strtolower($modelName) . "_id";
-        $shareable = "\\App\\Shareable\\" . $modelName;
-        $model = $shareable::where($columnName,$id)->first();
-        return $model !== null && $model->payload !== null ? $model->payload->shared_at : null;
+        $columnName = strtolower(class_basename($model)) . "_id";
+        $shareable = "\\App\\Shareable\\" . class_basename($model);
+        $model = $shareable::where($columnName,$model->id)->first();
+        return $model !== null && $model->payload !== null ? $model->payload->created_at->toDateTimeString() : null;
     }
 }
