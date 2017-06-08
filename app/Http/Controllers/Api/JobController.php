@@ -76,7 +76,7 @@ class JobController extends Controller
 	{
 	    $job = $this->model->findOrFail($id);
         $profileId = $request->user()->profile->id;
-        $meta = $job->getMetaFor($id);
+        $meta = $job->getMetaFor($profileId);
         $this->model = ['job'=>$job,'meta'=>$meta];
 
 
