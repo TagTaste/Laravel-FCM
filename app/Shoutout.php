@@ -37,7 +37,12 @@ class Shoutout extends Model implements Feedable
     {
         return $this->belongsToMany('App\Comment','comments_shoutouts','shoutout_id','comment_id');
     }
-    
+
+    public function shoutoutShares()
+    {
+        return $this->hasMany('App\Shareable\Shoutout');
+    }
+
     public function company()
     {
         return $this->belongsTo(\App\Shoutout\Company::class);
@@ -86,6 +91,7 @@ class Shoutout extends Model implements Feedable
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
         $meta['likeCount'] = \Redis::hget("shoutout:" . $this->id . ":meta","like") ?: 0;
         $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=$this->shoutoutShares()->count();
         return $meta;
     }
     
