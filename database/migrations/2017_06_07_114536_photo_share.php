@@ -18,6 +18,7 @@ class PhotoShare extends Migration
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('photo_id');
             $table->unsignedInteger('payload_id')->nullable();
+            $table->timestamps();
             $table->unique(['profile_id','photo_id']);
             $table->foreign('profile_id')->references("id")->on("profiles")->onDelete('cascade');
             $table->foreign('photo_id')->references("id")->on("photos")->onDelete('cascade');

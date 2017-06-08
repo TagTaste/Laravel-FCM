@@ -19,6 +19,7 @@ class CreateCollaborateShares extends Migration
             $table->unsignedInteger('collaborate_id');
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('payload_id')->nullable();
+            $table->timestamps();
             $table->unique(['collaborate_id','profile_id']);
             $table->foreign('collaborate_id')->references('id')->on('collaborates')->onDelete('cascade');
             $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
