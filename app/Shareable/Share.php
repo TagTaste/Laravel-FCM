@@ -23,7 +23,6 @@ class Share extends Model
             \Log::info("hello");
             $model->payload->delete();
         });
-S
     }
     
     public function payload()
