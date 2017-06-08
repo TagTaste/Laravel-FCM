@@ -175,6 +175,7 @@ class Photo extends Model implements Feedable
         $meta['likeCount'] = $this->likeCount;
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
         return $meta;
     }

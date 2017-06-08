@@ -102,6 +102,8 @@ class Job extends Model implements Feedable
         $meta = [];
         $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
         $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+    
         return $meta;
     }
     
