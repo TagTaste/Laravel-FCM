@@ -39,7 +39,7 @@ class Payload extends Model
             //build the json string.
                 $index = 0;
                 $numberOfCachedItems = count($cached);
-            
+                $sharedAt = null;
                 //start json
                 $jsonPayload = "{";
                     foreach($cached as $name => $key){
@@ -48,7 +48,9 @@ class Payload extends Model
                             throw new \Exception($name . " not in cache (" . $key . ")");
                         }
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
-                        
+                        if($name === 'sharedBy'){
+                            $sharedAt = $this->created_at;
+                        }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
                             $jsonPayload .= ",";
@@ -57,6 +59,11 @@ class Payload extends Model
                         //next object please.
                         $index++;
                     }
+                    
+                //add to things to json
+                if($sharedAt){
+                        $jsonPayload .= ",\"meta\":{\"sharedAt\":\"$sharedAt\"}";
+                }
                 //end json
                 $jsonPayload .= "}";
             
