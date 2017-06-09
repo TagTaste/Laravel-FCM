@@ -4,8 +4,6 @@ namespace App\Shareable;
 
 use App\Shareable\Share;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Comment;
-
 
 class Shoutout extends Share
 {
@@ -19,8 +17,4 @@ class Shoutout extends Share
         });
     }
 
-     public function comments()
-    {	
-        return $this->belongsToMany(Comment::class,'comments_shoutout_shares','shoutout_share_id','comment_id');
-    }
 }

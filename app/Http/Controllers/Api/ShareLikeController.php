@@ -3,46 +3,43 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use App\Shareable\Sharelikable;
 
 class ShareLikeController extends Controller
 {
-    private $models = [
-    	'photo_share' => \App\Shareable\Sharelikable\Photo::class,
-    	'collaborate_share'  => \App\Shareable\Sharelikable\Collaborate::class,
-    	'recipe_share' => \App\Shareable\Sharelikable\Recipe::class,
-    	// 'job_share' => \App\JobShareLike::class,
-    	'shoutout_share' => \App\Shareable\Sharelikable\Shoutout::class,
-    ];
 
-    public function store(request $request,$model,$model_id)
+    public function store(request $request,$model,$modelId)
     {
     	$profileId = $request->user()->profile->id;
 
-    	$class = $this->models[$model];
-    	$model = $model.'_id';
+    	$modelName = ucfirst($model);
+        $class = \App::make('App\Shareable\Sharelikable\\'.$model);
+    	$model = $model.'_share_id';
 
-    	$exist = $class::where('profile_id',$profileId)->where($model,$model_id)->first();
+    	$exist = $class::where('profile_id',$profileId)->where($model,$modelId)->first();
     	if($exist != null)
     	{
-    		$exist = $class::where('profile_id',$profileId)->where($model,$model_id)->delete();
-    		return response()->json(0);
+    		$this->model = $class::where('profile_id',$profileId)->where($model,$modelId)->delete();
+    		return $this->sendResponse($this->model);
     	}
 
-    	$instance = new $class;
-    	$instance->profile_id = $profileId;
+    	$this->model = new $class;
+    	$this->model->profile_id = $profileId;
     	
-    	$instance->$model = $model_id;
-    	$instance->save();
+    	$this->model->$model = $modelId;
+    	$this->model->save();
 
-    	return response()->json(1);
+    	return $this->sendResponse($this->model);
     }
 
-    public function index($model,$model_id)
+    public function index($model,$modelId)
     {
-    	$class = $this->models[$model];
-    	$model = $model.'_id';
+        $modelName = ucfirst($model);
+    	$class = \App::make('App\Shareable\Sharelikable\\'.$model);
 
-    	$profileId = $class::where($model,$model_id)->select('profile_id')->get();
+    	$model = $model.'_share_id';
+
+    	$profileId = $class::where($model,$modelId)->select('profile_id')->get();
     	$profile = \App\Profile::whereIn('id',$profileId)->get();
     	return response()->json($profile);
     }
