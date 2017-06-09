@@ -20,7 +20,6 @@ class Share extends Model
     public static function boot()
     {
         static::deleted(function($model){
-            \Log::info("hello");
             $model->payload->delete();
         });
     }
