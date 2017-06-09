@@ -57,5 +57,7 @@ class ShareController extends Controller
         $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->delete() ? true : false;
         return $this->sendResponse();
     }
+
+    
     
 }

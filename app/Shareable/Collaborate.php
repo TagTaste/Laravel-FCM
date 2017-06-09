@@ -16,4 +16,6 @@ class Collaborate extends Share
         return $this->belongsToMany(Comment::class,'comments_collaborate_shares','collaborate_Share_id','comment_id');
     }
 
+   
+
 }
