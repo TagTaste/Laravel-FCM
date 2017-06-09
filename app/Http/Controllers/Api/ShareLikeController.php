@@ -20,7 +20,7 @@ class ShareLikeController extends Controller
     	if($exist != null)
     	{
     		$this->model = $class::where('profile_id',$profileId)->where($model,$modelId)->delete();
-    		return $this->sendResponse($this->model);
+    		return $this->sendResponse();
     	}
 
     	$this->model = new $class;
@@ -29,7 +29,7 @@ class ShareLikeController extends Controller
     	$this->model->$model = $modelId;
     	$this->model->save();
 
-    	return $this->sendResponse($this->model);
+    	return $this->sendResponse();
     }
 
     public function index($model,$modelId)
@@ -41,6 +41,6 @@ class ShareLikeController extends Controller
 
     	$profileId = $class::where($model,$modelId)->select('profile_id')->get();
     	$profile = \App\Profile::whereIn('id',$profileId)->get();
-    	return response()->json($profile);
+    	return $this->sendResponse($profile);
     }
 }
