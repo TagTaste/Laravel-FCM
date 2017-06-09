@@ -169,14 +169,14 @@ class CollaborateController extends Controller
         
     }
 
-    public function shortlist(Request $request, $id,$profileId)
+    public function shortlist(Request $request, $id)
     {
         $collaborate = Collaborate::find($id);
 
         if(!$collaborate){
             return $this->sendError("Collaboration not found");
         }
-
+        $profileId = $request->user()->profile->id;
         $shortlist = \DB::table("collaborate_shortlist")->where("collaborate_id",$id)->where('profile_id',$profileId)
             ->first();
         if($shortlist){
@@ -187,6 +187,20 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
         $this->model = \DB::table("collaborate_shortlist")->insert(["collaborate_id"=>$id,'profile_id'=>$profileId]);
+        return $this->sendResponse();
+    }
+    
+    public function shortlisted(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $this->model = Collaborate::join('collaborate_shortlist','collaborate_shortlist.collaborate_id','=','collaborates.id')
+            ->where('collaborate_shortlist.profile_id',$profileId)->get();
+//        $this->model = \DB::table("collaborate_shortlist")
+//                ->join('collaborates','collaborates.id','=','collaborate_shortlist.collaborate_id')
+//                ->where('collaborate_shortlist.profile_id',$profileId)
+//                ->whereNull('collaborates.deleted_at')
+//                ->get();
+        $this->model = $this->model->makeHidden(['commentCount','likeCount','notify','template_fields','interested']);
         return $this->sendResponse();
     }
     
