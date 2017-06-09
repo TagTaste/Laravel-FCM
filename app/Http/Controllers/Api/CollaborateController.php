@@ -195,11 +195,6 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $this->model = Collaborate::join('collaborate_shortlist','collaborate_shortlist.collaborate_id','=','collaborates.id')
             ->where('collaborate_shortlist.profile_id',$profileId)->get();
-//        $this->model = \DB::table("collaborate_shortlist")
-//                ->join('collaborates','collaborates.id','=','collaborate_shortlist.collaborate_id')
-//                ->where('collaborate_shortlist.profile_id',$profileId)
-//                ->whereNull('collaborates.deleted_at')
-//                ->get();
         $this->model = $this->model->makeHidden(['commentCount','likeCount','notify','template_fields','interested']);
         return $this->sendResponse();
     }
