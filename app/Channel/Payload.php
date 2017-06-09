@@ -52,7 +52,7 @@ class Payload extends Model
                         }
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
                         if($name === 'sharedBy'){
-                            $additionalMeta['shared_at'] = $this->created_at;
+                            $additionalMeta['sharedAt'] = $this->created_at;
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
