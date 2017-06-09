@@ -16,8 +16,8 @@ class CommentsPhotoShares extends Migration
         Schema::create('comments_photo_shares',function(Blueprint $table){
             $table->unsignedInteger('photo_share_id');
             $table->unsignedInteger('comment_id');
-             $table->foreign("comment_id")->references('id')->on('comments');
-              $table->foreign("photo_share_id")->references('id')->on('photo_shares');
+             $table->foreign("comment_id")->references('id')->on('comments')->onDelete('cascade');
+              $table->foreign("photo_share_id")->references('id')->on('photo_shares')->onDelete('cascade');
  
         });
     }

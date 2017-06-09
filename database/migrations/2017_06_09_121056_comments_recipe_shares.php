@@ -16,8 +16,8 @@ class CommentsRecipeShares extends Migration
         Schema::create('comments_recipe_shares',function(Blueprint $table){
             $table->unsignedInteger('recipe_share_id');
             $table->unsignedInteger('comment_id');
-            $table->foreign("comment_id")->references('id')->on('comments');
-              $table->foreign("recipe_share_id")->references('id')->on('recipe_shares');
+            $table->foreign("comment_id")->references('id')->on('comments')->onDelete('cascade');
+              $table->foreign("recipe_share_id")->references('id')->on('recipe_shares')->onDelete('cascade');
         });
     }
 

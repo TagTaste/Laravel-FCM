@@ -16,8 +16,8 @@ class CreatePhotoShareLikesTable extends Migration
         Schema::create('photo_share_likes', function (Blueprint $table) {
              $table->unsignedInteger('photo_share_id');
             $table->unsignedInteger('profile_id');
-            $table->foreign("profile_id")->references('id')->on('profiles');
-              $table->foreign("photo_share_id")->references('id')->on('photo_shares');
+            $table->foreign("profile_id")->references('id')->on('profiles')->onDelete('cascade');
+              $table->foreign("photo_share_id")->references('id')->on('photo_shares')->onDelete('cascade');
         });
     }
 

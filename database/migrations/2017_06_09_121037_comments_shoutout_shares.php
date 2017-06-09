@@ -16,8 +16,8 @@ class CommentsShoutoutShares extends Migration
         Schema::create('comments_shoutout_shares',function(Blueprint $table){
             $table->unsignedInteger('shoutout_share_id');
             $table->unsignedInteger('comment_id');
-            $table->foreign("comment_id")->references('id')->on('comments');
-              $table->foreign("shoutout_share_id")->references('id')->on('shoutout_shares');
+            $table->foreign("comment_id")->references('id')->on('comments')->onDelete('cascade');
+              $table->foreign("shoutout_share_id")->references('id')->on('shoutout_shares')->onDelete('cascade');
         });
     }
 
