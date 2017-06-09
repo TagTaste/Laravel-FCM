@@ -19,7 +19,7 @@ class CreateJobShares extends Migration
             $table->unsignedInteger('job_id');
             $table->unsignedInteger('profile_id');
             $table->unsignedInteger('payload_id')->nullable();
-            $table->unique(['job_id','profile_id']);
+//            $table->unique(['job_id','profile_id']);
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('job_id')->references('id')->on('jobs')->onDelete('cascade');
