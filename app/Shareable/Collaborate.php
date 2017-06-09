@@ -11,10 +11,7 @@ class Collaborate extends Share
     protected $visible = ['id','profile_id','created_at'];
 
 
-    // public function comments()
-    // {
-    //     return $this->belongsToMany(Comment::class,'comments_collaborate_shares','collaborate_Share_id','comment_id');
-    // }
+    
 
    
 

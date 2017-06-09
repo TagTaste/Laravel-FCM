@@ -10,13 +10,17 @@ use App\Comment;
 class Share extends Model
 {
     use SoftDeletes;
-
+     
+    protected $fillable = ['profile_id','payload_id'];
+    protected $visible = ['id','profile_id','created_at'];
     
     public function __construct($attributes = [])
     {
         $class = strtolower(class_basename($this));
         $this->table = $class . "_shares";
         parent::__construct($attributes);
+        $column = class_basename($this).'_id';
+        $this->fillable = [$column];
     }
     
     public static function boot()
