@@ -10,7 +10,7 @@ class ShareLikeController extends Controller
     	'photo_share' => \App\PhotoShareLike::class,
     	'collaborate_share'  => \App\CollaborateShareLike::class,
     	'recipe_share' => \App\RecipeShareLike::class,
-    	'job_share' => \App\JobShareLike::class,
+    	// 'job_share' => \App\JobShareLike::class,
     	'shoutout_share' => \App\ShoutoutShareLike::class,
     ];
 

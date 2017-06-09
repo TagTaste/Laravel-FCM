@@ -3,6 +3,8 @@
 namespace App\Shareable;
 
 use App\Shareable\Share;
+use App\Comment;
+
 
 class Photo extends Share
 {

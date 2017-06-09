@@ -4,18 +4,18 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateJobShareLikesTable extends Migration
+class CommentsShoutoutShares extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+   public function up()
     {
-        Schema::create('job_share_likes', function (Blueprint $table) {
-             $table->unsignedInteger('job_share_id');
-            $table->unsignedInteger('profile_id');
+        Schema::create('comments_shoutout_shares',function(Blueprint $table){
+            $table->unsignedInteger('shoutout_share_id');
+            $table->unsignedInteger('comment_id');
         });
     }
 
@@ -26,6 +26,6 @@ class CreateJobShareLikesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('job_share_likes');
+        Schema::drop('comments_shoutout_shares');
     }
 }
