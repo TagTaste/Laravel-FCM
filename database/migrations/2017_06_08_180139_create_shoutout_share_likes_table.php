@@ -16,6 +16,8 @@ class CreateShoutoutShareLikesTable extends Migration
         Schema::create('shoutout_share_likes', function (Blueprint $table) {
              $table->unsignedInteger('shoutout_share_id');
             $table->unsignedInteger('profile_id');
+             $table->foreign("profile_id")->references('id')->on('profiles');
+              $table->foreign("shoutout_share_id")->references('id')->on('shoutout_shares');
         });
     }
 

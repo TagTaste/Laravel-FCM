@@ -16,6 +16,8 @@ class CommentsCollaborateShares extends Migration
         Schema::create('comments_collaborate_shares',function(Blueprint $table){
             $table->unsignedInteger('collaborate_share_id');
             $table->unsignedInteger('comment_id');
+            $table->foreign("comment_id")->references('id')->on('comments');
+              $table->foreign("collaborate_share_id")->references('id')->on('collaborate_shares');
         });
     }
 

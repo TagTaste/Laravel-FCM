@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 class ShareLikeController extends Controller
 {
     private $models = [
-    	'photo_share' => \App\PhotoShareLike::class,
-    	'collaborate_share'  => \App\CollaborateShareLike::class,
-    	'recipe_share' => \App\RecipeShareLike::class,
+    	'photo_share' => \App\Shareable\Sharelikable\Photo::class,
+    	'collaborate_share'  => \App\Shareable\Sharelikable\Collaborate::class,
+    	'recipe_share' => \App\Shareable\Sharelikable\Recipe::class,
     	// 'job_share' => \App\JobShareLike::class,
-    	'shoutout_share' => \App\ShoutoutShareLike::class,
+    	'shoutout_share' => \App\Shareable\Sharelikable\Shoutout::class,
     ];
 
     public function store(request $request,$model,$model_id)

@@ -16,6 +16,8 @@ class CreateRecipeShareLikesTable extends Migration
         Schema::create('recipe_share_likes', function (Blueprint $table) {
              $table->unsignedInteger('recipe_share_id');
             $table->unsignedInteger('profile_id');
+             $table->foreign("profile_id")->references('id')->on('profiles');
+              $table->foreign("recipe_share_id")->references('id')->on('recipe_shares');
         });
     }
 
