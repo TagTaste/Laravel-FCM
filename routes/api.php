@@ -72,6 +72,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
             //collaborate templates
             Route::resource("collaborate/templates","CollaborateTemplateController");
+    
+            //collaborates shortlist
+            Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
+            Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
             
             //collaborate
             Route::get("collaborate/all","CollaborateController@all");
@@ -80,9 +84,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
             Route::resource("collaborate","CollaborateController");
-            
-            //collaborates shortlist
-            Route::post("collaborate/{id}/shortlist/{profileId}","CollaborateController@shortlist");
             
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
