@@ -76,13 +76,16 @@ class PhotoController extends Controller
      */
     public function show($profileId,$companyId,$id)
     {
-        $this->model = Photo::where('id',$id)->forCompany($companyId)->with(['comments' => function($query){
+        $photo = Photo::where('id',$id)->forCompany($companyId)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
             }])->first();
 
-        if(!$this->model){
+        if(!$photo){
             throw new \Exception("Company does not have the photo.");
         }
+
+        $meta = $photo->getMetaFor($profileId);
+        $this->model = ['photo'=>$photo,'meta'=>$meta];
 
         return $this->sendResponse();
     }

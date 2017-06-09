@@ -39,7 +39,10 @@ class Payload extends Model
             //build the json string.
                 $index = 0;
                 $numberOfCachedItems = count($cached);
-            
+                
+                //meta that is not a part of Model's meta, but Yadav ji asks for.
+                $additionalMeta = [];
+                
                 //start json
                 $jsonPayload = "{";
                     foreach($cached as $name => $key){
@@ -48,7 +51,9 @@ class Payload extends Model
                             throw new \Exception($name . " not in cache (" . $key . ")");
                         }
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
-                        
+                        if($name === 'sharedBy'){
+                            $additionalMeta['shared_at'] = $this->created_at;
+                        }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
                             $jsonPayload .= ",";
@@ -57,6 +62,15 @@ class Payload extends Model
                         //next object please.
                         $index++;
                     }
+                    
+                //add to things to json
+                if(!empty($additionalMeta)){
+                    $jsonPayload .= ",\"meta\":{";
+                        foreach($additionalMeta as $key => $value){
+                            $jsonPayload .= "\"$key\":\"$value\"";
+                        }
+                    $jsonPayload .= "}";
+                }
                 //end json
                 $jsonPayload .= "}";
             

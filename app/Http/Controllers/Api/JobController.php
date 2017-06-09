@@ -72,11 +72,15 @@ class JobController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request,$id)
 	{
-		$this->model = $this->model->findOrFail($id);
-		
-		return $this->sendResponse();
+	    $job = $this->model->findOrFail($id);
+        $profileId = $request->user()->profile->id;
+        $meta = $job->getMetaFor($profileId);
+        $this->model = ['job'=>$job,'meta'=>$meta];
+
+
+        return $this->sendResponse();
 	}
     
     /**
