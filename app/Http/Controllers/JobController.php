@@ -33,7 +33,7 @@ class JobController extends Controller
 	public function index($filters = [])
 	{
         $jobs = $this->model;
-        
+
         if(!empty($filters['location'])){
 	       $jobs = $jobs->whereIn('location',$filters['location']);
         }
@@ -56,7 +56,7 @@ class JobController extends Controller
 	public function show($id)
 	{
 		$job = $this->model->findOrFail($id);
-		
+
 		return view('jobs.show', compact('job'));
 	}
 }

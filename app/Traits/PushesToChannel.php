@@ -6,7 +6,7 @@ use App\Company;
 
 trait PushesToChannel
 {
-    public function pushToChannel($channelName,&$model)
+    public function pushToChannel($channelName,&$model, $payloadable)
     {
         $channelName = $this->getChannelName($channelName);
         
@@ -31,8 +31,10 @@ trait PushesToChannel
         $payload = $model->getPayload();
         $payload = $channel->addPayload(get_class($model),$model->id,$payload);
         //update model id
-        $model->payload_id = $payload->id;
-        $model->save();
+        
+        $payloadable->payload_id = $payload->id;
+        $payloadable->save();
+        
         return $payload;
         
     }
@@ -43,20 +45,20 @@ trait PushesToChannel
         return $prefix . $name . "." . $this->id;
     }
     
-    public function pushToMyFeed(&$data)
+    public function pushToMyFeed(&$data, $payloadable)
     {
         //push to my feed
-        $this->pushToChannel("feed",$data);
+        $this->pushToChannel("feed",$data,$payloadable);
     }
     
-    public function pushToNetwork(&$data)
+    public function pushToNetwork(&$data, $payloadable)
     {
-        return $this->pushToChannel("network",$data);
+        return $this->pushToChannel("network",$data,$payloadable);
     }
     
-    public function pushToPublic(&$data)
+    public function pushToPublic(&$data,$payloadable)
     {
-        return $this->pushToChannel("public",$data);
+        return $this->pushToChannel("public",$data,$payloadable);
     }
     
 }

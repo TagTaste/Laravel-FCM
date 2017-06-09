@@ -80,6 +80,7 @@ class CompanyController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
+        
         $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
             $query->where('id',$profileId);
         })->where('id',$id)->first();

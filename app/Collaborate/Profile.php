@@ -18,7 +18,7 @@ class Profile extends BaseProfile
         'about',
         'imageUrl',
         'name',
-        'pivot'
-        
+        'pivot',
+        'handle'
     ];
 }

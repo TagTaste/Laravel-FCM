@@ -29,10 +29,13 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $profile = User::whereHas("profile",function($query) use ($id){
+
+       //id can either be id or handle
+        //we can use both profile/{id} or handle in api call
+         $profile = User::whereHas("profile",function($query) use ($id){
             $query->where('id',$id);
-        })->first();
-        
+            })->first();
+            
         if($profile === null){
             throw new ModelNotFoundException("Could not find profile.");
         }
@@ -61,6 +64,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->except(["_method","_token"]);
+        
         
         //proper verified.
         if(isset($data['verified'])){

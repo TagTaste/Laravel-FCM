@@ -6,10 +6,12 @@ use App\Job as BaseJob;
 
 class Job extends BaseJob
 {
-    protected $visible = ['id'];
+    //protected $visible = ['id'];
     
-    public function similar()
+    public function similar($skip,$take)
     {
-        return self::take(4)->get();
+        return self::where('location','like',$this->location)->skip($skip)
+            ->take($take)
+            ->get();
     }
 }

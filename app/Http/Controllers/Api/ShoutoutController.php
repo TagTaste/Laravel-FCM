@@ -77,7 +77,10 @@ class ShoutoutController extends Controller
             throw $e;
         }
         
-		$this->model = $this->model->findOrFail($id);
+		$shoutout = $this->model->findOrFail($id);
+        $profileId = $request->user()->profile->id;
+        $meta = $shoutout->getMetaFor($profileId);
+        $this->model = ['shoutout'=>$shoutout,'meta'=>$meta];
 		
 		return $this->sendResponse();
 	}

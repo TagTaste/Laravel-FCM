@@ -4,14 +4,14 @@
 namespace App\Documents;
 
 use App\Events\Searchable;
-use App\Interfaces\Document as SearchDocument;
 use App\Interfaces\CreatesDocument;
+use App\Interfaces\Document as SearchDocument;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 
 class Document implements Arrayable, CreatesDocument, SearchDocument
 {
-    public $index = 'users';
+    public $index = 'api';
     public $type;
     public $id;
     public $body = [];

@@ -1,8 +1,7 @@
 <?php namespace App\Observers;
 
-use App\Events\NewFeedable;
-use App\Events\UpdateFeedable;
 use App\Events\DeleteFeedable;
+use App\Events\NewFeedable;
 
 class FeedableObserver {
     
@@ -19,7 +18,7 @@ class FeedableObserver {
 //        //event(new UpdateFeedable($model));
 //    }
     
-    public function deleted($model)
+    public function deleting($model)
     {
         event(new DeleteFeedable($model));
     }

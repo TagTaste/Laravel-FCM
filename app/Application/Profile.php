@@ -19,7 +19,8 @@ class Profile extends BaseProfile
         'imageUrl',
         'name',
         'address',
-        'current'
+        'current',
+        'handle'
     ];
     
     protected $appends = ['current', 'name', 'imageUrl'];
