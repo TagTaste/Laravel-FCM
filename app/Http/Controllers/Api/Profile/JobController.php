@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Profile;
+use App\Events\Update;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ class JobController extends Controller
             }])
             ->paginate();
         $this->model['count'] = Job::where('profile_id',$profileId)->count();
+
         return $this->sendResponse();
     }
     
@@ -55,7 +57,6 @@ class JobController extends Controller
         
         $inputs = $request->except(['_method','_token']);
         $this->model = $profile->jobs()->create($inputs);
-        
         return $this->sendResponse();
     }
     
@@ -74,7 +75,8 @@ class JobController extends Controller
         }
         $meta = $job->getMetaFor($profileId);
         $this->model = ['job'=>$job,'meta'=>$meta];
-        
+        event(new Update($id,'job',$profileId,"Applied on job"));
+
         return $this->sendResponse();
     }
     
@@ -125,6 +127,7 @@ class JobController extends Controller
         $applierProfileId = $request->user()->profile->id;
         
         $this->model = $job->apply($applierProfileId);
+
         return $this->sendResponse();
     }
     
