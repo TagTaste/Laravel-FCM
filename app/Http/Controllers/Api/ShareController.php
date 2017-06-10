@@ -44,6 +44,8 @@ class ShareController extends Controller
         }
         
         $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
+        
+        //push to feed
         event(new NewFeedable($model,$request->user()->profile,$this->model));
         
         return $this->sendResponse();
