@@ -13,20 +13,20 @@ class ShareLikeController extends Controller
     	$profileId = $request->user()->profile->id;
 
     	$modelName = ucfirst($model);
-        $class = \App::make('App\Shareable\Sharelikable\\'.$model);
-    	$model = $model.'_share_id';
+        $class = \App::make('App\Shareable\Sharelikable\\'.$modelName);
+    	$columnName = $model.'_share_id';
 
-    	$exist = $class::where('profile_id',$profileId)->where($model,$modelId)->first();
+    	$exist = $class::where('profile_id',$profileId)->where($columnName,$modelId)->first();
     	if($exist != null)
     	{
-    		$this->model = $class::where('profile_id',$profileId)->where($model,$modelId)->delete();
+    		$this->model = $class::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
     		return $this->sendResponse();
     	}
 
     	$this->model = new $class;
     	$this->model->profile_id = $profileId;
     	
-    	$this->model->$model = $modelId;
+    	$this->model->$columnName = $modelId;
     	$this->model->save();
 
     	return $this->sendResponse();
@@ -35,12 +35,12 @@ class ShareLikeController extends Controller
     public function index($model,$modelId)
     {
         $modelName = ucfirst($model);
-    	$class = \App::make('App\Shareable\Sharelikable\\'.$model);
+    	$class = \App::make('App\Shareable\Sharelikable\\'.$modelName);
 
-    	$model = $model.'_share_id';
+    	$columnName = $model.'_share_id';
 
-    	$profileId = $class::where($model,$modelId)->select('profile_id')->get();
-    	$profile = \App\Profile::whereIn('id',$profileId)->get();
-    	return $this->sendResponse($profile);
+    	$profileId = $class::where($columnName,$modelId)->select('profile_id')->get();
+    	$this->model = \App\Profile::whereIn('id',$profileId)->get();
+    	return $this->sendResponse();
     }
 }
