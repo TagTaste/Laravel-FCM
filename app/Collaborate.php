@@ -225,11 +225,6 @@ class Collaborate extends Model implements Feedable
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
     }
-
-    public function similar()
-    {
-        return self::take(4)->get();
-    }
     
     public function privacy()
     {
