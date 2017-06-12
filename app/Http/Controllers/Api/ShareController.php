@@ -44,7 +44,7 @@ class ShareController extends Controller
         }
         
         $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$sharedModel->id,'privacy_id'=>$request->input('privacy_id')]);
-        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
+        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId, strtolower($modelName) =>$modelName . ":" . $id];
         //push to feed
         event(new NewFeedable($this->model,$request->user()->profile));
         
