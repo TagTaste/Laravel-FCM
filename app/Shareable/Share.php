@@ -81,7 +81,7 @@ class Share extends Model
     public function getRelatedKey()
     {
         $class = class_basename(static::class);
-        $profileId = $this->{$class}->profile->id;
+        $profileId = $this->{$class}->profile_id;
         return ['profile' => 'profile:small:' . $profileId];
     }
 }
