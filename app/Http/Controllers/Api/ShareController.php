@@ -21,6 +21,8 @@ class ShareController extends Controller
     
     public function store(Request $request, $modelName, $id)
     {
+        $modelName = strtolower($modelName);
+        
         $this->setColumn($modelName);
         
         $sharedModel = $this->getModel($modelName,$id);
@@ -44,7 +46,9 @@ class ShareController extends Controller
         }
         
         $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$sharedModel->id,'privacy_id'=>$request->input('privacy_id')]);
-        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId, strtolower($modelName) =>$modelName . ":" . $id];
+        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,
+            $modelName => $modelName . ":" . $id, 'shared'=>'shared:' . $this->model->id
+        ];
         //push to feed
         event(new NewFeedable($this->model,$request->user()->profile));
         
