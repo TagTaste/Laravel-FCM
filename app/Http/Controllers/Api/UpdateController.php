@@ -69,9 +69,10 @@ class UpdateController extends Controller
 	 */
 	public function show($profileId)
 	{
-        $this->model = Update::where('profile_id',$profileId)->get();
-
-		return $this->sendResponse();;
+        $data = Update::where('profile_id',$profileId)->get();
+        $data['notification_count']=Update::where('profile_id',$profileId)->count();
+        $this->model=$data;
+		return $this->sendResponse();
 	}
 
 	/**
