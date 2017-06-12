@@ -39,8 +39,10 @@ class ShoutoutLikeController extends Controller
             \Redis::hIncrBy("shoutout:" . $id . ":meta","like",1);
 
             $shoutoutProfile=Shoutout::findOrFail($id);
-            event(new Update($id,'Shoutout',$shoutoutProfile->profile_id,
-                $request->user()->name." like you post ".$shoutoutProfile->content));
+            if($shoutoutProfile->profile_id!=$profileId) {
+                event(new Update($id, 'Shoutout', $shoutoutProfile->profile_id,
+                    $request->user()->name . " like you post " . $shoutoutProfile->content));
+            }
         }
 
         return $this->sendResponse();

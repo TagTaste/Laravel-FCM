@@ -23,7 +23,6 @@ class ShareController extends Controller
     public function store(Request $request, $modelName, $id)
     {
         $this->setColumn($modelName);
-
         $model = $this->getModel($modelName,$id);
         
         if(!$model){
@@ -43,12 +42,11 @@ class ShareController extends Controller
         if($exists){
             return $this->sendError("You have already shared this.");
         }
-        
+        $shareProfileId=$model->profile_id;
         $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
-        $shareProfileId=$share::findOrFail($id);
-        event(new NewFeedable($model,$request->user()->profile,$this->model));
 
-        event(new Update($id,$modelName,$shareProfileId->profile_id,$loggedInProfileId." share your post"));
+        event(new NewFeedable($model,$request->user()->profile,$this->model));
+        event(new Update($id,$modelName,$shareProfileId,"share your post"));
         return $this->sendResponse();
     }
     

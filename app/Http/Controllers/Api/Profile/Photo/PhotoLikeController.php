@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\Profile\Photo;
 
 use App\Http\Controllers\Api\Controller;
+use App\Photo;
 use App\PhotoLike;
+use App\Events\Update;
 use Illuminate\Http\Request;
 
 class PhotoLikeController extends Controller
@@ -35,6 +37,12 @@ class PhotoLikeController extends Controller
         } else {
             $this->model = PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
             \Redis::hIncrBy("photo:" . $photoId . ":meta","like",1);
+
+            $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');
+            if($photoProfile[0]!=$profileId) {
+                event(new Update($photoId, 'Photo', $photoProfile[0],
+                    $request->user()->name . " like you post "));
+            }
     
         }
         return $this->sendResponse();

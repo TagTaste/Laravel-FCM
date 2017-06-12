@@ -60,6 +60,12 @@ class PhotoLikeController extends Controller
             $this->model = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->delete();
         } else {
             $this->model = PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
+
+            $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');
+            if($photoProfile[0]!=$profileId) {
+                event(new Update($photoId, 'Photo', $photoProfile[0],
+                    $request->user()->name . " like you post "));
+            }
         }
         return $this->sendResponse();
 	}

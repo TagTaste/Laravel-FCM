@@ -90,21 +90,17 @@ class CommentController extends Controller {
                 ->where('comments.user_id','!=',$userId)
                 ->get();
 
+        \Log::info($data);
 
         $loggedInProfileId = $request->user()->profile->id;
-        $idExist=$data->where('id',$model->owner->id)->count();
-
-//        if($loggedInProfileId!=$model->profile_id &&!$idExist)
-//        {
-////                 $user = $model->profile->user;
-//            $data->push(['id'=>$model->id,'name'=>$modelName]);
-//        }
-
+        if($loggedInProfileId!=$model->profile_id){
+                        $user = $model->profile->user;
+                       $data->push(['id'=>$user->id,'name'=>$user->name]);
+        }
 
         foreach ($data as $d){
-            event(new Update($model->id,$modelName,$d->id,"comments"));
+            event(new Update($model->id,$modelName,$d['id'],"comments"));
         }
-//        event(new Update($comment->id,$modelName,$request->user()->profile->id,"comments"));
 
         $this->model = $comment;
 		return $this->sendResponse();

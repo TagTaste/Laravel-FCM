@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
 use Carbon\Carbon;
+use App\Events\Update;
 use Illuminate\Http\Request;
 
 class CollaborateController extends Controller
@@ -144,7 +145,6 @@ class CollaborateController extends Controller
     {
         
         $collaborate = Collaborate::find($id);
-
         if(!$collaborate){
             return $this->sendError("Collaboration not found");
         }
@@ -161,7 +161,8 @@ class CollaborateController extends Controller
             $this->model = $unliked === 1 ? false : null;
             return $this->sendResponse();
         }
-        
+        event(new Update($id,"collaborate",$collaborate->profile_id,"Like your collaborate"));
+
         $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
         return $this->sendResponse();
         
