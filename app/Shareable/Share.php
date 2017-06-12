@@ -77,4 +77,11 @@ class Share extends Model
         }
         return [$name => $key];
     }
+    
+    public function getRelatedKey()
+    {
+        $class = class_basename(static::class);
+        $profileId = $this->{$class}->profile->id;
+        return ['profile' => 'profile:small:' . $profileId];
+    }
 }
