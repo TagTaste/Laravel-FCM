@@ -31,22 +31,22 @@ class ShareController extends Controller
     
         $loggedInProfileId = $request->user()->profile->id;
         
-        $sharedModel->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
+        //$sharedModel->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
         
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         
         $share = new $class();
         $exists = $share->where('profile_id',$loggedInProfileId)
-            ->where($this->column,$sharedModel->id)->exists();
+            ->where($this->column,$sharedModel->id)->whereNull('deleted_at')->first();
 
         if($exists){
             return $this->sendError("You have already shared this.");
         }
         
-        $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$sharedModel->id]);
-        
+        $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$sharedModel->id,'privacy_id'=>$request->input('privacy_id')]);
+        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
         //push to feed
-        event(new NewFeedable($sharedModel,$request->user()->profile,$this->model));
+        event(new NewFeedable($this->model,$request->user()->profile));
         
         return $this->sendResponse();
     }
