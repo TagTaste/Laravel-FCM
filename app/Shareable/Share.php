@@ -3,16 +3,17 @@
 namespace App\Shareable;
 
 use App\Channel\Payload;
+use App\Comment;
+use App\Privacy;
 use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Comment;
 
 class Share extends Model
 {
     use SoftDeletes, CachedPayload;
      
-    protected $fillable = ['profile_id'];
+    protected $fillable = ['profile_id','privacy_id'];
     protected $visible = ['id','profile_id','created_at'];
     
     public function __construct($attributes = [])
@@ -35,6 +36,11 @@ class Share extends Model
     public function payload()
     {
         return $this->belongsTo(Payload::class,'payload_id');
+    }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
     }
     
     public function getColumnName()
