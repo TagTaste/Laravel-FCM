@@ -4,7 +4,6 @@ namespace App\Shareable;
 
 class Shoutout extends Share
 {
-   
     protected $with = ['shoutout'];
     
     public static function boot()
