@@ -60,11 +60,12 @@ class ShareController extends Controller
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         $this->setColumn($modelName);
         $loggedInId = $request->user()->profile->id;
-        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->first();
+        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         
-        if($this->model){
-            $this->model = $this->model->delete() ? true : false;
+        if(!$this->model){
+            return $this->sendError("Model not found.");
         }
+        $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
     }
 
