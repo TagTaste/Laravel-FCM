@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile\Company\Photo;
 
 use App\PhotoLike;
+use App\Events\Update;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 

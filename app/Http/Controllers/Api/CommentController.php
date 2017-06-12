@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Comment;
+use App\Events\Update;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -64,6 +65,7 @@ class CommentController extends Controller {
 	 */
 	public function store(Request $request, $model, $modelId)
 	{
+	    $modelName=$model;
         $model = $this->getModel($model,$modelId);
         
         $this->checkRelationship($model);
@@ -78,6 +80,31 @@ class CommentController extends Controller {
 		$comment->save();
 
 		$model->comments()->attach($comment->id);
+        $userId = $request->user()->id;
+        $data = \DB::table('users')
+                ->select("users.id","users.name")
+                ->distinct('users.id')
+                ->join('comments','comments.user_id','=','users.id')
+                ->join('comments_shoutouts','comments.id','=','comments_shoutouts.comment_id')
+                ->where('comments_shoutouts.shoutout_id','=',$model->id)
+                ->where('comments.user_id','!=',$userId)
+                ->get();
+
+
+        $loggedInProfileId = $request->user()->profile->id;
+        $idExist=$data->where('id',$model->owner->id)->count();
+
+//        if($loggedInProfileId!=$model->profile_id &&!$idExist)
+//        {
+////                 $user = $model->profile->user;
+//            $data->push(['id'=>$model->id,'name'=>$modelName]);
+//        }
+
+
+        foreach ($data as $d){
+            event(new Update($model->id,$modelName,$d->id,"comments"));
+        }
+//        event(new Update($comment->id,$modelName,$request->user()->profile->id,"comments"));
 
         $this->model = $comment;
 		return $this->sendResponse();

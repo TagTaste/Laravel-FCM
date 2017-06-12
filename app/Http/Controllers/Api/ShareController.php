@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\NewFeedable;
+use App\Events\Update;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
@@ -22,7 +23,7 @@ class ShareController extends Controller
     public function store(Request $request, $modelName, $id)
     {
         $this->setColumn($modelName);
-        
+
         $model = $this->getModel($modelName,$id);
         
         if(!$model){
@@ -44,8 +45,10 @@ class ShareController extends Controller
         }
         
         $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
+        $shareProfileId=$share::findOrFail($id);
         event(new NewFeedable($model,$request->user()->profile,$this->model));
-        
+
+        event(new Update($id,$modelName,$shareProfileId->profile_id,$loggedInProfileId." share your post"));
         return $this->sendResponse();
     }
     

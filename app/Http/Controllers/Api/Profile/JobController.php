@@ -75,7 +75,6 @@ class JobController extends Controller
         }
         $meta = $job->getMetaFor($profileId);
         $this->model = ['job'=>$job,'meta'=>$meta];
-        event(new Update($id,'job',$profileId,"Applied on job"));
 
         return $this->sendResponse();
     }
@@ -113,7 +112,7 @@ class JobController extends Controller
     public function apply(Request $request, $profileId, $id)
     {
         $profile = Profile::find($profileId);
-        
+
         if(!$profile){
             throw new \Exception("Invalid profile.");
         }
@@ -127,6 +126,9 @@ class JobController extends Controller
         $applierProfileId = $request->user()->profile->id;
         
         $this->model = $job->apply($applierProfileId);
+
+        event(new Update($id,'job',$profileId,"Applied on job"));
+
 
         return $this->sendResponse();
     }

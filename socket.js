@@ -34,6 +34,25 @@ var logErr = function(err,count){
         });
 
 
+        //notification push
+
+        var notificationNamespace=io.of('/notification');
+
+        var notification=new Redis();
+        notification.psubscribe('notification-channel',logErr);
+        notification.on('pmessage',function(pattern,channel,message){
+            var message=JSON.parse(message);
+            var notificationDetails={
+                "model":{
+                    'id':message.id,
+                    'titile':message.titile,
+                    'content':message.content
+
+                }
+            };
+            notificationNamespace.to(channel+'.'+message.participants).emit("message",notificationDetails);
+        });
+
     //public company feed
         var companyFeedNamespace = io.of("/company/public");
         var companyPublicEmit = function(pattern, channel, message){
@@ -87,6 +106,37 @@ feedNamespace.on('connection', makeConnection);
 publicNamespace.on('connection', makeConnection);
 companyFeedNamespace.on('connection', makeConnection);
 
+notificationNamespace.on('connection',function(socket){
+        var token = socket.handshake.query['token'];
+        var channelName;
+        // console.log('here');
+            var path = '/api/profile';
+
+            var options = {
+                host: 'web.app',
+                port: 80,
+                path : path,
+                method: 'get',
+                headers: {
+                    'Content-Type': 'application/json',
+                        'Authorization' : "Bearer " + token
+                }
+        };
+        requester.request(options, function(response) {
+                if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                response.setEncoding('utf8');
+                response.on('data',function(body){
+                        body=JSON.parse(body);
+                        body=body.profile.id;
+                        channelName='notification-channel.'+body;
+                        // console.log(channelName);
+                            socket.join(channelName);
+                    })
+            }).end();
+        });
+
 http.listen(3001, function(){
-    //console.log('Listening on Port 3001');
+    console.log('Listening on Port 3001');
 });

@@ -111,7 +111,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource("notifications",'NotificationController');
 
             Route::get("designations", "DesignationController@index");
-            
+
+            //notification is read or not
+            Route::post('update/{modelName}/{id}','UpdateController@isRead');
+            //get all notification of particular profile
+            Route::get('update/{id}','UpdateController@show');
+
+
             //profile routes
             
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
