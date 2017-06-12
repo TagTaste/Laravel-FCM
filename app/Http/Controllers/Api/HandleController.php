@@ -28,6 +28,6 @@ class HandleController extends Controller
     		$this->model = ['company'=>$company]; 	 
     		return $this->sendResponse();
     	}
-   throw new \Exception("Invalid Handle.");
+        return $this->sendError("Handle not found.");
 	}
 }
