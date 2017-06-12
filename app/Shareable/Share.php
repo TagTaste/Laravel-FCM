@@ -3,24 +3,26 @@
 namespace App\Shareable;
 
 use App\Channel\Payload;
+use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Comment;
 
 class Share extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, CachedPayload;
      
-    protected $fillable = ['profile_id','payload_id'];
+    protected $fillable = ['profile_id'];
     protected $visible = ['id','profile_id','created_at'];
     
     public function __construct($attributes = [])
     {
         $class = strtolower(class_basename($this));
         $this->table = $class . "_shares";
+        $column = strtolower(class_basename($this)).'_id';
+        $this->fillable[] = $column;
         parent::__construct($attributes);
-        $column = class_basename($this).'_id';
-        $this->fillable = [$column];
+       
     }
     
     public static function boot()
