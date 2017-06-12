@@ -14,8 +14,10 @@ class Collaborate extends BaseModel
 
     public function similar($skip,$take)
     {
-        return self::where('location','like',$this->location)->skip($skip)
-            ->take($take)
-            ->get();
+        $collaborate = self::skip($skip)->take($take);
+        if($this->location){
+            $collaborate = $collaborate->where("location",'like',$this->location);
+        }
+        return $collaborate->get();
     }
 }
