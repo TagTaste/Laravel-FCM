@@ -80,8 +80,9 @@ class Share extends Model
     
     public function getRelatedKey()
     {
-        $class = class_basename(static::class);
-        $profileId = $this->{$class}->profile_id;
-        return ['profile' => 'profile:small:' . $profileId];
+        if(empty($this->relatedKey)){
+            throw new \Exception("Related key not specified for shareable.");
+        }
+        return $this->relatedKey;
     }
 }
