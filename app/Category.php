@@ -13,8 +13,6 @@ class Category extends Model
     
     protected $visible = ['id', 'name','children'];
     
-    protected $appends = ['children'];
-    
     public static function checkExists(&$categoryDetails)
     {
         $category = Category::where('name', $categoryDetails['name']);
@@ -26,9 +24,9 @@ class Category extends Model
         return $category->exists();
     }
     
-    public function getChildrenAttribute()
+    public function children()
     {
-        return self::where('parent_id',$this->id)->get();
+        return $this->hasMany(self::class,'parent_id','id');
     }
     
 }

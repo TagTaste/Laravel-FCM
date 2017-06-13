@@ -31,7 +31,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = $this->model->paginate();
+        $this->model = Category::with('children')->paginate();
         
         return $this->sendResponse();
     }
@@ -65,7 +65,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $this->model = $this->model->find($id);
+        $this->model = $this->model::where('id',$id)->with('children')->paginate();
         
         if(!$this->model){
             return $this->sendError("Category not found.");
