@@ -11,6 +11,7 @@
 |
 */
 use Illuminate\Support\Facades\Route;
+
 Route::get('/redis',function(){
     //\Redis::publish('notifications', json_encode(['foo' => 'bar']));
     event(new \App\Events\TestEvent(str_random(32)));
@@ -159,7 +160,7 @@ Route::group(['middleware'=>'auth'],function(){
 
 Route::get('/addprof',function()
 {
-    $profile = \App\Profile::get();
+    $profile = \App\Profile::all();
     foreach ($profile as $profile) {
       \App\Documents\Profile::create($profile);
       return $profile->name.' added to elastic search';
