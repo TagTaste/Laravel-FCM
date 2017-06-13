@@ -57,8 +57,10 @@ class ProductController extends Controller {
         $product->mode = $request->input("mode");
         $product->company_id = $company->id;
 		$product->save();
+		
 		$catIds=$request->input('categories');
 		$product->categories()->sync($catIds);
+		
         $this->model = $product;
 		return $this->sendResponse();
 	}
@@ -108,8 +110,10 @@ class ProductController extends Controller {
         $product->shelf_life = $request->input("shelf_life");
         $product->mode = $request->input("mode");
 		$product->save();
+		
 		$catIds=$request->input('categories');
 		$product->categories()->sync($catIds);
+		
         $this->model = $product;
 		return $this->sendResponse();
 	}
