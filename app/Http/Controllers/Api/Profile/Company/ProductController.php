@@ -17,7 +17,16 @@ class ProductController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Product::where('company_id', $companyId)->orderBy('id', 'desc')->paginate(10);
+        $this->model = Product::where('company_id', $companyId)->orderBy('id', 'desc');
+    
+        if($request->has('categories')){
+            $categories = $request->input('categories');
+            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
+                $query->whereIn('category_id',$categories);
+            });
+        }
+        
+        $this->model = $this->model->paginate(10);
         return $this->sendResponse();
     }
     
@@ -69,10 +78,9 @@ class ProductController extends Controller
      * @param  int $id
      * @return Response
      */
-    public function show($profileId, $companyId, $id)
+    public function show(Request $request, $profileId, $companyId, $id)
     {
-        $this->model = Product::where('id', $id)->where('company_id', $companyId)->first();
-        
+        $this->model = Product::where('id', $id)->where('company_id', $companyId)->get();
         return $this->sendResponse();
     }
     
