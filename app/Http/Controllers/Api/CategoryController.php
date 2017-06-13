@@ -64,7 +64,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $this->model = $this->model->findOrFail($id);
+        $this->model = $this->model->find($id);
         
         if(!$this->model){
             return $this->sendError("Category not found.");
@@ -84,10 +84,15 @@ class CategoryController extends Controller
     {
         $inputs = $request->all();
         
-        $category = $this->model->findOrFail($id);
-        $category->update($inputs);
+        $category = $this->model->find($id);
         
-        return redirect()->route('categories.index')->with('message', 'Item updated successfully.');
+        if(!$category){
+            return $this->sendError("Category not found.");
+        }
+        
+        $this->model = $category->update($inputs);
+        
+        return $this->sendResponse();
     }
     
     /**
@@ -98,8 +103,13 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $this->model->destroy($id);
+        $this->model = $this->model->find($id);
         
-        return redirect()->route('categories.index')->with('message', 'Item deleted successfully.');
+        if(!$this->model){
+            return $this->sendError("Model not found.");
+        }
+        $this->model = $this->model->delete();
+        
+        return $this->sendResponse();
     }
 }
