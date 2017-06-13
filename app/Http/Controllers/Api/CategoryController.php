@@ -74,10 +74,13 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = $this->model->findOrFail($id);
+        $this->model = $this->model->findOrFail($id);
         
-        $catId = \DB::table("categories")->where("parent_id", $id)->get();
-        return $catId;
+        if(!$this->model){
+            return $this->sendError("Category not found.");
+        }
+        
+        return $this->sendResponse();
     }
     
     
