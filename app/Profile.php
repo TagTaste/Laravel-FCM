@@ -510,5 +510,6 @@ class Profile extends Model
     {
         return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','network.' . $profileId)->count() === 1;
     }
+    
 
 }

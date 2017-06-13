@@ -58,6 +58,7 @@ class CollaborateController extends Controller
             $collaborations = $collaborations->whereIn('template_id',$filters['type']);
         }
 		$profileId = $request->user()->profile->id;
+
         $collaborations = $collaborations->paginate();
         $this->model = [];
         
@@ -65,6 +66,7 @@ class CollaborateController extends Controller
 		    $meta = $collaboration->getMetaFor($profileId);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
+
 		return $this->sendResponse();
 	}
 
@@ -166,6 +168,36 @@ class CollaborateController extends Controller
         return $this->sendResponse();
         
     }
+
+    public function shortlist(Request $request, $id)
+    {
+        $collaborate = Collaborate::find($id);
+
+        if(!$collaborate){
+            return $this->sendError("Collaboration not found");
+        }
+        $profileId = $request->user()->profile->id;
+        $shortlist = \DB::table("collaborate_shortlist")->where("collaborate_id",$id)->where('profile_id',$profileId)
+            ->first();
+        if($shortlist){
+            $unshortlist = \DB::table("collaborate_shortlist")
+                ->where("collaborate_id",$id)->where('profile_id',$profileId)
+                ->delete();
+            $this->model = $unshortlist === 1 ? false : null;
+            return $this->sendResponse();
+        }
+        $this->model = \DB::table("collaborate_shortlist")->insert(["collaborate_id"=>$id,'profile_id'=>$profileId]);
+        return $this->sendResponse();
+    }
+    
+    public function shortlisted(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $this->model = Collaborate::join('collaborate_shortlist','collaborate_shortlist.collaborate_id','=','collaborates.id')
+            ->where('collaborate_shortlist.profile_id',$profileId)->get();
+        $this->model = $this->model->makeHidden(['commentCount','likeCount','notify','template_fields','interested']);
+        return $this->sendResponse();
+    }
     
     public function all(Request $request)
     {
@@ -180,6 +212,5 @@ class CollaborateController extends Controller
         
         return $this->sendResponse();
     }
-    
     
 }

@@ -37,7 +37,7 @@ class Shoutout extends Model implements Feedable
     {
         return $this->belongsToMany('App\Comment','comments_shoutouts','shoutout_id','comment_id');
     }
-    
+
     public function company()
     {
         return $this->belongsTo(\App\Shoutout\Company::class);
@@ -90,7 +90,9 @@ class Shoutout extends Model implements Feedable
         $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();
 
         $meta['commentCount'] = $this->comments()->count();
- 
+
+        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         return $meta;
     }
     

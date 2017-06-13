@@ -78,16 +78,18 @@ class PhotoController extends Controller
     public function show(Request $request,$profileId,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = Photo::where('id',$id)->forProfile($profileId)->with(['comments' => function($query){
+        $photo = Photo::where('id',$id)->forProfile($profileId)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
             }])
         ->with(['like'=>function($query) use ($loggedInProfileId){
                 $query->where('profile_id',$loggedInProfileId);
             }])->first();
 
-        if(!$this->model){
+        if(!$photo){
             throw new \Exception("Profile does not have the photo.");
         }
+        $meta = $photo->getMetaFor($profileId);
+        $this->model = ['photo'=>$photo,'meta'=>$meta];
         
         return $this->sendResponse();
     }

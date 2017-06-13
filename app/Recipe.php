@@ -91,6 +91,7 @@ class Recipe extends Model implements Feedable
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
         $meta['likeCount'] = $this->likeCount;
         $meta['commentCount'] = $this->comments()->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     
         return $meta;
     }

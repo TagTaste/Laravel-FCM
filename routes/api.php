@@ -30,7 +30,15 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-           
+           //categories
+           Route::resource("categories","CategoryController");
+            
+            //share
+            Route::post("share/{modelName}/{id}",'ShareController@store');
+            Route::delete("share/{modelName}/{id}",'ShareController@delete');
+            Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
+            Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
+
             //shoutouts
             Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
@@ -69,6 +77,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
             //collaborate templates
             Route::resource("collaborate/templates","CollaborateTemplateController");
+    
+            //collaborates shortlist
+            Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
+            Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
             
             //collaborate
             Route::get("collaborate/all","CollaborateController@all");
@@ -77,9 +89,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post("collaborate/{id}/apply","CollaborateController@apply");
             Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
             Route::resource("collaborate","CollaborateController");
-            
-          
-            
+
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::resource('comments','CommentController');
@@ -209,6 +219,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         });
         
 });
+
 
 Route::post('login',function(Request $request){
     $credentials = $request->only('email','password');

@@ -11,7 +11,12 @@ class CommentController extends Controller {
         'tagboard' => \App\Ideabook::class,
         'collaborate'=> \App\Collaborate::class,
         'recipe' => \App\Recipe::class,
-        'shoutout' =>\App\Shoutout::class
+        'shoutout' =>\App\Shoutout::class,
+        'collaborate_share' => \App\Shareable\Collaborate::class,
+        'photo_share' => \App\Shareable\Photo::class,
+        'job_share' => \App\Shareable\Job::class,
+        'recipe_share' => \App\Shareable\Recipe::class,
+        'shoutout_share' => \App\Shareable\Shoutout::class
     ];
     
     private function getModel(&$modelName, &$modelId){

@@ -100,7 +100,7 @@ class FeedController extends Controller
             if($payload->model !== null){
                 $model = $payload->model;
                 $model = $model::find($payload->model_id);
-                if($model && method_exists($model, 'getMetaFor')){
+                if($model !== null && method_exists($model, 'getMetaFor')){
                     $data['meta'] = $model->getMetaFor($profileId);
                 }
             }

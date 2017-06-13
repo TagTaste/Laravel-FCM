@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use app\Strategies\Paginator;
+use App\Strategies\Paginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 

@@ -8,10 +8,11 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Collaborate extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload;
+    use IdentifiesOwner, CachedPayload, SoftDeletes;
     
     protected $fillable = ['title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
@@ -203,9 +204,14 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['commentCount'] = $this->comments()->count();
         $meta['likeCount'] = $this->likeCount;
+        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+    
         return $meta;
     }
     
@@ -218,11 +224,6 @@ class Collaborate extends Model implements Feedable
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
-    }
-
-    public function similar()
-    {
-        return self::take(4)->get();
     }
     
     public function privacy()
