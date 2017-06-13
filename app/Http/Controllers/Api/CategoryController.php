@@ -49,7 +49,8 @@ class CategoryController extends Controller
         $category = Category::checkExists($inputs);
         
         if ($category) {
-            return $this->sendError("This category already exists.");
+            $this->model = [];
+            return $this->sendError("This category already exists with the given parent.");
         }
         
         $this->model = $this->model->create($inputs);
