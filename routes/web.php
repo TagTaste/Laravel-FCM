@@ -163,6 +163,6 @@ Route::get('/addprof',function()
     $profile = \App\Profile::all();
     foreach ($profile as $profile) {
       \App\Documents\Profile::create($profile);
-      return $profile->name.' added to elastic search';
+      echo $profile->name.' added to elastic search';
     }
 });
