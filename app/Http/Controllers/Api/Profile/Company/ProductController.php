@@ -58,8 +58,8 @@ class ProductController extends Controller {
         $product->company_id = $company->id;
 		$product->save();
 		
-		$catIds=$request->input('categories');
-		$product->categories()->sync($catIds);
+		$categories=$request->input('categories');
+		$product->categories()->sync($categories);
 		
         $this->model = $product;
 		return $this->sendResponse();
