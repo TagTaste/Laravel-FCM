@@ -1,20 +1,29 @@
 <?php
+
 namespace App\Http\Controllers\Api;
+
 use Illuminate\Http\Request;
 
 class LikeController extends Controller
 {
-      public function like(Request $request)
+    public function like(Request $request)
     {
-        $profileId = $request->user()->profile->id;
         $model = $request->input('model');
-        $upper = ucfirst($model);
-        $upper = $upper."Like";
-        $model = $model.'_id';
+        
+        //hard coded, our bad
+        if ($model == 'collaborate') {
+            $model = 'collaboration';
+        }
+        
+        $table = $model . "_likes";
+        $model .= "_id";
+        
         $id = $request->input('model_id');
-        $profileLiked = \App::make("\App\\".$upper)->where($model,$id)->select('profile_id')->get();
-        $profile = \App\Profile::whereIn('id',$profileLiked)->get();
-        return $this->sendResponse($profile);
-
+        
+        $this->model = \App\Profile::join($table, $table . ".profile_id", '=', 'profiles.id')
+            ->where($model, $id)->get();
+        
+        return $this->sendResponse();
+        
     }
 }

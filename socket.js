@@ -29,6 +29,7 @@ var logErr = function(err,count){
         public.psubscribe('public.*',logErr);
         public.on('pmessage',function(pattern,channel,message){
             var message = JSON.parse(message);
+            console.log(message);
             feedNamespace.to(channel).emit("message",message);
             publicNamespace.to(channel).emit("message",message);
         });
