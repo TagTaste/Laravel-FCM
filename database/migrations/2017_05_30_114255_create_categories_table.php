@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateCategoriesTable extends Migration {
 
@@ -16,10 +16,11 @@ class CreateCategoriesTable extends Migration {
             $table->increments('id');
             $table->string('name');
             $table->integer('parent_id')->unsigned()->nullable();
+            $table->unique(array('name', 'parent_id'));
             
             $table->timestamps();
-			$table->unique(array('name', 'parent_id'));
-			
+            $table->softDeletes();
+        			
 			$table->foreign('parent_id')->references('id')->on('categories');
         });
 	}
