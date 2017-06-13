@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Job\Type;
 use App\Traits\CachedPayload;
@@ -17,19 +18,34 @@ class Job extends Model implements Feedable
     protected $fillable = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required','profile_id',
-        'company_id', 'type_id'
+        'company_id', 'type_id','privacy_id'
 
     ];
     protected $visible = ['title', 'description', 'type', 'location',
         'annual_salary', 'functional_area', 'key_skills', 'expected_role',
         'experience_required',
-        'company_id', 'type_id', 'company', 'profile_id',
-        'applications','created_at', 'expires_on','job_id'
+        'company_id', 'type_id', 'company', 'profile', 'profile_id',
+        'applications','created_at', 'expires_on','job_id','privacy_id'
     ];
     
-    protected $with = ['company', 'applications'];
+    protected $with = ['company','profile', 'applications'];
     
     protected $appends = ['type','job_id'];
+    
+    
+    public static function boot()
+    {
+        self::created(function($model){
+    
+            \App\Documents\Job::create($model);
+    
+            \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
+        });
+    
+        self::updated(function($model){
+            \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
+        });
+    }
     
     public function getJobIdAttribute()
     {
@@ -85,12 +101,25 @@ class Job extends Model implements Feedable
     {
         $meta = [];
         $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
+        $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+    
         return $meta;
     }
     
     public function shortlisted()
     {
         return $this->applications()->where('shortlisted',1)->get();
+    }
+    
+    public function privacy()
+    {
+        return $this->belongsTo(Privacy::class);
+    }
+    
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class);
     }
     
 }

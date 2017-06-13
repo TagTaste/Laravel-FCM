@@ -4,10 +4,13 @@ use App\Recipe as BaseRecipe;
 
 class Recipe extends BaseRecipe
 {
-    protected $visible = ['id','name','imageUrl'];
+    //protected $visible = ['id','name','imageUrl'];
     
-    public function similar()
+    public function similar($skip,$take)
     {
-        return self::take(4)->get();
+        return self::where('level','=',$this->level)
+            ->skip($skip)
+            ->take($take)
+            ->get();
     }
 }

@@ -67,11 +67,13 @@ class JobController extends Controller
      */
     public function show($profileId, $id)
     {
-        $this->model = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
+        $job = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         
-        if (!$this->model) {
+        if (!$job) {
             throw new \Exception("No job found with the given Id.");
         }
+        $meta = $job->getMetaFor($profileId);
+        $this->model = ['job'=>$job,'meta'=>$meta];
         
         return $this->sendResponse();
     }

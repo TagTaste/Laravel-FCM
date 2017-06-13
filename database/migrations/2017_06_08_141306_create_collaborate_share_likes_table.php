@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreateCollaborateShareLikesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('collaborate_share_likes', function (Blueprint $table) {
+              $table->unsignedInteger('collaborate_share_id');
+            $table->unsignedInteger('profile_id');
+             $table->foreign("profile_id")->references('id')->on('profiles')->onDelete('cascade');
+              $table->foreign("collaborate_share_id")->references('id')->on('collaborate_shares')->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('collaborate_share_likes');
+    }
+}

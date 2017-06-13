@@ -30,6 +30,8 @@ class FeedableServiceProvider extends ServiceProvider
         //laravel doesn't fire created event on pivot.
         
         \App\Shoutout::observe(FeedableObserver::class);
+        \App\Job::observe(FeedableObserver::class);
+        \App\Collaborate::observe(FeedableObserver::class);
     }
 
     /**
