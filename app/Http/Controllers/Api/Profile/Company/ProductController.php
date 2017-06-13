@@ -1,13 +1,9 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Http\Requests;
 use App\Company\Product;
-use App\ProfileType;
-use \Tagtaste\Api\SendsJsonResponse;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
-use App\ProductCategory;
-use App\Category;
+use Illuminate\Http\Request;
+use Tagtaste\Api\SendsJsonResponse;
 
 class ProductController extends Controller
 {
@@ -62,7 +58,7 @@ class ProductController extends Controller
         
         $categories = $request->input('categories');
         $product->categories()->sync($categories);
-        
+        $product->refresh();
         $this->model = $product;
         return $this->sendResponse();
     }
