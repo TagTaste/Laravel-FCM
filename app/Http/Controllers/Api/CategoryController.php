@@ -37,16 +37,6 @@ class CategoryController extends Controller
     }
     
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        return view('categories.create');
-    }
-    
-    /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
@@ -81,20 +71,6 @@ class CategoryController extends Controller
         }
         
         return $this->sendResponse();
-    }
-    
-    
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        $category = $this->model->findOrFail($id);
-        
-        return view('categories.edit', compact('category'));
     }
     
     /**
