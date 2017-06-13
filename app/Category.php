@@ -11,7 +11,9 @@ class Category extends Model
     
     protected $fillable = ['name', 'parent_id'];
     
-    protected $visible = ['id', 'name'];
+    protected $visible = ['id', 'name','children'];
+    
+    protected $appends = ['children'];
     
     public static function checkExists(&$categoryDetails)
     {
@@ -22,6 +24,11 @@ class Category extends Model
         }
         
         return $category->exists();
+    }
+    
+    public function getChildrenAttribute()
+    {
+        return self::where('parent_id',$this->id)->get();
     }
     
 }
