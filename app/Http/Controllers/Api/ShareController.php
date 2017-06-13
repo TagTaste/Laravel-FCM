@@ -49,6 +49,7 @@ class ShareController extends Controller
         $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,
             $modelName => $modelName . ":" . $id, 'shared'=>'shared:' . $this->model->id
         ];
+        $this->model->relatedKey = ['profile:small:' . $loggedInProfileId];
         //push to feed
         event(new NewFeedable($this->model,$request->user()->profile));
         
