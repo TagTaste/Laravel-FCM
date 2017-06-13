@@ -21,6 +21,8 @@ class ShareController extends Controller
     
     public function store(Request $request, $modelName, $id)
     {
+        $modelName = strtolower($modelName);
+        
         $this->setColumn($modelName);
         
         $sharedModel = $this->getModel($modelName,$id);
@@ -44,7 +46,10 @@ class ShareController extends Controller
         }
         
         $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$sharedModel->id,'privacy_id'=>$request->input('privacy_id')]);
-        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId, strtolower($modelName) =>$modelName . ":" . $id];
+        $this->model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,
+            $modelName => $modelName . ":" . $id, 'shared'=>'shared:' . $this->model->id
+        ];
+        $this->model->relatedKey = ['profile:small:' . $loggedInProfileId];
         //push to feed
         event(new NewFeedable($this->model,$request->user()->profile));
         
@@ -56,11 +61,12 @@ class ShareController extends Controller
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         $this->setColumn($modelName);
         $loggedInId = $request->user()->profile->id;
-        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->first();
+        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         
-        if($this->model){
-            $this->model = $this->model->delete() ? true : false;
+        if(!$this->model){
+            return $this->sendError("Model not found.");
         }
+        $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
     }
 

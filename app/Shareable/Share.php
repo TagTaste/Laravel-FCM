@@ -28,6 +28,9 @@ class Share extends Model
     
     public static function boot()
     {
+        static::created(function($model){
+            \Redis::set("shared:" . $model->id,$model->toJson());
+        });
         static::deleted(function($model){
             $model->payload->delete();
         });
@@ -61,5 +64,25 @@ class Share extends Model
         $tableName = 'comments_'.strtolower(class_basename($this)).'_shares';
         $columnName = strtolower(class_basename($this)).'_share_id';
         return $this->belongsToMany(Comment::class,$tableName,$columnName,'comment_id');
+    }
+    
+    public function getCacheKey() : array
+    {
+        $name = strtolower(class_basename($this));
+        $key  =  "shared:" . $this->id;
+        
+        if(!\Redis::exists($key))
+        {
+            \Redis::set($key,$this->toJson());
+        }
+        return [$name => $key];
+    }
+    
+    public function getRelatedKey()
+    {
+        if(empty($this->relatedKey)){
+            throw new \Exception("Related key not specified for shareable.");
+        }
+        return $this->relatedKey;
     }
 }
