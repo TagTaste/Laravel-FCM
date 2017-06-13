@@ -4,5 +4,5 @@ class Profile extends Document
 {
     public $type = 'profile';
     
-    public $bodyProperties = ['name'];
+    public $bodyProperties = ['name','handle','ingredients'];
 }
