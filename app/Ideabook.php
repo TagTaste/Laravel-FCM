@@ -118,4 +118,14 @@ class Ideabook extends Model
             ->get();
         return $similar;
     }
+
+    public function getMetaFor(int $profileId) : array
+    {
+        $meta = [];
+        $data=\DB::table('ideabook_likes')->where('ideabook_id',$this->id);
+        $meta['hasLiked'] = $data->where('profile_id',$profileId)->exists();
+        $meta['likeCount'] = $data->count();
+
+        return $meta;
+    }
 }

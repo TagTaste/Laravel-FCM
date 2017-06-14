@@ -17,9 +17,12 @@ class TagBoardController extends Controller
      */
     public function index(Request $request,$profileId)
     {
-        $this->model['tagboards'] = Ideabook::profile($profileId)->get();
+        $ideabooks = Ideabook::profile($profileId)->get();
         $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
-    
+        foreach($ideabooks as $ideabook){
+            $this->model[] = ['ideabook'=>$ideabook,'meta'=>$ideabook->getMetaFor($profileId)];
+
+        }
         return $this->sendResponse();
     }
 
@@ -46,7 +49,9 @@ class TagBoardController extends Controller
      */
     public function show($profileId,$id)
     {
-        $this->model = Ideabook::where('id',$id)->profile($profileId)->first();
+        $ideabook = Ideabook::where('id',$id)->profile($profileId)->first();
+        $this->model['ideabook']=$ideabook;
+        $this->model['meta']=$ideabook->getMetaFor($profileId);
 
         if(!$this->model){
             throw new \Exception("Tag Board not found.");
