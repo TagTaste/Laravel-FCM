@@ -122,9 +122,8 @@ class Ideabook extends Model
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $data=\DB::table('ideabook_likes')->where('ideabook_id',$this->id);
-        $meta['hasLiked'] = $data->where('profile_id',$profileId)->exists();
-        $meta['likeCount'] = $data->count();
+        $meta['hasLiked'] = \DB::table('ideabook_likes')->where('ideabook_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['likeCount'] = \DB::table('ideabook_likes')->where('ideabook_id',$this->id)->count();
 
         return $meta;
     }
