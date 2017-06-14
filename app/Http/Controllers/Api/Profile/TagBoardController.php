@@ -87,7 +87,6 @@ class TagBoardController extends Controller
         $profileId = $request->user()->profile->id;
 
         $ideabookLike = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->first();
-        \Log::info($ideabookLike);
         if($ideabookLike != null) {
             $this->model = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->delete();
             \Redis::hIncrBy("ideabook:" . $id . ":meta","like",-1);
