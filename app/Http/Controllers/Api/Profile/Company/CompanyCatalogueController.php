@@ -75,7 +75,7 @@ class CompanyCatalogueController extends Controller
         $catalogue=CompanyCatalogue::checkExists($inputs);
         if ($catalogue) {
             $this->model = [];
-            return $this->sendError("This category already exists with the given parent.");
+            return $this->sendError("This catalogue already exists with the given company.");
         }
         $this->model=$this->model->create($inputs);
 
