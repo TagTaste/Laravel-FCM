@@ -57,6 +57,11 @@ class Ideabook extends Model
         return $this->belongsToMany(\App\Ideabook\Photo::class,'ideabook_photos','ideabook_id','photo_id')
             ->withPivot('note');
     }
+
+    public function like()
+    {
+        return $this->hasMany('App\IdeabookLike', 'ideabook_id');
+    }
     
     /**
      * Checks whether the current tagboard belongs to $profileId

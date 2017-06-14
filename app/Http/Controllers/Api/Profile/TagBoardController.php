@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\IdeabookLike;
 use Tagtaste\Api\Response;
 use App\Http\Controllers\Api\Controller;
 use App\Ideabook;
@@ -78,6 +79,24 @@ class TagBoardController extends Controller
     {
         $this->model = $request->user()->ideabooks()
             ->where('id',$id)->delete();
+        return $this->sendResponse();
+    }
+
+    public function like(Request $request, $profileId, $id)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $ideabookLike = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->first();
+        \Log::info($ideabookLike);
+        if($ideabookLike != null) {
+            $this->model = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->delete();
+            \Redis::hIncrBy("ideabook:" . $id . ":meta","like",-1);
+
+        } else {
+            $this->model = IdeabookLike::insert(['profile_id' => $profileId, 'ideabook_id' => $id]);
+            \Redis::hIncrBy("ideabook:" . $id . ":meta","like",1);
+
+        }
         return $this->sendResponse();
     }
 }
