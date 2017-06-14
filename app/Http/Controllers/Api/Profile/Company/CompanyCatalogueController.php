@@ -31,11 +31,12 @@ class CompanyCatalogueController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index($profileId, $companyId)
 	{
-		$this->model = $this->model->paginate();
+		$this->model = CompanyCatalogue::where('company_id',$companyId)->paginate(10);
 
-		return $this->sendResponse();
+
+        return $this->sendResponse();
 	}
 
 	/**
@@ -90,7 +91,12 @@ class CompanyCatalogueController extends Controller
 	 */
 	public function show($profileId,$companyId,$id)
 	{
-		$this->model = $this->model->findOrFail($id);
+
+
+        $this->model = CompanyCatalogue::where('company_id',$companyId)->where('id',$id)->first();
+        if(!$this->model){
+            throw new \Exception("Catalogue not found.");
+        }
 		
 		return $this->sendResponse();
 	}
@@ -106,6 +112,14 @@ class CompanyCatalogueController extends Controller
 	public function update(Request $request,$profileId,$companyId, $id)
 	{
 		$inputs = $request->all();
+
+        $userId = $request->user()->id;
+
+        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
+
+        if(!$company){
+            throw new \Exception("User does not belong to this company.");
+        }
 
 		$this->model = $this->model->findOrFail($id);
         $this->model->update($inputs);
