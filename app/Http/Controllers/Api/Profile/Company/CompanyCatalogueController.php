@@ -71,8 +71,13 @@ class CompanyCatalogueController extends Controller
         $imageName = str_random(32) . ".jpg";
         $request->file('image')->storeAs(CompanyCatalogue::getCompanyImagePath($profileId, $companyId), $imageName);
         $inputs['image'] = $imageName;
-        \Log::info($imageName);
-		$this->model=$this->model->create($inputs);
+
+        $catalogue=CompanyCatalogue::checkExists($inputs);
+        if ($catalogue) {
+            $this->model = [];
+            return $this->sendError("This category already exists with the given parent.");
+        }
+        $this->model=$this->model->create($inputs);
 
 		return $this->sendResponse();
 	}
@@ -114,8 +119,15 @@ class CompanyCatalogueController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request,$profileId,$companyId,$id)
 	{
+        $userId = $request->user()->id;
+
+        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
+
+        if(!$company){
+            throw new \Exception("User does not belong to this company.");
+        }
         $this->model = $this->model->find($id);
 
         if(!$this->model){

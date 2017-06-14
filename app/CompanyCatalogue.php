@@ -11,6 +11,13 @@ class CompanyCatalogue extends Model
 {
     protected $fillable = ['company_id', 'image'];
 
+    public static function checkExists(&$catalogueDetails)
+    {
+        $catalogue = Category::where('image', $catalogueDetails['image']);
+        $catalogue=$catalogue->where('company_id',$catalogueDetails['company_id']);
+        return $catalogue->exists();
+    }
+
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
         $relativePath = "images/ph/$profileId/c/$companyId/p";
