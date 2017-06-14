@@ -11,6 +11,7 @@ class SimilarController extends Controller
     private $relationships = [
         'job' => \App\Similar\Job::class,
         'profile' => \App\Similar\Profile::class,
+        'company' => \App\Similar\Company::class,
         'photo' => \App\Similar\Photo::class,
         'product' => \App\Similar\Product::class,
         'recipe' => \App\Similar\Recipe::class,
