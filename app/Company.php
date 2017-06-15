@@ -9,14 +9,13 @@ use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
 use App\Traits\PushesToChannel;
-use App\Traits\Subscription;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use \Storage;
 
 class Company extends Model
 {
-    use PushesToChannel, SoftDeletes, Subscription;
+    use PushesToChannel, SoftDeletes;
     
     protected $fillable = [
         'name',
