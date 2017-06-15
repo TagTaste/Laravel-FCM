@@ -15,38 +15,51 @@ class ShareController extends Controller
         $this->column = $modelName . $this->column;
     }
     
-    private function getModel(&$modelName, &$id){
+    private function getModel(&$modelName, &$id)
+    {
         $class = "\\App\\" . ucwords($modelName);
         return $class::find($id);
     }
     
     public function store(Request $request, $modelName, $id)
     {
-        $this->setColumn($modelName);
-        $model = $this->getModel($modelName,$id);
+        $modelName = strtolower($modelName);
         
-        if(!$model){
+        $this->setColumn($modelName);
+        
+        
+        $sharedModel = $this->getModel($modelName, $id);
+        
+        if (!$sharedModel) {
             return $this->sendError("Nothing found for given Id.");
         }
-    
+        
         $loggedInProfileId = $request->user()->profile->id;
         
-        $model->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId];
+        //$sharedModel->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
         
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         
         $share = new $class();
-        $exists = $share->where('profile_id',$loggedInProfileId)
-            ->where($this->column,$model->id)->exists();
+        $exists = $share->where('profile_id', $loggedInProfileId)
+            ->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
         
-        if($exists){
+        if ($exists) {
             return $this->sendError("You have already shared this.");
         }
-        $shareProfileId=$model->profile_id;
-        $this->model = $share->create(['profile_id'=>$loggedInProfileId, $this->column =>$model->id]);
-
-        event(new NewFeedable($model,$request->user()->profile,$this->model));
-        event(new Update($id,$modelName,$shareProfileId,"share your post"));
+        
+        
+        $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id, 'privacy_id' => $request->input('privacy_id')]);
+        $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
+            $modelName => $modelName . ":" . $id, 'shared' => 'shared:' . $this->model->id
+        ];
+        $this->model->relatedKey = ['profile' => 'profile:small:' . $loggedInProfileId];
+        //push to feed
+        event(new NewFeedable($this->model, $request->user()->profile));
+        
+        $message = $request->user()->name . " shared your post.";
+        event(new Update($id, $modelName, $sharedModel->profile_id, $message));
+        
         return $this->sendResponse();
     }
     
@@ -55,12 +68,14 @@ class ShareController extends Controller
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         $this->setColumn($modelName);
         $loggedInId = $request->user()->profile->id;
-        $this->model = $class::where($this->column,$id)->where('profile_id',$loggedInId)->first();
+        $this->model = $class::where($this->column, $id)->where('profile_id', $loggedInId)->whereNull('deleted_at')->first();
         
-        if($this->model){
-            $this->model = $this->model->delete() ? true : false;
+        if (!$this->model) {
+            return $this->sendError("Model not found.");
         }
+        $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
     }
+    
     
 }

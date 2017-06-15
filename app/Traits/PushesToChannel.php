@@ -6,7 +6,7 @@ use App\Company;
 
 trait PushesToChannel
 {
-    public function pushToChannel($channelName,&$model, $payloadable)
+    public function pushToChannel($channelName,&$model)
     {
         $channelName = $this->getChannelName($channelName);
         
@@ -20,20 +20,19 @@ trait PushesToChannel
         $channel = $this->channels()->where('name',$channelName)->first();
         
         if(!$channel){
-            //since a user can post even if he has no network (i.e. no followers)
+            //since a user can post even if he has no networzk (i.e. no followers)
             //throwing an exception here might cause some problem.
             //Throw an error if you feel like. Make sure it doesn't break anything.
             \Log::warning("Channel " . $channelName . " does not exist.");
             return false;
         }
         
-       
         $payload = $model->getPayload();
         $payload = $channel->addPayload(get_class($model),$model->id,$payload);
         //update model id
         
-        $payloadable->payload_id = $payload->id;
-        $payloadable->save();
+        $model->payload_id = $payload->id;
+        $model->save();
         
         return $payload;
         

@@ -57,6 +57,11 @@ class Ideabook extends Model
         return $this->belongsToMany(\App\Ideabook\Photo::class,'ideabook_photos','ideabook_id','photo_id')
             ->withPivot('note');
     }
+
+    public function like()
+    {
+        return $this->hasMany('App\IdeabookLike', 'ideabook_id');
+    }
     
     /**
      * Checks whether the current tagboard belongs to $profileId
@@ -112,5 +117,14 @@ class Ideabook extends Model
             ->where('profiles.id','!=',$profileId)->where('profiles.id','!=',$loggedInUser)
             ->get();
         return $similar;
+    }
+
+    public function getMetaFor(int $profileId) : array
+    {
+        $meta = [];
+        $meta['hasLiked'] = \DB::table('ideabook_likes')->where('ideabook_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['likeCount'] = \DB::table('ideabook_likes')->where('ideabook_id',$this->id)->count();
+
+        return $meta;
     }
 }

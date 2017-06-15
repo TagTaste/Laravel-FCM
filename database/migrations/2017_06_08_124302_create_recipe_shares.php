@@ -20,7 +20,7 @@ class CreateRecipeShares extends Migration
             $table->unsignedInteger('payload_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['profile_id','recipe_id']);
+//            $table->unique(['profile_id','recipe_id']);
             $table->foreign('profile_id')->references("id")->on("profiles")->onDelete('cascade');
             $table->foreign('recipe_id')->references("id")->on("photos")->onDelete('cascade');
             $table->foreign('payload_id')->references("id")->on("channel_payloads")->onDelete('cascade');

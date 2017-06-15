@@ -85,7 +85,12 @@ class Shoutout extends Model implements Feedable
         $meta = [];
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
         $meta['likeCount'] = \Redis::hget("shoutout:" . $this->id . ":meta","like") ?: 0;
+
+        $idLiked = $this->like()->select('profile_id')->take(3)->get();
+        $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();
+
         $meta['commentCount'] = $this->comments()->count();
+
         $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         return $meta;

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use Tagtaste\Api\Response;
 use App\Http\Controllers\Api\Controller;
 use App\Ideabook;
+use App\IdeabookLike;
 use Illuminate\Http\Request;
 
 class TagBoardController extends Controller
@@ -16,7 +16,16 @@ class TagBoardController extends Controller
      */
     public function index(Request $request,$profileId)
     {
-        $this->model['tagboards'] = Ideabook::profile($profileId)->get();
+        $ideabooks = Ideabook::profile($profileId)->get();
+        $this->model = [];
+        if($ideabooks->count() ){
+            foreach($ideabooks as $ideabook){
+                $temp = $ideabook->toArray();
+                $temp['meta'] =  $ideabook->getMetaFor($profileId);
+                $this->model['tagboards'][] = $temp;
+            }
+        }
+        
         $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
     
         return $this->sendResponse();
@@ -45,7 +54,9 @@ class TagBoardController extends Controller
      */
     public function show($profileId,$id)
     {
-        $this->model = Ideabook::where('id',$id)->profile($profileId)->first();
+        $ideabook = Ideabook::where('id',$id)->profile($profileId)->first();
+        $this->model = $ideabook->toArray();
+        $this->model['meta']=$ideabook->getMetaFor($profileId);
 
         if(!$this->model){
             throw new \Exception("Tag Board not found.");
@@ -64,7 +75,7 @@ class TagBoardController extends Controller
     {
         $this->model = $request->user()->ideabooks()
                 ->where('id',$id)
-                ->update($request->intersect(['name','description','keywords','privacy_id']));
+                ->update($request->except(['_method','_token']));
         return $this->sendResponse();
     }
 
@@ -78,6 +89,23 @@ class TagBoardController extends Controller
     {
         $this->model = $request->user()->ideabooks()
             ->where('id',$id)->delete();
+        return $this->sendResponse();
+    }
+
+    public function like(Request $request, $profileId, $id)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $ideabookLike = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->first();
+        if($ideabookLike != null) {
+            $this->model = IdeabookLike::where('profile_id', $profileId)->where('ideabook_id', $id)->delete();
+            \Redis::hIncrBy("ideabook:" . $id . ":meta","like",-1);
+
+        } else {
+            $this->model = IdeabookLike::insert(['profile_id' => $profileId, 'ideabook_id' => $id]);
+            \Redis::hIncrBy("ideabook:" . $id . ":meta","like",1);
+
+        }
         return $this->sendResponse();
     }
 }

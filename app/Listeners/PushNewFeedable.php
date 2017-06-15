@@ -39,7 +39,6 @@ class PushNewFeedable
             \Log::warning("Not publishing it to network or public feed.");
             return;
         }
-        \Log::info($event->payloadable);
     
         if($event->model->privacy->isPublic()){
             $event->owner->pushToPublic($event->model, $event->payloadable);

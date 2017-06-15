@@ -15,7 +15,7 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
-
+    
     /**
      * Show the application dashboard.
      *
@@ -24,17 +24,17 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $userId = $request->user()->id;
-
-        $chefs = \App\User::where("id","!=",$userId)->get();
-
-       $chefsFollowed = \App\Follower::with('follows')->where('follower_id',$userId)->get();
-       $followers = \App\Follower::with('follower')->where('follows_id',$userId)->get();
-
-        $articles = \App\Article::with('template')->with(['ideabooks' => function($query) use ($userId) {
-            $query->where('user_id','=',$userId);
+        
+        $chefs = \App\User::where("id", "!=", $userId)->get();
+        
+        $chefsFollowed = \App\Follower::with('follows')->where('follower_id', $userId)->get();
+        $followers = \App\Follower::with('follower')->where('follows_id', $userId)->get();
+        
+        $articles = \App\Article::with('template')->with(['ideabooks' => function ($query) use ($userId) {
+            $query->where('user_id', '=', $userId);
         }])->get();
-
-
-        return view('home', compact('chefs','chefsFollowed', 'followers','articles'));
+        
+        return view('home', compact('chefs', 'chefsFollowed', 'followers', 'articles'));
     }
+
 }

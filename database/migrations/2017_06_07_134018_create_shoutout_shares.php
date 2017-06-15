@@ -21,7 +21,7 @@ class CreateShoutoutShares extends Migration
             $table->unsignedInteger('payload_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['shoutout_id','profile_id']);
+//            $table->unique(['shoutout_id','profile_id']);
             $table->foreign('shoutout_id')->references('id')->on('shoutouts')->onDelete('cascade');
             $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
             $table->foreign('payload_id')->references("id")->on("channel_payloads")->onDelete('cascade');

@@ -204,6 +204,8 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['commentCount'] = $this->comments()->count();
         $meta['likeCount'] = $this->likeCount;
@@ -222,11 +224,6 @@ class Collaborate extends Model implements Feedable
         $meta = [];
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
-    }
-
-    public function similar()
-    {
-        return self::take(4)->get();
     }
     
     public function privacy()

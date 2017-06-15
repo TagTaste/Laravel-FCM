@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Channel\Payload;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
+use App\ShoutoutLike;
+use App\RecipeLike;
+use App\Photolike;
 
 class FeedController extends Controller
 {
@@ -123,4 +126,5 @@ class FeedController extends Controller
         
         return $this->sendResponse();
     }
+  
 }
