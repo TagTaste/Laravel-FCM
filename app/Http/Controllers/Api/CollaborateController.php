@@ -39,7 +39,7 @@ class CollaborateController extends Controller
         $filters['keywords'] = [];
         
         foreach($keywords as $keyword){
-            if(empty($keywords)){
+            if(empty($keywords->keywords)){
                 continue;
             }
     
