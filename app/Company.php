@@ -78,14 +78,15 @@ class Company extends Model
         'milestones',
         'speciality',
         'profileId',
-        'handle'
+        'handle',
+        'followerProfiles'
     ];
 
 
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
 
 
-    protected $appends = ['statuses','companyTypes','profileId'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles'];
     
     public static function boot()
     {
@@ -318,5 +319,44 @@ class Company extends Model
     public function getProfileIdAttribute()
     {
         return $this->user->profile->id;
+    }
+    
+    public function getFollowerProfilesAttribute()
+    {
+    
+        //if you use \App\Profile here, it would end up nesting a lot of things.
+        $profiles = Company::getFollowers($this->id);
+    
+        $count = $profiles->count();
+        if($count > 1000000)
+        {
+            $count = round($count/1000000, 1);
+            $count = $count."M";
+        }
+        elseif($count > 1000)
+        {
+        
+            $count = round($count/1000, 1);
+            $count = $count."K";
+        }
+    
+        return ['count'=> $count, 'profiles' => $profiles];
+    
+    }
+    
+    public static function getFollowers($id)
+    {
+        //just get the profile ids first
+        //then fire another query to build the required things
+        
+        $profileIds = \DB::table('profiles')->select('profiles.id')
+            ->join('subscribers','subscribers.profile_id','=','profiles.id')
+            ->where('subscribers.channel_name','like','company.public.' . $id)
+//            ->where('subscribers.profile_id','!=',$id)
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->get();
+        
+        return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
     }
 }
