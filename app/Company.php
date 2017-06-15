@@ -96,6 +96,9 @@ class Company extends Model
             $profile = $company->user->profile;
             $profile->subscribe("public",$company);
             $profile->subscribe("network",$company);
+            
+            //add creator as a user of his company
+            $company->addUser($company->user->id);
         });
     }
 
