@@ -359,4 +359,9 @@ class Company extends Model
         
         return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
     }
+    
+    public function isFollowing($followerProfileId)
+    {
+        return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
+    }
 }
