@@ -18,11 +18,16 @@ class TagBoardController extends Controller
     public function index(Request $request,$profileId)
     {
         $ideabooks = Ideabook::profile($profileId)->get();
-        $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
-        foreach($ideabooks as $ideabook){
-            $this->model[] = ['ideabook'=>$ideabook,'meta'=>$ideabook->getMetaFor($profileId)];
-
+        if($ideabooks->count() ){
+            foreach($ideabooks as $ideabook){
+                $temp = $ideabook->toArray();
+                $temp['meta'] =  $ideabook->getMetaFor($profileId);
+                $this->model['ideabooks'][] = $temp;
+            }
         }
+        
+        $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
+    
         return $this->sendResponse();
     }
 
@@ -70,7 +75,7 @@ class TagBoardController extends Controller
     {
         $this->model = $request->user()->ideabooks()
                 ->where('id',$id)
-                ->update($request->intersect(['name','description','keywords','privacy_id']));
+                ->update($request->except(['_method','_token']));
         return $this->sendResponse();
     }
 
