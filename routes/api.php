@@ -169,7 +169,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("books","BookController");
                     Route::resource("patents","PatentController");
                     Route::resource("awards","AwardController");
-    
+
+                    Route::resource("catalogue","CompanyCatalogueController");
+
+
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::resource("collaborate","CollaborateController");
