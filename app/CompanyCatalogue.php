@@ -13,9 +13,7 @@ class CompanyCatalogue extends Model
 
     public static function checkExists(&$catalogueDetails)
     {
-        $catalogue = Category::where('image', $catalogueDetails['image']);
-        $catalogue=$catalogue->where('company_id',$catalogueDetails['company_id']);
-        return $catalogue->exists();
+        return self::where('image', $catalogueDetails['image'])->where('company_id',$catalogueDetails['company_id'])->exists();
     }
 
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
