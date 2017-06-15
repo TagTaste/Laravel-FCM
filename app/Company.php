@@ -295,6 +295,10 @@ class Company extends Model
             throw new \Exception("User " . $userId ." does not belong to company " . $this->name);
         }
     
+        //unsubscribe the user to the company feed
+        $user->profile->unsubscribe("public",$this);
+        $user->profile->unsubscribe("network",$this);
+    
         return $user->delete();
     }
     
