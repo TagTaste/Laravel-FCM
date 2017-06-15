@@ -17,7 +17,16 @@ class CompanyController extends Controller
      */
     public function index(Request $request, $profileId)
     {
-        $this->model = $request->user()->companies;
+        $companies = $request->user()->companies;
+        
+        $profileId = $request->user()->profile->id;
+        $this->model = [];
+        foreach($companies as $company){
+            //firing multiple queries for now.
+            $temp = $company->toArray();
+            $temp['isFollowing'] = $company->isFollowing($profileId);
+            $this->model[] = $temp;
+        }
         return $this->sendResponse();
     }
     
@@ -81,14 +90,16 @@ class CompanyController extends Controller
     public function show(Request $request, $profileId, $id)
     {
         
-        $this->model = Company::whereHas('user.profile',function($query) use ($profileId){
+        $company = Company::whereHas('user.profile',function($query) use ($profileId){
             $query->where('id',$profileId);
         })->where('id',$id)->first();
 
-        if(!$this->model){
+        if(!$company){
             return $this->sendError("Company not found.");
         }
-        
+        $profileId = $request->user()->profile->id;
+        $this->model = $company->toArray();
+        $this->model['isFollowing'] = $company->isFollowing($profileId);
         return $this->sendResponse();
     }
     
