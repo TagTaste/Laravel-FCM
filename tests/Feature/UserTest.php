@@ -16,7 +16,7 @@ class UserTest extends TestCase
      */
     public function testExample()
     {
-        $this->get('/api/profile')
+        $this->get('/')
             ->assertSuccessful();
     }
 }

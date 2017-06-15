@@ -68,16 +68,16 @@ class CollabTest extends TestCase
 
         $this->get('/api/profiles/1/companies/1/collaborate/'.$id)
             ->assertSuccessful();
-//
-//        $this->put('/api/profiles/1/companies/1/collaborate/'.$id,['title'=>'test','i_am'=>'developer','looking_for'=>'tester',
-//            'purpose'=>'job','deliverables'=>'yes','who_can_help'=>'anyone','expires_on'=>'2017-06-30 00:00:00',
-//            'keywords'=>'test','video'=>'youtube.com','location'=>'delhi',
-//            'profile_id'=>'1','company_id'=>'1','notify'=>'1',
-//            'privacy_id'=>'3'])
-//            ->assertSuccessful();
-//
-//        $this->delete('/api/profiles/1/companies/1/collaborate/'.$id)
-//            ->assertSuccessful();
+
+        $this->put('/api/profiles/1/companies/1/collaborate/'.$id,['title'=>'test','i_am'=>'developer','looking_for'=>'tester',
+            'purpose'=>'job','deliverables'=>'yes','who_can_help'=>'anyone','expires_on'=>'2017-06-30 00:00:00',
+            'keywords'=>'test','video'=>'youtube.com','location'=>'delhi',
+            'profile_id'=>'1','company_id'=>'1','notify'=>'1',
+            'privacy_id'=>'3'])
+            ->assertSuccessful();
+
+        $this->delete('/api/profiles/1/companies/1/collaborate/'.$id)
+            ->assertSuccessful();
 
         $this->post('/api/profiles/1/companies/1/collaborate/'.$id.'/approve')
             ->assertSuccessful();
@@ -116,8 +116,8 @@ class CollabTest extends TestCase
         $this->post('/api/collaborate/'.$id.'/fields',['collaboration_id'=>$id,'field_id'=>1])
             ->assertSuccessful();
 
-//        $this->delete('/api/collaborate/'.$id.'/fields/1')
-//            ->assertSuccessful();
+        $this->delete('/api/collaborate/'.$id.'/fields/1')
+            ->assertSuccessful();
 
 
     }
