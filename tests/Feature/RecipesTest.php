@@ -25,10 +25,11 @@ class RecipesTest extends TestCase
             'calorie'=>'200','content'=>'youtube.com','name'=>'test',
             'preparation_time'=>'everytime','cooking_time'=>'morning','level'=>'1',
             'tags'=>'kuch bhi','tutorial_link'=>'tagtaste.com','billable'=>'100','privacy_id'=>'1']);
-        $response->assertStatus(400);
+        $response->assertStatus(200);
 
         $data=$response->send();
-        \Log::info($data);
+        $id=$data->getData()->data->id;
+
         $this->get('/api/profiles/1/recipes/'.$id)
             ->assertSuccessful();
 
@@ -41,5 +42,21 @@ class RecipesTest extends TestCase
 
         $this->delete('/api/profiles/1/recipes/'.$id)
             ->assertSuccessful();
+
+        //like recipe
+        $this->post('/api/profiles/1/recipes/'.$id.'/like')
+            ->assertSuccessful();
+
+        //recipe
+
+        $this->get('/api/recipes')
+            ->assertSuccessful();
+
+        $this->get('/api/recipes/2')
+            ->assertSuccessful();
+
+        $this->get('/api/recipes/image/2')
+            ->assertSuccessful();
+
     }
 }
