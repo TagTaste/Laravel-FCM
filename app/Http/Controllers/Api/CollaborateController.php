@@ -45,8 +45,9 @@ class CollaborateController extends Controller
         
                 $filters['keywords'][] = explode(",",$keyword->keywords);
             }
-            
-            $filters['keywords'] = array_merge(...$filters['keywords']);
+            if(count($filters['keywords'])){
+                $filters['keywords'] = array_merge(...$filters['keywords']);
+            }
         }
         
         $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
