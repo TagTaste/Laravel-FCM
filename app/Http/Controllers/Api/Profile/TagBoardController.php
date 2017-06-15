@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\IdeabookLike;
-use Tagtaste\Api\Response;
 use App\Http\Controllers\Api\Controller;
 use App\Ideabook;
+use App\IdeabookLike;
 use Illuminate\Http\Request;
 
 class TagBoardController extends Controller
@@ -23,7 +22,7 @@ class TagBoardController extends Controller
             foreach($ideabooks as $ideabook){
                 $temp = $ideabook->toArray();
                 $temp['meta'] =  $ideabook->getMetaFor($profileId);
-                $this->model[] = $temp;
+                $this->model['tagboards'][] = $temp;
             }
         }
         
