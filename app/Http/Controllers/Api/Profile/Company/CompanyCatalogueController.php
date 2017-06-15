@@ -49,7 +49,10 @@ class CompanyCatalogueController extends Controller
     {
         $inputs = $request->all();
         $userId = $request->user()->id;
-        $company = Company::where('id', $companyId)->where('user_id', $userId)->first();
+    
+        $company = Company::where('id', $companyId)->where('users',function($query) use ($userId){
+            $query->where('user_id',$userId);
+        })->first();
         
         if (!$company) {
             throw new \Exception("User does not belong to this company.");
@@ -103,7 +106,9 @@ class CompanyCatalogueController extends Controller
         
         $userId = $request->user()->id;
         
-        $company = Company::where('id', $companyId)->where('user_id', $userId)->first();
+        $company = Company::where('id', $companyId)->where('users',function($query) use ($userId){
+            $query->where('user_id',$userId);
+        })->first();
         
         if (!$company) {
             throw new \Exception("User does not belong to this company.");
@@ -139,7 +144,9 @@ class CompanyCatalogueController extends Controller
     {
         $userId = $request->user()->id;
         
-        $company = Company::where('id', $companyId)->where('user_id', $userId)->first();
+        $company = Company::where('id', $companyId)->where('users',function($query) use ($userId){
+            $query->where('user_id',$userId);
+        })->first();
         
         if (!$company) {
             throw new \Exception("User does not belong to this company.");
