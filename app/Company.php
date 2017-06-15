@@ -9,13 +9,14 @@ use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
 use App\Traits\PushesToChannel;
+use app\Traits\Subscription;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Storage;
 
 class Company extends Model
 {
-    use PushesToChannel, SoftDeletes;
+    use PushesToChannel, SoftDeletes, Subscription;
     
     protected $fillable = [
         'name',
@@ -86,6 +87,16 @@ class Company extends Model
 
 
     protected $appends = ['statuses','companyTypes','profileId'];
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        self::created(function(Company $company){
+            $company->subscribe("public",$company);
+            $company->subscribe("network",$company);
+        });
+    }
 
     public function setEstablishedOnAttribute($value)
     {
