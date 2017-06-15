@@ -37,16 +37,16 @@ class CollaborateController extends Controller
         $filters['location'] = \App\Filter\Collaborate::select('location')->groupBy('location')->where('location','!=','null')->get();
         $keywords = \App\Filter\Collaborate::select('keywords')->groupBy('keywords')->where('keywords','!=','null')->get();
         $filters['keywords'] = [];
-        if($keywords->count()){
+       if($keywords->count()){
             foreach($keywords as $keyword){
-                if(empty($keywords->keywords)){
+                if(empty($keyword->keywords)){
                     continue;
                 }
         
                 $filters['keywords'][] = explode(",",$keyword->keywords);
             }
             if(count($filters['keywords'])){
-                $filters['keywords'] = array_merge(...$filters['keywords']);
+               $filters['keywords'] = array_merge(...$filters['keywords']);
             }
         }
         
