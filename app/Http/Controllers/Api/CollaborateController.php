@@ -35,7 +35,17 @@ class CollaborateController extends Controller
         $filters  = [];
 
         $filters['location'] = \App\Filter\Collaborate::select('location')->groupBy('location')->where('location','!=','null')->get();
-        $filters['keywords'] = \App\Filter\Collaborate::select('keywords')->groupBy('keywords')->where('keywords','!=','null')->get();
+        $keywords = \App\Filter\Collaborate::select('keywords')->groupBy('keywords')->where('keywords','!=','null')->get();
+        $filters['keywords'] = [];
+        
+        foreach($keywords as $keyword){
+            if(empty($keywords)){
+                continue;
+            }
+    
+            $filters['keywords'][] = explode(",",$keyword->keywords);
+        }
+        $filters['keywords'] = array_merge(...$filters['keywords']);
         $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
         $this->model = $filters;
         return $this->sendResponse();
@@ -49,9 +59,14 @@ class CollaborateController extends Controller
         if (!empty($filters['location'])) {
             $collaborations = $collaborations->whereIn('location', $filters['location']);
         }
-        
         if (!empty($filters['keywords'])) {
-            $collaborations = $collaborations->whereIn('keywords', $filters['keywords']);
+            $keywords = $filters['keywords'];
+            
+            $collaborations = $collaborations->where(function($query) use($keywords){
+                foreach($keywords as $keyword){
+                    $query->orWhere('keywords','like',"%" . $keyword . "%");
+                }
+            });
         }
         if(!empty($filters['type']))
         {
