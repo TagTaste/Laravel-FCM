@@ -9,10 +9,10 @@ use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
 use App\Traits\PushesToChannel;
-use app\Traits\Subscription;
+use App\Traits\Subscription;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Storage;
+use \Storage;
 
 class Company extends Model
 {
@@ -93,8 +93,9 @@ class Company extends Model
         parent::boot();
         
         self::created(function(Company $company){
-            $company->subscribe("public",$company);
-            $company->subscribe("network",$company);
+            $profile = $company->user->profile;
+            $profile->subscribe("public",$company);
+            $profile->subscribe("network",$company);
         });
     }
 
@@ -251,9 +252,9 @@ class Company extends Model
      */
     public function addUser($userId)
     {
-        $userCount = \DB::table('users')->where('id',$userId)->count();
+        $user = \DB::table('users')->find($userId);
         
-        if($userCount === 0){
+        if(!$user){
             throw new \Exception("User $userId does not exist. Cannot add to company " . $this->name);
         }
         
@@ -262,11 +263,16 @@ class Company extends Model
         $exists = $this->users()->find($userId);
         
         if($exists){
-            throw new \Exception("User {$exists->name} already exists in the company " . $this->name);
+            throw new \Exception("User {$exists->name} already exists in the company.");
         }
         
         //attach the user
-        return $this->users()->attach($userId);
+        $this->users()->attach($userId);
+        
+        //subscribe the user to the company feed
+        $user->profile->subscribe("public",$this);
+        $user->profile->subscribe("network",$this);
+        return true;
     }
     
     /**
