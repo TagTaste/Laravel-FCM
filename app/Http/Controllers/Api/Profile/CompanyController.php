@@ -86,8 +86,9 @@ class CompanyController extends Controller
         })->where('id',$id)->first();
 
         if(!$this->model){
-            throw new \Exception("Company not found.");
+            return $this->sendError("Company not found.");
         }
+        
         return $this->sendResponse();
     }
     
