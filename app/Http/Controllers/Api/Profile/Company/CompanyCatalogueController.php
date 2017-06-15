@@ -60,14 +60,14 @@ class CompanyCatalogueController extends Controller
         }
         
         $imageName = str_random(32) . ".jpg";
+        $catalogue = CompanyCatalogue::checkExists($inputs);
+        if ($catalogue) {
+            $imageName = str_random(32) . ".jpg";
+        }
+        
         $request->file('image')->storeAs(CompanyCatalogue::getCompanyImagePath($profileId, $companyId), $imageName);
         $inputs['image'] = $imageName;
         
-        $catalogue = CompanyCatalogue::checkExists($inputs);
-        if ($catalogue) {
-            $this->model = [];
-            return $this->sendError("This catalogue already exists with the given company.");
-        }
         $this->model = $this->model->create($inputs);
         
         return $this->sendResponse();
@@ -81,8 +81,6 @@ class CompanyCatalogueController extends Controller
      */
     public function show($profileId, $companyId, $id)
     {
-        
-        
         $this->model = CompanyCatalogue::where('company_id', $companyId)->where('id', $id)->first();
         if (!$this->model) {
             throw new \Exception("Catalogue not found.");
@@ -110,10 +108,24 @@ class CompanyCatalogueController extends Controller
         if (!$company) {
             throw new \Exception("User does not belong to this company.");
         }
-        
+    
         $this->model = $this->model->findOrFail($id);
-        $this->model->update($inputs);
+    
+        if(!$this->model){
+            return $this->sendError("Catalogue does not exist.");
+        }
         
+        if ($request->hasFile('image')) {
+            $imageName = str_random(32) . ".jpg";
+            $catalogue = CompanyCatalogue::checkExists($inputs);
+            if ($catalogue) {
+                $imageName = str_random(32) . ".jpg";
+            }
+            $inputs['image'] = $imageName;
+            $request->file('image')->storeAs(CompanyCatalogue::getCompanyImagePath($profileId, $companyId), $imageName);
+        }
+        
+        $this->model = $this->model->update($inputs);
         return $this->sendResponse();
     }
     
@@ -132,6 +144,7 @@ class CompanyCatalogueController extends Controller
         if (!$company) {
             throw new \Exception("User does not belong to this company.");
         }
+        
         $this->model = $this->model->find($id);
         
         if (!$this->model) {
