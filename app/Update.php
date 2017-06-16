@@ -8,11 +8,6 @@ class Update extends Model
 {
     protected $fillable = ['content', 'model_id', 'model_name', 'profile_id'];
 
-    public function storeData($id,$name,$profileId,$content){
-
-        $this->create($id,$name,$profileId,$content);
-
-    }
     public function create($id,$name,$profileId,$content)
     {
         $this->model_id=$id;

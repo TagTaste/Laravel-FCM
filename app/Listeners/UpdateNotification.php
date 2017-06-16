@@ -30,8 +30,7 @@ class UpdateNotification
     public function handle(UpdateEvent $event)
     {
         $notification=new \App\Update();
-
-        $notification->storeData($event->modelId,$event->modelName,$event->profileId,$event->content);
+        $notification->create($event->modelId,$event->modelName,$event->profileId,$event->content);
 
     }
 }
