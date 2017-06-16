@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
+use App\Subscriber;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -211,6 +212,59 @@ class CompanyController extends Controller
         if(!$this->model){
             throw new \Exception("You are not following this company.");
         }
+        return $this->sendResponse();
+    }
+
+    private function getFollowers($id, $loggedInProfileId)
+    {
+        $followers = Company::getFollowers($id);
+        if(!$followers){
+            throw new ModelNotFoundException("Followers not found.");
+        }
+
+        $followerProfileIds = $followers->pluck('id')->toArray();
+        //build network names
+        $networks = [];
+
+        foreach($followerProfileIds as $profileId){
+            if($profileId != $loggedInProfileId){
+                $networks[] = 'company.public.' . $profileId;
+            }
+        }
+        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
+            ->whereNull('deleted_at')->get();
+
+        $result = [];
+        foreach($followers as &$profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] = false;
+            $temp['self'] = false;
+            $result[] = $temp;
+        }
+        if($alreadySubscribed->count() > 0){
+            $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
+            foreach($result as &$profile){
+
+                if($profile['id'] === $loggedInProfileId){
+                    $profile['self'] = true;
+                    continue;
+                }
+
+                $channel = $alreadySubscribed->get('company.public.' . $profile['id']);
+                if($channel === null){
+                    continue;
+                }
+
+                $profile['isFollowing'] = true;
+            }
+        }
+
+        return $result;
+    }
+
+    public function followers(Request $request, $id)
+    {
+        $this->model = $this->getFollowers($id,$request->user()->profile->id);
         return $this->sendResponse();
     }
 }
