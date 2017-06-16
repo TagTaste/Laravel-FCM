@@ -29,9 +29,6 @@ class UpdateNotification
      */
     public function handle(UpdateEvent $event)
     {
-        $notification=new \App\Update();
-
-        $notification->storeData($event->modelId,$event->modelName,$event->profileId,$event->content);
-
+        \App\Update()::create(['model_id'=>$event->modelId,'model_name'=>$event->modelName,'profile_id'=>$event->profileId,'content'=>$event->content]);
     }
 }
