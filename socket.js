@@ -44,7 +44,7 @@ var logErr = function(err,count){
         notification.on('pmessage',function(pattern,channel,message){
             var message=JSON.parse(message);
             console.log(message);
-            notificationNamespace.to(channel+'.'+message.participants).emit("message",message);
+            notificationNamespace.to(channel+'.'+message.profile_id).emit("message",message);
         });
 
     //public company feed
