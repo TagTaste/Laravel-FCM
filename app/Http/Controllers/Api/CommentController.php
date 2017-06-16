@@ -102,7 +102,7 @@ class CommentController extends Controller {
         }
 
         foreach ($data as $d){
-            event(new Update($model->id,$modelName,$d['id'],"comments"));
+            event(new Update($model->id,$modelName,$d['id'],$model->getCommentNotificationMessage()));
         }
 
         $this->model = $comment;
