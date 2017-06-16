@@ -12,7 +12,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         if(!$request->has('user')){
-            $this->sendError("Missing user data.");
+           return $this->sendError("Missing user data.");
         }
         
         $validator = Validator::make($request->input('user'), [
