@@ -182,7 +182,9 @@ class CollaborateController extends Controller
             $this->model = $unliked === 1 ? false : null;
             return $this->sendResponse();
         }
-        event(new Update($id,"collaborate",$collaborate->profile_id,"Like your collaborate"));
+        
+        $userName = $request->user()->name;
+        event(new Update($id,"collaborate",$collaborate->profile_id,$userName . " liked your collaboration."));
 
         $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
         return $this->sendResponse();
