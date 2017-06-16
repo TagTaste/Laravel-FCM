@@ -262,7 +262,7 @@ class CompanyController extends Controller
         return $result;
     }
 
-    public function followers(Request $request, $id)
+    public function followers(Request $request, $profileId, $id)
     {
         $this->model = $this->getFollowers($id,$request->user()->profile->id);
         return $this->sendResponse();
