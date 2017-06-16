@@ -43,15 +43,8 @@ var logErr = function(err,count){
         notification.psubscribe('notification-channel',logErr);
         notification.on('pmessage',function(pattern,channel,message){
             var message=JSON.parse(message);
-            var notificationDetails={
-                "model":{
-                    'id':message.id,
-                    'titile':message.titile,
-                    'content':message.content
-
-                }
-            };
-            notificationNamespace.to(channel+'.'+message.participants).emit("message",notificationDetails);
+            console.log(message);
+            notificationNamespace.to(channel+'.'+message.participants).emit("message",message);
         });
 
     //public company feed
