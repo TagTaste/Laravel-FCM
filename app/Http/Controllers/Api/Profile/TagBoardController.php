@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
-use App\IdeabookLike;
-use Tagtaste\Api\Response;
 use App\Http\Controllers\Api\Controller;
 use App\Ideabook;
+use App\IdeabookLike;
 use Illuminate\Http\Request;
 
 class TagBoardController extends Controller
@@ -18,11 +17,12 @@ class TagBoardController extends Controller
     public function index(Request $request,$profileId)
     {
         $ideabooks = Ideabook::profile($profileId)->get();
+        $this->model = [];
         if($ideabooks->count() ){
             foreach($ideabooks as $ideabook){
                 $temp = $ideabook->toArray();
                 $temp['meta'] =  $ideabook->getMetaFor($profileId);
-                $this->model['ideabooks'][] = $temp;
+                $this->model['tagboards'][] = $temp;
             }
         }
         
@@ -55,7 +55,7 @@ class TagBoardController extends Controller
     public function show($profileId,$id)
     {
         $ideabook = Ideabook::where('id',$id)->profile($profileId)->first();
-        $this->model['ideabook']=$ideabook;
+        $this->model = $ideabook->toArray();
         $this->model['meta']=$ideabook->getMetaFor($profileId);
 
         if(!$this->model){
