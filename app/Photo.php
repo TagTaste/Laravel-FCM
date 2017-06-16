@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-class Photo extends Model implements Feedable
+class Photo extends Model implements Feedable, CommentNotification
 {
     use ScopeProfile, ScopeCompany, SoftDeletes;
     
@@ -178,6 +179,11 @@ class Photo extends Model implements Feedable
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
         return $meta;
+    }
+    
+    public function getCommentNotificationMessage() : string
+    {
+        return "New comment on photo.";
     }
    
 }

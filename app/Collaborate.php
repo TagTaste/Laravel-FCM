@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Collaborate extends Model implements Feedable
+class Collaborate extends Model implements Feedable, CommentNotification
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
     
@@ -234,6 +235,11 @@ class Collaborate extends Model implements Feedable
     public function payload()
     {
         return $this->belongsTo(Payload::class,'payload_id');
+    }
+    
+    public function getCommentNotificationMessage() : string
+    {
+        return "New comment on " . $this->title . ".";
     }
    
 }

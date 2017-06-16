@@ -2,10 +2,11 @@
 
 namespace App;
 
+use App\Interfaces\CommentNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Ideabook extends Model
+class Ideabook extends Model implements CommentNotification
 {
     use SoftDeletes;
 
@@ -126,5 +127,10 @@ class Ideabook extends Model
         $meta['likeCount'] = \DB::table('ideabook_likes')->where('ideabook_id',$this->id)->count();
 
         return $meta;
+    }
+    
+    public function getCommentNotificationMessage() : string
+    {
+        return "New comment on " . $this->name . " tagboard.";
     }
 }

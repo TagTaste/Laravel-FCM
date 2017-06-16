@@ -4,12 +4,13 @@ namespace App\Shareable;
 
 use App\Channel\Payload;
 use App\Comment;
+use App\Interfaces\CommentNotification;
 use App\Privacy;
 use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Share extends Model
+class Share extends Model implements CommentNotification
 {
     use SoftDeletes, CachedPayload;
      
@@ -84,5 +85,10 @@ class Share extends Model
             throw new \Exception("Related key not specified for shareable.");
         }
         return $this->relatedKey;
+    }
+    
+    public function getCommentNotificationMessage() : string
+    {
+        return "New comment on your share!";
     }
 }

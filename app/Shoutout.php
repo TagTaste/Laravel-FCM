@@ -3,12 +3,13 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 
-class Shoutout extends Model implements Feedable
+class Shoutout extends Model implements Feedable, CommentNotification
 {
     use IdentifiesOwner, CachedPayload;
     
@@ -116,5 +117,10 @@ class Shoutout extends Model implements Feedable
     
         
     
+    }
+    
+    public function getCommentNotificationMessage() : string
+    {
+        return "New comment on your post!";
     }
 }

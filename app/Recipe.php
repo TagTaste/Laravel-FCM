@@ -3,13 +3,14 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Recipe extends Model implements Feedable
+class Recipe extends Model implements Feedable, CommentNotification
 {
     use SoftDeletes, CachedPayload, IdentifiesOwner;
     
@@ -94,5 +95,10 @@ class Recipe extends Model implements Feedable
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     
         return $meta;
+    }
+    
+    public function getCommentNotificationMessage() : string
+    {
+        return "New comment on " . $this->name . "recipe.";
     }
 }
