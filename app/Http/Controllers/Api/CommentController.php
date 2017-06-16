@@ -94,9 +94,7 @@ class CommentController extends Controller {
                 ->where('comments_shoutouts.shoutout_id','=',$model->id)
                 ->where('comments.user_id','!=',$userId)
                 ->get();
-
-        \Log::info($data);
-
+        
         $loggedInProfileId = $request->user()->profile->id;
         if($loggedInProfileId!=$model->profile_id){
                         $user = $model->profile->user;
