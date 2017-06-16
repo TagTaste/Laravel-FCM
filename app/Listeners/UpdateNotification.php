@@ -11,15 +11,6 @@ use \App\Update;
 
 class UpdateNotification
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
 
     /**
      * Handle the event.
@@ -29,6 +20,6 @@ class UpdateNotification
      */
     public function handle(UpdateEvent $event)
     {
-        \App\Update()::create(['model_id'=>$event->modelId,'model_name'=>$event->modelName,'profile_id'=>$event->profileId,'content'=>$event->content]);
+        Update::create(['model_id'=>$event->modelId,'model_name'=>$event->modelName,'profile_id'=>$event->profileId,'content'=>$event->content, 'is_read'=>0]);
     }
 }
