@@ -138,7 +138,7 @@ class JobController extends Controller
         $profileId = $request->user()->profile->id;
         
         $this->model = $job->apply($profileId);
-
+        
         event(new Update($id,'job',$profileId,"Applied on job"));
 
         return $this->sendResponse();
