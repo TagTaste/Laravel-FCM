@@ -22,12 +22,6 @@ class Update extends Model
         $this->is_read=0;
         $this->save();
 
-        \Redis::publish('notification-channel',json_encode( [
-            'participants' => $profileId,
-            "id"=>$id,
-            "titile"=>$name,
-            "content"=>$content] ));
-
-
+        \Redis::publish('notification-channel',$this->toJson());
     }
 }
