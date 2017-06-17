@@ -13,7 +13,7 @@ class CategoryController extends Controller
      * @var category
      */
     protected $model;
-    
+
     /**
      * Create instance of controller with Model
      *
@@ -23,7 +23,7 @@ class CategoryController extends Controller
     {
         $this->model = $model;
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -32,10 +32,10 @@ class CategoryController extends Controller
     public function index()
     {
         $this->model = Category::with('children')->paginate();
-        
+
         return $this->sendResponse();
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -45,18 +45,18 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $inputs = $request->all();
-        
+
         $category = Category::checkExists($inputs);
-        
+
         if ($category) {
             $this->model = [];
             return $this->sendError("This category already exists with the given parent.");
         }
-        
+
         $this->model = $this->model->create($inputs);
         return $this->sendResponse();
     }
-    
+
     /**
      * Display the specified resource.
      *
@@ -66,14 +66,14 @@ class CategoryController extends Controller
     public function show($id)
     {
         $this->model = $this->model::where('id',$id)->with('children')->paginate();
-        
+
         if(!$this->model){
             return $this->sendError("Category not found.");
         }
-        
+
         return $this->sendResponse();
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -84,18 +84,18 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $inputs = $request->all();
-        
+
         $category = $this->model->find($id);
-        
+
         if(!$category){
             return $this->sendError("Category not found.");
         }
-        
+
         $this->model = $category->update($inputs);
-        
+
         return $this->sendResponse();
     }
-    
+
     /**
      * Remove the specified resource from storage.
      *
@@ -105,12 +105,12 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $this->model = $this->model->find($id);
-        
+
         if(!$this->model){
             return $this->sendError("Model not found.");
         }
         $this->model = $this->model->delete();
-        
+
         return $this->sendResponse();
     }
 }
