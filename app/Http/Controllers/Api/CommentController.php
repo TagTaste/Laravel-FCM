@@ -92,12 +92,13 @@ class CommentController extends Controller {
                 ->join('comments','comments.user_id','=','users.id')
                 ->join('comments_shoutouts','comments.id','=','comments_shoutouts.comment_id')
                 ->where('comments_shoutouts.shoutout_id','=',$model->id)
-                ->where('comments.user_id','!=',$userId)
+//                ->where('comments.user_id','!=',$userId)
                 ->get();
         
        
-
+        \Log::info($data);
         foreach ($data->toArray() as $d){
+            \Log::info($d->id);
             event(new Update($model->id,$modelName,$d->id,$model->getCommentNotificationMessage()));
         }
         
