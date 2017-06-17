@@ -6,11 +6,20 @@ namespace App\Listeners;
 use App\Events\Update as UpdateEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use \App\Update;
+use App\Update;
 
 
 class UpdateNotification
 {
+    /**
+     * Create the event listener.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
 
     /**
      * Handle the event.

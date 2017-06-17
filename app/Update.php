@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Update extends Model
 {
-    protected $fillable = ['content', 'model_id', 'model_name', 'profile_id'];
+    protected $fillable = ['content', 'model_id', 'model_name', 'profile_id','is_read'];
     
     public static function boot()
     {
