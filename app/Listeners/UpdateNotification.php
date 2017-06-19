@@ -6,7 +6,7 @@ namespace App\Listeners;
 use App\Events\Update as UpdateEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use \App\Update;
+use App\Update;
 
 
 class UpdateNotification
@@ -29,8 +29,6 @@ class UpdateNotification
      */
     public function handle(UpdateEvent $event)
     {
-        $notification=new \App\Update();
-        $notification->create($event->modelId,$event->modelName,$event->profileId,$event->content);
-
+        Update::create(['model_id'=>$event->modelId,'model_name'=>$event->modelName,'profile_id'=>$event->profileId,'content'=>$event->content, 'is_read'=>0]);
     }
 }

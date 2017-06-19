@@ -227,9 +227,7 @@ class CompanyController extends Controller
         $networks = [];
 
         foreach($followerProfileIds as $profileId){
-            if($profileId != $loggedInProfileId){
                 $networks[] = 'company.public.' . $profileId;
-            }
         }
         $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
             ->whereNull('deleted_at')->get();
