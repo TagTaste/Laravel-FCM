@@ -79,33 +79,36 @@ class CommentController extends Controller {
             throw new \Exception("This model does not have comments defined.");
         }
         
-		$comment = new Comment();
-		$comment->content = $request->input("content");
+        $comment = new Comment();
+        $comment->content = $request->input("content");
         $comment->user_id = $request->user()->id;
-		$comment->save();
-
-		$model->comments()->attach($comment->id);
+        $comment->save();
+        
+        $model->comments()->attach($comment->id);
         $userId = $request->user()->id;
-        $data = \DB::table('users')
-                ->select("users.id","users.name")
-                ->distinct('users.id')
-                ->join('comments','comments.user_id','=','users.id')
-                ->join('comments_shoutouts','comments.id','=','comments_shoutouts.comment_id')
-                ->where('comments_shoutouts.shoutout_id','=',$model->id)
-                ->whereNotIn('comments.user_id',[$userId,$model->owner->id])
-                ->get();
-        $loggedInProfileId = $request->user()->profile->id;
-        foreach ($data->toArray() as $d){
-                event(new Update($model->id, $modelName, $d->id, $model->getCommentNotificationMessage()));
+        $users = \DB::table('users')
+            ->select("users.id", "users.name")
+            ->distinct('users.id')
+            ->join('comments', 'comments.user_id', '=', 'users.id')
+            ->join('comments_shoutouts', 'comments.id', '=', 'comments_shoutouts.comment_id')
+            ->where('comments_shoutouts.shoutout_id', '=', $model->id)
+            ->whereNotIn('comments.user_id', [$userId, $model->owner->id])
+            ->get();
+        
+        foreach ($users->toArray() as $user) {
+            event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
         }
+        
+        $loggedInProfileId = $request->user()->profile->id;
+        
         //send message to creator
-        if($loggedInProfileId!=$model->profile_id){
+        if ($loggedInProfileId != $model->profile_id) {
             $user = $model->profile->user;
-            event(new Update($model->id,$modelName,$user->id,$model->getCommentNotificationMessage()));
+            event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
         }
         
         $this->model = $comment;
-		return $this->sendResponse();
+        return $this->sendResponse();
 	}
     
     /**
