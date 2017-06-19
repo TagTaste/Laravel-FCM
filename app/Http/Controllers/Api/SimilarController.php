@@ -15,7 +15,8 @@ class SimilarController extends Controller
         'photo' => \App\Similar\Photo::class,
         'product' => \App\Similar\Product::class,
         'recipe' => \App\Similar\Recipe::class,
-        'collaborate' => \App\Similar\Collaborate::class
+        'collaborate' => \App\Similar\Collaborate::class,
+        'tagboard' => \App\Similar\Ideabook::class
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)

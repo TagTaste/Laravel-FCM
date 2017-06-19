@@ -111,14 +111,14 @@ class Ideabook extends Model implements CommentNotification
         return $this->{$relationship}()->detach($modelId);
     }
 
-    public static function similar($profileId, $loggedInUser)
-    {
-        $similar = self::select('ideabooks.id','name','profiles.id as profileId')
-            ->join('profiles','profiles.user_id','=','ideabooks.user_id')
-            ->where('profiles.id','!=',$profileId)->where('profiles.id','!=',$loggedInUser)
-            ->get();
-        return $similar;
-    }
+//    public static function similar($profileId, $loggedInUser)
+//    {
+//        $similar = self::select('ideabooks.id','name','profiles.id as profileId')
+//            ->join('profiles','profiles.user_id','=','ideabooks.user_id')
+//            ->where('profiles.id','!=',$profileId)->where('profiles.id','!=',$loggedInUser)
+//            ->get();
+//        return $similar;
+//    }
 
     public function getMetaFor(int $profileId) : array
     {
