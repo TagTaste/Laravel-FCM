@@ -92,19 +92,14 @@ class CommentController extends Controller {
                 ->join('comments','comments.user_id','=','users.id')
                 ->join('comments_shoutouts','comments.id','=','comments_shoutouts.comment_id')
                 ->where('comments_shoutouts.shoutout_id','=',$model->id)
-//                ->where('comments.user_id','!=',$userId)
+                ->whereNotIn('comments.user_id',[$userId,$model->owner->id])
                 ->get();
-
         $loggedInProfileId = $request->user()->profile->id;
         foreach ($data->toArray() as $d){
-            if($d->id!=$loggedInProfileId) {
                 event(new Update($model->id, $modelName, $d->id, $model->getCommentNotificationMessage()));
-            }
         }
-        
         //send message to creator
-        $data=$data->where('id',$model->profile_id)->pluck('id');
-        if($loggedInProfileId!=$model->profile_id&&$data[0]!=$model->profile_id){
+        if($loggedInProfileId!=$model->profile_id){
             $user = $model->profile->user;
             event(new Update($model->id,$modelName,$user->id,$model->getCommentNotificationMessage()));
         }
