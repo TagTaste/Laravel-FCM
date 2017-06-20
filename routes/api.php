@@ -137,8 +137,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
            
             Route::resource('profile','ProfileController');
-            
-            
+    
+            Route::resource('companies','CompanyController');
+    
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');
@@ -220,9 +221,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("professional","ProfessionalController");
                
             });
-
-            //Route::resource('company','CompanyController');
-
             //Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
