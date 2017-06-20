@@ -1,10 +1,6 @@
 <?php namespace App\Http\Controllers\Api;
 
-use App\Http\Requests;
-use App\Http\Controllers\Api\Controller;
-
 use App\Company;
-use Illuminate\Http\Request;
 
 class CompanyController extends Controller {
 
