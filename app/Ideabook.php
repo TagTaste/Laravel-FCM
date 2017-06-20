@@ -14,7 +14,7 @@ class Ideabook extends Model implements CommentNotification
 
     protected $dates = ['deleted_at'];
 
-    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar','recipes','products','profileId'];
+    protected $visible = ['id','name','description','profiles','keywords','privacy','photos','similar','recipes','products','profileId','username'];
     
     protected $with = ['privacy','profiles','photos', 'products','recipes'];
     

@@ -40,7 +40,15 @@ class SimilarController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-        $this->model = $model->similar($skip,$take);
+        $similarModels = $model->similar($skip,$take);
+        
+        $this->model = [];
+        $profileId = $request->user()->profile->id;
+        foreach($similarModels as $similar){
+            $temp = $similar->toArray();
+            $temp['meta'] = $similar->getMetaFor($profileId);
+            $this->model[$relationship][] = $temp;
+        }
         return $this->sendResponse();
     }
     
