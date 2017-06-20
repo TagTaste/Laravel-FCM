@@ -85,11 +85,6 @@ class SimilarController extends Controller
             $companies = $companies->keyBy('id');
         }
         
-        //this should not be the case, hence throwing exception.
-//        if($profiles === false || $companies === false){
-//            throw new \Exception("Could not get owners.");
-//        }
-        
         //get meta
         foreach($similarModels as $similar){
             $temp = $similar->toArray();
