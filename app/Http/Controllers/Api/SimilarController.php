@@ -43,10 +43,23 @@ class SimilarController extends Controller
         $similarModels = $model->similar($skip,$take);
         
         $this->model = [];
-        $profileId = $request->user()->profile->id;
+        $loggedInProfileId = $request->user()->profile->id;
+        
+        //get profiles
+        $profileIds = $similarModels->keyBy('user_id')->pluck('user_id');
+        $profiles =  \App\Recipe\Profile::whereIn('user_id',$profileIds)->get();
+        
+        //this should not be the case, hence throwing exception.
+        if(empty($profiles)){
+            throw new \Exception("Could not get profiles.");
+        }
+        
+        $profiles = $profiles->keyBy('user_id');
+        //get meta
         foreach($similarModels as $similar){
             $temp = $similar->toArray();
-            $temp['meta'] = $similar->getMetaFor($profileId);
+            $temp['profile'] = $profiles->get($similar->user_id);
+            $temp['meta'] = $similar->getMetaFor($loggedInProfileId);
             $this->model[$relationship][] = $temp;
         }
         return $this->sendResponse();
