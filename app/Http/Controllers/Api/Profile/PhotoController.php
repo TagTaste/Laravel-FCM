@@ -23,9 +23,9 @@ class PhotoController extends Controller
         $photos = Photo::forProfile($profileId)->paginate(10);
 
         $this->model = [];
-        $profileId = $request->user()->profile->id;
+        $loggedInProfileId = $request->user()->profile->id;
         foreach($photos as $photo){
-            $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($profileId)];
+            $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($loggedInProfileId)];
         }
         return $this->sendResponse();
     }
