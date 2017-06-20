@@ -30,17 +30,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-           //categories
-           Route::resource("categories","CategoryController");
+            //categories
+                Route::resource("categories","CategoryController");
             
             //share
-            Route::post("share/{modelName}/{id}",'ShareController@store');
-            Route::delete("share/{modelName}/{id}",'ShareController@delete');
-            Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
-            Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
+                Route::post("share/{modelName}/{id}",'ShareController@store');
+                Route::delete("share/{modelName}/{id}",'ShareController@delete');
+                Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
+                Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
             //shoutouts
-            Route::resource("shoutout",'ShoutoutController');
+                Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
                         Route::resource("like",'ShoutoutLikeController');
                 });
@@ -65,58 +65,62 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //Route::get("feed/network",'FeedController@network');
             
             //jobs
-            Route::get("jobs/all","JobController@all");
-            Route::get("jobs/filters", "JobController@filters");
-            Route::resource("jobs","JobController");
+                Route::get("jobs/all","JobController@all");
+                Route::get("jobs/filters", "JobController@filters");
+                Route::resource("jobs","JobController");
             
             //similar
-            Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
+                Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
             
             //fields for collaboration
-            Route::resource("fields",'FieldController');
-    
-            //collaborate templates
-            Route::resource("collaborate/templates","CollaborateTemplateController");
-    
-            //collaborates shortlist
-            Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
-            Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
+                Route::resource("fields",'FieldController');
             
             //collaborate
-            Route::get("collaborate/all","CollaborateController@all");
-            Route::get("collaborate/filters","CollaborateController@filters");
-            Route::post("collaborate/{id}/like","CollaborateController@like");
-            Route::post("collaborate/{id}/apply","CollaborateController@apply");
-            Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
-            Route::resource("collaborate","CollaborateController");
-
-            //collaborate comments
-            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
-                Route::resource('comments','CommentController');
-            });
+            
+                //collaborate templates
+                 Route::resource("collaborate/templates","CollaborateTemplateController");
+        
+                //collaborates shortlist
+                    Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
+                    Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
+                    
+                //collaborate
+                    Route::get("collaborate/all","CollaborateController@all");
+                    Route::get("collaborate/filters","CollaborateController@filters");
+                    Route::post("collaborate/{id}/like","CollaborateController@like");
+                    Route::post("collaborate/{id}/apply","CollaborateController@apply");
+                    Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
+                    Route::resource("collaborate","CollaborateController");
+    
+                //collaborate comments
+                    Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                        Route::resource('comments','CommentController');
+                    });
             
             //recipes
-            Route::get('recipes/image/{id}','RecipeController@recipeImages');
-            Route::resource("recipes","RecipeController");
-            
+                Route::get('recipes/image/{id}','RecipeController@recipeImages');
+                Route::resource("recipes","RecipeController");
+                
             //tag
-            Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
-            Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
+                Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
+                Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
             
             //comments
-            Route::get('comments/{model}/{modelId}','CommentController@index');
-            Route::post('comments/{model}/{modelId}','CommentController@store');
-            Route::delete('comments/{id}','CommentController@destroy');
+                Route::get('comments/{model}/{modelId}','CommentController@index');
+                Route::post('comments/{model}/{modelId}','CommentController@store');
+                Route::delete('comments/{id}','CommentController@destroy');
             
             //search
                 Route::get("search/{type?}",'SearchController@search');
                 Route::get("suggest/{type}",'SearchController@suggest');
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
-            Route::get('notifications/unread','NotificationController@unread');
-            Route::post("notifications/read/{id}",'NotificationController@read');
-            Route::resource("notifications",'NotificationController');
+            //notifications
+                Route::get('notifications/unread','NotificationController@unread');
+                Route::post("notifications/read/{id}",'NotificationController@read');
+                Route::resource("notifications",'NotificationController');
 
+            //designations
             Route::get("designations", "DesignationController@index");
 
             //notification is read or not
