@@ -46,7 +46,7 @@ class SimilarController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         
         //get profiles
-        if($similarModels === false || $similarModels->count == 0){
+        if($similarModels === false){
             return $this->sendResponse();
         }
         
@@ -54,7 +54,7 @@ class SimilarController extends Controller
         $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
         
         //this should not be the case, hence throwing exception.
-        if($profiles === false || $profiles->count()){
+        if($profiles === false){
             throw new \Exception("Could not get profiles.");
         }
         
