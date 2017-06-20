@@ -19,7 +19,11 @@ class PhotoController extends Controller
      */
     public function index($profileId,$companyId)
     {
-        $this->model = Photo::forCompany($companyId)->paginate(10);
+        $photos = Photo::forCompany($companyId)->paginate(10);
+        $this->model = [];
+        foreach($photos as $photo){
+            $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($profileId)];
+        }
         return $this->sendResponse();
     }
 
