@@ -35,6 +35,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:60,1',
             'bindings',
+            'sanitize'
         ],
     ];
 
@@ -58,6 +59,7 @@ class Kernel extends HttpKernel
         //'jwt.auth' => \Tymon\JWTAuth\Middleware\GetUserFromToken::class,
         //'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
         'api.auth'=> \App\Http\Middleware\Api\Auth::class,
-        'api.checkProfile' => \App\Http\Middleware\Api\CheckProfile::class
+        'api.checkProfile' => \App\Http\Middleware\Api\CheckProfile::class,
+        'sanitize' => \App\Http\Middleware\Sanitize::class
     ];
 }
