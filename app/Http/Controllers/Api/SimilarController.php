@@ -97,7 +97,7 @@ class SimilarController extends Controller
                 $temp['company'] = $companies->get($similar->company_id);
             }
             
-            if($relationship !== 'product'){
+            if($relationship !== 'product' && $relationship !=='profile' && $relationship !== 'company'){
                 $temp['meta'] = $similar->getMetaFor($loggedInProfileId);
             }
             
