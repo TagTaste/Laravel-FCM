@@ -18,11 +18,12 @@ class PhotoController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function index($profileId)
+    public function index(Request $request, $profileId)
     {
         $photos = Photo::forProfile($profileId)->paginate(10);
 
         $this->model = [];
+        $profileId = $request->user()->profile->id;
         foreach($photos as $photo){
             $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($profileId)];
         }
@@ -93,7 +94,7 @@ class PhotoController extends Controller
         if(!$photo){
             throw new \Exception("Profile does not have the photo.");
         }
-        $meta = $photo->getMetaFor($profileId);
+        $meta = $photo->getMetaFor($loggedInProfileId);
         $this->model = ['photo'=>$photo,'meta'=>$meta];
         
         return $this->sendResponse();

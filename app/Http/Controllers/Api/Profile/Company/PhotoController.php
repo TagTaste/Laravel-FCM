@@ -17,12 +17,13 @@ class PhotoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($profileId,$companyId)
+    public function index(Request $request, $profileId,$companyId)
     {
         $photos = Photo::forCompany($companyId)->paginate(10);
         $this->model = [];
+        $loggedInProfileId = $request->user()->profile->id;
         foreach($photos as $photo){
-            $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($profileId)];
+            $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($loggedInProfileId)];
         }
         return $this->sendResponse();
     }
@@ -78,7 +79,7 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$companyId,$id)
+    public function show(Request $request, $profileId, $companyId, $id)
     {
         $photo = Photo::where('id',$id)->forCompany($companyId)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
@@ -87,8 +88,8 @@ class PhotoController extends Controller
         if(!$photo){
             throw new \Exception("Company does not have the photo.");
         }
-
-        $meta = $photo->getMetaFor($profileId);
+        $loggedInProfileId = $request->user()->profile->id;
+        $meta = $photo->getMetaFor($loggedInProfileId);
         $this->model = ['photo'=>$photo,'meta'=>$meta];
 
         return $this->sendResponse();
