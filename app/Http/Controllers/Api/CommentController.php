@@ -78,9 +78,8 @@ class CommentController extends Controller {
         if(!method_exists($model, 'comments')){
             throw new \Exception("This model does not have comments defined.");
         }
-        
         $comment = new Comment();
-        $comment->content = $request->input("content");
+        $comment->content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
         $comment->user_id = $request->user()->id;
         $comment->save();
         
