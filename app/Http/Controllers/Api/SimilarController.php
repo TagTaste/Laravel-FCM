@@ -46,11 +46,11 @@ class SimilarController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         
         //get profiles
-        $profileIds = $similarModels->keyBy('user_id')->pluck('user_id');
-        $profiles =  \App\Recipe\Profile::whereIn('user_id',$profileIds)->get();
+        $userIds = $similarModels->keyBy('user_id')->pluck('user_id');
+        $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
         
         //this should not be the case, hence throwing exception.
-        if(empty($profiles)){
+        if($profiles === false || $profiles->count()){
             throw new \Exception("Could not get profiles.");
         }
         
