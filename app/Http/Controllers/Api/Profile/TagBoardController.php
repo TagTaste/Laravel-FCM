@@ -26,8 +26,6 @@ class TagBoardController extends Controller
             }
         }
         
-        $this->model['similar'] = Ideabook::similar($profileId,$request->user()->profile->id);
-    
         return $this->sendResponse();
     }
 

@@ -70,13 +70,6 @@ class ShoutoutController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-        try {
-            $this->verifyOwner($request);
-        } catch (\Exception $e){
-            //if there's an error, just throw it.
-            throw $e;
-        }
-        
 		$shoutout = $this->model->findOrFail($id);
         $profileId = $request->user()->profile->id;
         $meta = $shoutout->getMetaFor($profileId);

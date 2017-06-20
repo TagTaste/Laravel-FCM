@@ -9,13 +9,16 @@ use Illuminate\Http\Request;
 class SimilarController extends Controller
 {
     private $relationships = [
-        'job' => \App\Similar\Job::class,
-        'profile' => \App\Similar\Profile::class,
-        'company' => \App\Similar\Company::class,
-        'photo' => \App\Similar\Photo::class,
-        'product' => \App\Similar\Product::class,
-        'recipe' => \App\Similar\Recipe::class,
-        'collaborate' => \App\Similar\Collaborate::class
+        'profile' => \App\Similar\Profile::class,           //user_id
+        'company' => \App\Similar\Company::class,           //user_id
+        'tagboard' => \App\Similar\Ideabook::class,         //user_id
+        'photo' => \App\Similar\Photo::class,               //          profile_id
+        'recipe' => \App\Similar\Recipe::class,             //          profile_id
+        'job' => \App\Similar\Job::class,                   //          profile_id  company_id
+        'collaborate' => \App\Similar\Collaborate::class,   //          profile_id  company_id
+        'product' => \App\Similar\Product::class,           //                      company_id
+
+
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)
@@ -39,7 +42,67 @@ class SimilarController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-        $this->model = $model->similar($skip,$take);
+        $similarModels = $model->similar($skip,$take);
+        
+        $this->model = [];
+        $loggedInProfileId = $request->user()->profile->id;
+        
+        $profiles = false;
+        $companies = false;
+        $ownerColumn = null;
+        if(in_array($relationship,['profile','company','tagboard'])){
+            //using user_id
+            $userIds = $similarModels->keyBy('user_id')->pluck('user_id');
+            $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
+            $profiles = $profiles->keyBy('user_id');
+            $ownerColumn = 'user_id';
+            
+        } elseif(in_array($relationship,['photo','recipe'])){
+            //using profile_id
+            $profileIds = $similarModels->keyBy('profile_id')->pluck('profile_id');
+            $profiles = \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+            $profiles = $profiles->keyBy('id');
+            $ownerColumn = 'profile_id';
+    
+        } elseif(in_array($relationship,['job','collaborate'])){
+            //using profile_id
+            $profileIds = $similarModels->keyBy('profile_id')->pluck('profile_id')->toArray();
+            $profileIds = array_filter($profileIds);
+            $profiles = \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+            $profiles = $profiles->keyBy('id');
+            $ownerColumn = 'profile_id';
+            
+            //using company_id as well
+            $companyIds = $similarModels->keyBy('company_id')->pluck('company_id')->toArray();
+            $companyIds = array_filter($companyIds);
+            $companies = \App\Company::whereIn('id',$companyIds)->get();
+            $companies = $companies->keyBy('id');
+        }  elseif($relationship === 'product'){
+            //using company_id
+            $companyIds = $similarModels->keyBy('company_id')->pluck('company_id')->toArray();
+            $companyIds = array_filter($companyIds);
+            $companies = \App\Company::whereIn('id',$companyIds)->get();
+            $companies = $companies->keyBy('id');
+        }
+        
+        //get meta
+        foreach($similarModels as $similar){
+            $temp = $similar->toArray();
+            
+            if($profiles){
+                $temp['profile'] = $profiles->get($similar->$ownerColumn);
+            }
+            
+            if($companies){
+                $temp['company'] = $companies->get($similar->company_id);
+            }
+            
+            if($relationship !== 'product'){
+                $temp['meta'] = $similar->getMetaFor($loggedInProfileId);
+            }
+            
+            $this->model[$relationship][] = $temp;
+        }
         return $this->sendResponse();
     }
     

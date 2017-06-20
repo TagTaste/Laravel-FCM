@@ -108,7 +108,7 @@ class CollaborateController extends Controller
 		$inputs = $request->all();
         $profileId = $request->user()->profile->id;
         
-		$collaborate = $this->model->where('profile_id',$profileId)->first();
+		$collaborate = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
 		
 		if($collaborate === null){
 		    throw new \Exception("Could not find the specified Collaborate project.");
