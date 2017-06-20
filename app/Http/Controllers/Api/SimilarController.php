@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 class SimilarController extends Controller
 {
     private $relationships = [
-        'job' => \App\Similar\Job::class,
-        'profile' => \App\Similar\Profile::class,
-        'company' => \App\Similar\Company::class,
-        'photo' => \App\Similar\Photo::class,
-        'product' => \App\Similar\Product::class,
-        'recipe' => \App\Similar\Recipe::class,
-        'collaborate' => \App\Similar\Collaborate::class,
-        'tagboard' => \App\Similar\Ideabook::class
+        'job' => \App\Similar\Job::class,                   //          profile_id  company_id
+        'profile' => \App\Similar\Profile::class,           //user_id
+        'company' => \App\Similar\Company::class,           //user_id
+        'photo' => \App\Similar\Photo::class,               //          profile_id
+        'product' => \App\Similar\Product::class,           //                      company_id
+        'recipe' => \App\Similar\Recipe::class,             //          profile_id
+        'collaborate' => \App\Similar\Collaborate::class,   //          profile_id  company_id
+        'tagboard' => \App\Similar\Ideabook::class          //user_id
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)
@@ -45,11 +45,8 @@ class SimilarController extends Controller
         $this->model = [];
         $loggedInProfileId = $request->user()->profile->id;
         
-        //get profiles
-        if($similarModels === false){
-            return $this->sendResponse();
-        }
         
+        if(in_array($relationship,['job','photo','']))
         $userIds = $similarModels->keyBy('user_id')->pluck('user_id');
         $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
         
