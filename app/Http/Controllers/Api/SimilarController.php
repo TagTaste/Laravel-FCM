@@ -9,14 +9,16 @@ use Illuminate\Http\Request;
 class SimilarController extends Controller
 {
     private $relationships = [
-        'job' => \App\Similar\Job::class,                   //          profile_id  company_id
         'profile' => \App\Similar\Profile::class,           //user_id
         'company' => \App\Similar\Company::class,           //user_id
+        'tagboard' => \App\Similar\Ideabook::class,         //user_id
         'photo' => \App\Similar\Photo::class,               //          profile_id
-        'product' => \App\Similar\Product::class,           //                      company_id
         'recipe' => \App\Similar\Recipe::class,             //          profile_id
+        'job' => \App\Similar\Job::class,                   //          profile_id  company_id
         'collaborate' => \App\Similar\Collaborate::class,   //          profile_id  company_id
-        'tagboard' => \App\Similar\Ideabook::class          //user_id
+        'product' => \App\Similar\Product::class,           //                      company_id
+
+
     ];
     
     public function similar(Request $request, $relationship, $relationshipId)
