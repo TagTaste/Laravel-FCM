@@ -46,6 +46,10 @@ class SimilarController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         
         //get profiles
+        if($similarModels === false || $similarModels->count == 0){
+            return $this->sendResponse();
+        }
+        
         $userIds = $similarModels->keyBy('user_id')->pluck('user_id');
         $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
         
