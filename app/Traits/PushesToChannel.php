@@ -31,9 +31,12 @@ trait PushesToChannel
         $payload = $channel->addPayload(get_class($model),$model->id,$payload);
         //update model id
         
-        $model->payload_id = $payload->id;
-        $model->save();
-        
+        $table = $model->getTable();
+        $id = $model->id;
+        \DB::table($table)->where('id',$id)->update(['payload_id'=>$payload->id]);
+//        $model->payload_id = $payload->id;
+//        $model->save();
+       
         return $payload;
         
     }
