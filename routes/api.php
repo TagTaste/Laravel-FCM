@@ -136,8 +136,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
            
+            Route::get('/profiles','ProfileController@all');
             Route::resource('profile','ProfileController');
-    
+            
             Route::resource('companies','CompanyController');
     
             //namespace profile

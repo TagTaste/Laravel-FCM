@@ -11,7 +11,7 @@ class CompanyController extends Controller {
 	 */
 	public function index()
 	{
-		$this->model = Company::with('status','types')->orderBy('id', 'desc')->paginate(10);
+		$this->model = Company::with('status','type')->orderBy('id', 'desc')->paginate(10);
   
 		return $this->sendResponse();
 	}
@@ -25,7 +25,7 @@ class CompanyController extends Controller {
 	 */
 	public function show($id)
     {
-        $this->model = Company::where('id',$id)->with('status','types')->first();
+        $this->model = Company::where('id',$id)->with('status','type')->first();
         
         if(!$this->model){
             return $this->sendError("Company not found.");
