@@ -47,22 +47,65 @@ class SimilarController extends Controller
         $this->model = [];
         $loggedInProfileId = $request->user()->profile->id;
         
-        
-        if(in_array($relationship,['job','photo','']))
-        $userIds = $similarModels->keyBy('user_id')->pluck('user_id');
-        $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
-        
-        //this should not be the case, hence throwing exception.
-        if($profiles === false){
-            throw new \Exception("Could not get profiles.");
+        $profiles = false;
+        $companies = false;
+        $ownerColumn = null;
+        if(in_array($relationship,['profile','company','tagboard'])){
+            //using user_id
+            $userIds = $similarModels->keyBy('user_id')->pluck('user_id');
+            $profiles =  \App\Recipe\Profile::whereIn('user_id',$userIds)->get();
+            $profiles = $profiles->keyBy('user_id');
+            $ownerColumn = 'user_id';
+            
+        } elseif(in_array($relationship,['photo','recipe'])){
+            //using profile_id
+            $profileIds = $similarModels->keyBy('profile_id')->pluck('profile_id');
+            $profiles = \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+            $profiles = $profiles->keyBy('id');
+            $ownerColumn = 'profile_id';
+    
+        } elseif(in_array($relationship,['job','collaborate'])){
+            //using profile_id
+            $profileIds = $similarModels->keyBy('profile_id')->pluck('profile_id')->toArray();
+            $profileIds = array_filter($profileIds);
+            $profiles = \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+            $profiles = $profiles->keyBy('id');
+            $ownerColumn = 'profile_id';
+            
+            //using company_id as well
+            $companyIds = $similarModels->keyBy('company_id')->pluck('company_id')->toArray();
+            $companyIds = array_filter($companyIds);
+            $companies = \App\Company::whereIn('id',$companyIds)->get();
+            $companies = $companies->keyBy('id');
+        }  elseif($relationship === 'product'){
+            //using company_id
+            $companyIds = $similarModels->keyBy('company_id')->pluck('company_id')->toArray();
+            $companyIds = array_filter($companyIds);
+            $companies = \App\Company::whereIn('id',$companyIds)->get();
+            $companies = $companies->keyBy('id');
         }
         
-        $profiles = $profiles->keyBy('user_id');
+        //this should not be the case, hence throwing exception.
+//        if($profiles === false || $companies === false){
+//            throw new \Exception("Could not get owners.");
+//        }
+        
         //get meta
         foreach($similarModels as $similar){
             $temp = $similar->toArray();
-            $temp['profile'] = $profiles->get($similar->user_id);
-            $temp['meta'] = $similar->getMetaFor($loggedInProfileId);
+            
+            if($profiles){
+                $temp['profile'] = $profiles->get($similar->$ownerColumn);
+            }
+            
+            if($companies){
+                $temp['company'] = $companies->get($similar->company_id);
+            }
+            
+            if($relationship !== 'product'){
+                $temp['meta'] = $similar->getMetaFor($loggedInProfileId);
+            }
+            
             $this->model[$relationship][] = $temp;
         }
         return $this->sendResponse();
