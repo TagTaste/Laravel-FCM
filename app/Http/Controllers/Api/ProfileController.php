@@ -280,5 +280,11 @@ class ProfileController extends Controller
         $this->model = $this->getFollowing($id, $request->user()->profile->id);
         return $this->sendResponse();
     }
+    
+    public function all()
+    {
+        $this->model = \App\Recipe\Profile::paginate();
+        return $this->sendResponse();
+    }
 
 }
