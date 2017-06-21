@@ -32,19 +32,20 @@ class ShoutoutLikeController extends Controller
         $profileId = $request->user()->profile->id;
         $shoutoutlike = ShoutoutLike::where('profile_id', $profileId)->where('shoutout_id', $id)->first();
         if ($shoutoutlike != null) {
-            $this->model = $shoutoutlike->delete();
-            \Redis::hIncrBy("shoutout:" . $id . ":meta","like",-1);
+            $shoutoutlike->delete();
+            $this->model['count'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", -1);
         } else {
-            $this->model = ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
-            \Redis::hIncrBy("shoutout:" . $id . ":meta","like",1);
-
-            $shoutoutProfile=Shoutout::findOrFail($id);
-            if($shoutoutProfile->profile_id!=$profileId) {
+            
+            ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
+            $this->model['count'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", 1);
+            
+            $shoutoutProfile = Shoutout::findOrFail($id);
+            if ($shoutoutProfile->profile_id != $profileId) {
                 event(new Update($id, 'Shoutout', $shoutoutProfile->profile_id,
                     $request->user()->name . " liked your post."));
             }
         }
-
+        
         return $this->sendResponse();
     }
 	
