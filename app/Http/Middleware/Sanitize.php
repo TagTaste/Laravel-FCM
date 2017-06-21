@@ -25,26 +25,24 @@ class Sanitize
     private function sanitize(&$inputs,&$sanitized,$parent = null)
     {
         if(!is_array($inputs)){
-            $sanitized[] = \Purify::clean($inputs);
+            $sanitized[] = $this->clean($inputs);
             return;
         }
         
         //is_array
         foreach($inputs as $key => $value) {
             if (!is_array($value)) {
-//                if(isset($sanitized[$key]) && is_array($sanitized[$key])){
-//                    $sanitized[$key][] = \Purify::clean($value);
-//                } else {
-                    $sanitized[$key] = \Purify::clean($value);
-//                }
+                $sanitized[$key] = $this->clean($value);
                 continue;
             }
             
-//            if(!isset($sanitized[$key])){
-                $sanitized[$key] = [];
-//            }
-            
+            $sanitized[$key] = [];
             $this->sanitize($value, $sanitized[$key]);
         }
+    }
+    
+    private function clean($value)
+    {
+        return \Purify::clean($value);
     }
 }
