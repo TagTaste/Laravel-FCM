@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request, $profileId, $companyId)
     {
         $this->model = Product::where('company_id', $companyId)->orderBy('id', 'desc');
-    
+
         if($request->has('categories')){
             $categories = $request->input('categories');
             $this->model = $this->model->whereHas('categories',function($query) use ($categories){

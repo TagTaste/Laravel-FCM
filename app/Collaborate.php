@@ -19,7 +19,7 @@ class Collaborate extends Model implements Feedable, CommentNotification
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id'];
     
-    protected $with = ['profile','company','fields'];
+    protected $with = ['profile','company','fields','categories'];
     
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
@@ -240,6 +240,11 @@ class Collaborate extends Model implements Feedable, CommentNotification
     public function getCommentNotificationMessage() : string
     {
         return "New comment on " . $this->title . ".";
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
     }
    
 }

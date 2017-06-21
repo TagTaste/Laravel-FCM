@@ -30,8 +30,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-            //categories
+            //product categories
                 Route::resource("categories","CategoryController");
+
+            //collaborate categories
+            Route::resource("collaboratecategories","CollaborateCategoryController");
             
             //share
                 Route::post("share/{modelName}/{id}",'ShareController@store');
