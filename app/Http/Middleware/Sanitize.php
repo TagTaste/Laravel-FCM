@@ -22,7 +22,7 @@ class Sanitize
         return $next($request);
     }
     
-    private function sanitize(&$inputs,&$sanitized,$parent = null)
+    private function sanitize(&$inputs,&$sanitized)
     {
         if(!is_array($inputs)){
             $sanitized[] = $this->clean($inputs);
