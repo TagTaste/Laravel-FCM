@@ -45,6 +45,9 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
+        if(!$request->hasFile('file')){
+            return $this->sendError("File not uploaded.");
+        }
         $profileId = $request->user()->profile->id;
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){
