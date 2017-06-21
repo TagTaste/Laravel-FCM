@@ -40,9 +40,9 @@ class Sanitize
                 continue;
             }
             
-            if(!isset($sanitized[$key])){
+//            if(!isset($sanitized[$key])){
                 $sanitized[$key] = [];
-            }
+//            }
             
             $this->sanitize($value, $sanitized[$key]);
         }
