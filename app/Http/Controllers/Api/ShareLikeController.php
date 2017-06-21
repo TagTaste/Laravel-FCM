@@ -19,16 +19,17 @@ class ShareLikeController extends Controller
     	$exist = $class::where('profile_id',$profileId)->where($columnName,$modelId)->first();
     	if($exist != null)
     	{
-    		$this->model = $class::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
+    		$class::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
+            $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",-1);
     		return $this->sendResponse();
     	}
 
-    	$this->model = new $class;
-    	$this->model->profile_id = $profileId;
+    	$model = new $class;
+    	$model->profile_id = $profileId;
     	
-    	$this->model->$columnName = $modelId;
-    	$this->model->save();
-
+    	$model->$columnName = $modelId;
+    	$model->save();
+        $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",1);
     	return $this->sendResponse();
     }
 

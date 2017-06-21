@@ -31,12 +31,12 @@ class PhotoLikeController extends Controller
         $profileId = $request->user()->profile->id;
         $photoLike = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->first();
         if($photoLike != null) {
-            $this->model = $photoLike->delete();
-            \Redis::hIncrBy("photo:" . $photoId . ":meta","like",-1);
+            $photoLike->delete();
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta","like",-1);
     
         } else {
-            $this->model = PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
-            \Redis::hIncrBy("photo:" . $photoId . ":meta","like",1);
+            PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta","like",1);
 
             $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');
             if($photoProfile[0]!=$profileId) {
