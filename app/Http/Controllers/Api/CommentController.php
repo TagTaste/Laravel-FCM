@@ -92,19 +92,19 @@ class CommentController extends Controller {
             ->where('comments_shoutouts.shoutout_id', '=', $model->id)
             ->whereNotIn('comments.user_id', [$userId, $model->owner->id])
             ->get();
-        
+
         foreach ($users->toArray() as $user) {
             event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
         }
-        
+
         $loggedInProfileId = $request->user()->profile->id;
-        
+
         //send message to creator
         if ($loggedInProfileId != $model->profile_id) {
             $user = $model->profile->user;
             event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
         }
-        $comment['commentCount']=\DB::table('comments_'.$modelName.'s')->where($modelName.'_id',$modelId)->count();
+        $comment['commentCount']=$model->comments()->count();
         $this->model = $comment;
         return $this->sendResponse();
 	}
