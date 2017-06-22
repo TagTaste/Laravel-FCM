@@ -16,7 +16,6 @@ class TagBoardController extends Controller
      */
     public function index(Request $request)
     {
-        \Log::info('here');
         $this->model = Ideabook::orderBy('created_at','desc')->paginate(10);
         return $this->sendResponse();
     }

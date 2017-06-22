@@ -101,7 +101,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
             //tagboard
-                Route::resource('tagboard','TagBoardController');
+                Route::resource('tagboards','TagBoardController');
 
             //tag
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
