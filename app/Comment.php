@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Comment extends Model
 {
     use SoftDeletes;
-    protected $visible = ['name','content','id','profile_id','profileImage','created_at'];
+    protected $visible = ['name','content','id','profile_id','profileImage','created_at','commentCount'];
     protected $appends = ['name','profileImage','profile_id','count'];
-    
+
+
     public function recipe()
     {
         return $this->belongsToMany('App\Recipe','comments_recipes','comment_id','recipe_id')->withPivot('recipe_id');

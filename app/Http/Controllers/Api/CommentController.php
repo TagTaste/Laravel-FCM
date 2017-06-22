@@ -72,7 +72,6 @@ class CommentController extends Controller {
 	{
 	    $modelName=$model;
         $model = $this->getModel($model,$modelId);
-        
         $this->checkRelationship($model);
         
         if(!method_exists($model, 'comments')){
@@ -105,7 +104,7 @@ class CommentController extends Controller {
             $user = $model->profile->user;
             event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
         }
-        
+        $comment['commentCount']=\DB::table('comments_'.$modelName.'s')->where($modelName.'_id',$modelId)->count();
         $this->model = $comment;
         return $this->sendResponse();
 	}
