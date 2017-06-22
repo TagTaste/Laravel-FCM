@@ -115,7 +115,7 @@ class CollaborateController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
 		$collaborate = $this->model->where('company_id',$company->id)->where('id',$id)->first();
-		
+
 		if($collaborate === null){
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }
@@ -125,7 +125,8 @@ class CollaborateController extends Controller
     
             $this->model->syncFields($fields);
         }
-        
+        $categories = $request->input('categories');
+        $this->model->categories()->sync($categories);
         $this->model = $collaborate->update($inputs);
         return $this->sendResponse();
     }
