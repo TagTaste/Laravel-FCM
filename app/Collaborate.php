@@ -22,7 +22,7 @@ class Collaborate extends Model implements Feedable, CommentNotification
     protected $with = ['profile','company','fields','categories'];
     
     protected $visible = ['id','title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location','categories',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
         'commentCount','likeCount'];
