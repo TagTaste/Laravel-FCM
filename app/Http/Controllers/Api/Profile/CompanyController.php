@@ -26,6 +26,8 @@ class CompanyController extends Controller
             //firing multiple queries for now.
             $temp = $company->toArray();
             $temp['isFollowing'] = $company->isFollowing($profileId);
+            $this->model['company_rating']=$company->companyRating($company->id);
+            $this->model['your_rating']=$company->yourRating($company->id,$profileId);
             $this->model[] = $temp;
         }
         return $this->sendResponse();
@@ -101,6 +103,8 @@ class CompanyController extends Controller
         $profileId = $request->user()->profile->id;
         $this->model = $company->toArray();
         $this->model['isFollowing'] = $company->isFollowing($profileId);
+        $this->model['company_rating']=$company->companyRating($company->id);
+        $this->model['your_rating']=$company->yourRating($company->id,$profileId);
         return $this->sendResponse();
     }
     

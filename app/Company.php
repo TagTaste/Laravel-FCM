@@ -79,7 +79,9 @@ class Company extends Model
         'speciality',
         'profileId',
         'handle',
-        'followerProfiles'
+        'followerProfiles',
+        'company_rating',
+        'your_rating'
     ];
 
 
@@ -366,5 +368,16 @@ class Company extends Model
     public function isFollowing($followerProfileId)
     {
         return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
+    }
+
+    public function companyRating($id){
+
+        return CompanyRating::select('rating')->where('company_id',$id)->get()->avg('rating');;
+    }
+
+    public function yourRating($id,$profileId){
+
+        return CompanyRating::select('rating')->where('company_id',$id)->where('profile_id',$profileId)->get()->avg('rating');;
+
     }
 }

@@ -44,7 +44,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
                         Route::resource("like",'ShoutoutLikeController');
                 });
-           
+
+            //company rating
+            Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
             
             //channel names for socket.io
                 Route::get('channels/{id}/public',function($id){
