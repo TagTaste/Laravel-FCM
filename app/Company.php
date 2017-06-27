@@ -80,15 +80,14 @@ class Company extends Model
         'profileId',
         'handle',
         'followerProfiles',
-        'company_rating',
-        'your_rating'
+        'rating',
     ];
 
 
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
 
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating'];
     
     public static function boot()
     {
@@ -370,14 +369,26 @@ class Company extends Model
         return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
     }
 
+    public function getRatingAttribute(){
+
+        $companyRaing=Company::companyRating($this->id);
+
+        $yourRating=Company::yourRating($this->id,$this->user->profile->id);
+
+        return ['companyRating'=>$companyRaing,'yourRating'=>$yourRating];
+    }
+
     public function companyRating($id){
 
-        return CompanyRating::select('rating')->where('company_id',$id)->get()->avg('rating');;
+        return CompanyRating::where('company_id',$id)->avg('rating');
     }
 
     public function yourRating($id,$profileId){
 
-        return CompanyRating::select('rating')->where('company_id',$id)->where('profile_id',$profileId)->get()->avg('rating');;
+        $rating= CompanyRating::where('company_id',$id)->where('profile_id',$profileId)->first();
+
+        return $rating['rating'];
 
     }
+
 }

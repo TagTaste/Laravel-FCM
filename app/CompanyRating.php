@@ -9,4 +9,6 @@ class CompanyRating extends Model
     public $timestamps = false;
 
     protected $fillable = ['company_id','profile_id','rating'];
+
+
 }

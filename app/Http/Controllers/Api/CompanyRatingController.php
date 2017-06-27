@@ -31,9 +31,6 @@ class CompanyRatingController extends Controller
         $inputs = $request->all();
         $inputs['company_id']=$companyId;
         $inputs['profile_id']=$request->user()->profile->id;
-        if(empty($inputs['profile_id']) && empty($inputs['company_id'])){
-            throw new \Exception("Missing owner information");
-        }
         $company = Company::find($inputs['company_id']);
         if(!$company){
             throw new \Exception("Company doesn't exist.");
