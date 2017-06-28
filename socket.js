@@ -103,7 +103,7 @@ companyFeedNamespace.on('connection', makeConnection);
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
         console.log(token);
-        if(!token){
+        if(typeof token === "undefined"){
             return {"error":"Token not provided."};
         }
         var channelName;
@@ -126,6 +126,7 @@ notificationNamespace.on('connection',function(socket){
                     }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
+                    console.log("profile");
                         console.log(body);
                         body=JSON.parse(body);
                         body=body.profile.id;
