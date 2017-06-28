@@ -76,10 +76,7 @@ class Photo extends Model implements Feedable, CommentNotification
         $relativePath = $pathPrefix . "images/ph/$profileId/p";
         \Log::info($relativePath);
         $status = Storage::makeDirectory($relativePath,0644,true);
-        if($filename === null){
-            return $relativePath;
-        }
-        return storage_path("app/".$relativePath) . "/" . $filename;
+        return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
     
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
@@ -87,10 +84,7 @@ class Photo extends Model implements Feedable, CommentNotification
         $pathPrefix = env('STORAGE_PATH');
         $relativePath = $pathPrefix . "images/ph/$profileId/c/$companyId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
-        if($filename === null){
-            return $relativePath;
-        }
-        return storage_path("app/".$relativePath) . "/" . $filename;
+        return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
 
     public function getLikeCountAttribute()
