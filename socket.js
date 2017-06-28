@@ -102,12 +102,7 @@ companyFeedNamespace.on('connection', makeConnection);
 
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
-        console.log(token);
-        if(typeof token === "undefined"){
-            return {"error":"Token not provided."};
-        }
         var channelName;
-        // console.log('here');
             var path = '/api/profile';
 
             var options = {
@@ -126,17 +121,13 @@ notificationNamespace.on('connection',function(socket){
                     }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
-                    console.log("profile");
-
-                        body=JSON.parse(body);
+                        body = JSON.parse(body);
                         if(body.error){
                             console.log(body.error);
                             return;
                         }
-                        body=body.profile.id;
-                        channelName='notification-channel.'+body;
-                        // console.log(channelName);
-                            socket.join(channelName);
+                        channelName='notification-channel.'+body.profile.id;
+                        socket.join(channelName);
                     })
             }).end();
         });
