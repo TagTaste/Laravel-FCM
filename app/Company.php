@@ -84,10 +84,10 @@ class Company extends Model
     ];
 
 
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','rating'];
 
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles'];
     
     public static function boot()
     {
@@ -162,6 +162,11 @@ class Company extends Model
     public function books()
     {
         return $this->hasMany(Book::class);
+    }
+
+    public function rating()
+    {
+        return $this->hasMany(CompanyRating::class);
     }
 
     public function getStatusesAttribute($value = null)
@@ -369,22 +374,5 @@ class Company extends Model
         return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
     }
 
-    public function getRatingAttribute(){
-
-        return ['companyRating'=>$this->companyRating(),'yourRating'=>$this->yourRating()];
-    }
-
-    public function companyRating(){
-
-        return CompanyRating::where('company_id',$this->id)->avg('rating');
-    }
-
-    public function yourRating(){
-
-        $rating= CompanyRating::where('company_id',$this->id)->where('profile_id',$this->user->profile->id)->first();
-
-        return $rating['rating'];
-
-    }
 
 }

@@ -12,7 +12,7 @@ class CompanyController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-        $this->model = Company::with('status','type')->orderBy('id', 'desc')->paginate(10);
+        $this->model = Company::with('status','type','rating')->orderBy('id', 'desc')->paginate(10);
 
 		return $this->sendResponse();
 	}
