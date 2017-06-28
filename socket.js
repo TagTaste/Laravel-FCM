@@ -122,6 +122,7 @@ notificationNamespace.on('connection',function(socket){
                     }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
+                        console.log(body);
                         body=JSON.parse(body);
                         body=body.profile.id;
                         channelName='notification-channel.'+body;
