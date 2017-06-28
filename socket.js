@@ -107,8 +107,8 @@ notificationNamespace.on('connection',function(socket){
             var path = '/api/profile';
 
             var options = {
-                host: 'web.app',
-                port: 80,
+                host: 'testapi.tagtaste.com',
+                port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
