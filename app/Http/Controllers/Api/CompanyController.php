@@ -12,16 +12,8 @@ class CompanyController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-		$companies = Company::with('status','type')->orderBy('id', 'desc')->paginate(10);
+        $this->model = Company::with('status','type')->orderBy('id', 'desc')->paginate(10);
 
-        $profileId = $request->user()->profile->id;
-        $this->model = [];
-        foreach($companies as $company){
-            //firing multiple queries for now.
-            $temp = $company->toArray();
-            $this->model[] = $temp;
-        }
-  
 		return $this->sendResponse();
 	}
  
@@ -34,7 +26,6 @@ class CompanyController extends Controller {
 	 */
 	public function show(Request $request,$id)
     {
-        $profileId=$request->user()->profile->id;
         $this->model = Company::where('id',$id)->with('status','type')->first();
         if(!$this->model){
             return $this->sendError("Company not found.");

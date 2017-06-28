@@ -371,21 +371,17 @@ class Company extends Model
 
     public function getRatingAttribute(){
 
-        $companyRaing=Company::companyRating($this->id);
-
-        $yourRating=Company::yourRating($this->id,$this->user->profile->id);
-
-        return ['companyRating'=>$companyRaing,'yourRating'=>$yourRating];
+        return ['companyRating'=>$this->companyRating(),'yourRating'=>$this->yourRating()];
     }
 
-    public function companyRating($id){
+    public function companyRating(){
 
-        return CompanyRating::where('company_id',$id)->avg('rating');
+        return CompanyRating::where('company_id',$this->id)->avg('rating');
     }
 
-    public function yourRating($id,$profileId){
+    public function yourRating(){
 
-        $rating= CompanyRating::where('company_id',$id)->where('profile_id',$profileId)->first();
+        $rating= CompanyRating::where('company_id',$this->id)->where('profile_id',$this->user->profile->id)->first();
 
         return $rating['rating'];
 
