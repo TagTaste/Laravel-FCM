@@ -127,8 +127,12 @@ notificationNamespace.on('connection',function(socket){
                 response.setEncoding('utf8');
                 response.on('data',function(body){
                     console.log("profile");
-                        console.log(body);
+
                         body=JSON.parse(body);
+                        if(body.error){
+                            console.log(body.error);
+                            return;
+                        }
                         body=body.profile.id;
                         channelName='notification-channel.'+body;
                         // console.log(channelName);
