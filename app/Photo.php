@@ -71,7 +71,8 @@ class Photo extends Model implements Feedable, CommentNotification
     
     public static function getProfileImagePath($profileId,$filename = null)
     {
-        $relativePath = "images/ph/$profileId/p";
+        $pathPrefix = env('PHOTO_PATH');
+        $relativePath = $pathPrefix . "images/ph/$profileId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
@@ -81,7 +82,8 @@ class Photo extends Model implements Feedable, CommentNotification
     
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "images/ph/$profileId/c/$companyId/p";
+        $pathPrefix = env('PHOTO_PATH');
+        $relativePath = $pathPrefix . "images/ph/$profileId/c/$companyId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
