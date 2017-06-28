@@ -74,6 +74,7 @@ class Photo extends Model implements Feedable, CommentNotification
         \Log::info(getcwd());
         $pathPrefix = env('PHOTO_PATH');
         $relativePath = $pathPrefix . "images/ph/$profileId/p";
+        \Log::info($relativePath);
         $status = Storage::makeDirectory($relativePath,0644,true);
         if($filename === null){
             return $relativePath;
