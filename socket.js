@@ -102,6 +102,9 @@ companyFeedNamespace.on('connection', makeConnection);
 
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
+        if(!token){
+            return {"error":"Token not provided."};
+        }
         var channelName;
         // console.log('here');
             var path = '/api/profile';
