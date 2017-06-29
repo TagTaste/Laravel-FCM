@@ -100,7 +100,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
-                
+            //tagboard
+                Route::resource('tagboards','TagBoardController');
+
             //tag
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
@@ -222,7 +224,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("professional","ProfessionalController");
                
             });
-            //Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
 //            Route::resource("books","BookController");
