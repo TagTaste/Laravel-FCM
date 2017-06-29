@@ -90,25 +90,32 @@ class FeedController extends Controller
 //        }
         
         foreach($payloads as $payload){
+            $type = null;
             $data = [];
 
             $cached = json_decode($payload->payload, true);
             foreach($cached as $name => $key){
-                $data[$name] = \Redis::get($key);
-                $data[$name] = json_decode($data[$name],true);
+                $cachedData = \Redis::get($key);
+                $data[$name] = json_decode($cachedData,true);
             }
             if($payload->model !== null){
                 $model = $payload->model;
+                $type = $this->getType($payload->model);
                 $model = $model::find($payload->model_id);
                 if($model !== null && method_exists($model, 'getMetaFor')){
                     $data['meta'] = $model->getMetaFor($profileId);
                 }
             }
-        
+            $data['type'] = $type;
             $this->model[] = $data;
         }
     }
     
+    private function getType($modelName)
+    {
+        $exploded = explode('\\',$modelName);
+        return strtolower(end($exploded));
+    }
     //things that is displayed on company's public feed
     public function company(Request $request, $profileId)
     {

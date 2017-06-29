@@ -103,12 +103,11 @@ companyFeedNamespace.on('connection', makeConnection);
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
         var channelName;
-        // console.log('here');
             var path = '/api/profile';
 
             var options = {
-                host: 'web.app',
-                port: 80,
+                host: 'testapi.tagtaste.com',
+                port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
@@ -122,11 +121,13 @@ notificationNamespace.on('connection',function(socket){
                     }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
-                        body=JSON.parse(body);
-                        body=body.profile.id;
-                        channelName='notification-channel.'+body;
-                        // console.log(channelName);
-                            socket.join(channelName);
+                        body = JSON.parse(body);
+                        if(body.error){
+                            console.log(body.error);
+                            return;
+                        }
+                        channelName='notification-channel.'+body.profile.id;
+                        socket.join(channelName);
                     })
             }).end();
         });
