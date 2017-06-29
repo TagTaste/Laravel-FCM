@@ -71,13 +71,14 @@ class Payload extends Model
                     
                 //add to things to json
                 if(!empty($additionalMeta)){
-                    $additionalMeta['type'] = $this->getType();
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
                             $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
                 }
+                
+                $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
             
