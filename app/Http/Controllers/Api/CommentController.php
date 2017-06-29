@@ -95,7 +95,7 @@ class CommentController extends Controller {
             ->get();
         
         foreach ($users->toArray() as $user) {
-            event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
+            event(new Update($model->id, $modelName, $user->id, "comment"));
         }
         
         $loggedInProfileId = $request->user()->profile->id;
@@ -103,7 +103,7 @@ class CommentController extends Controller {
         //send message to creator
         if ($loggedInProfileId != $model->profile_id) {
             $user = $model->profile->user;
-            event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
+            event(new Update($model->id, $modelName, $user->id, "comment"));
         }
         
         $this->model = $comment;

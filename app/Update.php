@@ -11,6 +11,9 @@ class Update extends Model
     public static function boot()
     {
         static::created(function($model){
+            $nameData=Profile::find($model->profile_id);
+            $model['name']=$nameData->name;
+            $model['profileImage']=$nameData->imageUrl;
             \Redis::publish('notification-channel',$model->toJson());
         });
     }
