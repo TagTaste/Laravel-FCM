@@ -11,7 +11,8 @@ class Comment extends Model
     use SoftDeletes;
     protected $visible = ['name','content','id','profile_id','profileImage','created_at'];
     protected $appends = ['name','profileImage','profile_id','count'];
-    
+
+
     public function recipe()
     {
         return $this->belongsToMany('App\Recipe','comments_recipes','comment_id','recipe_id')->withPivot('recipe_id');
@@ -58,6 +59,14 @@ class Comment extends Model
     public function getProfileIdAttribute()
     {
         return $this->user->profile->id;
+    }
+
+    public function getMetaFor(&$model)
+    {
+        $meta = [];
+        $meta['commentCount'] = $model->comments()->count();
+
+        return $meta;
     }
 
 }

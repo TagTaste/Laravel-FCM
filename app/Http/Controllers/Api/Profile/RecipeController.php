@@ -64,10 +64,13 @@ class RecipeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$id)
+    public function show(Request $request, $profileId,$id)
     {
-        $this->model = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
-        
+        $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
+        $loggedInProfileId = $request->user()->profile->id;
+        $r = $recipe->toArray();
+        $r['meta'] = $recipe->getMetaFor($loggedInProfileId);
+        $this->model = $r;
         return $this->sendResponse();
     }
 
