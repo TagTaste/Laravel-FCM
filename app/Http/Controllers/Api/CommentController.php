@@ -104,8 +104,8 @@ class CommentController extends Controller {
             $user = $model->profile->user;
             event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
         }
-        $comment['commentCount']=$model->comments()->count();
-        $this->model = $comment;
+        $meta = $comment->getMetaFor($model);
+        $this->model = ["comment"=>$comment,"meta"=>$meta];
         return $this->sendResponse();
 	}
     
