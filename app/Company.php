@@ -166,7 +166,7 @@ class Company extends Model
 
     public function rating()
     {
-        return $this->hasMany(CompanyRating::class);
+        return $this->hasOne(CompanyRating::class,'company_id');
     }
 
     public function getStatusesAttribute($value = null)
