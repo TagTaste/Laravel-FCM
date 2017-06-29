@@ -24,6 +24,12 @@ class Payload extends Model
         
     }
     
+    private function getType()
+    {
+        $exploded = explode('\\',$this->model);
+        return strtolower(end($exploded));
+    }
+    
     private function publish()
     {
         try {
@@ -65,6 +71,7 @@ class Payload extends Model
                     
                 //add to things to json
                 if(!empty($additionalMeta)){
+                    $additionalMeta['type'] = $this->getType();
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
                             $jsonPayload .= "\"$key\":\"$value\"";
