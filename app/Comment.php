@@ -61,7 +61,7 @@ class Comment extends Model
         return $this->user->profile->id;
     }
 
-    public function getMetaFor($model)
+    public function getMetaFor(&$model)
     {
         $meta = [];
         $meta['commentCount'] = $model->comments()->count();
