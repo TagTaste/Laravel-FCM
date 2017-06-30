@@ -93,7 +93,7 @@ class AwardController extends Controller
             throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = Award::forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
+        $this->model = Award::where('id',$id)->forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
             $query->where('id',$userId);
         })->update($request->only($this->fields));
 
@@ -115,7 +115,7 @@ class AwardController extends Controller
             throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = Award::forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
+        $this->model = Award::where('id',$id)->forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
             $query->where('id',$userId);
         })->delete();
 
