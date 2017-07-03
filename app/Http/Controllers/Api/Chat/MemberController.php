@@ -31,18 +31,18 @@ class MemberController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index(Request $request, $id)
+	public function index(Request $request, $chatId)
 	{
 	    $profileId = $request->user()->profile->id;
 	    
-	    //check if profileId is member of given chat $id
-		$memberOfChat = Member::where('chat_id',$id)->where('profile_id',$profileId)->first();
+	    //check if profileId is member of given $chatId
+		$memberOfChat = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->first();
   
 		if(!$memberOfChat){
 		    return $this->sendError("Profile is not part of the chat.");
         }
         
-        $this->model = Member::where('chat_id',$id)->get();
+        $this->model = Member::where('chat_id',$chatId)->get();
 		return $this->sendResponse();
 	}
 
@@ -52,12 +52,12 @@ class MemberController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request, $id)
+	public function store(Request $request, $chatId)
 	{
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
-		$chat = Chat::where('id',$id)->where('profile_id',$profileId)->first();
+		$chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->first();
 		if(!$chat){
 		    return $this->sendError("Only chat owners can add members");
         }
@@ -74,42 +74,12 @@ class MemberController extends Controller
 	}
 
 	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$chat_member = $this->model->findOrFail($id);
-		
-		return view('chat_members.edit', compact('chat_member'));
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function update(Request $request, $id)
-	{
-		$inputs = $request->all();
-
-		$chat_member = $this->model->findOrFail($id);		
-		$chat_member->update($inputs);
-
-		return redirect()->route('chat_members.index')->with('message', 'Item updated successfully.');
-	}
-
-	/**
 	 * Remove the specified resource from storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $chatId, $id)
 	{
 		$this->model->destroy($id);
 
