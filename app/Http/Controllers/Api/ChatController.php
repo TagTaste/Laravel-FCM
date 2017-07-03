@@ -97,4 +97,14 @@ class ChatController extends Controller
 
 		return $this->sendResponse();
 	}
+    
+    public function rooms(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $this->model = Chat::without(['members'])->select("chats.id")->where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId);
+        })->get();
+        
+        return $this->sendResponse();
+	}
 }

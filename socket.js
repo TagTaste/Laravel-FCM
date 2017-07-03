@@ -58,6 +58,46 @@ var logErr = function(err,count){
         companyPublic.psubscribe('company.public.*',logErr);
         companyPublic.on('pmessage',companyPublicEmit);
 
+        //chats
+
+        var chatNamespace = io.of("/chat");
+        var chatEmit = function(pattern,channel,message){
+            console.log(message);
+            chatNamespace.to(channel).emit("message",message);
+        };
+
+        var chat = new Redis();
+        chat.psubscribe("chat.*",logErr);
+        chat.on('pmessage',chatEmit);
+
+        chatNamespace.on('connection',function(socket){
+            var token = socket.handshake.query['token'];
+            var options = {
+                host: 'web.app',
+                // port: 8080,
+                path : '/api/chatrooms',
+                method: 'get',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization' : "Bearer " + token
+                }
+            };
+            requester.request(options, function(response) {
+                if(response.statusCode !== 200){
+                    socket.disconnect(true);
+                }
+                response.setEncoding('utf8');
+                response.on('data',function(body){
+                    body = JSON.parse(body);
+                    body = body.data;
+                    var rooms = Object.keys(body).map(function(k) { return "chat." + body[k].id });
+                    for(var i in rooms){
+                        socket.join(rooms[i]);
+                    }
+                })
+            }).end();
+        });
+
 io.on('disconnect', function(){
     //console.log('user disconnected');
 });
