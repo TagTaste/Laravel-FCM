@@ -15,6 +15,14 @@ class Chat extends Model
     
     protected $with = ['members'];
     
+    public static function boot()
+    {
+        self::created(function($chat){
+            $now = \Carbon\Carbon::now();
+            $data = ['chat_id'=>$chat->id,'profile_id'=>$chat->profile_id, 'created_at'=>$now->toDateTimeString()];
+            Member::create($data);
+        });
+    }
     public function members()
     {
         return $this->hasMany(Member::class);
