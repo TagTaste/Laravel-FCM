@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Member;
+use App\Chat\Member;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class ChatMemberController extends Controller
+class MemberController extends Controller
 {
 	/**
 	 * Variable to model
 	 *
-	 * @var chat_memberz
+	 * @var chat_member
 	 */
 	protected $model;
 
