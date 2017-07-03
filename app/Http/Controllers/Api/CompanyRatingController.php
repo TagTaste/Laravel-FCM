@@ -35,10 +35,9 @@ class CompanyRatingController extends Controller
         if(!$company){
             throw new \Exception("Company doesn't exist.");
         }
-
-        $rating=CompanyRating::where('company_id',$inputs['company_id'])->where('profile_id',$inputs['profile_id'])->exists();
-        if($rating){
-            $this->model=CompanyRating::where('company_id',$inputs['company_id'])->where('profile_id',$inputs['profile_id'])->update($inputs);
+        if($company->rating->profile_id){
+            $this->model=$this->model->where('company_id',$companyId)
+                ->where('profile_id',$inputs['profile_id'])->update($inputs);
             return $this->sendResponse();
         }
 

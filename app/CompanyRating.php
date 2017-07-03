@@ -10,7 +10,7 @@ class CompanyRating extends Model
 
     protected $fillable = ['company_id','profile_id','rating'];
 
-    protected $visible = ['rating','companyRating'];
+    protected $visible = ['rating','profile_id','companyRating'];
 
     protected $appends =['companyRating'];
 
