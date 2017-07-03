@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Chat;
 
+use App\Chat;
 use App\Chat\Message;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -30,11 +31,20 @@ class MessageController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request,$chatId)
 	{
-		$messages = $this->model->paginate();
+	    $profileId = $request->user()->profile->id;
+        //check ownership
+        
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exists();
+        
+        if(!$memberOfChat) {
+            return $this->sendError("You are not part of this chat.");
+        }
+        
+		$this->model = $this->model->where('chat_id',$chatId)->paginate();
 
-		return view('messages.index', compact('messages'));
+		return $this->sendResponse();
 	}
 
 	/**
