@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Chat;
 
 use App\Chat\Member;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Controller;
 
 class MemberController extends Controller
 {
@@ -30,7 +30,7 @@ class MemberController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		$chat_members = $this->model->paginate();
 
