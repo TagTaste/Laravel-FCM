@@ -81,8 +81,16 @@ class MemberController extends Controller
 	 */
 	public function destroy(Request $request, $chatId, $id)
 	{
-		$this->model->destroy($id);
+        $profileId = $request->user()->profile->id;
+        
+        //check ownership of chat.
+        $chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->first();
+        if(!$chat){
+            return $this->sendError("Only chat owner can remove members");
+        }
+        
+		$this->model = Member::where('id',$id)->delete();
 
-		return redirect()->route('chat_members.index')->with('message', 'Item deleted successfully.');
+		return $this->sendResponse();
 	}
 }
