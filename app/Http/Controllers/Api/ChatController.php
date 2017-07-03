@@ -49,10 +49,20 @@ class ChatController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
+		$memberProfileId = $inputs['profile_id'];
+		
+		//creator
 		$inputs['profile_id'] = $request->user()->profile->id;
 		$this->model = $this->model->create($inputs);
-
-		return $this->sendResponse();
+  
+		//add member to chat
+        $now = \Carbon\Carbon::now();
+        $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$memberProfileId, 'created_at'=>$now->toDateTimeString()];
+        Chat\Member::insert($data);
+        
+        //reload model
+        $this->model = $this->model->refresh();
+        return $this->sendResponse();
 	}
 
 	/**
