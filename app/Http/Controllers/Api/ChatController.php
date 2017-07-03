@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Chat;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class ChatController extends Controller
 {
@@ -32,19 +31,9 @@ class ChatController extends Controller
 	 */
 	public function index()
 	{
-		$chats = $this->model->paginate();
+		$this->model = $this->model->paginate();
 
-		return view('chats.index', compact('chats'));
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		return view('chats.create');
+		return $this->sendResponse();
 	}
 
 	/**
@@ -58,7 +47,7 @@ class ChatController extends Controller
 		$inputs = $request->all();
 		$this->model->create($inputs);
 
-		return redirect()->route('chats.index')->with('message', 'Item created successfully.');
+		return $this->sendResponse();
 	}
 
 	/**
@@ -69,22 +58,9 @@ class ChatController extends Controller
 	 */
 	public function show($id)
 	{
-		$chat = $this->model->findOrFail($id);
+		$this->model = $this->model->findOrFail($id);
 		
-		return view('chats.show', compact('chat'));
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$chat = $this->model->findOrFail($id);
-		
-		return view('chats.edit', compact('chat'));
+		return $this->sendResponse();
 	}
 
 	/**
@@ -99,9 +75,9 @@ class ChatController extends Controller
 		$inputs = $request->all();
 
 		$chat = $this->model->findOrFail($id);		
-		$chat->update($inputs);
+		$this->model = $chat->update($inputs);
 
-		return redirect()->route('chats.index')->with('message', 'Item updated successfully.');
+		return $this->sendResponse();
 	}
 
 	/**
@@ -112,8 +88,8 @@ class ChatController extends Controller
 	 */
 	public function destroy($id)
 	{
-		$this->model->destroy($id);
+		$this->model = $this->model->destroy($id);
 
-		return redirect()->route('chats.index')->with('message', 'Item deleted successfully.');
+		return $this->sendResponse();
 	}
 }
