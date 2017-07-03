@@ -29,9 +29,13 @@ class ChatController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		$this->model = $this->model->paginate();
+	    $profileId = $request->user()->profile->id;
+	    
+		$this->model = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
+		    $query->where('profile_id',$profileId);
+        })->paginate();
 
 		return $this->sendResponse();
 	}
@@ -45,7 +49,8 @@ class ChatController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-		$this->model->create($inputs);
+		$inputs['profile_id'] = $request->user()->profile->id;
+		$this->model = $this->model->create($inputs);
 
 		return $this->sendResponse();
 	}

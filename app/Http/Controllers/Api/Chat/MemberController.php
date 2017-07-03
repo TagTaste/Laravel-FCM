@@ -62,7 +62,7 @@ class MemberController extends Controller
 		    return $this->sendError("Only chat owners can add members");
         }
         
-        $profileIds = $request->input('profiles');
+        $profileIds = $request->input('profile_id');
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
