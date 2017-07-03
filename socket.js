@@ -89,6 +89,10 @@ var logErr = function(err,count){
                 response.setEncoding('utf8');
                 response.on('data',function(body){
                     body = JSON.parse(body);
+                    console.log(body);
+                    if(body.error != null){
+                        return;
+                    }
                     body = body.data;
                     var rooms = Object.keys(body).map(function(k) { return "chat." + body[k].id });
                     for(var i in rooms){
