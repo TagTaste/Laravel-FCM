@@ -72,20 +72,7 @@ class MessageController extends Controller
 
 		return $this->sendResponse();
 	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$message = $this->model->findOrFail($id);
-		
-		return view('messages.edit', compact('message'));
-	}
-
+	
 	/**
 	 * Update the specified resource in storage.
 	 *
