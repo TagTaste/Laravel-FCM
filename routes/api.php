@@ -32,7 +32,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
             //chat
                 Route::resource("chats","ChatController");
-            
+                Route::resource("chats/{id}/members",'Chat\\MemberController');
+                Route::resource("chats/{id}/messages",'Chat\\MessageController');
             //categories
                 Route::resource("categories","CategoryController");
             
