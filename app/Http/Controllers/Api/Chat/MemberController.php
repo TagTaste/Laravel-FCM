@@ -73,18 +73,18 @@ class MemberController extends Controller
 		return $this->sendResponse();
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		$chat_member = $this->model->findOrFail($id);
-		
-		return view('chat_members.show', compact('chat_member'));
-	}
+//	/**
+//	 * Display the specified resource.
+//	 *
+//	 * @param  int  $id
+//	 * @return Response
+//	 */
+//	public function show($id)
+//	{
+//		$chat_member = $this->model->findOrFail($id);
+//
+//		return view('chat_members.show', compact('chat_member'));
+//	}
 
 	/**
 	 * Show the form for editing the specified resource.
