@@ -13,6 +13,8 @@ class Chat extends Model
     
     protected $fillable = ['name', 'profile_id'];
     
+    protected $with = ['members'];
+    
     public function members()
     {
         return $this->hasMany(Member::class);
