@@ -17,7 +17,7 @@ class CreateChatsTable extends Migration {
             $table->string('name')->nullable();
             $table->integer('profile_id')->unsigned();
             $table->timestamps();
-            
+            $table->softDeletes();
             $table->foreign('profile_id')->references('id')->on('profiles');
         });
 	}
