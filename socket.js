@@ -73,8 +73,8 @@ var logErr = function(err,count){
         chatNamespace.on('connection',function(socket){
             var token = socket.handshake.query['token'];
             var options = {
-                host: 'web.app',
-                // port: 8080,
+                host: 'testapi.tagtaste.com',
+                port: 8080,
                 path : '/api/chatrooms',
                 method: 'get',
                 headers: {
