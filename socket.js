@@ -89,8 +89,8 @@ var logErr = function(err,count){
                 response.setEncoding('utf8');
                 response.on('data',function(body){
                     body = JSON.parse(body);
-                    console.log(body);
-                    if(body.error != null){
+                    if(body.error){
+                        console.log(body.error);
                         return;
                     }
                     body = body.data;
@@ -132,6 +132,10 @@ var makeConnection = function(socket){
         response.setEncoding('utf8');
         response.on('data',function(body){
             body = JSON.parse(body);
+            if(body.error){
+                console.log(body.error);
+                return;
+            }
             var rooms = Object.keys(body).map(function(k) { return body[k] });
             for(var i in rooms){
                 socket.join(rooms[i]);
