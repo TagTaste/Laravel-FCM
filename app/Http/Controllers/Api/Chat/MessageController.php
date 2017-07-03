@@ -74,19 +74,6 @@ class MessageController extends Controller
 	}
 
 	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		$message = $this->model->findOrFail($id);
-		
-		return view('messages.show', compact('message'));
-	}
-
-	/**
 	 * Show the form for editing the specified resource.
 	 *
 	 * @param  int  $id
