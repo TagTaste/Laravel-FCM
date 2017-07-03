@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Chat;
 
+use App\Chat;
 use App\Chat\Member;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -30,21 +31,19 @@ class MemberController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index(Request $request)
+	public function index(Request $request, $id)
 	{
-		$chat_members = $this->model->paginate();
-
-		return view('chat_members.index', compact('chat_members'));
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		return view('chat_members.create');
+	    $profileId = $request->user()->profile->id;
+	    
+	    //check if profileId is member of given chat $id
+		$memberOfChat = Member::where('chat_id',$id)->where('profile_id',$profileId)->first();
+  
+		if(!$memberOfChat){
+		    return $this->sendError("Profile is not part of the chat.");
+        }
+        
+        $this->model = Member::where('chat_id',$id)->get();
+		return $this->sendResponse();
 	}
 
 	/**
@@ -53,12 +52,25 @@ class MemberController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request)
+	public function store(Request $request, $id)
 	{
-		$inputs = $request->all();
-		$this->model->create($inputs);
+		$profileId = $request->user()->profile->id;
+		
+		//check ownership of chat.
+		$chat = Chat::where('id',$id)->where('profile_id',$profileId)->first();
+		if(!$chat){
+		    return $this->sendError("Only chat owners can add members");
+        }
+        
+        $profileIds = $request->input('profiles');
+		$data = [];
+		$now = \Carbon\Carbon::now();
+		foreach($profileIds as $profileId){
+		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
+        }
+		$this->model = Member::insert($data);
 
-		return redirect()->route('chat_members.index')->with('message', 'Item created successfully.');
+		return $this->sendResponse();
 	}
 
 	/**
