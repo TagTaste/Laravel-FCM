@@ -46,29 +46,31 @@ class MessageController extends Controller
 
 		return $this->sendResponse();
 	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		return view('messages.create');
-	}
-
+	
 	/**
 	 * Store a newly created resource in storage.
 	 *
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request)
+	public function store(Request $request, $chatId)
 	{
 		$inputs = $request->all();
-		$this->model->create($inputs);
+        
+        $profileId = $request->user()->profile->id;
+        //check ownership
+        
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exists();
+        
+        if(!$memberOfChat) {
+            return $this->sendError("You are not part of this chat.");
+        }
+        
+        $inputs['chat_id'] = $chatId;
+        $inputs['profile_id'] = $profileId;
+		$this->model = $this->model->create($inputs);
 
-		return redirect()->route('messages.index')->with('message', 'Item created successfully.');
+		return $this->sendResponse();
 	}
 
 	/**
