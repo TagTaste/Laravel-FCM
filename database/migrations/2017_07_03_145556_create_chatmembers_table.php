@@ -18,6 +18,9 @@ class CreateChatMembersTable extends Migration {
             $table->integer('profile_id')->unsigned();
             $table->timestamps();
             $table->softDeletes();
+            
+            $table->foreign('chat_id')->references('id')->on('chats')->onDelete('cascade');
+            $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
         });
 	}
 
