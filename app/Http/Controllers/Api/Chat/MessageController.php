@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Chat;
 
 use App\Chat;
 use App\Chat\Message;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -59,7 +60,6 @@ class MessageController extends Controller
 	public function store(Request $request, $chatId)
 	{
 		$inputs = $request->all();
-        
         $profileId = $request->user()->profile->id;
         //check ownership
         
