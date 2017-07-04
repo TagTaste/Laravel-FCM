@@ -15,6 +15,8 @@ class Chat extends Model
     
     protected $with = ['members'];
     
+    protected $appends = ['latestMessages'];
+    
     public function members()
     {
         return $this->hasManyThrough( \App\Recipe\Profile::class, Member::class,'profile_id','id');
@@ -42,5 +44,10 @@ class Chat extends Model
             return $to->first()->name;
         }
         return $value;
+    }
+    
+    public function getLatestMessagesAttribute()
+    {
+        return $this->messages()->orderBy('created_at','desc')->take(5)->get();
     }
 }
