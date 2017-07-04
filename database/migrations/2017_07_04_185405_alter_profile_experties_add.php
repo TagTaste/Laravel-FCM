@@ -14,7 +14,7 @@ class AlterProfileExpertiesAdd extends Migration
     public function up()
     {
         Schema::table('profiles',function(Blueprint $table){
-            $table->string("experties")->nullable();
+            $table->string("expertise")->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterProfileExpertiesAdd extends Migration
     public function down()
     {
         Schema::table('profiles',function(Blueprint $table){
-            $table->dropColumn('experties');
+            $table->dropColumn('expertise');
         });
     }
 }
