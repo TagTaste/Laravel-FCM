@@ -37,11 +37,10 @@ class ChatController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-        $chats = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
+        $this->model = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
         })->skip($skip)->take($take)->get();
         
-        $this->model = $chats;
 		return $this->sendResponse();
 	}
 
@@ -76,11 +75,18 @@ class ChatController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request ,$id)
 	{
-		$this->model = $this->model->findOrFail($id);
-		
-		return $this->sendResponse();
+	    $profileId = $request->user()->profile->id;
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+        //current user should be part of the chat, is a sufficient condition.
+        $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId);
+        })->skip($skip)->take($take)->get();
+        
+        return $this->sendResponse();
 	}
 
 	/**
