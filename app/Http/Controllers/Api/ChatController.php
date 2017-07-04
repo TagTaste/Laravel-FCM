@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Chat;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
@@ -32,11 +33,14 @@ class ChatController extends Controller
 	public function index(Request $request)
 	{
 	    $profileId = $request->user()->profile->id;
-	    
-		$this->model = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
-		    $query->where('profile_id',$profileId);
-        })->paginate();
-
+        
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+        $this->model = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId);
+        })->skip($skip)->take($take)->get();
+        
 		return $this->sendResponse();
 	}
 
@@ -49,10 +53,27 @@ class ChatController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
+		$memberProfileId = $inputs['profile_id'];
+		
+		//creator
 		$inputs['profile_id'] = $request->user()->profile->id;
 		$this->model = $this->model->create($inputs);
-
-		return $this->sendResponse();
+  
+		if($request->hasFile("image")){
+            $imageName = str_random("32") . ".jpg";
+            $path = Chat::getImagePath($this->model->id);
+            $response = $request->file('image')->storeAs($path,$imageName);
+            if(!$response){
+                throw new \Exception("Could not save image " . $imageName . " at " . $path);
+            }
+            $inputs['image'] = $imageName;
+        }
+		//add member to chat
+        $now = \Carbon\Carbon::now();
+        $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$memberProfileId, 'created_at'=>$now->toDateTimeString()];
+        $this->model->members()->insert($data);
+        
+        return $this->sendResponse();
 	}
 
 	/**
@@ -61,11 +82,18 @@ class ChatController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show(Request $request ,$id)
 	{
-		$this->model = $this->model->findOrFail($id);
-		
-		return $this->sendResponse();
+	    $profileId = $request->user()->profile->id;
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+        //current user should be part of the chat, is a sufficient condition.
+        $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId);
+        })->skip($skip)->take($take)->get();
+        
+        return $this->sendResponse();
 	}
 
 	/**
@@ -79,7 +107,18 @@ class ChatController extends Controller
 	{
 		$inputs = $request->all();
 
-		$chat = $this->model->findOrFail($id);		
+		$chat = $this->model->findOrFail($id);
+        
+        if($request->hasFile("image")){
+            $imageName = str_random("32") . ".jpg";
+            $path = Chat::getImagePath($chat->id);
+            $response = $request->file('image')->storeAs($path,$imageName);
+            if(!$response){
+                throw new \Exception("Could not save image " . $imageName . " at " . $path);
+            }
+            $inputs['image'] = $imageName;
+        }
+        
 		$this->model = $chat->update($inputs);
 
 		return $this->sendResponse();
@@ -101,10 +140,12 @@ class ChatController extends Controller
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = Chat::without(['members'])->select("chats.id")->where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
-            $query->where('profile_id',$profileId);
-        })->get();
-        
+        $this->model = \DB::table('chats')->select('chats.id')
+            ->leftJoin('chat_members','chat_members.chat_id','=','chats.id')
+            ->where('chats.profile_id',$profileId)
+            ->where('chat_members.profile_id','=',$profileId)->get();
+        \Log::info("profile: " . $profileId);
+        \Log::info($this->model);
         return $this->sendResponse();
 	}
 }

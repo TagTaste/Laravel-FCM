@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Chat;
 
 use App\Chat;
 use App\Chat\Message;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -42,7 +43,10 @@ class MessageController extends Controller
             return $this->sendError("You are not part of this chat.");
         }
         
-		$this->model = $this->model->where('chat_id',$chatId)->paginate();
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+		$this->model = $this->model->where('chat_id',$chatId)->orderBy('created_at','asc')->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();
 	}
@@ -56,7 +60,6 @@ class MessageController extends Controller
 	public function store(Request $request, $chatId)
 	{
 		$inputs = $request->all();
-        
         $profileId = $request->user()->profile->id;
         //check ownership
         
