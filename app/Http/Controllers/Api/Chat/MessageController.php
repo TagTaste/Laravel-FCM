@@ -60,7 +60,6 @@ class MessageController extends Controller
 	public function store(Request $request, $chatId)
 	{
 		$inputs = $request->all();
-		\Log::info($inputs);
         $profileId = $request->user()->profile->id;
         //check ownership
         
