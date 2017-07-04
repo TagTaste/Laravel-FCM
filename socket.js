@@ -4,6 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var Redis = require('ioredis');
 var requester = require("http");
+var queryString = require('querystring');
 
 var logErr = function(err,count){
     if(err !== null) console.log(err);
@@ -58,6 +59,82 @@ var logErr = function(err,count){
         companyPublic.psubscribe('company.public.*',logErr);
         companyPublic.on('pmessage',companyPublicEmit);
 
+        //chats
+
+        var chatNamespace = io.of("/chat");
+        var chatEmit = function(pattern,channel,message){
+            console.log(message);
+            chatNamespace.to(channel).emit("message",message);
+        };
+
+        var chat = new Redis();
+        chat.psubscribe("chat.*",logErr);
+        chat.on('pmessage',chatEmit);
+
+        chatNamespace.on('connection',function(socket){
+            var token = socket.handshake.query['token'];
+            var options = {
+                host: 'testapi.tagtaste.com',
+                port: 8080,
+                path : '/api/chatrooms',
+                method: 'get',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization' : "Bearer " + token
+                },
+            };
+            requester.request(options, function(response) {
+                if(response.statusCode !== 200){
+                    socket.disconnect(true);
+                }
+                response.setEncoding('utf8');
+                response.on('data',function(body){
+                    console.log(body);
+                    body = JSON.parse(body);
+                    if(body.error){
+                        console.log(body.error);
+                        return;
+                    }
+                    body = body.data;
+                    var rooms = Object.keys(body).map(function(k) { return "chat." + body[k].id });
+                    for(var i in rooms){
+                        socket.join(rooms[i]);
+                    }
+                })
+            }).end();
+
+            //which room to send the message to
+            socket.on('message',function(chatId, message){
+                var data = queryString.stringify({
+                    "message" : message
+                });
+
+                console.log(message);
+                var optionsChat = {
+                    host: 'testapi.tagtaste.com',
+                    port: 8080,
+                    path : '/api/chats/' + chatId + '/messages',
+                    method: 'post',
+                    headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization' : "Bearer " + token
+                    },
+                };
+                var req = requester.request(optionsChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        chatNamespace.to("chat." + chatId).emit("message",body.data);
+                    })
+                });
+                req.write(data);
+                req.end();
+
+            });
+        });
+
 io.on('disconnect', function(){
     //console.log('user disconnected');
 });
@@ -88,6 +165,10 @@ var makeConnection = function(socket){
         response.setEncoding('utf8');
         response.on('data',function(body){
             body = JSON.parse(body);
+            if(body.error){
+                console.log(body.error);
+                return;
+            }
             var rooms = Object.keys(body).map(function(k) { return body[k] });
             for(var i in rooms){
                 socket.join(rooms[i]);
