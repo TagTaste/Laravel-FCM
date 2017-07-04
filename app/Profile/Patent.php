@@ -15,9 +15,7 @@ class Patent extends Model
     protected $fillable = ['id','title','description','publish_date','patent_number','url'];
 
     protected $visible = ['id','title','description','publish_date','patent_number','url'];
-
-    protected $appends = ['total'];
-
+    
     public function setPublishDateAttribute($value)
     {
         if(!empty($value)){
