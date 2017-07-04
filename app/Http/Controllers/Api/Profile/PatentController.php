@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Profile\Patent;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
-class ProfilePatentController extends Controller
+class PatentController extends Controller
 {
     use SendsJsonResponse;
 
