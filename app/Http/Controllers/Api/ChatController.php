@@ -140,10 +140,10 @@ class ChatController extends Controller
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = Chat::without(['members'])->select("chats.id")->where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
-            $query->where('profile_id',$profileId);
-        })->get();
-        
+        $this->model = \DB::table('chats')->select('chats.id')
+            ->leftJoin('chat_members','chat_members.chat_id','=','chats.id')
+            ->where('chats.profile_id',$profileId)
+            ->where('chat_members.profile_id','=',$profileId)->get();
         return $this->sendResponse();
 	}
 }
