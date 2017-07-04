@@ -111,9 +111,10 @@ var logErr = function(err,count){
                     path : '/api/chats/' + chatId + '/messages',
                     method: 'post',
                     headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization' : "Bearer " + token
                     },
-                    body : JSON.stringify({"message":message})
+                    body : {"message":message}
                 };
                 requester.request(optionsChat, function(response) {
                     if(response.statusCode !== 200){
