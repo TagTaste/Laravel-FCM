@@ -103,7 +103,7 @@ var logErr = function(err,count){
 
             //which room to send the message to
             socket.on('message',function(chatId, message){
-                console.log("message: " + message);
+                console.log(message);
                 var optionsChat = {
                     host: 'testapi.tagtaste.com',
                     port: 8080,
@@ -120,8 +120,6 @@ var logErr = function(err,count){
                     }
                     response.setEncoding('utf8');
                     response.on('data',function(body){
-                        console.log("from emit");
-                        console.log(body);
                         chatNamespace.to("chat." + chatId).emit("message",body.data);
                     })
                 }).end();
