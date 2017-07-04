@@ -51,6 +51,7 @@ class Profile extends Model
                         //'albums',
                         'patents',
                         'projects',
+                        'education',
                         'professional'
                       ];
 
@@ -88,6 +89,7 @@ class Profile extends Model
                           'followerProfiles',
                           'name',
                           'photos',
+                          'education',
                           'projects',
                           'professional',
                           'created_at',
