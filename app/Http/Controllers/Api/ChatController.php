@@ -59,6 +59,15 @@ class ChatController extends Controller
 		$inputs['profile_id'] = $request->user()->profile->id;
 		$this->model = $this->model->create($inputs);
   
+		if($request->hasFile("image")){
+            $imageName = str_random("32") . ".jpg";
+            $path = Chat::getImagePath($this->model->id);
+            $response = $request->file('image')->storeAs($path,$imageName);
+            if(!$response){
+                throw new \Exception("Could not save image " . $imageName . " at " . $path);
+            }
+            $inputs['image'] = $imageName;
+        }
 		//add member to chat
         $now = \Carbon\Carbon::now();
         $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$memberProfileId, 'created_at'=>$now->toDateTimeString()];
@@ -98,7 +107,18 @@ class ChatController extends Controller
 	{
 		$inputs = $request->all();
 
-		$chat = $this->model->findOrFail($id);		
+		$chat = $this->model->findOrFail($id);
+        
+        if($request->hasFile("image")){
+            $imageName = str_random("32") . ".jpg";
+            $path = Chat::getImagePath($chat->id);
+            $response = $request->file('image')->storeAs($path,$imageName);
+            if(!$response){
+                throw new \Exception("Could not save image " . $imageName . " at " . $path);
+            }
+            $inputs['image'] = $imageName;
+        }
+        
 		$this->model = $chat->update($inputs);
 
 		return $this->sendResponse();

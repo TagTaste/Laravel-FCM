@@ -11,13 +11,13 @@ class Chat extends Model
 {
     use SoftDeletes;
     
-    protected $fillable = ['name', 'profile_id'];
+    protected $fillable = ['name', 'profile_id','image'];
     
     //protected $with = ['members'];
     
-    protected $visible = ['id','name','profile_id','created_at','latestMessages','profiles'];
+    protected $visible = ['id','name','imageUrl','profile_id','created_at','latestMessages','profiles'];
     
-    protected $appends = ['latestMessages','profiles'];
+    protected $appends = ['latestMessages','profiles','imageUrl'];
     
     public static function boot()
     {
@@ -49,16 +49,21 @@ class Chat extends Model
     }
     
     //set name of the chat as the second member of the chat, for a two person chat.
-    public function getNameAttribute($value)
+    public function getNameAttribute($value = null)
     {
+        if(!is_null($value)){
+            return $value;
+        }
+        
         if($this->members->count() === 2){
-            $to = $this->members->whereNotIn('id',[$this->profile_id]);
+            $to = $this->profiles->whereNotIn('id',[$this->profile_id]);
             if($to->count() === 0){
                 //it would never come back here, but still.
                 return $value;
             }
             return $to->first()->name;
         }
+        
         return $value;
     }
     
@@ -74,6 +79,22 @@ class Chat extends Model
         
         Storage::makeDirectory($relativePath);
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
+    }
+    
+    public function getImageUrlAttribute()
+    {
+        if(!is_null($this->image)){
+            return "/images/c/" . $this->id . "/" . $this->image;
+        }
+    
+        if($this->members->count() === 2){
+            $to = $this->profiles->whereNotIn('id',[$this->profile_id]);
+            if($to->count() === 0){
+                //it would never come back here, but still.
+                return null;
+            }
+            return $to->first()->imageUrl;
+        }
     }
     
 }
