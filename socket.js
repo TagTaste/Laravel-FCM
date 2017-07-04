@@ -4,6 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var Redis = require('ioredis');
 var requester = require("http");
+var queryString = require('querystring');
 
 var logErr = function(err,count){
     if(err !== null) console.log(err);
@@ -73,8 +74,8 @@ var logErr = function(err,count){
         chatNamespace.on('connection',function(socket){
             var token = socket.handshake.query['token'];
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                //port: 8080,
                 path : '/api/chatrooms',
                 method: 'get',
                 headers: {
@@ -104,19 +105,22 @@ var logErr = function(err,count){
 
             //which room to send the message to
             socket.on('message',function(chatId, message){
+                var data = queryString.stringify({
+                    "message" : message
+                });
+
                 console.log(message);
                 var optionsChat = {
-                    host: 'testapi.tagtaste.com',
-                    port: 8080,
+                    host: 'web.app',
+                    //port: 8080,
                     path : '/api/chats/' + chatId + '/messages',
                     method: 'post',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Authorization' : "Bearer " + token
                     },
-                    body : {"message":message}
                 };
-                requester.request(optionsChat, function(response) {
+                var req = requester.request(optionsChat, function(response) {
                     if(response.statusCode !== 200){
                         socket.disconnect(true);
                     }
@@ -124,7 +128,9 @@ var logErr = function(err,count){
                     response.on('data',function(body){
                         chatNamespace.to("chat." + chatId).emit("message",body.data);
                     })
-                }).end();
+                });
+                req.write(data);
+                req.end();
 
             });
         });
@@ -143,8 +149,8 @@ var makeConnection = function(socket){
     }
 
     var options = {
-        host: 'testapi.tagtaste.com',
-        port: 8080,
+        host: 'web.app',
+        //port: 8080,
         path : path,
         method: 'get',
         headers: {
@@ -181,8 +187,8 @@ notificationNamespace.on('connection',function(socket){
             var path = '/api/profile';
 
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                //port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
