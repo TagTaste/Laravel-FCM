@@ -17,7 +17,7 @@ class Chat extends Model
     
     public function members()
     {
-        return $this->hasMany(Member::class);
+        return $this->hasManyThrough( \App\Recipe\Profile::class, Member::class,'profile_id','id');
     }
     
     public function messages()
@@ -28,5 +28,19 @@ class Chat extends Model
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
+    }
+    
+    //set name of the chat as the second member of the chat, for a two person chat.
+    public function getNameAttribute($value)
+    {
+        if($this->members->count() === 2){
+            $to = $this->members->whereNotIn('id',[$this->profile_id]);
+            if($to->count() === 0){
+                //it would never come back here, but still.
+                return $value;
+            }
+            return $to->first()->name;
+        }
+        return $value;
     }
 }

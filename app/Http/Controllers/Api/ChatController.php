@@ -37,11 +37,10 @@ class ChatController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-        $chats = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
+        $this->model = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
         })->skip($skip)->take($take)->get();
         
-        $this->model = $chats;
 		return $this->sendResponse();
 	}
 
