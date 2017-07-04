@@ -113,7 +113,7 @@ var logErr = function(err,count){
                     headers: {
                         'Authorization' : "Bearer " + token
                     },
-                    json : {"message":message}
+                    body : {"message":message}
                 };
                 requester.request(optionsChat, function(response) {
                     if(response.statusCode !== 200){
