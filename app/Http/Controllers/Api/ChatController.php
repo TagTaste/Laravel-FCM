@@ -62,10 +62,8 @@ class ChatController extends Controller
 		//add member to chat
         $now = \Carbon\Carbon::now();
         $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$memberProfileId, 'created_at'=>$now->toDateTimeString()];
-        Chat\Member::insert($data);
+        $this->model->members()->insert($data);
         
-        //reload model
-        $this->model = $this->model->refresh();
         return $this->sendResponse();
 	}
 

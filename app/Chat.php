@@ -13,7 +13,7 @@ class Chat extends Model
     
     protected $fillable = ['name', 'profile_id'];
     
-    protected $with = ['members'];
+    protected $with = ['profiles'];
     
     protected $appends = ['latestMessages'];
     
@@ -27,6 +27,11 @@ class Chat extends Model
     }
     
     public function members()
+    {
+        return $this->hasMany( Member::class);
+    }
+    
+    public function profiles()
     {
         return $this->hasManyThrough( \App\Recipe\Profile::class, Member::class,'profile_id','id');
     }
