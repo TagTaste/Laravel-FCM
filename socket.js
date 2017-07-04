@@ -73,14 +73,14 @@ var logErr = function(err,count){
         chatNamespace.on('connection',function(socket){
             var token = socket.handshake.query['token'];
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                // port: 8080,
                 path : '/api/chatrooms',
                 method: 'get',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization' : "Bearer " + token
-                }
+                },
             };
             requester.request(options, function(response) {
                 if(response.statusCode !== 200){
@@ -100,6 +100,33 @@ var logErr = function(err,count){
                     }
                 })
             }).end();
+
+            //which room to send the message to
+            socket.on('message',function(chatId, message){
+                console.log("message: " + message);
+                var optionsChat = {
+                    host: 'web.app',
+                    // port: 8080,
+                    path : '/api/chats/' + chatId + '/messages',
+                    method: 'post',
+                    headers: {
+                        'Authorization' : "Bearer " + token
+                    },
+                    json : {"message":message}
+                };
+                requester.request(optionsChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        console.log("from emit");
+                        console.log(body);
+                        chatNamespace.to("chat." + chatId).emit("message",body.data);
+                    })
+                }).end();
+
+            });
         });
 
 io.on('disconnect', function(){
