@@ -5,10 +5,11 @@ namespace App\Profile;
 use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PositionInCollection;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patent extends Model
 {
-    use ScopeProfile;
+    use ScopeProfile, SoftDeletes;
 
     protected $table = 'profile_patents';
 

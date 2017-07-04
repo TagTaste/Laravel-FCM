@@ -21,8 +21,9 @@ class CreateProfilePatents extends Migration
             $table->string('url')->nullable();
             $table->date('publish_date')->nullable();
             $table->integer('profile_id')->unsigned();
-            $table->foreign('profile_id')->references('id')->on('profiles');
+            $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
