@@ -11,9 +11,6 @@ class EducationController extends Controller {
 
     use SendsJsonResponse;
 
-    private $fields = ['degree','college','field','grade','percentage','description','start_date','end_date','ongoing'];
-
-
     /**
 	 * Display a listing of the resource.
 	 *
@@ -21,7 +18,6 @@ class EducationController extends Controller {
 	 */
 	public function index($profileId)
 	{
-	    \Log::info('here');
         $this->model = Education::where('profile_id',$profileId)->get();
         return $this->sendResponse();
 	}
@@ -35,7 +31,7 @@ class EducationController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-        $this->model = $request->user()->profile->education()->create($request->only($this->fields));
+        $this->model = $request->user()->profile->education()->create($request->except(['_method','_token']));
         return $this->sendResponse();
 	}
 
@@ -64,7 +60,7 @@ class EducationController extends Controller {
 	 */
 	public function update(Request $request, $profileId, $id)
 	{
-        $input = $request->only($this->fields);
+        $input = $request->except(['_method','_token']);
         $input = array_filter($input);
         if(isset($input['start_date'])){
             $input['start_date'] = date('Y-m-d',strtotime($input['start_date']));
