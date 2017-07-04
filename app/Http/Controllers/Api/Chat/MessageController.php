@@ -42,7 +42,10 @@ class MessageController extends Controller
             return $this->sendError("You are not part of this chat.");
         }
         
-		$this->model = $this->model->where('chat_id',$chatId)->paginate();
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+		$this->model = $this->model->where('chat_id',$chatId)->orderBy('created_at','desc')->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();
 	}
