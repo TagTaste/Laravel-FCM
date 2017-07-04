@@ -144,6 +144,8 @@ class ChatController extends Controller
             ->leftJoin('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chats.profile_id',$profileId)
             ->where('chat_members.profile_id','=',$profileId)->get();
+        
+        \Log::info($this->model);
         return $this->sendResponse();
 	}
 }
