@@ -49,6 +49,7 @@ class Profile extends Model
                         'tvshows',
                         'books',
                         //'albums',
+                        'patents',
                         'projects',
                         'professional'
                       ];
@@ -82,6 +83,7 @@ class Profile extends Model
                           'certifications',
                           'tvshows',
                           'books',
+                          'patents',
                           'followingProfiles',
                           'followerProfiles',
                           'name',
@@ -185,6 +187,11 @@ class Profile extends Model
     public function books()
     {
         return $this->hasMany('App\Profile\Book');
+    }
+
+    public function patents()
+    {
+        return $this->hasMany('App\Profile\Patent');
     }
     
     public function recipes()

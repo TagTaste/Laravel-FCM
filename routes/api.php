@@ -220,6 +220,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("projects","ProjectController");
                 Route::resource("awards","AwardController");
                 Route::resource("educations","EducationController");
+                Route::resource("patents","ProfilePatentController");
                 Route::resource("certifications","CertificationController");
                 Route::resource("professional","ProfessionalController");
                

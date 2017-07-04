@@ -49,7 +49,7 @@ class EducationController extends Controller {
 	{
         $this->model = Education::where('profile_id',$profileId)->where('id',$id)->first();
         if(!$this->model){
-            throw new \Exception("Book not found.");
+            throw new \Exception("Education not found.");
         }
         return $this->sendResponse();
 	}
