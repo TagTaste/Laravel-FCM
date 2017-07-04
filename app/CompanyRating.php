@@ -10,12 +10,6 @@ class CompanyRating extends Model
 
     protected $fillable = ['company_id','profile_id','rating'];
 
-    protected $visible = ['rating','profile_id','companyRating'];
-
-    protected $appends =['companyRating'];
-
-    public function getCompanyRatingAttribute(){
-        return $this->where('company_id',$this->company_id)->avg('rating');
-    }
+    protected $visible = ['rating','profile_id'];
 
 }

@@ -35,7 +35,9 @@ class CompanyRatingController extends Controller
         if(!$company){
             throw new \Exception("Company doesn't exist.");
         }
-        if($company->rating->profile_id){
+        $userRatingExist=$this->model->where('company_id',$companyId)
+            ->where('profile_id',$inputs['profile_id'])->exists();
+        if($userRatingExist){
             $this->model=$this->model->where('company_id',$companyId)
                 ->where('profile_id',$inputs['profile_id'])->update($inputs);
             return $this->sendResponse();
