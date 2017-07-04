@@ -74,8 +74,8 @@ var logErr = function(err,count){
         chatNamespace.on('connection',function(socket){
             var token = socket.handshake.query['token'];
             var options = {
-                host: 'web.app',
-                //port: 8080,
+                host: 'testapi.tagtaste.com',
+                port: 8080,
                 path : '/api/chatrooms',
                 method: 'get',
                 headers: {
@@ -111,8 +111,8 @@ var logErr = function(err,count){
 
                 console.log(message);
                 var optionsChat = {
-                    host: 'web.app',
-                    //port: 8080,
+                    host: 'testapi.tagtaste.com',
+                    port: 8080,
                     path : '/api/chats/' + chatId + '/messages',
                     method: 'post',
                     headers: {
@@ -149,8 +149,8 @@ var makeConnection = function(socket){
     }
 
     var options = {
-        host: 'web.app',
-        //port: 8080,
+        host: 'testapi.tagtaste.com',
+        port: 8080,
         path : path,
         method: 'get',
         headers: {
@@ -187,8 +187,8 @@ notificationNamespace.on('connection',function(socket){
             var path = '/api/profile';
 
             var options = {
-                host: 'web.app',
-                //port: 8080,
+                host: 'testapi.tagtaste.com',
+                port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
