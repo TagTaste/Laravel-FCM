@@ -13,9 +13,11 @@ class Chat extends Model
     
     protected $fillable = ['name', 'profile_id'];
     
-    protected $with = ['profiles'];
+    //protected $with = ['members'];
     
-    protected $appends = ['latestMessages'];
+    protected $visible = ['id','name','profile_id','created_at','latestMessages','profiles'];
+    
+    protected $appends = ['latestMessages','profiles'];
     
     public static function boot()
     {
@@ -31,9 +33,9 @@ class Chat extends Model
         return $this->hasMany( Member::class);
     }
     
-    public function profiles()
+    public function getProfilesAttribute()
     {
-        return $this->hasManyThrough( \App\Recipe\Profile::class, Member::class,'profile_id','id');
+        return $this->members->pluck('profile');
     }
     
     public function messages()

@@ -15,6 +15,10 @@ class Member extends Model
     
     protected $fillable = ['chat_id', 'profile_id'];
     
+    protected $visible = ['profile'];
+    
+    protected $with = ['profile'];
+    
     public function chat()
     {
         return $this->belongsTo(Chat::class);
