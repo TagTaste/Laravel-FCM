@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 class PatentController extends Controller
 {
     use SendsJsonResponse;
-
-    private $fields = ['title','description','publish_date','patent_number','url'];
+    
     /**
      * Display a listing of the resource.
      *N
@@ -40,7 +39,7 @@ class PatentController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->patents()->create($request->only($this->fields));
+        $this->model = $request->user()->profile->patents()->create($request->except(['_method','_token']));
         return $this->sendResponse();
     }
 
@@ -79,7 +78,7 @@ class PatentController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->only($this->fields);
+        $input = $request->except(['_method','_token']);
         $input = array_filter($input);
         if(isset($input['publish_date'])){
             $input['publish_date'] = date('Y-m-d',strtotime($input['publish_date']));
