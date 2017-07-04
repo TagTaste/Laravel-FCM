@@ -88,6 +88,7 @@ var logErr = function(err,count){
                 }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
+                    console.log(body);
                     body = JSON.parse(body);
                     if(body.error){
                         console.log(body.error);
