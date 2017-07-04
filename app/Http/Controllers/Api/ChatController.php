@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Chat;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
@@ -32,11 +33,15 @@ class ChatController extends Controller
 	public function index(Request $request)
 	{
 	    $profileId = $request->user()->profile->id;
-	    
-		$this->model = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
-		    $query->where('profile_id',$profileId);
-        })->paginate();
-
+        
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+        $chats = Chat::where("profile_id",$profileId)->orWhereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId);
+        })->skip($skip)->take($take)->get();
+        
+        $this->model = $chats;
 		return $this->sendResponse();
 	}
 
