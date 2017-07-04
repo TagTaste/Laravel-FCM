@@ -66,4 +66,14 @@ class Chat extends Model
     {
         return $this->messages()->orderBy('created_at','desc')->take(5)->get();
     }
+    
+    public static function getImagePath($id, $filename = null)
+    {
+        //$relativePath = "profile/{$id}/images";
+        $relativePath = "images/c/{$id}";
+        
+        Storage::makeDirectory($relativePath);
+        return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
+    }
+    
 }
