@@ -64,10 +64,7 @@ class Chat extends Model
     
     public function getImageUrlAttribute()
     {
-        if(!is_null($this->image)){
-            return "/images/c/" . $this->id . "/" . $this->image;
-        }
-        
+        return is_null($this->image) ? "/images/c/" . $this->id . "/" . $this->image : null;
     }
     
     public static function open($profileIdOne,$profileIdTwo)
