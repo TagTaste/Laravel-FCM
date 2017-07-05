@@ -7,7 +7,7 @@ use App\Shareable\Sharelikable;
 
 class ShareLikeController extends Controller
 {
-
+    
     public function store(request $request,$model,$modelId)
     {
         $models = [
@@ -17,11 +17,12 @@ class ShareLikeController extends Controller
             'recipe' => \App\Recipe::class,
             'shoutout' =>\App\Shoutout::class
         ];
-    	$profileId = $request->user()->profile->id;
-
+    
         if((!array_key_exists($model,$models))){
             return $this->sendError("Could not find model with provided id");
         }
+        
+    	$profileId = $request->user()->profile->id;
 
         $modelName = ucfirst($model);
 
@@ -55,6 +56,18 @@ class ShareLikeController extends Controller
 
     public function index($model,$modelId)
     {
+        $models = [
+            'photo' => \App\Photo::class,
+            'tagboard' => \App\Ideabook::class,
+            'collaborate'=> \App\Collaborate::class,
+            'recipe' => \App\Recipe::class,
+            'shoutout' =>\App\Shoutout::class
+        ];
+    
+        if((!array_key_exists($model,$models))){
+            return $this->sendError("Could not find model with provided id");
+        }
+        
         $modelName = ucfirst($model);
     	$class = \App::make('App\Shareable\Sharelikable\\'.$modelName);
 
