@@ -74,8 +74,8 @@ var logErr = function(err,count){
         chatNamespace.on('connection',function(socket){
             var token = socket.handshake.query['token'];
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                //port: 8080,
                 path : '/api/chatrooms',
                 method: 'get',
                 headers: {
@@ -105,14 +105,15 @@ var logErr = function(err,count){
 
             //which room to send the message to
             socket.on('message',function(chatId, message){
+                console.log(message);
                 var data = queryString.stringify({
                     "message" : message
                 });
 
                 console.log(message);
                 var optionsChat = {
-                    host: 'testapi.tagtaste.com',
-                    port: 8080,
+                    host: 'web.app',
+                    //port: 8080,
                     path : '/api/chats/' + chatId + '/messages',
                     method: 'post',
                     headers: {
@@ -126,7 +127,7 @@ var logErr = function(err,count){
                     }
                     response.setEncoding('utf8');
                     response.on('data',function(body){
-                        chatNamespace.to("chat." + chatId).emit("message",body.data);
+                        //do nothing.
                     })
                 });
                 req.write(data);
@@ -149,8 +150,8 @@ var makeConnection = function(socket){
     }
 
     var options = {
-        host: 'testapi.tagtaste.com',
-        port: 8080,
+        host: 'web.app',
+        //port: 8080,
         path : path,
         method: 'get',
         headers: {
@@ -187,8 +188,8 @@ notificationNamespace.on('connection',function(socket){
             var path = '/api/profile';
 
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                //port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
