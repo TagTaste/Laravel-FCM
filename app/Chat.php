@@ -97,4 +97,13 @@ class Chat extends Model
         }
     }
     
+    public static function open($profileIdOne,$profileIdTwo)
+    {
+        $chatIds = Member::distinct('chat_id')->where(function($query) use ($profileIdOne,$profileIdTwo){
+            $query->where('chat_members.profile_id','=',$profileIdOne)->orWhere('chat_members.profile_id','=',$profileIdTwo);
+        })->get();
+        
+        return Chat::whereIn('id',$chatIds->toArray())->get();
+        
+    }
 }

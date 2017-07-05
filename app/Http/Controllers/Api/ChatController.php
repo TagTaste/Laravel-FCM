@@ -57,6 +57,15 @@ class ChatController extends Controller
 		
 		//creator
 		$inputs['profile_id'] = $request->user()->profile->id;
+		
+		$existingChats = Chat::open($inputs['profile_id'],$memberProfileId);
+		
+		if($existingChats->count() > 0){
+		    $this->messages[] = "chat_open";
+		    $this->model = $existingChats;
+		    return $this->sendResponse();
+        }
+        
 		$this->model = $this->model->create($inputs);
   
 		if($request->hasFile("image")){
@@ -147,4 +156,5 @@ class ChatController extends Controller
         \Log::info($this->model);
         return $this->sendResponse();
 	}
+ 
 }
