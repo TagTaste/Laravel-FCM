@@ -55,6 +55,7 @@ class PhotoController extends Controller
         }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
+        \Log::info($data['file']);
         $photo = Photo::create($data);
         if($photo){
             $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);

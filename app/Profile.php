@@ -38,6 +38,7 @@ class Profile extends Model
                             'created_at',
                             'pincode',
                             'handle',
+                            'expertise'
                           ];
 
     //if you add a relation here, make sure you remove it from
@@ -49,7 +50,9 @@ class Profile extends Model
                         'tvshows',
                         'books',
                         //'albums',
+                        'patents',
                         'projects',
+                        'education',
                         'professional'
                       ];
 
@@ -82,16 +85,19 @@ class Profile extends Model
                           'certifications',
                           'tvshows',
                           'books',
+                          'patents',
                           'followingProfiles',
                           'followerProfiles',
                           'name',
                           'photos',
+                          'education',
                           'projects',
                           'professional',
                           'created_at',
                           'pincode',
                             'isTagged',
                             'handle',
+                            'expertise'
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged','name'];
@@ -185,6 +191,11 @@ class Profile extends Model
     public function books()
     {
         return $this->hasMany('App\Profile\Book');
+    }
+
+    public function patents()
+    {
+        return $this->hasMany('App\Profile\Patent');
     }
     
     public function recipes()

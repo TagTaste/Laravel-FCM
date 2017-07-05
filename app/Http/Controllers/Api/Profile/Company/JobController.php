@@ -6,6 +6,7 @@ use App\Company;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
+use App\Events\Update;
 
 class JobController extends Controller
 {

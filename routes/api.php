@@ -30,6 +30,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+            //chat
+                Route::get("chatrooms","ChatController@rooms");
+                Route::resource("chats","ChatController");
+                Route::resource("chats/{chatId}/members",'Chat\\MemberController');
+                Route::post("chats/{chatId}/messages/{id}/markRead",'Chat\\MessageController@markRead');
+                Route::resource("chats/{chatId}/messages",'Chat\\MessageController');
             //categories
                 Route::resource("categories","CategoryController");
             
@@ -102,7 +108,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
-                
+            //tagboard
+                Route::resource('tagboards','TagBoardController');
+
             //tag
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
@@ -128,7 +136,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //notification is read or not
             Route::post('update/{modelName}/{id}','UpdateController@isRead');
             //get all notification of particular profile
-            Route::get('update/{id}','UpdateController@show');
+            Route::get('update','UpdateController@index');
 
 
             //profile routes
@@ -218,13 +226,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("books","BookController");
                 Route::resource("shows","ShowController");
                 Route::resource("projects","ProjectController");
-                Route::resource("experiences","ExperienceController");
                 Route::resource("awards","AwardController");
+                Route::resource("education","EducationController");
+                Route::resource("patents","PatentController");
                 Route::resource("certifications","CertificationController");
                 Route::resource("professional","ProfessionalController");
                
             });
-            //Route::resource('tagboard','TagBoardController');
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
 //            Route::resource("books","BookController");

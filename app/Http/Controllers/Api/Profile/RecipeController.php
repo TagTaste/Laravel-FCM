@@ -64,10 +64,13 @@ class RecipeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$id)
+    public function show(Request $request, $profileId,$id)
     {
-        $this->model = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
-        
+        $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
+        $loggedInProfileId = $request->user()->profile->id;
+        $r = $recipe->toArray();
+        $r['meta'] = $recipe->getMetaFor($loggedInProfileId);
+        $this->model = $r;
         return $this->sendResponse();
     }
 
@@ -144,13 +147,14 @@ class RecipeController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $photoLike = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->first();
+        $this->model = [];
         if($photoLike != null) {
-            $this->model = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
-            \Redis::hIncrBy("photo:" . $id . ":meta","like",-1);
+            RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta","like",-1);
     
         } else {
-            $this->model = RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
-            \Redis::hIncrBy("photo:" . $id . ":meta","like",1);
+            RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta","like",1);
     
         }
         return $this->sendResponse();

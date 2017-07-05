@@ -72,11 +72,13 @@ class CommentController extends Controller {
 	{
 	    $modelName=$model;
         $model = $this->getModel($model,$modelId);
-        
         $this->checkRelationship($model);
         
         if(!method_exists($model, 'comments')){
             throw new \Exception("This model does not have comments defined.");
+        }
+        if($request->input("content")==null){
+            return $this->sendError("Please write a comment.");
         }
         $comment = new Comment();
         $comment->content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
@@ -93,20 +95,20 @@ class CommentController extends Controller {
             ->where('comments_shoutouts.shoutout_id', '=', $model->id)
             ->whereNotIn('comments.user_id', [$userId, $model->owner->id])
             ->get();
-        
+
         foreach ($users->toArray() as $user) {
-            event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
+            event(new Update($model->id, $modelName, $user->id, "comment"));
         }
-        
+
         $loggedInProfileId = $request->user()->profile->id;
-        
+
         //send message to creator
         if ($loggedInProfileId != $model->profile_id) {
             $user = $model->profile->user;
-            event(new Update($model->id, $modelName, $user->id, $model->getCommentNotificationMessage()));
+            event(new Update($model->id, $modelName, $user->id, "comment"));
         }
-        
-        $this->model = $comment;
+        $meta = $comment->getMetaFor($model);
+        $this->model = ["comment"=>$comment,"meta"=>$meta];
         return $this->sendResponse();
 	}
     

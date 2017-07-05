@@ -184,7 +184,7 @@ class CollaborateController extends Controller
         }
         
         $userName = $request->user()->name;
-        event(new Update($id,"collaborate",$collaborate->profile_id,$userName . " liked your collaboration."));
+        event(new Update($id,"collaborate",$collaborate->profile_id,"like"));
 
         $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
         return $this->sendResponse();

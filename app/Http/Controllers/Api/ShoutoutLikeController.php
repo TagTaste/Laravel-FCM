@@ -42,7 +42,7 @@ class ShoutoutLikeController extends Controller
             $shoutoutProfile = Shoutout::findOrFail($id);
             if ($shoutoutProfile->profile_id != $profileId) {
                 event(new Update($id, 'Shoutout', $shoutoutProfile->profile_id,
-                    $request->user()->name . " liked your post."));
+                    "like"));
             }
         }
         
