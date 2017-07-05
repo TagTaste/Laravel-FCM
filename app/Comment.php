@@ -43,12 +43,6 @@ class Comment extends Model
         return $this->user->profile->imageUrl;
     }
     
-    public function getCreatedAtAttribute()
-    {
-        $createdAt =new Carbon($this->attributes['created_at']);
-        return $createdAt->diffForHumans();
-    }
-    
     public function scopeForPhoto($query,$id)
     {
         return $query->whereHas("photo",function($query) use ($id){
