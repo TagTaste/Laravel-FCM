@@ -55,15 +55,6 @@ class Chat extends Model
             return $value;
         }
         
-        if($this->members->count() === 2){
-            $to = $this->profiles->whereNotIn('id',[$this->profile_id]);
-            if($to->count() === 0){
-                //it would never come back here, but still.
-                return $value;
-            }
-            return $to->first()->name;
-        }
-        
         return $value;
     }
     
@@ -86,15 +77,7 @@ class Chat extends Model
         if(!is_null($this->image)){
             return "/images/c/" . $this->id . "/" . $this->image;
         }
-    
-        if($this->members->count() === 2){
-            $to = $this->profiles->whereNotIn('id',[$this->profile_id]);
-            if($to->count() === 0){
-                //it would never come back here, but still.
-                return null;
-            }
-            return $to->first()->imageUrl;
-        }
+        
     }
     
     public static function open($profileIdOne,$profileIdTwo)
