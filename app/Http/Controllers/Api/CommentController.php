@@ -77,6 +77,9 @@ class CommentController extends Controller {
         if(!method_exists($model, 'comments')){
             throw new \Exception("This model does not have comments defined.");
         }
+        if($request->input("content")==null){
+            return $this->sendError("Please write a comment.");
+        }
         $comment = new Comment();
         $comment->content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
         $comment->user_id = $request->user()->id;
