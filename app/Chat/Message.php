@@ -11,7 +11,7 @@ class Message extends Model
     
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on'];
     
-    protected $visible = ['message','created_at','chat_id','profile'];
+    protected $visible = ['id','message','created_at','chat_id','profile','read_on'];
     
     protected $with = ['profile'];
     

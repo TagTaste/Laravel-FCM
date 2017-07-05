@@ -109,7 +109,6 @@ var logErr = function(err,count){
                     "message" : message
                 });
 
-                console.log(message);
                 var optionsChat = {
                     host: 'testapi.tagtaste.com',
                     port: 8080,
@@ -126,13 +125,35 @@ var logErr = function(err,count){
                     }
                     response.setEncoding('utf8');
                     response.on('data',function(body){
-                        chatNamespace.to("chat." + chatId).emit("message",body.data);
+                        //do nothing.
                     })
                 });
                 req.write(data);
                 req.end();
 
             });
+
+            socket.on("message-read",function(chatId,messageId){
+                var optionsChat = {
+                    host: 'testapi.tagtaste.com',
+                    port: 8080,
+                    path : '/api/chats/' + chatId + '/messages/' + messageId + "/markRead",
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization' : "Bearer " + token
+                    },
+                };
+                requester.request(optionsChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        //do nothing.
+                    })
+                }).end();
+            })
         });
 
 io.on('disconnect', function(){
