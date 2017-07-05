@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patent extends Model
 {
-    use ScopeProfile, SoftDeletes;
+    use ScopeProfile;
 
     protected $table = 'profile_patents';
 
