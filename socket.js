@@ -105,12 +105,10 @@ var logErr = function(err,count){
 
             //which room to send the message to
             socket.on('message',function(chatId, message){
-                console.log(message);
                 var data = queryString.stringify({
                     "message" : message
                 });
 
-                console.log(message);
                 var optionsChat = {
                     host: 'testapi.tagtaste.com',
                     port: 8080,
@@ -134,6 +132,28 @@ var logErr = function(err,count){
                 req.end();
 
             });
+
+            socket.on("message-read",function(chatId,messageId){
+                var optionsChat = {
+                    host: 'testapi.tagtaste.com',
+                    port: 8080,
+                    path : '/api/chats/' + chatId + '/messages/' + messageId,
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization' : "Bearer " + token
+                    },
+                };
+                requester.request(optionsChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        //do nothing.
+                    })
+                }).end();
+            })
         });
 
 io.on('disconnect', function(){

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Chat;
 use App\Chat;
 use App\Chat\Message;
 use App\Strategies\Paginator;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -100,5 +101,22 @@ class MessageController extends Controller
             })->destroy();
 
 		return redirect()->route('messages.index')->with('message', 'Item deleted successfully.');
+	}
+    
+    public function markRead(Request $request, $chatId, $id)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        //check ownership
+    
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->exists();
+    
+        if(!$memberOfChat) {
+            return $this->sendError("You are not part of this chat.");
+        }
+        
+        $now = Carbon::now()->toDateTimeString();
+        
+        $this->model = $this->model->where('chat_id',$chatId)->where('id',$id)->update('read_on',$now);
+        return $this->sendResponse();
 	}
 }
