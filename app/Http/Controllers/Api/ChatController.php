@@ -141,8 +141,7 @@ class ChatController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $this->model = \DB::table('chats')->select('chats.id')
-            ->leftJoin('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chats.profile_id',$profileId)
+            ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->get();
         \Log::info("profile: " . $profileId);
         \Log::info($this->model);
