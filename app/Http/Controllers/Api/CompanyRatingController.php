@@ -24,28 +24,34 @@ class CompanyRatingController extends Controller
 	{
 		$this->model = $model;
 	}
-
-
-	public function rating(Request $request,$companyId)
-	{
-        $inputs = $request->all();
-        $inputs['company_id']=$companyId;
-        $inputs['profile_id']=$request->user()->profile->id;
-        $company = Company::find($inputs['company_id']);
-        if(!$company){
-            throw new \Exception("Company doesn't exist.");
+    
+    
+    public function rating(Request $request, $companyId)
+    {
+        $company = Company::find($companyId);
+        
+        if (!$company) {
+            return $this->sendError("Company doesn't exist.");
         }
-        $userRatingExist=$this->model->where('company_id',$companyId)
-            ->where('profile_id',$inputs['profile_id'])->exists();
-        if($userRatingExist){
-            $this->model=$this->model->where('company_id',$companyId)
-                ->where('profile_id',$inputs['profile_id'])->update($inputs);
+        
+        $inputs = $request->all();
+        
+        $inputs['company_id'] = $companyId;
+        $inputs['profile_id'] = $request->user()->profile->id;
+        
+        $userRating = $this->model->where('company_id', $companyId)
+            ->where('profile_id', $inputs['profile_id'])->first();
+        
+        if($userRating){
+            $userRating->rating = $inputs['rating'];
+            $userRating->save();
+            $this->model = $userRating;
             return $this->sendResponse();
         }
-
+        
         $this->model = $this->model->create($inputs);
         return $this->sendResponse();
-	}
+    }
 
 
 
