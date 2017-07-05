@@ -48,25 +48,6 @@ class Chat extends Model
         return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
     }
     
-    //set name of the chat as the second member of the chat, for a two person chat.
-    public function getNameAttribute($value = null)
-    {
-        if(!is_null($value)){
-            return $value;
-        }
-        
-        if($this->members->count() === 2){
-            $to = $this->profiles->whereNotIn('id',[$this->profile_id]);
-            if($to->count() === 0){
-                //it would never come back here, but still.
-                return $value;
-            }
-            return $to->first()->name;
-        }
-        
-        return $value;
-    }
-    
     public function getLatestMessagesAttribute()
     {
         return $this->messages()->orderBy('created_at','desc')->take(5)->get();
@@ -83,18 +64,16 @@ class Chat extends Model
     
     public function getImageUrlAttribute()
     {
-        if(!is_null($this->image)){
-            return "/images/c/" . $this->id . "/" . $this->image;
-        }
-    
-        if($this->members->count() === 2){
-            $to = $this->profiles->whereNotIn('id',[$this->profile_id]);
-            if($to->count() === 0){
-                //it would never come back here, but still.
-                return null;
-            }
-            return $to->first()->imageUrl;
-        }
+        return is_null($this->image) ? "/images/c/" . $this->id . "/" . $this->image : null;
     }
     
+    public static function open($profileIdOne,$profileIdTwo)
+    {
+        $chatIds = Member::distinct('chat_id')->where(function($query) use ($profileIdOne,$profileIdTwo){
+            $query->where('chat_members.profile_id','=',$profileIdOne)->orWhere('chat_members.profile_id','=',$profileIdTwo);
+        })->get();
+        
+        return Chat::whereIn('id',$chatIds->toArray())->get();
+        
+    }
 }
