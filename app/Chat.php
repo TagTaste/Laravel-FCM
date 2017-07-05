@@ -48,16 +48,6 @@ class Chat extends Model
         return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
     }
     
-    //set name of the chat as the second member of the chat, for a two person chat.
-    public function getNameAttribute($value = null)
-    {
-        if(!is_null($value)){
-            return $value;
-        }
-        
-        return $value;
-    }
-    
     public function getLatestMessagesAttribute()
     {
         return $this->messages()->orderBy('created_at','desc')->take(5)->get();
