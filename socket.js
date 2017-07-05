@@ -137,7 +137,7 @@ var logErr = function(err,count){
                 var optionsChat = {
                     host: 'testapi.tagtaste.com',
                     port: 8080,
-                    path : '/api/chats/' + chatId + '/messages/' + messageId,
+                    path : '/api/chats/' + chatId + '/messages/' + messageId + "/markRead",
                     method: 'post',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
