@@ -69,9 +69,10 @@ class Chat extends Model
     
     public static function open($profileIdOne,$profileIdTwo)
     {
-        $chatIds = Member::distinct('chat_id')->where(function($query) use ($profileIdOne,$profileIdTwo){
-            $query->where('chat_members.profile_id','=',$profileIdOne)->orWhere('chat_members.profile_id','=',$profileIdTwo);
-        })->get();
+        $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("distinct c1.chat_id"))
+                ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
+                ->where('c1.profile_id','=',$profileIdOne)
+                ->where('c2.profile_id','=',$profileIdTwo)->get();
         
         return Chat::whereIn('id',$chatIds->toArray())->get();
         
