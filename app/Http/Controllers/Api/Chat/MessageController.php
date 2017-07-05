@@ -116,7 +116,7 @@ class MessageController extends Controller
         
         $now = Carbon::now()->toDateTimeString();
         
-        $this->model = $this->model->where('chat_id',$chatId)->where('id',$id)->update('read_on',$now);
+        $this->model = $this->model->where('chat_id',$chatId)->where('id',$id)->update(['read_on'=>$now]);
         return $this->sendResponse();
 	}
 }
