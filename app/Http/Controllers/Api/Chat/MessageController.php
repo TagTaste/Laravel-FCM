@@ -47,7 +47,7 @@ class MessageController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-		$this->model = $this->model->where('chat_id',$chatId)->orderBy('created_at','asc')->skip($skip)->take($take)->get();
+		$this->model = $this->model->where('chat_id',$chatId)->orderBy('created_at','desc')->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();
 	}
