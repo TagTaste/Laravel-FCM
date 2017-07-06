@@ -53,17 +53,22 @@ class ChatController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-		$memberProfileId = $inputs['profile_id'];
-		
-		//creator
-		$inputs['profile_id'] = $request->user()->profile->id;
-		
-		$existingChats = Chat::open($inputs['profile_id'],$memberProfileId);
   
-		if(!is_null($existingChats) && $existingChats->count() > 0){
-		    $this->messages[] = "chat_open";
-		    $this->model = $existingChats;
-		    return $this->sendResponse();
+		//set profile_id to logged in user automatically.
+        //all profileIds passed in request would be added to Chat\Member;
+		$profileIds = $inputs['profile_id'];
+        $loggedInProfileId = $request->user()->profile->id;
+		$inputs['profile_id'] = $loggedInProfileId;
+		
+		//check for existing chats only for single profileId.
+		if(is_array($profileIds) && count($profileIds) === 1){
+            $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
+            
+            if(!is_null($existingChats) && $existingChats->count() > 0){
+                $this->messages[] = "chat_open";
+                $this->model = $existingChats;
+                return $this->sendResponse();
+            }
         }
         
 		$this->model = $this->model->create($inputs);
@@ -79,7 +84,10 @@ class ChatController extends Controller
         }
 		//add member to chat
         $now = \Carbon\Carbon::now();
-        $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$memberProfileId, 'created_at'=>$now->toDateTimeString()];
+		$data = [];
+		foreach($profileIds as $profileId){
+            $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
+        }
         $this->model->members()->insert($data);
         
         return $this->sendResponse();
