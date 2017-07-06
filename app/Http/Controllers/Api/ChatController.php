@@ -108,7 +108,7 @@ class ChatController extends Controller
         //current user should be part of the chat, is a sufficient condition.
         $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
-        })->get();
+        })->first();
         
         return $this->sendResponse();
 	}
