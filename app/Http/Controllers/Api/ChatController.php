@@ -104,13 +104,11 @@ class ChatController extends Controller
 	public function show(Request $request ,$id)
 	{
 	    $profileId = $request->user()->profile->id;
-        $page = $request->input('page');
-        list($skip,$take) = Paginator::paginate($page);
         
         //current user should be part of the chat, is a sufficient condition.
         $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
-        })->skip($skip)->take($take)->get();
+        })->get();
         
         return $this->sendResponse();
 	}
