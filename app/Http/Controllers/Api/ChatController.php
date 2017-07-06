@@ -82,11 +82,13 @@ class ChatController extends Controller
             }
             $inputs['image'] = $imageName;
         }
-		//add member to chat
-        $now = \Carbon\Carbon::now();
+        
+		//add members to the chat
+        $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
+		$chatId = $this->model->id;
 		foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$this->model->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now];
         }
         $this->model->members()->insert($data);
         
