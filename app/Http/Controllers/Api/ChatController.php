@@ -59,8 +59,8 @@ class ChatController extends Controller
 		$inputs['profile_id'] = $request->user()->profile->id;
 		
 		$existingChats = Chat::open($inputs['profile_id'],$memberProfileId);
-		
-		if($existingChats->count() > 0){
+  
+		if(!is_null($existingChats) && $existingChats->count() > 0){
 		    $this->messages[] = "chat_open";
 		    $this->model = $existingChats;
 		    return $this->sendResponse();
