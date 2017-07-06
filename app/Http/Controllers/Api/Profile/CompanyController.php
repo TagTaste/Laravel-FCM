@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
+use App\CompanyRating;
 use App\Subscriber;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
