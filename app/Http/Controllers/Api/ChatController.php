@@ -39,7 +39,7 @@ class ChatController extends Controller
         
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
-        })->skip($skip)->take($take)->orderBy('created_at','desc')->get();
+        })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
         
 		return $this->sendResponse();
 	}
