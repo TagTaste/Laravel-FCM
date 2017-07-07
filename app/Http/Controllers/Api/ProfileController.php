@@ -45,15 +45,18 @@ class ProfileController extends Controller
         $loggedInProfileId=$request->user()->profile->id;
         $this->model = $profile->toArray();
         $this->model['profile']['isFollowing']=Profile::isFollowing($id,$loggedInProfileId);
+        $this->model['profile']['self']=$this->self($id,$loggedInProfileId);
+        return $this->sendResponse();
+    }
+
+    public function self($id,$loggedInProfileId){
         if($id==$loggedInProfileId)
         {
-            $this->model['profile']['self']=true;
+            return true;
         }
         else{
-            $this->model['profile']['self']=false;
+            return false;
         }
-
-        return $this->sendResponse();
     }
 
     /**
