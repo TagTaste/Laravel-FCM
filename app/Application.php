@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
-    protected $fillable = ['job_id', 'profile_id','shortlisted'];
-    protected $visible = ['created_at', 'profile','shortlisted'];
+    protected $fillable = ['job_id', 'profile_id','shortlisted','resume'];
+    protected $visible = ['created_at', 'profile','shortlisted','resumeUrl'];
     protected $with = ['profile'];
+    protected $appends=['resumeUrl'];
     
     public function job()
     {
@@ -33,6 +34,11 @@ class Application extends Model
         $this->profile->user->notify(new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
         
         return true;
+    }
+
+    public function getResumeUrlAttribute()
+    {
+        return $this->resume !== null ? "/profile/" . $this->profile_id . "/job/" . $this->job_id . "/resume/" . $this->resume : null;
     }
     
 }

@@ -136,9 +136,22 @@ class JobController extends Controller
         if(!$job){
             throw new \Exception("Job not found.");
         }
+        $path = "profile/$profileId/job/$id/resume";
+        $status = \Storage::makeDirectory($path,0644,true);
+        if($request->hasFile('resume'))
+        {
+            $resumeName = str_random("32") .".pdf";
+            $response = $request->file("resume")->storeAs($path,$resumeName);
+            if(!$response)
+            {
+                throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
+            }
+        }
+        else{
+            $resumeName=$request->user()->profile->resume;
+        }
         $profileId = $request->user()->profile->id;
-        
-        $this->model = $job->apply($profileId);
+        $this->model = $job->apply($profileId,$resumeName);
         
         event(new Update($id,'job',$profileId,"Applied on job"));
 
