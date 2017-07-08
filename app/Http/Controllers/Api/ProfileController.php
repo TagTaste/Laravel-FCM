@@ -17,11 +17,13 @@ class ProfileController extends Controller
      */
     public function index(Request $request)
     {
-
-        $this->model = $request->user()->toArray();
-        $this->model['profile']['isFollowing']=false;
-        $this->model['profile']['self']=true;
-        return $this->sendResponse();
+        //DO NOT MODIFY THIS RESPONSE
+        //DO NOT USE $this->model HERE
+        //LIVES DEPEND ON THIS RESPONSE
+        $response = $request->user()->toArray();
+        $response['profile']['isFollowing']=false;
+        $response['profile']['self']=true;
+        return response()->json($response);
     }
 
     /**
