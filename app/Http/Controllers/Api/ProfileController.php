@@ -32,31 +32,23 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-
-       //id can either be id or handle
+    
+        //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-         $profile = User::whereHas("profile",function($query) use ($id){
-            $query->where('id',$id);
-            })->first();
-            
-        if($profile === null){
+        $profile = User::whereHas("profile", function ($query) use ($id) {
+            $query->where('id', $id);
+        })->first();
+    
+        if ($profile === null) {
             throw new ModelNotFoundException("Could not find profile.");
         }
-        $loggedInProfileId=$request->user()->profile->id;
+        $loggedInProfileId = $request->user()->profile->id;
         $this->model = $profile->toArray();
-        $this->model['profile']['isFollowing']=Profile::isFollowing($id,$loggedInProfileId);
-        $this->model['profile']['self']=$this->self($id,$loggedInProfileId);
+        $self = $id === $loggedInProfileId;
+        $this->model['profile']['self'] = $self;
+        $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
+    
         return $this->sendResponse();
-    }
-
-    public function self($id,$loggedInProfileId){
-        if($id==$loggedInProfileId)
-        {
-            return true;
-        }
-        else{
-            return false;
-        }
     }
 
     /**
