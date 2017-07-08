@@ -15,6 +15,8 @@ class Message extends Model
     
     protected $with = ['profile'];
     
+    protected $touches = ['chat'];
+    
     public static function boot()
     {
         self::created(function(Model $message){
