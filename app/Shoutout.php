@@ -92,7 +92,7 @@ class Shoutout extends Model implements Feedable, CommentNotification
 
         $meta['commentCount'] = $this->comments()->count();
 
-        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         return $meta;
     }
