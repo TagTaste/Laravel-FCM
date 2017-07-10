@@ -38,7 +38,8 @@ class Profile extends Model
                             'created_at',
                             'pincode',
                             'handle',
-                            'expertise'
+                            'expertise',
+                            'keywords'
                           ];
 
     //if you add a relation here, make sure you remove it from
@@ -97,7 +98,8 @@ class Profile extends Model
                           'pincode',
                             'isTagged',
                             'handle',
-                            'expertise'
+                            'expertise',
+                            'keywords'
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged','name'];
