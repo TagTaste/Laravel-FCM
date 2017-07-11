@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Photo;
 
+use App\Events\Actions\Like;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use App\PhotoLike;
@@ -30,20 +31,14 @@ class PhotoLikeController extends Controller
 	{
         $profileId = $request->user()->profile->id;
         $photoLike = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->first();
-        if($photoLike != null) {
+        if ($photoLike != null) {
             $photoLike->delete();
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta","like",-1);
-    
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", -1);
         } else {
             PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta","like",1);
-
-            $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');
-            if($photoProfile[0]!=$profileId) {
-                event(new Update($photoId, 'Photo', $photoProfile[0],
-                    "like"));
-            }
-    
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", 1);
+            $photo = Photo::find($photoId);
+            event(new Like($photo, $request->user()->profile));
         }
         return $this->sendResponse();
 	}
