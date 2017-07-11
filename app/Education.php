@@ -11,9 +11,9 @@ class Education extends Model
 
     protected $table = 'education';
 
-    protected $fillable = ['degree','college','field','grade','percentage','description','start_date','end_date','ongoing'];
+    protected $fillable = ['degree','college','field','grade','percentage','description','start_date','end_date','ongoing','location'];
 
-    protected $visible = ['id','degree','college','field','grade','percentage','description','start_date','end_date','ongoing'];
+    protected $visible = ['id','degree','college','field','grade','percentage','description','start_date','end_date','ongoing','location'];
 
 
     public function profile()

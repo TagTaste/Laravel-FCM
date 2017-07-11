@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Action;
+use App\Events\Actions\Like;
+use App\ModelSubscriber;
 use App\Shoutout;
 use App\ShoutoutLike;
 use Illuminate\Http\Request;
@@ -9,24 +12,24 @@ use App\Events\Update;
 
 class ShoutoutLikeController extends Controller
 {
- 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index(Request $request, $id)
-	{
-		$this->model = ShoutoutLike::where('shoutout_id',$id)->count();
-		return $this->sendResponse();
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param Request $request
-	 * @return Response
-	 */
+    
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
+    public function index(Request $request, $id)
+    {
+        $this->model = ShoutoutLike::where('shoutout_id', $id)->count();
+        return $this->sendResponse();
+    }
+    
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function store(Request $request, $id)
     {
         $profileId = $request->user()->profile->id;
@@ -39,14 +42,12 @@ class ShoutoutLikeController extends Controller
             ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
             $this->model['likeCount'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", 1);
             
-            $shoutoutProfile = Shoutout::findOrFail($id);
-            if ($shoutoutProfile->profile_id != $profileId) {
-                event(new Update($id, 'Shoutout', $shoutoutProfile->profile_id,
-                    "like"));
-            }
+            $shoutout = Shoutout::findOrFail($id);
+            
+            event(new Like($shoutout, $request->user()->profile));
         }
         
         return $this->sendResponse();
     }
-	
+    
 }
