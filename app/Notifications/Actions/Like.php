@@ -3,8 +3,9 @@
 
 namespace App\Notifications\Actions;
 
+use App\Notifications\Action;
 
-class Like
+class Like extends Action
 {
     
 }

@@ -5,7 +5,7 @@ namespace App\Notifications\Actions;
 
 use App\Notifications\Action;
 
-class Like extends Action
+class Comment extends Action
 {
     
 }
