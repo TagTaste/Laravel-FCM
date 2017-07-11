@@ -19,6 +19,7 @@ class CreateModelSubscribersTable extends Migration {
             $table->integer('profile_id')->unsigned();
             $table->timestamp('muted_on')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 	}
 
