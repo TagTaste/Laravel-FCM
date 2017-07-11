@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\Action;
+use App\Events\Actions\Like;
 use App\ModelSubscriber;
 use App\Shoutout;
 use App\ShoutoutLike;
@@ -43,7 +44,7 @@ class ShoutoutLikeController extends Controller
             
             $shoutout = Shoutout::findOrFail($id);
 
-            event(new Action($shoutout,$request->user()->profile,'like'));
+            event(new Like($shoutout,$request->user()->profile,'like'));
         }
         
         return $this->sendResponse();
