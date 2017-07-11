@@ -26,11 +26,11 @@ class Action
      *
      * @return void
      */
-    public function __construct(Model $model, Profile $who, $action = null, $image = null)
+    public function __construct(Model $model, Profile $who, $image = null, $action = null)
     {
         $this->model = $model;
         $this->who = $who;
-        $this->action = $action;
+        $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
     }
 
