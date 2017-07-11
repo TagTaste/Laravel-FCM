@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Chat;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -42,7 +42,7 @@ class NewMessage extends Notification
     public function toArray($notifiable)
     {
         return [
-            'message' => ['chat_id'=>$this->data->message->chat_id],
+            'message' => ['chat_id'=>$this->data->chatId],
             'profile' => $notifiable
         ];
     }
