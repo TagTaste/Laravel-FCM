@@ -29,13 +29,14 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\DeleteFeedable' => ['App\Listeners\DeleteFeedable'],
         'App\Events\Searchable' => ['App\Listeners\ElasticSearch\Document'],
         'App\Events\Update' => ['App\Listeners\UpdateNotification'],
-        'App\Events\Action' => [
-            'App\Listeners\NotifySubscribers',
-            'App\Listeners\AddOrUpdateSubscriber'
-        ]
+
+        'App\Events\Actions\Like' => [],
+        'App\Events\Actions\Comment' => [],
+        'App\Events\Actions\Share' => [],
 
     ];
 
+    protected $subscribe = ['App\Subscribers\Actions'];
     /**
      * Register any events for your application.
      *
