@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\ModelSubscriber;
 use App\Shoutout;
 use App\ShoutoutLike;
 use Illuminate\Http\Request;
@@ -39,11 +40,12 @@ class ShoutoutLikeController extends Controller
             ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
             $this->model['likeCount'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", 1);
             
-            $shoutoutProfile = Shoutout::findOrFail($id);
-            if ($shoutoutProfile->profile_id != $profileId) {
-                event(new Update($id, 'Shoutout', $shoutoutProfile->profile_id,
+            $shoutout = Shoutout::findOrFail($id);
+            if ($shoutout->profile_id != $profileId) {
+                event(new Update($id, 'Shoutout', $shoutout->profile_id,
                     "like"));
             }
+            
         }
         
         return $this->sendResponse();
