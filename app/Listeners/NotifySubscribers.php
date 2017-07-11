@@ -37,7 +37,7 @@ class NotifySubscribers
                     ->where('model_subscribers.model_id','=',$modelId)
                     ->whereNull('muted_on')
                     ->whereNull('model_subscribers.deleted_at')->get();
-        
-        Notification::send($profiles, new \App\Notifications\Action($model,$modelId,$event->action));
+        $class = "\App\Notifications\Actions\\" . ucwords($event->action);
+        Notification::send($profiles, new $class($model,$modelId,$event->action));
     }
 }
