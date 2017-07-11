@@ -12,24 +12,24 @@ use App\Events\Update;
 
 class ShoutoutLikeController extends Controller
 {
- 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index(Request $request, $id)
-	{
-		$this->model = ShoutoutLike::where('shoutout_id',$id)->count();
-		return $this->sendResponse();
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param Request $request
-	 * @return Response
-	 */
+    
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
+    public function index(Request $request, $id)
+    {
+        $this->model = ShoutoutLike::where('shoutout_id', $id)->count();
+        return $this->sendResponse();
+    }
+    
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function store(Request $request, $id)
     {
         $profileId = $request->user()->profile->id;
@@ -43,11 +43,11 @@ class ShoutoutLikeController extends Controller
             $this->model['likeCount'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", 1);
             
             $shoutout = Shoutout::findOrFail($id);
-
-            event(new Like($shoutout,$request->user()->profile));
+            
+            event(new Like($shoutout, $request->user()->profile));
         }
         
         return $this->sendResponse();
     }
-	
+    
 }

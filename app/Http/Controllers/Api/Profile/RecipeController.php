@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\Actions\Like;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
@@ -155,7 +156,8 @@ class RecipeController extends Controller
         } else {
             RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
             $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta","like",1);
-    
+            $recipe = Recipe::find($id);
+            event(new Like($recipe,$request->user()->profile));
         }
         return $this->sendResponse();
     }
