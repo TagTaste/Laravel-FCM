@@ -20,6 +20,8 @@ class CreateModelSubscribersTable extends Migration {
             $table->timestamp('muted_on')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            
+            $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
         });
 	}
 
