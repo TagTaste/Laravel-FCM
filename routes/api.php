@@ -150,7 +150,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource('profile','ProfileController');
             
             Route::resource('companies','CompanyController');
-    
+
+            //recipes cuisine
+            Route::resource("cuisine",'CuisineController');
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');
