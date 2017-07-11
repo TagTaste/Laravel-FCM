@@ -40,12 +40,11 @@ var logErr = function(err,count){
 
         var notificationNamespace=io.of('/notification');
 
-        var notification=new Redis();
-        notification.psubscribe('notification-channel',logErr);
+        var notification = new Redis();
+        notification.psubscribe('private-App.Notify.Profile.*',logErr);
         notification.on('pmessage',function(pattern,channel,message){
-            var message=JSON.parse(message);
-            console.log(message);
-            notificationNamespace.to(channel+'.'+message.profile_id).emit("message",message);
+            var message = JSON.parse(message);
+            notificationNamespace.to(channel).emit("message",message.data);
         });
 
     //public company feed
