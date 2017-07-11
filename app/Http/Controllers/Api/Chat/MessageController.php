@@ -74,6 +74,7 @@ class MessageController extends Controller
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
 
+		event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}
 
