@@ -14,7 +14,7 @@ class AlterProfileEducationLocationAdd extends Migration
     public function up()
     {
         Schema::table('education',function(Blueprint $table){
-            $table->string("location");
+            $table->string("location")->nullable();
         });
     }
 
