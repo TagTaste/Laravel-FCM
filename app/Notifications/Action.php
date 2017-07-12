@@ -75,7 +75,11 @@ class Action extends Notification
                 'content' => $this->data->content,
                 'image' => $this->data->image
             ],
-            'profile' => $this->data->who
+            'profile' => [
+                'id' => $this->data->who->id,
+                'name' => $this->data->who->name,
+                'imageUrl' => $this->data->who->imageUrl
+            ]
         ];
         
     }
