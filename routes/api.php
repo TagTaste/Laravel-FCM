@@ -32,9 +32,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
             //product categories
                 Route::resource("categories","CategoryController");
-
-            //collaborate categories
-            Route::resource("collaboratecategories","CollaborateCategoryController");
             
             //share
                 Route::post("share/{modelName}/{id}",'ShareController@store');
@@ -79,7 +76,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("fields",'FieldController');
             
             //collaborate
-            
+                //collaborate categories
+                Route::resource("collaborate/categories","CollaborateCategoryController");
+                
                 //collaborate templates
                  Route::resource("collaborate/templates","CollaborateTemplateController");
         

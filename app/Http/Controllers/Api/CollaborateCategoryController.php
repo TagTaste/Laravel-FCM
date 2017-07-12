@@ -92,7 +92,7 @@ class CollaborateCategoryController extends Controller
         }
 
         $this->model = $category->update($inputs);
-
+        
         return $this->sendResponse();
 	}
 
