@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
@@ -62,8 +63,6 @@ class Action extends Notification
      */
     public function toArray($notifiable)
     {
-        
-        
         $data = [
             'action' => $this->data->action,
             'profile' => [
@@ -87,7 +86,7 @@ class Action extends Notification
                 'image' => $this->data->image
             ];
         }
-        
+        $data['created_at'] = Carbon::now()->toDateTimeString();
         return $data;
     }
 }
