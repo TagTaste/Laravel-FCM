@@ -29,7 +29,5 @@ class Update
         $this->modelName=$modelName;
         $this->profileId=$profileId;
         $this->content=$content;
-
-        \Log::info($modelId);
     }
 }
