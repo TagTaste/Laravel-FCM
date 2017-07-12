@@ -15,7 +15,7 @@ class RecipeController extends Controller
     public function index(Request $request)
     {
         $recipes = Recipe::orderBy('created_at')->paginate(10);
-        $loggedInProfileId = $recipes->user()->profile->id;
+        $loggedInProfileId = $request->user()->profile->id;
         $this->model = [];
         foreach($recipes as $recipe){
             $this->model[] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
