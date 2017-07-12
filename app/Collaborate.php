@@ -169,7 +169,7 @@ class Collaborate extends Model implements Feedable, CommentNotification
     
     public function syncFields($fieldIds = [])
     {
-        if(empty($fields)){
+        if(empty($fieldIds)){
             \Log::warning("Empty fields passed.");
             return false;
         }
