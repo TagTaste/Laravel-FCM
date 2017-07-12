@@ -55,33 +55,36 @@ class RecipeController extends Controller
                 $imageName = str_random("32") . ".jpg";
                 $path = "profile/recipes/{$this->model->id}/images/{$count}";
                 \Storage::makeDirectory($path);
-                if(!$request->hasFile("images.$count")){
-                    \Log::info("No file for images.$count");
+                if(!$request->hasFile("images.$count.image")){
+                    \Log::info("No file for images.$count.image");
                     $count--;
                     continue;
                 }
-                $response = $request->file("images.$count")->storeAs($path,$imageName);
+                $response = $request->file("images.$count.image")->storeAs($path,$imageName);
                 if(!$response){
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
                 $count--;
-                $images[] = ['recipe_id'=>$this->model->id,'image'=>$imageName];
+                $images[] = ['recipe_id'=>$this->model->id,'image'=>$imageName,'showCase'=>"images.$count.showCase"];
             }
         }
 
         $this->model->images()->insert($images);
 
         $ingredients=$request->input("ingredients");
+        $toatalIngredient=[];
         foreach ($ingredients as $ingredient){
-            $this->model->ingredients()->insert(['recipe_id'=>$this->model->id,"description"=>$ingredient]);
-
+            $toatalIngredient[] = ['recipe_id'=>$this->model->id,"description"=>$ingredient];
         }
+        $this->model->ingredients()->insert($toatalIngredient);
 
         $equipments=$request->input("equipments");
+        $totalEquipment=[];
         foreach ($equipments as $equipment){
-            $this->model->equipments()->insert(['recipe_id'=>$this->model->id,"name"=>$equipment]);
-
+            $totalEquipment[]=['recipe_id'=>$this->model->id,"name"=>$equipment];
         }
+        $this->model->equipments()->insert($totalEquipment);
+
         return $this->sendResponse();
     }
 
@@ -117,19 +120,48 @@ class RecipeController extends Controller
         if($recipe === null){
             throw new \Exception("Recipe doesn't belong to the user.");
         }
-        
-        if($request->hasFile('image')){
-            $imageName = str_random("32") . ".jpg";
-            $path = Recipe::$fileInputs['image'];
-            $response = $request->file('image')->storeAs($path,$imageName);
-            if(!$response){
-                throw new \Exception("Could not save image " . $imageName . " at " . $path);
+
+        $inputs = $request->except(['ingredients','equipments','images','_method','_token']);
+        $inputs['profile_id'] = $profileId;
+
+        $this->model = Recipe::where('id',$id)->where('profile_id',$profileId)->update($inputs);
+        if($request->has("images")){
+            $count = count($request->input("images"));
+            while($count >= 0){
+                $imageName = str_random("32") . ".jpg";
+                $path = "profile/recipes/{$this->model->id}/images/{$count}";
+                \Storage::makeDirectory($path);
+                if(!$request->hasFile("images.$count.image")){
+                    \Log::info("No file for images.$count.image");
+                    $count--;
+                    continue;
+                }
+                $response = $request->file("images.$count.image")->storeAs($path,$imageName);
+                if(!$response){
+                    throw new \Exception("Could not save image " . $imageName . " at " . $path);
+                }
+                $count--;
+                $images = ['recipe_id'=>$this->model->id,'image'=>$imageName,'showCase'=>"images.$count.showCase"];
+
+                $this->model->images()->where('recipe_id',$id)->update($images);
+
             }
-            $inputs['image'] = $imageName;
         }
-        
-        $this->model = $recipe->where('id',$id)->where('profile_id',$profileId)->update($request->except(['profile_id']));
-        
+
+        $ingredients=$request->input("ingredients");
+        $toatalIngredient=[];
+        foreach ($ingredients as $ingredient){
+            $toatalIngredient[] = ['recipe_id'=>$this->model->id,"description"=>$ingredient];
+        }
+        $this->model->ingredients()->where('recipe_id',$id)->update($toatalIngredient);
+
+        $equipments=$request->input("equipments");
+        $totalEquipment=[];
+        foreach ($equipments as $equipment){
+            $totalEquipment[]=['recipe_id'=>$this->model->id,"name"=>$equipment];
+        }
+        $this->model->equipments()->where('recipe_id',$id)->update($totalEquipment);
+
         return $this->sendResponse();
     }
 
