@@ -17,10 +17,10 @@ class EventServiceProvider extends ServiceProvider
 //            'App\Listeners\EventListener',
 //
 //        ],
-        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
-            // add your listeners (aka providers) here
-           // 'SocialiteProviders\Instagram\InstagramExtendSocialite@handle',
-        ],
+//        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+//            // add your listeners (aka providers) here
+//           // 'SocialiteProviders\Instagram\InstagramExtendSocialite@handle',
+//        ],
         'App\Events\Auth\Registered' => [
             'App\Listeners\Auth\Registered'
         ],
@@ -30,8 +30,15 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Searchable' => ['App\Listeners\ElasticSearch\Document'],
         'App\Events\Update' => ['App\Listeners\UpdateNotification'],
 
+        'App\Events\Actions\Like' => [],
+        'App\Events\Actions\Comment' => [],
+        'App\Events\Actions\Share' => [],
+        'App\Events\Chat\Invite' => ['App\Listeners\Chat\InviteNotification'],
+        'App\Events\Chat\Message' => ['App\Listeners\Chat\NewMessage'],
+
     ];
 
+    protected $subscribe = ['App\Subscribers\Actions'];
     /**
      * Register any events for your application.
      *

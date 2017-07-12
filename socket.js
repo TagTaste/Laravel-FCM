@@ -4,6 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var Redis = require('ioredis');
 var requester = require("http");
+var queryString = require('querystring');
 
 var logErr = function(err,count){
     if(err !== null) console.log(err);
@@ -39,12 +40,11 @@ var logErr = function(err,count){
 
         var notificationNamespace=io.of('/notification');
 
-        var notification=new Redis();
-        notification.psubscribe('notification-channel',logErr);
+        var notification = new Redis();
+        notification.psubscribe('private-App.Notify.Profile.*',logErr);
         notification.on('pmessage',function(pattern,channel,message){
-            var message=JSON.parse(message);
-            console.log(message);
-            notificationNamespace.to(channel+'.'+message.profile_id).emit("message",message);
+            var message = JSON.parse(message);
+            notificationNamespace.to(channel).emit("message",message.data);
         });
 
     //public company feed
@@ -57,6 +57,103 @@ var logErr = function(err,count){
         var companyPublic = new Redis();
         companyPublic.psubscribe('company.public.*',logErr);
         companyPublic.on('pmessage',companyPublicEmit);
+
+        //chats
+
+        var chatNamespace = io.of("/chat");
+        var chatEmit = function(pattern,channel,message){
+            console.log(message);
+            chatNamespace.to(channel).emit("message",message);
+        };
+
+        var chat = new Redis();
+        chat.psubscribe("chat.*",logErr);
+        chat.on('pmessage',chatEmit);
+
+        chatNamespace.on('connection',function(socket){
+            var token = socket.handshake.query['token'];
+            var options = {
+                host: 'testapi.tagtaste.com',
+                port: 8080,
+                path : '/api/chatrooms',
+                method: 'get',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization' : "Bearer " + token
+                },
+            };
+            requester.request(options, function(response) {
+                if(response.statusCode !== 200){
+                    socket.disconnect(true);
+                }
+                response.setEncoding('utf8');
+                response.on('data',function(body){
+                    console.log(body);
+                    body = JSON.parse(body);
+                    if(body.error){
+                        console.log(body.error);
+                        return;
+                    }
+                    body = body.data;
+                    var rooms = Object.keys(body).map(function(k) { return "chat." + body[k].id });
+                    for(var i in rooms){
+                        socket.join(rooms[i]);
+                    }
+                })
+            }).end();
+
+            //which room to send the message to
+            socket.on('message',function(chatId, message){
+                var data = queryString.stringify({
+                    "message" : message
+                });
+
+                var optionsChat = {
+                    host: 'testapi.tagtaste.com',
+                    port: 8080,
+                    path : '/api/chats/' + chatId + '/messages',
+                    method: 'post',
+                    headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization' : "Bearer " + token
+                    },
+                };
+                var req = requester.request(optionsChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        //do nothing.
+                    })
+                });
+                req.write(data);
+                req.end();
+
+            });
+
+            socket.on("message-read",function(chatId,messageId){
+                var optionsChat = {
+                    host: 'testapi.tagtaste.com',
+                    port: 8080,
+                    path : '/api/chats/' + chatId + '/messages/' + messageId + "/markRead",
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization' : "Bearer " + token
+                    },
+                };
+                requester.request(optionsChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        //do nothing.
+                    })
+                }).end();
+            })
+        });
 
 io.on('disconnect', function(){
     //console.log('user disconnected');
@@ -88,6 +185,10 @@ var makeConnection = function(socket){
         response.setEncoding('utf8');
         response.on('data',function(body){
             body = JSON.parse(body);
+            if(body.error){
+                console.log(body.error);
+                return;
+            }
             var rooms = Object.keys(body).map(function(k) { return body[k] });
             for(var i in rooms){
                 socket.join(rooms[i]);
@@ -103,12 +204,11 @@ companyFeedNamespace.on('connection', makeConnection);
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
         var channelName;
-        // console.log('here');
             var path = '/api/profile';
 
             var options = {
-                host: 'web.app',
-                port: 80,
+                host: 'testapi.tagtaste.com',
+                port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
@@ -122,11 +222,13 @@ notificationNamespace.on('connection',function(socket){
                     }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
-                        body=JSON.parse(body);
-                        body=body.profile.id;
-                        channelName='notification-channel.'+body;
-                        // console.log(channelName);
-                            socket.join(channelName);
+                        body = JSON.parse(body);
+                        if(body.error){
+                            console.log(body.error);
+                            return;
+                        }
+                        channelName='notification-channel.'+body.profile.id;
+                        socket.join(channelName);
                     })
             }).end();
         });

@@ -87,9 +87,9 @@ class Job extends Model implements Feedable
 //        return $this->company->user->profile->id;
 //    }
     
-    public function apply($profileId)
+    public function apply($profileId,$resume)
     {
-        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId, 'created_at' => Carbon::now()->toDateTimeString()]);
+        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId, 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume]);
     }
     
     public function unapply($profileId)
@@ -101,7 +101,7 @@ class Job extends Model implements Feedable
     {
         $meta = [];
         $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
-        $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     
         return $meta;

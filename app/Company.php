@@ -79,14 +79,15 @@ class Company extends Model
         'speciality',
         'profileId',
         'handle',
-        'followerProfiles'
+        'followerProfiles',
+        'rating',
     ];
 
 
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
 
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating'];
     
     public static function boot()
     {
@@ -161,6 +162,11 @@ class Company extends Model
     public function books()
     {
         return $this->hasMany(Book::class);
+    }
+
+    public function rating()
+    {
+        return $this->hasMany(CompanyRating::class,'company_id');
     }
 
     public function getStatusesAttribute($value = null)
@@ -367,4 +373,10 @@ class Company extends Model
     {
         return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
     }
+
+    public function getRatingAttribute()
+    {
+        return $this->rating()->avg('rating');
+    }
+
 }

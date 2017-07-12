@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
+use App\CompanyRating;
 use App\Subscriber;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -101,6 +102,7 @@ class CompanyController extends Controller
         $profileId = $request->user()->profile->id;
         $this->model = $company->toArray();
         $this->model['isFollowing'] = $company->isFollowing($profileId);
+        $this->model['userRating'] = CompanyRating::where('company_id',$id)->where('profile_id',$profileId)->first();
         return $this->sendResponse();
     }
     

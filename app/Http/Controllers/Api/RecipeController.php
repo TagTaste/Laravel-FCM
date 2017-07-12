@@ -14,7 +14,7 @@ class RecipeController extends Controller
      */
     public function index()
     {
-        $this->model = Recipe::orderBy('created_at')->get();
+        $this->model = Recipe::orderBy('created_at')->paginate(10);
         return $this->sendResponse();
     }
 

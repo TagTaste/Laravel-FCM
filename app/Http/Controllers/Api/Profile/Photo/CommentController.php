@@ -43,7 +43,7 @@ class CommentController extends Controller {
         $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');
         if($photoProfile[0]!=$profileId) {
             event(new Update($photoId, 'Photo', $photoProfile[0],
-                $request->user()->name . "comment on your post"));
+                "comment"));
         }
 
 		return $this->sendResponse();

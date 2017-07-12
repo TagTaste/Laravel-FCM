@@ -210,7 +210,7 @@ class Collaborate extends Model implements Feedable, CommentNotification
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['commentCount'] = $this->comments()->count();
         $meta['likeCount'] = $this->likeCount;
-        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     
         return $meta;

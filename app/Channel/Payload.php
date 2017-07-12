@@ -24,6 +24,12 @@ class Payload extends Model
         
     }
     
+    private function getType()
+    {
+        $exploded = explode('\\',$this->model);
+        return strtolower(end($exploded));
+    }
+    
     private function publish()
     {
         try {
@@ -71,6 +77,8 @@ class Payload extends Model
                         }
                     $jsonPayload .= "}";
                 }
+                
+                $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
             

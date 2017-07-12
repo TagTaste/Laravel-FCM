@@ -73,20 +73,14 @@ class Photo extends Model implements Feedable, CommentNotification
     {
         $relativePath = "images/ph/$profileId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
-        if($filename === null){
-            return $relativePath;
-        }
-        return storage_path("app/".$relativePath) . "/" . $filename;
+        return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
     
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
         $relativePath = "images/ph/$profileId/c/$companyId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
-        if($filename === null){
-            return $relativePath;
-        }
-        return storage_path("app/".$relativePath) . "/" . $filename;
+        return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
 
     public function getLikeCountAttribute()
@@ -175,7 +169,7 @@ class Photo extends Model implements Feedable, CommentNotification
         $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
         $meta['likeCount'] = $this->likeCount;
         $meta['commentCount'] = $this->comments()->count();
-        $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
         return $meta;

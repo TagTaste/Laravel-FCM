@@ -17,8 +17,13 @@ class ProfileController extends Controller
      */
     public function index(Request $request)
     {
-        $requests = $request->user();
-        return response()->json($requests);
+        //DO NOT MODIFY THIS RESPONSE
+        //DO NOT USE $this->model HERE
+        //LIVES DEPEND ON THIS RESPONSE
+        $response = $request->user()->toArray();
+        $response['profile']['isFollowing']=false;
+        $response['profile']['self']=true;
+        return response()->json($response);
     }
 
     /**
@@ -29,18 +34,23 @@ class ProfileController extends Controller
      */
     public function show(Request $request,$id)
     {
-
-       //id can either be id or handle
+    
+        //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-         $profile = User::whereHas("profile",function($query) use ($id){
-            $query->where('id',$id);
-            })->first();
-            
-        if($profile === null){
+        $profile = User::whereHas("profile", function ($query) use ($id) {
+            $query->where('id', $id);
+        })->first();
+    
+        if ($profile === null) {
             throw new ModelNotFoundException("Could not find profile.");
         }
-        
-        return response()->json($profile);
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = $profile->toArray();
+        $self = $id === $loggedInProfileId;
+        $this->model['profile']['self'] = $self;
+        $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
+    
+        return $this->sendResponse();
     }
 
     /**
@@ -195,18 +205,16 @@ class ProfileController extends Controller
         $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
             ->whereNull('deleted_at')->get();
         $result = [];
-    
         foreach($followers as &$profile){
             $temp = $profile->toArray();
             $temp['isFollowing'] = false;
             $temp['self'] = false;
             $result[] = $temp;
         }
-    
+
         if($alreadySubscribed->count() > 0){
             $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
             foreach($result as &$profile){
-            
                 if($profile['id'] === $loggedInProfileId){
                     $profile['self'] = true;
                     continue;

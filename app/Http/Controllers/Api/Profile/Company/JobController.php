@@ -6,6 +6,7 @@ use App\Company;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
+use App\Events\Update;
 
 class JobController extends Controller
 {
@@ -40,7 +41,7 @@ class JobController extends Controller
                 $query->where('applications.profile_id', $profileId);
             }])
             ->paginate();
-        $this->model['count'] = Job::where('company_id',$companyId)->count();
+        $this->model['count'] = Job::where('company_id', $companyId)->count();
         return $this->sendResponse();
     }
     
@@ -52,13 +53,13 @@ class JobController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = $request->user()->companies()->where('id', $companyId)->first();
         
-        if(!$company){
+        if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
         
-        $inputs = $request->except(['_method','_token']);
+        $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $job = $company->jobs()->create($inputs);
         $this->model = Job::find($job->id);
@@ -68,19 +69,19 @@ class JobController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return Response
      */
     public function show($profileId, $companyId, $id)
     {
-        $job = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
         
         if (!$job) {
             throw new \Exception("No job found with the given Id.");
         }
-
+        
         $meta = $job->getMetaFor($profileId);
-        $this->model = ['job'=>$job,'meta'=>$meta];
+        $this->model = ['job' => $job, 'meta' => $meta];
         
         return $this->sendResponse();
     }
@@ -88,36 +89,36 @@ class JobController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @param Request $request
      * @return Response
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = $request->user()->companies()->where('id', $companyId)->first();
         
-        if(!$company){
+        if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
         
-        $this->model = $company->jobs()->where('id',$id)->update($request->except(['_token','_method']));
+        $this->model = $company->jobs()->where('id', $id)->update($request->except(['_token', '_method']));
         return $this->sendResponse();
     }
     
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return Response
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
-        if(!$company){
+        $company = $request->user()->companies()->where('id', $companyId)->first();
+        if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
         
-        $this->model = $company->jobs()->where('id',$id)->delete();
+        $this->model = $company->jobs()->where('id', $id)->delete();
         
         return $this->sendResponse();
         
@@ -126,21 +127,29 @@ class JobController extends Controller
     public function apply(Request $request, $profileId, $companyId, $id)
     {
         $company = Company::find($companyId);
-        if(!$company){
+        if (!$company) {
             throw new \Exception("Company not found..");
         }
         
-        $job = $company->jobs()->where('id',$id)->first();
+        $job = $company->jobs()->where('id', $id)->first();
         
-        if(!$job){
+        if (!$job) {
             throw new \Exception("Job not found.");
         }
+        $path = "profile/$profileId/job/$id/resume";
+        $status = \Storage::makeDirectory($path, 0644, true);
+        if ($request->hasFile('resume')) {
+            $resumeName = str_random("32") . ".pdf";
+            $response = $request->file("resume")->storeAs($path, $resumeName);
+            if (!$response) {
+                throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
+            }
+        } else {
+            $resumeName = $request->user()->profile->resume;
+        }
         $profileId = $request->user()->profile->id;
+        $this->model = $job->apply($profileId, $resumeName);
         
-        $this->model = $job->apply($profileId);
-        
-        event(new Update($id,'job',$profileId,"Applied on job"));
-
         return $this->sendResponse();
     }
     
@@ -165,21 +174,21 @@ class JobController extends Controller
     
     public function applications(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = $request->user()->companies()->where('id', $companyId)->first();
         
-        if(!$company){
+        if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
         
-        $job = $company->jobs()->where('id',$id)->first();
+        $job = $company->jobs()->where('id', $id)->first();
         
-        if(!$job){
+        if (!$job) {
             throw new \Exception("Job not found.");
         }
-    
+        
         $this->model = ['applications' => $job->applications()->paginate()];
         $this->model['count'] = $job->applications()->count();
-
+        
         return $this->sendResponse();
     }
     

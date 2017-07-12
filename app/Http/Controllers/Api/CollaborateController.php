@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
+use App\Events\Actions\Like;
 use Carbon\Carbon;
 use App\Events\Update;
 use Illuminate\Http\Request;
@@ -183,9 +184,7 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
         
-        $userName = $request->user()->name;
-        event(new Update($id,"collaborate",$collaborate->profile_id,$userName . " liked your collaboration."));
-
+        event(new Like($collaborate,$request->user()->profile));
         $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
         return $this->sendResponse();
         
