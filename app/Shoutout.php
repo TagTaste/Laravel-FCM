@@ -8,10 +8,11 @@ use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload;
+    use IdentifiesOwner, CachedPayload, SoftDeletes;
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
     
