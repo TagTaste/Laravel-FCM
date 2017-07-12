@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Carbon\Carbon;
 
 class NotificationController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +15,7 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $this->model = $request->user()->notifications;
+        $this->model = $request->user()->profile->notifications;
         return $this->sendResponse();
     }
 
@@ -50,7 +48,7 @@ class NotificationController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $this->model =  $request->user()->notifications->where('id',$id)->first();
+        $this->model =  $request->user()->profile->notifications->where('id',$id)->first();
         return $this->sendResponse();
     }
 
@@ -85,7 +83,7 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $this->model = $request->user()->notifications()->where('id',$id)->delete();
+        $this->model = $request->user()->profile->notifications()->where('id',$id)->delete();
         return $this->sendResponse();
     }
     
@@ -99,7 +97,7 @@ class NotificationController extends Controller
      */
     public function read(Request $request, $id)
     {
-        $this->model = $request->user()->notifications()->where('id',$id)
+        $this->model = $request->user()->profile->notifications()->where('id',$id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
@@ -113,7 +111,7 @@ class NotificationController extends Controller
      */
     public function unread(Request $request)
     {
-        $this->model = $request->user()->unreadNotifications;
+        $this->model = $request->user()->profile->unreadNotifications;
         return $this->sendResponse();
     }
     
