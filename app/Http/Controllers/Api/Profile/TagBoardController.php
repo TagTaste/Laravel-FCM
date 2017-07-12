@@ -16,7 +16,7 @@ class TagBoardController extends Controller
      */
     public function index(Request $request,$profileId)
     {
-        $ideabooks = Ideabook::profile($profileId)->get();
+        $ideabooks = Ideabook::profile($profileId)->orderBy('updated_at','desc')->orderBy('created_at','desc')->get();
         $this->model = [];
         if($ideabooks->count() ){
             foreach($ideabooks as $ideabook){
