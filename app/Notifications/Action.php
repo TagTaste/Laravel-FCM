@@ -15,16 +15,20 @@ class Action extends Notification
     public $model;
     public $modelId;
     public $action;
+    public $content;
+    public $image;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($model, $modelId, $action = null)
+    public function __construct($model, $modelId, $content = null, $image = null, $action = null)
     {
         $this->model = $model;
         $this->modelId = $modelId;
         $this->action = $action;
+        $this->content = $content;
+        $this->image = $image;
     }
 
     /**
@@ -60,10 +64,16 @@ class Action extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
+        $data = [
             'action'=>$this->action,
-            'model' => ['name'=>$this->model,'id'=>$this->modelId],
+            'model' => ['name'=>$this->model,'id'=>$this->modelId,'content'=>$this->content,'image'=>$this->image],
             'profile' => $notifiable
         ];
+        
+        return $data;
+    }
+    
+    protected function appendAttributes(&$data){
+    
     }
 }

@@ -44,7 +44,7 @@ class ShoutoutLikeController extends Controller
             
             $shoutout = Shoutout::findOrFail($id);
             
-            event(new Like($shoutout, $request->user()->profile));
+            event(new Like($shoutout, $request->user()->profile, $shoutout->content));
         }
         
         return $this->sendResponse();

@@ -7,5 +7,5 @@ use App\Notifications\Action;
 
 class Like extends Action
 {
-    
+
 }

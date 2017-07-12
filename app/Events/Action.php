@@ -20,18 +20,20 @@ class Action
     public $model;
     public $who;
     public $action;
+    public $content;
     public $image;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Model $model, Profile $who, $image = null, $action = null)
+    public function __construct(Model $model, Profile $who, $content = null, $image = null, $action = null)
     {
         $this->model = $model;
         $this->who = $who;
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
+        $this->content = $content;
     }
 
     public function getModelName(){
