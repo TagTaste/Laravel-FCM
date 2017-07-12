@@ -69,9 +69,8 @@ class RecipeController extends Controller
     {
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
         $loggedInProfileId = $request->user()->profile->id;
-        $r = $recipe->toArray();
-        $r['meta'] = $recipe->getMetaFor($loggedInProfileId);
-        $this->model = $r;
+        $this->model = $recipe;
+        $this->model['meta'] = $recipe->getMetaFor($loggedInProfileId);
         return $this->sendResponse();
     }
 
