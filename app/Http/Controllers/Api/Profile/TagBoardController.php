@@ -50,12 +50,13 @@ class TagBoardController extends Controller
     public function show($profileId,$id)
     {
         $ideabook = Ideabook::where('id',$id)->profile($profileId)->first();
+        
+        if(!$ideabook){
+            return $this->sendError("Tagboard not found.");
+        }
+        
         $this->model = $ideabook->toArray();
         $this->model['meta']=$ideabook->getMetaFor($profileId);
-
-        if(!$this->model){
-            throw new \Exception("Tag Board not found.");
-        }
         return $this->sendResponse();
     }
 
