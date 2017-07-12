@@ -35,6 +35,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\Share' => [],
         'App\Events\Chat\Invite' => ['App\Listeners\Chat\InviteNotification'],
         'App\Events\Chat\Message' => ['App\Listeners\Chat\NewMessage'],
+        'App\Events\Model\Subscriber\Create' => ['App\Listeners\Subscriber\Create'],
+        'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy']
 
     ];
 

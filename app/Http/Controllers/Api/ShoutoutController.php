@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\Events\Model\Subscriber\Create;
 use App\Shoutout;
 use Illuminate\Http\Request;
 
@@ -59,6 +60,7 @@ class ShoutoutController extends Controller
         }
         
 		$this->model = $this->model->create($inputs);
+        event(new Create($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}
 
