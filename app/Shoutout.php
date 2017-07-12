@@ -114,13 +114,15 @@ class Shoutout extends Model implements Feedable, CommentNotification
         }
         
         return [$prefix => $key];
-    
-        
-    
     }
     
-    public function getCommentNotificationMessage() : string
+    public function getNotificationContent()
     {
-        return "New comment on your post!";
+        return [
+            'name' => 'shoutout',
+            'id' => $this->id,
+            'content' => $this->content,
+            'image' => null
+        ];
     }
 }

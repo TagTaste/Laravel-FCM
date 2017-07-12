@@ -62,14 +62,10 @@ class Action extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
+        
+        
+        $data = [
             'action' => $this->data->action,
-            'model' => [
-                'name' => strtolower(class_basename($this->data->model)),
-                'id' => $this->data->model->id,
-                'content' => $this->data->content,
-                'image' => $this->data->image
-            ],
             'profile' => [
                 'id' => $this->data->who->id,
                 'name' => $this->data->who->name,
@@ -77,5 +73,21 @@ class Action extends Notification
             ]
         ];
         
+        try {
+            $data['model'] = $this->data->model->getNotificationContent();
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+        }
+        
+        if(!isset($data['model'])){
+            $data['model'] = [
+                'name' => strtolower(class_basename($this->data->model)),
+                'id' => $this->data->model->id,
+                'content' => $this->data->content,
+                'image' => $this->data->image
+            ];
+        }
+        
+        return $data;
     }
 }

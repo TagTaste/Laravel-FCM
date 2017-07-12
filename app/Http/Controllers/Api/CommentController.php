@@ -86,7 +86,7 @@ class CommentController extends Controller {
         
         $model->comments()->attach($comment->id);
         
-        event(new \App\Events\Actions\Comment($model,$request->user()->profile,$comment->content));
+        event(new \App\Events\Actions\Comment($model,$request->user()->profile));
         
         $meta = $comment->getMetaFor($model);
         $this->model = ["comment"=>$comment,"meta"=>$meta];
