@@ -73,6 +73,9 @@ class ShoutoutController extends Controller
 	public function show(Request $request, $id)
 	{
 		$shoutout = $this->model->findOrFail($id);
+		if(!$shoutout){
+		    return $this->sendError("Shoutout not found.");
+        }
         $profileId = $request->user()->profile->id;
         $meta = $shoutout->getMetaFor($profileId);
         $this->model = ['shoutout'=>$shoutout,'meta'=>$meta];
