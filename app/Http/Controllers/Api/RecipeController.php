@@ -12,9 +12,14 @@ class RecipeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $this->model = Recipe::orderBy('created_at')->paginate(10);
+        $recipes = Recipe::orderBy('created_at')->paginate(10);
+        $loggedInProfileId = $recipe->user()->profile->id;
+        $this->model = [];
+        foreach($recipes as $recipe){
+            $this->model[] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+        }
         return $this->sendResponse();
     }
 
@@ -24,9 +29,13 @@ class RecipeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $this->model = Recipe::where('id',$id)->first();
+        $recipe = Recipe::where('id',$id)->first();
+    
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+        
         return $this->sendResponse();
     }
     
