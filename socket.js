@@ -43,8 +43,7 @@ var logErr = function(err,count){
         var notification = new Redis();
         notification.psubscribe('private-App.Notify.Profile.*',logErr);
         notification.on('pmessage',function(pattern,channel,message){
-            var message = JSON.parse(message);
-            notificationNamespace.to(channel).emit("message",message.data);
+            notificationNamespace.to(channel).emit("message",message);
         });
 
     //public company feed
