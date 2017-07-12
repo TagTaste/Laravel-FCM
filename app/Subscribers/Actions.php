@@ -28,10 +28,12 @@ class Actions
             ->where('model_subscribers.profile_id','!=',$event->who->id)
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get();
-        $class = "\App\Notifications\Actions\\" . ucwords($event->action);
         
         //send notification
-        Notification::send($profiles, new $class($event));
+        if($profiles->count()) {
+            $class = "\App\Notifications\Actions\\" . ucwords($event->action);
+            Notification::send($profiles, new $class($event));
+        }
     }
     
     public function subscribe($events)
