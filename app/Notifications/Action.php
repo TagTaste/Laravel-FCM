@@ -27,7 +27,7 @@ class Action extends Notification
     public function __construct($event)
     {
         $this->data = $event;
-        $this->model = $event->model;
+        $this->model = strtolower(class_basename($event->model));
         $this->modelId = $event->model->id;
         $this->action = $event->action;
         $this->content = $event->content;
