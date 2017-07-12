@@ -227,8 +227,7 @@ notificationNamespace.on('connection',function(socket){
                             console.log(body.error);
                             return;
                         }
-                        channelName='notification-channel.'+body.profile.id;
-                        socket.join(channelName);
+                        socket.join('private-App.Notify.Profile.'+body.profile.id);
                     })
             }).end();
         });
