@@ -72,7 +72,7 @@ class ShoutoutController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-		$shoutout = $this->model->findOrFail($id);
+		$shoutout = $this->model->find($id);
 		if(!$shoutout){
 		    return $this->sendError("Shoutout not found.");
         }
