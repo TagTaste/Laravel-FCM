@@ -67,6 +67,9 @@ class RecipeController extends Controller
     public function show(Request $request, $profileId,$id)
     {
         $recipe = Recipe::where('profile_id',$profileId)->where('id',$id)->first();
+        if(!$recipe){
+            return $this->sendError("Recipe not found.");
+        }
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
