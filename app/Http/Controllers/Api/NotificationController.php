@@ -15,7 +15,9 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $this->model = $request->user()->profile->notifications;
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model = $profile->notifications;
         return $this->sendResponse();
     }
 
@@ -27,7 +29,9 @@ class NotificationController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $this->model =  $request->user()->profile->notifications->where('id',$id)->first();
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->notifications()->where('id',$id)->first();
         return $this->sendResponse();
     }
 
@@ -39,7 +43,9 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $this->model = $request->user()->profile->notifications()->where('id',$id)->delete();
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->notifications()->where('id',$id)->delete();
         return $this->sendResponse();
     }
     
@@ -53,7 +59,9 @@ class NotificationController extends Controller
      */
     public function read(Request $request, $id)
     {
-        $this->model = $request->user()->profile->notifications()->where('id',$id)
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->notifications()->where('id',$id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
@@ -67,7 +75,9 @@ class NotificationController extends Controller
      */
     public function unread(Request $request)
     {
-        $this->model = $request->user()->profile->unreadNotifications;
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->unreadNotifications;
         return $this->sendResponse();
     }
     
