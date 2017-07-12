@@ -119,7 +119,7 @@ class Shoutout extends Model implements Feedable, CommentNotification
     public function getNotificationContent()
     {
         return [
-            'name' => 'shoutout',
+            'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->content,
             'image' => null
