@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 class RecipeController extends Controller
 {
     protected $model = [];
+
+    public function __construct(Recipe $model)
+    {
+        $this->model = $model;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -39,22 +44,44 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $inputs = $request->all();
+        $inputs = $request->except(['ingredients','equipments','images','_method','_token']);
         $inputs['profile_id'] = $profileId;
-        
-        //move this to validator.
-        if(!$request->hasFile('image')){
-            throw new \Exception("Image is required");
+
+        $this->model = $this->model->create($inputs);
+        $images = [];
+        if($request->has("images")){
+            $count = count($request->input("images"));
+            while($count >= 0){
+                $imageName = str_random("32") . ".jpg";
+                $path = "profile/recipes/{$this->model->id}/images/{$count}";
+                \Storage::makeDirectory($path);
+                if(!$request->hasFile("images.$count")){
+                    \Log::info("No file for images.$count");
+                    $count--;
+                    continue;
+                }
+                $response = $request->file("images.$count")->storeAs($path,$imageName);
+                if(!$response){
+                    throw new \Exception("Could not save image " . $imageName . " at " . $path);
+                }
+                $count--;
+                $images[] = ['recipe_id'=>$this->model->id,'image'=>$imageName];
+            }
         }
-    
-        $imageName = str_random("32") . ".jpg";
-        $path = Recipe::$fileInputs['image'];
-        $response = $request->file('image')->storeAs($path,$imageName);
-        if(!$response){
-            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+
+        $this->model->images()->insert($images);
+
+        $ingredients=$request->input("ingredients");
+        foreach ($ingredients as $ingredient){
+            $this->model->ingredients()->insert(['recipe_id'=>$this->model->id,"description"=>$ingredient]);
+
         }
-        $inputs['image'] = $imageName;
-        $this->model = Recipe::create($inputs);
+
+        $equipments=$request->input("equipments");
+        foreach ($equipments as $equipment){
+            $this->model->equipments()->insert(['recipe_id'=>$this->model->id,"name"=>$equipment]);
+
+        }
         return $this->sendResponse();
     }
 

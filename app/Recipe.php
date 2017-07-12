@@ -15,17 +15,15 @@ class Recipe extends Model implements Feedable, CommentNotification
     use SoftDeletes, CachedPayload, IdentifiesOwner;
     
     public static $expectsFiles = true;
-    public static $fileInputs = ['image' => 'images/r'];
-    protected $fillable = ['name','showcase','description','content', 'ingredients',
-        'category', 'serving', 'calorie', 'image',
-        'preparation_time','cooking_time','level','tags',
-        'profile_id','privacy_id','payload_id'];
+    protected $fillable = ['name','description', 'serving',
+        'preparation_time','cooking_time','level','tags','cuisine_id',
+        'profile_id','privacy_id','payload_id','step'];
     protected $dates = ['created_at','deleted_at'];
-    protected $visible = ['id','name','description','content','ingredients','imageUrl','category','serving', 'calorie',
+    protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount',
-        'created_at','pivot','profile'];
-    protected $with = ['profile'];
-    protected $appends = ['imageUrl','likeCount'];
+        'created_at','pivot','profile','ingredients','equipments','images','step'];
+    protected $with = ['profile','ingredients','equipments','images'];
+    protected $appends = ['likeCount'];
     
     public static function boot()
     {
@@ -38,12 +36,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     	return $this->belongsTo(\App\Recipe\Profile::class);
     }
 
-    //specific for API
-    public function getImageUrlAttribute()
-    {
-        return $this->image !== null ? "/images/r/" . $this->image : null;
-    }
-    
+
     public function comments()
     {
         return $this->belongsToMany('App\Comment','comments_recipes','recipe_id','comment_id');
@@ -57,12 +50,12 @@ class Recipe extends Model implements Feedable, CommentNotification
     public function getLikeCountAttribute()
     {
         $count = $this->like->count();
-        
+
         if($count >1000000)
         {
             $count = round($count/1000000, 1);
             $count = $count."M";
-            
+
         }
         elseif ($count>1000) {
             $count = round($count/1000, 1);
@@ -101,4 +94,20 @@ class Recipe extends Model implements Feedable, CommentNotification
     {
         return "New comment on " . $this->name . "recipe.";
     }
+
+    public function ingredients()
+    {
+        return $this->hasMany('App\Recipe\Ingredient');
+    }
+
+    public function equipments()
+    {
+        return $this->hasMany('App\Recipe\Equipment');
+    }
+
+    public function images()
+    {
+        return $this->hasMany('App\Recipe\Image');
+    }
+
 }

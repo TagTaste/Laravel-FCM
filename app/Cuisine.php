@@ -13,4 +13,6 @@ class Cuisine extends Model
 
     protected $visible = ['id', 'name'];
 
+
+
 }
