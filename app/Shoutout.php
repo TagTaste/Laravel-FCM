@@ -9,7 +9,7 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 
-class Shoutout extends Model implements Feedable, CommentNotification
+class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload;
     

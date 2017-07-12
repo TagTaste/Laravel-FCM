@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-class Photo extends Model implements Feedable, CommentNotification
+class Photo extends Model implements Feedable
 {
     use ScopeProfile, ScopeCompany, SoftDeletes;
     

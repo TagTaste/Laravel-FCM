@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Collaborate extends Model implements Feedable, CommentNotification
+class Collaborate extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
     
