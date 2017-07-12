@@ -38,7 +38,7 @@ var logErr = function(err,count){
 
         //notification push
 
-        var notificationNamespace=io.of('/notification');
+        var notificationNamespace=io.of('/notifications');
 
         var notification = new Redis();
         notification.psubscribe('private-App.Notify.Profile.*',logErr);
