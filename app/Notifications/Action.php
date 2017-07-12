@@ -12,6 +12,7 @@ class Action extends Notification
 {
     //use Queueable;
     
+    public $data;
     public $model;
     public $modelId;
     public $action;
@@ -22,13 +23,15 @@ class Action extends Notification
      *
      * @return void
      */
-    public function __construct($model, $modelId, $content = null, $image = null, $action = null)
+//    public function __construct($model, $modelId, $content = null, $image = null, $action = null)
+    public function __construct($event)
     {
-        $this->model = $model;
-        $this->modelId = $modelId;
-        $this->action = $action;
-        $this->content = $content;
-        $this->image = $image;
+        $this->data = $event;
+        $this->model = $event->model;
+        $this->modelId = $event->model->id;
+        $this->action = $event->action;
+        $this->content = $event->content;
+        $this->image = $event->image;
     }
 
     /**
@@ -64,16 +67,16 @@ class Action extends Notification
      */
     public function toArray($notifiable)
     {
-        $data = [
-            'action'=>$this->action,
-            'model' => ['name'=>$this->model,'id'=>$this->modelId,'content'=>$this->content,'image'=>$this->image],
-            'profile' => $notifiable
+        return [
+            'action' => $this->data->action,
+            'model' => [
+                'name' => $this->data->model,
+                'id' => $this->data->model->id,
+                'content' => $this->data->content,
+                'image' => $this->data->image
+            ],
+            'profile' => $this->data->who
         ];
         
-        return $data;
-    }
-    
-    protected function appendAttributes(&$data){
-    
     }
 }

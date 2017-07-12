@@ -31,7 +31,7 @@ class Actions
         $class = "\App\Notifications\Actions\\" . ucwords($event->action);
         
         //send notification
-        Notification::send($profiles, new $class($model,$modelId,$event->content,$event->image,$event->action));
+        Notification::send($profiles, new $class($event));
     }
     
     public function subscribe($events)
