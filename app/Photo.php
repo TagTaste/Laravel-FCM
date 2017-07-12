@@ -175,9 +175,14 @@ class Photo extends Model implements Feedable, CommentNotification
         return $meta;
     }
     
-    public function getCommentNotificationMessage() : string
+    public function getNotificationContent()
     {
-        return "New comment on photo.";
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->caption,
+            'image' => $this->photoUrl
+        ];
     }
    
 }

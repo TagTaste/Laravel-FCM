@@ -246,5 +246,15 @@ class Collaborate extends Model implements Feedable, CommentNotification
     {
         return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
     }
+    
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->title,
+            'image' => null
+        ];
+    }
    
 }
