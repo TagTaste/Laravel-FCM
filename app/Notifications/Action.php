@@ -27,11 +27,6 @@ class Action extends Notification
     public function __construct($event)
     {
         $this->data = $event;
-        $this->model = strtolower(class_basename($event->model));
-        $this->modelId = $event->model->id;
-        $this->action = $event->action;
-        $this->content = $event->content;
-        $this->image = $event->image;
     }
 
     /**
@@ -70,7 +65,7 @@ class Action extends Notification
         return [
             'action' => $this->data->action,
             'model' => [
-                'name' => $this->data->model,
+                'name' => strtolower(class_basename($this->data->model)),
                 'id' => $this->data->model->id,
                 'content' => $this->data->content,
                 'image' => $this->data->image
