@@ -16,6 +16,7 @@ class AlterRecipesAddColumn extends Migration
 
         Schema::table('recipes', function(Blueprint $table) {
             $table->text('description')->nullable()->change();
+            $table->string('serving')->nullable()->change();
             $table->integer("cuisine_id")->unsigned();
             $table->tinyInteger("type")->unsigned();
             $table->text("directions")->nullable();
@@ -46,6 +47,7 @@ class AlterRecipesAddColumn extends Migration
             $table->text("ingredients");
             $table->text("content");
             $table->text('description')->change();
+            $table->string('serving')->change();
             $table->text("calorie")->unsigned();
             $table->text("category")->unsigned();
             $table->tinyInteger("billable")->unsigned();
