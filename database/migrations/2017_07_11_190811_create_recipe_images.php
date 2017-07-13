@@ -16,7 +16,7 @@ class CreateRecipeImages extends Migration
         Schema::create('recipe_images', function(Blueprint $table) {
             $table->increments('id');
             $table->text('image');
-            $table->tinyInteger("showCase");
+            $table->tinyInteger("showCase")->default(0);
             $table->integer('recipe_id')->unsigned();
             $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
             $table->timestamps();
