@@ -65,7 +65,7 @@ class Action extends Notification
     {
         $data = [
             'action' => $this->data->action,
-            'profile' => $this->data->
+            'profile' => $this->data->who
         ];
         
         try {
