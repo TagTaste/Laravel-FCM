@@ -14,7 +14,7 @@ class Actions
 {
     public function notifySubscribers($event)
     {
-        ModelSubscriber::updateSubscriberTimestamp($event->getModelName(),$event->model->id,$event->who->id);
+        ModelSubscriber::updateSubscriberTimestamp($event->getModelName(),$event->model->id,$event->who['id']);
     }
     
     public function addOrUpdateSubscriber($event)
@@ -25,7 +25,7 @@ class Actions
         $profiles = Profile::select('profiles.*')->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
             ->where('model_subscribers.model','like',$model)
             ->where('model_subscribers.model_id','=',$modelId)
-            ->where('model_subscribers.profile_id','!=',$event->who->id)
+            ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get();
         
