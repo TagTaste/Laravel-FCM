@@ -67,7 +67,7 @@ class Action extends Notification
             'action' => $this->data->action,
             'profile' => $this->data->who
         ];
-        
+        \Log::info(class_basename($this->data->model));
         if(method_exists($this->data->model,'getNotificationContent')){
             $data['model'] = $this->data->model->getNotificationContent();
         } else {
