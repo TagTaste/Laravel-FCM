@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Api\Controller;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -17,7 +16,7 @@ class NotificationController extends Controller
     {
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::find($userId);
-        $this->model = $profile->notifications;
+        $this->model = $profile->notifications()->paginate();
         return $this->sendResponse();
     }
 
