@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Subscriber;
 
-use App\Events\Model\Subscriber\Destroy;
+use App\Events\Model\Subscriber\Destroy as DestroyEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -24,7 +24,7 @@ class Destroy
      * @param  Destroy  $event
      * @return void
      */
-    public function handle(Destroy $event)
+    public function handle(DestroyEvent $event)
     {
         //
     }
