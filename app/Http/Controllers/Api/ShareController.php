@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Actions\Share;
 use App\Events\NewFeedable;
 use App\Events\Update;
 use Illuminate\Http\Request;
@@ -57,9 +58,7 @@ class ShareController extends Controller
         //push to feed
         event(new NewFeedable($this->model, $request->user()->profile));
         
-        //$message = $request->user()->name . " shared your post.";
-        event(new Update($id, $modelName, $sharedModel->profile_id, "share"));
-        
+        event(new Share($sharedModel,$request->user()->profile));
         return $this->sendResponse();
     }
     

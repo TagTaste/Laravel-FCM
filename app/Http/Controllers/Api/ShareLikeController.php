@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Actions\Like;
 use Illuminate\Http\Request;
 use App\Shareable\Sharelikable;
 
@@ -51,7 +52,8 @@ class ShareLikeController extends Controller
     	$model->$columnName = $modelId;
     	$model->save();
         $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",1);
-    	return $this->sendResponse();
+    	event(new Like($model,$request->user()->profile));
+        return $this->sendResponse();
     }
 
     public function index($model,$modelId)
