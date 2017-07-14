@@ -124,8 +124,8 @@ class RecipeController extends Controller
 
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token']);
         $inputs['profile_id'] = $profileId;
-
         $this->model = Recipe::where('id', $id)->where('profile_id', $profileId)->update($inputs);
+        $this->model = new Recipe ();
         if ($request->has("images")) {
             $count = count($request->input("images"));
             while ($count >= 0) {
@@ -154,6 +154,7 @@ class RecipeController extends Controller
         }
 
         $ingredients = $request->input("ingredients");
+
         if (count($ingredients) > 0) {
             foreach ($ingredients as $ingredient) {
                 $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient->id)->update(["description" => $ingredient->description]);
@@ -162,7 +163,6 @@ class RecipeController extends Controller
 
         $equipments = $request->input("equipments");
         if (count($equipments) > 0) {
-
             foreach ($equipments as $equipment) {
                 $this->model->ingredients()->where('recipe_id', $id)->where('id', $equipment->id)->update(["name" => $equipment->name]);
             }
