@@ -4,8 +4,6 @@ namespace App\Shareable;
 
 use App\Shareable\Share;
 
-
-
 class Photo extends Share
 {
 
@@ -39,6 +37,17 @@ class Photo extends Share
         $meta['commentCount'] = $this->comments()->count();
 
         return $meta;
+    }
+    
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->caption,
+            'image' => $this->photoUrl,
+            'shared' => true
+        ];
     }
     
 }
