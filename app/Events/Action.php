@@ -30,7 +30,11 @@ class Action
     public function __construct(Model $model, Profile $who, $content = null, $image = null, $action = null)
     {
         $this->model = $model;
-        $this->who = $who;
+        $this->who = [
+            'id'=>$who->id,
+            'name'=>$who->name,
+            'imageUrl'=>$who->imageUrl
+        ];
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
