@@ -39,11 +39,11 @@ class Actions
     public function subscribe($events)
     {
         $events->listen(
-            [Like::class,Share::class,Comment::class],
+            [Like::class,Comment::class],
             'App\Subscribers\Actions@notifySubscribers');
         
         $events->listen(
-            [Like::class,Share::class,Comment::class],
+            [Like::class,Comment::class],
             'App\Subscribers\Actions@addOrUpdateSubscriber');
     }
 }
