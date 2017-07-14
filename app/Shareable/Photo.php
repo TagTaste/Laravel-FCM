@@ -44,8 +44,8 @@ class Photo extends Share
         return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
-            'content' => $this->caption,
-            'image' => $this->photoUrl,
+            'content' => $this->photo->caption,
+            'image' => $this->photo->photoUrl,
             'shared' => true
         ];
     }
