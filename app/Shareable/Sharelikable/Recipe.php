@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class Recipe extends Like
 {
 	protected $table = 'recipe_share_likes';
-    protected $fillable = ['id','profile_id'];
+    protected $fillable = ['recipe_share_id','profile_id'];
 }
