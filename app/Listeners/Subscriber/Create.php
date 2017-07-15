@@ -27,6 +27,6 @@ class Create
      */
     public function handle(ModelCreateEvent $event)
     {
-        ModelSubscriber::updateSubscriberTimestamp(strtolower(class_basename($event->model)),$event->model->id,$event->profile->id);
+        ModelSubscriber::updateSubscriberTimestamp($event->model,$event->model->id,$event->profile->id);
     }
 }
