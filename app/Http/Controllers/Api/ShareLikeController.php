@@ -34,19 +34,19 @@ class ShareLikeController extends Controller
             return $this->sendError("Could not find id with provided model");
         }
 
-        $class = \App::make('App\Shareable\Sharelikable\\'.$modelName);
+        $sharedModel = \App::make('App\Shareable\Sharelikable\\'.$modelName);
     	$columnName = $model.'_share_id';
 
-    	$exist = $class::where('profile_id',$profileId)->where($columnName,$modelId)->first();
+    	$exist = $sharedModel::where('profile_id',$profileId)->where($columnName,$modelId)->first();
 
     	if($exist != null)
     	{
-    		$class::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
+    		$sharedModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
             $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",-1);
     		return $this->sendResponse();
     	}
 
-    	$model = new $class;
+    	$model = new $sharedModel;
     	$model->profile_id = $profileId;
     	
     	$model->$columnName = $modelId;
