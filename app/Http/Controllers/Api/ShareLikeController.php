@@ -48,9 +48,9 @@ class ShareLikeController extends Controller
 
     	$model = new $sharedModel;
     	$model->profile_id = $profileId;
-    	
     	$model->$columnName = $modelId;
     	$model->save();
+    	
         $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",1);
     	event(new Like($model,$request->user()->profile));
         return $this->sendResponse();

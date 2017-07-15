@@ -43,6 +43,7 @@ var logErr = function(err,count){
         var notification = new Redis();
         notification.psubscribe('private-App.Notify.Profile.*',logErr);
         notification.on('pmessage',function(pattern,channel,message){
+            console.log(message);
             notificationNamespace.to(channel).emit("message",message);
         });
 
