@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Comment;
+use App\Events\Actions\Tag;
 use App\Events\Update;
 use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -91,7 +92,9 @@ class CommentController extends Controller {
         $model->comments()->attach($comment->id);
         
         event(new \App\Events\Actions\Comment($model,$request->user()->profile));
-        
+        if($comment->has_tags){
+            event(new Tag($model,$request->user()->profile,$comment->content));
+        }
         $meta = $comment->getMetaFor($model);
         $this->model = ["comment"=>$comment,"meta"=>$meta];
         return $this->sendResponse();
