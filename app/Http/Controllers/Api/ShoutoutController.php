@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Company;
 use App\Events\Model\Subscriber\Create;
 use App\Shoutout;
+use App\Traits\CheckTags;
 use Illuminate\Http\Request;
 
 class ShoutoutController extends Controller
 {
+    use CheckTags;
 	/**
 	 * Variable to model
 	 *
@@ -36,10 +38,6 @@ class ShoutoutController extends Controller
 		//we never return all of the shoutouts
         return;
 	}
-
-	private function hasTags(&$content, $tagIdentifier = '@'){
-        return preg_match('/@\[([0-9]*):([0-9]*)\]/i',$content);
-    }
     
 	/**
 	 * Store a newly created resource in storage.

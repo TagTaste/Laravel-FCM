@@ -6,17 +6,18 @@ use App\Channel\Payload;
 use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
+use App\Traits\GetTags;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags'];
     
-    protected $visible = ['id','content','profile_id','company_id','owner',
+    protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
         'created_at','privacy_id','privacy'
     ];
     
@@ -129,26 +130,6 @@ class Shoutout extends Model implements Feedable
     
     public function getContentAttribute($value)
     {
-        if($this->has_tags === 0){
-            return $value;
-        }
-        
-        $found = preg_match_all('/@\[([0-9]*):([0-9]*)\]/i',$value,$matches);
-        if($found === false){
-            return $value;
-        }
-        
-        $profiles = Profile::getMultipleFromCache($matches[1]);
-        
-        if(!$profiles){
-            return $value;
-        }
-        
-        $value = [
-            'text' => $value,
-            'profiles' => $profiles
-        ];
-        
-        return $value;
+        return $this->getTaggedProfiles($value);
     }
 }
