@@ -32,10 +32,13 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Actions\Like' => [],
         'App\Events\Actions\Comment' => [],
+        'App\Events\Actions\Tag' => ['App\Listeners\Notifications\Tag'],
         'App\Events\Actions\Share' => ['App\Listeners\Notifications\Share'],
         'App\Events\Chat\Invite' => ['App\Listeners\Chat\InviteNotification'],
         'App\Events\Chat\Message' => ['App\Listeners\Chat\NewMessage'],
-        'App\Events\Model\Subscriber\Create' => ['App\Listeners\Subscriber\Create'],
+        'App\Events\Model\Subscriber\Create' => [
+                                                    'App\Listeners\Subscriber\Create'
+            ],
         'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy']
 
     ];

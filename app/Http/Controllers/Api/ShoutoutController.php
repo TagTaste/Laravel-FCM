@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
 use App\Shoutout;
 use App\Traits\CheckTags;
@@ -64,6 +65,10 @@ class ShoutoutController extends Controller
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
 		$this->model = $this->model->create($inputs);
         event(new Create($this->model,$request->user()->profile));
+        
+        if($inputs['has_tags']){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
 		return $this->sendResponse();
 	}
 

@@ -109,7 +109,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource('comments','CommentController');
                     });
 
-
+            //photos
+                Route::resource("photos","PhotoController");
+                
             //recipes rating
                 Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
 
