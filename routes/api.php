@@ -109,9 +109,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource('comments','CommentController');
                     });
             
+                    
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
+                
             //tagboard
                 Route::resource('tagboards','TagBoardController');
 
