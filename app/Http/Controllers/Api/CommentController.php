@@ -2,10 +2,12 @@
 
 use App\Comment;
 use App\Events\Update;
+use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller {
+    use CheckTags;
     
     private $models = [
         'photo' => \App\Photo::class,
@@ -79,9 +81,11 @@ class CommentController extends Controller {
         if($request->input("content")==null){
             return $this->sendError("Please write a comment.");
         }
+        $content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
         $comment = new Comment();
-        $comment->content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
+        $comment->content = $content;
         $comment->user_id = $request->user()->id;
+        $comment->has_tags = $this->hasTags($content);
         $comment->save();
         
         $model->comments()->attach($comment->id);

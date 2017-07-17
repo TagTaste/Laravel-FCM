@@ -2,14 +2,15 @@
 
 namespace App;
 
+use App\Traits\GetTags;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comment extends Model
 {
-    use SoftDeletes;
-    protected $visible = ['name','content','id','profile_id','profileImage','created_at'];
+    use SoftDeletes, GetTags;
+    protected $visible = ['name','content','id','profile_id','profileImage','created_at','has_tags'];
     protected $appends = ['name','profileImage','profile_id','count'];
 
 
@@ -61,6 +62,11 @@ class Comment extends Model
         $meta['commentCount'] = $model->comments()->count();
 
         return $meta;
+    }
+    
+    public function getContentAttribute($value)
+    {
+        return $this->getTaggedProfiles($value);
     }
 
 }
