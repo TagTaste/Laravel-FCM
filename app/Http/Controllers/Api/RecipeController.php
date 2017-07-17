@@ -52,4 +52,15 @@ class RecipeController extends Controller
             return response()->file($path);
         }
     }
+
+    public function filters()
+    {
+        $filters = [];
+
+        $filters['cuisine'] = \App\Filter\Recipe::select('cuisine_id')->groupBy('cuisine_id')->get();
+        $filters['level'] = \App\Filter\Recipe::select('level')->groupBy('level')->get();
+        $filters['type'] = \App\Filter\Recipe::select('type')->groupBy('type')->get();
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
 }
