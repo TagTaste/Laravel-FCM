@@ -45,8 +45,9 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token']);
+        $inputs = $request->except(['ingredients', 'equipments', 'images', '_token']);
         $inputs['profile_id'] = $profileId;
+
         $this->model = $this->model->create($inputs);
 
         $images = [];
@@ -56,33 +57,39 @@ class RecipeController extends Controller
                 $imageName = str_random("32") . ".jpg";
                 $path = "profile/recipes/{$this->model->id}/images/{$count}";
                 \Storage::makeDirectory($path);
-                if (!$request->hasFile("images" . $count['image'])) {
-                    \Log::info("No file for images" . $count['image']);
+                if (!$request->hasFile("images" . [$count]['file'])) {
+                    \Log::info("No file for images" . [$count]['file']);
                     $count--;
                     continue;
                 }
-                $response = $request->file("images.$count.['image']")->storeAs($path, $imageName);
+                $response = $request->file("images.[$count].['file']")->storeAs($path, $imageName);
                 if (!$response) {
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
-                $images = ['recipe_id' => $this->model->id, 'image' => $imageName, 'showCase' => "images" . $count['showCase']];
+                $images = ['recipe_id' => $this->model->id, 'image' => $imageName, 'showCase' => "images" . [$count]['showCase']];
                 $count--;
             }
         }
-
+        if(count($images)==0){
+            return $this->sendError("Image is required");
+        }
         $this->model->images()->insert($images);
 
         $ingredients = $request->input("ingredients");
-        $toatalIngredient = [];
-        foreach ($ingredients as $ingredient) {
-            $toatalIngredient[] = ['recipe_id' => $this->model->id, "description" => $ingredient];
+        if (count($ingredients) > 0) {
+            $toatalIngredient = [];
+            foreach ($ingredients as $ingredient) {
+                $toatalIngredient[] = ['recipe_id' => $this->model->id, "description" => $ingredient];
+            }
         }
         $this->model->ingredients()->insert($toatalIngredient);
 
         $equipments = $request->input("equipments");
-        $totalEquipment = [];
-        foreach ($equipments as $equipment) {
-            $totalEquipment[] = ['recipe_id' => $this->model->id, "name" => $equipment];
+        if (count($equipments) > 0) {
+            $totalEquipment = [];
+            foreach ($equipments as $equipment) {
+                $totalEquipment[] = ['recipe_id' => $this->model->id, "name" => $equipment];
+            }
         }
         $this->model->equipments()->insert($totalEquipment);
 
@@ -132,21 +139,21 @@ class RecipeController extends Controller
                 $imageName = str_random("32") . ".jpg";
                 $path = "profile/recipes/{$id}/images/{$count}";
                 \Storage::makeDirectory($path);
-                if (!$request->hasFile("images" . $count['image'])) {
-                    \Log::info("No file for images" . $count['image']);
+                if (!$request->hasFile("images" . [$count]['file'])) {
+                    \Log::info("No file for images" . [$count]['file']);
                     $count--;
                     continue;
                 }
-                $response = $request->file("images.$count.['image']")->storeAs($path, $imageName);
+                $response = $request->file("images.[$count].['file']")->storeAs($path, $imageName);
                 if (!$response) {
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
                 if ("images" . $count['showCase'] != null) {
                     $this->model->images()->where('recipe_id', $id)
-                        ->where('id', "images" . $count['id'])
-                        ->update(['image' => $imageName, 'showCase' => "images" . $count['showCase']]);
+                        ->where('id', "images" . [$count]['id'])
+                        ->update(['image' => $imageName, 'showCase' => "images" . [$count]['showCase']]);
                 } else {
-                    $images = ['recipe_id' => $id, 'image' => $imageName, 'showCase' => "images" . $count['showCase']];
+                    $images = ['recipe_id' => $id, 'image' => $imageName, 'showCase' => "images" . [$count]['showCase']];
                     $this->model->images()->insert($images);
                 }
                 $count--;
@@ -165,7 +172,7 @@ class RecipeController extends Controller
                     $toatalIngredient[] = ['recipe_id' => $id, "description" => $ingredient];
                 }
             }
-            if(count($toatalIngredient)>0) {
+            if (count($toatalIngredient) > 0) {
                 $this->model->ingredients()->insert($toatalIngredient);
             }
         }
@@ -174,14 +181,13 @@ class RecipeController extends Controller
         if (count($equipments) > 0) {
             $totalEquipment = [];
             foreach ($equipments as $equipment) {
-                if($equipment['id']){
+                if ($equipment['id']) {
                     $this->model->ingredients()->where('recipe_id', $id)->where('id', $equipment['id'])->update(["name" => $equipment['name']]);
-                }
-                else {
+                } else {
                     $totalEquipment[] = ['recipe_id' => $id, "name" => $equipment];
                 }
             }
-            if(count($totalEquipment)>0) {
+            if (count($totalEquipment) > 0) {
                 $this->model->equipments()->insert($totalEquipment);
             }
         }
