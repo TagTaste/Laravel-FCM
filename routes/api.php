@@ -108,8 +108,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                         Route::resource('comments','CommentController');
                     });
-            
-                    
+            //photos
+                Route::resource("photos","PhotoController");
+                
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
