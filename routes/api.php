@@ -111,7 +111,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //recipe rating
-            Route::post("recipes/{recipeId}/rating","RecipeRatingController@rating");
+            Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
 
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');

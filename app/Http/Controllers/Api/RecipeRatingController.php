@@ -26,7 +26,7 @@ class RecipeRatingController extends Controller
     }
 
 
-    public function rating(Request $request, $recipeId)
+    public function rate(Request $request, $recipeId)
     {
         $recipe = Recipe::find($recipeId);
 
