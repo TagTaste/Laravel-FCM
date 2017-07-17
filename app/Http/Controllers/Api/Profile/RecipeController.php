@@ -57,22 +57,20 @@ class RecipeController extends Controller
                 $imageName = str_random("32") . ".jpg";
                 $path = "profile/recipes/{$this->model->id}/images/{$count}";
                 \Storage::makeDirectory($path);
-                if (!$request->hasFile("images" . [$count]['file'])) {
-                    \Log::info("No file for images" . [$count]['file']);
+                if (!$request->hasFile("images.[$count][file]")) {
+                    \Log::info("No file for images .[$count][file]");
                     $count--;
                     continue;
                 }
-                $response = $request->file("images.[$count].['file']")->storeAs($path, $imageName);
+                $response = $request->file("images.[$count][file]")->storeAs($path, $imageName);
                 if (!$response) {
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
-                $images = ['recipe_id' => $this->model->id, 'image' => $imageName, 'showCase' => "images" . [$count]['showCase']];
+                $images = ['recipe_id' => $this->model->id, 'image' => $imageName, 'showCase' => "images.[$count][showCase]"];
                 $count--;
             }
         }
-        if(count($images)==0){
-            return $this->sendError("Image is required");
-        }
+
         $this->model->images()->insert($images);
 
         $ingredients = $request->input("ingredients");
@@ -139,12 +137,12 @@ class RecipeController extends Controller
                 $imageName = str_random("32") . ".jpg";
                 $path = "profile/recipes/{$id}/images/{$count}";
                 \Storage::makeDirectory($path);
-                if (!$request->hasFile("images" . [$count]['file'])) {
-                    \Log::info("No file for images" . [$count]['file']);
+                if (!$request->hasFile("images.[$count][file]")) {
+                    \Log::info("No file for images.[$count][file]");
                     $count--;
                     continue;
                 }
-                $response = $request->file("images.[$count].['file']")->storeAs($path, $imageName);
+                $response = $request->file("images.[$count].[file]")->storeAs($path, $imageName);
                 if (!$response) {
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
@@ -153,7 +151,7 @@ class RecipeController extends Controller
                         ->where('id', "images" . [$count]['id'])
                         ->update(['image' => $imageName, 'showCase' => "images" . [$count]['showCase']]);
                 } else {
-                    $images = ['recipe_id' => $id, 'image' => $imageName, 'showCase' => "images" . [$count]['showCase']];
+                    $images = ['recipe_id' => $id, 'image' => $imageName, 'showCase' => "images.[$count][showCase]"];
                     $this->model->images()->insert($images);
                 }
                 $count--;
