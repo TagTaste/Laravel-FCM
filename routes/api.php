@@ -110,12 +110,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
 
 
-            //recipe rating
-            Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
+            //recipes rating
+                Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
 
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
+                
             //tagboard
                 Route::resource('tagboards','TagBoardController');
 
