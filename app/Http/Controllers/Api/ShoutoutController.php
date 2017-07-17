@@ -37,6 +37,10 @@ class ShoutoutController extends Controller
         return;
 	}
 
+	private function hasTags(&$content, $tagIdentifier = '@'){
+        return preg_match('/@\[([0-9]*):([0-9]*)\]/i',$content);
+    }
+    
 	/**
 	 * Store a newly created resource in storage.
 	 *
@@ -59,6 +63,7 @@ class ShoutoutController extends Controller
 		    throw $e;
         }
         
+        $inputs['has_tags'] = $this->hasTags($inputs['content']);
 		$this->model = $this->model->create($inputs);
         event(new Create($this->model,$request->user()->profile));
 		return $this->sendResponse();
