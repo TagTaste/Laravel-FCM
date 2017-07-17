@@ -14,7 +14,7 @@ class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags'];
     
     protected $visible = ['id','content','profile_id','company_id','owner',
         'created_at','privacy_id','privacy'
