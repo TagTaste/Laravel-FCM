@@ -146,6 +146,28 @@ class Profile extends Model
         \Redis::set("profile:small:" . $this->id , $smallProfile->toJson());
     }
     
+    public static function getFromCache($id)
+    {
+        return \Redis::get('profile:small:' . $id);
+    }
+    
+    public static function getMultipleFromCache($ids = [])
+    {
+        $keyPreifx = "profile:small:";
+        foreach($ids as &$id){
+            $id = $keyPreifx . $id;
+        }
+        $profiles = \Redis::mget($ids);
+        if(count(array_filter($profiles)) == 0){
+            return false;
+        }
+        foreach($profiles as $index => &$profile){
+            $profile = json_decode($profile);
+        }
+        
+        return $profiles;
+    }
+    
     public function user()
     {
         return $this->belongsTo('App\User');
