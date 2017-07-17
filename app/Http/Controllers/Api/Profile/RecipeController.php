@@ -52,8 +52,7 @@ class RecipeController extends Controller
         $images = [];
         if ($request->has("images")) {
             $count = count($request->input("images"))-1;
-            \Log::info($count);
-            \Log::info($request->hasFile("images.0.file"));
+
             while ($count >= 0) {
                 $imageName = str_random("32") . ".jpg";
                 $path = "profile/recipes/{$this->model->id}/images/{$count}";
@@ -91,7 +90,7 @@ class RecipeController extends Controller
         }
 
         $this->model->equipments()->insert($totalEquipments);
-
+        $this->model->refresh();
         return $this->sendResponse();
     }
 
@@ -148,7 +147,7 @@ class RecipeController extends Controller
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
                 if ($request->input("images.$count.showCase") != null) {
-                    $this->model->images()->where('recipe_id', $id)
+                    $this->model=$this->model->images()->where('recipe_id', $id)
                         ->where('id', $request->input("images.$count.id"))
                         ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase")]);
                 } else {
@@ -166,7 +165,7 @@ class RecipeController extends Controller
             $totalIngredient = [];
             foreach ($ingredients as $ingredient) {
                 if ($ingredient['id']) {
-                    $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
+                    $this->model=$this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
                         ->update(["description" => $ingredient['description']]);
                 } else {
                     $toatalIngredient[] = ['recipe_id' => $id, "description" => $ingredient];
