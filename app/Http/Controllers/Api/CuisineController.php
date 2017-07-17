@@ -25,7 +25,6 @@ class CuisineController extends Controller {
 	public function index()
 	{
         $this->model = Cuisine::orderBy('id', 'asc')->get();
-        \Log::info("here".$this->model);
         return $this->sendResponse();
 	}
 

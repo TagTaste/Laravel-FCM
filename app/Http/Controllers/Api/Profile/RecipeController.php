@@ -66,7 +66,7 @@ class RecipeController extends Controller
                 if (!$response) {
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
-                $images = ['recipe_id' => $this->model->id, 'image' => $imageName, 'showCase' => "images.[$count][showCase]"];
+                $images = ['recipe_id' => $this->model->id, 'image' => $imageName, 'show_case' => "images.[$count][showCase]"];
                 $count--;
             }
         }
@@ -146,12 +146,12 @@ class RecipeController extends Controller
                 if (!$response) {
                     throw new \Exception("Could not save image " . $imageName . " at " . $path);
                 }
-                if ("images" . $count['showCase'] != null) {
+                if ("images.$count[showCase]" != null) {
                     $this->model->images()->where('recipe_id', $id)
                         ->where('id', "images" . [$count]['id'])
-                        ->update(['image' => $imageName, 'showCase' => "images" . [$count]['showCase']]);
+                        ->update(['image' => $imageName, 'show_case' => "images.[$count][showCase]"]);
                 } else {
-                    $images = ['recipe_id' => $id, 'image' => $imageName, 'showCase' => "images.[$count][showCase]"];
+                    $images = ['recipe_id' => $id, 'image' => $imageName, 'show_case' => "images.[$count][showCase]"];
                     $this->model->images()->insert($images);
                 }
                 $count--;

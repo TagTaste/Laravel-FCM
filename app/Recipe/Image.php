@@ -8,7 +8,7 @@ class Image extends Model
 {
     protected $table = 'recipe_images';
 
-    protected $fillable = ['image','recipe_id','showCase'];
+    protected $fillable = ['image','recipe_id','show_case'];
 
     protected $visible = ['id','imageUrl','showCase'];
 
