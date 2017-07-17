@@ -6,6 +6,7 @@ use App\Events\Actions\Like;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
+use App\RecipeRating;
 use App\RecipeLike;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -71,7 +72,10 @@ class RecipeController extends Controller
             return $this->sendError("Recipe not found.");
         }
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+        $meta=$recipe->getMetaFor($loggedInProfileId);
+        $recipe=$recipe->toArray();
+        $recipe['userRating'] = RecipeRating::where('recipe_id',$id)->where('profile_id',$loggedInProfileId)->first();
+        $this->model = ['recipe'=>$recipe,'meta'=>$meta];
         return $this->sendResponse();
     }
 

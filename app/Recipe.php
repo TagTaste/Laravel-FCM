@@ -23,9 +23,9 @@ class Recipe extends Model implements Feedable, CommentNotification
     protected $dates = ['created_at','deleted_at'];
     protected $visible = ['id','name','description','content','ingredients','imageUrl','category','serving', 'calorie',
         'preparation_time','cooking_time','level','tags','likeCount',
-        'created_at','pivot','profile'];
+        'created_at','pivot','profile','rating'];
     protected $with = ['profile'];
-    protected $appends = ['imageUrl','likeCount'];
+    protected $appends = ['imageUrl','likeCount','rating'];
     
     public static function boot()
     {
@@ -100,5 +100,15 @@ class Recipe extends Model implements Feedable, CommentNotification
     public function getCommentNotificationMessage() : string
     {
         return "New comment on " . $this->name . "recipe.";
+    }
+
+    public function rating()
+    {
+        return $this->hasMany(RecipeRating::class,'recipe_id');
+    }
+
+    public function getRatingAttribute()
+    {
+        return $this->rating()->avg('rating');
     }
 }
