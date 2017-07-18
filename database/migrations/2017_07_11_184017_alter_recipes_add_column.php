@@ -16,7 +16,7 @@ class AlterRecipesAddColumn extends Migration
 
         Schema::table('recipes', function(Blueprint $table) {
             //create
-            $table->integer("cuisine_id")->unsigned();
+            $table->integer("cuisine_id")->unsigned()->nullable();
             $table->tinyInteger("type")->unsigned();
             $table->text("directions")->nullable();
     
@@ -48,7 +48,8 @@ class AlterRecipesAddColumn extends Migration
     {
         Schema::table('recipes', function(Blueprint $table) {
             //drop new columns
-            $table->dropColumn('cuisine_id');
+            $table->dropForeign(['cuisine_id']);
+            $table->dropColumn(['cuisine_id']);
             $table->dropColumn('type');
             $table->dropColumn("directions");
             
