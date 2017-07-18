@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterRecipesAddColumn extends Migration
 {
@@ -15,16 +15,22 @@ class AlterRecipesAddColumn extends Migration
     {
 
         Schema::table('recipes', function(Blueprint $table) {
-            $table->text('description')->nullable()->change();
-            $table->string('serving')->nullable()->change();
+            //create
             $table->integer("cuisine_id")->unsigned();
             $table->tinyInteger("type")->unsigned();
             $table->text("directions")->nullable();
+    
+            $table->foreign('cuisine_id')->references('id')->on('cuisines')->onDelete('cascade');
+    
+            //change
+            $table->text('description')->nullable()->change();
+            $table->string('serving')->nullable()->change();
+            
+            //drop
             $table->dropColumn('ingredients');
             $table->dropColumn('content');
             $table->dropColumn('calorie');
             $table->dropColumn('category');
-            $table->dropColumn('billable');
             $table->dropColumn('image');
             $table->dropColumn("hasRecipe");
             $table->dropColumn("showcase");
@@ -41,19 +47,23 @@ class AlterRecipesAddColumn extends Migration
     public function down()
     {
         Schema::table('recipes', function(Blueprint $table) {
+            //drop new columns
             $table->dropColumn('cuisine_id');
             $table->dropColumn('type');
             $table->dropColumn("directions");
-            $table->text("ingredients");
-            $table->text("content");
+            
+            //revert
             $table->text('description')->change();
             $table->string('serving')->change();
-            $table->text("calorie")->unsigned();
-            $table->text("category")->unsigned();
-            $table->tinyInteger("billable")->unsigned();
-            $table->text("image")->unsigned();
-            $table->tinyInteger("hasRecipe")->unsigned();
-            $table->tinyInteger("showcase")->unsigned();
+            
+            //recreate dropped columns
+            $table->text("ingredients");
+            $table->text("content");
+            $table->string("calorie");
+            $table->string("category");
+            $table->string("image")->nullable();
+            $table->boolean("hasRecipe")->default(0);
+            $table->boolean("showcase")->default(0);
 
         });
     }

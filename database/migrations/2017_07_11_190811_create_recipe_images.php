@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateRecipeImages extends Migration
 {
@@ -15,8 +15,8 @@ class CreateRecipeImages extends Migration
     {
         Schema::create('recipe_images', function(Blueprint $table) {
             $table->increments('id');
-            $table->text('image');
-            $table->tinyInteger("show_case")->default(0);
+            $table->string('image');
+            $table->boolean("show_case")->default(0);
             $table->integer('recipe_id')->unsigned();
             $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
             $table->timestamps();
