@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Events\DeleteFeedable;
+use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -59,8 +60,11 @@ class PhotoController extends Controller
         if($photo){
             $Res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString()];
+            
             \Redis::set("photo:" . $photo->id,json_encode($data));
+            
             event(new NewFeedable($photo, $request->user()->profile));
+            event( new Create($photo,$request->user()->profile));
         } else {
             \Log::warning("NO MODEL.");
         }
