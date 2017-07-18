@@ -14,7 +14,7 @@ class Image extends Model
 
     protected $appends = ['imageUrl'];
 
-    public function getimageUrlAttribute()
+    public function getImageUrlAttribute()
     {
          return $this->image !== null ? "/profile/recipes/".$this->recipe_id."/images/" . $this->image : null;
     }
