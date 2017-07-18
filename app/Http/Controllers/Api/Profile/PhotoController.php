@@ -66,7 +66,10 @@ class PhotoController extends Controller
         
         \Redis::set("photo:" . $photo->id,json_encode($data));
         
+        //add to feed
         event(new NewFeedable($photo, $request->user()->profile));
+        
+        //add model subscriber
         event(new Create($photo,$request->user()->profile));
         
         $this->model = $photo;
