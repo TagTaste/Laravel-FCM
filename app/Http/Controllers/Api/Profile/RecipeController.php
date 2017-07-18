@@ -48,47 +48,54 @@ class RecipeController extends Controller
         $inputs['profile_id'] = $profileId;
 
         $this->model = $this->model->create($inputs);
-        $images = [];
+        
+        //save images
         if ($request->has("images")) {
+            $images = [];
             $count = count($request->input("images"))-1;
 
             while ($count >= 0) {
-                $imageName = str_random("32") . ".jpg";
-                $path = "profile/recipes/{$this->model->id}/images/{$count}";
-                \Storage::makeDirectory($path);
                 if (!$request->hasFile("images.$count.file")) {
                     \Log::info("No file for images.$count.file");
                     $count--;
                     continue;
                 }
+                $imageName = str_random("32") . ".jpg";
+                $path = "profile/recipes/{$this->model->id}/images/{$count}";
+                \Storage::makeDirectory($path);
                 $response = $request->file("images.$count.file")->storeAs($path, $imageName);
                 if (!$response) {
-                    throw new \Exception("Could not save image " . $imageName . " at " . $path);
+                    \Log::warning("Could not save image " . $imageName . " at " . $path);
+                    $count--;
+                    continue;
                 }
                 $images[] = ['recipe_id' => $this->model->id, 'image' => $imageName, 'show_case' => $request->input("images.$count.showCase")];
                 $count--;
             }
+    
+            $this->model->images()->insert($images);
         }
-        $this->model->images()->insert($images);
-
+        
+        //save ingredients
         $ingredients = $request->input("ingredients");
         if (count($ingredients) > 0) {
-            $totalIngredients=[];
-            foreach ($ingredients as $ingredient) {
-                $totalIngredients[] = ['recipe_id' => $this->model->id, "description" => $ingredient];
+            foreach ($ingredients as &$ingredient) {
+                $ingredient = ['recipe_id' => $this->model->id, "name" => $ingredient];
             }
+    
+            $this->model->ingredients()->insert($ingredients);
         }
-        $this->model->ingredients()->insert($totalIngredients);
-
+        
+        //save equipments
         $equipments = $request->input("equipments");
         if (count($equipments) > 0) {
-            $totalEquipments=[];
-            foreach ($equipments as $equipment) {
-                $totalEquipments[] = ['recipe_id' => $this->model->id, "name" => $equipment];
+            foreach ($equipments as &$equipment) {
+                $equipment[] = ['recipe_id' => $this->model->id, "name" => $equipment];
             }
+            $this->model->equipments()->insert($equipments);
         }
-
-        $this->model->equipments()->insert($totalEquipments);
+        
+        //refetch model with relationships.
         $this->model->refresh();
         return $this->sendResponse();
     }
@@ -102,10 +109,12 @@ class RecipeController extends Controller
     public function show(Request $request, $profileId, $id)
     {
         $recipe = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
+        if(!$recipe){
+            return $this->sendError("Could not find recipe.");
+        }
+        
         $loggedInProfileId = $request->user()->profile->id;
-        $r = $recipe->toArray();
-        $r['meta'] = $recipe->getMetaFor($loggedInProfileId);
-        $this->model = $r;
+        $this->model = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
     }
 
@@ -120,73 +129,83 @@ class RecipeController extends Controller
     {
         $profileId = $request->user()->profile->id;
 
-        $recipe = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
+        $this->model = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
 
-        if ($recipe === null) {
-            throw new \Exception("Recipe doesn't belong to the user.");
+        if ($this->model === null) {
+            return $this->sendError("Recipe doesn't belong to the user.");
         }
 
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token']);
-        $inputs['profile_id'] = $profileId;
-        $this->model = Recipe::where('id', $id)->where('profile_id', $profileId)->update($inputs);
-        $this->model = new Recipe ();
+        
+        $this->model->update($inputs);
+        
+        //save images
         if ($request->has("images")) {
+            $newImages = [];
             $count = count($request->input("images"))-1;
             while ($count >= 0) {
-                $imageName = str_random("32") . ".jpg";
-                $path = "profile/recipes/{$id}/images/{$count}";
-                \Storage::makeDirectory($path);
                 if (!$request->hasFile("images.$count.file")) {
                     \Log::info("No file for images.$count.file");
                     $count--;
                     continue;
                 }
+                
+                $imageName = str_random("32") . ".jpg";
+                $path = "profile/recipes/{$id}/images/{$count}";
+                \Storage::makeDirectory($path);
+                
                 $response = $request->file("images.$count.file")->storeAs($path, $imageName);
                 if (!$response) {
-                    throw new \Exception("Could not save image " . $imageName . " at " . $path);
+                    \Log::warning("Could not save image " . $imageName . " at " . $path);
+                    $count--;
+                    continue;
                 }
-                if ($request->input("images.$count.showCase") != null) {
-                    $this->model=$this->model->images()->where('recipe_id', $id)
+                
+                if ($request->input("images.$count.id") != null) {
+                    $this->model = $this->model->images()->where('recipe_id', $id)
                         ->where('id', $request->input("images.$count.id"))
                         ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase")]);
                 } else {
-                    $images = ['recipe_id' => $id, 'image' => $imageName,
+                    $newImages[] = ['recipe_id' => $id, 'image' => $imageName,
                         'show_case' => $request->input("images.$count.showCase") ];
-                    $this->model->images()->insert($images);
                 }
                 $count--;
             }
+            if(!empty($newImages)){
+                $this->model->images()->insert($newImages);
+            }
         }
 
+        //save ingredients
         $ingredients = $request->input("ingredients");
-
         if (count($ingredients) > 0) {
-            $totalIngredient = [];
+            $newIngredients = [];
             foreach ($ingredients as $ingredient) {
-                if ($ingredient['id']) {
-                    $this->model=$this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
-                        ->update(["description" => $ingredient['description']]);
+                if (isset($ingredient['id'])) {
+                    $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
+                        ->update(["name" => $ingredient['name']]);
                 } else {
-                    $toatalIngredient[] = ['recipe_id' => $id, "description" => $ingredient];
+                    $newIngredients[] = ['recipe_id' => $id, "name" => $ingredient];
                 }
             }
-            if (count($totalIngredient) > 0) {
-                $this->model->ingredients()->insert($totalIngredient);
+            if (count($newIngredients) > 0) {
+                $this->model->ingredients()->insert($newIngredients);
             }
         }
 
+        //save equipments
         $equipments = $request->input("equipments");
         if (count($equipments) > 0) {
-            $totalEquipment = [];
+            $newEquipments = [];
             foreach ($equipments as $equipment) {
                 if ($equipment['id']) {
-                    $this->model->ingredients()->where('recipe_id', $id)->where('id', $equipment['id'])->update(["name" => $equipment['name']]);
+                    $this->model->equipments()->where('recipe_id', $id)->where('id', $equipment['id'])->update(["name" => $equipment['name']]);
                 } else {
-                    $totalEquipment[] = ['recipe_id' => $id, "name" => $equipment];
+                    $newEquipments[] = ['recipe_id' => $id, "name" => $equipment];
                 }
             }
-            if (count($totalEquipment) > 0) {
-                $this->model->equipments()->insert($totalEquipment);
+            if (count($newEquipments) > 0) {
+                $this->model->equipments()->insert($newEquipments);
             }
         }
         return $this->sendResponse();
@@ -204,10 +223,10 @@ class RecipeController extends Controller
         $recipe = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
 
         if ($recipe === null) {
-            throw new \Exception("Recipe doesn't belong to the user.");
+            return $this->sendError("Recipe not found.");
         }
         event(new DeleteFeedable($recipe));
-        $this->model = $recipe->where('id', $id)->where('profile_id', $profileId)->delete();
+        $this->model = $recipe->delete();
 
         return $this->sendResponse();
     }
