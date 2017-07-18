@@ -8,7 +8,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Like extends Model
 {
-    
-    
-   
+    public $timestamps = false;
 }

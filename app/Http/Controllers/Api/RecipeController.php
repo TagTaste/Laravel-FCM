@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Recipe;
+use App\RecipeRating;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -12,9 +13,14 @@ class RecipeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $this->model = Recipe::orderBy('created_at')->paginate(10);
+        $recipes = Recipe::orderBy('created_at')->paginate(10);
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = [];
+        foreach($recipes as $recipe){
+            $this->model[] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+        }
         return $this->sendResponse();
     }
 
@@ -24,9 +30,15 @@ class RecipeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $this->model = Recipe::where('id',$id)->first();
+        $recipe = Recipe::where('id',$id)->first();
+        $loggedInProfileId = $request->user()->profile->id;
+        $meta=$recipe->getMetaFor($loggedInProfileId);
+        $recipe=$recipe->toArray();
+        $recipe['userRating'] = RecipeRating::where('recipe_id',$id)->where('profile_id',$loggedInProfileId)->first();
+        $this->model = ['recipe'=>$recipe,'meta'=>$meta];
+
         return $this->sendResponse();
     }
     

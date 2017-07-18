@@ -38,7 +38,8 @@ class Profile extends Model
                             'created_at',
                             'pincode',
                             'handle',
-                            'expertise'
+                            'expertise',
+                            'keywords'
                           ];
 
     //if you add a relation here, make sure you remove it from
@@ -97,7 +98,8 @@ class Profile extends Model
                           'pincode',
                             'isTagged',
                             'handle',
-                            'expertise'
+                            'expertise',
+                            'keywords'
                         ];
 
     protected $appends = ['imageUrl','heroImageUrl','followingProfiles','followerProfiles','isTagged','name'];
@@ -142,6 +144,28 @@ class Profile extends Model
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
         \Redis::set("profile:small:" . $this->id , $smallProfile->toJson());
+    }
+    
+    public static function getFromCache($id)
+    {
+        return \Redis::get('profile:small:' . $id);
+    }
+    
+    public static function getMultipleFromCache($ids = [])
+    {
+        $keyPreifx = "profile:small:";
+        foreach($ids as &$id){
+            $id = $keyPreifx . $id;
+        }
+        $profiles = \Redis::mget($ids);
+        if(count(array_filter($profiles)) == 0){
+            return false;
+        }
+        foreach($profiles as $index => &$profile){
+            $profile = json_decode($profile);
+        }
+        
+        return $profiles;
     }
     
     public function user()

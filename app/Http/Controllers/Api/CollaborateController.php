@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
+use App\CollaborateCategory;
+use App\Events\Actions\Like;
 use Carbon\Carbon;
 use App\Events\Update;
 use Illuminate\Http\Request;
@@ -52,6 +54,7 @@ class CollaborateController extends Controller
         }
         
         $filters['type'] = \App\CollaborateTemplate::select('id','name')->get();
+        $filters['categories'] = CollaborateCategory::with('children')->get();
         $this->model = $filters;
         return $this->sendResponse();
     }
@@ -77,11 +80,15 @@ class CollaborateController extends Controller
         {
             $collaborations = $collaborations->whereIn('template_id',$filters['type']);
         }
-		$profileId = $request->user()->profile->id;
-
-        $collaborations = $collaborations->paginate();
-        $this->model = [];
         
+        if(!empty($filters['categories'])){
+            $collaborations = $collaborations->whereIn('category_id',$filters['categories']);
+        }
+        
+        $collaborations = $collaborations->paginate();
+        
+        $this->model = [];
+        $profileId = $request->user()->profile->id;
         foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
@@ -183,9 +190,7 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
         
-        $userName = $request->user()->name;
-        event(new Update($id,"collaborate",$collaborate->profile_id,"like"));
-
+        event(new Like($collaborate,$request->user()->profile));
         $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
         return $this->sendResponse();
         

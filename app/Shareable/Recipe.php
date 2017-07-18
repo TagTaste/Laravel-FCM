@@ -35,4 +35,15 @@ class Recipe extends Share
 
         return $meta;
     }
+    
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->name,
+            'image' => null,
+            'shared' => true
+        ];
+    }
 }

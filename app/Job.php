@@ -101,7 +101,7 @@ class Job extends Model implements Feedable
     {
         $meta = [];
         $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
-        $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     
         return $meta;
@@ -120,6 +120,16 @@ class Job extends Model implements Feedable
     public function payload()
     {
         return $this->belongsTo(Payload::class);
+    }
+    
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->title,
+            'image' => null
+        ];
     }
     
 }

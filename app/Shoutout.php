@@ -6,16 +6,18 @@ use App\Channel\Payload;
 use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
+use App\Traits\GetTags;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Shoutout extends Model implements Feedable, CommentNotification
+class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags'];
     
-    protected $visible = ['id','content','profile_id','company_id','owner',
+    protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
         'created_at','privacy_id','privacy'
     ];
     
@@ -92,7 +94,7 @@ class Shoutout extends Model implements Feedable, CommentNotification
 
         $meta['commentCount'] = $this->comments()->count();
 
-        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         return $meta;
     }
@@ -114,13 +116,25 @@ class Shoutout extends Model implements Feedable, CommentNotification
         }
         
         return [$prefix => $key];
-    
-        
-    
     }
     
-    public function getCommentNotificationMessage() : string
+    public function getNotificationContent()
     {
-        return "New comment on your post!";
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->content,
+            'image' => null
+        ];
+    }
+    
+    public function getContentAttribute($value)
+    {
+        $profiles = $this->getTaggedProfiles($value);
+    
+        if($profiles){
+            $value = ['text'=>$value,'profiles'=>$profiles];
+        }
+        return $value;
     }
 }

@@ -1,11 +1,14 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Comment;
+use App\Events\Actions\Tag;
 use App\Events\Update;
+use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller {
+    use CheckTags;
     
     private $models = [
         'photo' => \App\Photo::class,
@@ -70,7 +73,6 @@ class CommentController extends Controller {
 	 */
 	public function store(Request $request, $model, $modelId)
 	{
-	    $modelName=$model;
         $model = $this->getModel($model,$modelId);
         $this->checkRelationship($model);
         
@@ -80,32 +82,18 @@ class CommentController extends Controller {
         if($request->input("content")==null){
             return $this->sendError("Please write a comment.");
         }
+        $content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
         $comment = new Comment();
-        $comment->content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
+        $comment->content = $content;
         $comment->user_id = $request->user()->id;
+        $comment->has_tags = $this->hasTags($content);
         $comment->save();
         
         $model->comments()->attach($comment->id);
-        $userId = $request->user()->id;
-        $users = \DB::table('users')
-            ->select("users.id", "users.name")
-            ->distinct('users.id')
-            ->join('comments', 'comments.user_id', '=', 'users.id')
-            ->join('comments_shoutouts', 'comments.id', '=', 'comments_shoutouts.comment_id')
-            ->where('comments_shoutouts.shoutout_id', '=', $model->id)
-            ->whereNotIn('comments.user_id', [$userId, $model->owner->id])
-            ->get();
-
-        foreach ($users->toArray() as $user) {
-            event(new Update($model->id, $modelName, $user->id, "comment"));
-        }
-
-        $loggedInProfileId = $request->user()->profile->id;
-
-        //send message to creator
-        if ($loggedInProfileId != $model->profile_id) {
-            $user = $model->profile->user;
-            event(new Update($model->id, $modelName, $user->id, "comment"));
+        
+        event(new \App\Events\Actions\Comment($model,$request->user()->profile));
+        if($comment->has_tags){
+            event(new Tag($model,$request->user()->profile,$comment->content));
         }
         $meta = $comment->getMetaFor($model);
         $this->model = ["comment"=>$comment,"meta"=>$meta];

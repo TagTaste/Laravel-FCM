@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\Actions\Like;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
+use App\RecipeRating;
 use App\RecipeLike;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -26,10 +28,10 @@ class RecipeController extends Controller
     public function index(Request $request, $profileId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-
-        $recipes = Recipe::where('profile_id', $profileId)->orderBy('created_at', 'desc')->get();
-        $this->model=[];
-        foreach ($recipes as $recipe) {
+        
+        $recipes = Recipe::where('profile_id',$profileId)->orderBy('created_at','desc')->get();
+        $this->model = [];
+        foreach($recipes as $recipe){
             $this->model[] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         }
         return $this->sendResponse();
@@ -108,13 +110,19 @@ class RecipeController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
+
         $recipe = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
         if(!$recipe){
             return $this->sendError("Could not find recipe.");
         }
         
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+        
+        $meta = $recipe->getMetaFor($loggedInProfileId);
+        $recipe = $recipe->toArray();
+        $recipe['userRating'] = RecipeRating::where('recipe_id',$id)->where('profile_id',$loggedInProfileId)->first();
+        $this->model = ['recipe'=>$recipe,'meta'=>$meta];
+
         return $this->sendResponse();
     }
 
@@ -259,8 +267,10 @@ class RecipeController extends Controller
 
         } else {
             RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta", "like", 1);
 
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta","like",1);
+            $recipe = Recipe::find($id);
+            event(new Like($recipe,$request->user()->profile));
         }
         return $this->sendResponse();
     }

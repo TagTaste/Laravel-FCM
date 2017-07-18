@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Observers\FeedableObserver;
 
 use Illuminate\Support\ServiceProvider;
-
 class FeedableServiceProvider extends ServiceProvider
 {
     

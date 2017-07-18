@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use \Tagtaste\Api\SendsJsonResponse;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Api\Controller;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    use SendsJsonResponse;
     /**
      * Display a listing of the resource.
      *
@@ -17,29 +14,10 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $this->model = $request->user()->notifications;
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model = $profile->notifications()->paginate();
         return $this->sendResponse();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
     /**
@@ -50,31 +28,10 @@ class NotificationController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $this->model =  $request->user()->notifications->where('id',$id)->first();
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->notifications()->where('id',$id)->first();
         return $this->sendResponse();
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
     }
 
     /**
@@ -85,7 +42,9 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $this->model = $request->user()->notifications()->where('id',$id)->delete();
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->notifications()->where('id',$id)->delete();
         return $this->sendResponse();
     }
     
@@ -99,7 +58,9 @@ class NotificationController extends Controller
      */
     public function read(Request $request, $id)
     {
-        $this->model = $request->user()->notifications()->where('id',$id)
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->notifications()->where('id',$id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
@@ -113,7 +74,9 @@ class NotificationController extends Controller
      */
     public function unread(Request $request)
     {
-        $this->model = $request->user()->unreadNotifications;
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::find($userId);
+        $this->model =  $profile->unreadNotifications;
         return $this->sendResponse();
     }
     

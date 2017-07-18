@@ -30,19 +30,21 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+
             //chat
                 Route::get("chatrooms","ChatController@rooms");
                 Route::resource("chats","ChatController");
                 Route::resource("chats/{chatId}/members",'Chat\\MemberController');
                 Route::post("chats/{chatId}/messages/{id}/markRead",'Chat\\MessageController@markRead');
                 Route::resource("chats/{chatId}/messages",'Chat\\MessageController');
-            //categories
+                
+            //product categories
                 Route::resource("categories","CategoryController");
             
             //share
+                Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
-                Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
             //shoutouts
@@ -84,7 +86,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("fields",'FieldController');
             
             //collaborate
-            
+                //collaborate categories
+                Route::resource("collaborate/categories","CollaborateCategoryController");
+                
                 //collaborate templates
                  Route::resource("collaborate/templates","CollaborateTemplateController");
         
@@ -104,10 +108,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                         Route::resource('comments','CommentController');
                     });
-            
+
+            //photos
+                Route::resource("photos","PhotoController");
+                
+            //recipes rating
+                Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
+
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
                 Route::resource("recipes","RecipeController");
+                
             //tagboard
                 Route::resource('tagboards','TagBoardController');
 

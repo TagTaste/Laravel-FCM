@@ -19,11 +19,16 @@ class Recipe extends Model implements Feedable, CommentNotification
         'preparation_time','cooking_time','level','tags','cuisine_id','type',
         'profile_id','privacy_id','payload_id','directions'];
     protected $dates = ['created_at','deleted_at'];
+    
+
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
-        'created_at','pivot','profile','ingredients','equipments','images','directions'];
+        'created_at','pivot','profile','ingredients','equipments','images','directions','rating'];
+    
     protected $with = ['profile','ingredients','equipments','images'];
-    protected $appends = ['likeCount'];
+
+    protected $appends = ['imageUrl','likeCount','rating'];
+
     
     public static function boot()
     {
@@ -110,4 +115,13 @@ class Recipe extends Model implements Feedable, CommentNotification
         return $this->hasMany('App\Recipe\Image');
     }
 
+    public function rating()
+    {
+        return $this->hasMany(RecipeRating::class,'recipe_id');
+    }
+
+    public function getRatingAttribute()
+    {
+        return $this->rating()->avg('rating');
+    }
 }

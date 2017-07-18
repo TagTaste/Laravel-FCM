@@ -160,8 +160,6 @@ class ChatController extends Controller
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->get();
-        \Log::info("profile: " . $profileId);
-        \Log::info($this->model);
         return $this->sendResponse();
 	}
  

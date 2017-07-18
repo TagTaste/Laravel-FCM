@@ -38,14 +38,13 @@ var logErr = function(err,count){
 
         //notification push
 
-        var notificationNamespace=io.of('/notification');
+        var notificationNamespace=io.of('/notifications');
 
-        var notification=new Redis();
-        notification.psubscribe('notification-channel',logErr);
+        var notification = new Redis();
+        notification.psubscribe('private-App.Notify.Profile.*',logErr);
         notification.on('pmessage',function(pattern,channel,message){
-            var message=JSON.parse(message);
             console.log(message);
-            notificationNamespace.to(channel+'.'+message.profile_id).emit("message",message);
+            notificationNamespace.to(channel).emit("message",message);
         });
 
     //public company feed
@@ -228,8 +227,7 @@ notificationNamespace.on('connection',function(socket){
                             console.log(body.error);
                             return;
                         }
-                        channelName='notification-channel.'+body.profile.id;
-                        socket.join(channelName);
+                        socket.join('private-App.Notify.Profile.'+body.profile.id);
                     })
             }).end();
         });

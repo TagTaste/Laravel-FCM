@@ -36,16 +36,20 @@ class CollaborateController extends Controller
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page * $take) - $take: 0;
-        
+
         $collaborations = $this->model->where('company_id',$companyId)->orderBy('created_at','desc') ->skip($skip)
             ->take($take)->get();
-        
         $profileId = $request->user()->profile->id;
         $this->model = [];
         foreach($collaborations as $collaboration){
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
         }
-        
+        if($request->has('categories')){
+            $categories = $request->input('categories');
+            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
+                $query->whereIn('category_id',$categories);
+            });
+        }
         return $this->sendResponse();
 	}
 
@@ -72,7 +76,8 @@ class CollaborateController extends Controller
             unset($inputs['fields']);
         }
         $this->model = $this->model->create($inputs);
-        
+        $categories = $request->input('categories');
+        $this->model->categories()->sync($categories);
         $this->model->syncFields($fields);
         
         $this->model = $this->model->fresh();
@@ -110,7 +115,7 @@ class CollaborateController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
 		$collaborate = $this->model->where('company_id',$company->id)->where('id',$id)->first();
-		
+
 		if($collaborate === null){
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }
@@ -120,7 +125,8 @@ class CollaborateController extends Controller
     
             $this->model->syncFields($fields);
         }
-        
+        $categories = $request->input('categories');
+        $this->model->categories()->sync($categories);
         $this->model = $collaborate->update($inputs);
         return $this->sendResponse();
     }

@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Collaborate extends Model implements Feedable, CommentNotification
+class Collaborate extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
     
@@ -19,10 +19,10 @@ class Collaborate extends Model implements Feedable, CommentNotification
         'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id'];
     
-    protected $with = ['profile','company','fields'];
+    protected $with = ['profile','company','fields','categories'];
     
     protected $visible = ['id','title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
+        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location','categories',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
         'commentCount','likeCount'];
@@ -169,7 +169,7 @@ class Collaborate extends Model implements Feedable, CommentNotification
     
     public function syncFields($fieldIds = [])
     {
-        if(empty($fields)){
+        if(empty($fieldIds)){
             \Log::warning("Empty fields passed.");
             return false;
         }
@@ -210,7 +210,7 @@ class Collaborate extends Model implements Feedable, CommentNotification
         $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['commentCount'] = $this->comments()->count();
         $meta['likeCount'] = $this->likeCount;
-        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->count();
+        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     
         return $meta;
@@ -240,6 +240,21 @@ class Collaborate extends Model implements Feedable, CommentNotification
     public function getCommentNotificationMessage() : string
     {
         return "New comment on " . $this->title . ".";
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
+    }
+    
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->title,
+            'image' => null
+        ];
     }
    
 }

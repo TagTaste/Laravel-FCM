@@ -48,6 +48,13 @@ class CollaborateController extends Controller
         foreach($collaborations as $collaboration){
 		        $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
         }
+
+        if($request->has('categories')){
+            $categories = $request->input('categories');
+            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
+                $query->whereIn('category_id',$categories);
+            });
+        }
         
         return $this->sendResponse();
 	}
@@ -70,6 +77,9 @@ class CollaborateController extends Controller
 		    unset($inputs['fields']);
         }
 		$this->model = $this->model->create($inputs);
+
+        $categories = $request->input('categories');
+        $this->model->categories()->sync($categories);
   
 		$this->model->syncFields($fields);
 		
@@ -118,8 +128,9 @@ class CollaborateController extends Controller
             unset($inputs['fields']);
             $this->model->syncFields($fields);
         }
-        
-        
+
+        $categories = $request->input('categories');
+        $this->model->categories()->sync($categories);
         $this->model = $collaborate->update($inputs);
         return $this->sendResponse();
     }

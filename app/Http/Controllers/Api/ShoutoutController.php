@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\Events\Actions\Tag;
+use App\Events\Model\Subscriber\Create;
 use App\Shoutout;
+use App\Traits\CheckTags;
 use Illuminate\Http\Request;
 
 class ShoutoutController extends Controller
 {
+    use CheckTags;
 	/**
 	 * Variable to model
 	 *
@@ -35,7 +39,7 @@ class ShoutoutController extends Controller
 		//we never return all of the shoutouts
         return;
 	}
-
+    
 	/**
 	 * Store a newly created resource in storage.
 	 *
@@ -58,7 +62,13 @@ class ShoutoutController extends Controller
 		    throw $e;
         }
         
+        $inputs['has_tags'] = $this->hasTags($inputs['content']);
 		$this->model = $this->model->create($inputs);
+        event(new Create($this->model,$request->user()->profile));
+        
+        if($inputs['has_tags']){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
 		return $this->sendResponse();
 	}
 
@@ -70,7 +80,10 @@ class ShoutoutController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-		$shoutout = $this->model->findOrFail($id);
+		$shoutout = $this->model->find($id);
+		if(!$shoutout){
+		    return $this->sendError("Shoutout not found.");
+        }
         $profileId = $request->user()->profile->id;
         $meta = $shoutout->getMetaFor($profileId);
         $this->model = ['shoutout'=>$shoutout,'meta'=>$meta];
