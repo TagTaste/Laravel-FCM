@@ -100,6 +100,9 @@ class Company extends Model
             
             //add creator as a user of his company
             $company->addUser($company->user->id);
+            
+            //make searchable
+            \App\Documents\Company::create($company);
         });
     }
 
