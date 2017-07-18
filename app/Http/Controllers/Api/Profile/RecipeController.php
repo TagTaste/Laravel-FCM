@@ -28,10 +28,9 @@ class RecipeController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
 
         $recipes = Recipe::where('profile_id', $profileId)->orderBy('created_at', 'desc')->get();
+        $this->model=[];
         foreach ($recipes as $recipe) {
-            $r = $recipe->toArray();
-            $r['meta'] = $recipe->getMetaFor($loggedInProfileId);
-            $this->model[] = $r;
+            $this->model[] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         }
         return $this->sendResponse();
     }
