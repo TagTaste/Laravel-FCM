@@ -35,6 +35,9 @@ class Recipe extends Model implements Feedable, CommentNotification
         self::created(function($recipe){
             //$recipe = \DB::table('recipes')->find($recipe->id);
             \Redis::set("recipe:" . $recipe->id,$recipe->makeHidden(['profile','likeCount'])->toJson());
+    
+            //create the document for searching
+            \App\Documents\Recipe::create($recipe);
         });
     }
     public function profile() {
