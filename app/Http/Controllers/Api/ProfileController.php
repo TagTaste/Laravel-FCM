@@ -96,7 +96,7 @@ class ProfileController extends Controller
         $this->saveFileToData("hero_image",$path,$request,$data);
 
         //save the model
-        $this->model = $request->user()->profile->update($data);
+        $this->model = $request->user()->profile->update($data['profile']);
         
         return $this->sendResponse();
     }
