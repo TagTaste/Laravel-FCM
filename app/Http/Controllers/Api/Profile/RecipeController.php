@@ -48,7 +48,7 @@ class RecipeController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_token']);
         $inputs['profile_id'] = $profileId;
-
+        $inputs['directions'] = json_encode($request->input("directions"));
         $this->model = $this->model->create($inputs);
         
         //save images
@@ -92,7 +92,7 @@ class RecipeController extends Controller
         $equipments = $request->input("equipments");
         if (count($equipments) > 0) {
             foreach ($equipments as &$equipment) {
-                $equipment[] = ['recipe_id' => $this->model->id, "name" => $equipment];
+                $equipment = ['recipe_id' => $this->model->id, "name" => $equipment];
             }
             $this->model->equipments()->insert($equipments);
         }
