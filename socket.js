@@ -245,6 +245,44 @@ notificationNamespace.on('connection',function(socket){
             }).end();
         });
 
+var request = function(path,token,data){
+    var options = {
+        host: 'testapi.tagtaste.com',
+        port: 8080,
+        path : path,
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : "Bearer " + token
+        }
+    };
+
+    requester.request(options, function(response) {
+        var rawData = "";
+        if(response.statusCode !== 200){
+            return false;
+        }
+        response.setEncoding('utf8');
+        response.on('data',function(chunk){
+            rawData += chunk;
+        });
+        response.on('end',function(){
+            try {
+                data = JSON.parse(rawData);
+            } catch (e) {
+                console.log("path");
+                console.log(path);
+                console.log("body");
+                console.log(response);
+                return console.error(e);
+            }
+            if(body.error){
+                console.log(body.error);
+                return;
+            }
+        })
+    }).end();
+};
 http.listen(3001, function(){
     console.log('Listening on Port 3001');
 });
