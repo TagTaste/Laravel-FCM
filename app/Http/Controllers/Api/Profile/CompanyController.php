@@ -40,14 +40,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request, $profileId)
     {
-        $inputs = $request->intersect(['name','about','phone',
-            'email','registered_address','established_on', 'status_id',
-            'type','employee_count','client_count','annual_revenue_start',
-            'annual_revenue_end',
-            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url','websites',
-            'milestones',
-            'speciality'
-        ]);
+        $inputs = $request->except(['_method','_token']);
         if(empty($inputs)){
             throw new \Exception("Empty request received.");
         }
@@ -114,14 +107,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $inputs = $request->intersect(['name','about','logo','hero_image','phone',
-            'email','registered_address','established_on', 'status_id',
-            'type','employee_count','client_count','annual_revenue_start',
-            'annual_revenue_end',
-            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
-            'tagline','establishments','cuisines','websites','milestones',
-            'speciality'
-        ]);
+        $inputs = $request->except(['_method','_token']);
     
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
