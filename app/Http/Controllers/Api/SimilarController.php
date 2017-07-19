@@ -44,6 +44,10 @@ class SimilarController extends Controller
         
         $similarModels = $model->similar($skip,$take);
         
+        if(!$similarModels){
+            return $this->sendError("No similar models.");
+        }
+        
         $this->model = [];
         $loggedInProfileId = $request->user()->profile->id;
         

@@ -7,7 +7,7 @@ use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
-use App\Profile\Photo;
+use App\Photo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 

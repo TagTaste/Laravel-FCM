@@ -99,7 +99,7 @@ class Company extends Model
             $profile->subscribe("network",$company);
             
             //add creator as a user of his company
-            $company->addUser($company->user->id);
+            $company->addUser($company->user);
             
             //make searchable
             \App\Documents\Company::create($company);
@@ -262,24 +262,18 @@ class Company extends Model
      * @param $userId
      * @return bool|void
      */
-    public function addUser($userId)
+    public function addUser($user)
     {
-        $user = \DB::table('users')->find($userId);
-        
-        if(!$user){
-            throw new \Exception("User $userId does not exist. Cannot add to company " . $this->name);
-        }
-        
         //check if already exists
         
-        $exists = $this->users()->find($userId);
+        $exists = $this->users()->find($user->id);
         
         if($exists){
             throw new \Exception("User {$exists->name} already exists in the company.");
         }
         
         //attach the user
-        $this->users()->attach($userId);
+        $this->users()->attach($user->id);
         
         //subscribe the user to the company feed
         $user->profile->subscribe("public",$this);

@@ -9,9 +9,9 @@ class Company extends BaseCompany
     
     protected $fillable = [];
     
-    protected $visible = [ 'id', 'name', 'about', 'logo', 'tagline' ];
+    protected $visible = [ 'id', 'name', 'about', 'logo', 'tagline' ,'profileId'];
     
     protected $with = [];
 
-    protected $appends = [];
+    protected $appends = ['profileId'];
 }
