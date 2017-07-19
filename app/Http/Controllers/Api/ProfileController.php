@@ -20,9 +20,9 @@ class ProfileController extends Controller
         //DO NOT MODIFY THIS RESPONSE
         //DO NOT USE $this->model HERE
         //LIVES DEPEND ON THIS RESPONSE
-        $response = $request->user()->with(['completeProfile', 'companies'])->first()->toArray();
-        $response['profile'] = $response['complete_profile'];
-        unset($response['complete_profile']);
+        $response = $request->user()->toArray();
+//        $response['profile'] = $response['complete_profile'];
+//        unset($response['complete_profile']);
         $response['profile']['isFollowing'] = false;
         $response['profile']['self'] = true;
         return response()->json($response);
@@ -39,7 +39,7 @@ class ProfileController extends Controller
     
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-        $profile = User::with('completeProfile')->whereHas("completeProfile", function ($query) use ($id) {
+        $profile = User::whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
     
@@ -49,8 +49,8 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = $profile->toArray();
         $self = $id === $loggedInProfileId;
-        $this->model['profile'] = $this->model['complete_profile'];
-        unset($this->model['complete_profile']);
+//        $this->model['profile'] = $this->model['complete_profile'];
+//        unset($this->model['complete_profile']);
         $this->model['profile']['self'] = $self;
         $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
     

@@ -29,7 +29,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'is_active', 'social_registration'
     ];
 
-    protected $with = []; //'articles','ideabooks','companies'
+    protected $with = ['profile','companies']; //'articles','ideabooks','companies'
 
     protected $visible = ['name','email','profile','companies','completeProfile']; //'articles','recommend','ideabooks',
 
