@@ -222,7 +222,11 @@ notificationNamespace.on('connection',function(socket){
                     }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
-                        body = JSON.parse(body);
+                        try {
+                            body = JSON.parse(message);
+                        } catch (e) {
+                            return console.error(e);
+                        }
                         if(body.error){
                             console.log(body.error);
                             return;
