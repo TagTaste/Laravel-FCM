@@ -228,7 +228,7 @@ notificationNamespace.on('connection',function(socket){
                     });
             response.on('end',function(){
                 try {
-                    body = JSON.parse(response);
+                    body = JSON.parse(responseData);
                 } catch (e) {
                     console.log("path");
                     console.log(path);
