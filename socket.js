@@ -203,7 +203,7 @@ companyFeedNamespace.on('connection', makeConnection);
 
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
-        var channelName;
+
             var path = '/api/profile';
 
             var options = {
