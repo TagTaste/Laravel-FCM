@@ -31,7 +31,7 @@ class User extends Authenticatable
 
     protected $with = []; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile','companies']; //'articles','recommend','ideabooks',
+    protected $visible = ['name','email','profile','companies','completeProfile']; //'articles','recommend','ideabooks',
 
     //protected $appends = ['recommend'];
 
