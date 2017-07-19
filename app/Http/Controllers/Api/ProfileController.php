@@ -39,7 +39,7 @@ class ProfileController extends Controller
     
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-        $profile = User::whereHas("profile", function ($query) use ($id) {
+        $profile = User::with('completeProfile')->whereHas("completeProfile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
     
@@ -49,6 +49,8 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = $profile->toArray();
         $self = $id === $loggedInProfileId;
+        $this->model['profile'] = $this->model['complete_profile'];
+        unset($this->model['complete_profile']);
         $this->model['profile']['self'] = $self;
         $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
     
