@@ -223,7 +223,7 @@ notificationNamespace.on('connection',function(socket){
                 response.setEncoding('utf8');
                 response.on('data',function(body){
                         try {
-                            body = JSON.parse(message);
+                            body = JSON.parse(body);
                         } catch (e) {
                             return console.error(e);
                         }
