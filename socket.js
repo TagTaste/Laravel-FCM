@@ -217,26 +217,31 @@ notificationNamespace.on('connection',function(socket){
                 }
         };
         requester.request(options, function(response) {
+                var responseData = "";
                 if(response.statusCode !== 200){
                         socket.disconnect(true);
                     }
                 response.setEncoding('utf8');
-                response.on('data',function(response){
-                        try {
-                            body = JSON.parse(response);
-                        } catch (e) {
-                            console.log("path");
-                            console.log(path);
-                            console.log("body");
-                            console.log(response);
-                            return console.error(e);
-                        }
-                        if(body.error){
-                            console.log(body.error);
-                            return;
-                        }
-                        socket.join('private-App.Notify.Profile.'+body.profile.id);
-                    })
+                response.on('data',function(chunk){
+                    responseData += chunk;
+
+                    });
+            response.on('end',function(){
+                try {
+                    body = JSON.parse(response);
+                } catch (e) {
+                    console.log("path");
+                    console.log(path);
+                    console.log("body");
+                    console.log(response);
+                    return console.error(e);
+                }
+                if(body.error){
+                    console.log(body.error);
+                    return;
+                }
+                socket.join('private-App.Notify.Profile.'+body.profile.id);
+            })
             }).end();
         });
 
