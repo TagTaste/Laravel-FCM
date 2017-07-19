@@ -57,7 +57,6 @@ class CompanyUserController extends Controller
 	{
 		$inputs = $request->all();
 		$this->model->create($inputs);
-		console.log($request);
 		return redirect()->route('company_users.index')->with('message', 'Item created successfully.');
 	}
 
