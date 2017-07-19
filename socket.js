@@ -221,10 +221,14 @@ notificationNamespace.on('connection',function(socket){
                         socket.disconnect(true);
                     }
                 response.setEncoding('utf8');
-                response.on('data',function(body){
+                response.on('data',function(response){
                         try {
-                            body = JSON.parse(body);
+                            body = JSON.parse(response);
                         } catch (e) {
+                            console.log("path");
+                            console.log(path);
+                            console.log("body");
+                            console.log(response);
                             return console.error(e);
                         }
                         if(body.error){
