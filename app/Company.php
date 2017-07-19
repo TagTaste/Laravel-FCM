@@ -81,7 +81,6 @@ class Company extends Model
         'handle',
         'followerProfiles',
         'rating',
-        'profile_id'
     ];
 
 

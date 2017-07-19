@@ -13,5 +13,5 @@ class Company extends BaseCompany
     
     protected $with = [];
 
-    protected $appends = [];
+    protected $appends = ['profileId'];
 }
