@@ -4,5 +4,5 @@ class Company extends Document
 {
     public $type = 'company';
     
-    public $bodyProperties = ['name','type','cuisines'];
+    public $bodyProperties = ['name','type','cuisines','profile_id'];
 }
