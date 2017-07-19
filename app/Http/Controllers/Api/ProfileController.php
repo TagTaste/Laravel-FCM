@@ -20,9 +20,9 @@ class ProfileController extends Controller
         //DO NOT MODIFY THIS RESPONSE
         //DO NOT USE $this->model HERE
         //LIVES DEPEND ON THIS RESPONSE
-        $response = $request->user()->toArray();
-        $response['profile']['isFollowing']=false;
-        $response['profile']['self']=true;
+        $response = $request->user()->with(['profile', 'companies'])->first()->toArray();
+        $response['profile']['isFollowing'] = false;
+        $response['profile']['self'] = true;
         return response()->json($response);
     }
 
