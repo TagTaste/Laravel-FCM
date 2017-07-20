@@ -300,4 +300,15 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function filters()
+    {
+        $filters = [];
+        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->get();
+        $filters['college'] = \App\Education::select('college')->groupBy('college')->get();
+//        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
+
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
+
 }
