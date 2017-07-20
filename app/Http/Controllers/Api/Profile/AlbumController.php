@@ -28,7 +28,9 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->albums()->create($request->intersect(['name','description']));
+        $inputs = $request->all();
+        $inputs['profile_id'] =  $request->user()->profile->id;
+        $this->model = \App\Album::create($inputs);
         return $this->sendResponse();
     }
 
@@ -58,8 +60,8 @@ class AlbumController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->albums()
-            ->where('id',$id)->update($request->only('name','description'));
+        $inputs = $request->all();
+        $this->model = \App\Album::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($inputs);
         return $this->sendResponse();
     }
 
@@ -71,7 +73,7 @@ class AlbumController extends Controller
      */
     public function destroy(Request $request,$profileId,$id)
     {
-        $this->model = $request->user()->profile->albums()->where('id',$id)->delete();
+        $this->model = \App\Album::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }
