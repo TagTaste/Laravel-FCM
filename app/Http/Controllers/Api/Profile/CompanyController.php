@@ -19,7 +19,8 @@ class CompanyController extends Controller
      */
     public function index(Request $request, $profileId)
     {
-        $companies = $request->user()->companies;
+        $userId = $request->user()->id;
+        $companies = Company::where('user_id',$userId)->get();
         
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -40,14 +41,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request, $profileId)
     {
-        $inputs = $request->intersect(['name','about','phone',
-            'email','registered_address','established_on', 'status_id',
-            'type','employee_count','client_count','annual_revenue_start',
-            'annual_revenue_end',
-            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url','websites',
-            'milestones',
-            'speciality'
-        ]);
+        $inputs = $request->except(['_method','_token']);
         if(empty($inputs)){
             throw new \Exception("Empty request received.");
         }
@@ -63,7 +57,8 @@ class CompanyController extends Controller
             $inputs['hero_image'] = $heroImageName;
         }
     
-        $company = $request->user()->companies()->create($inputs);
+        $inputs['user_id'] = $request->user()->id;
+        $company = Company::create($inputs);
         
         if($request->hasFile('logo') && $imageName !== null){
             $path = \App\Company::getLogoPath($profileId, $company->id);
@@ -114,14 +109,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $inputs = $request->intersect(['name','about','logo','hero_image','phone',
-            'email','registered_address','established_on', 'status_id',
-            'type','employee_count','client_count','annual_revenue_start',
-            'annual_revenue_end',
-            'facebook_url','twitter_url','linkedin_url','instagram_url','youtube_url','pinterest_url','google_plus_url',
-            'tagline','establishments','cuisines','websites','milestones',
-            'speciality'
-        ]);
+        $inputs = $request->except(['_method','_token']);
     
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
@@ -140,8 +128,8 @@ class CompanyController extends Controller
                 $inputs['hero_image'] = $imageName;
             }
         }
-
-        $this->model = $request->user()->companies()->where('id',$id)->update($inputs);
+        $userId = $request->user()->id;
+        $this->model = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
         return $this->sendResponse();
     }
     
@@ -154,7 +142,8 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->companies()->where('id',$id)->delete();
+        $userId = $request->user()->id;
+        $this->model = Company::where('id',$id)->where('user_id',$userId)->delete();
         return $this->sendResponse();
     }
     

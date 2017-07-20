@@ -27,6 +27,6 @@ class AddOrUpdateSubscriber
      */
     public function handle(Action $event)
     {
-        ModelSubscriber::updateSubscriberTimestamp($event->getModelName(),$event->model->id,$event->who->id);
+        ModelSubscriber::updateSubscriberTimestamp($event->model,$event->model->id,$event->who->id);
     }
 }

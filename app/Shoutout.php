@@ -130,6 +130,11 @@ class Shoutout extends Model implements Feedable
     
     public function getContentAttribute($value)
     {
-        return $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfiles($value);
+    
+        if($profiles){
+            $value = ['text'=>$value,'profiles'=>$profiles];
+        }
+        return $value;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
 use App\Shoutout;
 use App\Traits\CheckTags;
@@ -51,19 +52,25 @@ class ShoutoutController extends Controller
 		
 		//move this to validator
         if(empty($inputs['profile_id']) && empty($inputs['company_id'])){
-            throw new \Exception("Missing owner information");
+            return $this->sendError("Missing owner information");
         }
   
 		try {
             $this->verifyOwner($request);
         } catch (\Exception $e){
-		    //if there's an error, just throw it.
-		    throw $e;
+		    //if there's an error, just log it.
+		    //Log::warning($e->getMessage());
+            $this->model = [];
+		    return $this->sendError($e->getMessage());
         }
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
 		$this->model = $this->model->create($inputs);
         event(new Create($this->model,$request->user()->profile));
+        
+        if($inputs['has_tags']){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
 		return $this->sendResponse();
 	}
 

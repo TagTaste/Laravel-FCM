@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Recipe;
+use App\RecipeRating;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -32,10 +33,12 @@ class RecipeController extends Controller
     public function show(Request $request, $id)
     {
         $recipe = Recipe::where('id',$id)->first();
-    
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
-        
+        $meta=$recipe->getMetaFor($loggedInProfileId);
+        $recipe=$recipe->toArray();
+        $recipe['userRating'] = RecipeRating::where('recipe_id',$id)->where('profile_id',$loggedInProfileId)->first();
+        $this->model = ['recipe'=>$recipe,'meta'=>$meta];
+
         return $this->sendResponse();
     }
     

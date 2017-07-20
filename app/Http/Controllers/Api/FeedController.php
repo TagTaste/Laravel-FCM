@@ -117,20 +117,21 @@ class FeedController extends Controller
         return strtolower(end($exploded));
     }
     //things that is displayed on company's public feed
-    public function company(Request $request, $profileId)
+    public function company(Request $request, $companyId)
     {
+
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
-        
-        $payloads = Payload::where('channel_name','company.public.' . $profileId)
+
+        $payloads = Payload::where('channel_name','company.public.' . $companyId)
             ->orderBy('created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();
-        
+        $profileId=$request->user()->profile->id;
         $this->getMeta($payloads,$profileId);
-        
+
         return $this->sendResponse();
     }
   

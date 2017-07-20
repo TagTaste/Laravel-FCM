@@ -29,7 +29,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");
@@ -65,7 +65,7 @@ class AlbumController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");
@@ -85,7 +85,7 @@ class AlbumController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId,$id)
     {
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("This company does not belong to user.");

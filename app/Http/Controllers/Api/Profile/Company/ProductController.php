@@ -39,7 +39,7 @@ class ProductController extends Controller
     public function store(Request $request, $profileid, $companyId)
     {
         
-        $company = $request->user()->companies()->where('id', $companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
@@ -93,7 +93,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $profileid, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id', $companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         
         if (!$company) {
             throw new \Exception("This company does not belong to user.");
@@ -132,7 +132,7 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = $request->user()->companies()->where('id', $companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }

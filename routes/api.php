@@ -57,6 +57,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
             
             //channel names for socket.io
+                Route::get('channels/companies/{id}/public',function($id){
+                    return response()->json(['company.public.' . $id]);
+                });
                 Route::get('channels/{id}/public',function($id){
                     return response()->json(['public.' . $id]);
                 });
@@ -108,11 +111,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                         Route::resource('comments','CommentController');
                     });
-            
+
+            //photos
+                Route::resource("photos","PhotoController");
+                
+            //recipes rating
+                Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
+
             //recipes
                 Route::get('recipes/image/{id}','RecipeController@recipeImages');
             Route::get("recipes/filters", "RecipeController@filters");
             Route::resource("recipes","RecipeController");
+
             //tagboard
                 Route::resource('tagboards','TagBoardController');
 
@@ -155,7 +165,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource('profile','ProfileController');
             
             Route::resource('companies','CompanyController');
-    
+
+            //recipes cuisine
+            Route::resource("cuisine",'CuisineController');
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                 //Route::resource('albums','AlbumController');

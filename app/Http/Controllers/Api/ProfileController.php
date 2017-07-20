@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Profile;
 use App\Subscriber;
-use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -20,9 +19,10 @@ class ProfileController extends Controller
         //DO NOT MODIFY THIS RESPONSE
         //DO NOT USE $this->model HERE
         //LIVES DEPEND ON THIS RESPONSE
-        $response = $request->user()->toArray();
-        $response['profile']['isFollowing']=false;
-        $response['profile']['self']=true;
+        $userId = $request->user()->id;
+        $response = \App\Profile\User::find($userId)->toArray();
+        $response['profile']['isFollowing'] = false;
+        $response['profile']['self'] = true;
         return response()->json($response);
     }
 
@@ -37,17 +37,20 @@ class ProfileController extends Controller
     
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
-        $profile = User::whereHas("profile", function ($query) use ($id) {
+        $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
     
         if ($profile === null) {
             throw new ModelNotFoundException("Could not find profile.");
         }
-        $loggedInProfileId = $request->user()->profile->id;
+    
         $this->model = $profile->toArray();
+    
+        $loggedInProfileId = $request->user()->profile->id;
         $self = $id === $loggedInProfileId;
         $this->model['profile']['self'] = $self;
+        
         $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
     
         return $this->sendResponse();
@@ -96,7 +99,9 @@ class ProfileController extends Controller
         $this->saveFileToData("hero_image",$path,$request,$data);
 
         //save the model
-        $this->model = $request->user()->profile->update($data);
+        if(isset($data['profile']) && !empty($data['profile'])){
+            $this->model = $request->user()->profile->update($data['profile']);
+        }
         
         return $this->sendResponse();
     }

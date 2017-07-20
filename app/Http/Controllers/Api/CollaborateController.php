@@ -124,7 +124,7 @@ class CollaborateController extends Controller
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
-            $company =  $request->user()->companies()->find($companyId);
+            $company =  \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
             if(!$company){
                 throw new \Exception("Company does not belong to the user.");
             }

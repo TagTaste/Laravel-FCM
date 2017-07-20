@@ -12,7 +12,7 @@ class HandleController extends Controller
 {
 	public function show(Request $request,$handle)
 	{   
-		$profile = User::whereHas("profile",function($query) use ($handle){
+		$profile = \App\Profile\User::whereHas("profile",function($query) use ($handle){
             $query->where('handle',$handle);
             })->first();
 

@@ -35,7 +35,7 @@ class WebsiteController extends Controller {
 	 */
 	public function store(Request $request,$profileId,$companyId)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
         if(!$company){
             throw new \Exception("You don't have the rights to add websites to this company.");
         }
@@ -65,7 +65,7 @@ class WebsiteController extends Controller {
 	 */
 	public function edit(Request $request, $profileId, $companyId,$id)
 	{
-        $company = $request->user()->companies()->where('companies.id','=',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('companies.id','=',$companyId)->first();
         if(!$company){
             throw new \Exception("You don't have the rights to edit websites of this company.");
         }
@@ -82,7 +82,7 @@ class WebsiteController extends Controller {
 	 */
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
         if(!$company){
             throw new \Exception("You don't have the rights to update websites of this company.");
         }
@@ -98,7 +98,7 @@ class WebsiteController extends Controller {
 	 */
 	public function destroy(Request $request, $profileId,$companyId, $id)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
         if(!$company){
             throw new \Exception("You don't have the rights to delete websites of this company.");
         }
