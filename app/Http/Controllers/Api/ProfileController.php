@@ -311,4 +311,23 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function filtersData(Request $request)
+    {
+        $city=$request->input("city");
+        $collage=$request->input("college");
+
+        $this->model=new \App\Profile ();
+        if(is_array($city))
+        {
+            $this->model=$this->model->whereIn('city',$city);
+        }
+        if(is_array($collage))
+        {
+            $this->model=$this->model->whereIn('college',$collage);
+        }
+        $this->model=$this->model->paginate(10);
+        return $this->sendResponse();
+        return $this->sendResponse();
+    }
+
 }
