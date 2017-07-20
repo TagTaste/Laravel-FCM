@@ -38,7 +38,7 @@ class SearchController extends Controller
             $hits = $hits->groupBy("_type");
             
             foreach($hits as $name => $hit){
-                $class = "\App\\$name";
+                $class = "\App\\" . ucwords($name);
                 $model = $class::whereIn('id',$hit->pluck('_id'))->get()->toArray();
                 $this->model[$name] = $model;
             }
