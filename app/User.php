@@ -41,6 +41,11 @@ class User extends Authenticatable
         return $this->hasOne('\App\Recipe\Profile');
     }
     
+    public function completeProfile()
+    {
+        return $this->hasOne(\App\Profile::class);
+    }
+    
     public static function boot()
     {
         parent::boot();
