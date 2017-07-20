@@ -162,7 +162,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
            
             Route::get('/people','ProfileController@all');
             Route::resource('profile','ProfileController');
-            
+
+            //company filter
+            Route::get("companies/filters", "CompanyController@filters");
             Route::resource('companies','CompanyController');
 
             //recipes cuisine

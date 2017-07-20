@@ -36,4 +36,18 @@ class CompanyController extends Controller {
         
         return $this->sendResponse();
     }
+
+    public function filters()
+    {
+        $filters = [];
+
+        $filters['location'] = \App\Filter\Company::select('registered_address')
+            ->groupBy('registered_address')->where('registered_address','!=','null')->get();
+        $filters['types'] = \App\Company\Type::select('id','name')->groupBy('id')->get();
+        $filters['status'] = \App\Company\Status::select('id','name')->groupBy('id')->get();
+        $filters['employee_count'] = \App\Filter\Company::select('employee_count')
+            ->groupBy('employee_count')->where('employee_count','!=','null')->get();
+
+        $this->model = $filters;
+        return $this->sendResponse();    }
 }
