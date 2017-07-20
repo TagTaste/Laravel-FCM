@@ -9,8 +9,8 @@ class Patent extends Model
 {
     protected $table = 'company_patents';
 
-    protected $fillable = ['title','description','awarded_on','issued_by','number','company_id','url'];
-    protected $visible = ['id','title','description','awarded_on','issued_by','number','url'];
+    protected $fillable = ['title','description','awarded_on','issued_by','number','company_id','url','company_id'];
+    protected $visible = ['id','title','description','awarded_on','issued_by','number','url','company_id'];
 
     public function company()
     {
