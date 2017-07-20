@@ -60,9 +60,10 @@ class RecipeController extends Controller
     {
         $filters = [];
 
-        $filters['cuisine'] = \App\Filter\Recipe::select('cuisine_id')->groupBy('cuisine_id')->get();
+        $filters['cuisine'] = \App\Cuisine::select('id','name')->groupBy('id')->get();
         $filters['level'] = \App\Filter\Recipe::select('level')->groupBy('level')->get();
         $filters['type'] = \App\Filter\Recipe::select('type')->groupBy('type')->get();
+        $filters['ingredients']=\App\Recipe\Ingredient::select('id','name')->groupBy('id')->get();
         $this->model = $filters;
         return $this->sendResponse();
     }

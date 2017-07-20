@@ -6,6 +6,7 @@ use App\Recipe as BaseRecipe;
 
 class Recipe extends BaseRecipe {
     protected $with = [];
-    protected $visible = ['cuisine_id','level','type'];
+    protected $visible = ['level','type'];
     protected $appends = [];
+
 }
