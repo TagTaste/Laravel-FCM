@@ -25,7 +25,7 @@ class PortfolioController extends Controller {
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
         
         if(!$company){
             throw new \Exception("This user does not own this company.");
