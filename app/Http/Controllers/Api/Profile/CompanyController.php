@@ -19,7 +19,8 @@ class CompanyController extends Controller
      */
     public function index(Request $request, $profileId)
     {
-        $companies = $request->user()->companies;
+        $userId = $request->user()->id;
+        $companies = Company::where('user_id',$userId)->get();
         
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -56,7 +57,8 @@ class CompanyController extends Controller
             $inputs['hero_image'] = $heroImageName;
         }
     
-        $company = $request->user()->companies()->create($inputs);
+        $inputs['user_id'] = $request->user()->id;
+        $company = Company::create($inputs);
         
         if($request->hasFile('logo') && $imageName !== null){
             $path = \App\Company::getLogoPath($profileId, $company->id);
@@ -140,7 +142,8 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->companies()->where('id',$id)->delete();
+        $userId = $request->user()->id;
+        $this->model = Company::where('id',$id)->where('user_id',$userId)->delete();
         return $this->sendResponse();
     }
     
