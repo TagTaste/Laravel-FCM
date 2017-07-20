@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Cuisine;
 use App\Events\Actions\Like;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -46,8 +47,17 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $inputs = $request->except(['ingredients', 'equipments', 'images', '_token']);
+        $inputs = $request->except(['ingredients', 'equipments', 'images', '_token','cuisine']);
         $inputs['profile_id'] = $profileId;
+        if(!$request->has("cuisine.id")){
+            $cuisine=Cuisine::create($request->input("cuisine"));
+            $inputs['cuisine_id']=$cuisine->id;
+        }
+        else
+        {
+            $inputs['cuisine_id']=$request->input("cuisine.id");
+
+        }
         $inputs['directions'] = json_encode($request->input("directions"));
         $this->model = $this->model->create($inputs);
         
