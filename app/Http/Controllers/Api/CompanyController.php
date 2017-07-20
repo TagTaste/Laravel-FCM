@@ -43,11 +43,36 @@ class CompanyController extends Controller {
 
         $filters['location'] = \App\Filter\Company::select('registered_address')
             ->groupBy('registered_address')->where('registered_address','!=','null')->get();
-        $filters['types'] = \App\Company\Type::select('id','name')->groupBy('id')->get();
-        $filters['status'] = \App\Company\Status::select('id','name')->groupBy('id')->get();
-        $filters['employee_count'] = \App\Filter\Company::select('employee_count')
-            ->groupBy('employee_count')->where('employee_count','!=','null')->get();
+        $filters['types'] = \App\Company\Type::select('id','name')->groupBy('name')->get();
+        $filters['status'] = \App\Company\Status::select('id','name')->groupBy('name')->get();
 
         $this->model = $filters;
-        return $this->sendResponse();    }
+        return $this->sendResponse();
+    }
+
+    public function filtersData(Request $request)
+    {
+        $location=$request->input("location");
+        $type=$request->input("type");
+        $status=$request->input("status");
+        if(!is_array($location))
+        {
+            $location=[];
+        }
+        if(!is_array($type))
+        {
+            $type=[];
+        }
+        if(!is_array($status))
+        {
+            $status=[];
+        }
+        $this->model=Company::with('status','type')
+            ->whereIn('registered_address',$location)
+            ->orWhereIn('type',$type)
+            ->orWhereIn('status_id',$status)
+            ->orderBy('id', 'desc')->paginate(10);
+
+        return $this->sendResponse();
+    }
 }
