@@ -46,7 +46,14 @@ class Handler extends ExceptionHandler
         if(!$hook){
             return;
         }
-        $this->sendMessage($hook,gethostname() . ": " .$e->getMessage() . " [" . $e->getFile() . ":" . $e->getLine(). "]" );
+        $user = request()->user();
+        
+        $message = gethostname();
+        if($user){
+            $message .= " ($user->name:$user->id)";
+        }
+        $message .= ": " .$e->getMessage() . " [" . $e->getFile() . ":" . $e->getLine(). "]";
+        $this->sendMessage($hook,$message);
     }
     
     private function sendMessage($hook,$message){
