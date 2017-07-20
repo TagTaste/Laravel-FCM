@@ -126,8 +126,8 @@ class CompanyController extends Controller
                 $inputs['hero_image'] = $imageName;
             }
         }
-
-        $this->model = $request->user()->companies()->where('id',$id)->update($inputs);
+        $userId = $request->user()->id;
+        $this->model = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
         return $this->sendResponse();
     }
     
