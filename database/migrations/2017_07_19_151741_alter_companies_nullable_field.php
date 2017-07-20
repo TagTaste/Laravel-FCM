@@ -15,7 +15,7 @@ class AlterCompaniesNullableField extends Migration
     {
         Schema::table('companies',function(Blueprint $table){
             $table->text('about')->nullable()->change();
-            $table->string('email')->nullable(false)->change();
+            $table->string('email')->change();
         });
     }
 
