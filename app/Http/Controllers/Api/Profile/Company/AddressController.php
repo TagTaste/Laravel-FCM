@@ -4,7 +4,7 @@ use App\Http\Controllers\Api\Controller;
 
 use App\Company\Address;
 use Illuminate\Http\Request;
-
+use \App\Company;
 class AddressController extends Controller {
 
 	/**
@@ -14,7 +14,7 @@ class AddressController extends Controller {
 	 */
 	public function index(Request $request, $profileId, $companyId)
 	{
-		$company = $request->user()->companies()->where('id',$companyId)->first();
+		$company = Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
 		if(!$company){
 		    throw new \Exception("No company with id " . $companyId . ".");
@@ -42,7 +42,7 @@ class AddressController extends Controller {
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
@@ -59,7 +59,7 @@ class AddressController extends Controller {
 	 */
 	public function show(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
@@ -88,7 +88,7 @@ class AddressController extends Controller {
 	 */
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
@@ -107,7 +107,7 @@ class AddressController extends Controller {
 	 */
 	public function destroy(Request $request, $profileId, $companyId,$id)
 	{
-        $company = $request->user()->companies()->where('id',$companyId)->first();
+        $company = Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
 
         if(!$company){
             throw new \Exception("No company with id " . $companyId . ".");
