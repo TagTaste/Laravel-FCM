@@ -44,7 +44,8 @@ class Company extends Model
         'websites',
         'milestones',
         'speciality',
-        'handle'
+        'handle',
+        'user_id'
     ];
     
     protected $visible = [

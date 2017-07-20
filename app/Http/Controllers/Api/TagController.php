@@ -114,7 +114,8 @@ class TagController extends Controller
      * @return mixed
      */
     private function getTagboard(&$request, $tagboardId){
-        return $request->user()->ideabooks()->find($tagboardId);
+        $userId = $request->user()->id;
+        return \App\Ideabook::where('user_id',$userId)->where('id',$tagboardId)->first();
     }
     
 }

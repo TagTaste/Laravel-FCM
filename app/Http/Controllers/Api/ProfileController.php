@@ -100,7 +100,8 @@ class ProfileController extends Controller
 
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
-            $this->model = $request->user()->profile->update($data['profile']);
+            $userId = $request->user()->id;
+            $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
         }
         
         return $this->sendResponse();
@@ -167,7 +168,7 @@ class ProfileController extends Controller
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
         if(!$this->model){
             throw new \Exception("You are already following this profile.");
         }
@@ -184,7 +185,7 @@ class ProfileController extends Controller
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
             throw new \Exception("You are not following this profile.");

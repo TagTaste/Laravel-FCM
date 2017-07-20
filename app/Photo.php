@@ -184,5 +184,13 @@ class Photo extends Model implements Feedable
             'image' => $this->photoUrl
         ];
     }
+    
+    public function getRelatedKey() : array
+    {
+        if(empty($this->relatedKey) && $this->profile_id !== null){
+            return ['profile'=>'profile:small:' . $this->profile_id];
+        }
+        return ['company'=>'company:small:' . $this->company_id];
+    }
    
 }
