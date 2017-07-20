@@ -313,17 +313,15 @@ class ProfileController extends Controller
 
     public function filtersData(Request $request)
     {
-        $city=$request->input("city");
-        $collage=$request->input("college");
-
+        $filters = $request->input('filters');
         $this->model=new \App\Profile ();
-        if(is_array($city))
+        if(!empty($filters['city']))
         {
-            $this->model=$this->model->whereIn('city',$city);
+            $this->model=$this->model->whereIn('city',$filters['city']);
         }
-        if(is_array($collage))
+        if(!empty($filters['college']))
         {
-            $this->model=$this->model->whereIn('college',$collage);
+            $this->model=$this->model->whereIn('college',$filters['college']);
         }
         $this->model=$this->model->paginate(10);
         return $this->sendResponse();
