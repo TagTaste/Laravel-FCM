@@ -2,7 +2,11 @@
 
 namespace App\Recipe;
 
+use App\Channel;
+use App\Job;
 use App\Profile as BaseProfile;
+use App\Shoutout;
+use App\Subscriber;
 
 class Profile extends BaseProfile
 {
