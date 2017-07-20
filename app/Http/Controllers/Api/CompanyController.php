@@ -55,24 +55,21 @@ class CompanyController extends Controller {
         $location=$request->input("location");
         $type=$request->input("type");
         $status=$request->input("status");
-        if(!is_array($location))
-        {
-            $location=[];
-        }
-        if(!is_array($type))
-        {
-            $type=[];
-        }
-        if(!is_array($status))
-        {
-            $status=[];
-        }
-        $this->model=Company::with('status','type')
-            ->whereIn('registered_address',$location)
-            ->orWhereIn('type',$type)
-            ->orWhereIn('status_id',$status)
-            ->orderBy('id', 'desc')->paginate(10);
+        $this->model=Company::with('status','type');
 
+        if(is_array($location))
+        {
+            $this->model=$this->model->whereIn('registered_address',$location);
+        }
+        if(is_array($type))
+        {
+            $this->model=$this->model->whereIn('type',$type);
+        }
+        if(is_array($status))
+        {
+            $this->model=$this->model->whereIn('status_id',$status);
+        }
+        $this->model=$this->model->orderBy('id', 'desc')->paginate(10);
         return $this->sendResponse();
     }
 }
