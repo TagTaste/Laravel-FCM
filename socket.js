@@ -158,6 +158,43 @@ var logErr = function(err,count){
 io.on('disconnect', function(){
     //console.log('user disconnected');
 });
+var makeCompanyConnection = function(socket){
+    //console.log('connected');
+    var token = socket.handshake.query['token'];
+    var companyId = socket.handshake.query['id'];
+    var path = '/api/channels';
+    if(!companyId){
+        path = path + '/companies/' + companyId + "/public";
+    }
+
+    var options = {
+        host: 'testapi.tagtaste.com',
+        port: 8080,
+        path : path,
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : "Bearer " + token
+        }
+    };
+    requester.request(options, function(response) {
+        if(response.statusCode !== 200){
+            socket.disconnect(true);
+        }
+        response.setEncoding('utf8');
+        response.on('data',function(body){
+            body = JSON.parse(body);
+            if(body.error){
+                console.log(body.error);
+                return;
+            }
+            var rooms = Object.keys(body).map(function(k) { return body[k] });
+            for(var i in rooms){
+                socket.join(rooms[i]);
+            }
+        })
+    }).end();
+};
 
 var makeConnection = function(socket){
     //console.log('connected');
@@ -199,7 +236,7 @@ var makeConnection = function(socket){
 
 feedNamespace.on('connection', makeConnection);
 publicNamespace.on('connection', makeConnection);
-companyFeedNamespace.on('connection', makeConnection);
+companyFeedNamespace.on('connection', makeCompanyConnection);
 
 notificationNamespace.on('connection',function(socket){
         var token = socket.handshake.query['token'];
