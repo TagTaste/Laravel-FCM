@@ -324,7 +324,7 @@ class ProfileController extends Controller
             $this->model=$this->model->whereIn('college',$filters['college']);
         }
         $this->model=$this->model->paginate(10);
-        return $this->sendResponse();
+
         return $this->sendResponse();
     }
 
