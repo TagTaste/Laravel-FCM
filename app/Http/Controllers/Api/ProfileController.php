@@ -78,7 +78,6 @@ class ProfileController extends Controller
     {
         $data = $request->except(["_method","_token"]);
         
-        
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -89,7 +88,6 @@ class ProfileController extends Controller
             $name = array_pull($data, 'name');
             $request->user()->update(['name'=>trim($name)]);
         }
-        
         //save profile image
         $path = \App\Profile::getImagePath($id);
         $this->saveFileToData("image",$path,$request,$data);
@@ -110,7 +108,7 @@ class ProfileController extends Controller
     private function saveFileToData($key,$path,&$request,&$data)
     {
         if($request->hasFile($key)){
-            $data[$key] = $this->saveFile($path,$request,$key);
+            $data['profile'][$key] = $this->saveFile($path,$request,$key);
         }
     }
     
