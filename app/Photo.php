@@ -176,7 +176,6 @@ class Photo extends Model implements Feedable
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
-        \Log::info($meta);
         return $meta;
     }
     
