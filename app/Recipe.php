@@ -94,7 +94,7 @@ class Recipe extends Model implements Feedable, CommentNotification
         $meta['likeCount'] = $this->likeCount;
         $meta['commentCount'] = $this->comments()->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-    
+        \Log::info($meta);
         return $meta;
     }
     
