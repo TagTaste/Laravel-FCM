@@ -48,7 +48,7 @@ class ProfileController extends Controller
         $this->model = $profile->toArray();
     
         $loggedInProfileId = $request->user()->profile->id;
-        $self = $id === $loggedInProfileId;
+        $self = $id == $loggedInProfileId;
         $this->model['profile']['self'] = $self;
         
         $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
