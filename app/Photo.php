@@ -105,6 +105,7 @@ class Photo extends Model implements Feedable
         if($this->profile_id) {
             return $this->file !== null ? "/images/ph/" . $this->profile_id . "/p/" . $this->file : null;
         }
+        
         return $this->file !== null ? "/images/ph/" . $this->company_id . "/c/" . $this->file : null;
     }
     
