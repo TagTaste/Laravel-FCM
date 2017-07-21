@@ -49,8 +49,11 @@ class RecipeController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_token']);
         $inputs['profile_id'] = $profileId;
-    
-        $cuisine = Cuisine::where('id', $inputs['cuisine']['id'])->where('name', $inputs['cuisine']['name'])->first();
+        $cuisine = Cuisine::where('name', $inputs['cuisine']['name']);
+        if(isset($inputs['cuisine']['id'])){
+            $cuisine = $cuisine->where('id',$inputs['cuisine']['id']);
+        }
+        $cuisine = $cuisine->first();
         if (!$cuisine) {
             $cuisine = Cuisine::create($request->input("cuisine"));
         }
@@ -63,7 +66,7 @@ class RecipeController extends Controller
         if ($request->has("images")) {
             $images = [];
             $count = count($request->input("images")) - 1;
-
+            
             while ($count >= 0) {
                 if (!$request->hasFile("images.$count.file")) {
                     \Log::info("No file for images.$count.file");
