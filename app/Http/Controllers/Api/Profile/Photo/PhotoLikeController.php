@@ -16,7 +16,7 @@ class PhotoLikeController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index(Request $request,$profileId,$albumId,$photoId)
+	public function index(Request $request,$profileId,$photoId)
 	{
 		return PhotoLike::where('photo_id',$photoId)->count();
 	}
