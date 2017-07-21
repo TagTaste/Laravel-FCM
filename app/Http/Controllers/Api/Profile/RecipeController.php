@@ -66,7 +66,7 @@ class RecipeController extends Controller
         if ($request->has("images")) {
             $images = [];
             $count = count($request->input("images")) - 1;
-
+            
             while ($count >= 0) {
                 if (!$request->hasFile("images.$count.file")) {
                     \Log::info("No file for images.$count.file");
