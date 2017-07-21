@@ -165,7 +165,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //company filter
             Route::get("companies/filters", "CompanyController@filters");
-            Route::post("companies/filters", "CompanyController@filtersData");
             Route::resource('companies','CompanyController');
 
             //recipes cuisine

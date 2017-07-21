@@ -13,10 +13,22 @@ class CompanyController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-        $this->model = Company::with('status','type')->orderBy('id', 'desc')->paginate(10);
+        $this->model = Company::with('status','type');
 
-		return $this->sendResponse();
-	}
+        $filters = $request->input('filters');
+        if (!empty($filters['location'])) {
+            $this->model=$this->model->whereIn('registered_address',$filters['location']);
+        }
+        if (!empty($filters['type'])) {
+            $this->model=$this->model->whereIn('type',$filters['type']);
+        }
+        if (!empty($filters['status'])) {
+            $this->model=$this->model->whereIn('status_id',$filters['status']);
+        }
+
+        $this->model=$this->model->orderBy('id', 'desc')->paginate(10);
+        return $this->sendResponse();
+    }
  
 
 	/**
@@ -50,26 +62,4 @@ class CompanyController extends Controller {
         return $this->sendResponse();
     }
 
-    public function filtersData(Request $request)
-    {
-        $location=$request->input("location");
-        $type=$request->input("type");
-        $status=$request->input("status");
-        $this->model=Company::with('status','type');
-
-        if(is_array($location))
-        {
-            $this->model=$this->model->whereIn('registered_address',$location);
-        }
-        if(is_array($type))
-        {
-            $this->model=$this->model->whereIn('type',$type);
-        }
-        if(is_array($status))
-        {
-            $this->model=$this->model->whereIn('status_id',$status);
-        }
-        $this->model=$this->model->orderBy('id', 'desc')->paginate(10);
-        return $this->sendResponse();
-    }
 }
