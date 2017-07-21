@@ -55,8 +55,8 @@ class CompanyController extends Controller {
 
         $filters['location'] = \App\Filter\Company::select('registered_address')
             ->groupBy('registered_address')->where('registered_address','!=','null')->get();
-        $filters['types'] = \App\Company\Type::select('id','name')->groupBy('name')->get();
-        $filters['status'] = \App\Company\Status::select('id','name')->groupBy('name')->get();
+        $filters['types'] = \App\Company\Type::select('id','name')->get();
+        $filters['status'] = \App\Company\Status::select('id','name')->get();
 
         $this->model = $filters;
         return $this->sendResponse();
