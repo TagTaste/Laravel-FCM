@@ -170,7 +170,7 @@ class Photo extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
+        $meta['hasLiked'] = $this->like()->whereNull('deleted_at')->where('profile_id',$profileId)->exists();
         $meta['likeCount'] = $this->likeCount;
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
