@@ -16,8 +16,8 @@ class CompanyController extends Controller {
         $this->model = Company::with('status','type');
 
         $filters = $request->input('filters');
-        if (!empty($filters['location'])) {
-            $this->model=$this->model->whereIn('registered_address',$filters['location']);
+        if (!empty($filters['city'])) {
+            $this->model=$this->model->whereIn('city',$filters['city']);
         }
         if (!empty($filters['type'])) {
             $this->model=$this->model->whereIn('type',$filters['type']);
@@ -52,9 +52,8 @@ class CompanyController extends Controller {
     public function filters()
     {
         $filters = [];
-
-        $filters['location'] = \App\Filter\Company::select('registered_address')
-            ->groupBy('registered_address')->where('registered_address','!=','null')->get();
+        $filters['location'] = \App\Filter\Company::select('city')
+            ->groupBy('city')->where('city','!=','null')->get();
         $filters['types'] = \App\Company\Type::select('id','name')->get();
         $filters['status'] = \App\Company\Status::select('id','name')->get();
 

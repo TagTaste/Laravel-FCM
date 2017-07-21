@@ -44,7 +44,8 @@ class Company extends Model
         'websites',
         'milestones',
         'speciality',
-        'handle'
+        'handle',
+        'city'
     ];
     
     protected $visible = [
@@ -81,6 +82,7 @@ class Company extends Model
         'handle',
         'followerProfiles',
         'rating',
+        'city'
     ];
 
 
