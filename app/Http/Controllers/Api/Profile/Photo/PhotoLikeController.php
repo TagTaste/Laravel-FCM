@@ -41,12 +41,12 @@ class PhotoLikeController extends Controller
             $photoLike->delete();
             $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", -1);
         } else {
-            PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
+            $photoLike = PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
             $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", 1);
             
             event(new Like($photo, $request->user()->profile));
         }
-        
+        \Log::info($photoLike->toArray());
         return $this->sendResponse();
 	}
 
