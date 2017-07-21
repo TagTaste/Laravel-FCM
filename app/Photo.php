@@ -21,14 +21,14 @@ class Photo extends Model implements Feedable
     
     protected $fillable = ['caption','file','privacy_id','payload_id'];
 
-    protected $visible = ['id','caption','photoUrl','likeCount',
+    protected $visible = ['id','caption','profilePhotoUrl','companyPhotoUrl','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id',
         'owner'];
 
     protected $with = ['like'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount'];
+    protected $appends = ['profilePhotoUrl','companyPhotoUrl','profile_id','company_id','owner','likeCount'];
     
     protected $dates = ['deleted_at'];
 
@@ -78,7 +78,7 @@ class Photo extends Model implements Feedable
     
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "images/ph/$profileId/c/$companyId/p";
+        $relativePath = "images/ph/$companyId/c";
         $status = Storage::makeDirectory($relativePath,0644,true);
         return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
@@ -100,9 +100,14 @@ class Photo extends Model implements Feedable
         return $count;
     }
     
-    public function getPhotoUrlAttribute()
+    public function getProfilePhotoUrlAttribute()
     {
         return $this->file !== null ? "/images/ph/" . $this->profile_id . "/p/" . $this->file : null;
+    }
+
+    public function getCompanyPhotoUrlAttribute()
+    {
+        return $this->file !== null ? "/images/ph/" . $this->company_id . "/c/" . $this->file : null;
     }
     
     public function profile()
