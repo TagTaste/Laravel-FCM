@@ -50,11 +50,11 @@ class RecipeController extends Controller
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_token']);
         $inputs['profile_id'] = $profileId;
         if ($inputs['cuisine']['id'] == null) {
-            $cuisineExist = Cuisine::where('name', $inputs['cuisine']['name'])->exists();
-            if (!$cuisineExist) {
-                $cuisine = Cuisine::create($request->input("cuisine"));
+            $cuisineExist = Cuisine::where('name', $inputs['cuisine']['name']);
+            if (!$cuisineExist->exists()) {
+                $cuisineExist = Cuisine::create($request->input("cuisine"));
             }
-            $cuisine = Cuisine::where('name', $inputs['cuisine']['name'])->first();
+            $cuisine = $cuisineExist->first();
             $inputs['cuisine']['id'] = $cuisine->id;
         }
         $cuisineExist = Cuisine::where('id', $inputs['cuisine']['id'])->Where('name', $inputs['cuisine']['name'])->exists();
