@@ -47,6 +47,7 @@ class PhotoLikeController extends Controller
             event(new Like($photo, $request->user()->profile));
         }
         \Log::info($photoLike->toArray());
+        \Log::info($this->model);
         return $this->sendResponse();
 	}
 
