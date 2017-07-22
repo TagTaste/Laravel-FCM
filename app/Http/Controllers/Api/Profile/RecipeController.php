@@ -156,23 +156,16 @@ class RecipeController extends Controller
 
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token']);
 
-        if ($inputs['cuisine']['id'] == null) {
-            $cuisineExist = Cuisine::where('name', $inputs['cuisine']['name']);
-            if (!$cuisineExist->exists()) {
-                $cuisineExist = Cuisine::create($request->input("cuisine"));
-            }
-            $cuisine = $cuisineExist->first();
-            $inputs['cuisine']['id'] = $cuisine->id;
+        $cuisine = Cuisine::where('name', $inputs['cuisine']['name']);
+        if(isset($inputs['cuisine']['id'])){
+            $cuisine = $cuisine->where('id',$inputs['cuisine']['id']);
         }
-        $cuisineExist = Cuisine::where('id', $inputs['cuisine']['id'])->Where('name', $inputs['cuisine']['name'])->exists();
-        if (!$cuisineExist) {
-            $cuisine = Cuisine::where('name', $inputs['cuisine']['name'])->first();
-            if($cuisine==null){
-                $cuisine = Cuisine::create($request->input("cuisine"));
-            }
-            $inputs['cuisine']['id'] = $cuisine->id;
+        $cuisine = $cuisine->first();
+        if (!$cuisine) {
+            $cuisine = Cuisine::create($request->input("cuisine"));
         }
-        $inputs['cuisine_id'] = $inputs['cuisine']['id'];
+        unset($inputs['cuisine']);
+        $inputs['cuisine_id'] = $cuisine->id;
 
         $this->model->update($inputs);
 
