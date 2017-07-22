@@ -13,4 +13,15 @@ class PhotoLike extends Model
         return $this->belongsToMany('App\Photo', 'photo_id');
     }
     
+    public static function boot()
+    {
+        self::created(function($model){
+            \Redis::hIncrBy("photo:" . $model->id . ":meta", "like", -1);
+        });
+        
+        self::deleting(function($model){
+            \Redis::hIncrBy("photo:" . $model->id . ":meta", "like", 0);
+        });
+    }
+    
 }
