@@ -19,7 +19,7 @@ class Company extends BaseCompany
         $distinctCompanies = \DB::table('companies')->selectRaw(\DB::raw('distinct companies.id'))
             ->whereRaw(
                 \DB::raw(
-                    'companies.id not in (select distinct channels.company_id from channels join subscribers on subscribers.channel_name = channels.name where subscribers.channel_name like \'company.network.' . $this->id .'\' or subscribers.company_id = ' . $this->id . ')'
+                    'companies.id not in (select distinct channels.company_id from channels join subscribers on subscribers.channel_name = channels.name where subscribers.channel_name like \'company.network.' . $this->id . ')'
                 )
             )
             ->get();
