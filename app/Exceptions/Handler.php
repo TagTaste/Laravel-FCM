@@ -39,11 +39,13 @@ class Handler extends ExceptionHandler
     }
     
     private function sendToSlack(\Exception $e){
+        \Log::info(is_null($e->getMessage()));
         if($e->getMessage() == null){
             return;
         }
         $hook = env('SLACK_HOOK_DEVELOPMENT');
         if(!$hook){
+            \Log::warning("No hook provided for slack.");
             return;
         }
         $user = request()->user();
