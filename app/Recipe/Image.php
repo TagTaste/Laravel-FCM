@@ -24,7 +24,7 @@ class Image extends Model
         //$relativePath = "profile/{$id}/images";
         $relativePath = "images/r/$recipeId";
         
-        Storage::makeDirectory($relativePath);
+        \Storage::makeDirectory($relativePath);
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 
