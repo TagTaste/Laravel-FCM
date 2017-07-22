@@ -33,6 +33,9 @@ class RecipeController extends Controller
     public function show(Request $request, $id)
     {
         $recipe = Recipe::where('id',$id)->first();
+        if(!$recipe){
+            return $this->sendError("Could not find recipe.");
+        }
         $loggedInProfileId = $request->user()->profile->id;
         $meta=$recipe->getMetaFor($loggedInProfileId);
         $recipe=$recipe->toArray();
