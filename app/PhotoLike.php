@@ -16,11 +16,11 @@ class PhotoLike extends Model
     public static function boot()
     {
         self::created(function($model){
-            \Redis::hIncrBy("photo:" . $model->id . ":meta", "like", -1);
+            \Redis::hIncrBy("photo:" . $model->photo_id . ":meta", "like", -1);
         });
         
         self::deleting(function($model){
-            \Redis::hIncrBy("photo:" . $model->id . ":meta", "like", 1);
+            \Redis::hIncrBy("photo:" . $model->photo_id . ":meta", "like", 1);
         });
     }
     
