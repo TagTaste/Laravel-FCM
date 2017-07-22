@@ -43,7 +43,7 @@ class Handler extends ExceptionHandler
         if($e->getMessage() == null){
             return;
         }
-        $hook = env('SLACK_HOOK_DEVELOPMENT');
+        $hook = env('SLACK_HOOK');
         if(!$hook){
             \Log::warning("No hook provided for slack.");
             return;
