@@ -20,7 +20,7 @@ class PhotoLike extends Model
         });
         
         self::deleting(function($model){
-            \Redis::hIncrBy("photo:" . $model->id . ":meta", "like", 0);
+            \Redis::hIncrBy("photo:" . $model->id . ":meta", "like", 1);
         });
     }
     
