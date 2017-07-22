@@ -16,7 +16,7 @@ class Image extends Model
 
     public function getImageUrlAttribute()
     {
-         return $this->image !== null ? "/profile/recipes/".$this->recipe_id."/images/" . $this->image : null;
+         return $this->image !== null ? "/profile/recipes/".$this->recipe_id."/images/" . $this->id."/".$this->image : null;
     }
 
 }
