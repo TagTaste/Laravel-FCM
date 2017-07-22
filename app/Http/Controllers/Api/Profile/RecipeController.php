@@ -74,7 +74,7 @@ class RecipeController extends Controller
                     continue;
                 }
                 $imageName = str_random("32") . ".jpg";
-                $path = "profile/recipes/{$this->model->id}/images/{$count}";
+                $path = "profile/recipes/{$this->model->id}/images/";
                 \Storage::makeDirectory($path);
                 $response = $request->file("images.$count.file")->storeAs($path, $imageName);
                 if (!$response) {
