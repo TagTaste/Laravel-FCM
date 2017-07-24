@@ -86,6 +86,7 @@ class ProductCatalogueController extends Controller
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename);
 		$fullPath = storage_path("app/" .$file);
+		\Log::info($fullPath);
 		$fileExists = file_exists($fullPath);
 		if(!$fileExists){
 		    \Log::info("cannot find file " . $fullPath);
