@@ -85,16 +85,17 @@ class ProductCatalogueController extends Controller
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename);
-		$fileExists = file_exists(storage_path("app/" . $file));
+		$fullPath = storage_path("app/" .$file);
+		$fileExists = file_exists($fullPath);
 		if(!$fileExists){
-		    \Log::info("cannot find file " . storage_path("app/" .$file));
+		    \Log::info("cannot find file " . $fullPath);
 		    return;
         }
         
         //load the file
         $data = [];
         try {
-            \Excel::load( storage_path("app/" .$file),function($reader) use (&$data){
+            \Excel::load( $fullPath ,function($reader) use (&$data){
                 $data = $reader->toArray();
             })->get();
             
