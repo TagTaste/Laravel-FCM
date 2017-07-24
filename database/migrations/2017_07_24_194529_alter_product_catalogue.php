@@ -34,7 +34,6 @@ class AlterProductCatalogue extends Migration
             $table->dropColumn('moq');
             $table->dropColumn('type');
             $table->dropColumn('about');
-            $table->dropColumn('shelf_life');
         });
     }
 }
