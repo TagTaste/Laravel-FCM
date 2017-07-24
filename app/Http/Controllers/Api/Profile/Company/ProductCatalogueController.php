@@ -86,6 +86,7 @@ class ProductCatalogueController extends Controller
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename);
 		$fullpath = env("STORAGE_PATH") . $path . "/" . $filename;
+		\Log::info(__DIR__);
         //load the file
         $data = [];
         try {
