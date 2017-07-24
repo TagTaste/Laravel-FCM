@@ -187,7 +187,8 @@ return [
         //Package Service Providers
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
-        Stevebauman\Purify\PurifyServiceProvider::class
+        Stevebauman\Purify\PurifyServiceProvider::class,
+        'Maatwebsite\Excel\ExcelServiceProvider',
 
     ],
 
@@ -243,8 +244,8 @@ return [
         'Html' => Collective\Html\HtmlFacade::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
-        'Purify' => 'Stevebauman\Purify\Facades\Purify'
-
+        'Purify' => 'Stevebauman\Purify\Facades\Purify',
+        'Excel' => 'Maatwebsite\Excel\Facades\Excel',
     ],
 
 ];
