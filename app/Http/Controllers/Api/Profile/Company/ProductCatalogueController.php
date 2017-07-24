@@ -30,11 +30,10 @@ class ProductCatalogueController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index($profileId, $companyId)
 	{
-		$product_catalogues = $this->model->paginate();
-
-		return view('product_catalogues.index', compact('product_catalogues'));
+		$this->model = $this->model->where('company_id',$companyId)->paginate();
+        return $this->sendResponse();
 	}
 
 	/**
@@ -44,7 +43,7 @@ class ProductCatalogueController extends Controller
 	 */
 	public function create()
 	{
-		return view('product_catalogues.create');
+		//download excel
 	}
 
 	/**
@@ -56,52 +55,13 @@ class ProductCatalogueController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
+		if(!$request->hasFile("file")){
+		    return $this->sendError("File not uploaded.");
+        }
+        
 		$this->model->create($inputs);
 
 		return redirect()->route('product_catalogues.index')->with('message', 'Item created successfully.');
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		$product_catalogue = $this->model->findOrFail($id);
-		
-		return view('product_catalogues.show', compact('product_catalogue'));
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$product_catalogue = $this->model->findOrFail($id);
-		
-		return view('product_catalogues.edit', compact('product_catalogue'));
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function update(Request $request, $id)
-	{
-		$inputs = $request->all();
-
-		$product_catalogue = $this->model->findOrFail($id);		
-		$product_catalogue->update($inputs);
-
-		return redirect()->route('product_catalogues.index')->with('message', 'Item updated successfully.');
 	}
 
 	/**
