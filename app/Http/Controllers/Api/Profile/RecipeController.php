@@ -53,15 +53,14 @@ class RecipeController extends Controller
         //save cuisine
         if($request->has("cuisine")){
             $inputCuisine = $request->input('cuisine');
-            $cuisine = Cuisine::where('name', $inputCuisine['cuisine']['name']);
-            if(isset($inputCuisine['cuisine']['id'])){
-                $cuisine = $cuisine->where('id',$inputCuisine['cuisine']['id']);
+            $cuisine = Cuisine::where('name', $inputCuisine['name']);
+            if(isset($inputCuisine['id'])){
+                $cuisine = $cuisine->where('id',$inputCuisine['id']);
             }
             $cuisine = $cuisine->first();
             if (!$cuisine) {
                 $cuisine = Cuisine::create($request->input("cuisine"));
             }
-            unset($inputCuisine['cuisine']);
             $inputs['cuisine_id'] = $cuisine->id;
         }
         
@@ -168,15 +167,14 @@ class RecipeController extends Controller
         //save cuisine
         if($request->has('cuisine')){
             $inputCuisine = $request->input('cuisine');
-            $cuisine = Cuisine::where('name', $inputCuisine['cuisine']['name']);
-            if(isset($inputCuisine['cuisine']['id'])){
-                $cuisine = $cuisine->where('id',$inputCuisine['cuisine']['id']);
+            $cuisine = Cuisine::where('name', $inputCuisine['name']);
+            if(isset($inputCuisine['id'])){
+                $cuisine = $cuisine->where('id',$inputCuisine['id']);
             }
             $cuisine = $cuisine->first();
             if (!$cuisine) {
                 $cuisine = Cuisine::create($request->input("cuisine"));
             }
-            unset($inputCuisine['cuisine']);
             $inputs['cuisine_id'] = $cuisine->id;
         }
         
