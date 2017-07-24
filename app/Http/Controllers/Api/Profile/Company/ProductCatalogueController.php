@@ -85,7 +85,7 @@ class ProductCatalogueController extends Controller
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename);
-		
+		$fullpath = env("STORAGE_PATH",);
         //load the file
         $data = [];
         try {
@@ -98,6 +98,8 @@ class ProductCatalogueController extends Controller
             }
         } catch (\Exception $e){
 		    \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+    
         }
         
         foreach($data as &$element){
