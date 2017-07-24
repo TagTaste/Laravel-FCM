@@ -9,5 +9,5 @@ class ProductCatalogue extends Model
 {
     use SoftDeletes;
     protected $fillable = ['product', 'category', 'company_id',
-    'price','moq','type','about'];
+    'price','moq','type','about','shelf_life'];
 }

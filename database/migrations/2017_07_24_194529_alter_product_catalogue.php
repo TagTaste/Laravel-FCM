@@ -18,6 +18,7 @@ class AlterProductCatalogue extends Migration
             $table->float('moq')->nullable();
             $table->string('type')->nullable();
             $table->string('about')->nullable();
+            $table->float('shelf_life')->nullable();
         });
     }
 
@@ -33,6 +34,7 @@ class AlterProductCatalogue extends Migration
             $table->dropColumn('moq');
             $table->dropColumn('type');
             $table->dropColumn('about');
+            $table->dropColumn('shelf_life');
         });
     }
 }
