@@ -154,18 +154,21 @@ class RecipeController extends Controller
         }
 
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token']);
-
-        $cuisine = Cuisine::where('name', $inputs['cuisine']['name']);
-        if(isset($inputs['cuisine']['id'])){
-            $cuisine = $cuisine->where('id',$inputs['cuisine']['id']);
+        if(isset($inputs['cuisine'])){
+            $cuisine = Cuisine::where('name', $inputs['cuisine']['name']);
+            if(isset($inputs['cuisine']['id'])){
+                $cuisine = $cuisine->where('id',$inputs['cuisine']['id']);
+            }
+            $cuisine = $cuisine->first();
+            if (!$cuisine) {
+                $cuisine = Cuisine::create($request->input("cuisine"));
+            }
+            unset($inputs['cuisine']);
+            $inputs['cuisine_id'] = $cuisine->id;
         }
-        $cuisine = $cuisine->first();
-        if (!$cuisine) {
-            $cuisine = Cuisine::create($request->input("cuisine"));
+        if(isset($inputs['directions'])){
+            $inputs['directions'] = json_encode($request->input("directions"));
         }
-        unset($inputs['cuisine']);
-        $inputs['cuisine_id'] = $cuisine->id;
-
         $this->model->update($inputs);
 
         //save images
@@ -225,7 +228,7 @@ class RecipeController extends Controller
         if (count($equipments) > 0) {
             $newEquipments = [];
             foreach ($equipments as $equipment) {
-                if ($equipment['id']) {
+                if (isset($equipment['id'])) {
                     $this->model->equipments()->where('recipe_id', $id)->where('id', $equipment['id'])->update(["name" => $equipment['name']]);
                 } else {
                     $newEquipments[] = ['recipe_id' => $id, "name" => $equipment];
