@@ -212,8 +212,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("awards","AwardController");
 
                     Route::resource("catalogue","CompanyCatalogueController");
-
-
+                    Route::resource("products/catalogue","ProductCatalogueController");
+                    
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::resource("collaborate","CollaborateController");
