@@ -94,7 +94,7 @@ class ProductCatalogueController extends Controller
         //load the file
         $data = [];
         try {
-            \Excel::load( storage_path("app/" .$file),function($reader) use (&$data,&$companyId){
+            \Excel::load( storage_path("app/" .$file),function($reader) use (&$data){
                 $data = $reader->toArray();
             })->get();
             
