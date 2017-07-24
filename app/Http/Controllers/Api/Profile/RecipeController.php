@@ -153,22 +153,27 @@ class RecipeController extends Controller
             return $this->sendError("Recipe doesn't belong to the user.");
         }
 
-        $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token']);
-        if(isset($inputs['cuisine'])){
-            $cuisine = Cuisine::where('name', $inputs['cuisine']['name']);
-            if(isset($inputs['cuisine']['id'])){
-                $cuisine = $cuisine->where('id',$inputs['cuisine']['id']);
+        $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token','cuisine','directions']);
+        
+        //save cuisine
+        if($request->has('cuisine')){
+            $inputCuisine = $request->input('cuisine');
+            $cuisine = Cuisine::where('name', $inputCuisine['cuisine']['name']);
+            if(isset($inputCuisine['cuisine']['id'])){
+                $cuisine = $cuisine->where('id',$inputCuisine['cuisine']['id']);
             }
             $cuisine = $cuisine->first();
             if (!$cuisine) {
                 $cuisine = Cuisine::create($request->input("cuisine"));
             }
-            unset($inputs['cuisine']);
+            unset($inputCuisine['cuisine']);
             $inputs['cuisine_id'] = $cuisine->id;
         }
-        if(isset($inputs['directions'])){
+        
+        if($request->has('directions')){
             $inputs['directions'] = json_encode($request->input("directions"));
         }
+        
         $this->model->update($inputs);
 
         //save images
