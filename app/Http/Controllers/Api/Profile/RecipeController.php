@@ -47,19 +47,29 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $inputs = $request->except(['ingredients', 'equipments', 'images', '_token']);
+        $inputs = $request->except(['ingredients', 'equipments', 'images', '_token'],'cuisine');
         $inputs['profile_id'] = $profileId;
-        $cuisine = Cuisine::where('name', $inputs['cuisine']['name']);
-        if(isset($inputs['cuisine']['id'])){
-            $cuisine = $cuisine->where('id',$inputs['cuisine']['id']);
+        
+        //save cuisine
+        if($request->has("cuisine")){
+            $inputCuisine = $request->input('cuisine');
+            $cuisine = Cuisine::where('name', $inputCuisine['cuisine']['name']);
+            if(isset($inputCuisine['cuisine']['id'])){
+                $cuisine = $cuisine->where('id',$inputCuisine['cuisine']['id']);
+            }
+            $cuisine = $cuisine->first();
+            if (!$cuisine) {
+                $cuisine = Cuisine::create($request->input("cuisine"));
+            }
+            unset($inputCuisine['cuisine']);
+            $inputs['cuisine_id'] = $cuisine->id;
         }
-        $cuisine = $cuisine->first();
-        if (!$cuisine) {
-            $cuisine = Cuisine::create($request->input("cuisine"));
+        
+        //save directions
+        if($request->has('directions')){
+            $inputs['directions'] = json_encode($request->input("directions"));
         }
-        unset($inputs['cuisine']);
-        $inputs['cuisine_id'] = $cuisine->id;
-        $inputs['directions'] = json_encode($request->input("directions"));
+        
         $this->model = $this->model->create($inputs);
 
         //save images
