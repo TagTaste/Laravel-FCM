@@ -85,7 +85,7 @@ class Company extends Model
     ];
 
 
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue'];
 
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating'];
@@ -375,6 +375,11 @@ class Company extends Model
     public function getRatingAttribute()
     {
         return $this->rating()->avg('rating');
+    }
+    
+    public function productCatalogue()
+    {
+        return $this->hasMany(ProductCatalogue::class);
     }
 
 }

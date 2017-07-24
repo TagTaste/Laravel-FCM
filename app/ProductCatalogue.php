@@ -3,8 +3,10 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductCatalogue extends Model
 {
-    protected $fillable = ['product', 'catalogue', 'company_id'];
+    use SoftDeletes;
+    protected $fillable = ['product', 'category', 'company_id'];
 }

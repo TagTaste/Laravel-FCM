@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Company;
 use App\ProductCatalogue;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -30,9 +32,18 @@ class ProductCatalogueController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index($profileId, $companyId)
+	public function index(Request $request, $profileId, $companyId)
 	{
-		$this->model = $this->model->where('company_id',$companyId)->paginate();
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        
+		$this->model = $this->model->where('company_id',$companyId)->skip($skip)->take($take)->get();
+		
+		if($this->model->count() == 0){
+		    return $this->sendResponse();
+        }
+        
+        $this->model = $this->model->groupBy('category');
         return $this->sendResponse();
 	}
 
@@ -52,16 +63,83 @@ class ProductCatalogueController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request)
-	{
-		$inputs = $request->all();
-		if(!$request->hasFile("file")){
-		    return $this->sendError("File not uploaded.");
+	public function store(Request $request, $profileId, $companyId)
+    {
+        $company = Company::find($companyId);
+        if(!$company){
+            return $this->sendError("Company not found.");
+        }
+    
+        if(!$request->hasFile("file")){
+            return $this->sendError("File not uploaded.");
+        }
+    
+        $user = \App\Profile\User::find($request->user()->id);
+        $isPartOfCompany = $user->isPartOfCompany($companyId);
+    
+        if(!$isPartOfCompany){
+            $this->sendError("This company does not belong to user.");
         }
         
-		$this->model->create($inputs);
-
-		return redirect()->route('product_catalogues.index')->with('message', 'Item created successfully.');
+        //we have the file
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/c/" . $companyId;
+		$file = $request->file('file')->storeAs($path,$filename);
+		$fileExists = file_exists(storage_path("app/" . $file));
+		if(!$fileExists){
+		    \Log::info("cannot find file " . storage_path("app/" .$file));
+		    return;
+        }
+        
+        //load the file
+        $data = [];
+        try {
+            \Excel::load( storage_path("app/" .$file),function($reader) use (&$data,&$companyId){
+                $data = $reader->toArray();
+            })->get();
+            
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+        } catch (\Exception $e){
+		    \Log::info($e->getMessage());
+        }
+        
+        foreach($data as &$element){
+            $element['company_id'] = $companyId;
+        }
+        
+        //delete all previous catalogue products
+        ProductCatalogue::where('company_id',$companyId)->delete();
+        
+        //create new catalogue products
+        $this->model = ProductCatalogue::insert($data);
+		return $this->sendResponse();
+	}
+    
+    public function update(Request $request, $profileId, $companyId, $id)
+    {
+        $company = Company::find($companyId);
+        
+        if(!$company){
+            return $this->sendError("Company does not exist");
+        }
+        
+        $user = \App\Profile\User::find($request->user()->id);
+        $isPartOfCompany = $user->isPartOfCompany($companyId);
+    
+        if(!$isPartOfCompany){
+            $this->sendError("This company does not belong to user.");
+        }
+        
+        $product = ProductCatalogue::where('company_id',$companyId)->where('id',$id)->first();
+        if(!$product){
+            return $this->sendError("Could not find product.");
+        }
+        
+        $this->model =$product->update($request->except(['company_id']));
+        return $this->sendResponse();
+        
 	}
 
 	/**
@@ -72,8 +150,7 @@ class ProductCatalogueController extends Controller
 	 */
 	public function destroy($id)
 	{
-		$this->model->destroy($id);
-
-		return redirect()->route('product_catalogues.index')->with('message', 'Item deleted successfully.');
+		$this->model = $this->model->destroy($id);
+		return $this->sendResponse();
 	}
 }

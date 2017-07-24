@@ -15,9 +15,12 @@ class CreateProductCataloguesTable extends Migration {
 		Schema::create('product_catalogues', function(Blueprint $table) {
             $table->increments('id');
             $table->string('product');
-            $table->string('catalogue');
+            $table->string('category');
             $table->integer('company_id')->unsigned();
             $table->timestamps();
+            $table->softDeletes();
+            
+            $table->foreign("company_id")->references('id')->on('product_catalogues')->onDelete('cascade');
         });
 	}
 
