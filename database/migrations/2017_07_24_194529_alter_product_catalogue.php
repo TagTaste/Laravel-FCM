@@ -16,7 +16,7 @@ class AlterProductCatalogue extends Migration
         Schema::table("product_catalogues",function(Blueprint $table){
             $table->float('price')->nullable();
             $table->float('moq')->nullable();
-            $table->float('type')->nullable();
+            $table->string('type')->nullable();
             $table->string('about')->nullable();
         });
     }
