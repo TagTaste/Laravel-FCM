@@ -103,7 +103,7 @@ class PhotoController extends Controller
             }])->first();
 
         if(!$photo){
-            throw new \Exception("Profile does not have the photo.");
+            return $this->sendError("Photo not found");
         }
         $meta = $photo->getMetaFor($loggedInProfileId);
         $this->model = ['photo'=>$photo,'meta'=>$meta];
