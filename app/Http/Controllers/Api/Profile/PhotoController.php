@@ -95,7 +95,7 @@ class PhotoController extends Controller
     public function show(Request $request,$profileId,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $photo = Photo::where('id',$id)->forProfile($profileId)->with(['comments' => function($query){
+        $photo = Photo::where('id',$id)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
             }])
         ->with(['like'=>function($query) use ($loggedInProfileId){
