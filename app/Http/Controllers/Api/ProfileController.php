@@ -302,8 +302,7 @@ class ProfileController extends Controller
     public function filters()
     {
         $filters = [];
-        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->where('city','!=','null')->get();
-        $filters['college'] = \App\Education::select('college')->groupBy('college')->where('college','!=','null')->get();
+        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
 //        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
 
         $this->model = $filters;
@@ -317,10 +316,6 @@ class ProfileController extends Controller
         if(!empty($filters['city']))
         {
             $this->model=$this->model->whereIn('city',$filters['city']);
-        }
-        if(!empty($filters['college']))
-        {
-            $this->model=$this->model->whereIn('college',$filters['college']);
         }
         $this->model=$this->model->paginate(10);
 
