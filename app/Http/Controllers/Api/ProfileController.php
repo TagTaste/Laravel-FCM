@@ -302,8 +302,8 @@ class ProfileController extends Controller
     public function filters()
     {
         $filters = [];
-        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->where('city','!=','null')->get();
-        $filters['college'] = \App\Education::select('college')->groupBy('college')->where('college','!=','null')->get();
+        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
+        $filters['college'] = \App\Education::select('college')->groupBy('college')->where('college','!=','null')->where('college','!=','')->get();
 //        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
 
         $this->model = $filters;
