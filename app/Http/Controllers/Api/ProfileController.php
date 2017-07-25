@@ -42,7 +42,7 @@ class ProfileController extends Controller
         })->first();
     
         if ($profile === null) {
-            throw new ModelNotFoundException("Could not find profile.");
+            return $this->sendError("Could not find profile.");
         }
     
         $this->model = $profile->toArray();
