@@ -54,7 +54,7 @@ var logErr = function(err,count){
             var message = JSON.parse(message);
             console.log(channel);
             console.log(message);
-            feedNamespace.to(channel).emit("message",message);
+            publicNamespace.to(channel).emit("message",message);
             companyFeedNamespace.to(channel).emit("message", message);
         };
 
