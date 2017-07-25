@@ -13,7 +13,8 @@ var logErr = function(err,count){
     //private profile feed
         var feedNamespace = io.of('/feed');
         var feedEmit = function(pattern, channel, message){
-
+            console.log(channel);
+            console.log(message);
         };
         var feed = new Redis();
         feed.psubscribe('feed.*', logErr);
@@ -51,6 +52,9 @@ var logErr = function(err,count){
         var companyFeedNamespace = io.of("/company/public");
         var companyPublicEmit = function(pattern, channel, message){
             var message = JSON.parse(message);
+            console.log(channel);
+            console.log(message);
+            feedNamespace.to(channel).emit("message",message);
             companyFeedNamespace.to(channel).emit("message", message);
         };
 
