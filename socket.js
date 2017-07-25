@@ -226,6 +226,8 @@ var makeConnection = function(socket){
         response.setEncoding('utf8');
         response.on('data',function(body){
             body = JSON.parse(body);
+            console.log("connecting on");
+            console.log(body);
             if(body.error){
                 console.log(body.error);
                 return;
