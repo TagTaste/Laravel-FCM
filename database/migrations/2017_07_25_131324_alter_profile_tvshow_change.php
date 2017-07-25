@@ -28,7 +28,7 @@ class AlterProfileTvshowChange extends Migration
     public function down()
     {
         Schema::table('profile_shows',function(Blueprint $table){
-            $table->renameColumn('date', 'datstart_datee');
+            $table->renameColumn('date', 'start_date');
             $table->date('end_date')->nullable();
             $table->boolean('current')->default('0');
         });
