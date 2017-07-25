@@ -23,9 +23,10 @@ class Recipe extends Model implements Feedable, CommentNotification
 
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
-        'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id','tutorial_link'];
+        'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id',
+        'tutorial_link','cuisine'];
     
-    protected $with = ['profile','ingredients','equipments','images'];
+    protected $with = ['profile','ingredients','equipments','images','cuisine'];
 
     protected $appends = ['imageUrl','likeCount','rating'];
 
@@ -125,5 +126,18 @@ class Recipe extends Model implements Feedable, CommentNotification
     public function getRatingAttribute()
     {
         return $this->rating()->avg('rating');
+    }
+    
+    /**
+     * @return array
+     */
+    public function getFillable(): array
+    {
+        return $this->fillable;
+    }
+    
+    public function cuisine()
+    {
+        return $this->belongsTo(Cuisine::class);
     }
 }
