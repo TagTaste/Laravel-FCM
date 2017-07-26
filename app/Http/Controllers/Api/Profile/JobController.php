@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Profile;
-use App\Events\Update;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
