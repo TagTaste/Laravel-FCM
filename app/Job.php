@@ -17,7 +17,7 @@ class Job extends Model implements Feedable
     
     protected $fillable = ['title', 'description','why_us','location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
-        'company_id', 'type_id','privacy_id','resume_required','is_notify'
+        'company_id', 'type_id','privacy_id','resume_required'
     ];
     protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
@@ -127,6 +127,11 @@ class Job extends Model implements Feedable
             'content' => $this->title,
             'image' => null
         ];
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany('App\Job\Notification');
     }
     
 }

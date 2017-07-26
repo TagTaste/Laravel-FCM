@@ -59,9 +59,19 @@ class JobController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
         
-        $inputs = $request->except(['_method', '_token']);
+        $inputs = $request->except(['_method', '_token','notify']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $job = $company->jobs()->create($inputs);
+
+        $notifies = $request->input("notify");
+        \Log::info($notifies);
+        if (count($notifies) > 0) {
+            foreach ($notifies as &$notify) {
+                $notify = ['job_id' => $job->id, "profile_id" => $notify['profile_id'],"is_notify"=>$notify['is_notify']];
+            }
+            \Log::info($notifies);
+            $job->notifications()->insert($notifies);
+        }
         $this->model = Job::find($job->id);
         return $this->sendResponse();
     }

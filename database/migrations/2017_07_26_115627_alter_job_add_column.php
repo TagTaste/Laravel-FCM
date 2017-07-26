@@ -15,14 +15,13 @@ class AlterJobAddColumn extends Migration
     {
         Schema::table("jobs",function(Blueprint $table){
             $table->string('location')->change();
-            $table->text('why_us');
+            $table->text('why_us')->nullable();
             $table->float('salary_min')->unsigned()->nullable();
             $table->float('salary_max')->unsigned()->nullable();
             $table->float('experience_min')->unsigned();
             $table->float('experience_max')->unsigned();
             $table->string('joining');
             $table->boolean("resume_required")->default(0);
-            $table->boolean("is_notify")->default(0);
 
         });
     }
@@ -43,7 +42,6 @@ class AlterJobAddColumn extends Migration
             $table->dropColumn('experience_max');
             $table->dropColumn('joining');
             $table->dropColumn("resume_required");
-            $table->dropColumn("is_notify");
         });
     }
 }
