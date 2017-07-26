@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterCompaniesNullableField extends Migration
+class AlterCompaniesCityAdd extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AlterCompaniesNullableField extends Migration
     public function up()
     {
         Schema::table('companies',function(Blueprint $table){
-            $table->text('about')->nullable()->change();
-            $table->string('email')->change();
+            $table->string('city')->nullable();
         });
     }
 
@@ -27,8 +26,7 @@ class AlterCompaniesNullableField extends Migration
     public function down()
     {
         Schema::table('companies',function(Blueprint $table){
-            $table->text('about')->change();
-            $table->string('email')->nullable()->change();
+            $table->dropColumn('city');
         });
     }
 }

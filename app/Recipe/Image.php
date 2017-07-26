@@ -16,7 +16,16 @@ class Image extends Model
 
     public function getImageUrlAttribute()
     {
-         return $this->image !== null ? "/profile/recipes/".$this->recipe_id."/images/" . $this->image : null;
+        return $this->image !== null ? "/images/r/" . $this->recipe_id . "/" . $this->image: null;
+    }
+    
+    public static function getImagePath($recipeId,$filename = null)
+    {
+        //$relativePath = "profile/{$id}/images";
+        $relativePath = "images/r/$recipeId";
+        
+        \Storage::makeDirectory($relativePath);
+        return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 
 }

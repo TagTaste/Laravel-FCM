@@ -35,19 +35,40 @@ class Handler extends ExceptionHandler
     public function report(Exception $exception)
     {
         parent::report($exception);
-//        if($exception->getMessage() !== ""){
-//            $client =  new \GuzzleHttp\Client();
-//            $res = $client->request('POST', env('SLACK_HOOK_DEVELOPMENT'),
-//                [
-//                    'json' =>
-//                        [
-//                            "channel" => env('SLACK_CHANNEL'),
-//                            "username" => "ramukaka",
-//                            "icon_emoji" => ":older_man::skin-tone-3:",
-//                            "text" => $exception->getMessage()]
-//                ]);
-//        }
+        $this->sendToSlack($exception);
+    }
+    
+    private function sendToSlack(\Exception $e){
+        \Log::info(is_null($e->getMessage()));
+        if($e->getMessage() == null){
+            return;
+        }
+        $hook = env('SLACK_HOOK');
+        if(!$hook){
+            \Log::warning("No hook provided for slack.");
+            return;
+        }
+        $user = request()->user();
         
+        $message = gethostname();
+        if($user){
+            $message .= " ($user->name:$user->id)";
+        }
+        $message .= ": " .$e->getMessage() . " [" . $e->getFile() . ":" . $e->getLine(). "]";
+        $this->sendMessage($hook,$message);
+    }
+    
+    private function sendMessage($hook,$message){
+        $client =  new \GuzzleHttp\Client();
+        $client->request('POST', $hook,
+            [
+                'json' =>
+                    [
+                        "channel" => env('SLACK_CHANNEL'),
+                        "username" => "ramukaka",
+                        "icon_emoji" => ":older_man::skin-tone-3:",
+                        "text" => $message]
+            ]);
     }
 
     /**

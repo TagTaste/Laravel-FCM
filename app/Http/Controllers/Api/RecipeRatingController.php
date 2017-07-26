@@ -39,15 +39,9 @@ class RecipeRatingController extends Controller
         $inputs['recipe_id'] = $recipeId;
         $inputs['profile_id'] = $request->user()->profile->id;
 
-        $userRating = $this->model->where('recipe_id', $recipeId)
-            ->where('profile_id', $inputs['profile_id'])->first();
+        $this->model->where('recipe_id', $recipeId)
+            ->where('profile_id', $inputs['profile_id'])->delete();
 
-        if($userRating){
-            $userRating->rating = $inputs['rating'];
-            $userRating->save();
-            $this->model = $userRating;
-            return $this->sendResponse();
-        }
 
         $this->model = $this->model->create($inputs);
         return $this->sendResponse();

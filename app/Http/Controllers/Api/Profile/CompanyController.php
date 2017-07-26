@@ -182,7 +182,7 @@ class CompanyController extends Controller
             throw new ModelNotFoundException("Company not found.");
         }
         
-        $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
         
         if(!$this->model){
             throw new \Exception("You are already following this company.");
@@ -198,7 +198,7 @@ class CompanyController extends Controller
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
             throw new \Exception("You are not following this company.");

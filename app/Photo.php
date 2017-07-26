@@ -78,7 +78,7 @@ class Photo extends Model implements Feedable
     
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "images/ph/$profileId/c/$companyId/p";
+        $relativePath = "images/ph/$companyId/c";
         $status = Storage::makeDirectory($relativePath,0644,true);
         return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
@@ -102,7 +102,11 @@ class Photo extends Model implements Feedable
     
     public function getPhotoUrlAttribute()
     {
-        return $this->file !== null ? "/images/ph/" . $this->profile_id . "/p/" . $this->file : null;
+        if($this->profile_id) {
+            return $this->file !== null ? "/images/ph/" . $this->profile_id . "/p/" . $this->file : null;
+        }
+        
+        return $this->file !== null ? "/images/ph/" . $this->company_id . "/c/" . $this->file : null;
     }
     
     public function profile()
@@ -166,8 +170,8 @@ class Photo extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
-        $meta['likeCount'] = $this->likeCount;
+        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->exists();
+        $meta['likeCount'] = $this->like()->count();
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
@@ -183,6 +187,14 @@ class Photo extends Model implements Feedable
             'content' => $this->caption,
             'image' => $this->photoUrl
         ];
+    }
+    
+    public function getRelatedKey() : array
+    {
+        if(empty($this->relatedKey) && $this->profile_id !== null){
+            return ['profile'=>'profile:small:' . $this->profile_id];
+        }
+        return ['company'=>'company:small:' . $this->company_id];
     }
    
 }
