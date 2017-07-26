@@ -111,6 +111,13 @@ class JobController extends Controller
     
     public function apply(Request $request, $profileId, $id)
     {
+        $applierProfileId = $request->user()->profile->id;
+
+        $alreadyApplied=\DB::table('applications')->where('job_id',$id)->Where('profile_id',$applierProfileId)->exists();
+        if($alreadyApplied){
+            throw new \Exception("You had already applied.");
+        }
+
         $profile = Profile::find($profileId);
 
         if(!$profile){
@@ -122,8 +129,6 @@ class JobController extends Controller
         if(!$job){
             throw new \Exception("Job not found.");
         }
-        
-        $applierProfileId = $request->user()->profile->id;
     
         $path = "profile/$profileId/job/$id/resume";
         $status = \Storage::makeDirectory($path, 0644, true);
@@ -138,9 +143,6 @@ class JobController extends Controller
         }
         $profileId = $request->user()->profile->id;
         $this->model = $job->apply($profileId, $resumeName);
-
-        event(new Update($id,'job',$profileId,"Applied on job"));
-
 
         return $this->sendResponse();
     }
