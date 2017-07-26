@@ -132,7 +132,8 @@ class JobController extends Controller
         $path = "profile/$profileId/job/$id/resume";
         $status = \Storage::makeDirectory($path, 0644, true);
         if ($request->hasFile('resume')) {
-            $resumeName = str_random("32") . ".pdf";
+            $ext = \File::extension($request->file('resume')->getClientOriginalName());
+            $resumeName = str_random("32") .".". $ext;
             $response = $request->file("resume")->storeAs($path, $resumeName);
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);

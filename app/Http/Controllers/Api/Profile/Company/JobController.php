@@ -153,8 +153,9 @@ class JobController extends Controller
         }
         $path = "profile/$profileId/job/$id/resume";
         $status = \Storage::makeDirectory($path, 0644, true);
-        if ($request->hasFile('resume')) {
-            $resumeName = str_random("32") . ".pdf";
+            if ($request->hasFile('resume')) {
+                $ext = \File::extension($request->file('resume')->getClientOriginalName());
+                $resumeName = str_random("32") .".". $ext;
             $response = $request->file("resume")->storeAs($path, $resumeName);
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
@@ -207,9 +208,29 @@ class JobController extends Controller
         return $this->sendResponse();
     }
     
-    public function shortlist($profileId, $companyId, $id, $shortlistedProfileId)
+    public function shortlist(Request$request,$profileId, $companyId, $id, $shortlistedProfileId)
     {
-        $this->model = true;
+        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
+
+        if (!$company) {
+            throw new \Exception("This company does not belong to user.");
+        }
+
+        $job = $company->jobs()->where('id', $id)->first();
+
+        if (!$job) {
+            throw new \Exception("Job not found.");
+        }
+
+        $profile = $request->user()->profile;
+
+        $shortlistedApplication = $job->applications()->where('profile_id',$shortlistedProfileId)->first();
+
+        if(!$shortlistedApplication){
+            throw new \Exception("Application not found.");
+        }
+
+        $this->model = $shortlistedApplication->shortlist($profile);
         return $this->sendResponse();
     }
 }
