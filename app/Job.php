@@ -15,15 +15,12 @@ class Job extends Model implements Feedable
 {
     use SoftDeletes, IdentifiesOwner, CachedPayload;
     
-    protected $fillable = ['title', 'description', 'type', 'location',
-        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required','profile_id',
-        'company_id', 'type_id','privacy_id'
-
+    protected $fillable = ['title', 'description','why_us','location','key_skills',
+        'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
+        'company_id', 'type_id','privacy_id','resume_required','is_notify'
     ];
-    protected $visible = ['title', 'description', 'type', 'location',
-        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required',
+    protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
+        'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile', 'profile_id',
         'applications','created_at', 'expires_on','job_id','privacy_id'
     ];
