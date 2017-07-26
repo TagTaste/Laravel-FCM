@@ -8,5 +8,5 @@ class Status extends Model
 {
     protected $table = "company_statuses";
 
-    protected $visible = ['id','name'];
+    protected $visible = ['id','name','key','value'];
 }
