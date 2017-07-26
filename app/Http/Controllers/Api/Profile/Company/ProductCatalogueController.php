@@ -42,7 +42,7 @@ class ProductCatalogueController extends Controller
 		if($this->model->count() == 0){
 		    return $this->sendResponse();
         }
-        
+        $this->model = $this->model->groupBy('category');
         return $this->sendResponse();
 	}
 
@@ -104,6 +104,7 @@ class ProductCatalogueController extends Controller
         foreach($data as &$element){
             $element['company_id'] = $companyId;
         }
+        
         unset($element);
     
         //delete all previous catalogue products
