@@ -43,7 +43,6 @@ class ProductCatalogueController extends Controller
 		    return $this->sendResponse();
         }
         
-        $this->model = $this->model->groupBy('category');
         return $this->sendResponse();
 	}
 
@@ -85,7 +84,7 @@ class ProductCatalogueController extends Controller
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename);
-		$fullpath = env("STORAGE_PATH") . $path . "/" . $filename;
+		$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
 
         //load the file
         $data = [];
@@ -93,7 +92,6 @@ class ProductCatalogueController extends Controller
             \Excel::load($fullpath, function($reader) use (&$data){
                 $data = $reader->toArray();
             })->get();
-            
             if(empty($data)){
                 return $this->sendError("Empty file uploaded.");
             }
@@ -106,7 +104,8 @@ class ProductCatalogueController extends Controller
         foreach($data as &$element){
             $element['company_id'] = $companyId;
         }
-        
+        unset($element);
+    
         //delete all previous catalogue products
         ProductCatalogue::where('company_id',$companyId)->delete();
         
