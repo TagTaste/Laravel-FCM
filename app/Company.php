@@ -45,6 +45,7 @@ class Company extends Model
         'milestones',
         'speciality',
         'handle',
+        'city',
         'user_id'
     ];
     
@@ -82,6 +83,7 @@ class Company extends Model
         'handle',
         'followerProfiles',
         'rating',
+        'city'
     ];
 
 

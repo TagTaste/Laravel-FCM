@@ -13,10 +13,22 @@ class CompanyController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-        $this->model = Company::with('status','type')->orderBy('id', 'desc')->paginate(10);
+        $this->model = Company::with('status','type');
 
-		return $this->sendResponse();
-	}
+        $filters = $request->input('filters');
+        if (!empty($filters['city'])) {
+            $this->model=$this->model->whereIn('city',$filters['city']);
+        }
+        if (!empty($filters['type'])) {
+            $this->model=$this->model->whereIn('type',$filters['type']);
+        }
+        if (!empty($filters['status'])) {
+            $this->model=$this->model->whereIn('status_id',$filters['status']);
+        }
+
+        $this->model=$this->model->orderBy('id', 'desc')->paginate(10);
+        return $this->sendResponse();
+    }
  
 
 	/**
@@ -36,4 +48,17 @@ class CompanyController extends Controller {
         
         return $this->sendResponse();
     }
+
+    public function filters()
+    {
+        $filters = [];
+        $filters['location'] = \App\Filter\Company::select('city')
+            ->groupBy('city')->where('city','!=','null')->get();
+        $filters['types'] = \App\Company\Type::select('id','name')->get();
+        $filters['status'] = \App\Company\Status::select('id','name')->get();
+
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
+
 }
