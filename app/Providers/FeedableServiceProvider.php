@@ -30,7 +30,7 @@ class FeedableServiceProvider extends ServiceProvider
         
         \App\Shoutout::observe(FeedableObserver::class);
         \App\Job::observe(FeedableObserver::class);
-        \App\Collaborate::observe(FeedableObserver::class);
+        //\App\Collaborate::observe(FeedableObserver::class);
     }
 
     /**

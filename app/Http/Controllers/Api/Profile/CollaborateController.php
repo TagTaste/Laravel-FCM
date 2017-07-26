@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Collaborate;
+use App\Events\NewFeedable;
 use App\Field;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -82,8 +83,9 @@ class CollaborateController extends Controller
         $this->model->categories()->sync($categories);
   
 		$this->model->syncFields($fields);
-		
+		$profile = Profile::find($profileId);
         $this->model = $this->model->fresh();
+        event(new NewFeedable($this->model,$profile));
 		return $this->sendResponse();
 	}
 
