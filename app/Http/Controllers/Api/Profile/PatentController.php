@@ -42,7 +42,7 @@ class PatentController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['_method','_token']);
         $inputs['profile_id'] = $profileId;
-        $this->model = \App\Patent::create($inputs);
+        $this->model = Patent::create($inputs);
         return $this->sendResponse();
     }
 
@@ -87,7 +87,7 @@ class PatentController extends Controller
             $input['publish_date'] = date('Y-m-d',strtotime($input['publish_date']));
         }
 
-        $this->model = \App\Patent::where('profile_id',$request->user()->profile->id)->
+        $this->model = Patent::where('profile_id',$request->user()->profile->id)->
         where('id',$id)->update($input);
         return $this->sendResponse();
     }
@@ -100,7 +100,7 @@ class PatentController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = \App\Patent::where('profile_id',$request->user()->profile->id)->where('id',$id)->delete();
+        $this->model =Patent::where('profile_id',$request->user()->profile->id)->where('id',$id)->delete();
         return $this->sendResponse();
     }
 }
