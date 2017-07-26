@@ -13,9 +13,9 @@ class Patent extends Model
 
     protected $table = 'profile_patents';
 
-    protected $fillable = ['id','title','description','publish_date','patent_number','url'];
+    protected $fillable = ['id','title','description','publish_date','patent_number','url','profile_id'];
 
-    protected $visible = ['id','title','description','publish_date','patent_number','url'];
+    protected $visible = ['id','title','description','publish_date','patent_number','url','profile_id'];
     
     public function setPublishDateAttribute($value)
     {

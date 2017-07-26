@@ -17,13 +17,13 @@ class Recipe extends Model implements Feedable, CommentNotification
     public static $expectsFiles = true;
     protected $fillable = ['name','description', 'serving',
         'preparation_time','cooking_time','level','tags','cuisine_id','type',
-        'profile_id','privacy_id','payload_id','directions'];
+        'profile_id','privacy_id','payload_id','directions','tutorial_link'];
     protected $dates = ['created_at','deleted_at'];
     
 
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
-        'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id'];
+        'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id','tutorial_link'];
     
     protected $with = ['profile','ingredients','equipments','images'];
 
@@ -94,7 +94,6 @@ class Recipe extends Model implements Feedable, CommentNotification
         $meta['likeCount'] = $this->likeCount;
         $meta['commentCount'] = $this->comments()->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-    
         return $meta;
     }
     

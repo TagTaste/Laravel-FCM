@@ -19,6 +19,7 @@ class Action extends Notification
     public $action;
     public $content;
     public $image;
+    public $modelName;
     /**
      * Create a new notification instance.
      *
@@ -28,6 +29,8 @@ class Action extends Notification
     public function __construct($event)
     {
         $this->data = $event;
+        $this->model = $event->model;
+        $this->modelName = strtolower(class_basename($event->model));
     }
 
     /**
@@ -71,9 +74,9 @@ class Action extends Notification
         if(method_exists($this->data->model,'getNotificationContent')){
             $data['model'] = $this->data->model->getNotificationContent();
         } else {
-            \Log::warning(class_basename($this->data->model) . " doesn't specify notification content.");
+            \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
             $data['model'] = [
-                'name' => strtolower(class_basename($this->data->model)),
+                'name' => $this->modelName,
                 'id' => $this->data->model->id,
                 'content' => $this->data->content,
                 'image' => $this->data->image

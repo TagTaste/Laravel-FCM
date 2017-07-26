@@ -100,9 +100,9 @@ class ExperienceController extends Controller
         }
     
         if(isset($input['end_date'])){
-            $input['end_date'] = empty($value) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
+            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
         }
-            
+
         $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->update($input);
         return $this->sendResponse();
     }

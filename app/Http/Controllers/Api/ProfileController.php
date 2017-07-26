@@ -48,7 +48,7 @@ class ProfileController extends Controller
         $this->model = $profile->toArray();
     
         $loggedInProfileId = $request->user()->profile->id;
-        $self = $id === $loggedInProfileId;
+        $self = $id == $loggedInProfileId;
         $this->model['profile']['self'] = $self;
         
         $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
@@ -78,7 +78,6 @@ class ProfileController extends Controller
     {
         $data = $request->except(["_method","_token"]);
         
-        
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -89,7 +88,6 @@ class ProfileController extends Controller
             $name = array_pull($data, 'name');
             $request->user()->update(['name'=>trim($name)]);
         }
-        
         //save profile image
         $path = \App\Profile::getImagePath($id);
         $this->saveFileToData("image",$path,$request,$data);
@@ -100,7 +98,8 @@ class ProfileController extends Controller
 
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
-            $this->model = $request->user()->profile->update($data['profile']);
+            $userId = $request->user()->id;
+            $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
         }
         
         return $this->sendResponse();
@@ -109,7 +108,7 @@ class ProfileController extends Controller
     private function saveFileToData($key,$path,&$request,&$data)
     {
         if($request->hasFile($key)){
-            $data[$key] = $this->saveFile($path,$request,$key);
+            $data['profile'][$key] = $this->saveFile($path,$request,$key);
         }
     }
     
@@ -167,7 +166,7 @@ class ProfileController extends Controller
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->profile->subscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
         if(!$this->model){
             throw new \Exception("You are already following this profile.");
         }
@@ -184,7 +183,7 @@ class ProfileController extends Controller
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->profile->unsubscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
             throw new \Exception("You are not following this profile.");
@@ -297,6 +296,29 @@ class ProfileController extends Controller
     public function all()
     {
         $this->model = \App\Recipe\Profile::paginate();
+        return $this->sendResponse();
+    }
+
+    public function filters()
+    {
+        $filters = [];
+        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
+//        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
+
+        $this->model = $filters;
+        return $this->sendResponse();
+    }
+
+    public function filtersData(Request $request)
+    {
+        $filters = $request->input('filters');
+        $this->model=new \App\Profile ();
+        if(!empty($filters['city']))
+        {
+            $this->model=$this->model->whereIn('city',$filters['city']);
+        }
+        $this->model=$this->model->paginate(10);
+
         return $this->sendResponse();
     }
 

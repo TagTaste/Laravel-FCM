@@ -15,7 +15,7 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $userId = $request->user()->id;
-        $profile = \App\Notify\Profile::find($userId);
+        $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model = $profile->notifications()->paginate();
         return $this->sendResponse();
     }
@@ -29,7 +29,7 @@ class NotificationController extends Controller
     public function show(Request $request, $id)
     {
         $userId = $request->user()->id;
-        $profile = \App\Notify\Profile::find($userId);
+        $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->notifications()->where('id',$id)->first();
         return $this->sendResponse();
     }
@@ -43,7 +43,7 @@ class NotificationController extends Controller
     public function destroy(Request $request, $id)
     {
         $userId = $request->user()->id;
-        $profile = \App\Notify\Profile::find($userId);
+        $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->notifications()->where('id',$id)->delete();
         return $this->sendResponse();
     }
@@ -59,7 +59,7 @@ class NotificationController extends Controller
     public function read(Request $request, $id)
     {
         $userId = $request->user()->id;
-        $profile = \App\Notify\Profile::find($userId);
+        $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->notifications()->where('id',$id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
@@ -75,7 +75,7 @@ class NotificationController extends Controller
     public function unread(Request $request)
     {
         $userId = $request->user()->id;
-        $profile = \App\Notify\Profile::find($userId);
+        $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->unreadNotifications;
         return $this->sendResponse();
     }

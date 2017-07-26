@@ -151,8 +151,7 @@ class ShoutoutController extends Controller
         }
     
         if($request->has('profile_id') && $request->input('profile_id') !== null){
-            $profile = $request->user()->profile()->where('id',$request->input('profile_id'))->first();
-            if(!$profile){
+            if($request->input('profile_id') != $request->user()->profile->id){
                 throw new \Exception("User doesn't belong to this profile.");
             }
         }

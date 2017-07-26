@@ -161,6 +161,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
            
             Route::get('/people','ProfileController@all');
+            Route::get("profile/filters", "ProfileController@filters");
+            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');
 
             //company filter
@@ -212,8 +214,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("awards","AwardController");
 
                     Route::resource("catalogue","CompanyCatalogueController");
-
-
+                    Route::resource("products/catalogue","ProductCatalogueController");
+                    
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::resource("collaborate","CollaborateController");

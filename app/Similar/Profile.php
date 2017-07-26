@@ -28,10 +28,9 @@ class Profile extends BaseProfile
         
         if($distinctProfiles->count()){
             $dist = $distinctProfiles->pluck('id')->toArray();
-            $profiles = self::whereIn('id',$dist)->skip($skip)
+            return self::whereIn('id',$dist)->skip($skip)
                 ->take($take)
                 ->get();
-            return $profiles;
         }
         return false;
     }

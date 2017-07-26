@@ -61,7 +61,9 @@ class CollaborateController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-        $isPartOfCompany = $request->user()->isPartOfCompany($companyId);
+	    $userId = $request->user()->id;
+	    $user = \App\Profile\User::find($userId);
+        $isPartOfCompany = $user->isPartOfCompany($companyId);
         
         if(!$isPartOfCompany){
            $this->sendError("This company does not belong to user.");
@@ -109,7 +111,9 @@ class CollaborateController extends Controller
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
 		$inputs = $request->all();
-        $company = $request->user()->isPartOfCompany($companyId);
+        $userId = $request->user()->id;
+        $user = \App\Profile\User::find($userId);
+        $company = $user->isPartOfCompany($companyId);
         
         if(!$company){
             throw new \Exception("This company does not belong to user.");
@@ -139,7 +143,9 @@ class CollaborateController extends Controller
 	 */
 	public function destroy(Request $request, $profileId, $companyId, $id)
 	{
-        $company = $request->user()->isPartOfCompany($companyId);
+        $userId = $request->user()->id;
+        $user = \App\Profile\User::find($userId);
+        $company = $user->isPartOfCompany($companyId);
         
         if(!$company){
             throw new \Exception("This company does not belong to user.");
