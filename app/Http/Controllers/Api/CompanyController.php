@@ -52,10 +52,10 @@ class CompanyController extends Controller {
     public function filters()
     {
         $filters = [];
-        $filters['location'] = \App\Filter\Company::select('city')
+        $filters['location'] = \App\Filter\Company::select('city as value')
             ->groupBy('city')->where('city','!=','null')->get();
-        $filters['types'] = \App\Company\Type::select('id','name')->get();
-        $filters['status'] = \App\Company\Status::select('id','name')->get();
+        $filters['types'] = \App\Company\Type::select('id as key','name as value')->get();
+        $filters['status'] = \App\Company\Status::select('id as key','name as value')->get();
 
         $this->model = $filters;
         return $this->sendResponse();
