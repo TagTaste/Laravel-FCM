@@ -162,7 +162,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
            
             Route::get('/people','ProfileController@all');
             Route::get("profile/filters", "ProfileController@filters");
-            Route::post("profile/filters", "ProfileController@filtersData");
+//            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');
             
             Route::resource('companies','CompanyController');
