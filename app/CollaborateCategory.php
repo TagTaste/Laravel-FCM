@@ -10,7 +10,7 @@ class CollaborateCategory extends Model
 {
     protected $fillable = ['name', 'parent_id'];
 
-    protected $visible = ['id', 'name','children'];
+    protected $visible = ['id', 'name','children','key','value'];
 
     public static function checkExists(&$collabCategoryDetails)
     {
