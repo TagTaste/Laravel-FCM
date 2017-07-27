@@ -16,6 +16,7 @@ class AlterJobAddColumn extends Migration
         Schema::table("jobs",function(Blueprint $table){
             $table->string('location')->change();
             $table->text('why_us')->nullable();
+            $table->text('minimum_qualification')->nullable();
             $table->float('salary_min')->unsigned()->nullable();
             $table->float('salary_max')->unsigned()->nullable();
             $table->float('experience_min')->unsigned();
@@ -36,6 +37,7 @@ class AlterJobAddColumn extends Migration
         Schema::table('jobs',function(Blueprint $table){
             $table->string('location')->nullable()->change();
             $table->dropColumn('why_us');
+            $table->dropColumn('minimum_qualification');
             $table->dropColumn('salary_min');
             $table->dropColumn('salary_max');
             $table->dropColumn('experience_min');
