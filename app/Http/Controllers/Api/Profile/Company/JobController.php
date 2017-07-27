@@ -61,7 +61,6 @@ class JobController extends Controller
         $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $job = $company->jobs()->create($inputs);
-
         $this->model = Job::find($job->id);
         return $this->sendResponse();
     }
@@ -147,7 +146,7 @@ class JobController extends Controller
             }
             //for update resume in profiles table
 //            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
-        } else{
+        } else {
             $resumeName = $request->user()->profile->resume;
         }
         $profileId = $request->user()->profile->id;

@@ -112,11 +112,6 @@ class JobController extends Controller
     {
         $applierProfileId = $request->user()->profile->id;
 
-        $alreadyApplied=\DB::table('applications')->where('job_id',$id)->Where('profile_id',$applierProfileId)->exists();
-        if($alreadyApplied){
-            throw new \Exception("You had already applied.");
-        }
-
         $profile = Profile::find($profileId);
 
         if(!$profile){
