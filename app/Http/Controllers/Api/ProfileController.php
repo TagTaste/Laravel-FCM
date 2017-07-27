@@ -297,7 +297,6 @@ class ProfileController extends Controller
     {
         $filters = $request->input('filters');
         $this->model =new \App\Recipe\Profile ();
-        \Log::info($filters);
         if(!empty($filters['city']))
         {
             $this->model=$this->model->whereIn('city',$filters['city']);
