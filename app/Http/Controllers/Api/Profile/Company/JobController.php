@@ -215,7 +215,7 @@ class JobController extends Controller
         return $this->sendResponse();
     }
     
-    public function shortlist(Request$request,$profileId, $companyId, $id, $shortlistedProfileId)
+    public function shortlist(Request $request,$profileId, $companyId, $id, $shortlistedProfileId)
     {
         $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
 
