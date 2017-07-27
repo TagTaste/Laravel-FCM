@@ -207,9 +207,10 @@ class JobController extends Controller
         if (!$job) {
             throw new \Exception("Job not found.");
         }
-        
-        $this->model = ['applications' => $job->applications()->paginate()];
-        $this->model['count'] = $job->applications()->count();
+        $shortListed=$request->input("is_shortliest");
+        $jobs=$job->applications()->whereIn('shortlisted',$shortListed);
+        $this->model = ['applications' =>$jobs ->paginate()];
+        $this->model['count'] = $jobs->count();
         
         return $this->sendResponse();
     }
