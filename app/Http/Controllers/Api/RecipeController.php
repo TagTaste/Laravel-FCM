@@ -78,7 +78,7 @@ class RecipeController extends Controller
     {
         $filters = [];
 
-        $filters['cuisine'] = \App\Cuisine::select('id as key','name as value')->get();
+//        $filters['cuisine'] = \App\Cuisine::select('id','name')->groupBy('name')->get();
         $filters['level'] = \App\Filter\Recipe::select('level as value')->groupBy('level')->get();
         $filters['type'] = \App\Filter\Recipe::select('type as value')->groupBy('type')->get();
         $filters['ingredients']=\App\Recipe\Ingredient::select('id as key','name as value')->get();

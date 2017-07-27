@@ -9,8 +9,8 @@ class Ingredient extends Model
 
     protected $table = "recipe_ingredients";
 
-    protected $fillable = ['name','recipe_id','key','value'];
+    protected $fillable = ['name','recipe_id'];
 
-    protected $visible = ['id','name'];
+    protected $visible = ['id','name','key','value'];
 
 }
