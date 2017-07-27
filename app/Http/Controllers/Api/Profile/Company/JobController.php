@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\Company;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
+use App\Profile;
 use Illuminate\Http\Request;
 use App\Events\Update;
 
@@ -140,7 +141,6 @@ class JobController extends Controller
         if($alreadyApplied){
             throw new \Exception("You had already applied.");
         }
-
         $company = Company::find($companyId);
         if (!$company) {
             throw new \Exception("Company not found..");
@@ -160,8 +160,14 @@ class JobController extends Controller
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }
-        } else {
+            //for update resume in profiles table
+//            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
+        } else if($request->user()->profile->resume){
             $resumeName = $request->user()->profile->resume;
+        }
+        else{
+            throw new \Exception("Please upload a resue ");
+
         }
         $profileId = $request->user()->profile->id;
         $this->model = $job->apply($profileId, $resumeName);
