@@ -302,7 +302,10 @@ class ProfileController extends Controller
         {
             $this->model=$this->model->whereIn('city',$filters['city']);
         }
-        $this->model=$this->model->paginate(10);
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
