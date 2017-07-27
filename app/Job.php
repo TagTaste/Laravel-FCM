@@ -128,10 +128,5 @@ class Job extends Model implements Feedable
             'image' => null
         ];
     }
-
-    public function notifications()
-    {
-        return $this->hasMany('App\Job\Notification');
-    }
     
 }

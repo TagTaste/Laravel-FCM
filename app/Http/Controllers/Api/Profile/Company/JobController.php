@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\Company;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
-use App\Profile;
 use Illuminate\Http\Request;
-use App\Events\Update;
 
 class JobController extends Controller
 {
@@ -60,17 +58,10 @@ class JobController extends Controller
             throw new \Exception("This company does not belong to user.");
         }
         
-        $inputs = $request->except(['_method', '_token','notify']);
+        $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $job = $company->jobs()->create($inputs);
 
-        $notifies = $request->input("notify");
-        if (count($notifies) > 0) {
-            foreach ($notifies as &$notify) {
-                $notify = ['job_id' => $job->id, "profile_id" => $notify['profile_id'],"is_notify"=>$notify['is_notify']];
-            }
-            $job->notifications()->insert($notifies);
-        }
         $this->model = Job::find($job->id);
         return $this->sendResponse();
     }
@@ -135,12 +126,6 @@ class JobController extends Controller
     
     public function apply(Request $request, $profileId, $companyId, $id)
     {
-        $applierProfileId = $request->user()->profile->id;
-
-        $alreadyApplied=\DB::table('applications')->where('job_id',$id)->Where('profile_id',$applierProfileId)->exists();
-        if($alreadyApplied){
-            throw new \Exception("You had already applied.");
-        }
         $company = Company::find($companyId);
         if (!$company) {
             throw new \Exception("Company not found..");
@@ -162,12 +147,8 @@ class JobController extends Controller
             }
             //for update resume in profiles table
 //            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
-        } else if($request->user()->profile->resume){
+        } else{
             $resumeName = $request->user()->profile->resume;
-        }
-        else{
-            throw new \Exception("Please upload a resue ");
-
         }
         $profileId = $request->user()->profile->id;
         $this->model = $job->apply($profileId, $resumeName);
