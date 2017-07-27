@@ -85,7 +85,10 @@ class CollaborateController extends Controller
             $collaborations = $collaborations->whereIn('category_id',$filters['categories']);
         }
         
-        $collaborations = $collaborations->paginate();
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
         
         $this->model = [];
         $profileId = $request->user()->profile->id;

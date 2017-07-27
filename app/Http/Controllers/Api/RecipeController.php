@@ -29,7 +29,11 @@ class RecipeController extends Controller
         if (!empty($filters['type'])) {
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
-        $recipes=$recipes->paginate(10);
+    
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $recipes=$recipes->skip($skip)->take($take)->get();
 
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = [];

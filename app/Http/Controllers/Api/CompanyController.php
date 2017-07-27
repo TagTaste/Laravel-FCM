@@ -25,8 +25,11 @@ class CompanyController extends Controller {
         if (!empty($filters['status'])) {
             $this->model=$this->model->whereIn('status_id',$filters['status']);
         }
-
-        $this->model=$this->model->orderBy('id', 'desc')->paginate(10);
+        
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
         return $this->sendResponse();
     }
  
