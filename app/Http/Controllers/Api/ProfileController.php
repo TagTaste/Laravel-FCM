@@ -99,7 +99,12 @@ class ProfileController extends Controller
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;
-            $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
+            try {
+                $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
+            } catch(\Exception $e){
+                \Log::error($e->getMessage());
+                return $this->sendError("Could not update.");
+            }
         }
         
         return $this->sendResponse();
