@@ -55,7 +55,7 @@ class JobController extends Controller
         $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         
         if (!$company) {
-            throw new \Exception("This company does not belong to user.");
+            return $this-sendError("This company does not belong to user.");
         }
         
         $inputs = $request->except(['_method', '_token']);
@@ -76,7 +76,7 @@ class JobController extends Controller
         $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
         
         if (!$job) {
-            throw new \Exception("No job found with the given Id.");
+            return $this-sendError("No job found with the given Id.");
         }
         
         $meta = $job->getMetaFor($profileId);
@@ -97,7 +97,7 @@ class JobController extends Controller
         $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         
         if (!$company) {
-            throw new \Exception("This company does not belong to user.");
+            return $this-sendError("This company does not belong to user.");
         }
         
         $this->model = $company->jobs()->where('id', $id)->update($request->except(['_token', '_method']));
@@ -114,7 +114,7 @@ class JobController extends Controller
     {
         $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         if (!$company) {
-            throw new \Exception("This company does not belong to user.");
+            return $this-sendError("This company does not belong to user.");
         }
         
         $this->model = $company->jobs()->where('id', $id)->delete();
@@ -127,13 +127,13 @@ class JobController extends Controller
     {
         $company = Company::find($companyId);
         if (!$company) {
-            throw new \Exception("Company not found..");
+            return $this-sendError("Company not found..");
         }
         
         $job = $company->jobs()->where('id', $id)->first();
         
         if (!$job) {
-            throw new \Exception("Job not found.");
+            return $this-sendError("Job not found.");
         }
         $applierProfileId = $request->user()->profile->id;
     
@@ -144,7 +144,7 @@ class JobController extends Controller
             $resumeName = str_random("32") . "." . $ext;
             $response = $request->file("resume")->storeAs($path, $resumeName);
             if (!$response) {
-                throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
+                return $this-sendError("Could not save resume " . $resumeName . " at " . $path);
             }
 //            for update resume in profiles table
             $data = Profile::where('id', $applierProfileId)->update(['resume' => $resumeName]);
@@ -160,13 +160,13 @@ class JobController extends Controller
     {
         $company = Company::find($companyId);
         if (!$company) {
-            throw new \Exception("Company not found..");
+            return $this-sendError("Company not found..");
         }
         
         $job = $company->jobs()->where('id', $id)->first();
         
         if (!$job) {
-            throw new \Exception("Job not found.");
+            return $this-sendError("Job not found.");
         }
         $profileId = $request->user()->profile->id;
         
@@ -180,13 +180,13 @@ class JobController extends Controller
         $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
         
         if (!$company) {
-            throw new \Exception("This company does not belong to user.");
+            return $this-sendError("This company does not belong to user.");
         }
         
         $job = $company->jobs()->where('id', $id)->first();
         
         if (!$job) {
-            throw new \Exception("Job not found.");
+            return $this-sendError("Job not found.");
         }
         $shortListed=$request->input("is_shortlist");
         $jobs=$job->applications()->whereIn('shortlisted',$shortListed);
@@ -201,13 +201,13 @@ class JobController extends Controller
         $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
 
         if (!$company) {
-            throw new \Exception("This company does not belong to user.");
+            return $this-sendError("This company does not belong to user.");
         }
 
         $job = $company->jobs()->where('id', $id)->first();
 
         if (!$job) {
-            throw new \Exception("Job not found.");
+            return $this-sendError("Job not found.");
         }
 
         $profile = $request->user()->profile;
@@ -215,7 +215,7 @@ class JobController extends Controller
         $shortlistedApplication = $job->applications()->where('profile_id',$shortlistedProfileId)->first();
 
         if(!$shortlistedApplication){
-            throw new \Exception("Application not found.");
+            return $this-sendError("Application not found.");
         }
 
         $this->model = $shortlistedApplication->shortlist($profile);
