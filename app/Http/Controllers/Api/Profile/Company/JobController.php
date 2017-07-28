@@ -125,19 +125,15 @@ class JobController extends Controller
     
     public function apply(Request $request, $profileId, $companyId, $id)
     {
-        $company = Company::find($companyId);
-        if (!$company) {
-            return $this-sendError("Company not found..");
-        }
-        
-        $job = $company->jobs()->where('id', $id)->first();
-        
+        $job = \App\Job::where('company_id',$companyId)->where('id',$id)->first();
+    
         if (!$job) {
             return $this-sendError("Job not found.");
         }
-        $applierProfileId = $request->user()->profile->id;
     
         $path = "profile/$profileId/job/$id/resume";
+    
+        $profileId = $request->user()->profile->id;
         $status = \Storage::makeDirectory($path, 0644, true);
         if ($request->hasFile('resume')) {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
@@ -147,11 +143,11 @@ class JobController extends Controller
                 return $this-sendError("Could not save resume " . $resumeName . " at " . $path);
             }
 //            for update resume in profiles table
-            $data = Profile::where('id', $applierProfileId)->update(['resume' => $resumeName]);
+            $data = \App\Profile::where('id', $profileId)->update(['resume' => $resumeName]);
         } else {
             $resumeName = $request->user()->profile->resume;
         }
-        $this->model = $job->apply($applierProfileId, $resumeName);
+        $this->model = $job->apply($profileId, $resumeName);
     
         return $this->sendResponse();
     }
