@@ -84,7 +84,7 @@ class Job extends Model implements Feedable
 //        return $this->company->user->profile->id;
 //    }
     
-    public function apply($profileId,$resume)
+    public function apply($profileId,$resume = null)
     {
         return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId, 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0]);
     }
