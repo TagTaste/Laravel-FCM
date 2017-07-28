@@ -133,11 +133,11 @@ class JobController extends Controller
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }
+            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
         } else {
             $resumeName = $request->user()->profile->resume;
         }
-        $profileId = $request->user()->profile->id;
-        $this->model = $job->apply($profileId, $resumeName);
+        $this->model = $job->apply($applierProfileId, $resumeName);
 
         return $this->sendResponse();
     }

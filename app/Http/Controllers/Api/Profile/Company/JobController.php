@@ -135,6 +135,8 @@ class JobController extends Controller
         if (!$job) {
             throw new \Exception("Job not found.");
         }
+        $applierProfileId = $request->user()->profile->id;
+
         $path = "profile/$profileId/job/$id/resume";
         $status = \Storage::makeDirectory($path, 0644, true);
             if ($request->hasFile('resume')) {
@@ -144,13 +146,12 @@ class JobController extends Controller
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }
-            //for update resume in profiles table
-//            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
+//            for update resume in profiles table
+            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
         } else {
             $resumeName = $request->user()->profile->resume;
         }
-        $profileId = $request->user()->profile->id;
-        $this->model = $job->apply($profileId, $resumeName);
+        $this->model = $job->apply($applierProfileId, $resumeName);
         
         return $this->sendResponse();
     }
@@ -187,7 +188,7 @@ class JobController extends Controller
         if (!$job) {
             throw new \Exception("Job not found.");
         }
-        $shortListed=$request->input("is_shortliest");
+        $shortListed=$request->input("is_shortlist");
         $jobs=$job->applications()->whereIn('shortlisted',$shortListed);
         $this->model = ['applications' =>$jobs ->paginate()];
         $this->model['count'] = $jobs->count();
