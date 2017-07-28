@@ -8,7 +8,7 @@ class Profile extends BaseProfile {
 
     protected $with = [];
 
-    protected $visible = ['city'];
+    protected $visible = ['city','value'];
 
     protected $appends = [];
 

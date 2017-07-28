@@ -8,7 +8,7 @@ class CollaborateTemplate extends Model
 {
     protected $fillable = ['name'];
     
-    protected $visible = ['id','name','fields'];
+    protected $visible = ['id','name','fields','key','value'];
     
     //protected $with = ['fields'];
     

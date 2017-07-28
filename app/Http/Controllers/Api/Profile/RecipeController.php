@@ -207,10 +207,10 @@ class RecipeController extends Controller
                 if ($request->input("images.$count.id") != null) {
                     $this->model = $this->model->images()->where('recipe_id', $id)
                         ->where('id', $request->input("images.$count.id"))
-                        ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase")]);
+                        ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase") ?: 0]);
                 } else {
                     $newImages[] = ['recipe_id' => $id, 'image' => $imageName,
-                        'show_case' => $request->input("images.$count.showCase")];
+                        'show_case' => $request->input("images.$count.showCase") ?: 0];
                 }
                 $count--;
             }

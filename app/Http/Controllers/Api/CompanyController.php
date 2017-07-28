@@ -25,8 +25,11 @@ class CompanyController extends Controller {
         if (!empty($filters['status'])) {
             $this->model=$this->model->whereIn('status_id',$filters['status']);
         }
-
-        $this->model=$this->model->orderBy('id', 'desc')->paginate(10);
+        
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
         return $this->sendResponse();
     }
  
@@ -52,10 +55,10 @@ class CompanyController extends Controller {
     public function filters()
     {
         $filters = [];
-        $filters['location'] = \App\Filter\Company::select('city')
+        $filters['location'] = \App\Filter\Company::select('city as value')
             ->groupBy('city')->where('city','!=','null')->get();
-        $filters['types'] = \App\Company\Type::select('id','name')->get();
-        $filters['status'] = \App\Company\Status::select('id','name')->get();
+        $filters['types'] = \App\Company\Type::select('id as key','name as value')->get();
+        $filters['status'] = \App\Company\Status::select('id as key','name as value')->get();
 
         $this->model = $filters;
         return $this->sendResponse();

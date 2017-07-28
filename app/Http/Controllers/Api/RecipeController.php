@@ -15,7 +15,26 @@ class RecipeController extends Controller
      */
     public function index(Request $request)
     {
-        $recipes = Recipe::orderBy('created_at')->paginate(10);
+        $recipes = Recipe::orderBy('created_at');
+
+        $filters = $request->input('filters');
+        if (!empty($filters['cuisine_id'])) {
+            $recipes = $recipes->whereIn('cuisine_id', $filters['cuisine_id']);
+        }
+
+        if (!empty($filters['level'])) {
+            $recipes = $recipes->whereIn('level', $filters['level']);
+        }
+
+        if (!empty($filters['type'])) {
+            $recipes = $recipes->whereIn('type', $filters['type']);
+        }
+    
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $recipes=$recipes->skip($skip)->take($take)->get();
+
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = [];
         foreach($recipes as $recipe){
@@ -57,5 +76,17 @@ class RecipeController extends Controller
         if(file_exists($path)){
             return response()->file($path);
         }
+    }
+
+    public function filters()
+    {
+        $filters = [];
+
+//        $filters['cuisine'] = \App\Cuisine::select('id','name')->groupBy('name')->get();
+        $filters['level'] = \App\Filter\Recipe::select('level as value')->groupBy('level')->get();
+        $filters['type'] = \App\Filter\Recipe::select('type as value')->groupBy('type')->get();
+        $filters['ingredients']=\App\Recipe\Ingredient::select('id as key','name as value')->get();
+        $this->model = $filters;
+        return $this->sendResponse();
     }
 }

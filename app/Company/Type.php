@@ -8,5 +8,5 @@ class Type extends Model
 {
     protected $table = "company_types";
 
-    protected $visible = ['id','name'];
+    protected $visible = ['id','name','value','key'];
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Collaborate;
 use App\Company;
+use App\Events\NewFeedable;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -81,7 +82,8 @@ class CollaborateController extends Controller
         $categories = $request->input('categories');
         $this->model->categories()->sync($categories);
         $this->model->syncFields($fields);
-        
+        $company = Company::find($companyId);
+        event(new NewFeedable($this->model,$company));
         $this->model = $this->model->fresh();
         return $this->sendResponse();
 	}
