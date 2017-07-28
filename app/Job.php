@@ -15,16 +15,13 @@ class Job extends Model implements Feedable
 {
     use SoftDeletes, IdentifiesOwner, CachedPayload;
     
-    protected $fillable = ['title', 'description', 'type', 'location',
-        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required','profile_id',
-        'company_id', 'type_id','privacy_id'
-
+    protected $fillable = ['title', 'description','why_us','location','key_skills',
+        'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
+        'company_id', 'type_id','privacy_id','resume_required','minimum_qualification'
     ];
-    protected $visible = ['title', 'description', 'type', 'location',
-        'annual_salary', 'functional_area', 'key_skills', 'expected_role',
-        'experience_required',
-        'company_id', 'type_id', 'company', 'profile', 'profile_id',
+    protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
+        'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
+        'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id'
     ];
     
@@ -87,9 +84,9 @@ class Job extends Model implements Feedable
 //        return $this->company->user->profile->id;
 //    }
     
-    public function apply($profileId,$resume)
+    public function apply($profileId,$resume = null)
     {
-        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId, 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume]);
+        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId, 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0]);
     }
     
     public function unapply($profileId)

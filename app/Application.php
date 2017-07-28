@@ -12,6 +12,8 @@ class Application extends Model
     protected $with = ['profile'];
     protected $appends = ['resumeUrl'];
     
+    public static $tags = ['Action Pending','Shortlisted','Saved','Reject'];
+    
     public function job()
     {
         return $this->belongsTo(\App\Job::class);
@@ -22,16 +24,18 @@ class Application extends Model
         return $this->belongsTo(\App\Application\Profile::class);
     }
     
-    public function shortlist(Profile $shortlister)
+    public function shortlist(Profile $shortlister, $tag)
     {
-        if ($this->shortlisted === 1) {
+        if(!isset(self::$tags[$tag]) || $this->shortlisted == $tag){
             return false;
         }
         
-        $this->shortlisted = 1;
+        $this->shortlisted = $tag;
         $this->update();
         
-        $this->profile->user->notify(new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
+        if(self::$tags[$tag] === 'Shortlisted'){
+            $this->profile->user->notify(new ShortlistApplication($shortlister->user->email, $shortlister->name, $this->job));
+        }
         
         return true;
     }

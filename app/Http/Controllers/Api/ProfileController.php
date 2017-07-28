@@ -42,7 +42,7 @@ class ProfileController extends Controller
         })->first();
     
         if ($profile === null) {
-            throw new ModelNotFoundException("Could not find profile.");
+            return $this->sendError("Could not find profile.");
         }
     
         $this->model = $profile->toArray();
@@ -99,7 +99,12 @@ class ProfileController extends Controller
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;
-            $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
+            try {
+                $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
+            } catch(\Exception $e){
+                \Log::error($e->getMessage());
+                return $this->sendError("Could not update.");
+            }
         }
         
         return $this->sendResponse();
@@ -302,7 +307,7 @@ class ProfileController extends Controller
     public function filters()
     {
         $filters = [];
-        $filters['city'] = \App\Filter\Profile::select('city')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
+        $filters['city'] = \App\Filter\Profile::select('city as value')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
 //        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
 
         $this->model = $filters;

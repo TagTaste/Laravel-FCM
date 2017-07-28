@@ -50,7 +50,7 @@ class Handler extends ExceptionHandler
         }
         $user = request()->user();
         
-        $message = gethostname();
+        $message = gethostname() . ":" . request()->getRequestUri() . "\n";
         if($user){
             $message .= " ($user->name:$user->id)";
         }

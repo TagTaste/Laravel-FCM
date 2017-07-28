@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Profile;
-use App\Events\Update;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
@@ -111,6 +110,8 @@ class JobController extends Controller
     
     public function apply(Request $request, $profileId, $id)
     {
+        $applierProfileId = $request->user()->profile->id;
+
         $profile = Profile::find($profileId);
 
         if(!$profile){
@@ -122,25 +123,21 @@ class JobController extends Controller
         if(!$job){
             throw new \Exception("Job not found.");
         }
-        
-        $applierProfileId = $request->user()->profile->id;
     
         $path = "profile/$profileId/job/$id/resume";
         $status = \Storage::makeDirectory($path, 0644, true);
         if ($request->hasFile('resume')) {
-            $resumeName = str_random("32") . ".pdf";
+            $ext = \File::extension($request->file('resume')->getClientOriginalName());
+            $resumeName = str_random("32") .".". $ext;
             $response = $request->file("resume")->storeAs($path, $resumeName);
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }
+            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
         } else {
             $resumeName = $request->user()->profile->resume;
         }
-        $profileId = $request->user()->profile->id;
-        $this->model = $job->apply($profileId, $resumeName);
-
-        event(new Update($id,'job',$profileId,"Applied on job"));
-
+        $this->model = $job->apply($applierProfileId, $resumeName);
 
         return $this->sendResponse();
     }
