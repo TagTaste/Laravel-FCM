@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Application;
 use App\Company;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
@@ -133,6 +134,7 @@ class JobController extends Controller
     
         $path = "profile/$profileId/job/$id/resume";
     
+        //profileId is now the logged in user.
         $profileId = $request->user()->profile->id;
         $status = \Storage::makeDirectory($path, 0644, true);
         if ($request->hasFile('resume')) {
@@ -140,7 +142,7 @@ class JobController extends Controller
             $resumeName = str_random("32") . "." . $ext;
             $response = $request->file("resume")->storeAs($path, $resumeName);
             if (!$response) {
-                return $this->sendError("Could not save resume.");
+                return $this->sendEerror("Could not save resume.");
             }
 //            for update resume in profiles table
             $data = \App\Profile::where('id', $profileId)->update(['resume' => $resumeName]);
@@ -173,34 +175,47 @@ class JobController extends Controller
     
     public function applications(Request $request, $profileId, $companyId, $id)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        
-        if (!$company) {
-            return $this->sendError("This company does not belong to user.");
+        $userId = $request->user()->id;
+        $user = \App\Profile\User::find($userId);
+        $isPartOfCompany = $user->isPartOfCompany($companyId);
+    
+        if(!$isPartOfCompany){
+            $this->sendError("This company does not belong to user.");
         }
         
-        $job = $company->jobs()->where('id', $id)->first();
+        $job = \App\Job::where('id', $id)->where('company_id',$companyId)->first();
         
         if (!$job) {
             return $this->sendError("Job not found.");
         }
-        $shortListed=$request->input("is_shortlist");
-        $jobs=$job->applications()->whereIn('shortlisted',$shortListed);
-        $this->model = ['applications' =>$jobs ->paginate()];
-        $this->model['count'] = $jobs->count();
+    
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $applications = $job->applications()->skip($skip)->take($take);
+        
+        if($request->has('tag')){
+            $tag = $request->input("tag");
+            $applications = $applications->where('shortlisted', $tag);
+        }
+        
+        $this->model = [];
+        $this->model['applications'] = $applications->get();
+        $this->model['count'] = $applications->count();
         
         return $this->sendResponse();
     }
     
     public function shortlist(Request $request,$profileId, $companyId, $id, $shortlistedProfileId)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-
-        if (!$company) {
-            return $this->sendError("This company does not belong to user.");
+        $userId = $request->user()->id;
+        $user = \App\Profile\User::find($userId);
+        $isPartOfCompany = $user->isPartOfCompany($companyId);
+    
+        if(!$isPartOfCompany){
+            $this->sendError("This company does not belong to user.");
         }
-
-        $job = $company->jobs()->where('id', $id)->first();
+    
+        $job = \App\Job::where('id', $id)->where('company_id',$companyId)->first();
 
         if (!$job) {
             return $this->sendError("Job not found.");
@@ -214,7 +229,7 @@ class JobController extends Controller
             return $this->sendError("Application not found.");
         }
 
-        $this->model = $shortlistedApplication->shortlist($profile);
+        $this->model = $shortlistedApplication->shortlist($profile, $request->input("tag"));
         return $this->sendResponse();
     }
 }
