@@ -29,7 +29,14 @@ class CompanyController extends Controller {
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+        $companies=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+
+        $this->model = [];
+        $profileId = $request->user()->profile->id;
+        foreach($companies as $company){
+            $temp = $company->toArray();
+            $temp['isFollowing'] = $company->isFollowing($profileId);
+            $this->model[] = $temp;        }
         return $this->sendResponse();
     }
  
@@ -43,8 +50,10 @@ class CompanyController extends Controller {
 	public function show(Request $request,$id)
     {
         $company = Company::where('id',$id)->with('status','type')->first();
+        $profileId = $request->user()->profile->id;
         $this->model = $company->toArray();
-        $this->model['userRating'] = CompanyRating::where('company_id',$id)->where('profile_id',$request->user()->profile->id)->first();
+        $this->model['userRating'] = CompanyRating::where('company_id',$id)->where('profile_id',$profileId)->first();
+        $this->model['isFollowing'] = $company->isFollowing($profileId);
         if(!$this->model){
             return $this->sendError("Company not found.");
         }
