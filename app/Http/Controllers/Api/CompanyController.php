@@ -29,14 +29,15 @@ class CompanyController extends Controller {
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $companies=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-
+        $companies = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+        
         $this->model = [];
         $profileId = $request->user()->profile->id;
-        foreach($companies as $company){
+        foreach ($companies as $company) {
             $temp = $company->toArray();
             $temp['isFollowing'] = $company->isFollowing($profileId);
-            $this->model[] = $temp;        }
+            $this->model[] = $temp;
+        }
         return $this->sendResponse();
     }
  
