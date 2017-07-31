@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Application;
 use App\Profile;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
@@ -167,10 +168,34 @@ class JobController extends Controller
         if(!$job){
             throw new \Exception("Job not found.");
         }
+        $this->model = [];
     
-        $this->model = ['applications' => $job->applications()->paginate()];
-        $this->model['count'] = $job->applications()->count();
-
+    
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $applications = $job->applications()->skip($skip)->take($take);
+    
+        $count = null;
+        if($request->has('tag')){
+            $tag = $request->input("tag");
+            $applications = $applications->where('shortlisted', $tag);
+            $count = $applications->count();
+        }
+        $this->model['applications'] = $applications->get();
+        
+        if(!$count){
+            $count = [];
+            $counts = \DB::table("applications")->where('job_id',$job->id)->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
+            if($counts){
+            foreach($counts as $index => $object){
+                if(!isset(Application::$tags[$object->shortlisted])){
+                    continue;
+                }
+                $count[Application::$tags[$object->shortlisted]] = $object->count;
+            }
+            }
+        }
+        $this->model['count'] = $count;
         return $this->sendResponse();
     }
     

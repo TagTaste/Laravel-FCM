@@ -198,16 +198,29 @@ class JobController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = $job->applications()->skip($skip)->take($take);
-        
+    
+        $this->model = [];
+        $count = null;
         if($request->has('tag')){
             $tag = $request->input("tag");
             $applications = $applications->where('shortlisted', $tag);
+            $count = $applications->count();
         }
-        
-        $this->model = [];
         $this->model['applications'] = $applications->get();
-        $this->model['count'] = $applications->count();
-        
+    
+        if(!$count){
+            $count = [];
+            $counts = \DB::table("applications")->where('job_id',$job->id)->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
+            if($counts){
+                foreach($counts as $index => $object){
+                    if(!isset(Application::$tags[$object->shortlisted])){
+                        continue;
+                    }
+                    $count[Application::$tags[$object->shortlisted]] = $object->count;
+                }
+            }
+        }
+        $this->model['count'] = $count;
         return $this->sendResponse();
     }
     

@@ -27,7 +27,7 @@ class Job extends Model implements Feedable
     
     protected $with = ['company','profile', 'applications'];
     
-    protected $appends = ['type','job_id'];
+    protected $appends = ['type','job_id','count'];
     
     
     public static function boot()
@@ -70,7 +70,7 @@ class Job extends Model implements Feedable
     
     public function getTypeAttribute()
     {
-        return $this->jobType->name;
+        return $this->jobType ? $this->jobType->name : null;
     }
     
     public function jobType()
@@ -127,6 +127,23 @@ class Job extends Model implements Feedable
             'content' => $this->title,
             'image' => null
         ];
+    }
+    
+    public function getCountAttribute()
+    {
+        $count = [];
+        $counts = \DB::table("applications")->where('job_id',$this->id)
+            ->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
+        
+        if($counts){
+            foreach($counts as $index => $object){
+                if(!isset(Application::$tags[$object->shortlisted])){
+                    continue;
+                }
+                $count[Application::$tags[$object->shortlisted]] = $object->count;
+            }
+        }
+        return $count;
     }
     
 }
