@@ -209,17 +209,7 @@ class JobController extends Controller
         $this->model['applications'] = $applications->get();
     
         if(!$count){
-            $count = [];
-            $counts = \DB::table("applications")->where('job_id',$job->id)->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
-            if($counts){
-                $counts = $counts->keyBy('shortlisted');
-                foreach(Application::$tags as $index => $tag){
-                    $count[$index] = ['tag'=> [ 'index'=>$index,'name'=>$tag],'count'=>0];
-                    if($counts->get($index)){
-                        $count[$index]['count'] = $counts->get($index)->count;
-                    }
-                }
-            }
+            $count = Application::getCounts($job->id);
         }
         $this->model['count'] = $count;
         return $this->sendResponse();
@@ -249,7 +239,9 @@ class JobController extends Controller
             return $this->sendError("Application not found.");
         }
 
-        $this->model = $shortlistedApplication->shortlist($profile, $request->input("tag"));
+        $this->model = [];
+        $this->model['success'] = $shortlistedApplication->shortlist($profile, $request->input("tag"));
+        $this->model['count'] = Application::getCounts($job->id);
         return $this->sendResponse();
     }
 }

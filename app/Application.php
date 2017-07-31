@@ -45,4 +45,20 @@ class Application extends Model
         return $this->resume !== null ? "/profile/" . $this->profile_id . "/job/" . $this->job_id . "/resume/" . $this->resume : null;
     }
     
+    public static function getCounts($jobId)
+    {
+        $count = [];
+        $counts = \DB::table("applications")->where('job_id',$jobId)->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
+        if($counts){
+            $counts = $counts->keyBy('shortlisted');
+            foreach(Application::$tags as $index => $tag){
+                $count[$index] = ['tag'=> [ 'index'=>$index,'name'=>$tag],'count'=>0];
+                if($counts->get($index)){
+                    $count[$index]['count'] = $counts->get($index)->count;
+                }
+            }
+        }
+        return $count;
+    }
+    
 }
