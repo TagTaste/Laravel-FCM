@@ -187,12 +187,13 @@ class JobController extends Controller
             $count = [];
             $counts = \DB::table("applications")->where('job_id',$job->id)->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
             if($counts){
-            foreach($counts as $index => $object){
-                if(!isset(Application::$tags[$object->shortlisted])){
-                    continue;
+                $counts = $counts->keyBy('shortlisted');
+                foreach(Application::$tags as $index => $tag){
+                    $count[$index] = ['tag'=> [ 'index'=>$index,'name'=>$tag],'count'=>0];
+                    if($counts->get($index)){
+                        $count[$index]['count'] = $counts->get($index)->count;
+                    }
                 }
-                $count[Application::$tags[$object->shortlisted]] = $object->count;
-            }
             }
         }
         $this->model['count'] = $count;
