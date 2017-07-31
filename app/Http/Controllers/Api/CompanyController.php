@@ -30,18 +30,22 @@ class CompanyController extends Controller {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $companies = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-        $companies = $companies->keyBy('id');
 
         $profileId = $request->user()->profile->id;
-        $followers  = \DB::table('subscribers')->where('profile_id',$profileId)->whereIn('company_id',$companies->pluck('id'))->get();
-        
+        $ids = $companies->pluck('id');
+        $channelNames = [];
+        foreach($ids as $id){
+            $channelNames[] = 'company.network.' . $id;
+        }
+        $followers  = \DB::table('subscribers')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
+        $followers  = $followers->keyBy('channel_name');
         $this->model = [];
-        if($followers->count()){
-            foreach($followers as $follower){
-                $temp = $companies->get($follower->company_id)->toArray();
-                $temp['isFollowing'] = true;
-                $this->model[] = $temp;
-            }
+        foreach($companies as $company){
+            $temp = $company->toArray();
+            $follower = $followers->get("company.network." . $company->id);
+            $temp['isFollowing'] = $follower !== null;
+            
+            $this->model[] = $temp;
         }
         
         return $this->sendResponse();
