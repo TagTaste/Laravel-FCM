@@ -322,7 +322,12 @@ class Company extends Model
     
     public function getLogoAttribute($value)
     {
-        return $value !== null ? "images/c/{$this->id}/l/" . $value : false;
+        return $value !== null ? "/images/c/{$this->id}/l/" . $value : false;
+    }
+    
+    public function getHeroImageAttribute($value)
+    {
+        return $value !== null ? "/images/c/{$this->id}/hi/" . $value : false;
     }
     
     public function getProfileIdAttribute()
