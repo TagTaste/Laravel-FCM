@@ -35,14 +35,14 @@ class CompanyController extends Controller {
         $ids = $companies->pluck('id');
         $channelNames = [];
         foreach($ids as $id){
-            $channelNames[] = 'company.network.' . $id;
+            $channelNames[] = 'company.public.' . $id;
         }
         $followers  = \DB::table('subscribers')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
         $followers  = $followers->keyBy('channel_name');
         $this->model = [];
         foreach($companies as $company){
             $temp = $company->toArray();
-            $follower = $followers->get("company.network." . $company->id);
+            $follower = $followers->get("company.public." . $company->id);
             $temp['isFollowing'] = $follower !== null;
             
             $this->model[] = $temp;
