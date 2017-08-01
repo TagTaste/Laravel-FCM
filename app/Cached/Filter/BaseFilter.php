@@ -27,6 +27,7 @@ class BaseFilter
         //save name of the filters
         foreach($this->attributes as $attribute){
             if(empty($this->model->$attribute)){
+                \Log::info("empty $attribute");
                 continue;
             }
     
@@ -34,6 +35,7 @@ class BaseFilter
     
             //sanitize
             $key = "filters:{$this->modelName}:$attribute";
+            \Log::info($key);
             if(strpos($attr,",") === false){
                 \Redis::sAdd($key,$attr);
                 $attributes[] = $attr;
@@ -77,7 +79,6 @@ class BaseFilter
         $self = new static();
         $filters = [];
         $key = "filters:" . $self->modelName;
-        \Log::info($key);
         foreach($self->attributes as $attribute){
             $key .= ":" . $attribute;
             $filters[$attribute] = \Redis::sMembers($key);
