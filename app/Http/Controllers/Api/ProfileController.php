@@ -305,36 +305,33 @@ class ProfileController extends Controller
     public function all(Request $request)
     {
         $filters = $request->input('filters');
-
-        $profileIds = [];
-        
-        if(!empty($filters)){
-            $properties = [];
-            foreach($filters as $name => $values){
-                if(is_string($values)){
-                    $properties[] = $values;
-                    continue;
-                }
-        
-                foreach($values as $value){
-                    $properties[] = $value;
-                }
-            }
-    
-            $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
-        }
         
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = \App\Recipe\Profile::orderBy('created_at','asc')->skip($skip)->take($take);
         
-        $this->model = new \App\Recipe\Profile();
-        if(count($profileIds) > 0){
-            $this->model = $this->model->whereIn('id',$profileIds);
+        if(empty($filters)){
+            $this->model = $this->model->get();
+            return $this->sendResponse();
         }
         
-        $this->model = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-
+        
+        $properties = [];
+        foreach($filters as $name => $values){
+            if(is_string($values)){
+                $properties[] = $values;
+                continue;
+            }
+    
+            foreach($values as $value){
+                $properties[] = $value;
+            }
+        }
+        $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
+        
+        $this->model = $this->model->whereIn('id',$profileIds)->get();
+        
         return $this->sendResponse();
     }
 
