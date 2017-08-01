@@ -78,9 +78,10 @@ class BaseFilter
     {
         $self = new static();
         $filters = [];
-        $key = "filters:" . $self->modelName;
+        \Log::info($self->attributes);
         foreach($self->attributes as $attribute){
-            $key .= ":" . $attribute;
+            $key = "filters:" . $self->modelName . ":" . $attribute;
+            \Log::info($key);
             $filters[$attribute] = \Redis::sMembers($key);
         }
         return $filters;
