@@ -341,6 +341,7 @@ class ProfileController extends Controller
     public function filters()
     {
         $this->model = \App\Cached\Filter\Profile::getFilters();
+        \Log::info($this->model);
         foreach($this->model as &$filter){
             foreach($filter as &$value){
                 $value = ['value'=>$value];
