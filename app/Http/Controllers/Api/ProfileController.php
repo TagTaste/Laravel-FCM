@@ -340,7 +340,13 @@ class ProfileController extends Controller
 
     public function filters()
     {
-        return \App\Cached\Filter\Profile::getFilters();
+        $filters = \App\Cached\Filter\Profile::getFilters();
+        foreach($filters as &$filter){
+            foreach($filter as &$value){
+                $value = ['value'=>$value];
+            }
+        }
+        return $filters;
     }
 
 }
