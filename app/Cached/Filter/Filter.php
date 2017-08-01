@@ -11,10 +11,21 @@ class Filter
     }
     
     private function set(&$key,&$value){
-        Cache::sAdd("filters:" . $key,$value);
+        if(strpos($value,",") === -1){
+            Cache::sAdd("filters:" . $key,$value);
+            return;
+        }
+    
+        $values = explode(",",$value);
+        Cache::sAddArray($key,$values);
+    }
+    
+    private function addToCache(){
+    
     }
     
     private static function unset(&$key,&$member){
         Cache::sRem("filters:" . $key,$member);
     }
+    
 }
