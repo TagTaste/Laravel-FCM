@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
-    protected $fillable = ['job_id', 'profile_id', 'shortlisted', 'resume'];
-    protected $visible = ['created_at', 'profile', 'shortlisted', 'resumeUrl'];
+    protected $fillable = ['job_id', 'profile_id', 'shortlisted', 'resume', 'message'];
+    protected $visible = ['created_at', 'profile', 'shortlisted', 'resumeUrl', 'message'];
     protected $with = ['profile'];
     protected $appends = ['resumeUrl'];
     

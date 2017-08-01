@@ -155,7 +155,7 @@ class JobController extends Controller
 //        else {
 //            $resumeName = $request->user()->profile->resume;
 //        }
-        $this->model = $job->apply($profileId, $resumeName);
+        $this->model = $job->apply($profileId, $resumeName,$request->input("message"));
     
         return $this->sendResponse();
     }
