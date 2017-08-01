@@ -41,7 +41,8 @@ class Profile extends Model
         'handle',
         'expertise',
         'keywords',
-        'city'
+        'city',
+        'country'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -103,7 +104,8 @@ class Profile extends Model
         'handle',
         'expertise',
         'keywords',
-        'city'
+        'city',
+        'country'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name'];
