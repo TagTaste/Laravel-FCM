@@ -37,7 +37,7 @@ class CompanyController extends Controller {
         foreach($ids as $id){
             $channelNames[] = 'company.public.' . $id;
         }
-        $followers  = \DB::table('subscribers')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
+        $followers  = \DB::table('subscribers')->whereNull('deleted_at')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
         $followers  = $followers->keyBy('channel_name');
         $this->model = [];
         foreach($companies as $company){
