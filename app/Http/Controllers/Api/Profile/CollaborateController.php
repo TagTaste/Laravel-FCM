@@ -126,10 +126,10 @@ class CollaborateController extends Controller
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }
         
-        if(!empty($fields)){
-            unset($inputs['fields']);
-            $this->model->syncFields($fields);
-        }
+//        if(!empty($fields)){
+//            unset($inputs['fields']);
+//            $this->model->syncFields($fields);
+//        }
 
         $categories = $request->input('categories');
         $this->model->categories()->sync($categories);

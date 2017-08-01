@@ -70,7 +70,7 @@ class Job extends Model implements Feedable
     
     public function getTypeAttribute()
     {
-        return $this->jobType->name;
+        return $this->jobType ? $this->jobType->name : null;
     }
     
     public function jobType()

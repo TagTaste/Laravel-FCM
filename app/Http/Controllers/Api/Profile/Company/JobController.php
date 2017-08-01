@@ -198,16 +198,20 @@ class JobController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = $job->applications()->skip($skip)->take($take);
-        
+    
+        $this->model = [];
+        $count = null;
         if($request->has('tag')){
             $tag = $request->input("tag");
             $applications = $applications->where('shortlisted', $tag);
+            $count = $applications->count();
         }
-        
-        $this->model = [];
         $this->model['applications'] = $applications->get();
-        $this->model['count'] = $applications->count();
-        
+    
+        if(!$count){
+            $count = Application::getCounts($job->id);
+        }
+        $this->model['count'] = $count;
         return $this->sendResponse();
     }
     
@@ -235,7 +239,9 @@ class JobController extends Controller
             return $this->sendError("Application not found.");
         }
 
-        $this->model = $shortlistedApplication->shortlist($profile, $request->input("tag"));
+        $this->model = [];
+        $this->model['success'] = $shortlistedApplication->shortlist($profile, $request->input("tag"));
+        $this->model['count'] = Application::getCounts($job->id);
         return $this->sendResponse();
     }
 }

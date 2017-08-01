@@ -298,9 +298,19 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
     
-    public function all()
+    public function all(Request $request)
     {
-        $this->model = \App\Recipe\Profile::paginate();
+        $filters = $request->input('filters');
+        $this->model =new \App\Recipe\Profile ();
+        if(!empty($filters['city']))
+        {
+            $this->model=$this->model->whereIn('city',$filters['city']);
+        }
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+
         return $this->sendResponse();
     }
 
@@ -311,19 +321,6 @@ class ProfileController extends Controller
 //        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
 
         $this->model = $filters;
-        return $this->sendResponse();
-    }
-
-    public function filtersData(Request $request)
-    {
-        $filters = $request->input('filters');
-        $this->model=new \App\Profile ();
-        if(!empty($filters['city']))
-        {
-            $this->model=$this->model->whereIn('city',$filters['city']);
-        }
-        $this->model=$this->model->paginate(10);
-
         return $this->sendResponse();
     }
 
