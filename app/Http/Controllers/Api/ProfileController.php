@@ -305,15 +305,32 @@ class ProfileController extends Controller
     public function all(Request $request)
     {
         $filters = $request->input('filters');
-        $this->model =new \App\Recipe\Profile ();
-        if(!empty($filters['city']))
-        {
-            $this->model=$this->model->whereIn('city',$filters['city']);
+        //$this->model = new \App\Recipe\Profile();
+
+        $properties = [];
+        foreach($filters as $name => $values){
+            if(is_string($values)){
+                $properties[] = $values;
+                continue;
+            }
+            
+            foreach($values as $value){
+                $properties[] = $value;
+            }
         }
+
+        $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
+        
+        if(count($profileIds) === 0){
+            $this->model = [];
+            return $this->sendResponse();
+        }
+
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+        
+        $this->model = \App\Recipe\Profile::whereIn('id',$profileIds)->orderBy('id', 'desc')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
