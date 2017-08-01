@@ -1,18 +1,21 @@
 <?php
 
-namespace App\Cached\Filter;
+namespace App\Cached;
 
 use \Redis as Cache;
+
 class Filter
 {
-    public function __construct($key,$value)
+    protected $prefix = "";
+    public function __construct($modelName, $attribute, $value, $prefix = null)
     {
-        $this->set($key,$value);
+        $attribute = $modelName . ":" . $attribute;
+        $this->set($attribute,$value);
     }
     
     private function set(&$key,&$value){
         if(strpos($value,",") === -1){
-            Cache::sAdd("filters:" . $key,$value);
+            Cache::sAdd($prefix . $key,$value);
             return;
         }
     
@@ -21,7 +24,6 @@ class Filter
     }
     
     private static function unset(&$key,&$member){
-        Cache::sRem("filters:" . $key,$member);
+        Cache::sRem($prefix . $key,$member);
     }
-    
 }
