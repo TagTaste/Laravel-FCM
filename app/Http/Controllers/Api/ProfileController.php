@@ -100,9 +100,13 @@ class ProfileController extends Controller
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;
             try {
-                $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
+                $this->model = \App\Profile::where('user_id',$userId)->first();
+                $this->model->update($data['profile']);
+                $this->model->refresh();
+                \Log::info($this->model);
+                new \App\Cached\Filter\Profile($this->model);
             } catch(\Exception $e){
-                \Log::error($e->getMessage());
+                \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
                 return $this->sendError("Could not update.");
             }
         }
@@ -316,12 +320,7 @@ class ProfileController extends Controller
 
     public function filters()
     {
-        $filters = [];
-        $filters['city'] = \App\Filter\Profile::select('city as value')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
-//        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
-
-        $this->model = $filters;
-        return $this->sendResponse();
+        return \App\Cached\Filter\Profile::getFilters();
     }
 
 }
