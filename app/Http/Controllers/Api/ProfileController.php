@@ -309,7 +309,15 @@ class ProfileController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+        $profiles=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = [];
+        foreach ($profiles as $profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+            $this->model[] = $temp;
+        }
 
         return $this->sendResponse();
     }
