@@ -35,15 +35,16 @@ class BaseFilter
             //sanitize
             $key = "filters:{$this->modelName}:$attribute";
             if(strpos($attr,",") === false){
-                //only map if the key gets added.
-                \Redis::sAdd($key,$attr) ? $attributes[] = $attr : null;
+                \Redis::sAdd($key,$attr);
+                $attributes[] = $attr;
                 
             } else {
                 $attrs = explode(",",$attr);
                 //not used sAddArray since it doesn't provide a way to check which items of array were added.
                 //it just returns count.
                 foreach($attrs as $att){
-                    \Redis::sAdd($key,$att) ? $attributes[] = $attr : null;
+                    \Redis::sAdd($key,$att);
+                    $attributes[] = $att;
                 }
             }
         }
@@ -58,11 +59,17 @@ class BaseFilter
         }
     }
     
-    public static function getModelIds($key)
+    public static function getModelIds($keys)
     {
         $self = new static();
-        $key = "data:{$self->modelName}:$key";
-        return \Redis::sMembers($key);
+        if(is_string($keys)){
+            $keys = "data:{$self->modelName}:$keys";
+            return \Redis::sMembers($keys);
+        }
+        foreach($keys as $index => &$key){
+            $key = "data:{$self->modelName}:$key";
+        }
+        return \Redis::sInter(...$keys);
     }
     
     public static function getFilters()
