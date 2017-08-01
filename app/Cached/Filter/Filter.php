@@ -20,10 +20,6 @@ class Filter
         Cache::sAddArray($key,$values);
     }
     
-    private function addToCache(){
-    
-    }
-    
     private static function unset(&$key,&$member){
         Cache::sRem("filters:" . $key,$member);
     }
