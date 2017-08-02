@@ -309,20 +309,20 @@ class ProfileController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $profiles=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-
-        $loggedInProfileId = $request->user()->profile->id;
-        $this->model = [];
-        foreach ($profiles as $profile){
-            $temp = $profile->toArray();
-            $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
-            $this->model[] = $temp;
-        }
-
+        
         $this->model = \App\Recipe\Profile::orderBy('created_at','asc')->skip($skip)->take($take);
         
         if(empty($filters)){
-            $this->model = $this->model->get();
+            $profiles = $this->model->get();
+    
+            $loggedInProfileId = $request->user()->profile->id;
+            $this->model = [];
+            foreach ($profiles as $profile){
+                $temp = $profile->toArray();
+                $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+                $this->model[] = $temp;
+            }
+            
             return $this->sendResponse();
         }
         
@@ -340,7 +340,15 @@ class ProfileController extends Controller
         }
         $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
         
-        $this->model = $this->model->whereIn('id',$profileIds)->get();
+        $profiles = $this->model->whereIn('id',$profileIds)->get();
+    
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = [];
+        foreach ($profiles as $profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+            $this->model[] = $temp;
+        }
         
         return $this->sendResponse();
     }
