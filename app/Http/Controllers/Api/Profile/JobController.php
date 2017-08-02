@@ -55,7 +55,7 @@ class JobController extends Controller
     {
         $profile = $request->user()->profile;
         
-        $inputs = $request->except(['_method','_token']);
+        $inputs = $request->except(['_method','_token','company_id']);
         $this->model = $profile->jobs()->create($inputs);
         return $this->sendResponse();
     }
@@ -90,7 +90,7 @@ class JobController extends Controller
     {
         $profile = $request->user()->profile;
         
-        $this->model = $profile->jobs()->where('id',$id)->update($request->except(['_token','_method']));
+        $this->model = $profile->jobs()->where('id',$id)->update($request->except(['_token','_method','company_id']));
         return $this->sendResponse();
     }
     

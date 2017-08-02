@@ -100,9 +100,13 @@ class ProfileController extends Controller
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;
             try {
-                $this->model = \App\Profile::where('user_id',$userId)->update($data['profile']);
+                $this->model = \App\Profile::where('user_id',$userId)->first();
+                $this->model->update($data['profile']);
+                $this->model->refresh();
+                \Log::info($this->model);
+                new \App\Cached\Filter\Profile($this->model);
             } catch(\Exception $e){
-                \Log::error($e->getMessage());
+                \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
                 return $this->sendError("Could not update.");
             }
         }
@@ -301,26 +305,63 @@ class ProfileController extends Controller
     public function all(Request $request)
     {
         $filters = $request->input('filters');
-        $this->model =new \App\Recipe\Profile ();
-        if(!empty($filters['city']))
-        {
-            $this->model=$this->model->whereIn('city',$filters['city']);
-        }
+        
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model=$this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-
+        
+        $this->model = \App\Recipe\Profile::orderBy('created_at','asc')->skip($skip)->take($take);
+        
+        if(empty($filters)){
+            $profiles = $this->model->get();
+    
+            $loggedInProfileId = $request->user()->profile->id;
+            $this->model = [];
+            foreach ($profiles as $profile){
+                $temp = $profile->toArray();
+                $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+                $this->model[] = $temp;
+            }
+            
+            return $this->sendResponse();
+        }
+        
+        
+        $properties = [];
+        foreach($filters as $name => $values){
+            if(is_string($values)){
+                $properties[] = $values;
+                continue;
+            }
+    
+            foreach($values as $value){
+                $properties[] = $value;
+            }
+        }
+        $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
+        
+        $profiles = $this->model->whereIn('id',$profileIds)->get();
+    
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = [];
+        foreach ($profiles as $profile){
+            $temp = $profile->toArray();
+            $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+            $this->model[] = $temp;
+        }
+        
         return $this->sendResponse();
     }
 
     public function filters()
     {
-        $filters = [];
-        $filters['city'] = \App\Filter\Profile::select('city as value')->groupBy('city')->where('city','!=','null')->where('city','!=','')->get();
-//        $filters['experience_level'] = \App\Profile\Experience::select('end_date','id')->groupBy('id')->get();
+        $this->model = \App\Cached\Filter\Profile::getFilters();
 
-        $this->model = $filters;
+        foreach($this->model as &$filter){
+            foreach($filter as &$value){
+                $value = ['value'=>$value];
+            }
+        }
         return $this->sendResponse();
     }
 
