@@ -43,7 +43,7 @@ class PhotoLikeController extends Controller
             $photoLike->delete();
             $this->model['liked'] = false;
         } else {
-            PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
+            $photoLike = PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
             $this->model['liked'] = true;
             event(new Like($photo, $request->user()->profile));
         }
