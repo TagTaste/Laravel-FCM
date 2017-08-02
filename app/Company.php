@@ -279,8 +279,8 @@ class Company extends Model
         $this->users()->attach($user->id);
         
         //subscribe the user to the company feed
-        $user->profile->subscribe("public",$this);
-        $user->profile->subscribe("network",$this);
+        $user->completeProfile->subscribe("public",$this);
+        $user->completeProfile->subscribe("network",$this);
         return true;
     }
     
