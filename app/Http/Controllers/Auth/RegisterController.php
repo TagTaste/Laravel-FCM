@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
+use App\Profile\User;
 use App\Role;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -63,7 +63,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::addFoodie($data['name'],$data['email'],$data['password'],false);
+        return \App\Profile\User::addFoodie($data['name'],$data['email'],$data['password'],false);
 
     }
 }

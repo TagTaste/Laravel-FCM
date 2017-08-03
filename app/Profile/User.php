@@ -2,6 +2,7 @@
 
 namespace App\Profile;
 
+use App\Events\Auth\Registered;
 use \App\User as BaseUser;
 
 class User extends BaseUser
