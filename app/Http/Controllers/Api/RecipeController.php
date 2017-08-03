@@ -29,7 +29,9 @@ class RecipeController extends Controller
         if (!empty($filters['type'])) {
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
-    
+
+        $totalCount=$recipes->count();
+
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -38,8 +40,9 @@ class RecipeController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = [];
         foreach($recipes as $recipe){
-            $this->model[] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+            $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         }
+        $this->model['count'] = $totalCount;
         return $this->sendResponse();
     }
 

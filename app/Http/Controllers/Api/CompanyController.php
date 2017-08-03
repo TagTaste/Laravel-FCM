@@ -25,7 +25,8 @@ class CompanyController extends Controller {
         if (!empty($filters['status'])) {
             $this->model=$this->model->whereIn('status_id',$filters['status']);
         }
-        
+
+        $totalCount=$this->model->count();
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -45,9 +46,10 @@ class CompanyController extends Controller {
             $follower = $followers->get("company.public." . $company->id);
             $temp['isFollowing'] = $follower !== null;
             
-            $this->model[] = $temp;
+            $this->model['data'][] = $temp;
         }
-        
+        $this->model['count'] = $totalCount;
+
         return $this->sendResponse();
     }
  

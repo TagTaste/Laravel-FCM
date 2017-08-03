@@ -47,6 +47,7 @@ class JobController extends Controller
 	{
 		
         $jobs = $this->model;
+        $this->model = [];
         $filters = $request->input('filters');
         if (!empty($filters['location'])) {
             $jobs = $jobs->whereIn('location', $filters['location']);
@@ -60,15 +61,17 @@ class JobController extends Controller
             $jobs = $jobs->whereIn('type_id', $filters['type_id']);
         }
         $profileId = $request->user()->profile->id;
-        
-        $this->model = $jobs->with(['applications' => function ($query) use ($profileId) {
+
+        $jobs = $jobs->with(['applications' => function ($query) use ($profileId) {
             $query->where('applications.profile_id', $profileId);
         }]);
 
+        $this->model = [];
+        $this->model = ['data'=>$jobs,"count"=>$jobs->count()];
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $this->model->skip($skip)->take($take)->get();
+        $this->model['data'] = $this->model['data']->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();
 	}
