@@ -6,6 +6,6 @@ use App\Job as BaseJob;
 
 class Job extends BaseJob {
     protected $with = [];
-    protected $visible = ['location'];
+    protected $visible = ['location','key','value'];
     protected $appends = [];
 }

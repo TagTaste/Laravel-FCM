@@ -28,9 +28,11 @@ class JobController extends Controller
     {
         $filters = [];
         
-        $filters['location'] = \App\Filter\Job::select('location')->groupBy('location')->get();
-        $filters['types'] = Job\Type::with([])->select('id', 'name')->get();
-        $filters['expected_role'] = \App\Filter\Job::select('expected_role')->groupBy('expected_role')->get();
+        $filters['location'] = \App\Filter\Job::select('location as value')->groupBy('location')
+                ->where('location','!=','null')->get();
+        $filters['types'] = Job\Type::with([])->select('id as key', 'name as value')->get();
+        $filters['expected_role'] = \App\Filter\Job::select('expected_role as value')->groupBy('expected_role')
+            ->where('expected_role','!=','null')->get();
        
         $this->model = $filters;
         return $this->sendResponse();
@@ -61,7 +63,12 @@ class JobController extends Controller
         
         $this->model = $jobs->with(['applications' => function ($query) use ($profileId) {
             $query->where('applications.profile_id', $profileId);
-        }])->paginate();
+        }]);
+
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $this->model->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();
 	}
