@@ -26,7 +26,7 @@ class CompanyController extends Controller {
             $this->model=$this->model->whereIn('status_id',$filters['status']);
         }
 
-        $totalCount=$this->model->count();
+        $totalCount = $this->model->count();
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);

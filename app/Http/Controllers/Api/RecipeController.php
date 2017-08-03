@@ -30,7 +30,7 @@ class RecipeController extends Controller
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
 
-        $totalCount=$recipes->count();
+        $totalCount = $recipes->count();
 
         //paginate
         $page = $request->input('page');
