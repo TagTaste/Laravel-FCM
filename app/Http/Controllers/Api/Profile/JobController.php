@@ -211,4 +211,14 @@ class JobController extends Controller
         $this->model['count'] = Application::getCounts($job->id);
         return $this->sendResponse();
     }
+
+    public function applied(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $applications = Application::where('profile_id',$profileId)->get();
+        $ids = $applications->pluck('job_id');
+
+        $this->model = Job::whereIn('id',$ids)->get();
+        return $this->sendResponse();
+    }
 }

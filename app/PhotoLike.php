@@ -24,4 +24,9 @@ class PhotoLike extends Model
         });
     }
     
+    public function getLikeCountAttribute()
+    {
+        return \Redis::hget("photo:" . $this->photo_id . ":meta", "like");
+    }
+    
 }

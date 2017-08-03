@@ -186,7 +186,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("jobs/{id}/unapply", "JobController@unapply");
                 Route::get('jobs/{id}/applications', 'JobController@applications');
                 Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
-    
+                Route::get("jobs/applied","JobController@applied");
+
                 Route::resource("jobs","JobController");
                 
                 Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
@@ -234,7 +235,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("jobs/{id}/unapply", "JobController@unapply");
                     Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
-    
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
                     Route::resource("users","UserController");

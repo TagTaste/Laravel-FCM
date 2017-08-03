@@ -2,7 +2,16 @@
 
 namespace App\Profile;
 
+use App\Api\Recommend;
+use App\CompanyUser;
+use App\Events\Auth\Registered;
+use App\Exceptions\Auth\SocialAccountUserNotFound;
+use App\Jobs\FetchUserAvatar;
+use App\Privacy;
+use App\Profile;
+use App\Role;
 use \App\User as BaseUser;
+use Carbon\Carbon;
 
 class User extends BaseUser
 {
