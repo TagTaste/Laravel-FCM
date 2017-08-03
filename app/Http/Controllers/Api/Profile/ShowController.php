@@ -84,12 +84,11 @@ class ShowController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->only($this->fields);
-        $input = array_filter($input);
         if(isset($input['start_date'])){
-            $input['start_date'] = date('Y-m-d',strtotime($input['start_date']));
+            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
         }
         if(isset($input['end_date'])){
-            $input['end_date'] = date('Y-m-d',strtotime($input['end_date']));
+            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
         }
 
         $this->model = $request->user()->profile->tvshows()

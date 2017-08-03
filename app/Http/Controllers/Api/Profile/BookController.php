@@ -83,7 +83,7 @@ class BookController extends Controller
         $input = $request->only($this->fields);
         $input = array_filter($input);
         if(isset($input['release_date'])){
-            $input['release_date'] = date('Y-m-d',strtotime($input['release_date']));
+            $input['release_date'] = empty($input['release_date']) ? null : date("Y-m-d",strtotime(trim($input['release_date'])));
         }
 
         $this->model = $request->user()->profile->books()->
