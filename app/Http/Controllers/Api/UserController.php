@@ -28,7 +28,7 @@ class UserController extends Controller
 
         $result = ['status'=>'success'];
 
-        $user = \App\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
+        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
         return response()->json($result);
