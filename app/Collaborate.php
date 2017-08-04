@@ -15,19 +15,22 @@ class Collaborate extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
     
-    protected $fillable = ['title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location',
+    protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
+        'description','project_commences','image1','image2','image3','image4','image5',
+        'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id'];
     
     protected $with = ['profile','company','fields','categories'];
     
     protected $visible = ['id','title', 'i_am', 'looking_for',
-        'purpose', 'deliverables', 'who_can_help', 'expires_on','keywords','video','interested','location','categories',
+        'expires_on','video','location','categories',
+        'description','project_commences','images',
+        'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
         'commentCount','likeCount'];
     
-    protected $appends = ['interested','commentCount','likeCount'];
+    protected $appends = ['interested','commentCount','likeCount','images'];
     
     public static function boot()
     {
@@ -264,5 +267,31 @@ class Collaborate extends Model implements Feedable
         }
         return ['company'=>'company:small:' . $this->company_id];
     }
-   
+
+    public function getImagesAttribute ()
+    {
+
+        $images=[];
+        if($this->company_id){
+            for($i=1;$i<=5;$i++)
+            {
+                if($this->{"image".$i}!==null)
+                {
+                    $images[] = $this->{"image".$i} !== null ? "images/p/".$this->profile_id."/c/".$this->company_id."/collaborate/" . $this->{'image'.$i}: null;
+                }
+            }
+        }
+        else
+        {
+            for($i=1;$i<=5;$i++)
+            {
+                if($this->{"image".$i}!==null)
+                {
+                    $images[] = $this->{"image".$i} !== null ? "images/p/".$this->profile_id."/collaborate/" . $this->{'image'.$i}: null;
+                }
+            }
+        }
+
+        return $images;
+    }
 }

@@ -45,12 +45,12 @@ class CollaborateController extends Controller
         foreach($collaborations as $collaboration){
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
         }
-        if($request->has('categories')){
-            $categories = $request->input('categories');
-            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
-                $query->whereIn('category_id',$categories);
-            });
-        }
+//        if($request->has('categories')){
+//            $categories = $request->input('categories');
+//            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
+//                $query->whereIn('category_id',$categories);
+//            });
+//        }
         return $this->sendResponse();
 	}
 
@@ -69,19 +69,30 @@ class CollaborateController extends Controller
         if(!$isPartOfCompany){
            $this->sendError("This company does not belong to user.");
         }
-        
+        $profileId=$request->user()->profile->id;
 		$inputs = $request->all();
 		$inputs['company_id'] = $companyId;
-        
+        $inputs['profile_id'] = $profileId;
+
         $fields = $request->has("fields") ? $request->input('fields') : [];
-        
+
         if(!empty($fields)){
             unset($inputs['fields']);
         }
+        //save images
+        for ($i = 1; $i <= 5; $i++) {
+            if (!$request->hasFile("image$i")) {
+                break;
+            }
+            $imageName = str_random("32") . ".jpg";
+            $relativePath = "images/p/$profileId/c/$companyId/collaborate";
+            $request->file("image$i")->storeAs($relativePath, $imageName);
+            $inputs["image$i"] = $imageName;
+        }
         $this->model = $this->model->create($inputs);
-        $categories = $request->input('categories');
-        $this->model->categories()->sync($categories);
-        $this->model->syncFields($fields);
+//        $categories = $request->input('categories');
+//        $this->model->categories()->sync($categories);
+//        $this->model->syncFields($fields);
         $company = Company::find($companyId);
         event(new NewFeedable($this->model,$company));
         $this->model = $this->model->fresh();
@@ -126,13 +137,22 @@ class CollaborateController extends Controller
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }
         
-        if(!empty($fields)){
-            unset($inputs['fields']);
-    
-            $this->model->syncFields($fields);
+//        if(!empty($fields)){
+//            unset($inputs['fields']);
+//
+//            $this->model->syncFields($fields);
+//        }
+//        $categories = $request->input('categories');
+//        $this->model->categories()->sync($categories);
+
+        for ($i = 1; $i <= 5; $i++) {
+            if ($request->hasFile("image$i")) {
+                $imageName = str_random("32") . ".jpg";
+                $relativePath = "images/p/$profileId/collaborate";
+                $request->file("image$i")->storeAs($relativePath, $imageName);
+                $inputs["image$i"] = $imageName;
+            }
         }
-        $categories = $request->input('categories');
-        $this->model->categories()->sync($categories);
         $this->model = $collaborate->update($inputs);
         return $this->sendResponse();
     }
