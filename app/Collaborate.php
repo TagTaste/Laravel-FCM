@@ -15,7 +15,7 @@ class Collaborate extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
     
-    protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
+    protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location','interested',
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id'];
@@ -24,7 +24,7 @@ class Collaborate extends Model implements Feedable
     
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
-        'description','project_commences','images',
+        'description','project_commences','images','interested',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
