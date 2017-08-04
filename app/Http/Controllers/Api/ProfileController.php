@@ -305,22 +305,23 @@ class ProfileController extends Controller
     public function all(Request $request)
     {
         $filters = $request->input('filters');
-        
+        $models = \App\Recipe\Profile::orderBy('created_at','asc');
+        $this->model = ['count'=>$models->count()];
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
-        $this->model = \App\Recipe\Profile::orderBy('created_at','asc')->skip($skip)->take($take);
+        $this->model = $models->skip($skip)->take($take);
         
         if(empty($filters)){
-            $profiles = $this->model->get();
+            $profiles = $models->get();
     
             $loggedInProfileId = $request->user()->profile->id;
             $this->model = [];
             foreach ($profiles as $profile){
                 $temp = $profile->toArray();
                 $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
-                $this->model[] = $temp;
+                $this->model['data'][] = $temp;
             }
             
             return $this->sendResponse();
@@ -339,15 +340,14 @@ class ProfileController extends Controller
             }
         }
         $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
-        
-        $profiles = $this->model->whereIn('id',$profileIds)->get();
+        $this->model['count'] = count($profileIds);
+        $profiles = $models->whereIn('id',$profileIds)->get();
     
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = [];
         foreach ($profiles as $profile){
             $temp = $profile->toArray();
             $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
-            $this->model[] = $temp;
+            $this->model['data'][] = $temp;
         }
         
         return $this->sendResponse();
