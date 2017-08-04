@@ -67,11 +67,12 @@ class JobController extends Controller
         }]);
 
         $this->model = [];
-        $this->model = ['data'=>$jobs,"count"=>$jobs->count()];
+        $this->model["count"] = $jobs->count();
+        
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model['data'] = $this->model['data']->skip($skip)->take($take)->get();
+        $this->model['data'] = $jobs->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();
 	}

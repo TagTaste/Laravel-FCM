@@ -30,7 +30,8 @@ class RecipeController extends Controller
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
 
-        $totalCount = $recipes->count();
+        $this->model = [];
+        $this->model['count'] = $recipes->count();
 
         //paginate
         $page = $request->input('page');
@@ -38,11 +39,9 @@ class RecipeController extends Controller
         $recipes=$recipes->skip($skip)->take($take)->get();
 
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = [];
         foreach($recipes as $recipe){
             $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         }
-        $this->model['count'] = $totalCount;
         return $this->sendResponse();
     }
 
