@@ -306,18 +306,17 @@ class ProfileController extends Controller
     {
         $filters = $request->input('filters');
         $models = \App\Recipe\Profile::orderBy('created_at','asc');
-        $this->model = ['count'=>$models->count()];
+        $this->model = ['count' => $models->count()];
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
-        $this->model = $models->skip($skip)->take($take);
+        $models = $models->skip($skip)->take($take);
         
         if(empty($filters)){
             $profiles = $models->get();
     
             $loggedInProfileId = $request->user()->profile->id;
-            $this->model = [];
             foreach ($profiles as $profile){
                 $temp = $profile->toArray();
                 $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
