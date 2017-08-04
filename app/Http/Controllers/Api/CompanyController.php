@@ -41,6 +41,7 @@ class CompanyController extends Controller {
         $followers  = \DB::table('subscribers')->whereNull('deleted_at')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
         $followers  = $followers->keyBy('channel_name');
         $this->model = [];
+        $this->model['data'] = [];
         foreach($companies as $company){
             $temp = $company->toArray();
             $follower = $followers->get("company.public." . $company->id);
