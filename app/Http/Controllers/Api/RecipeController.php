@@ -32,7 +32,7 @@ class RecipeController extends Controller
 
         $this->model = [];
         $this->model['count'] = $recipes->count();
-
+        $this->model['data'] = [];
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
