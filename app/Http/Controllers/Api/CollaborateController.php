@@ -84,17 +84,18 @@ class CollaborateController extends Controller
         if(!empty($filters['categories'])){
             $collaborations = $collaborations->whereIn('category_id',$filters['categories']);
         }
-        
+        $this->model = [];
+        $this->model["count"] = $collaborations->count();
+        $this->model["data"]=[];
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         
-        $this->model = [];
         $profileId = $request->user()->profile->id;
         foreach($collaborations as $collaboration){
 		    $meta = $collaboration->getMetaFor($profileId);
-            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$meta];
+            $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
 
 		return $this->sendResponse();
