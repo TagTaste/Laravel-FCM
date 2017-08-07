@@ -101,7 +101,8 @@ class ProfileController extends Controller
         $status = \Storage::makeDirectory($path,0644,true);
         if($request->hasFile('resume'))
         {
-            $resumeName = str_random("32") .".pdf";
+            $ext = \File::extension($request->file('resume')->getClientOriginalName());
+            $resumeName = str_random("32") .".". $ext;
             $response = $request->file($data['resume'])->storeAs($path,$resumeName);
             if(!$response)
             {
