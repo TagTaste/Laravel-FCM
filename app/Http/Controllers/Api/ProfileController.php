@@ -96,6 +96,23 @@ class ProfileController extends Controller
         $path = \App\Profile::getHeroImagePath($id);
         $this->saveFileToData("hero_image",$path,$request,$data);
 
+        //save profile resume
+        $path = "profile/$id/resume";
+        $status = \Storage::makeDirectory($path,0644,true);
+        if($request->hasFile('resume'))
+        {
+            $ext = \File::extension($request->file('resume')->getClientOriginalName());
+            $resumeName = str_random("32") .".". $ext;
+            $response = $request->file($data['resume'])->storeAs($path,$resumeName);
+            if(!$response)
+            {
+                throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
+            }
+            else
+            {
+                $data['profile']['resume'] = $resumeName;
+            }
+        }
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;

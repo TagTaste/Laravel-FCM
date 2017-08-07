@@ -42,7 +42,8 @@ class Profile extends Model
         'expertise',
         'keywords',
         'city',
-        'country'
+        'country',
+        'resume'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -105,10 +106,11 @@ class Profile extends Model
         'expertise',
         'keywords',
         'city',
-        'country'
+        'country',
+        'resumeUrl'
     ];
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name'];
+    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl'];
 
     public static function boot()
     {
@@ -548,5 +550,10 @@ class Profile extends Model
         return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
+    //specific to API
+    public function getResumeUrlAttribute()
+    {
+        return $this->resume !== null ? "/profile/" . $this->id . "/resume/" . $this->resume : null;
+    }
 
 }
