@@ -185,7 +185,7 @@ class CollaborateController extends Controller
                 throw new \Exception("Company does not exist.");
             }
 
-            return $collaborate->approveCompany($company);
+            $this->model = $collaborate->approveCompany($company);
         }
 
         if ($request->has('profile_id')) {
@@ -194,9 +194,10 @@ class CollaborateController extends Controller
             if (!$profile) {
                 throw new \Exception("Profile does not exist.");
             }
-
-            return $collaborate->approveProfile($profile);
+            $this->model = $collaborate->approveProfile($profile);
         }
+        return $this->sendResponse();
+
     }
 
     public function reject(Request $request, $profileId, $id)
@@ -214,7 +215,7 @@ class CollaborateController extends Controller
                 throw new \Exception("Company does not exist.");
             }
 
-            return $collaborate->rejectCompany($company);
+            $this->model = $collaborate->rejectCompany($company);
         }
 
         if ($request->has('profile_id')) {
@@ -224,7 +225,9 @@ class CollaborateController extends Controller
                 throw new \Exception("Profile does not exist.");
             }
 
-            return $collaborate->rejectProfile($profile);
+            $this->model = $collaborate->rejectProfile($profile);
         }
+        return $this->sendResponse();
+
     }
 }
