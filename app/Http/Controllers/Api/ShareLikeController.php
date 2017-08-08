@@ -42,6 +42,7 @@ class ShareLikeController extends Controller
     	if($exist != null)
     	{
     		$sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
+            $this->model['liked'] = false;
             $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",-1);
     		return $this->sendResponse();
     	}
@@ -50,7 +51,7 @@ class ShareLikeController extends Controller
     	$model->profile_id = $profileId;
     	$model->$columnName = $modelId;
     	$model->save();
-    	
+        $this->model['liked'] = true;
         $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",1);
     	event(new Like($shareModel,$request->user()->profile));
         return $this->sendResponse();
