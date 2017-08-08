@@ -77,7 +77,6 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->except(["_method","_token"]);
-        
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -97,10 +96,14 @@ class ProfileController extends Controller
         $this->saveFileToData("hero_image",$path,$request,$data);
 
         //save profile resume
-        $path = "profile/$id/resume";
-        $status = \Storage::makeDirectory($path,0644,true);
-        if($request->hasFile('resume'))
+
+        if($request->has("remove")&&$data['remove']){
+            $data['profile']['resume'] = null;
+        }
+        else if($request->hasFile('resume'))
         {
+            $path = "profile/$id/resume";
+            $status = \Storage::makeDirectory($path,0644,true);
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") .".". $ext;
             $response = $request->file('resume')->storeAs($path,$resumeName);
