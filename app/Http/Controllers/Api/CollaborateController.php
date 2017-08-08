@@ -180,7 +180,7 @@ class CollaborateController extends Controller
         if(!$collaborate){
             return $this->sendError("Collaboration not found");
         }
-        
+        $this->model = [];
         $profileId = $request->user()->profile->id;
         $like = \DB::table("collaboration_likes")->where("collaboration_id",$id)->where('profile_id',$profileId)
             ->first();
@@ -190,12 +190,15 @@ class CollaborateController extends Controller
                 ->delete();
             //if unliked, return false;
             //yes, counter-intuitive.
-            $this->model = $unliked === 1 ? false : null;
+            $this->model['likeCount'] = \DB::table("collaboration_likes")->where("collaboration_id",$id)->count();
+            $this->model['isLike'] = $unliked === 1 ? false : null;
             return $this->sendResponse();
         }
         
         event(new Like($collaborate,$request->user()->profile));
-        $this->model = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
+        $data = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
+        $this->model['likeCount'] = \DB::table("collaboration_likes")->where("collaboration_id",$id)->count();
+        $this->model['isLike'] = true;
         return $this->sendResponse();
         
     }
