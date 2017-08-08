@@ -103,7 +103,7 @@ class ProfileController extends Controller
         {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") .".". $ext;
-            $response = $request->file($data['resume'])->storeAs($path,$resumeName);
+            $response = $request->file('resume')->storeAs($path,$resumeName);
             if(!$response)
             {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
