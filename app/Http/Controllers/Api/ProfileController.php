@@ -97,7 +97,7 @@ class ProfileController extends Controller
 
         //save profile resume
 
-        if($request->has("remove")&&$data['remove']){
+        if($request->has("remove")&&$data['remove'] === 1){
             $data['profile']['resume'] = null;
         }
         else if($request->hasFile('resume'))
