@@ -249,23 +249,23 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function application(Request $request, $id)
+    public function applications(Request $request, $id)
     {
         $count = \DB::table("collaborators")->where("collaborate_id",$id)->count();
-        $applications = \DB::table("collaborators")->select('profile_id','message','approved_on','rejected_on')->where("collaborate_id",$id)->get();
+        $applications = \DB::table("collaborators")->select('profile_id','message','is_shortlist')->where("collaborate_id",$id)->get();
         $this->model = [];
         foreach ($applications as $application){
-            if($application->rejected_on!==null) {
-                $profile = \App\Recipe\Profile::where('id', $application->profile_id)->first();
-                $this->model['restore'][] = ['profile' => $profile, 'message' => $application->message];
-            }
-            else{
+            if($application->is_shortlist) {
                 $profile = \App\Recipe\Profile::where('id', $application->profile_id)->first();
                 $this->model['archive'][] = ['profile' => $profile, 'message' => $application->message];
             }
+            else{
+                $profile = \App\Recipe\Profile::where('id', $application->profile_id)->first();
+                $this->model['restore'][] = ['profile' => $profile, 'message' => $application->message];
+            }
         }
         $this->model['count'] = $count;
-
+        \Log::info($this->model);
         return $this->sendResponse();
 
     }

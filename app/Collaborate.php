@@ -98,16 +98,16 @@ class Collaborate extends Model implements Feedable
         return $this->profiles()->wherePivot("approved_on",null);
     }
     
-    public function approveProfile(Profile $profile)
+    public function approveProfile(Profile $profile,$isShortlist)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return $this->profiles()->updateExistingPivot($profile->id,['approved_on'=>$approvedOn,'rejected_on'=>null]);
+        return $this->profiles()->updateExistingPivot($profile->id,['approved_on'=>$approvedOn,'is_shortlist'=>$isShortlist]);
     }
     
-    public function approveCompany(Company $company)
+    public function approveCompany(Company $company,$isShortlist)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return $this->companies()->updateExistingPivot($company->id,['approved_on'=>$approvedOn ,'rejected_on'=>null]);
+        return $this->companies()->updateExistingPivot($company->id,['approved_on'=>$approvedOn ,'is_shortlist'=>$isShortlist]);
     }
     
     public function rejected()
@@ -119,13 +119,13 @@ class Collaborate extends Model implements Feedable
     public function rejectProfile(Profile $profile)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return $this->profiles()->updateExistingPivot($profile->id,['approved_on'=>null ,'rejected_on'=>$approvedOn]);
+        return $this->profiles()->updateExistingPivot($profile->id,['rejected_on'=>$approvedOn]);
     }
     
     public function rejectCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return $this->companies()->updateExistingPivot($company->id,['approved_on'=>null ,'rejected_on'=>$approvedOn]);
+        return $this->companies()->updateExistingPivot($company->id,['rejected_on'=>$approvedOn]);
     }
     
     public function comments()
