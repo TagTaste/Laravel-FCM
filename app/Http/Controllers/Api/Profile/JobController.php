@@ -38,8 +38,12 @@ class JobController extends Controller
         $this->model['jobs'] = Job::where('profile_id', $profileId)
             ->with(['applications' => function ($query) use ($profileId) {
                 $query->where('applications.profile_id', $profileId);
-            }])
-            ->paginate();
+            }]);
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();
+
         $this->model['count'] = Job::where('profile_id',$profileId)->count();
 
         return $this->sendResponse();
