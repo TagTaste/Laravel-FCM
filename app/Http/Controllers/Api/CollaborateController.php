@@ -249,22 +249,41 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function application(Request $request, $id)
+    public function applications(Request $request, $id)
     {
-        $count = \DB::table("collaborators")->where("collaborate_id",$id)->count();
-        $applications = \DB::table("collaborators")->select('profile_id','message','approved_on','rejected_on')->where("collaborate_id",$id)->get();
         $this->model = [];
-        foreach ($applications as $application){
-            if($application->rejected_on!==null) {
-                $profile = \App\Recipe\Profile::where('id', $application->profile_id)->first();
-                $this->model['restore'][] = ['profile' => $profile, 'message' => $application->message];
-            }
-            else{
-                $profile = \App\Recipe\Profile::where('id', $application->profile_id)->first();
-                $this->model['archive'][] = ['profile' => $profile, 'message' => $application->message];
-            }
+        $applications = \DB::table("collaborators")->select('profile_id','message','approved_on')
+            ->where("collaborate_id",$id)->whereNull('rejected_on')->get();
+
+        $archives = \DB::table("collaborators")->select('profile_id','message','rejected_on')
+            ->where("collaborate_id",$id)->whereNotNull('rejected_on')->get();
+
+        $profileIds = $applications->pluck('profile_id');
+        $profiles = [];
+        //build redis keys
+        foreach($profileIds as $id){
+            $profiles[] = "profile:small:" . $id;
         }
-        $this->model['count'] = $count;
+        if(count($profiles)>0) {
+            $profiles = \Redis::mget($profiles);
+        }
+
+        foreach ($applications as $key=>&$application){
+            $this->model['applications'][] = ['profile'=>json_decode($profiles[$key],true),'message'=>$application->message];
+        }
+
+        $archivesProfileIds = $archives->pluck('profile_id');
+        $archivesProfiles = [];
+        //build redis keys
+        foreach($archivesProfileIds as $id){
+            $archivesProfiles[] = "profile:small:" . $id;
+        }
+        if(count($archivesProfiles)>0) {
+            $archivesProfiles = \Redis::mget($archivesProfiles);
+        }
+        foreach ($archives as $key=>&$archives){
+            $this->model['archived'][] = ['profile'=>json_decode($archivesProfiles[$key],true),'message'=>$archives->message];
+        }
 
         return $this->sendResponse();
 

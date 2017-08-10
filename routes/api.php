@@ -103,7 +103,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("collaborate/all","CollaborateController@all");
                     Route::get("collaborate/filters","CollaborateController@filters");
                     Route::post("collaborate/{id}/like","CollaborateController@like");
-                    Route::get("collaborate/{id}/application","CollaborateController@application");
+                    Route::get("collaborate/{id}/applications","CollaborateController@applications");
                     Route::post("collaborate/{id}/apply","CollaborateController@apply");
                     Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
                     Route::resource("collaborate","CollaborateController");
