@@ -15,7 +15,7 @@ class AlterCollaboratorsMessage extends Migration
     {
         Schema::table('collaborators',function(Blueprint $table){
             $table->text('message')->nullable();
-            $table->boolean("is_shortlist")->default(1);
+            $table->dateTime("archived_at")->nullable();
         });
     }
 
@@ -28,7 +28,7 @@ class AlterCollaboratorsMessage extends Migration
     {
         Schema::table("collaborators",function(Blueprint $table){
             $table->dropColumn('message');
-            $table->dropColumn('is_shortlist');
+            $table->dropColumn('archived_at');
         });
     }
 }

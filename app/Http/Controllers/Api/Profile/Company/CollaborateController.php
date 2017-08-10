@@ -198,7 +198,7 @@ class CollaborateController extends Controller
                 throw new \Exception("Company does not exist.");
             }
             
-            return $collaborate->approveCompany($company,$request->input("is_shortlisted"));
+            return $collaborate->approveCompany($company);
         }
         
         if($request->has('profile_id')){
@@ -208,7 +208,7 @@ class CollaborateController extends Controller
                 throw new \Exception("Profile does not exist.");
             }
             
-            return $collaborate->approveProfile($profile,$request->input("is_shortlisted"));
+            return $collaborate->approveProfile($profile);
         }
     }
     

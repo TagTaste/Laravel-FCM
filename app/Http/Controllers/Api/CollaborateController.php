@@ -6,7 +6,6 @@ use App\Collaborate;
 use App\CollaborateCategory;
 use App\Events\Actions\Like;
 use Carbon\Carbon;
-use App\Events\Update;
 use Illuminate\Http\Request;
 
 class CollaborateController extends Controller
@@ -251,11 +250,12 @@ class CollaborateController extends Controller
 
     public function applications(Request $request, $id)
     {
-        $count = \DB::table("collaborators")->where("collaborate_id",$id)->count();
-        $applications = \DB::table("collaborators")->select('profile_id','message','is_shortlist')->where("collaborate_id",$id)->get();
+        $applications = \DB::table("collaborators")->select('profile_id','message','archived_at')->where("collaborate_id",$id)->get();
         $this->model = [];
+        $this->model['archive'] = [];
+        $this->model['restore'] = [];
         foreach ($applications as $application){
-            if($application->is_shortlist) {
+            if($application->archived_at===null) {
                 $profile = \App\Recipe\Profile::where('id', $application->profile_id)->first();
                 $this->model['archive'][] = ['profile' => $profile, 'message' => $application->message];
             }
@@ -264,8 +264,6 @@ class CollaborateController extends Controller
                 $this->model['restore'][] = ['profile' => $profile, 'message' => $application->message];
             }
         }
-        $this->model['count'] = $count;
-        \Log::info($this->model);
         return $this->sendResponse();
 
     }
