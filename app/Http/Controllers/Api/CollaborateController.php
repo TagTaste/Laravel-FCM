@@ -268,7 +268,7 @@ class CollaborateController extends Controller
             $profiles = \Redis::mget($profiles);
         }
 
-        foreach ($applications as $key=>&$application){
+        foreach ($applications as $key=>$application){
             $this->model['applications'][] = ['profile'=>json_decode($profiles[$key],true),'message'=>$application->message];
         }
 
@@ -281,7 +281,7 @@ class CollaborateController extends Controller
         if(count($archivesProfiles)>0) {
             $archivesProfiles = \Redis::mget($archivesProfiles);
         }
-        foreach ($archives as $key=>&$archives){
+        foreach ($archives as $key=>$archives){
             $this->model['archived'][] = ['profile'=>json_decode($archivesProfiles[$key],true),'message'=>$archives->message];
         }
 
