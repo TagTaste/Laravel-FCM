@@ -6,7 +6,6 @@ use App\Collaborate;
 use App\CollaborateCategory;
 use App\Events\Actions\Like;
 use Carbon\Carbon;
-use App\Events\Update;
 use Illuminate\Http\Request;
 
 class CollaborateController extends Controller
@@ -284,7 +283,6 @@ class CollaborateController extends Controller
         foreach ($archives as $key=>$archives){
             $this->model['archived'][] = ['profile'=>json_decode($archivesProfiles[$key],true),'message'=>$archives->message];
         }
-
         return $this->sendResponse();
 
     }
