@@ -13,27 +13,42 @@ trait StartEndDate
 {
     public function setStartDateAttribute($value)
     {
-        $this->attributes['start_date'] = date('Y-m-d',strtotime($value));
-    }
-
-    public function getStartDateAttribute($value)
-    {
-        if(!$value){
-            return;
+        if(!empty($value)) {
+            $value = $value . '-01';
         }
-        return date("d-m-Y",strtotime($value));
+        $this->attributes['start_date'] = date('Y-m-d',strtotime($value));
     }
 
     public function setEndDateAttribute($value)
     {
+        if(!empty($value)) {
+            $value = $value . '-01';
+        }
         $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
+    }
+
+
+    public function getStartDateAttribute($value)
+    {
+        return date("m-Y",strtotime($value));
     }
 
     public function getEndDateAttribute($value)
     {
-        if(!$value){
-            return;
-        }
-        return date("d-m-Y",strtotime($value));
+        return date("m-Y",strtotime($value));
     }
+
+    public function setDateAttribute($value)
+    {
+        if(!empty($value)) {
+            $value = $value . '-01';
+        }
+        $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
+    }
+
+    public function getDateAttribute($value)
+    {
+        return date("m-Y",strtotime($value));
+    }
+
 }

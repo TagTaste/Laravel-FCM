@@ -10,8 +10,6 @@ use Illuminate\Http\Request;
 class ShowController extends Controller
 {
     use SendsJsonResponse;
-
-    private $fields = ['title','description','channel','date','url','appeared_as'];
     /**
      * Display a listing of the resource.
      *
@@ -41,7 +39,7 @@ class ShowController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->tvshows()->create($request->only($this->fields));
+        $this->model = $request->user()->profile->tvshows()->create($request->all());
         return $this->sendResponse();
     }
 
@@ -83,12 +81,9 @@ class ShowController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->only($this->fields);
-        if(isset($input['start_date'])){
-            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
-        }
-        if(isset($input['end_date'])){
-            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
+        $input = $request->all();
+        if(isset($input['date'])){
+            $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim($input['date'])));
         }
 
         $this->model = $request->user()->profile->tvshows()
