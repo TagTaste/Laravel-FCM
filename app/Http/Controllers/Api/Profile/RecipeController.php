@@ -225,12 +225,19 @@ class RecipeController extends Controller
             $newIngredients = [];
             foreach ($ingredients as $ingredient) {
                 if (isset($ingredient['id'])) {
-                    $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
-                        ->update(["name" => $ingredient['name']]);
+                    if($ingredient['name']==null){
+                        $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
+                            ->delete();
+                    }
+                    else {
+                        $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
+                            ->update(["name" => $ingredient['name']]);
+                    }
                 } else {
                     $newIngredients[] = ['recipe_id' => $id, "name" => $ingredient];
                 }
             }
+
             if (count($newIngredients) > 0) {
                 $this->model->ingredients()->insert($newIngredients);
             }
@@ -242,7 +249,14 @@ class RecipeController extends Controller
             $newEquipments = [];
             foreach ($equipments as $equipment) {
                 if (isset($equipment['id'])) {
-                    $this->model->equipments()->where('recipe_id', $id)->where('id', $equipment['id'])->update(["name" => $equipment['name']]);
+                    if($equipment['name']==null){
+                        $this->model->equipments()->where('recipe_id', $id)->where('id', $equipment['id'])
+                            ->delete();
+                    }
+                    else {
+                        $this->model->equipments()->where('recipe_id', $id)->where('id', $equipment['id'])
+                            ->update(["name" => $equipment['name']]);
+                    }
                 } else {
                     $newEquipments[] = ['recipe_id' => $id, "name" => $equipment];
                 }
@@ -251,6 +265,8 @@ class RecipeController extends Controller
                 $this->model->equipments()->insert($newEquipments);
             }
         }
+        $this->model = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
+
         return $this->sendResponse();
     }
 
