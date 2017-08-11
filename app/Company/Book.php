@@ -16,6 +16,16 @@ class Book extends BaseBook
 
     public function setReleaseDateAttribute($value)
     {
-        $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
+        if(!empty($value)){
+            $value = $value . '-01';
+            $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
+        }
+    }
+
+    public function getReleaseDateAttribute($value)
+    {
+        if(!empty($value)){
+            return date("m-Y",strtotime($value));
+        }
     }
 }

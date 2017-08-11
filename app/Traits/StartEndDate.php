@@ -38,17 +38,4 @@ trait StartEndDate
         return date("m-Y",strtotime($value));
     }
 
-    public function setDateAttribute($value)
-    {
-        if(!empty($value)) {
-            $value = $value . '-01';
-        }
-        $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
-    }
-
-    public function getDateAttribute($value)
-    {
-        return date("m-Y",strtotime($value));
-    }
-
 }
