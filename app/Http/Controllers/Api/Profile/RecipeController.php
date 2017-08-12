@@ -205,9 +205,9 @@ class RecipeController extends Controller
                 }
 
                 if ($request->input("images.$count.id") != null) {
-                    $this->model = $this->model->images()->where('recipe_id', $id)
-                        ->where('id', $request->input("images.$count.id"))
-                        ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase") ?: 0]);
+                        $this->model->images()->where('recipe_id', $id)
+                            ->where('id', $request->input("images.$count.id"))
+                            ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase") ?: 0]);
                 } else {
                     $newImages[] = ['recipe_id' => $id, 'image' => $imageName,
                         'show_case' => $request->input("images.$count.showCase") ?: 0];
@@ -225,7 +225,7 @@ class RecipeController extends Controller
             $newIngredients = [];
             foreach ($ingredients as $ingredient) {
                 if (isset($ingredient['id'])) {
-                    if($ingredient['name']==null){
+                    if(!isset($ingredient['name'])){
                         $this->model->ingredients()->where('recipe_id', $id)->where('id', $ingredient['id'])
                             ->delete();
                     }
@@ -249,7 +249,7 @@ class RecipeController extends Controller
             $newEquipments = [];
             foreach ($equipments as $equipment) {
                 if (isset($equipment['id'])) {
-                    if($equipment['name']==null){
+                    if(!isset($equipment['name'])){
                         $this->model->equipments()->where('recipe_id', $id)->where('id', $equipment['id'])
                             ->delete();
                     }
@@ -265,7 +265,7 @@ class RecipeController extends Controller
                 $this->model->equipments()->insert($newEquipments);
             }
         }
-        $this->model = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
+        $this->model->refresh();
 
         return $this->sendResponse();
     }
