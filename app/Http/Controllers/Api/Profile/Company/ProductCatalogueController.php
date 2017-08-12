@@ -37,12 +37,11 @@ class ProductCatalogueController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-		$this->model = $this->model->where('company_id',$companyId)->skip($skip)->take($take)->get();
+		$this->model = $this->model->where('company_id',$companyId)->orderBy('category')->skip($skip)->take($take)->get();
 		
 		if($this->model->count() == 0){
 		    return $this->sendResponse();
         }
-        $this->model = $this->model->groupBy('category');
         return $this->sendResponse();
 	}
 

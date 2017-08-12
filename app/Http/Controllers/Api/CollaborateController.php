@@ -191,15 +191,15 @@ class CollaborateController extends Controller
                 ->delete();
             //if unliked, return false;
             //yes, counter-intuitive.
-            $this->model['likeCount'] = \DB::table("collaboration_likes")->where("collaboration_id",$id)->count();
-            $this->model['isLike'] = $unliked === 1 ? false : null;
+            $this->model['likeCount'] = \Redis::hIncrBy("collaborate:" . $id . ":meta", "like", -1);
+            $this->model['liked'] = $unliked === 1 ? false : null;
             return $this->sendResponse();
         }
         
         event(new Like($collaborate,$request->user()->profile));
         $data = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
-        $this->model['likeCount'] = \DB::table("collaboration_likes")->where("collaboration_id",$id)->count();
-        $this->model['isLike'] = true;
+        $this->model['likeCount'] = \Redis::hIncrBy("collaborate:" . $id . ":meta", "like", 1);
+        $this->model['liked'] = true;
         return $this->sendResponse();
         
     }

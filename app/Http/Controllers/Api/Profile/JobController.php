@@ -218,7 +218,12 @@ class JobController extends Controller
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
 
-        $this->model = Job::whereIn('id',$ids)->get();
+        $jobs = Job::whereIn('id',$ids);
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $jobs->skip($skip)->take($take)->get();
+
         return $this->sendResponse();
     }
 }

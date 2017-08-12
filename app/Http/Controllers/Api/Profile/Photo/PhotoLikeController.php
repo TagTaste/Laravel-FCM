@@ -9,7 +9,8 @@ use App\PhotoLike;
 use App\Events\Update;
 use Illuminate\Http\Request;
 
-class PhotoLikeController extends Controller
+class
+PhotoLikeController extends Controller
 {
 	/**
 	 * Display a listing of the resource.
@@ -42,13 +43,15 @@ class PhotoLikeController extends Controller
         if ($photoLike != null) {
             $photoLike->delete();
             $this->model['liked'] = false;
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", -1);
+    
         } else {
-            $photoLike = PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
+            PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
             $this->model['liked'] = true;
+            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", 1);
             event(new Like($photo, $request->user()->profile));
         }
         
-        $this->model['likeCount'] = $photoLike->likeCount;
         return $this->sendResponse();
 	}
 
