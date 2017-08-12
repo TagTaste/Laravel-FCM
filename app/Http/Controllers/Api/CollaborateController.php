@@ -251,38 +251,10 @@ class CollaborateController extends Controller
     public function applications(Request $request, $id)
     {
         $this->model = [];
-        $applications = \DB::table("collaborators")->select('profile_id','message','approved_on')
-            ->where("collaborate_id",$id)->whereNull('rejected_on')->get();
+        
+        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('rejected_on')->where('collaborate_id',$id)->with('profile')->get();
+        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('rejected_on')->where('collaborate_id',$id)->with('profile')->get();
 
-        $archives = \DB::table("collaborators")->select('profile_id','message','rejected_on')
-            ->where("collaborate_id",$id)->whereNotNull('rejected_on')->get();
-
-        $profileIds = $applications->pluck('profile_id');
-        $profiles = [];
-        //build redis keys
-        foreach($profileIds as $id){
-            $profiles[] = "profile:small:" . $id;
-        }
-        if(count($profiles)>0) {
-            $profiles = \Redis::mget($profiles);
-        }
-
-        foreach ($applications as $key=>$application){
-            $this->model['applications'][] = ['profile'=>json_decode($profiles[$key],true),'message'=>$application->message];
-        }
-
-        $archivesProfileIds = $archives->pluck('profile_id');
-        $archivesProfiles = [];
-        //build redis keys
-        foreach($archivesProfileIds as $id){
-            $archivesProfiles[] = "profile:small:" . $id;
-        }
-        if(count($archivesProfiles)>0) {
-            $archivesProfiles = \Redis::mget($archivesProfiles);
-        }
-        foreach ($archives as $key=>$archives){
-            $this->model['archived'][] = ['profile'=>json_decode($archivesProfiles[$key],true),'message'=>$archives->message];
-        }
         return $this->sendResponse();
 
     }
