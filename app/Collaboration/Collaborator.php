@@ -12,4 +12,9 @@ class Collaborator extends Model
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
     }
+
+    public function collaborate()
+    {
+        return $this->belongsTo(\App\Collaborate::class);
+    }
 }
