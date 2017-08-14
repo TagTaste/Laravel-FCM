@@ -327,6 +327,7 @@ class ProfileController extends Controller
         $filters = $request->input('filters');
         $models = \App\Recipe\Profile::orderBy('created_at','asc');
         $this->model = ['count' => $models->count()];
+        $this->model['data'] = [];
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
