@@ -92,10 +92,17 @@ class AwardController extends Controller
         if(!$company){
             throw new \Exception("User does not belong to this company.");
         }
+        $inputs = $request->only(['name','description','date']);
+        $inputs = array_filter($inputs);
+
+        if(isset($inputs['date'])){
+            $inputs['date'] = "01-".$inputs['date'];
+            $inputs['date'] = date('Y-m-d',strtotime($inputs['date']));
+        }
 
         $this->model = Award::where('id',$id)->forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
             $query->where('id',$userId);
-        })->update($request->only($this->fields));
+        })->update($inputs);
 
         return $this->sendResponse();
     }

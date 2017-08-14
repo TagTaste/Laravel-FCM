@@ -19,6 +19,14 @@ class Patent extends Model
 
     public function setAwardedOnAttribute($value)
     {
-        $this->attributes['awarded_on'] = date('Y-m-d',strtotime($value));
+        if(!empty($value)) {
+            $value = "01-".$value;
+            $this->attributes['awarded_on'] = date('Y-m-d', strtotime($value));
+        }
+    }
+
+    public function getAwardedOnAttribute($value)
+    {
+        return date("m-Y",strtotime($value));
     }
 }

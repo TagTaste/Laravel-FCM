@@ -31,15 +31,5 @@ class Experience extends Model
       }
       return $value;
     }
-    
-    public function setStartDateAttribute($value)
-    {
-        $this->attributes['start_date'] = empty($value) ? null : date("Y-m-d",strtotime(trim($value)));
-    }
-    
-    public function setEndDateAttribute($value)
-    {
-        $this->attributes['end_date'] = empty($value) ? null : date("Y-m-d",strtotime(trim($value)));
-    }
 
 }

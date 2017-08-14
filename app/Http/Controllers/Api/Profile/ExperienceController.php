@@ -98,7 +98,7 @@ class ExperienceController extends Controller
         if(isset($input['start_date'])){
             $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
         }
-    
+
         if(isset($input['end_date'])){
             $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
         }
