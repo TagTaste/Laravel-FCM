@@ -96,7 +96,7 @@ class AwardController extends Controller
         $inputs = array_filter($inputs);
 
         if(isset($inputs['date'])){
-            $inputs['date'] = $inputs['date'].'-01';
+            $inputs['date'] = "01-".$inputs['date'];
             $inputs['date'] = date('Y-m-d',strtotime($inputs['date']));
         }
 

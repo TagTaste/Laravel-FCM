@@ -25,9 +25,9 @@ class Show extends Model
     public function setDateAttribute($value)
     {
         if(!empty($value)) {
-            $value = $value . '-01';
+            $value = "01-" . $value;
+            $this->attributes['end_date'] = date('Y-m-d', strtotime($value));
         }
-        $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
     }
 
     public function getDateAttribute($value)

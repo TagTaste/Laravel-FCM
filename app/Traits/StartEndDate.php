@@ -14,17 +14,17 @@ trait StartEndDate
     public function setStartDateAttribute($value)
     {
         if(!empty($value)) {
-            $value = $value . '-01';
+            $value = "01-" . $value;
+            $this->attributes['start_date'] = date('Y-m-d', strtotime($value));
         }
-        $this->attributes['start_date'] = date('Y-m-d',strtotime($value));
     }
 
     public function setEndDateAttribute($value)
     {
         if(!empty($value)) {
-            $value = $value . '-01';
+            $value = "01-" . $value;
+            $this->attributes['end_date'] = date('Y-m-d', strtotime($value));
         }
-        $this->attributes['end_date'] = date('Y-m-d',strtotime($value));
     }
 
 

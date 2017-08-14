@@ -20,7 +20,7 @@ class Patent extends Model
     public function setAwardedOnAttribute($value)
     {
         if(!empty($value)) {
-            $value = $value . "-01";
+            $value = "01-".$value;
             $this->attributes['awarded_on'] = date('Y-m-d', strtotime($value));
         }
     }

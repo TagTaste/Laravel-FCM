@@ -20,7 +20,7 @@ class Patent extends Model
     public function setPublishDateAttribute($value)
     {
         if(!empty($value)){
-            $value = $value . '-01';
+            $value = "01-".$value;
             $this->attributes['publish_date'] = date('Y-m-d',strtotime($value));
         }
     }
