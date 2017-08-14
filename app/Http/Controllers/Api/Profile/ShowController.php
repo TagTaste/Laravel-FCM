@@ -83,6 +83,7 @@ class ShowController extends Controller
     {
         $input = $request->all();
         if(isset($input['date'])){
+            $input['date'] = "01-".$input['date'];
             $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim($input['date'])));
         }
 

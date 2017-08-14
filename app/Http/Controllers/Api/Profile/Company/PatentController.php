@@ -71,7 +71,10 @@ class PatentController extends Controller {
         $userId = $request->user()->id;
         $inputs = $request->only(['title','description','number','issued_by','awarded_on','url']);
         $inputs = array_filter($inputs);
-
+        if(isset($input['awarded_on'])){
+            $input['awarded_on'] = "01-".$input['awarded_on'];
+            $input['awarded_on'] = date('Y-m-d',strtotime($input['awarded_on']));
+        }
         $this->model = Patent::whereHas('company.user',function($query) use ($userId){
             $query->where('id',$userId);
         })->where('id',$id)->where('company_id',$companyId)->update($inputs);
