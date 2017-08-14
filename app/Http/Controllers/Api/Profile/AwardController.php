@@ -81,8 +81,16 @@ class AwardController extends Controller
     {
         $this->model = $request->user()->profile->awards
             ->where('id',$id)->first();
+        $inputs = $request->only(['name','description','date']);
+        $inputs = array_filter($inputs);
+
+        if(isset($inputs['date'])){
+            $inputs['date'] = "01-".$inputs['date'];
+            $inputs['date'] = date('Y-m-d',strtotime($inputs['date']));
+        }
+
         if($this->model){
-            $this->model->update(array_filter($request->only($this->fields)));
+            $this->model->update($inputs);
         }
         
         return $this->sendResponse();
