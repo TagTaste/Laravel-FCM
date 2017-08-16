@@ -22,7 +22,7 @@ class Product extends Model
     
     protected $appends = ['imageUrl'];
 
-    protected $with=['categories'];
+//    protected $with=['categories'];
 
     
     
