@@ -43,11 +43,11 @@ class ProductController extends Controller
         if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
-        
+        \Log::info($request->all());
         $product = new Product();
         $product->name = $request->input("name");
         $product->price = $request->input("price");
-        $product->image = "http://placehold.it/10x10";
+        $product->category = $request->input("category");
         if ($request->hasFile('image')) {
             $filename = $request->user()->id . str_random(25) . ".jpeg";
             $request->image->storeAs('product_images', $filename);
@@ -98,8 +98,6 @@ class ProductController extends Controller
         if (!$company) {
             throw new \Exception("This company does not belong to user.");
         }
-        
-        
         $product = Product::findOrFail($id);
         
         $product->name = $request->input("name");
