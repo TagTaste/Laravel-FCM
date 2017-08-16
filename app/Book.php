@@ -16,7 +16,10 @@ class Book extends Model
 
     public function setReleaseDateAttribute($value)
     {
-        $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
+        if(!empty($value)) {
+            $value = "01-" . $value;
+            $this->attributes['release_date'] = date('Y-m-d', strtotime($value));
+        }
     }
 
     public function getReleaseDateAttribute($value)
@@ -24,6 +27,6 @@ class Book extends Model
         if(!$value){
             return;
         }
-        return date("d-m-Y",strtotime($value));
+        return date("m-Y",strtotime($value));
     }
 }

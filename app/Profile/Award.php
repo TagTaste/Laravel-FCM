@@ -19,6 +19,7 @@ class Award extends Model
     public function setDateAttribute($value)
     {
         if(!empty($value)){
+            $value = "01-".$value;
             $this->attributes['date'] = date('Y-m-d',strtotime($value));
         }
     }
@@ -26,7 +27,7 @@ class Award extends Model
     public function getDateAttribute($value)
     {
         if(!$value){
-            return date("d-m-Y",strtotime($value));
+            return date("m-Y",strtotime($value));
         }
     }
     
