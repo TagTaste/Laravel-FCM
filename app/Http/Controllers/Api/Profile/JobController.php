@@ -211,7 +211,7 @@ class JobController extends Controller
             throw new \Exception("Application not found.");
         }
         $this->model = [];
-        $this->model['success'] = $shortlistedApplication->shortlist($profile);
+        $this->model['success'] = $shortlistedApplication->shortlist($profile,$request->input("tags"));
         $this->model['count'] = Application::getCounts($job->id);
         return $this->sendResponse();
     }
