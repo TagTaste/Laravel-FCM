@@ -102,6 +102,7 @@ class ProductController extends Controller
         
         $product->name = $request->input("name");
         $product->price = $request->input("price");
+        $product->category = $request->input("category");
         if ($request->hasFile('image')) {
             $product->image = $request->image->store('product_images');
         }
