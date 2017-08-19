@@ -75,7 +75,7 @@ class Chat extends Model
                 ->where('c2.profile_id','=',$profileIdTwo)
             ->groupBy('c1.chat_id')
             ->get();
-
+        
         if($chatIds->count() === 0){
             return null;
         }
@@ -89,7 +89,7 @@ class Chat extends Model
         if($chatIds->count() === 0){
             return null;
         }
-        return Chat::whereIn('id',$chatIds->pluck('id')->toArray())->get();
+        return Chat::whereIn('id',$chatIds->pluck('chat_id')->toArray())->get();
         
     }
 }
