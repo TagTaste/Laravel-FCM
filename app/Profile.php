@@ -241,13 +241,13 @@ class Profile extends Model
     //specific to API
     public function getImageUrlAttribute()
     {
-        return $this->image !== null ? "/images/p/" . $this->id . "/" . $this->image : null;
+        return !is_null($this->image) ? \Storage::url($this->image) : null;
     }
 
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        return $this->hero_image !== null ? "/images/p/" . $this->id . "/hi/" . $this->hero_image : null;
+        return !is_null($this->image) ? \Storage::url($this->hero_image) : null;
     }
 
     //$followsId is following $this profile

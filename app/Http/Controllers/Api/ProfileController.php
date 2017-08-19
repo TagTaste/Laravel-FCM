@@ -108,6 +108,7 @@ class ProfileController extends Controller
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") .".". $ext;
             $response = $request->file('resume')->storeAs($path,$resumeName);
+            
             if(!$response)
             {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
@@ -124,7 +125,6 @@ class ProfileController extends Controller
                 $this->model = \App\Profile::where('user_id',$userId)->first();
                 $this->model->update($data['profile']);
                 $this->model->refresh();
-                \Log::info($this->model);
                 new \App\Cached\Filter\Profile($this->model);
             } catch(\Exception $e){
                 \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
@@ -144,12 +144,13 @@ class ProfileController extends Controller
     
     private function saveFile($path,&$request,$key)
     {
+        
         $imageName = str_random("32") . ".jpg";
-        $response = $request->file($key)->storeAs($path,$imageName);
+        $response = $request->file($key)->storeAs($path,$imageName,['visibility'=>'public']);
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        return $imageName;
+        return $response;
     }
 
     /**
