@@ -10,7 +10,6 @@ use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
 use App\Traits\PushesToChannel;
-use GuzzleHttp\Ring\Core;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use \Storage;
