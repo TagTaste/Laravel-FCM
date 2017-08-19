@@ -40,7 +40,7 @@ class ProfileController extends Controller
         $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
-    
+    \Log::info($profile);
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
@@ -87,6 +87,7 @@ class ProfileController extends Controller
             $name = array_pull($data, 'name');
             $request->user()->update(['name'=>trim($name)]);
         }
+        
         //save profile image
         $path = \App\Profile::getImagePath($id);
         $this->saveFileToData("image",$path,$request,$data);

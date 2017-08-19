@@ -37,6 +37,7 @@ class User extends Authenticatable
 
     protected $dates = ['deleted_at'];
     
+    
     public function profile() {
         return $this->hasOne('\App\Recipe\Profile');
     }
@@ -52,6 +53,10 @@ class User extends Authenticatable
 
         self::created(function(User $user){
             $user->profile()->create([]);
+        });
+    
+        self::updated(function($user){
+            \App\Documents\Profile::create($user->profile);
         });
     }
 

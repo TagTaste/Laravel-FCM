@@ -145,6 +145,9 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
+    
+            //this would delete the old document.
+            \App\Documents\Profile::create($profile);
         });
     }
 
