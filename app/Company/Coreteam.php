@@ -15,13 +15,21 @@ class Coreteam extends Model
 
     protected $fillable = ['name','email','image', 'designation' ,'about' ,'company_id'];
 
-    protected $visible = ['id','name','email','image', 'designation' ,'about' ,'company_id'];
+    protected $visible = ['id','name','email', 'designation' ,'about' ,'company_id','imageUrl'];
+
+    protected $appends = ['imageUrl'];
+
 
     public static function getCoreteamImagePath($profileId,$companyId, $filename = null)
     {
         $relativePath = "images/ph/$companyId/c/coreteam";
         $status = \Storage::makeDirectory($relativePath,0644,true);
         return $filename === null ? $relativePath : $relativePath . "/" . $filename;
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image !== null ? "/images/ph/" . $this->company_id . "/c/coreteam" . $this->image : null;
     }
 
 }
