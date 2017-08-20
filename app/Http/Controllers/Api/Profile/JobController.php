@@ -134,7 +134,7 @@ class JobController extends Controller
         if ($request->hasFile('resume')) {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") .".". $ext;
-            $response = $request->file("resume")->storeAs($path, $resumeName);
+            $response = $request->file("resume")->storeAs($path, $resumeName,['visibility'=>'public']);
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }

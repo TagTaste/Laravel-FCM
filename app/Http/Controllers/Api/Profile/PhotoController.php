@@ -79,7 +79,7 @@ class PhotoController extends Controller
     private function saveFile($path,&$request,$key)
     {
         $imageName = str_random("32") . ".jpg";
-        $response = $request->file($key)->storeAs($path,$imageName);
+        $response = $request->file($key)->storeAs($path,$imageName,['visibility'=>'public']);
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }

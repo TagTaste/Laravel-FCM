@@ -59,7 +59,7 @@ class PhotoController extends Controller
         }
         
         $imageName = str_random(32) . ".jpg";
-        $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
+        $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName,['visibility'=>'public']);
         $data['file'] = $imageName;
        
         if(!isset($data['privacy_id'])){

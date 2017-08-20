@@ -145,6 +145,9 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
+    
+            //this would delete the old document.
+            \App\Documents\Profile::create($profile);
         });
     }
 
@@ -238,13 +241,13 @@ class Profile extends Model
     //specific to API
     public function getImageUrlAttribute()
     {
-        return $this->image !== null ? "/images/p/" . $this->id . "/" . $this->image : null;
+        return !is_null($this->image) ? \Storage::url($this->image) : null;
     }
 
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        return $this->hero_image !== null ? "/images/p/" . $this->id . "/hi/" . $this->hero_image : null;
+        return !is_null($this->hero_image) ? \Storage::url($this->hero_image) : null;
     }
 
     //$followsId is following $this profile
@@ -553,7 +556,7 @@ class Profile extends Model
     //specific to API
     public function getResumeUrlAttribute()
     {
-        return $this->resume !== null ? "/profile/" . $this->id . "/resume/" . $this->resume : null;
+        return !is_null($this->resume) ? \Storage::url($this->resume) : null;
     }
 
 }

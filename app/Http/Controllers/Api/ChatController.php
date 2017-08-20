@@ -41,6 +41,7 @@ class ChatController extends Controller
             $query->where('profile_id',$profileId);
         })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
         
+        \Log::info($this->model);
 		return $this->sendResponse();
 	}
 
@@ -53,7 +54,7 @@ class ChatController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-  
+
 		//set profile_id to logged in user automatically.
         //all profileIds passed in request would be added to Chat\Member;
 		$profileIds = $inputs['profile_id'];
@@ -70,7 +71,7 @@ class ChatController extends Controller
                 return $this->sendResponse();
             }
         }
-        
+        unset($inputs['image']);
 		$this->model = $this->model->create($inputs);
   
 		if($request->hasFile("image")){
@@ -80,9 +81,8 @@ class ChatController extends Controller
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
-            $inputs['image'] = $imageName;
+            $this->model->update(['image'=>$imageName]);
         }
-        
 		//add members to the chat
         $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
