@@ -84,7 +84,7 @@ class RecipeController extends Controller
                 }
                 $imageName = str_random("32") . ".jpg";
                 $path = Recipe\Image::getImagePath($this->model->id);
-                $response = $request->file("images.$count.file")->storeAs($path, $imageName);
+                $response = $request->file("images.$count.file")->storeAs($path, $imageName,['visibility'=>'public']);
                 if (!$response) {
                     \Log::warning("Could not save image " . $imageName . " at " . $path);
                     $count--;
@@ -197,7 +197,7 @@ class RecipeController extends Controller
 
                 $imageName = str_random("32") . ".jpg";
                 $path = Recipe\Image::getImagePath($this->model->id);
-                $response = $request->file("images.$count.file")->storeAs($path, $imageName);
+                $response = $request->file("images.$count.file")->storeAs($path, $imageName,['visibility'=>'public']);
                 if (!$response) {
                     \Log::warning("Could not save image " . $imageName . " at " . $path);
                     $count--;

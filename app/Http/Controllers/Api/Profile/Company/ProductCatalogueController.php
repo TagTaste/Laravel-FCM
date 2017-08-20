@@ -82,7 +82,7 @@ class ProductCatalogueController extends Controller
         //we have the file
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
-		$file = $request->file('file')->storeAs($path,$filename);
+		$file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
 		$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
 
         //load the file

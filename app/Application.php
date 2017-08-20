@@ -42,7 +42,7 @@ class Application extends Model
     
     public function getResumeUrlAttribute()
     {
-        return $this->resume !== null ? "/profile/" . $this->profile_id . "/job/" . $this->job_id . "/resume/" . $this->resume : null;
+        return !is_null($this->resume) ? \Storage::url($this->resume) : null;
     }
     
     public static function getCounts($jobId)

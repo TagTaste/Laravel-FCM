@@ -43,7 +43,7 @@ class Product extends Model
     
     public function getImageUrlAttribute()
     {
-        return "/product/image/" . $this->image;
+        return !is_null($this->image) ? \Storage::url($this->image) : null;
     }
     public function categories()
     {
