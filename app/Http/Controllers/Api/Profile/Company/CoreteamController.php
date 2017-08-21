@@ -15,7 +15,7 @@ class CoreteamController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Coreteam::where('company_id',$companyId)->orderBy('weight','ASC')->paginate(10);
+        $this->model = Coreteam::where('company_id',$companyId)->orderBy('weight','ASC')->get();
         return $this->sendResponse();
     }
 
@@ -153,9 +153,11 @@ class CoreteamController extends Controller
         $orders =$request->input("order");
         if(count($orders)>0){
             foreach ($orders as $order){
-                $this->model = Coreteam::where('id',$order['id'])->update(['weight'=>$order['weight']]);
+                $this->model = $company->coreteams()->where('id',$order['id'])->update(['weight'=>$order['weight']]);
             }
         }
+        $this->model = Coreteam::where('company_id',$companyId)->orderBy('weight','ASC')->get();
+
         return $this->sendResponse();
     }
 }
