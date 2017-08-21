@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company;
 use App\Http\Controllers\Api\Controller;
+use App\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -41,9 +42,12 @@ class UserController extends Controller
         if (!$company) {
             throw new \Exception("Company does not belongs this user.");
         }
-        
-        $userId = $request->input('user_id');
-        
+
+        $userId = User::select('id')->where('email',$request->input("email"))->first();
+        if(!$userId){
+            throw new \Exception("User is not available.");
+        }
+
         try {
             $this->model = $company->addUser($userId);
         } catch (\Exception $e){
@@ -68,9 +72,11 @@ class UserController extends Controller
         if (!$company) {
             throw new \Exception("Company does not belongs this user.");
         }
-        
-        $userId = $request->input("user_id");
-        
+
+        $userId = User::select('id')->where('email',$request->input("email"))->value('id');
+        if(!$userId){
+            throw new \Exception("User is not available.");
+        }
         try {
             $company->removeUser($userId);
         } catch(\Exception $e){
