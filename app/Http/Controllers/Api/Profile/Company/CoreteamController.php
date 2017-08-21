@@ -15,7 +15,7 @@ class CoreteamController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Coreteam::where('company_id',$companyId)->paginate(10);
+        $this->model = Coreteam::where('company_id',$companyId)->orderBy('weight','ASC')->paginate(10);
         return $this->sendResponse();
     }
 
@@ -139,6 +139,23 @@ class CoreteamController extends Controller
 
         $this->model = $company->coreteams()->where('id',$id)->delete();
 
+        return $this->sendResponse();
+    }
+
+    public function ordering(Request $request, $profileId, $companyId)
+    {
+        $userId = $request->user()->id;
+        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
+
+        if(!$company){
+            throw new \Exception("User does not belong to this company.");
+        }
+        $orders =$request->input("order");
+        if(count($orders)>0){
+            foreach ($orders as $order){
+                $this->model = Coreteam::where('id',$order['id'])->update(['weight'=>$order['weight']]);
+            }
+        }
         return $this->sendResponse();
     }
 }

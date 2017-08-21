@@ -13,9 +13,9 @@ class Coreteam extends Model
 {
     protected $table = 'core_teams';
 
-    protected $fillable = ['name','email','image', 'designation' ,'about' ,'company_id'];
+    protected $fillable = ['name','email','image', 'designation' ,'about' ,'company_id','weight'];
 
-    protected $visible = ['id','name','email', 'designation' ,'about' ,'company_id','imageUrl'];
+    protected $visible = ['id','name','email', 'designation' ,'about' ,'company_id','imageUrl','weight'];
 
     protected $appends = ['imageUrl'];
 
