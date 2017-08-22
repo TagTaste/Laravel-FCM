@@ -19,7 +19,7 @@ class PhotoController extends Controller
      */
     public function index(Request $request, $profileId,$companyId)
     {
-        $photos = Photo::forCompany($companyId)->paginate(10);
+        $photos = Photo::forCompany($companyId)->orderBy('created_at','desc')->orderBy('updated_at','desc')->paginate(10);
         $this->model = [];
         $loggedInProfileId = $request->user()->profile->id;
         foreach($photos as $photo){
