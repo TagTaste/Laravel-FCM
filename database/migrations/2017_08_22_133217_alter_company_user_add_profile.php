@@ -20,7 +20,7 @@ class AlterCompanyUserAddProfile extends Migration
             $table->integer('user_id')->unsigned()->nullable()->change();
             
             //add profile id
-            $table->integer('profile_id')->unsigned();
+            $table->integer('profile_id')->unsigned()->nullable();
             $table->foreign('profile_id')->references('id')->on('profiles');
             
         });
