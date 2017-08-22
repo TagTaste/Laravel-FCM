@@ -38,7 +38,7 @@ class ShareController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         
         //$sharedModel->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
-        
+
         $class = "\\App\\Shareable\\" . ucwords($modelName);
         
         $share = new $class();
@@ -49,8 +49,8 @@ class ShareController extends Controller
             return $this->sendError("You have already shared this.");
         }
         
-        
-        $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id, 'privacy_id' => $request->input('privacy_id')]);
+        $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
+            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
             $modelName => $modelName . ":" . $id, 'shared' => 'shared:' . $this->model->id
         ];
