@@ -74,8 +74,8 @@ class UserController extends Controller
         }
         
         try {
-            $userId = \App\Recipe\Profile::select("user_id")->where('profile_id',$userProfileId)->first();
-            $company->removeUser($userId->user_id);
+            $userId = \App\Recipe\Profile::select("user_id")->where('id',$userProfileId)->first();
+            $this->model = $company->removeUser($userId->user_id);
         } catch(\Exception $e){
             $this->errors = "Could not delete user. " . $e->getMessage();
             $this->model = false;
