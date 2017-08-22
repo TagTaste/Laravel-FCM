@@ -116,7 +116,7 @@ class ProfileController extends Controller
             }
             else
             {
-                $data['profile']['resume'] = $resumeName;
+                $data['profile']['resume'] = $response;
             }
         }
         //save the model

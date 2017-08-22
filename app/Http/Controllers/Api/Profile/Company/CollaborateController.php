@@ -86,8 +86,7 @@ class CollaborateController extends Controller
             }
             $imageName = str_random("32") . ".jpg";
             $relativePath = "images/p/$profileId/c/$companyId/collaborate";
-            $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
-            $inputs["image$i"] = $imageName;
+            $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
         }
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
@@ -149,8 +148,7 @@ class CollaborateController extends Controller
             if ($request->hasFile("image$i")) {
                 $imageName = str_random("32") . ".jpg";
                 $relativePath = "images/p/$profileId/collaborate";
-                $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
-                $inputs["image$i"] = $imageName;
+                $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
             }
         }
         $this->model = $collaborate->update($inputs);

@@ -45,28 +45,18 @@ class CompanyController extends Controller
         if(empty($inputs)){
             throw new \Exception("Empty request received.");
         }
-        $imageName = null;
-        $heroImageName = null;
-        if($request->hasFile('logo')){
-            $imageName = str_random(32) . ".jpg";
-            $inputs['logo'] = $imageName;
-        }
-        
-        if($request->hasFile('heroImage')){
-            $heroImageName = str_random(32) . ".jpg";
-            $inputs['hero_image'] = $heroImageName;
-        }
-    
         $inputs['user_id'] = $request->user()->id;
         $company = Company::create($inputs);
-        
-        if($request->hasFile('logo') && $imageName !== null){
+
+        if($request->hasFile('logo')){
+            $imageName = str_random(32) . ".jpg";
             $path = \App\Company::getLogoPath($profileId, $company->id);
-            $response = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
+            $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
         }
-    
+
         if($request->hasFile('heroImage')){
-            $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName,['visibility'=>'public']);
+            $heroImageName = str_random(32) . ".jpg";
+            $inputs['hero_image'] = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName,['visibility'=>'public']);
         }
         
         if($company->isDirty()){
@@ -110,23 +100,16 @@ class CompanyController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $inputs = $request->except(['_method','_token']);
-    
+
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
             $path = \App\Company::getLogoPath($profileId, $id);
-            $response = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
-            if($response !== false){
-                $inputs['logo'] = $imageName;
-            }
+            $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
         }
-    
-        if($request->hasFile('hero_image')){
-            $imageName = str_random(32) . ".jpg";
-            $path = \App\Company::getHeroImagePath($profileId, $id);
-            $response = $request->file('hero_image')->storeAs($path,$imageName,['visibility'=>'public']);
-            if($response !== false){
-                $inputs['hero_image'] = $imageName;
-            }
+
+        if($request->hasFile('heroImage')){
+            $heroImageName = str_random(32) . ".jpg";
+            $inputs['hero_image'] = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $id),$heroImageName,['visibility'=>'public']);
         }
         $userId = $request->user()->id;
         $this->model = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
