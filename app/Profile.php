@@ -247,7 +247,7 @@ class Profile extends Model
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        return !is_null($this->image) ? \Storage::url($this->hero_image) : null;
+        return !is_null($this->hero_image) ? \Storage::url($this->hero_image) : null;
     }
 
     //$followsId is following $this profile
@@ -556,7 +556,7 @@ class Profile extends Model
     //specific to API
     public function getResumeUrlAttribute()
     {
-        return $this->resume !== null ? "/profile/" . $this->id . "/resume/" . $this->resume : null;
+        return !is_null($this->resume) ? \Storage::url($this->resume) : null;
     }
 
 }

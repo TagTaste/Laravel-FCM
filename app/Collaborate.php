@@ -277,7 +277,8 @@ class Collaborate extends Model implements Feedable
             {
                 if($this->{"image".$i}!==null)
                 {
-                    $images[] = $this->{"image".$i} !== null ? "images/p/".$this->profile_id."/c/".$this->company_id."/collaborate/" . $this->{'image'.$i}: null;
+                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
+
                 }
             }
         }
@@ -287,7 +288,7 @@ class Collaborate extends Model implements Feedable
             {
                 if($this->{"image".$i}!==null)
                 {
-                    $images[] = $this->{"image".$i} !== null ? "images/p/".$this->profile_id."/collaborate/" . $this->{'image'.$i}: null;
+                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
                 }
             }
         }

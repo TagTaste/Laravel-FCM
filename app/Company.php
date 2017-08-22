@@ -5,6 +5,7 @@ namespace App;
 use App\Company\Address;
 use App\Company\Advertisement;
 use App\Company\Book;
+use App\Company\Coreteam;
 use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
@@ -75,7 +76,7 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteams',
         'created_at',
         'milestones',
         'speciality',
@@ -87,7 +88,7 @@ class Company extends Model
     ];
 
 
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteams'];
 
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating'];
@@ -122,6 +123,11 @@ class Company extends Model
     public function awards()
     {
         return $this->belongsToMany('App\Company\Award','company_awards','company_id','award_id');
+    }
+
+    public function coreteams()
+    {
+        return $this->hasMany(Coreteam::class);
     }
 
     //company creater user 
@@ -322,12 +328,12 @@ class Company extends Model
     
     public function getLogoAttribute($value)
     {
-        return $value !== null ? "/images/c/{$this->id}/l/" . $value : false;
+        return !is_null($this->logo) ? \Storage::url($this->logo) : null;
     }
     
     public function getHeroImageAttribute($value)
     {
-        return $value !== null ? "/images/c/{$this->id}/hi/" . $value : false;
+        return !is_null($this->hero_image) ? \Storage::url($this->hero_image) : null;
     }
     
     public function getProfileIdAttribute()

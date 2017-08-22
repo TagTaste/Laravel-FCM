@@ -19,7 +19,7 @@ class Award extends Model
     {
         if(!empty($value)) {
             $value = "01-". $value ;
-            $this->attributes['date'] = date('m-Y', strtotime($value));
+            $this->attributes['date'] = date('Y-m-d', strtotime($value));
         }
     }
 

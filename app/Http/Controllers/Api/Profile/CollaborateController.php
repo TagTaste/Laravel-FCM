@@ -81,7 +81,7 @@ class CollaborateController extends Controller
             }
             $imageName = str_random("32") . ".jpg";
             $relativePath = "images/p/$profileId/collaborate";
-            $request->file("image$i")->storeAs($relativePath, $imageName);
+            $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
             $inputs["image$i"] = $imageName;
         }
         if (!empty($fields)) {
@@ -140,7 +140,7 @@ class CollaborateController extends Controller
             if ($request->hasFile("image$i")) {
                 $imageName = str_random("32") . ".jpg";
                 $relativePath = "images/p/$profileId/collaborate";
-                $request->file("image$i")->storeAs($relativePath, $imageName);
+                $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
                 $inputs["image$i"] = $imageName;
             }
         }

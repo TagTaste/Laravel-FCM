@@ -62,11 +62,11 @@ class CompanyController extends Controller
         
         if($request->hasFile('logo') && $imageName !== null){
             $path = \App\Company::getLogoPath($profileId, $company->id);
-            $response = $request->file('logo')->storeAs($path, $imageName);
+            $response = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
         }
     
         if($request->hasFile('heroImage')){
-            $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName);
+            $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName,['visibility'=>'public']);
         }
         
         if($company->isDirty()){
@@ -114,7 +114,7 @@ class CompanyController extends Controller
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
             $path = \App\Company::getLogoPath($profileId, $id);
-            $response = $request->file('logo')->storeAs($path, $imageName);
+            $response = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
             if($response !== false){
                 $inputs['logo'] = $imageName;
             }
@@ -123,7 +123,7 @@ class CompanyController extends Controller
         if($request->hasFile('hero_image')){
             $imageName = str_random(32) . ".jpg";
             $path = \App\Company::getHeroImagePath($profileId, $id);
-            $response = $request->file('hero_image')->storeAs($path,$imageName);
+            $response = $request->file('hero_image')->storeAs($path,$imageName,['visibility'=>'public']);
             if($response !== false){
                 $inputs['hero_image'] = $imageName;
             }
