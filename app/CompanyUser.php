@@ -8,6 +8,6 @@ class CompanyUser extends Model
 {
     protected $fillable = ['company_id', 'user_id'];
 
-    protected $visible = ['company_id', 'user_id', 'created_at', 'updated_at'];
+    protected $visible = ['company_id', 'profile_id', 'created_at', 'updated_at'];
     
 }

@@ -282,7 +282,7 @@ class Company extends Model
         }
         
         //attach the user
-        $this->users()->attach($user->id);
+        $this->users()->attach($user->id,['profile_id'=>$user->profile->id]);
         
         //subscribe the user to the company feed
         $user->completeProfile->subscribe("public",$this);
