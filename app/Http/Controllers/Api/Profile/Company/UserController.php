@@ -64,7 +64,7 @@ class UserController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy(Request $request, $profileId, $companyId)
+	public function destroy(Request $request, $profileId, $companyId, $userId)
 	{
         $loggedInUserId = $request->user()->id;
         $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
@@ -72,8 +72,6 @@ class UserController extends Controller
         if (!$company) {
             throw new \Exception("Company does not belongs this user.");
         }
-        
-        $userId = $request->input("user_id");
         
         try {
             $company->removeUser($userId);
