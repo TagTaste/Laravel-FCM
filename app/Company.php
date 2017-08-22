@@ -255,13 +255,11 @@ class Company extends Model
     /**
      * Get Company User Profiles
      *
-     * @return \App\Recipe\Profile|null
+     * @return \App\CompanyUser[]|null
      */
     public function getUsers()
     {
-        return \App\Recipe\Profile::
-            join('company_users','company_users.user_id','=','profiles.user_id')
-            ->where('company_users.company_id',$this->id)->get();
+        return \App\CompanyUser::with('profile')->where("company_id",$this->id)->get();
     }
     
     
@@ -282,7 +280,7 @@ class Company extends Model
         }
         
         //attach the user
-        $this->users()->attach($user->id);
+        $this->users()->attach($user->id,['profile_id'=>$user->profile->id]);
         
         //subscribe the user to the company feed
         $user->completeProfile->subscribe("public",$this);

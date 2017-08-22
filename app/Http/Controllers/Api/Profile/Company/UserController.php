@@ -64,7 +64,7 @@ class UserController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy(Request $request, $profileId, $companyId)
+	public function destroy(Request $request, $profileId, $companyId, $userProfileId)
 	{
         $loggedInUserId = $request->user()->id;
         $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
@@ -73,10 +73,9 @@ class UserController extends Controller
             throw new \Exception("Company does not belongs this user.");
         }
         
-        $userId = $request->input("user_id");
-        
         try {
-            $company->removeUser($userId);
+            $userId = \App\Recipe\Profile::select("user_id")->where('id',$userProfileId)->first();
+            $this->model = $company->removeUser($userId->user_id);
         } catch(\Exception $e){
             $this->errors = "Could not delete user. " . $e->getMessage();
             $this->model = false;
