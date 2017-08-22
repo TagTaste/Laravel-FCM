@@ -53,12 +53,12 @@ class CoreteamController extends Controller
 
         $imageName = str_random(32) . ".jpg";
         $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
-        $response = $request->file('image')->storeAs($path,$imageName);
+        $response = $request->file("image")->storeAs($path,$imageName,['visibility'=>'public']);
         if(!$response)
         {
             throw new \Exception("Could not save resume " . $imageName . " at " . $path);
         }
-        $data['image'] = $imageName;
+        $data['image'] = $response;
         $this->model = $company->coreteams()->create($data);
         return $this->sendResponse();
     }
@@ -109,12 +109,12 @@ class CoreteamController extends Controller
         if($request->hasFile('image')){
             $imageName = str_random(32) . ".jpg";
             $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
-            $response = $request->file('image')->storeAs($path,$imageName);
+            $response = $request->file("image")->storeAs($path,$imageName,['visibility'=>'public']);
             if(!$response)
             {
                 throw new \Exception("Could not save resume " . $imageName . " at " . $path);
             }
-            $data['image'] = $imageName;
+            $data['image'] = $response;
         }
         $this->model = $company->coreteams()->where('id',$id)->update($data);
 

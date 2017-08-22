@@ -83,7 +83,7 @@ class PhotoController extends Controller
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        return $imageName;
+        return $response;
     }
 
     /**

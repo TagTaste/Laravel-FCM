@@ -29,7 +29,7 @@ class Coreteam extends Model
 
     public function getImageUrlAttribute()
     {
-        return $this->image !== null ? "/images/ph/" . $this->company_id . "/c/coreteam" . $this->image : null;
+        return !is_null($this->image) ? \Storage::url($this->image) : null;
     }
 
 }

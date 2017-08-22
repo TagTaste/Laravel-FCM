@@ -50,8 +50,7 @@ class ProductController extends Controller
         $product->category = $request->input("category");
         if ($request->hasFile('image')) {
             $filename = $request->user()->id . str_random(25) . ".jpeg";
-            $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
-            $product->image = $filename;
+            $product->image = $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
         }
         
         $product->moq = $request->input("moq");
