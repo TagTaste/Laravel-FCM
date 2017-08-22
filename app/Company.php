@@ -84,14 +84,15 @@ class Company extends Model
         'handle',
         'followerProfiles',
         'rating',
-        'city'
+        'city',
+        'is_admin'
     ];
 
 
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteams'];
 
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating','is_admin'];
     
     public static function boot()
     {
@@ -391,6 +392,12 @@ class Company extends Model
     public function productCatalogue()
     {
         return $this->hasMany(ProductCatalogue::class);
+    }
+    
+    public function getIsAdminAttribute()
+    {
+        $userId = request()->user()->id;
+        return $this->users()->where('user_id','=',$userId)->exists();
     }
 
 }
