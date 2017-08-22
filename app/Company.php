@@ -328,12 +328,12 @@ class Company extends Model
     
     public function getLogoAttribute($value)
     {
-        return !is_null($this->logo) ? \Storage::url($this->logo) : null;
+        return !is_null($value) ? \Storage::url($value) : null;
     }
     
     public function getHeroImageAttribute($value)
     {
-        return !is_null($this->hero_image) ? \Storage::url($this->hero_image) : null;
+        return !is_null($value) ? \Storage::url($value) : null;
     }
     
     public function getProfileIdAttribute()
