@@ -72,11 +72,9 @@ class UserController extends Controller
         if (!$company) {
             throw new \Exception("Company does not belongs this user.");
         }
-
-        $userId = User::select('id')->where('email',$request->input("email"))->value('id');
-        if(!$userId){
-            throw new \Exception("User is not available.");
-        }
+        
+        $userId = $request->input("user_id");
+        
         try {
             $company->removeUser($userId);
         } catch(\Exception $e){
