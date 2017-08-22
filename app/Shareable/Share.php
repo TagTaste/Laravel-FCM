@@ -14,7 +14,7 @@ class Share extends Model implements CommentNotification
 {
     use SoftDeletes, CachedPayload;
      
-    protected $fillable = ['profile_id','privacy_id'];
+    protected $fillable = ['profile_id','privacy_id','content'];
     protected $visible = ['id','profile_id','created_at'];
     
     public function __construct($attributes = [])
