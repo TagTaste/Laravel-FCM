@@ -14,7 +14,7 @@ class AlterCoreTeamAddWeight extends Migration
     public function up()
     {
         Schema::table("core_teams",function(Blueprint $table){
-            $table->integer("weight");
+            $table->integer("order");
 
         });
     }
@@ -27,7 +27,7 @@ class AlterCoreTeamAddWeight extends Migration
     public function down()
     {
         Schema::table("core_teams",function(Blueprint $table){
-            $table->dropColumn("weight");
+            $table->dropColumn("order");
 
         });
     }

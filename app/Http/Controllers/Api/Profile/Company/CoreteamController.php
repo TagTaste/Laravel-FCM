@@ -15,7 +15,7 @@ class CoreteamController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Coreteam::where('company_id',$companyId)->orderBy('weight','ASC')->get();
+        $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
         return $this->sendResponse();
     }
 
@@ -69,7 +69,7 @@ class CoreteamController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$companyId,$id)
+    public function show(Request $request,$profileId,$companyId,$id)
     {
         $this->model = Coreteam::where('company_id',$companyId)->where('id',$id)->first();
         if(!$this->model){
@@ -150,13 +150,13 @@ class CoreteamController extends Controller
         if(!$company){
             throw new \Exception("User does not belong to this company.");
         }
-        $orders =$request->input("order");
-        if(count($orders)>0){
-            foreach ($orders as $order){
-                $this->model = $company->coreteams()->where('id',$order['id'])->update(['weight'=>$order['weight']]);
+        $members =$request->input("member");
+        if(count($members)>0){
+            foreach ($members as $member){
+                $this->model = $company->coreteams()->where('id',$member['id'])->update(['order'=>$member['order']]);
             }
         }
-        $this->model = Coreteam::where('company_id',$companyId)->orderBy('weight','ASC')->get();
+        $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
 
         return $this->sendResponse();
     }
