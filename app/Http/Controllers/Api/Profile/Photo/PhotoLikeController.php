@@ -43,15 +43,13 @@ PhotoLikeController extends Controller
         if ($photoLike != null) {
             $photoLike->delete();
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", -1);
-    
         } else {
             PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
             $this->model['liked'] = true;
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta", "like", 1);
             event(new Like($photo, $request->user()->profile));
         }
         
+        $this->model['likeCount'] = \Redis::hget("photo:$photoId:meta","like");
         return $this->sendResponse();
 	}
 
