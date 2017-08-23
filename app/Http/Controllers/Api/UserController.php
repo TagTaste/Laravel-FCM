@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Events\SendVerificationEmail;
 
 class UserController extends Controller
 {
@@ -28,9 +29,21 @@ class UserController extends Controller
 
         $result = ['status'=>'success'];
 
-        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
+        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),
+            $request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
+        dispatch(new SendVerificationEmail($user));
+
+
         return response()->json($result);
+    }
+    public function verify($token)
+    {
+        $user = User::where("email_token", $token)->first();
+        $user->verified = 1;
+        if ($user->save()) {
+            return view("emailconfirm", ["user" => $user]);
+        }
     }
 }
