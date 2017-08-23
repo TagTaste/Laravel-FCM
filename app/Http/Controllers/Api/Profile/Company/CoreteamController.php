@@ -43,22 +43,25 @@ class CoreteamController extends Controller
         if(!$company){
             throw new \Exception("User does not belong to this company.");
         }
-
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
-
-        if(!$request->hasFile('image') && empty($request->input('image)'))){
-            return $this->sendError("Photo missing.");
+        if($request->hasFile('image')) {
+            $imageName = str_random(32) . ".jpg";
+            $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
+            $response = $request->file("image")->storeAs($path, $imageName, ['visibility' => 'public']);
+            if (!$response) {
+                throw new \Exception("Could not save resume " . $imageName . " at " . $path);
+            }
+            $data['image'] = $response;
         }
-
-        $imageName = str_random(32) . ".jpg";
-        $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
-        $response = $request->file("image")->storeAs($path,$imageName,['visibility'=>'public']);
-        if(!$response)
+        else
         {
-            throw new \Exception("Could not save resume " . $imageName . " at " . $path);
+            $profile = \App\Recipe\Profile::find($request->input('profile_id'));
+            $data['image'] = $profile->imageUrl;
         }
-        $data['image'] = $response;
+
+        unset($data['profile_id']);
+
         $this->model = $company->coreteams()->create($data);
         return $this->sendResponse();
     }
