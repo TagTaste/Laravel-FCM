@@ -15,7 +15,7 @@ class Handler extends ExceptionHandler
      *
      * @var array
      */
-    protected $dontjhbjhbjhbReport = [
+    protected $dontReport = [
         \Illuminate\Auth\AuthenticationException::class,
         \Illuminate\Auth\Access\AuthorizationException::class,
         \Symfony\Component\HttpKernel\Exception\HttpException::class,
@@ -35,7 +35,7 @@ class Handler extends ExceptionHandler
     public function report(Exception $exception)
     {
         parent::report($exception);
-        //$this->sendToSlack($exception);
+        $this->sendToSlack($exception);
     }
     
     private function sendToSlack(\Exception $e){
