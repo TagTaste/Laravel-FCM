@@ -25,7 +25,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
-        Route::get('/user/verifyemail/{token}', 'UserController@verify');
+        Route::get('/user/verify/email/{token}', 'UserController@verify');
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
 
