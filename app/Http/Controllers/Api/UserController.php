@@ -35,15 +35,19 @@ class UserController extends Controller
 
         dispatch(new SendVerificationEmail($user));
 
+        return view("verification");
 
-        return response()->json($result);
+//        return response()->json($result);
     }
-    public function verify($token)
+    public function verify(Request $request,$token)
     {
         $user = User::where("email_token", $token)->first();
-        $user->verified = 1;
-        if ($user->save()) {
+        if($user)
+        {
+            $user->verified_at = Carbon::now()->toDateTimeString();;
+            $user->save();
             return view("emailconfirm", ["user" => $user]);
+
         }
     }
 }

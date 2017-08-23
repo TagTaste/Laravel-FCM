@@ -15,6 +15,7 @@ class AlterUserEmailTokenAdd extends Migration
     {
         Schema::table("users",function(Blueprint $table){
             $table->string("email_token")->nullable();
+            $table->dateTime("verified_at")->nullable();
 
         });
     }
@@ -28,7 +29,7 @@ class AlterUserEmailTokenAdd extends Migration
     {
         Schema::table("job_shares",function(Blueprint $table){
             $table->dropColumn('email_token');
-
+            $table->dropColumn('verified_at');
         });
     }
 }
