@@ -62,7 +62,7 @@ class CoreteamController extends Controller
 
         unset($data['profile_id']);
 
-        $this->model = $company->coreteams()->create($data);
+        $this->model = $company->coreteam()->create($data);
         return $this->sendResponse();
     }
 
@@ -119,7 +119,7 @@ class CoreteamController extends Controller
             }
             $data['image'] = $response;
         }
-        $this->model = $company->coreteams()->where('id',$id)->update($data);
+        $this->model = $company->coreteam()->where('id',$id)->update($data);
 
 
         return $this->sendResponse();
@@ -140,7 +140,7 @@ class CoreteamController extends Controller
             throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = $company->coreteams()->where('id',$id)->delete();
+        $this->model = $company->coreteam()->where('id',$id)->delete();
 
         return $this->sendResponse();
     }
@@ -156,7 +156,7 @@ class CoreteamController extends Controller
         $members =$request->input("member");
         if(count($members)>0){
             foreach ($members as $member){
-                $this->model = $company->coreteams()->where('id',$member['id'])->update(['order'=>$member['order']]);
+                $this->model = $company->coreteam()->where('id',$member['id'])->update(['order'=>$member['order']]);
             }
         }
         $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
