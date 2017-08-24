@@ -54,9 +54,9 @@ class CompanyController extends Controller
             $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
         }
 
-        if($request->hasFile('heroImage')){
+        if($request->hasFile('hero_image')){
             $heroImageName = str_random(32) . ".jpg";
-            $inputs['hero_image'] = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName,['visibility'=>'public']);
+            $inputs['hero_image'] = $request->file('hero_image')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName,['visibility'=>'public']);
         }
         
         if($company->isDirty()){
