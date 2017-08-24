@@ -57,7 +57,7 @@ class CoreteamController extends Controller
         else
         {
             $profile = \App\Recipe\Profile::find($request->input('profile_id'));
-            $data['image'] = $profile->imageUrl;
+            $data['image'] = $profile->image;
         }
 
         unset($data['profile_id']);
