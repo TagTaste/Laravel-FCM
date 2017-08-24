@@ -22,7 +22,7 @@ class Gallery extends Model
 
     public static function getGalleryImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "images/ph/$companyId/c/album";
+        $relativePath = "images/c/$companyId/gallery";
         $status = \Storage::makeDirectory($relativePath,0644,true);
         return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
