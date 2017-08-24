@@ -118,6 +118,7 @@ class RecipeController extends Controller
 
         //refetch model with relationships.
         $this->model->refresh();
+        $this->model->addToCache();
         return $this->sendResponse();
     }
 
@@ -266,7 +267,7 @@ class RecipeController extends Controller
             }
         }
         $this->model->refresh();
-
+        $this->model->addToCache();
         return $this->sendResponse();
     }
 
