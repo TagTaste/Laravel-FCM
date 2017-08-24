@@ -41,7 +41,7 @@ class CollaborateController extends Controller
         $page = $request->input('page', 1);
         $take = 20;
         $skip = $page > 1 ? ($page * $take) - $take : 0;
-        $collaborations = $this->model->where('profile_id', $profileId)->orderBy('created_at', 'desc')->skip($skip)
+        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->orderBy('created_at', 'desc')->skip($skip)
             ->take($take)->get();
 
         $profileId = $request->user()->profile->id;
@@ -107,9 +107,9 @@ class CollaborateController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
-        $collaboration = $this->model->where('profile_id', $profileId)->find($id);
+        $collaboration = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->find($id);
         if ($collaboration === null) {
-            throw new \Exception("Invalid Collaboration Project.");
+            return $this->sendError("Invalid Collaboration Project.");
         }
         $profileId = $request->user()->profile->id;
         $meta = $collaboration->getMetaFor($profileId);

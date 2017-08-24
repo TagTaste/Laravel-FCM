@@ -35,7 +35,7 @@ class JobController extends Controller
     public function index(Request $request, $profileId)
     {
         $this->model = [];
-        $this->model['jobs'] = Job::where('profile_id', $profileId)
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at')
             ->with(['applications' => function ($query) use ($profileId) {
                 $query->where('applications.profile_id', $profileId);
             }]);
@@ -72,10 +72,10 @@ class JobController extends Controller
      */
     public function show($profileId, $id)
     {
-        $job = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
+        $job = $this->model->where('profile_id',$profileId)->whereNull('deleted_at')->where('id',$id)->first();
         
         if (!$job) {
-            throw new \Exception("No job found with the given Id.");
+            return $this->sendError("No job found with the given Id.");
         }
         $meta = $job->getMetaFor($profileId);
         $this->model = ['job'=>$job,'meta'=>$meta];
@@ -108,7 +108,6 @@ class JobController extends Controller
     {
         $profile = $request->user()->profile;
         $this->model = $profile->jobs()->where('id',$id)->delete();
-        
         return $this->sendResponse();
         
     }

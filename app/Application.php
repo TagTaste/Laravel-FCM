@@ -4,9 +4,11 @@ namespace App;
 
 use App\Notifications\ShortlistApplication;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['job_id', 'profile_id', 'shortlisted', 'resume', 'message'];
     protected $visible = ['created_at', 'profile', 'shortlisted', 'resumeUrl', 'message'];
     protected $with = ['profile'];
@@ -48,7 +50,8 @@ class Application extends Model
     public static function getCounts($jobId)
     {
         $count = [];
-        $counts = \DB::table("applications")->where('job_id',$jobId)->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
+        $counts = \DB::table("applications")->where('job_id',$jobId)->whereNull('deleted_at')
+            ->select("shortlisted")->selectRaw('count(*) as count')->groupBy('shortlisted')->get();
         if($counts){
             $counts = $counts->keyBy('shortlisted');
             foreach(Application::$tags as $index => $tag){
