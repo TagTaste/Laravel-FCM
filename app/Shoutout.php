@@ -29,6 +29,7 @@ class Shoutout extends Model implements Feedable
     {
         self::created(function($shoutout){
             \Redis::set("shoutout:" . $shoutout->id,$shoutout->makeHidden(['privacy','owner'])->toJson());
+            
         });
     }
     public function profile()
