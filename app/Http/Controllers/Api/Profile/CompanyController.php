@@ -114,7 +114,13 @@ class CompanyController extends Controller
             $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
         }
         $userId = $request->user()->id;
-        $this->model = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
+        $status = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
+        if(!$status){
+            return $this->sendError("Could not update company");
+        }
+        
+        $this->model = \App\Company::find($id);
+        
         return $this->sendResponse();
     }
     
