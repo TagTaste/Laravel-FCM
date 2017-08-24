@@ -28,7 +28,6 @@ class PhotoController extends Controller
         }
         $meta = $photo->getMetaFor($loggedInProfileId);
         $this->model = ['photo'=>$photo,'meta'=>$meta];
-        \Log::info($this->model);
         return $this->sendResponse();
     }
 }
