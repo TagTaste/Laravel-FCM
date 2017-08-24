@@ -30,11 +30,12 @@ class Tag
      */
     public function handle(TaggedEvent $event)
     {
-        $profiles = $event->model->content['profiles'];
-        
-        if(!$profiles){
-            return;
+        try {
+            $profiles = $event->content['profiles'] ?: $event->model->content['profiles'];
+        } catch (\Exception $e){
+            \Log::warning("Could not get profile from tags " . $event->model->id);
         }
+        
         $profiles = collect($profiles);
         $profiles = Profile::whereIn('id',$profiles->pluck('id'))->get();
 

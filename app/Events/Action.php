@@ -27,8 +27,9 @@ class Action
      *
      * @return void
      */
-    public function __construct(Model $model, Profile $who, $content = null, $image = null, $action = null)
+    public function __construct(Model &$model, Profile $who, $content = null, $image = null, $action = null)
     {
+        \Log::info($model);
         $this->model = $model;
         $this->who = [
             'id'=>$who->id,
