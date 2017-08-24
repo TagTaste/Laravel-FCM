@@ -90,7 +90,7 @@ class RecipeController extends Controller
                     $count--;
                     continue;
                 }
-                $images[] = ['recipe_id' => $this->model->id, 'image' => $imageName, 'show_case' => $request->input("images.$count.showCase")];
+                $images[] = ['recipe_id' => $this->model->id, 'image' => $path . DIRECTORY_SEPARATOR . $imageName, 'show_case' => $request->input("images.$count.showCase")];
                 $count--;
             }
 
@@ -207,9 +207,9 @@ class RecipeController extends Controller
                 if ($request->input("images.$count.id") != null) {
                         $this->model->images()->where('recipe_id', $id)
                             ->where('id', $request->input("images.$count.id"))
-                            ->update(['image' => $imageName, 'show_case' => $request->input("images.$count.showCase") ?: 0]);
+                            ->update(['image' => $path . DIRECTORY_SEPARATOR . $imageName, 'show_case' => $request->input("images.$count.showCase") ?: 0]);
                 } else {
-                    $newImages[] = ['recipe_id' => $id, 'image' => $imageName,
+                    $newImages[] = ['recipe_id' => $id, 'image' => $path . DIRECTORY_SEPARATOR . $imageName,
                         'show_case' => $request->input("images.$count.showCase") ?: 0];
                 }
                 $count--;
