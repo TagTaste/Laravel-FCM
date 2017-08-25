@@ -76,7 +76,7 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteams','gallery',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery',
         'created_at',
         'milestones',
         'speciality',
@@ -88,7 +88,7 @@ class Company extends Model
         'is_admin'
     ];
     
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteams','gallery'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating','is_admin'];
     
