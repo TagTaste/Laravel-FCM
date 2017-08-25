@@ -76,7 +76,7 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteams',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteams','gallery',
         'created_at',
         'milestones',
         'speciality',
@@ -89,8 +89,7 @@ class Company extends Model
     ];
 
 
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteams'];
-
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteams','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating','is_admin'];
     
@@ -399,5 +398,10 @@ class Company extends Model
         $userId = request()->user()->id;
         return $this->users()->where('user_id','=',$userId)->exists();
     }
+
+    public function gallery()
+     {
+         return $this->hasMany(\App\Company\Gallery::class);
+     }
 
 }
