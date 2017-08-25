@@ -107,6 +107,12 @@ class Company extends Model
             //make searchable
             \App\Documents\Company::create($company);
         });
+        
+        self::updated(function(Company $company){
+            
+            //update the document
+            \App\Documents\Company::create($company);
+        });
     }
 
     public function setEstablishedOnAttribute($value)

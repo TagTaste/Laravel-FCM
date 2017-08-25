@@ -41,6 +41,10 @@ class Job extends Model implements Feedable
     
         self::updated(function($model){
             \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
+            
+            //update the search
+            \App\Documents\Job::create($model);
+    
         });
     }
     

@@ -42,6 +42,10 @@ class Collaborate extends Model implements Feedable
         
         self::updated(function($model){
             \Redis::set("collaborate:" . $model->id,$model->makeHidden(['privacy','profile','company','commentCount','likeCount'])->toJson());
+       
+            //update the search
+            \App\Documents\Collaborate::create($model);
+    
         });
     }
     

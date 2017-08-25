@@ -39,6 +39,12 @@ class Recipe extends Model implements Feedable, CommentNotification
             //create the document for searching
             \App\Documents\Recipe::create($recipe);
         });
+        
+        self::updated(function($recipe){
+            
+            //update the document
+            \App\Documents\Recipe::create($recipe);
+        });
     }
     
     public function addToCache()
