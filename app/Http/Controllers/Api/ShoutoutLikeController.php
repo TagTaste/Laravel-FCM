@@ -37,12 +37,12 @@ class ShoutoutLikeController extends Controller
         $this->model = [];
         if ($shoutoutlike != null) {
             $shoutoutlike->delete();
-            $this->model['liked'] = true;
+            $this->model['liked'] = false;
             $this->model['likeCount'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", -1);
         } else {
             
             ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
-            $this->model['liked'] = false;
+            $this->model['liked'] = true;
             $this->model['likeCount'] = \Redis::hIncrBy("shoutout:" . $id . ":meta", "like", 1);
             
             $shoutout = Shoutout::findOrFail($id);
