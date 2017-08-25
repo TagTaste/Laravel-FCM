@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Events\Chat\Invite;
 use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -136,7 +137,6 @@ class Profile extends Model
             }
             //create the document for searching
             \App\Documents\Profile::create($profile);
-
             //bad call inside, would be fixed soon
             $profile->addToCache();
 

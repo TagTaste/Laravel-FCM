@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\Events\Chat\Invite;
+use App\Events\SendInvitationEmail;
 use App\Http\Controllers\Api\Controller;
 use App\Company\Coreteam;
 use Illuminate\Http\Request;
@@ -59,10 +61,12 @@ class CoreteamController extends Controller
             $profile = \App\Recipe\Profile::find($request->input('profile_id'));
             $data['image'] = $profile->image;
         }
-
-        unset($data['profile_id']);
-
+        $data['is_invite'] = 1;
         $this->model = $company->coreteam()->create($data);
+        if($request->has("email"))
+        {
+            event(new SendInvitationEmail($this->model,$request->input("email")));
+        }
         return $this->sendResponse();
     }
 

@@ -3,6 +3,7 @@
 namespace App\Profile;
 
 use App\Api\Recommend;
+use App\Company\Coreteam;
 use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
@@ -24,7 +25,12 @@ class User extends BaseUser
         parent::boot();
 
         self::created(function(User $user){
-            $user->profile()->create([]);
+            $profile=$user->profile()->create([]);
+            $exist = Coreteam::where('email',$user->email)->first();
+            if($exist)
+            {
+                $exist->update(['profile_id'=>$profile->id,'is_invite'=>0]);
+            }
         });
 
         self::deleting(function($user){

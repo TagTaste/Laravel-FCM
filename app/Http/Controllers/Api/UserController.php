@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company\Coreteam;
+use App\Events\Chat\Invite;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -27,7 +29,22 @@ class UserController extends Controller
 
 
         $result = ['status'=>'success'];
+        $res = 'OrYDCpmij0oya4R';
+        if($res)
+        {
+            $check = \App\Invitation::where('invite_code', $res)->first();
+            if($check)
+            {
+                if($check->email!=$request->input('user.email'))
+                {
+                    return $this->sendError("please use correct emailid");
+                }
+                $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+                \App\Invitation::where('email',$request->input('user.email'))->update(['accepted'=>1,"accepted_at"=>$accepted_at]);
+            }
 
+            return $this->sendError("please use correct invite code");
+        }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
