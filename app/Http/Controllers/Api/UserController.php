@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Events\SendVerificationEmail;
+use App\Events\EmailVerifications;
 
 class UserController extends Controller
 {
@@ -33,20 +33,19 @@ class UserController extends Controller
             $request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
-        dispatch(new SendVerificationEmail($user));
+        event(new EmailVerifications($user));
 
-        return view("verification");
-
-//        return response()->json($result);
+        return $this->sendResponse();
     }
+
     public function verify(Request $request,$token)
     {
         $user = User::where("email_token", $token)->first();
         if($user)
         {
             $user->verified_at = Carbon::now()->toDateTimeString();;
-            $user->save();
-            return view("emailconfirm", ["user" => $user]);
+            $this->model = $user->save();
+            return $this->sendResponse();
 
         }
     }

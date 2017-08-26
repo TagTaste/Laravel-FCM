@@ -191,8 +191,6 @@ class User extends BaseUser
 
     public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null)
     {
-        \Log::info($email);
-        \Log::info(base64_encode($email));
         $user = static::create([
             'name' => $name,
             'email' => $email,
