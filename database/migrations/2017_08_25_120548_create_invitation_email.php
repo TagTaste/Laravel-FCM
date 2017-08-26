@@ -18,7 +18,6 @@ class CreateInvitationEmail extends Migration
             $table->string('invite_code');
             $table->string('name');
             $table->string('email');
-            $table->boolean('accepted')->default(0);
             $table->timestamp('accepted_at')->nullable();
             $table->timestamps();
         });

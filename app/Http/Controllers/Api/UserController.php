@@ -39,7 +39,7 @@ class UserController extends Controller
                     return $this->sendError("please use correct emailid");
                 }
                 $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-                \App\Invitation::where('email',$request->input('user.email'))->update(['accepted'=>1,"accepted_at"=>$accepted_at]);
+                \App\Invitation::where('email',$request->input('user.email'))->update(["accepted_at"=>$accepted_at]);
             }
             else
             {

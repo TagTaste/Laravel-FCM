@@ -14,7 +14,7 @@ class AlterCoreteamProfileAdd extends Migration
     public function up()
     {
         Schema::table("core_teams",function(Blueprint $table){
-            $table->boolean("is_invite")->default(0);
+            $table->boolean("invited")->default(0);
             $table->integer('profile_id')->unsigned()->nullable();
             $table->foreign('profile_id')->references('id')->on('profiles')->onDelete('cascade');
 
@@ -29,7 +29,7 @@ class AlterCoreteamProfileAdd extends Migration
     public function down()
     {
         Schema::table("core_teams",function(Blueprint $table){
-            $table->dropColumn("is_invite");
+            $table->dropColumn("invited");
             $table->dropColumn("profile_id");
         });
     }

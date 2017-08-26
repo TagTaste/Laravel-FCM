@@ -2,12 +2,13 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
-use App\Notifications\SendInvitation;
-
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class SendInvitationEmail
 {
@@ -18,13 +19,15 @@ class SendInvitationEmail
      *
      * @return void
      */
-    protected $user;
-    protected $email;
-    public function __construct($user,$email)
+    public $user;
+    public $email;
+    public $inviteUser;
+
+    public function __construct($user,$inviteUser,$email)
     {
         $this->user = $user;
-        $user = new SendInvitation($this->user,$email);
-        \Mail::to($email)->send($user);
+        $this->inviteUser = $inviteUser;
+        $this->email = $email;
     }
 
     /**
@@ -32,8 +35,8 @@ class SendInvitationEmail
      *
      * @return Channel|array
      */
-    public function handle()
+    public function broadcastOn()
     {
-        //
+        return new PrivateChannel('channel-name');
     }
 }

@@ -61,11 +61,11 @@ class CoreteamController extends Controller
             $profile = \App\Recipe\Profile::find($request->input('profile_id'));
             $data['image'] = $profile->image;
         }
-        $data['is_invite'] = 1;
+        $data['invited'] = 1;
         $this->model = $company->coreteam()->create($data);
         if($request->has("email"))
         {
-            event(new SendInvitationEmail($this->model,$request->input("email")));
+            event(new SendInvitationEmail($request->user(),$this->model,$request->input("email")));
         }
         return $this->sendResponse();
     }
