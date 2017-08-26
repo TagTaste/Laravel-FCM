@@ -3,13 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\SendInvitationEmail;
-use App\Mail\InviteEmail;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use App\Invitation;
 
-class SendInvitationNotifications extends Mailable
+class SendInvitationNotifications extends Mailable implements ShouldQueue
 {
     /**
      * Create the event listener.
