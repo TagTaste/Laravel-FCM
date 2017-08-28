@@ -38,15 +38,18 @@ class ProfileController extends Controller
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
         $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
-            $query->where('id', $id);
+            $query->where('id', $id)->where("phone_privacy",1)->where("address_privacy",1);
         })->first();
     \Log::info($profile);
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
-    
+
         $this->model = $profile->toArray();
-    
+        if($this->model['profile']['email_privacy']!=1)
+        {
+            unset($this->model['email']);
+        }
         $loggedInProfileId = $request->user()->profile->id;
         $self = $id == $loggedInProfileId;
         $this->model['profile']['self'] = $self;
