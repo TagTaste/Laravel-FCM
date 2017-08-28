@@ -119,6 +119,13 @@ class Company extends Model
     {
         $this->attributes['established_on'] = date("Y-m-d",strtotime($value));
     }
+
+    public function getEstablishedOnAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("d-m-Y", strtotime($value));
+        }
+    }
     
     public function photos()
     {
