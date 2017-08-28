@@ -61,7 +61,14 @@ class CoreteamController extends Controller
             $profile = \App\Recipe\Profile::find($request->input('profile_id'));
             $data['image'] = $profile->image;
         }
-        $data['invited'] = 1;
+        if($request->has("profile_id"))
+        {
+            $data['invited'] = 0;
+        }
+        else
+        {
+            $data['invited'] = 1;
+        }
         $this->model = $company->coreteam()->create($data);
         if($request->has("email"))
         {
