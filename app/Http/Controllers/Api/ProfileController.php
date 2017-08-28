@@ -38,7 +38,7 @@ class ProfileController extends Controller
         //id can either be id or handle
         //we can use both profile/{id} or handle in api call
         $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
-            $query->where('id', $id)->where("phone_privacy",1)->where("address_privacy",1);
+            $query->where('id', $id);
         })->first();
     \Log::info($profile);
         if ($profile === null) {
@@ -49,6 +49,17 @@ class ProfileController extends Controller
         if($this->model['profile']['email_privacy']!=1)
         {
             unset($this->model['email']);
+            unset($this->model['profile']['email_privacy']);
+        }
+        if($this->model['profile']['address_privacy']!=1)
+        {
+            unset($this->model['profile']['address']);
+            unset($this->model['profile']['address_privacy']);
+        }
+        if($this->model['profile']['phone_privacy']!=1)
+        {
+            unset($this->model['profile']['phone']);
+            unset($this->model['profile']['phone_privacy']);
         }
         $loggedInProfileId = $request->user()->profile->id;
         $self = $id == $loggedInProfileId;
