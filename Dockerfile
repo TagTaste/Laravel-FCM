@@ -3,4 +3,5 @@ RUN apt-get update -y && apt-get install -y openssl
 RUN docker-php-ext-install pdo pdo_mysql mbstring
 WORKDIR /code
 COPY ./ /code
+CMD ["php","artisan","migrate","--seed"]
 VOLUME /code
