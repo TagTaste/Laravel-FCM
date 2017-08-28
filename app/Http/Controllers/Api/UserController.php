@@ -29,23 +29,15 @@ class UserController extends Controller
 
 
         $result = ['status'=>'success'];
-        if($request->input("invite"))
+        if($request->input("invite_code"))
         {
-            $check = \App\Invitation::where('invite_code', $request->input("invite"))->first();
-            if($check)
-            {
-                if($check->email!=$request->input('user.email'))
-                {
-                    return $this->sendError("please use correct emailid");
-                }
-                $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-                \App\Invitation::where('email',$request->input('user.email'))->update(["accepted_at"=>$accepted_at]);
-            }
-            else
+            $check = \App\Invitation::where('invite_code', $request->input("invite_code"))->where('email',$request->input('user.email'))->first();
+            if(!$check)
             {
                 return $this->sendError("please use correct invite code");
-
             }
+            $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+            \App\Invitation::where('email',$request->input('user.email'))->update(["accepted_at"=>$accepted_at]);
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
         $result['result'] = ['user'=>$user];
