@@ -46,20 +46,20 @@ class ProfileController extends Controller
         }
 
         $this->model = $profile->toArray();
-        if($this->model['profile']['email_privacy']!=1)
+        if($this->model['profile']['email_private']!=1)
         {
             unset($this->model['email']);
-            unset($this->model['profile']['email_privacy']);
+            unset($this->model['profile']['email_private']);
         }
-        if($this->model['profile']['address_privacy']!=1)
+        if($this->model['profile']['address_private']!=1)
         {
             unset($this->model['profile']['address']);
-            unset($this->model['profile']['address_privacy']);
+            unset($this->model['profile']['address_private']);
         }
-        if($this->model['profile']['phone_privacy']!=1)
+        if($this->model['profile']['phone_private']!=1)
         {
             unset($this->model['profile']['phone']);
-            unset($this->model['profile']['phone_privacy']);
+            unset($this->model['profile']['phone_private']);
         }
         $loggedInProfileId = $request->user()->profile->id;
         $self = $id == $loggedInProfileId;

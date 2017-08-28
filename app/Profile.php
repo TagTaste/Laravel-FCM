@@ -44,9 +44,9 @@ class Profile extends Model
         'city',
         'country',
         'resume',
-        'email_privacy',
-        'address_privacy',
-        'phone_privacy'
+        'email_private',
+        'address_private',
+        'phone_private'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -111,9 +111,9 @@ class Profile extends Model
         'city',
         'country',
         'resumeUrl',
-        'email_privacy',
-        'address_privacy',
-        'phone_privacy'
+        'email_private',
+        'address_private',
+        'phone_private'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl'];

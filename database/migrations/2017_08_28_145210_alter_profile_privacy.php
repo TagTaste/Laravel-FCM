@@ -14,9 +14,9 @@ class AlterProfilePrivacy extends Migration
     public function up()
     {
         Schema::table("profiles",function(Blueprint $table){
-            $table->tinyInteger("phone_privacy")->default(1);
-            $table->tinyInteger("address_privacy")->default(1);
-            $table->tinyInteger("email_privacy")->default(1);
+            $table->tinyInteger("phone_private")->default(1);
+            $table->tinyInteger("address_private")->default(1);
+            $table->tinyInteger("email_private")->default(1);
 
         });
     }
@@ -29,9 +29,9 @@ class AlterProfilePrivacy extends Migration
     public function down()
     {
         Schema::table("profiles",function(Blueprint $table){
-            $table->dropColumn("phone_privacy");
-            $table->dropColumn("address_privacy");
-            $table->dropColumn("email_privacy");
+            $table->dropColumn("phone_private");
+            $table->dropColumn("address_private");
+            $table->dropColumn("email_private");
         });
     }
 }
