@@ -27,10 +27,10 @@ class User extends BaseUser
         self::created(function(User $user){
             $profile=$user->profile()->create([]);
             //update core team profile when using invite code registration
-            $exist = Coreteam::where('email',$user->email)->where('invited',1)->first();
-            if($exist)
+            $coreteam = Coreteam::where('email',$user->email)->where('invited',1)->first();
+            if($coreteam)
             {
-                $exist->update(['profile_id'=>$profile->id,'invited'=>0]);
+                $coreteam->update(['profile_id'=>$profile->id,'invited'=>0]);
             }
         });
 

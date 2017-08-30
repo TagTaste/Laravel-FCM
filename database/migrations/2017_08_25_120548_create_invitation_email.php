@@ -20,6 +20,7 @@ class CreateInvitationEmail extends Migration
             $table->string('email');
             $table->timestamp('accepted_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

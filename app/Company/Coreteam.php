@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Coreteam extends Model
 {
+
     protected $table = 'core_teams';
 
     protected $fillable = ['name','email','image', 'designation' ,'about' ,'company_id','order','profile_id','invited'];
