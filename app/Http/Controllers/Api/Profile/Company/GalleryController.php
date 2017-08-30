@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Events\Chat\Invite;
-use App\Events\SendInvitationEmail;
 use App\Http\Controllers\Api\Controller;
-use App\Company\Coreteam;
+use App\Company\Gallery;
 use Illuminate\Http\Request;
 
-class CoreteamController extends Controller
+class GalleryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +15,7 @@ class CoreteamController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
+        $this->model = Gallery::where('company_id',$companyId)->orderBy('id','desc')->get();
         return $this->sendResponse();
     }
 
@@ -49,25 +47,11 @@ class CoreteamController extends Controller
         $data['company_id'] = $companyId;
         if($request->hasFile('image')) {
             $imageName = str_random(32) . ".jpg";
-            $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
-            $response = $request->file("image")->storeAs($path, $imageName, ['visibility' => 'public']);
-            if (!$response) {
-                throw new \Exception("Could not save resume " . $imageName . " at " . $path);
-            }
-            $data['image'] = $response;
+            $path = Gallery::getGalleryImagePath($profileId, $companyId);
+            $data['image'] = $request->file("image")->storeAs($path, $imageName, ['visibility' => 'public']);
         }
-        else
-        {
-            $profile = \App\Recipe\Profile::find($request->input('profile_id'));
-            $data['image'] = $profile->image;
-        }
-        $data['invited'] = !$request->has("profile_id");
-
-        $this->model = $company->coreteam()->create($data);
-        if($request->has("email"))
-        {
-            event(new SendInvitationEmail($request->user(),$this->model,$request->input("email")));
-        }
+        \Log::info($data);
+        $this->model = $company->gallery()->create($data);
         return $this->sendResponse();
     }
 
@@ -79,7 +63,7 @@ class CoreteamController extends Controller
      */
     public function show(Request $request,$profileId,$companyId,$id)
     {
-        $this->model = Coreteam::where('company_id',$companyId)->where('id',$id)->first();
+        $this->model = Gallery::where('company_id',$companyId)->where('id',$id)->first();
         if(!$this->model){
             throw new \Exception("Core team not found.");
         }
@@ -112,19 +96,14 @@ class CoreteamController extends Controller
         if(!$company){
             throw new \Exception("User does not belong to this company.");
         }
-        $data = $request->except(['_method','_token','company_id']);
-
-        if($request->hasFile('image')){
+        $inputs = $request->except(['_method','_token','company_id','profile_id']);
+        $inputs['company_id'] = $companyId;
+        if ($request->hasFile('image')) {
             $imageName = str_random(32) . ".jpg";
-            $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
-            $response = $request->file("image")->storeAs($path,$imageName,['visibility'=>'public']);
-            if(!$response)
-            {
-                throw new \Exception("Could not save resume " . $imageName . " at " . $path);
-            }
-            $data['image'] = $response;
+            $path = Gallery::getAlbumImagePath($profileId, $companyId);
+            $inputs['image'] = $request->file('image')->storeAs($path, $imageName,['visibility'=>'public']);;
         }
-        $this->model = $company->coreteam()->where('id',$id)->update($data);
+        $this->model = $company->gallery()->where('id',$id)->update($inputs);
 
 
         return $this->sendResponse();
@@ -145,26 +124,7 @@ class CoreteamController extends Controller
             throw new \Exception("User does not belong to this company.");
         }
 
-        $this->model = $company->coreteam()->where('id',$id)->delete();
-
-        return $this->sendResponse();
-    }
-
-    public function ordering(Request $request, $profileId, $companyId)
-    {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
-        $members =$request->input("member");
-        if(count($members)>0){
-            foreach ($members as $member){
-                $this->model = $company->coreteam()->where('id',$member['id'])->update(['order'=>$member['order']]);
-            }
-        }
-        $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
+        $this->model = $company->gallery()->where('id',$id)->delete();
 
         return $this->sendResponse();
     }

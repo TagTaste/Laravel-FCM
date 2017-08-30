@@ -9,21 +9,20 @@ namespace App\Company;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Coreteam extends Model
+class Gallery extends Model
 {
+    protected $table = 'company_galleries';
 
-    protected $table = 'core_teams';
+    protected $fillable = ['name','description','image' ,'company_id'];
 
-    protected $fillable = ['name','email','image', 'designation' ,'about' ,'company_id','order','profile_id','invited'];
-
-    protected $visible = ['id','name', 'designation' ,'about' ,'company_id','imageUrl','order','profile_id','invited'];
+    protected $visible = ['id','name', 'description' ,'company_id','imageUrl'];
 
     protected $appends = ['imageUrl'];
 
 
-    public static function getCoreteamImagePath($profileId,$companyId, $filename = null)
+    public static function getGalleryImagePath($profileId,$companyId, $filename = null)
     {
-        $relativePath = "images/ph/$companyId/c/coreteam";
+        $relativePath = "images/c/$companyId/gallery";
         $status = \Storage::makeDirectory($relativePath,0644,true);
         return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }

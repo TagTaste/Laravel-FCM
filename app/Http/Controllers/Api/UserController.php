@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company\Coreteam;
+use App\Events\Chat\Invite;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -26,14 +28,28 @@ class UserController extends Controller
             return ['status'=>'failed','errors'=>$validator->messages(),'result'=>[]];
         }
 
-
+        $alreadyVarified = true;
         $result = ['status'=>'success'];
+        if($request->input("invite_code"))
+        {
+            $inviteCodeCheck = \App\Invitation::where('invite_code', $request->input("invite_code"))
+                        ->where('email',$request->input('user.email'))->first();
+            if(!$inviteCodeCheck)
+            {
+                return $this->sendError("please use correct invite code");
+            }
+            $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+            $inviteCodeCheck->update(["accepted_at"=>$accepted_at]);
 
-        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),
-            $request->input('user.password'));
+            $alreadyVarified = false;
+        }
+        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
-        event(new EmailVerifications($user));
+        if($alreadyVarified)
+        {
+            event(new EmailVerifications($user));
+        }
 
         return $this->sendResponse();
     }

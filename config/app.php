@@ -184,6 +184,9 @@ return [
         App\Providers\ViewComponents::class,
         App\Providers\FeedableServiceProvider::class,
         
+            //Meta Service Providers
+            \App\Providers\Meta\ModelCount::class,
+        
         //Package Service Providers
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,

@@ -54,9 +54,10 @@ class CompanyController extends Controller
             $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
         }
 
-        if($request->hasFile('heroImage')){
+        if($request->hasFile('hero_image')){
             $heroImageName = str_random(32) . ".jpg";
-            $inputs['hero_image'] = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $company->id),$heroImageName,['visibility'=>'public']);
+            $path = \App\Company::getHeroImagePath($profileId, $company->id);
+            $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
         }
         
         if($company->isDirty()){
@@ -107,12 +108,19 @@ class CompanyController extends Controller
             $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
         }
 
-        if($request->hasFile('heroImage')){
+        if($request->hasFile('hero_image')){
             $heroImageName = str_random(32) . ".jpg";
-            $inputs['hero_image'] = $request->file('heroImage')->storeAs(\App\Company::getHeroImagePath($profileId, $id),$heroImageName,['visibility'=>'public']);
+            $path = \App\Company::getHeroImagePath($profileId, $id);
+            $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
         }
         $userId = $request->user()->id;
-        $this->model = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
+        $status = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
+        if(!$status){
+            return $this->sendError("Could not update company");
+        }
+        
+        $this->model = \App\Company::find($id);
+        
         return $this->sendResponse();
     }
     

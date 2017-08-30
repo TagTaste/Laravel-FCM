@@ -60,7 +60,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->orderBy("created_at","desc");
+		$collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
        
         if (!empty($filters['location'])) {
@@ -108,10 +108,13 @@ class CollaborateController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-		$collaboration = $this->model->findOrFail($id);
+		$collaboration = $this->model->whereNull('deleted_at')->find($id);
 		$profileId = $request->user()->profile->id;
-		$meta = $collaboration->getMetaFor($profileId);
-		$this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
+        if ($collaboration === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $meta = $collaboration->getMetaFor($profileId);
+        $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
 		
 	}

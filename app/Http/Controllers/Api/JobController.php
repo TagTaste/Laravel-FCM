@@ -46,7 +46,7 @@ class JobController extends Controller
     public function index(Request $request)
 	{
 		
-        $jobs = $this->model;
+        $jobs = $this->model->whereNull('deleted_at');
         $this->model = [];
         $filters = $request->input('filters');
         if (!empty($filters['location'])) {
@@ -85,7 +85,10 @@ class JobController extends Controller
 	 */
 	public function show(Request $request,$id)
 	{
-	    $job = $this->model->findOrFail($id);
+	    $job = $this->model->whereNull('deleted_at')->find($id);
+        if (!$job) {
+            return $this->sendError("No job found with the given Id.");
+        }
         $profileId = $request->user()->profile->id;
         $meta = $job->getMetaFor($profileId);
         $this->model = ['job'=>$job,'meta'=>$meta];

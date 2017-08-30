@@ -41,6 +41,7 @@ class EventServiceProvider extends ServiceProvider
             ],
         'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
         'App\Events\EmailVerifications' => ['App\Listeners\EamilVarificationNotifications'],
+        'App\Events\SendInvitationEmail' => ['App\Listeners\SendInvitationNotifications']
 
 
     ];

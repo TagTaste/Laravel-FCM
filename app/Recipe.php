@@ -28,18 +28,23 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     protected $with = ['profile','ingredients','equipments','images','cuisine'];
 
-    protected $appends = ['imageUrl','likeCount','rating'];
+    protected $appends = ['likeCount','rating'];
 
     
     public static function boot()
     {
         self::created(function($recipe){
-            //$recipe = \DB::table('recipes')->find($recipe->id);
-            \Redis::set("recipe:" . $recipe->id,$recipe->makeHidden(['profile','likeCount'])->toJson());
+            //\Redis::set("recipe:" . $recipe->id,$recipe->makeHidden(['profile','likeCount'])->toJson());
     
             //create the document for searching
             \App\Documents\Recipe::create($recipe);
         });
+    }
+    
+    public function addToCache()
+    {
+        \Log::info($this->toArray());
+        \Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
     }
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
