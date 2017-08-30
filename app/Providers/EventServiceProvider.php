@@ -40,7 +40,7 @@ class EventServiceProvider extends ServiceProvider
                                                     'App\Listeners\Subscriber\Create'
             ],
         'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
-        'App\Events\SendInvitationEmail' => ['App\Listeners\SendInvitationNotifications'],
+        'App\Events\SendInvitationEmail' => ['App\Listeners\SendInvitationNotifications']
 
 
     ];
