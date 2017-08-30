@@ -18,7 +18,7 @@ class SendInvitationNotifications extends Mailable
 
     public function __construct()
     {
-        $this->inviteCode = $this->generate();
+        $this->inviteCode = str_random(15);
     }
 
     /**
@@ -32,19 +32,6 @@ class SendInvitationNotifications extends Mailable
 
         \Mail::to($event->email)->send($this->mailView($event));
         Invitation::create(['invite_code'=>$this->inviteCode,'name'=>$event->inviteUser->name,'email'=>$event->email, 'accepted_at'=>null]);
-    }
-
-    public static function generate()
-    {
-        $exists = true;
-        while ($exists) {
-            $code = str_random(15);
-            $check = Invitation::where('invite_code', $code)->first();
-            if( ! $check){
-                $exists = false;
-            }
-        }
-        return $code;
     }
 
     public function build()
