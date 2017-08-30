@@ -30,12 +30,16 @@ trait StartEndDate
 
     public function getStartDateAttribute($value)
     {
-        return date("m-Y",strtotime($value));
+        if($value) {
+            return date("m-Y", strtotime($value));
+        }
     }
 
     public function getEndDateAttribute($value)
     {
-        return date("m-Y",strtotime($value));
+        if($value) {
+            return date("m-Y", strtotime($value));
+        }
     }
 
 }
