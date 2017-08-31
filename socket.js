@@ -10,6 +10,9 @@ var logErr = function(err,count){
     if(err !== null) console.log(err);
 };
 //socketio namespaces
+
+    //listen to everything
+
     //private profile feed
         var feedNamespace = io.of('/feed');
         var feedEmit = function(pattern, channel, message){
@@ -77,8 +80,8 @@ var logErr = function(err,count){
         chatNamespace.on('connection',function(socket){
             var token = socket.handshake.query['token'];
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                //port: 8080,
                 path : '/api/chatrooms',
                 method: 'get',
                 headers: {
@@ -113,8 +116,8 @@ var logErr = function(err,count){
                 });
 
                 var optionsChat = {
-                    host: 'testapi.tagtaste.com',
-                    port: 8080,
+                    host: 'web.app',
+                    //port: 8080,
                     path : '/api/chats/' + chatId + '/messages',
                     method: 'post',
                     headers: {
@@ -138,8 +141,8 @@ var logErr = function(err,count){
 
             socket.on("message-read",function(chatId,messageId){
                 var optionsChat = {
-                    host: 'testapi.tagtaste.com',
-                    port: 8080,
+                    host: 'web.app',
+                    //port: 8080,
                     path : '/api/chats/' + chatId + '/messages/' + messageId + "/markRead",
                     method: 'post',
                     headers: {
@@ -156,7 +159,45 @@ var logErr = function(err,count){
                         //do nothing.
                     })
                 }).end();
-            })
+            });
+
+            //create new chat
+            socket.on("new-chat",function(data){
+                data = JSON.parse(data);
+                var newChat = {
+                    host: 'web.app',
+                    // //port: 8080,
+                    path : '/api/chats/',
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization' : "Bearer " + token
+                    },
+                };
+
+                var req = requester.request(newChat, function(response) {
+                    if(response.statusCode !== 200){
+                        socket.disconnect(true);
+                    }
+                    response.setEncoding('utf8');
+                    response.on('data',function(body){
+                        try {
+                            body = JSON.parse(body);
+                            socket.join("chat." + body.data.id);
+                            body.data.profiles.forEach(function(profile){
+                                notificationNamespace.to("private-App.Notify.Profile." + profile.id).emit("new-chat",JSON.stringify(body));
+                            });
+                        } catch (e){
+                            console.log(e);
+                        }
+                    })
+                });
+                data = queryString.stringify(data);
+                req.write(data);
+                req.end();
+
+
+            });
         });
 
 io.on('disconnect', function(){
@@ -172,8 +213,8 @@ var makeCompanyConnection = function(socket){
     }
 
     var options = {
-        host: 'testapi.tagtaste.com',
-        port: 8080,
+        host: 'web.app',
+        //port: 8080,
         path : path,
         method: 'get',
         headers: {
@@ -210,8 +251,8 @@ var makeConnection = function(socket){
     }
 
     var options = {
-        host: 'testapi.tagtaste.com',
-        port: 8080,
+        host: 'web.app',
+        //port: 8080,
         path : path,
         method: 'get',
         headers: {
@@ -250,8 +291,8 @@ notificationNamespace.on('connection',function(socket){
             var path = '/api/profile';
 
             var options = {
-                host: 'testapi.tagtaste.com',
-                port: 8080,
+                host: 'web.app',
+                //port: 8080,
                 path : path,
                 method: 'get',
                 headers: {
@@ -290,8 +331,8 @@ notificationNamespace.on('connection',function(socket){
 
 var request = function(path,token,data){
     var options = {
-        host: 'testapi.tagtaste.com',
-        port: 8080,
+        host: 'web.app',
+        //port: 8080,
         path : path,
         method: 'get',
         headers: {
