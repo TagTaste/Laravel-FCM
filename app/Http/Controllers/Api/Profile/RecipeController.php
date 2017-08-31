@@ -30,7 +30,7 @@ class RecipeController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
 
-        $recipes = Recipe::where('profile_id', $profileId)->orderBy('created_at', 'desc')->get();
+        $recipes = Recipe::where('profile_id', $profileId)->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
         $this->model = [];
         foreach ($recipes as $recipe) {
             $this->model[] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($loggedInProfileId)];
@@ -131,7 +131,7 @@ class RecipeController extends Controller
     public function show(Request $request, $profileId, $id)
     {
 
-        $recipe = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
+        $recipe = Recipe::where('profile_id', $profileId)->where('id', $id)->whereNull('deleted_at')->first();
         if (!$recipe) {
             return $this->sendError("Could not find recipe.");
         }
