@@ -192,6 +192,8 @@ return [
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Stevebauman\Purify\PurifyServiceProvider::class,
         'Maatwebsite\Excel\ExcelServiceProvider',
+        PulkitJalan\Google\GoogleServiceProvider::class,
+        GoogleSheets\Providers\SheetsServiceProvider::class,
 
     ],
 
@@ -249,6 +251,8 @@ return [
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'Purify' => 'Stevebauman\Purify\Facades\Purify',
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
+        'Google' => PulkitJalan\Google\Facades\Google::class,
+        'Sheets' => GoogleSheets\Facades\Sheets::class,
     ],
 
 ];
