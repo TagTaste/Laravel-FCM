@@ -54,10 +54,13 @@ class ChatController extends Controller
 	public function store(Request $request)
 	{
 		$inputs = $request->all();
-
+        \Log::info($inputs);
 		//set profile_id to logged in user automatically.
         //all profileIds passed in request would be added to Chat\Member;
 		$profileIds = $inputs['profile_id'];
+		if(!is_array($profileIds)){
+		    $profileIds = [$profileIds];
+        }
         $loggedInProfileId = $request->user()->profile->id;
 		$inputs['profile_id'] = $loggedInProfileId;
 		
