@@ -50,10 +50,6 @@ class User extends Authenticatable
     public static function boot()
     {
         parent::boot();
-
-        self::created(function(User $user){
-            $user->profile()->create([]);
-        });
     
         self::updated(function($user){
             \App\Documents\Profile::create($user->profile);
