@@ -44,9 +44,23 @@ class ProfileController extends Controller
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
-    
+
         $this->model = $profile->toArray();
-    
+        if($this->model['profile']['email_private']!=1)
+        {
+            unset($this->model['email']);
+            unset($this->model['profile']['email_private']);
+        }
+        if($this->model['profile']['address_private']!=1)
+        {
+            unset($this->model['profile']['address']);
+            unset($this->model['profile']['address_private']);
+        }
+        if($this->model['profile']['phone_private']!=1)
+        {
+            unset($this->model['profile']['phone']);
+            unset($this->model['profile']['phone_private']);
+        }
         $loggedInProfileId = $request->user()->profile->id;
         $self = $id == $loggedInProfileId;
         $this->model['profile']['self'] = $self;

@@ -43,7 +43,10 @@ class Profile extends Model
         'keywords',
         'city',
         'country',
-        'resume'
+        'resume',
+        'email_private',
+        'address_private',
+        'phone_private'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -107,7 +110,10 @@ class Profile extends Model
         'keywords',
         'city',
         'country',
-        'resumeUrl'
+        'resumeUrl',
+        'email_private',
+        'address_private',
+        'phone_private'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl'];
