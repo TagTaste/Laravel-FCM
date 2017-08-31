@@ -31,6 +31,7 @@ class AlterCoreteamProfileAdd extends Migration
         Schema::table("core_teams",function(Blueprint $table){
             $table->dropColumn("invited");
             $table->dropColumn("profile_id");
+            $table->dropForeign(['profile_id']);
         });
     }
 }

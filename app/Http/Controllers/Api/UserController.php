@@ -32,14 +32,14 @@ class UserController extends Controller
         $result = ['status'=>'success'];
         if($request->input("invite_code"))
         {
-            $inviteCodeCheck = \App\Invitation::where('invite_code', $request->input("invite_code"))
+            $invitation = \App\Invitation::where('invite_code', $request->input("invite_code"))
                         ->where('email',$request->input('user.email'))->first();
-            if(!$inviteCodeCheck)
+            if(!$invitation)
             {
                 return $this->sendError("please use correct invite code");
             }
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-            $inviteCodeCheck->update(["accepted_at"=>$accepted_at]);
+            $invitation->update(["accepted_at"=>$accepted_at]);
 
             $alreadyVerified = true;
         }
