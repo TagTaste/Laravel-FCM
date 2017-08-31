@@ -15,7 +15,7 @@ class RecipeController extends Controller
      */
     public function index(Request $request)
     {
-        $recipes = Recipe::orderBy('created_at');
+        $recipes = Recipe::orderBy('created_at')->whereNull('deleted_at');
 
         $filters = $request->input('filters');
         if (!empty($filters['cuisine_id'])) {
@@ -53,7 +53,7 @@ class RecipeController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $recipe = Recipe::where('id',$id)->first();
+        $recipe = Recipe::where('id',$id)->whereNull('deleted_at')->first();
         if(!$recipe){
             return $this->sendError("Could not find recipe.");
         }
