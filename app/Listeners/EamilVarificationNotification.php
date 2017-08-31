@@ -2,13 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Events\EmailVerifications;
+use App\Events\EmailVerification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 
 
-class EamilVarificationNotifications extends Mailable implements ShouldQueue
+class EamilVarificationNotification extends Mailable implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -23,10 +23,10 @@ class EamilVarificationNotifications extends Mailable implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  EmailVerifications  $event
+     * @param  EmailVerification  $event
      * @return void
      */
-    public function handle(EmailVerifications $event)
+    public function handle(EmailVerification $event)
     {
         \Mail::to($event->user->email)->send($this->emailTemplate($event));
     }

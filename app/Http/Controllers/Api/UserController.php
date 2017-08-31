@@ -7,7 +7,7 @@ use App\Events\Chat\Invite;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Events\EmailVerifications;
+use App\Events\EmailVerification;
 
 class UserController extends Controller
 {
@@ -28,7 +28,7 @@ class UserController extends Controller
             return ['status'=>'failed','errors'=>$validator->messages(),'result'=>[]];
         }
 
-        $alreadyVerified = true;
+        $alreadyVerified = false;
         $result = ['status'=>'success'];
         if($request->input("invite_code"))
         {
@@ -41,14 +41,14 @@ class UserController extends Controller
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
             $inviteCodeCheck->update(["accepted_at"=>$accepted_at]);
 
-            $alreadyVerified = false;
+            $alreadyVerified = true;
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
-        if($alreadyVerified)
+        if(!$alreadyVerified)
         {
-            event(new EmailVerifications($user));
+            event(new EmailVerification($user));
         }
 
         return $this->sendResponse();
