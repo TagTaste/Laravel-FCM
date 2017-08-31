@@ -133,15 +133,15 @@ class RegisterFromGoogle extends Command
             'form_params' => [
                 '_method' => 'patch',
                 'profile' => [
-                    'country_code'  => $this->value[6],
-                    'phone'  => $this->value[7],
-                    'dob'  => $this->value[8],
-                    'about'  => $this->value[9],
-                    'Address'  => $this->value[10],
-                    'city'  => $this->value[11],
-                    'country'  => $this->value[13],
-                    'pincode'  => $this->value[14],
-                    'keywords'  => $this->value[15]
+                    'country_code'  => $this->getValue(6),
+                    'phone'  => $this->getValue(7),
+                    'dob'  => $this->getValue(8),
+                    'about'  => $this->getValue(9),
+                    'address'  => $this->getValue(10),
+                    'city'  => $this->getValue(11),
+                    'country'  => $this->getValue(13),
+                    'pincode'  => $this->getValue(14),
+                    'keywords'  => $this->getValue(15)
                 ]
             ],
             'headers' => [
@@ -152,6 +152,9 @@ class RegisterFromGoogle extends Command
         $response = $this->getResponse(url('/api/profile/' . $this->profileId),'post',$data);
     }
     
+    private function getValue($index){
+        return !empty($this->value[$index]) ? $this->value[$index] : null;
+    }
     private function getResponse($url, $method = 'post', $data)
     {
         $client = new Client();
