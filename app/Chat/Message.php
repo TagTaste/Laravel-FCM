@@ -9,14 +9,17 @@ class Message extends Model
 {
     protected $table = 'chat_messages';
     
-    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on'];
+    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file'];
     
-    protected $visible = ['id','message','created_at','chat_id','profile','read_on'];
+    protected $visible = ['id','message','created_at','chat_id','profile','read_on','fileUrl'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
-    
+
+    protected $appends = ['fileUrl'];
+
+
     public static function boot()
     {
         self::created(function(Model $message){
@@ -34,5 +37,10 @@ class Message extends Model
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class,'profile_id','id');
+    }
+
+    public function getFileUrlAttribute()
+    {
+        return !is_null($this->file) ? \Storage::url($this->file) : null;
     }
 }
