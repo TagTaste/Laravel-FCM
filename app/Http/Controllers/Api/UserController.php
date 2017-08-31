@@ -28,7 +28,7 @@ class UserController extends Controller
             return ['status'=>'failed','errors'=>$validator->messages(),'result'=>[]];
         }
 
-        $alreadyVarified = true;
+        $alreadyVerified = true;
         $result = ['status'=>'success'];
         if($request->input("invite_code"))
         {
@@ -41,12 +41,12 @@ class UserController extends Controller
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
             $inviteCodeCheck->update(["accepted_at"=>$accepted_at]);
 
-            $alreadyVarified = false;
+            $alreadyVerified = false;
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
         $result['result'] = ['user'=>$user];
 
-        if($alreadyVarified)
+        if($alreadyVerified)
         {
             event(new EmailVerifications($user));
         }
