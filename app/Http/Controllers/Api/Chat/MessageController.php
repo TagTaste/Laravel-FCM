@@ -69,7 +69,12 @@ class MessageController extends Controller
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
         }
-        
+        if($request->has("file"))
+        {
+            $path = "profile/$profileId/chat/$chatId/file";
+            $fileName = $request->file('file')->getClientOriginalName();
+            $inputs['file'] = $request->file("file")->storeAs($path, $fileName,['visibility'=>'public']);
+        }
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
