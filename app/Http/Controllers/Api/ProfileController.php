@@ -401,5 +401,20 @@ class ProfileController extends Controller
         }
         return $this->sendResponse();
     }
+    
+    public function recentUploads(Request $request)
+    {
+        $userId = $request->user()->id;
+        
+        $recentModels = ['photos'=>"\App\Photo"];
+        $keyPrefix = "recent:user:$userId:";
+        
+        $this->model = [];
+        foreach($recentModels as $model => $class){
+            $modelIds = \Redis::lRange($keyPrefix . $model,0,9);
+            $this->model[$model] = $class::whereIn("id",$modelIds)->get();
+        }
+        return $this->sendResponse();
+    }
 
 }

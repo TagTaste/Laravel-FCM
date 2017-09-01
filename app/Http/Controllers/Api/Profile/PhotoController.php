@@ -72,6 +72,10 @@ class PhotoController extends Controller
         //add model subscriber
         event(new Create($photo,$request->user()->profile));
         
+        //recent uploads
+        \Redis::lPush("recent:user:" . $request->user()->id . ":photos",$photo->id);
+        \Redis::lTrim("recent:user:" . $request->user()->id . ":photos",0,9);
+        
         $this->model = $photo;
         return $this->sendResponse();
     }
@@ -146,6 +150,8 @@ class PhotoController extends Controller
         $this->model =  $request->user()->profile->photos()->where('id',$id)->first();
         event(new DeleteFeedable($this->model));
         $this->model = $this->model->delete();
+        //remove from recent photos
+        \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id);
         return $this->sendResponse();
     }
 
