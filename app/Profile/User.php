@@ -196,14 +196,15 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null)
+    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0)
     {
         $user = static::create([
             'name' => $name,
             'email' => $email,
             'password' => bcrypt($password),
             'email_token' =>str_random(15),
-            'social_registration'=>$socialRegistration
+            'social_registration'=>$socialRegistration,
+            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null
         ]);
 
         if(!$user){
