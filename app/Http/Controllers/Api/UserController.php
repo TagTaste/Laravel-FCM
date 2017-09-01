@@ -43,7 +43,7 @@ class UserController extends Controller
 
             $alreadyVerified = true;
         }
-        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'));
+        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),$alreadyVerified);
         $result['result'] = ['user'=>$user];
 
         if(!$alreadyVerified)
@@ -56,10 +56,10 @@ class UserController extends Controller
 
     public function verify(Request $request,$token)
     {
-        $user = User::where("email_token", $token)->first();
+        $user = \App\Profile\User::where("email_token", $token)->first();
         if($user)
         {
-            $user->verified_at = Carbon::now()->toDateTimeString();;
+            $user->verified_at = \Carbon\Carbon::now()->toDateTimeString();
             $this->model = $user->save();
             return $this->sendResponse();
 

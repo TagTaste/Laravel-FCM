@@ -282,9 +282,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 Route::post('login',function(Request $request){
     $credentials = $request->only('email','password');
-
+    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
+    if($userVerified)
+    {
+        return response()->json(['error' => 'Please verify your email address'], 401);
+    }
     try {
-        // attempt to verify the credentials and create a token for the user
+        // attempt to 
+        the credentials and create a token for the user
         if (! $token = \JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'invalid_credentials'], 401);
         }
