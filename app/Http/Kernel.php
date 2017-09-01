@@ -60,6 +60,7 @@ class Kernel extends HttpKernel
         //'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
         'api.auth'=> \App\Http\Middleware\Api\Auth::class,
         'api.checkProfile' => \App\Http\Middleware\Api\CheckProfile::class,
-        'sanitize' => \App\Http\Middleware\Sanitize::class
+        'sanitize' => \App\Http\Middleware\Sanitize::class,
+        'search.save' => \App\Http\Middleware\SaveSearchQuery::class
     ];
 }
