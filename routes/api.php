@@ -68,7 +68,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     $profileId = $request->user()->profile->id;
                     return response()->json(\App\Channel::names($profileId));
                 });
-            
+
+            //feedback
+                Route::resource("feedback","FeedbackController");
+
+
             //feeds
                 Route::get("feed",'FeedController@feed');
                 Route::get("like",'LikeController@like');
