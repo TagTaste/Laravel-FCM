@@ -30,6 +30,10 @@ class RecipeController extends Controller
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
 
+        if (!empty($filters['is_vegetarian'])) {
+            $recipes = $recipes->where('is_vegetarian', $filters['is_vegetarian']);
+        }
+
         $this->model = [];
         $this->model['count'] = $recipes->count();
         $this->model['data'] = [];
@@ -83,12 +87,32 @@ class RecipeController extends Controller
     public function filters()
     {
         $filters = [];
-
-//        $filters['cuisine'] = \App\Cuisine::select('id','name')->groupBy('name')->get();
-        $filters['level'] = \App\Filter\Recipe::select('level as value')->groupBy('level')->get();
-        $filters['type'] = \App\Filter\Recipe::select('type as value')->groupBy('type')->get();
+        foreach(\App\Recipe::$level as $key => $value){
+            $filters['level'][] = ['key'=>$key,'value'=>$value];
+        }
+        foreach(\App\Recipe::$type as $key => $value){
+            $filters['type'][] = ['key'=>$key,'value'=>$value];
+        }
+        foreach(\App\Recipe::$veg as $key => $value){
+            $filters['is_vegetarian'][] = ['key'=>$key,'value'=>$value];
+        }
         $filters['ingredients']=\App\Recipe\Ingredient::select('id as key','name as value')->get();
         $this->model = $filters;
+        return $this->sendResponse();
+    }
+
+    public function properties()
+    {
+        $this->model = [];
+        foreach(\App\Recipe::$level as $key => $value){
+            $this->model['level'][] = ['key'=>$key,'value'=>$value];
+        }
+        foreach(\App\Recipe::$type as $key => $value){
+            $this->model['type'][] = ['key'=>$key,'value'=>$value];
+        }
+        foreach(\App\Recipe::$veg as $key => $value){
+            $this->model['is_vegetarian'][] = ['key'=>$key,'value'=>$value];
+        }
         return $this->sendResponse();
     }
 }
