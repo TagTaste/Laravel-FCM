@@ -30,7 +30,10 @@ class Recipe extends Model implements Feedable, CommentNotification
 
     protected $appends = ['likeCount','rating'];
 
-    
+    public static $level = ['Easy','Medium','Hard'];
+    public static $type = ['Veggan','Vegetarian','Non-Vegetarian'];
+    public static $veg = ['Vegetarian','Non-Vegetarian'];
+
     public static function boot()
     {
         self::created(function($recipe){
