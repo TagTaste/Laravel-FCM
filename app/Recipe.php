@@ -31,7 +31,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     protected $appends = ['likeCount','rating'];
 
     public static $level = ['Easy','Medium','Hard'];
-    public static $type = ['Veggan','Vegetarian','Non-Vegetarian'];
+    public static $type = ['Vegan','Vegetarian','Non-Vegetarian'];
     public static $veg = ['Vegetarian','Non-Vegetarian'];
 
     public static function boot()
@@ -52,7 +52,6 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     public function addToCache()
     {
-        \Log::info($this->toArray());
         \Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
     }
     public function profile() {
