@@ -101,7 +101,7 @@ class RecipeController extends Controller
         return $this->sendResponse();
     }
 
-    public function dropdowns($filter=null)
+    public function properties()
     {
         $this->model = [];
         foreach(\App\Recipe::$level as $key => $value){
