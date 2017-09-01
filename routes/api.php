@@ -288,8 +288,7 @@ Route::post('login',function(Request $request){
         return response()->json(['error' => 'Please verify your email address'], 401);
     }
     try {
-        // attempt to 
-        the credentials and create a token for the user
+        // attempt to verify the credentials and create a token for the user
         if (! $token = \JWTAuth::attempt($credentials)) {
             return response()->json(['error' => 'invalid_credentials'], 401);
         }
