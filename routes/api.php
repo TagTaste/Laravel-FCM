@@ -137,7 +137,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete('comments/{id}','CommentController@destroy');
             
             //search
-                Route::get("search/{type?}",'SearchController@search');
+                Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("suggest/{type}",'SearchController@suggest');
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
