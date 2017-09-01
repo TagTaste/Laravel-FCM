@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\SendFeedback;
-use App\Feed;
+use App\Feedback;
 use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
@@ -20,7 +20,7 @@ class FeedbackController extends Controller
      *
      * @return void
      */
-    public function __construct(Feed $model)
+    public function __construct(Feedback $model)
     {
         $this->model = $model;
     }
