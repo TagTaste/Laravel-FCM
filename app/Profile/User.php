@@ -3,6 +3,7 @@
 namespace App\Profile;
 
 use App\Api\Recommend;
+use App\Company\Coreteam;
 use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
@@ -24,7 +25,13 @@ class User extends BaseUser
         parent::boot();
 
         self::created(function(User $user){
-            $user->profile()->create([]);
+            $profile=$user->profile()->create([]);
+            //update core team profile when using invite code registration
+            $coreteam = Coreteam::where('email',$user->email)->where('invited',1)->first();
+            if($coreteam)
+            {
+                $coreteam->update(['profile_id'=>$profile->id,'invited'=>0]);
+            }
         });
 
         self::deleting(function($user){
@@ -189,13 +196,13 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null)
+    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null)
     {
-
         $user = static::create([
             'name' => $name,
             'email' => $email,
             'password' => bcrypt($password),
+            'email_token' =>str_random(15),
             'social_registration'=>$socialRegistration
         ]);
 

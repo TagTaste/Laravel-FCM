@@ -17,14 +17,14 @@ class Recipe extends Model implements Feedable, CommentNotification
     public static $expectsFiles = true;
     protected $fillable = ['name','description', 'serving',
         'preparation_time','cooking_time','level','tags','cuisine_id','type',
-        'profile_id','privacy_id','payload_id','directions','tutorial_link'];
+        'profile_id','privacy_id','payload_id','directions','tutorial_link','is_vegetarian'];
     protected $dates = ['created_at','deleted_at'];
     
 
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
         'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id',
-        'tutorial_link','cuisine'];
+        'tutorial_link','cuisine','is_vegetarian'];
     
     protected $with = ['profile','ingredients','equipments','images','cuisine'];
 
