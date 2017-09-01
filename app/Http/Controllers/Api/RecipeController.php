@@ -94,7 +94,7 @@ class RecipeController extends Controller
             $filters['type'][] = ['key'=>$key,'value'=>$value];
         }
         foreach(\App\Recipe::$veg as $key => $value){
-            $filters['is_vegetarian'][] = ['key'=>$key,'value'=>$value];
+            $filters['vegetarian'][] = ['key'=>$key,'value'=>$value];
         }
         $filters['ingredients']=\App\Recipe\Ingredient::select('id as key','name as value')->get();
         $this->model = $filters;
