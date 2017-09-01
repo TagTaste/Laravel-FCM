@@ -8,6 +8,11 @@ class Recipe extends BaseRecipe
     
     public function similar($skip,$take)
     {
+        //similar
+        //tags
+        //level
+        //type
+        //is_vegetarian
         return self::where('level','=',$this->level)
             ->skip($skip)
             ->take($take)
