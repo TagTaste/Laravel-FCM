@@ -196,7 +196,7 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified)
+    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0)
     {
         $user = static::create([
             'name' => $name,
@@ -204,7 +204,7 @@ class User extends BaseUser
             'password' => bcrypt($password),
             'email_token' =>str_random(15),
             'social_registration'=>$socialRegistration,
-            'verified_at'=>$alreadyVerified==1 ? \Carbon\Carbon::now()->toDateTimeString():null
+            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null
         ]);
 
         if(!$user){
