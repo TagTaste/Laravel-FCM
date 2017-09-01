@@ -139,6 +139,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //search
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("suggest/{type}",'SearchController@suggest');
+                
+            //history
+                Route::get("history/{type}","HistoryController@history");
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
             //notifications
