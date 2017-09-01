@@ -509,7 +509,7 @@ class Profile extends Model
 
 
     /**
-     * Feedback for the logged in user's profile
+     * Feed for the logged in user's profile
      *
      * @return mixed
      */
@@ -524,7 +524,7 @@ class Profile extends Model
     }
 
     /**
-     * Feedback which a user would see if he visits his /profile page.
+     * Feed which a user would see if he visits his /profile page.
      */
     public function profileFeed()
     {
@@ -535,7 +535,7 @@ class Profile extends Model
     }
 
     /**
-     * Feedback of the subscribed network of the user.
+     * Feed of the subscribed network of the user.
      *
      * @return mixed
      */
