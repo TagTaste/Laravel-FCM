@@ -191,6 +191,11 @@ class RecipeController extends Controller
             $count = count($request->input("images")) - 1;
             while ($count >= 0) {
                 if (!$request->hasFile("images.$count.file")) {
+                    if($request->input("images.$count.remove")==1) {
+                        $this->model->images()->where('recipe_id', $id)
+                            ->where('id', $request->input("images.$count.id"))
+                            ->delete();
+                    }
                     \Log::info("No file for images.$count.file");
                     $count--;
                     continue;
