@@ -56,14 +56,16 @@ class CoreteamController extends Controller
             }
             $data['image'] = $response;
         }
-        else
+        
+        if($request->has("profile_id"))
         {
             $profile = \App\Recipe\Profile::find($request->input('profile_id'));
             $data['image'] = $profile->image;
         }
-        $data['invited'] = !$request->has("profile_id");
+        $data['invited'] = !$request->has("profile_id") && $request->has("email");
 
         $this->model = $company->coreteam()->create($data);
+        
         if($request->has("email"))
         {
             event(new SendInvitationEmail($request->user(),$this->model,$request->input("email")));
