@@ -22,7 +22,7 @@ Route::get('privacy','Api\PrivacyController@index');
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
-    
+
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
         Route::get('/user/verify/email/{token}', 'UserController@verify');
@@ -304,3 +304,6 @@ Route::post('login',function(Request $request){
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
 
 Route::get('{handle}','Api\HandleController@show');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail'); //with api/
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('admin.password.token');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');//with api/
