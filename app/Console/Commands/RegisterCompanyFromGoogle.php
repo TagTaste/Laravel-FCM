@@ -176,18 +176,21 @@ class RegisterCompanyFromGoogle extends Command
             $this->error("No image for " . $this->value[$map['name']]);
             return;
         }
+        $data = [];
         try {
-        
+            $data = [
+                'multipart' => [
+                    [ 'name'=> 'image',
+                        'contents' => !is_null($this->value[$imageValue]) ? fopen($this->value[$imageValue],'r') : null],
+                ]
+            ];
+        } catch (\Exception $e){
+            \Log::warning($e->getMessage());
         }
-        $data = [
-            'multipart' => [
-                [ 'name'=> 'image',
-                    'contents' => !is_null($this->value[$imageValue]) ? fopen($this->value[$imageValue],'r') : null],
-            ],
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->token
-            ]
-        ];
+        
+        $data['headers'] = [
+        'Authorization' => 'Bearer ' . $this->token
+         ];
         foreach($map as $name => $index){
             $this->info("member $name: " . $index);
     
