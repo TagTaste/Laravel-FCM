@@ -124,14 +124,23 @@ class RegisterCompanyFromGoogle extends Command
         
         $this->info("Creating company: " . $this->value[4]);
         $this->info("image: " . $this->value[5]);
-        $data = [
-            'multipart' => [
-                [ 'name'=> 'logo',
-                    'contents' => !empty($this->value[5]) ? fopen($this->value[5],'rb') : null],
-            ],
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->token
-            ]
+        $data = [];
+        try {
+            $data = [
+                'multipart' => [
+                    [ 'name'=> 'logo',
+                        'contents' => !empty($this->value[5]) ? fopen($this->value[5],'rb') : null],
+                ]];
+    
+            
+        } catch (\Exception $e){
+            \Log::info("Could not get image for " . $this->value[4]);
+            \Log::warning($e->getMessage());
+        }
+        
+        
+        $data['headers'] =  [
+        'Authorization' => 'Bearer ' . $this->token
         ];
 
         foreach($map as $name => $value){

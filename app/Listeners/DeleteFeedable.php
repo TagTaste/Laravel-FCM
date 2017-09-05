@@ -26,6 +26,7 @@ class DeleteFeedable
      */
     public function handle(DeleteFeedableEvent $event)
     {
+        \Log::info("deleting payload");
         if(method_exists($event->model,'payload')){
             $response = $event->model->payload->delete();
         }
