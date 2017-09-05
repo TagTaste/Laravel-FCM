@@ -158,7 +158,7 @@ class RegisterCompanyFromGoogle extends Command
     
     private function makeRequestMember($imageValue,&$map)
     {
-        if(empty($this->value[$map['name']])){
+        if(empty($this->value[$map['name']]) || empty($this->value[$map['about']])){
             return;
         }
         
