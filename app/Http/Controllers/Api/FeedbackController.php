@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\SendFeedback;
 use App\Feedback;
+use App\Jobs\FeedbackMail;
 use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
@@ -47,7 +48,10 @@ class FeedbackController extends Controller
         $inputs = $request->all();
         $inputs['profile_id'] = $request->user()->profile->id;
         $this->model = $this->model->create($inputs);
-        event(new SendFeedback($this->model));
+        $mail = (new FeedbackMail($this->model))->onQueue('emails');
+        \Log::info('Queueing feedback...');
+
+        dispatch($mail);
         return $this->sendResponse();
     }
 

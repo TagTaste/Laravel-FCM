@@ -66,7 +66,7 @@ class CoreteamController extends Controller
         if($request->has("email"))
         {
             $mail = (new SendInvitation($request->user(),$this->model,$request->input("email")))->onQueue('emails');
-            \Log::info('Queueing job...');
+            \Log::info('Queueing send invitation...');
 
             dispatch($mail);
         }
