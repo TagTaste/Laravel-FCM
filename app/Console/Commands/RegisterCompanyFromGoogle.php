@@ -129,7 +129,8 @@ class RegisterCompanyFromGoogle extends Command
             $data = [
                 'multipart' => [
                     [ 'name'=> 'logo',
-                        'contents' => !empty($this->value[5]) ? fopen($this->value[5],'rb') : null],
+                        'contents' => !empty($this->value[5]) ? fopen($this->value[5],'rb') :
+                            fopen('http://placehold.it/200x200&text=' . $this->value[4],'r')],
                 ]];
     
             
@@ -175,7 +176,9 @@ class RegisterCompanyFromGoogle extends Command
             $this->error("No image for " . $this->value[$map['name']]);
             return;
         }
+        try {
         
+        }
         $data = [
             'multipart' => [
                 [ 'name'=> 'image',
