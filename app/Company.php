@@ -338,12 +338,24 @@ class Company extends Model
     
     public function getLogoAttribute($value)
     {
-        return !is_null($value) ? \Storage::url($value) : null;
+        try{
+            return !is_null($value) ? \Storage::url($value) : null;
+        } catch (\Exception $e){
+            \Log::warning("Couldn't get logo for company" . $this->id);
+            \Log::warning($e->getMessage());
+        }
     }
     
     public function getHeroImageAttribute($value)
     {
-        return !is_null($value) ? \Storage::url($value) : null;
+        try {
+            return !is_null($value) ? \Storage::url($value) : null;
+    
+        } catch (\Exception $e){
+\Log::warning("Couldn't get hero image for company" . $this->id);
+\Log::warning($e->getMessage());
+}
+    
     }
     
     public function getProfileIdAttribute()
