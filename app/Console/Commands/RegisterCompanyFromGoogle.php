@@ -145,7 +145,7 @@ class RegisterCompanyFromGoogle extends Command
         ];
 
         foreach($map as $name => $value){
-            if(is_null($value)){
+            if(is_null($value) || !isset($this->value[$value])){
                 continue;
             }
             $data['multipart'][] = [
