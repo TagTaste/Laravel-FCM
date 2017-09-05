@@ -66,7 +66,7 @@ class CoreteamController extends Controller
 
         $this->model = $company->coreteam()->create($data);
         
-        if($request->has("email"))
+        if($request->has("email") && env('ENABLE_EMAILS',0) == 1)
         {
             event(new SendInvitationEmail($request->user(),$this->model,$request->input("email")));
         }
