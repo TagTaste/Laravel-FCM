@@ -76,7 +76,6 @@ class RegisterCompanyFromGoogle extends Command
                 continue;
             }
             $this->addMember();
-            break;
         }
         
         $bar->finish();
