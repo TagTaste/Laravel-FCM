@@ -113,8 +113,6 @@ class RegisterCompanyFromGoogle extends Command
             'email' => 6,
             'registered_address' => 13,
             'established_on' => 9,
-            'type' => $this->types->get($this->value[11]) ? $this->types->get($this->value[11])->id : null,
-            'status_id' => $this->statuses->get($this->value[10]) ? $this->statuses->get($this->value[10])->id : null,
 //            'employee_count' => 12,
             'facebook_url' => 22,
             'linkedin_url' => 23,
@@ -122,7 +120,13 @@ class RegisterCompanyFromGoogle extends Command
             'youtube_url' => 25,
             'user_id' => 1,
         ];
-        
+        if(isset($this->value[11])){
+            $map['type'] =  $this->types->get($this->value[11]) ? $this->types->get($this->value[11])->id : null;
+        }
+        if(isset($this->value[10])){
+            $map['status_id'] = $this->statuses->get($this->value[10]) ? $this->statuses->get($this->value[10])->id : null;
+
+        }
         $this->info("Creating company: " . $this->value[4]);
         $this->info("image: " . $this->value[5]);
         $data = [];
