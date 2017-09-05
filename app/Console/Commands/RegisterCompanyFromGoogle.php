@@ -72,11 +72,15 @@ class RegisterCompanyFromGoogle extends Command
         
         foreach($values as $value){
             $this->value = $value;
-            $status = $this->createCompany();
-            if(!$status){
-                continue;
+            try {
+                $status = $this->createCompany();
+                if(!$status){
+                    continue;
+                }
+                $this->addMember();
+            } catch (\Exception $e){
+                $this->error($e->getMessage());
             }
-            $this->addMember();
         }
         
         $bar->finish();
@@ -127,8 +131,7 @@ class RegisterCompanyFromGoogle extends Command
             $map['status_id'] = $this->statuses->get($this->value[10]) ? $this->statuses->get($this->value[10])->id : null;
 
         }
-        $this->info("Creating company: " . $this->value[4]);
-        $this->info("image: " . $this->value[5]);
+        
         $data = [];
         try {
             $data = [
@@ -140,7 +143,6 @@ class RegisterCompanyFromGoogle extends Command
     
             
         } catch (\Exception $e){
-            \Log::info("Could not get image for " . $this->value[4]);
             \Log::warning($e->getMessage());
         }
         
@@ -163,7 +165,7 @@ class RegisterCompanyFromGoogle extends Command
         $response = json_decode($response);
     
         if(!isset($response->data->id)){
-            \Log::warning("Could not create company: " . $this->value[6]);
+            $this->error("Could not create company: " . $this->value[6]);
             return false;
         }
         
