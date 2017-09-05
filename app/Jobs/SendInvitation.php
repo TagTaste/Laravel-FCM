@@ -2,23 +2,12 @@
 
 namespace App\Jobs;
 
-<<<<<<< Updated upstream
 use App\Invitation;
-=======
->>>>>>> Stashed changes
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-<<<<<<< Updated upstream
-
 class SendInvitation implements ShouldQueue
-=======
-use Illuminate\Mail\Mailable;
-use App\Invitation;
-
-class SendInvitation extends Mailable implements ShouldQueue
->>>>>>> Stashed changes
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
@@ -46,7 +35,6 @@ class SendInvitation extends Mailable implements ShouldQueue
      */
     public function handle()
     {
-<<<<<<< Updated upstream
         $data = ["userName"=>$this->user->name,
             "inviteCode" => $this->inviteCode];
         \Mail::send('invitation.invitation', $data, function($message)
@@ -57,18 +45,3 @@ class SendInvitation extends Mailable implements ShouldQueue
 
     }
 }
-=======
-        \Mail::to($this->email)->send($this->mailView());
-        Invitation::create(['invite_code'=>$this->inviteCode,'name'=>$this->inviteUser->name,'email'=>$this->email, 'accepted_at'=>null]);
-
-    }
-
-    public function mailView()
-    {
-        return view("invitation.invitation")->with([
-            "userName"=>$this->user->name,
-            "inviteCode" => $this->inviteCode,
-        ]);
-    }
-}
->>>>>>> Stashed changes
