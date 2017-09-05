@@ -58,6 +58,7 @@ class RegisterCompanyFromGoogle extends Command
     {
         $this->types = $this->fetchTypes();
         $this->statuses = $this->fetchStatuses();
+        \Cache::forget("company_values");
         $values = \Cache::remember('company_values',120,function(){
             $sheetId = '1pMKXKtJ2lnGkGMb08OP6L1RSDP9cO0zGSlMz0YOBSGs';
             \Sheets::setService(\Google::make('sheets'));
@@ -171,8 +172,7 @@ class RegisterCompanyFromGoogle extends Command
         if(empty($this->value[$map['name']]) || empty($this->value[$map['about']])){
             return;
         }
-        
-        if(empty($this->value[$imageValue])){
+        if(!isset($this->value[$imageValue]) || empty($this->value[$imageValue])){
             $this->error("No image for " . $this->value[$map['name']]);
             return;
         }
@@ -186,6 +186,7 @@ class RegisterCompanyFromGoogle extends Command
             ];
         } catch (\Exception $e){
             \Log::warning($e->getMessage());
+            return;
         }
         
         $data['headers'] = [
