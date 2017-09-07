@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Events\Chat\Invite;
-use App\Events\SendInvitationEmail;
 use App\Http\Controllers\Api\Controller;
 use App\Company\Coreteam;
+use App\Jobs\SendInvitation;
 use Illuminate\Http\Request;
 
 class CoreteamController extends Controller
@@ -68,7 +67,10 @@ class CoreteamController extends Controller
         
         if($request->has("email") && env('ENABLE_EMAILS',0) == 1)
         {
-            event(new SendInvitationEmail($request->user(),$this->model,$request->input("email")));
+            $mail = (new SendInvitation($request->user(),$this->model,$request->input("email")))->onQueue('emails');
+            \Log::info('Queueing send invitation...');
+
+            dispatch($mail);
         }
         return $this->sendResponse();
     }
