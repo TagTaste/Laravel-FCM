@@ -27,6 +27,6 @@ class Patent extends Model
 
     public function getAwardedOnAttribute($value)
     {
-        return date("m-Y",strtotime($value));
+        return !is_null($value) ? date("m-Y",strtotime($value)) : null;
     }
 }
