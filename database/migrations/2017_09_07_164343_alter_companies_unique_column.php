@@ -27,7 +27,7 @@ class AlterCompaniesUniqueColumn extends Migration
     public function down()
     {
         Schema::table("companies",function(Blueprint $table){
-            $table->dropUnique('companies_email_name_unique');
+            $table->dropUnique('companies_user_id_name_unique');
 
         });
     }
