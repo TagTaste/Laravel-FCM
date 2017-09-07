@@ -75,7 +75,6 @@ class RecipeController extends Controller
         if ($request->has("images")) {
             $images = [];
             $count = count($request->input("images")) - 1;
-            
             while ($count >= 0) {
                 if (!$request->hasFile("images.$count.file")) {
                     \Log::info("No file for images.$count.file");
@@ -189,24 +188,22 @@ class RecipeController extends Controller
         if ($request->has("images")) {
             $newImages = [];
             $count = count($request->input("images")) - 1;
-            while ($count >= 0) {
-                if (!$request->hasFile("images.$count.file")) {
-                    if($request->input("images.$count.remove")==1) {
-                        $this->model->images()->where('recipe_id', $id)
-                            ->where('id', $request->input("images.$count.id"))
-                            ->delete();
-                    }
-                    \Log::info("No file for images.$count.file");
-                    $count--;
-                    continue;
+            $dontDeleteTheseImages = [];
+            
+            //delete images whose ID is not sent by the frontend.
+            foreach($request->input('images') as $count => $image){
+                if(isset($image['id'])){
+                    $dontDeleteTheseImages[] = $image['id'];
                 }
+            }
+            Recipe\Image::whereNotIn('id',$dontDeleteTheseImages)->where('recipe_id',$id)->delete();
 
+            foreach($request->input('images') as $count => $image) {
                 $imageName = str_random("32") . ".jpg";
                 $path = Recipe\Image::getImagePath($this->model->id);
                 $response = $request->file("images.$count.file")->storeAs($path, $imageName,['visibility'=>'public']);
                 if (!$response) {
                     \Log::warning("Could not save image " . $imageName . " at " . $path);
-                    $count--;
                     continue;
                 }
 
@@ -218,7 +215,6 @@ class RecipeController extends Controller
                     $newImages[] = ['recipe_id' => $id, 'image' => $path . DIRECTORY_SEPARATOR . $imageName,
                         'show_case' => $request->input("images.$count.showCase") ?: 0];
                 }
-                $count--;
             }
             if (!empty($newImages)) {
                 $this->model->images()->insert($newImages);
