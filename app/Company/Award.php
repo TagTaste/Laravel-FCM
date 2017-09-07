@@ -25,7 +25,7 @@ class Award extends Model
 
     public function getDateAttribute($value)
     {
-        return date("m-Y",strtotime($value));
+        return !is_null($value) ? date("m-Y",strtotime($value)) : null;
     }
 
     public function scopeForCompany($query,$profileId)

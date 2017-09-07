@@ -26,9 +26,7 @@ class Award extends Model
 
     public function getDateAttribute($value)
     {
-        if(!$value){
-            return date("m-Y",strtotime($value));
-        }
+        return is_null($value) ? null : date("m-Y",strtotime($value));
     }
     
     public function profile()
