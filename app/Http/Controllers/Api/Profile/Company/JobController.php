@@ -34,19 +34,14 @@ class JobController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
+        $profileId = $request->user()->id;
         $this->model = [];
-        $jobs = Job::where('company_id', $companyId)->whereNull('deleted_at');
-
+        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at')->with(['applications']);
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $jobs = $jobs->skip($skip)->take($take)->get();
-        foreach ($jobs as $job)
-        {
-            $temp['jobs'] = $job;
-            $temp['jobs']['application'] = $job->applications()->get();
-            $this->model[] = $temp;
-        }
-        $this->model['count'] = Job::where('company_id',$companyId)->count();
+        $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();
+
+        $this->model['count'] = Job::where('company_id', $companyId)->count();
         return $this->sendResponse();
     }
     
