@@ -352,9 +352,9 @@ class Company extends Model
             return !is_null($value) ? \Storage::url($value) : null;
     
         } catch (\Exception $e){
-\Log::warning("Couldn't get hero image for company" . $this->id);
-\Log::warning($e->getMessage());
-}
+        \Log::warning("Couldn't get hero image for company" . $this->id);
+        \Log::warning($e->getMessage());
+        }
     
     }
     
