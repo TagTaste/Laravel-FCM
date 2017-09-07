@@ -199,6 +199,10 @@ class RecipeController extends Controller
             Recipe\Image::whereNotIn('id',$dontDeleteTheseImages)->where('recipe_id',$id)->delete();
 
             foreach($request->input('images') as $count => $image) {
+                if (!$request->hasFile("images.$count.file")) {
+                    continue;
+                }
+                
                 $imageName = str_random("32") . ".jpg";
                 $path = Recipe\Image::getImagePath($this->model->id);
                 $response = $request->file("images.$count.file")->storeAs($path, $imageName,['visibility'=>'public']);
