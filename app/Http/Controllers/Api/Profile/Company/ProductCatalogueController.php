@@ -83,7 +83,8 @@ class ProductCatalogueController extends Controller
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
-		$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+		//$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+		$fullpath = \Storage::url($file);
 
         //load the file
         $data = [];
