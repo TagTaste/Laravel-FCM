@@ -37,7 +37,7 @@ class ProductCatalogueController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-		$this->model = $this->model->where('company_id',$companyId)->orderBy('category')->skip($skip)->take($take)->get();
+		$this->model = $this->model->where('company_id',$companyId)->orderByRaw('category asc, product asc')->skip($skip)->take($take)->get();
 		
 		if($this->model->count() == 0){
 		    return $this->sendResponse();
@@ -84,17 +84,20 @@ class ProductCatalogueController extends Controller
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
 		//$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
-		$fullpath = \Storage::url($file);
-
+		//$fullpath = \Storage::url($file);
+        
         //load the file
         $data = [];
         try {
-            \Excel::load($fullpath, function($reader) use (&$data){
+            $fullpath = $request->file->store('temp', 'local');
+            \Log::info($fullpath);
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
                 $data = $reader->toArray();
             })->get();
             if(empty($data)){
                 return $this->sendError("Empty file uploaded.");
             }
+            \Storage::disk('local')->delete($file);
         } catch (\Exception $e){
 		    \Log::info($e->getMessage());
             return $this->sendError($e->getMessage());
