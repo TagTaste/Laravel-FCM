@@ -4,6 +4,7 @@ namespace App;
 
 use App\Company\Address;
 use App\Company\Advertisement;
+use App\Company\Affiliation;
 use App\Company\Book;
 use App\Company\Coreteam;
 use App\Company\Patent;
@@ -76,7 +77,7 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery','affiliation',
         'created_at',
         'milestones',
         'speciality',
@@ -88,7 +89,7 @@ class Company extends Model
         'is_admin'
     ];
     
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating','is_admin'];
     
@@ -140,6 +141,11 @@ class Company extends Model
     public function coreteam()
     {
         return $this->hasMany(Coreteam::class);
+    }
+
+    public function affiliation()
+    {
+        return $this->hasMany(Affiliation::class);
     }
 
     //company creater user 
