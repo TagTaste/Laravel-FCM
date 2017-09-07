@@ -13,7 +13,7 @@ class CoreteamNullableImage extends Migration
      */
     public function up()
     {
-        Schema::table("coreteams",function(Blueprint $table){
+        Schema::table("core_teams",function(Blueprint $table){
             $table->string('image')->nullable()->change();
         });
     }
@@ -25,7 +25,7 @@ class CoreteamNullableImage extends Migration
      */
     public function down()
     {
-        Schema::table("coreteams",function(Blueprint $table){
+        Schema::table("core_teams",function(Blueprint $table){
             $table->string('image')->change();
         });
     }
