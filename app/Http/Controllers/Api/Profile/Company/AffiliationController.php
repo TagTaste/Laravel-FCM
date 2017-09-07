@@ -59,7 +59,7 @@ class AffiliationController extends Controller
     {
         $this->model = Affiliation::where('company_id',$companyId)->where('id',$id)->first();
         if(!$this->model){
-            throw new \Exception("Core team not found.");
+            throw new \Exception("Affiliation not found.");
         }
         return $this->sendResponse();
     }
