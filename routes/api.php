@@ -226,6 +226,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("awards","AwardController");
                     Route::post("coreteam/ordering","CoreteamController@ordering");
                     Route::resource("coreteam","CoreteamController");
+                    Route::resource("affiliations","AffiliationController");
                     Route::resource("gallery","GalleryController");
 
                     Route::resource("catalogue","CompanyCatalogueController");
