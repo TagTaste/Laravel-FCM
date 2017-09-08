@@ -46,7 +46,19 @@ class CompanyController extends Controller
             throw new \Exception("Empty request received.");
         }
         $inputs['user_id'] = $request->user()->id;
-        $company = Company::create($inputs);
+        try {
+            $company = Company::create($inputs);
+        }
+        catch (\Illuminate\Database\QueryException $e)
+        {
+            $company = Company::where("email",$inputs['email'])->first();
+            if($company)
+            {
+                return $this->sendError("A company with this email id ".$company->email." is already exist");
+            }
+
+            return $this->sendError("A company with this name ".$inputs['name']." is already exist");
+        }
 
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
