@@ -26,12 +26,12 @@ class Show extends Model
     {
         if(!empty($value)) {
             $value = "01-" . $value;
-            $this->attributes['end_date'] = date('Y-m-d', strtotime($value));
+            $this->attributes['date'] = date('Y-m-d', strtotime($value));
         }
     }
 
     public function getDateAttribute($value)
     {
-        return date("m-Y",strtotime($value));
+        return $value == null ? null : date("m-Y",strtotime($value));
     }
 }
