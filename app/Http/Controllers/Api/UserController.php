@@ -48,7 +48,10 @@ class UserController extends Controller
 
         if(!$alreadyVerified)
         {
-            event(new EmailVerification($user));
+            $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
+            \Log::info('Queueing Verified Email...');
+
+            dispatch($mail);
         }
 
         return $this->sendResponse();
