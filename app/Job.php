@@ -22,12 +22,13 @@ class Job extends Model implements Feedable
     protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
-        'applications','created_at', 'expires_on','job_id','privacy_id','resume_required'
+        'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
+        'applicationCount'
     ];
     
     protected $with = ['company','profile', 'applications'];
     
-    protected $appends = ['type','job_id'];
+    protected $appends = ['type','job_id','applicationCount'];
     
     
     public static function boot()
@@ -132,6 +133,11 @@ class Job extends Model implements Feedable
             'content' => $this->title,
             'image' => null
         ];
+    }
+    
+    public function getApplicationCountAttribute()
+    {
+        return \Redis::hGet("meta:job:" . $this->id,"count");
     }
     
 }
