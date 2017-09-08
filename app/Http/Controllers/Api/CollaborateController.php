@@ -174,6 +174,7 @@ class CollaborateController extends Controller
                     ]);
     
         }
+        \Redis::hIncrBy("collaborate:$id","applicationCount",1);
         return $this->sendResponse();
     }
     
