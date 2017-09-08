@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\Http\Controllers\Api\Controller;
 use App\Company\Coreteam;
 use App\Jobs\SendInvitation;
+use App\Profile;
 use Illuminate\Http\Request;
 
 class CoreteamController extends Controller
@@ -16,7 +17,20 @@ class CoreteamController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
+        $coreteams = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
+        $this->model = [];
+        $loggedInProfileId = $request->user()->profile->id;
+        foreach ($coreteams as $coreteam)
+        {
+                $temp = $coreteam->toArray();
+                if($temp['profile_id']!=null) {
+                    $temp['isFollowing'] = Profile::isFollowing($temp['profile_id'], $loggedInProfileId);
+                }
+                else{
+                    $temp['isFollowing'] = false;
+                }
+                $this->model[] = $temp;
+        }
         return $this->sendResponse();
     }
 
@@ -71,6 +85,11 @@ class CoreteamController extends Controller
             \Log::info('Queueing send invitation...');
 
             dispatch($mail);
+        }
+        if($this->model->profile_id!=null)
+        {
+            $this->model = $this->model->toArray();
+            $this->model['isFollowing'] = Profile::isFollowing($this->model['profile_id'], $request->user()->profile->id);
         }
         return $this->sendResponse();
     }
