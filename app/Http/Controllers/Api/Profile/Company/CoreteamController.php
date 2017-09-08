@@ -23,12 +23,7 @@ class CoreteamController extends Controller
         foreach ($coreteams as $coreteam)
         {
                 $temp = $coreteam->toArray();
-                if($temp['profile_id']!=null) {
-                    $temp['isFollowing'] = Profile::isFollowing($temp['profile_id'], $loggedInProfileId);
-                }
-                else{
-                    $temp['isFollowing'] = false;
-                }
+                $temp['isFollowing'] =$temp['profile_id']!=null ? Profile::isFollowing($temp['profile_id'], $loggedInProfileId) : null;
                 $this->model[] = $temp;
         }
         return $this->sendResponse();
@@ -86,11 +81,9 @@ class CoreteamController extends Controller
 
             dispatch($mail);
         }
-        if($this->model->profile_id!=null)
-        {
             $this->model = $this->model->toArray();
-            $this->model['isFollowing'] = Profile::isFollowing($this->model['profile_id'], $request->user()->profile->id);
-        }
+            $this->model['isFollowing'] = $this->model['profile_id']!= null ? Profile::isFollowing($this->model['profile_id'], $request->user()->profile->id) : null;
+
         return $this->sendResponse();
     }
 
