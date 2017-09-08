@@ -5,6 +5,7 @@ namespace App\Profile;
 use App\Scopes\Profile;
 use App\Traits\StartEndDate;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Experience extends Model
 {
@@ -15,6 +16,16 @@ class Experience extends Model
 
     protected $visible = ['id','company','designation','description','location',
         'start_date','end_date','current_company'];
+
+
+    protected static function boot()
+    {
+        parent::boot();
+        // Order by name ASC
+        static::addGlobalScope('experience', function (Builder $builder) {
+            $builder->orderBy('start_date', 'desc');
+        });
+    }
 
     public function profile()
     {
@@ -31,5 +42,4 @@ class Experience extends Model
       }
       return $value;
     }
-
 }
