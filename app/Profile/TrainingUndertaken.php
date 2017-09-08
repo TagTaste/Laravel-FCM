@@ -4,20 +4,16 @@ namespace App\Profile;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model
+class TrainingUndertaken extends Model
 {
-    protected $fillable = ['title','description','completed_on','url','profile_id'];
+    protected $table = 'training_undertaken';
+    protected $fillable = ['title','traind_from','completed_on','profile_id'];
 
-    protected $visible = ['id','title','description','completed_on','url','profile_id'];
+    protected $visible = ['id','title','traind_from','completed_on','profile_id'];
 
     public function profile()
     {
         return $this->belongsTo('App\Profile');
-    }
-
-    public function members()
-    {
-        return $this->hasMany('App\ProjectMember');
     }
 
     public function setCompletedOnAttribute($value)

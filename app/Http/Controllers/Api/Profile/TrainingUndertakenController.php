@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
-use App\Profile\Project;
+use App\Profile\TrainingUndertaken;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
-class ProjectController extends Controller
+class TrainingUndertakenController extends Controller
 {
     use SendsJsonResponse;
 
-    private $fields = ['title','description','completed_on','url'];
+    private $fields = ['title','traind_from','completed_on'];
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +19,7 @@ class ProjectController extends Controller
      */
     public function index($profileId)
     {
-        $this->model = Project::where('profile_id',$profileId)->get();
+        $this->model = TrainingUndertaken::where('profile_id',$profileId)->get();
         return $this->sendResponse();
     }
 
@@ -43,7 +43,7 @@ class ProjectController extends Controller
     {
         $input = $request->only($this->fields);
         $input['profile_id'] =$request->user()->profile->id;
-        $this->model = $request->user()->profile->projects()->create($input);
+        $this->model = $request->user()->profile->trainingUndertaken()->create($input);
         return $this->sendResponse();
     }
 
@@ -55,7 +55,7 @@ class ProjectController extends Controller
      */
     public function show($profileId, $id)
     {
-        $this->model = Project::where('profile_id',$profileId)->where('id',$id)->first();
+        $this->model = TrainingUndertaken::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){
             throw new \Exception("Project not found.");
@@ -90,7 +90,7 @@ class ProjectController extends Controller
             $input['completed_on'] = "01-".$input['completed_on'];
             $input['completed_on'] = empty($input['completed_on']) ? null : date("Y-m-d",strtotime(trim($input['completed_on'])));
         }
-        $this->model = $request->user()->profile->projects()
+        $this->model = $request->user()->profile->trainingUndertaken()
             ->where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
@@ -103,7 +103,7 @@ class ProjectController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->projects()->where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
+        $this->model = $request->user()->profile->trainingUndertaken()->where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }

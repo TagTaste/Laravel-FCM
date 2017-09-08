@@ -382,6 +382,11 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Project');
     }
 
+    public function trainingUndertaken()
+    {
+        return $this->hasMany('App\Profile\TrainingUndertaken');
+    }
+
     public function education()
     {
         return $this->hasMany('App\Education');
