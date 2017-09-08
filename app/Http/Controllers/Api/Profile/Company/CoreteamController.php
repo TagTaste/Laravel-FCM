@@ -17,15 +17,7 @@ class CoreteamController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $coreteams = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
-        $this->model = [];
-        $loggedInProfileId = $request->user()->profile->id;
-        foreach ($coreteams as $coreteam)
-        {
-                $temp = $coreteam->toArray();
-                $temp['isFollowing'] =$temp['profile_id']!=null ? Profile::isFollowing($temp['profile_id'], $loggedInProfileId) : false;
-                $this->model[] = $temp;
-        }
+        $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
         return $this->sendResponse();
     }
 
@@ -53,6 +45,11 @@ class CoreteamController extends Controller
         if(!$company){
             throw new \Exception("User does not belong to this company.");
         }
+        $profileId = Coreteam::where("company_id",$companyId)->where("profile_id",$request->has("profile_id"))->exists();
+        if($profileId)
+        {
+            return $this->sendError("This is already exist in your coreteam of company");
+        }
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
         if($request->hasFile('image')) {
@@ -60,7 +57,7 @@ class CoreteamController extends Controller
             $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
             $response = $request->file("image")->storeAs($path, $imageName, ['visibility' => 'public']);
             if (!$response) {
-                throw new \Exception("Could not save resume " . $imageName . " at " . $path);
+                throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
             $data['image'] = $response;
         }
@@ -81,9 +78,6 @@ class CoreteamController extends Controller
 
             dispatch($mail);
         }
-            $this->model = $this->model->toArray();
-            $this->model['isFollowing'] = $this->model['profile_id']!= null ? Profile::isFollowing($this->model['profile_id'], $request->user()->profile->id) : false;
-
         return $this->sendResponse();
     }
 
