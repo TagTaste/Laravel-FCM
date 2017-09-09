@@ -37,12 +37,9 @@ class CollaborateController extends Controller
      */
     public function index(Request $request, $profileId)
     {
-
-        $page = $request->input('page', 1);
-        $take = 20;
-        $skip = $page > 1 ? ($page * $take) - $take : 0;
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->orderBy('created_at', 'desc')->skip($skip)
-            ->take($take)->get();
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
