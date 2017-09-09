@@ -54,7 +54,7 @@ class UserController extends Controller
             dispatch($mail);
         }
 
-        return $this->sendResponse();
+        return response()->json($result);
     }
 
     public function verify(Request $request,$token)
