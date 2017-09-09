@@ -109,6 +109,11 @@ class RegisterCompanyFromGoogle extends Command
     
     private function createCompany()
     {
+        $name = $this->value[4];
+        $exists = \App\Company::where('name',$name)->exists();
+        if($exists){
+            return false;
+        }
         $map = [
             //index in company array => index in sheets
             'name' => 4,
