@@ -110,7 +110,7 @@ class RegisterFromGoogle extends Command
             'end_date' => $array[5],
             'description' => $array[6]
         ];
-        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
     }
     
@@ -129,7 +129,7 @@ class RegisterFromGoogle extends Command
             'release_date' => $array[4],
             'description' => $array[5]
         ];
-        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
     }
     
@@ -151,7 +151,7 @@ class RegisterFromGoogle extends Command
             'end_date'=> strtolower($array[7]) == 'present' ? null : $array[7],
             'description' => $array[8]
         ];
-        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
     }
     
@@ -172,7 +172,7 @@ class RegisterFromGoogle extends Command
             'end_date'=> strtolower($exp[6]) == 'present' ? null : $exp[6],
             'description' => $exp[7]
         ];
-        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
     }
     private function updateExperience()
