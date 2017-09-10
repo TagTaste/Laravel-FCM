@@ -58,9 +58,10 @@ class RegisterFromGoogle extends Command
         });
         $values->pull(0);
         $bar = $this->output->createProgressBar(count($values));
-        $skip = (int) $this->argument('skip');
+        $skip = $this->argument('skip');
         foreach($values as $value){
-            if((int) $value[0] < $skip){
+            if($value[0] < $skip){
+                $this->error("skipping " . $value[0]);
                 continue;
             }
             if(empty($value[4])){
