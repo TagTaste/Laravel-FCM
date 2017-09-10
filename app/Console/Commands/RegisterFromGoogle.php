@@ -112,7 +112,7 @@ class RegisterFromGoogle extends Command
     }
     
     private function login(){
-        $data = ['email'=>$this->email,'password'=>$this->password];
+        $data = ['email'=>$this->value[5],'password'=>$this->password];
         $response = $this->getResponse(url('/api/login'),'post',['form_params'=>$data]);
         $this->info($response);
         $response = json_decode($response);
