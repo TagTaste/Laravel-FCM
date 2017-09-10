@@ -11,7 +11,7 @@ class RegisterFromGoogle extends Command
     private $profileId;
     
     private $email;
-    private $password = 'tagtaste@1234';
+    private $password = 'tagtaste1234';
     private $token;
     
     /**
@@ -19,14 +19,14 @@ class RegisterFromGoogle extends Command
      *
      * @var string
      */
-    protected $signature = 'register:google';
+    protected $signature = 'register:google {file}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Register from Google Sheet';
+    protected $description = 'Register from Google Sheet {file}';
 
     /**
      * Create a new command instance.
@@ -51,7 +51,7 @@ class RegisterFromGoogle extends Command
     public function googleregister()
     {
         $values = \Cache::remember('values',120,function(){
-            $sheetId = '1o1oMHDN33_uzqSXioEmij9U139AX8y5Z8nSIgdlB4rw';
+            $sheetId = $this->argument('file');
             \Sheets::setService(\Google::make('sheets'));
             \Sheets::spreadsheet($sheetId);
             return \Sheets::sheet('Sheet1')->get();
@@ -122,12 +122,19 @@ class RegisterFromGoogle extends Command
             'multipart' => [
                 [ 'name'=> 'image',
                     'contents' => fopen($this->value[4],'r')],
+               
                 ['name'=>'_method','contents'=>'patch']
             ],
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token
             ]
         ];
+        
+        if(isset($this->value[96])){
+            $data['multipart'][] =  [ 'name'=> 'hero_image',
+                'contents' => fopen($this->value[96],'r')];
+        }
+        
         $this->getResponse(url('/api/profile/' . $this->profileId),'post',$data);
     }
     
