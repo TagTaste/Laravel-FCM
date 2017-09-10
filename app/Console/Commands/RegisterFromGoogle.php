@@ -75,10 +75,17 @@ class RegisterFromGoogle extends Command
                 $bar->advance();
                 continue;
             }
-            $this->login(); //get token
-            $this->getProfileId();
-            $this->uploadPhoto();
-            $this->updateProfile();
+            try {
+                $this->login(); //get token
+                $this->getProfileId();
+                $this->uploadPhoto();
+                $this->updateProfile();
+            } catch (\Exception $e){
+                \Log::error($e->getMessage());
+                $this->error("Could not create profile for " . $this->value[3]);
+            }
+            
+            
             $bar->advance();
         }
         $bar->finish();
