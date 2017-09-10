@@ -16,11 +16,12 @@ class CompanyController extends Controller {
         $this->model = Company::with('status','type');
 
         $filters = $request->input('filters');
-        if (!empty($filters['city'])) {
-            $this->model=$this->model->whereIn('city',$filters['city']);
+
+        if (!empty($filters['location'])) {
+            $this->model=$this->model->whereIn('city',$filters['location']);
         }
-        if (!empty($filters['type'])) {
-            $this->model=$this->model->whereIn('type',$filters['type']);
+        if (!empty($filters['types'])) {
+            $this->model=$this->model->whereIn('type',array_values($filters['types']));
         }
         if (!empty($filters['status'])) {
             $this->model=$this->model->whereIn('status_id',$filters['status']);

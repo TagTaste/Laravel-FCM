@@ -159,9 +159,11 @@ class ChatController extends Controller
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = \DB::table('chats')->select('chats.id')
+        $this->model = [];
+        $this->model['rooms'] = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->get();
+        $this->model['profileId'] = $profileId;
         return $this->sendResponse();
 	}
  
