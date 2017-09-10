@@ -271,6 +271,9 @@ class RegisterFromGoogle extends Command
     private function getResponse($url, $method = 'post', $data)
     {
         $client = new Client();
+        if(!isset($data['headers']['Authorization'])){
+            $data['headers']['Authorization'] = 'Bearer ' . $this->token;
+        }
         $response = $client->request($method,$url,$data);
         if($response->getStatusCode() != 200){
             \Log::error("Could not complete $method request for $url");
