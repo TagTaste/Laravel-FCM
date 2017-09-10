@@ -50,6 +50,7 @@ class RegisterFromGoogle extends Command
     
     public function googleregister()
     {
+        \Cache::forget("values");
         $values = \Cache::remember('values',120,function(){
             $sheetId = $this->argument('file');
             \Sheets::setService(\Google::make('sheets'));
@@ -83,6 +84,7 @@ class RegisterFromGoogle extends Command
                 $this->updateProfile();
             } catch (\Exception $e){
                 \Log::error($e->getMessage());
+                $this->error($e->getMessage());
                 $this->error("Could not create profile for " . $this->value[3]);
             }
             
