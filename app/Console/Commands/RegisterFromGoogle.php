@@ -106,6 +106,7 @@ class RegisterFromGoogle extends Command
             ]
         ];
         $data = $this->getResponse(url('/api/user/register'),'post',['form_params'=>$data]);
+        $this->info($data);
         $data = json_decode($data);
         return $data->status == 'success';
     }
