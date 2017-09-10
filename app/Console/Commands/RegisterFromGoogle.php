@@ -115,8 +115,8 @@ class RegisterFromGoogle extends Command
         $data = ['email'=>$this->email,'password'=>$this->password];
         $response = $this->getResponse(url('/api/login'),'post',['form_params'=>$data]);
         $this->info($response);
-        $this->token = $response->token;
         $response = json_decode($response);
+        $this->token = $response->token;
     }
     
     private function getProfileId(){
