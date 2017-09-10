@@ -21,7 +21,10 @@ class PhotoController extends Controller
 
     public function index(Request $request, $profileId)
     {
-        $photos = Photo::forProfile($profileId)->orderBy('created_at','desc')->orderBy('updated_at','desc')->paginate(10);
+        $photos = Photo::forProfile($profileId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $photos = $photos->skip($skip)->take($take)->get();
 
         $this->model = [];
         $loggedInProfileId = $request->user()->profile->id;
