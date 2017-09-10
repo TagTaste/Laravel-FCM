@@ -19,7 +19,7 @@ class RegisterFromGoogle extends Command
      *
      * @var string
      */
-    protected $signature = 'register:google {file}';
+    protected $signature = 'register:google {file} {skip}';
 
     /**
      * The console command description.
@@ -58,8 +58,11 @@ class RegisterFromGoogle extends Command
         });
         $values->pull(0);
         $bar = $this->output->createProgressBar(count($values));
-        
+        $skip = (int) $this->argument('skip');
         foreach($values as $value){
+            if((int) $value[0] < $skip){
+                continue;
+            }
             if(empty($value[4])){
                 continue;
             }
