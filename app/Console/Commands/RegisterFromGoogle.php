@@ -80,8 +80,12 @@ class RegisterFromGoogle extends Command
             try {
                 $this->login(); //get token
                 $this->getProfileId();
-                $this->uploadPhoto();
-                $this->updateProfile();
+                //$this->uploadPhoto();
+                //$this->updateProfile();
+                $this->updateExperience();
+                $this->updateEducation();
+                $this->updateBooks();
+                $this->updateTV();
             } catch (\Exception $e){
                 \Log::error($e->getMessage());
                 $this->error($e->getMessage());
@@ -92,6 +96,90 @@ class RegisterFromGoogle extends Command
             $bar->advance();
         }
         $bar->finish();
+    }
+    
+    private function setTV($array)
+    {
+        $url = "/api/profiles/" . $this->profileId . "/shows";
+        $data = [
+            'title' => $array[0],
+            'channel' => $array[1],
+            'appeared_as' => $array[2],
+            'url'=>$array[3],
+            'start_date' => $array[4],
+            'end_date' => $array[5],
+            'description' => $array[6]
+        ];
+        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $this->info($response);
+    }
+    
+    private function updateTV()
+    {
+        $this->setTV([89,90,91,92,93,94,95]);
+    }
+    private function setBook($array)
+    {
+        $url = "/api/profiles/" . $this->profileId . "/books";
+        $data = [
+            'title' => $array[0],
+            'publisher' => $array[1],
+            'isbn' => $array[2],
+            'url'=>$array[3],
+            'release_date' => $array[4],
+            'description' => $array[5]
+        ];
+        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $this->info($response);
+    }
+    
+    private function updateBooks()
+    {
+        $this->setBook([77,78,79,80,81,82]);
+        $this->setBook([83,84,85,86,87,88]);
+    }
+    
+    private function setEducation($array)
+    {
+        $url = "/api/profiles/" . $this->profileId . "/education";
+        $data = [
+            'degree' => $array[0],
+            'college' => $array[1],
+            'location' => $array[2] . ", " . $array[3] . ", " . $array[4],
+            'fields'=>$array[5],
+            'start_date' => $array[6],
+            'end_date'=> strtolower($array[7]) == 'present' ? null : $array[7],
+            'description' => $array[8]
+        ];
+        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $this->info($response);
+    }
+    
+    private function updateEducation()
+    {
+        $this->setEducation([51,52,53,54,55,56,57,58,59]);
+        $this->setEducation([60,61,62,63,64,65,66,67,68]);
+    }
+    
+    private function setExperience($exp)
+    {
+        $url = "/api/profiles/" . $this->profileId . "/experiences";
+        $data = [
+            'company' => $exp[0],
+            'designation' => $exp[1],
+            'location' => $exp[2] . ", " . $exp[3] . ", " . $exp[4],
+            'start_date' => $exp[5],
+            'end_date'=> strtolower($exp[6]) == 'present' ? null : $exp[6],
+            'description' => $exp[7]
+        ];
+        $response = $this->getResponse($url,'post',['form_params'=>$data]);
+        $this->info($response);
+    }
+    private function updateExperience()
+    {
+        $this->setExperience([27,28,29,30,31,32,33,34]);
+        $this->setExperience([35,36,37,38,39,40,41,42]);
+        $this->setExperience([43,44,45,46,47,48,49,50]);
     }
     
     private function registerUser(){
