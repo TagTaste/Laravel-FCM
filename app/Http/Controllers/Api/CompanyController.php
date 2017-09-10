@@ -83,7 +83,12 @@ class CompanyController extends Controller {
             ->groupBy('city')->where('city','!=','null')->get();
         $filters['types'] = \App\Company\Type::select('id as key','name as value')->get();
         $filters['status'] = \App\Company\Status::select('id as key','name as value')->get();
-
+//        $keywords = \App\Filter\Company::select('speciality')->whereNotNull('speciality')->take(10)->get();
+//        $filters['speciality'] = [];
+//        foreach($keywords as $keyword){
+//            $filters['speciality'] = array_merge($filters['speciality'],explode(",",$keyword->speciality));
+//        }
+//        \Log::info($filters['speciality']);
         $this->model = $filters;
         return $this->sendResponse();
     }
