@@ -71,6 +71,9 @@ class RegisterCompanyFromGoogle extends Command
         $this->login();
         
         foreach($values as $value){
+            if(empty($value[5])){
+                continue;
+            }
             $this->value = $value;
             try {
                 $status = $this->createCompany();
