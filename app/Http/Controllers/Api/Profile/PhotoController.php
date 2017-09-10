@@ -154,7 +154,7 @@ class PhotoController extends Controller
         event(new DeleteFeedable($this->model));
         $this->model = $this->model->delete();
         //remove from recent photos
-        \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id);
+        \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
         return $this->sendResponse();
     }
 

@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Company\Status;
 use App\Company\Type;
 use GuzzleHttp\Client;
-
 use Illuminate\Console\Command;
 
 class RegisterCompanyFromGoogle extends Command
@@ -25,7 +24,7 @@ class RegisterCompanyFromGoogle extends Command
      *
      * @var string
      */
-    protected $signature = 'register:company:google';
+    protected $signature = 'register:company:google {file} {skip}';
 
     /**
      * The console command description.
@@ -59,10 +58,10 @@ class RegisterCompanyFromGoogle extends Command
         $this->types = $this->fetchTypes();
         $this->statuses = $this->fetchStatuses();
         \Cache::forget("company_values");
-        $values = \Cache::remember('company_values',120,function(){
-            $sheetId = '1pMKXKtJ2lnGkGMb08OP6L1RSDP9cO0zGSlMz0YOBSGs';
+        $file = $this->argument('file');
+        $values = \Cache::remember('company_values',120,function() use ($file){
             \Sheets::setService(\Google::make('sheets'));
-            \Sheets::spreadsheet($sheetId);
+            \Sheets::spreadsheet($file);
             return \Sheets::sheet('Sheet1')->get();
         });
         $values->pull(0);
@@ -71,6 +70,9 @@ class RegisterCompanyFromGoogle extends Command
         $this->login();
         
         foreach($values as $value){
+            if($value[0] < $this->argument("skip")){
+                continue;
+            }
             if(empty($value[5])){
                 continue;
             }
@@ -207,7 +209,6 @@ class RegisterCompanyFromGoogle extends Command
         'Authorization' => 'Bearer ' . $this->token
          ];
         foreach($map as $name => $index){
-            $this->info("member $name: " . $index);
     
             if(empty($this->value[$index])){
                 continue;
