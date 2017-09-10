@@ -60,6 +60,9 @@ class RegisterFromGoogle extends Command
         $bar = $this->output->createProgressBar(count($values));
         
         foreach($values as $value){
+            if(empty($value[4])){
+                continue;
+            }
             $this->value = $value;
             $status = $this->registerUser();
             if(!$status){
