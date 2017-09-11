@@ -129,21 +129,21 @@ class RegisterCompanyFromGoogle extends Command
                 $data = [
                     'multipart' => [
                         [ 'name'=> 'logo',
-                            'contents' => fopen($this->value[5],'rb')],
+                            'contents' => fopen($this->value[5],'r')],
                     ]];
             } else {
                 $this->info("no image for " . $this->companyId);
             }
-            if(!empty($this->value[44])){
-                $data = [
-                    'multipart' => [
-                        [ 'name'=> 'hero_image',
-                            'contents' => fopen($this->value[44],'rb')],
-                    ]];
-            } else {
-                $this->info("no banner image for " . $this->companyId);
-    
-            }
+//            if(!empty($this->value[44])){
+//                $data = [
+//                    'multipart' => [
+//                        [ 'name'=> 'hero_image',
+//                            'contents' => fopen($this->value[44],'r')],
+//                    ]];
+//            } else {
+//                $this->info("no banner image for " . $this->companyId);
+//
+//            }
             
             if(empty($data)){
                 return;
