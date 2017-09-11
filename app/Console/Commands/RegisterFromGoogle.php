@@ -88,6 +88,7 @@ class RegisterFromGoogle extends Command
                 $this->updateBooks();
                 $this->updateTV();
                 $this->info("finished " . $this->value[5]);
+                usleep(500000);
             } catch (\Exception $e){
                 $errCount++;
                 \Log::error($e->getMessage());
