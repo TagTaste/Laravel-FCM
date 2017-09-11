@@ -35,7 +35,7 @@ class JobController extends Controller
     public function index(Request $request, $profileId)
     {
         $this->model = [];
-        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at')->with('applications');
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at')->withCount('applications');
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -134,9 +134,6 @@ class JobController extends Controller
             if (!$response) {
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }
-//            $data=Profile::where('id',$applierProfileId)->update(['resume'=>$resumeName]);
-        } else {
-            $resumeName = $request->user()->profile->resume;
         }
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
 
