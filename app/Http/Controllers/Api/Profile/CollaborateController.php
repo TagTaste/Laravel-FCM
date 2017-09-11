@@ -225,4 +225,20 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function interested(Request $request, $profileId)
+    {
+        $profileId = $request->user()->profile->id;
+        $collaborateIds = \DB::table("collaborators")->select('collaborate_id')->where("profile_id",$profileId)->whereNull('company_id')->get();
+        $ids = $collaborateIds->pluck('collaborate_id');
+
+        $collaborates = Collaborate::whereIn('id',$ids);
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $collaborates->skip($skip)->take($take)->get();
+        return $this->sendResponse();
+
+    }
+
 }

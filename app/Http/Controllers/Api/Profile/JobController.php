@@ -225,7 +225,7 @@ class JobController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $jobs->skip($skip)->take($take)->get();
+        $this->model = $jobs->skip($skip)->take($take)->get()->makeHidden(['applications']);
 
         return $this->sendResponse();
     }
