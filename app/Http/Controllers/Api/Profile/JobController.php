@@ -118,6 +118,11 @@ class JobController extends Controller
         if(!$profile){
             throw new \Exception("Invalid profile.");
         }
+
+        if($profileId==$applierProfileId)
+        {
+            $this->sendError("You can't apply your own job");
+        }
         
         $job = $profile->jobs()->where('id',$id)->first();
         
