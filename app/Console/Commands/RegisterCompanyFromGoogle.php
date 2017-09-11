@@ -149,7 +149,7 @@ class RegisterCompanyFromGoogle extends Command
         }
     
     
-        $response = $this->getResponse(url('/api/profiles/227/companies'),'post',$data);
+        $response = $this->getResponse(url('/api/profiles/227/companies/' . $this->companyId),'post',$data);
         $response = json_decode($response);
     }
     
