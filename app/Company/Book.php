@@ -5,6 +5,7 @@ namespace App\Company;
 use App\Scopes\Profile;
 use Illuminate\Database\Eloquent\Model;
 use \App\Book as BaseBook;
+use Illuminate\Database\Eloquent\Builder;
 
 class Book extends BaseBook
 {
@@ -13,6 +14,15 @@ class Book extends BaseBook
     protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
 
     protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        // Order by name ASC
+        static::addGlobalScope('company_books', function (Builder $builder) {
+            $builder->orderBy('release_date', 'desc');
+        });
+    }
 
     public function setReleaseDateAttribute($value)
     {
