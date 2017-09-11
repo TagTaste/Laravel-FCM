@@ -108,6 +108,9 @@ class RegisterFromGoogle extends Command
     private function setTV($array)
     {
         $url = "/api/profiles/" . $this->profileId . "/shows";
+        if(is_null($this->getValue($array[0]))){
+            return;
+        }
         $data = [
             'title' => $this->getValue($array[0]),
             'channel' => $this->getValue($array[1]),
@@ -128,6 +131,9 @@ class RegisterFromGoogle extends Command
     private function setBook($array)
     {
         $url = "/api/profiles/" . $this->profileId . "/books";
+        if(is_null($this->getValue($array[0]))){
+            return;
+        }
         $data = [
             'title' => $this->getValue($array[0]),
             'publisher' => $this->getValue($array[1]),
@@ -149,6 +155,9 @@ class RegisterFromGoogle extends Command
     private function setEducation($array)
     {
         $url = "/api/profiles/" . $this->profileId . "/education";
+        if(is_null($this->getValue($array[0]))){
+            return;
+        }
         $data = [
             'degree' => $this->getValue($array[0]),
             'college' => $this->getValue($array[1]),
@@ -171,6 +180,9 @@ class RegisterFromGoogle extends Command
     private function setExperience($array)
     {
         $url = "/api/profiles/" . $this->profileId . "/experiences";
+        if(is_null($this->getValue($array[0]))){
+            return;
+        }
         $data = [
             'company' => $this->getValue($array[0]),
             'designation' => $this->getValue($array[1]),
