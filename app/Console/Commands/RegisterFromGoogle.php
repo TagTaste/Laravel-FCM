@@ -109,13 +109,13 @@ class RegisterFromGoogle extends Command
     {
         $url = "/api/profiles/" . $this->profileId . "/shows";
         $data = [
-            'title' => $array[0],
-            'channel' => $array[1],
-            'appeared_as' => $array[2],
-            'url'=>$array[3],
-            'start_date' => $array[4],
-            'end_date' => $array[5],
-            'description' => $array[6]
+            'title' => $this->getValue($array[0]),
+            'channel' => $this->getValue($array[1]),
+            'appeared_as' => $this->getValue($array[2]),
+            'url'=>$this->getValue($array[3]),
+            'start_date' => $this->getValue($array[4]),
+            'end_date' => $this->getValue($array[5]),
+            'description' => $this->getValue($array[6]),
         ];
         $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
@@ -129,12 +129,12 @@ class RegisterFromGoogle extends Command
     {
         $url = "/api/profiles/" . $this->profileId . "/books";
         $data = [
-            'title' => $array[0],
-            'publisher' => $array[1],
-            'isbn' => $array[2],
-            'url'=>$array[3],
-            'release_date' => $array[4],
-            'description' => $array[5]
+            'title' => $this->getValue($array[0]),
+            'publisher' => $this->getValue($array[1]),
+            'isbn' => $this->getValue($array[2]),
+            'url'=>$this->getValue($array[3]),
+            'release_date' => $this->getValue($array[4]),
+            'description' => $this->getValue($array[5]),
         ];
         $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
@@ -150,13 +150,13 @@ class RegisterFromGoogle extends Command
     {
         $url = "/api/profiles/" . $this->profileId . "/education";
         $data = [
-            'degree' => $array[0],
-            'college' => $array[1],
-            'location' => $array[2] . ", " . $array[3] . ", " . $array[4],
-            'fields'=>$array[5],
-            'start_date' => $array[6],
-            'end_date'=> strtolower($array[7]) == 'present' ? null : $array[7],
-            'description' => $array[8]
+            'degree' => $this->getValue($array[0]),
+            'college' => $this->getValue($array[1]),
+            'location' => $this->getValue($array[2]) . ", " . $this->getValue($array[3]) . ", " . $this->getValue($array[4]),
+            'fields'=>$this->getValue($array[5]),
+            'start_date' => $this->getValue($array[6]),
+            'end_date'=> strtolower($this->getValue($array[7])) == 'present' ? null : $this->getValue($array[7]),
+            'description' => $this->getValue($array[8])
         ];
         $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
@@ -168,16 +168,16 @@ class RegisterFromGoogle extends Command
         $this->setEducation([60,61,62,63,64,65,66,67,68]);
     }
     
-    private function setExperience($exp)
+    private function setExperience($array)
     {
         $url = "/api/profiles/" . $this->profileId . "/experiences";
         $data = [
-            'company' => $exp[0],
-            'designation' => $exp[1],
-            'location' => $exp[2] . ", " . $exp[3] . ", " . $exp[4],
-            'start_date' => $exp[5],
-            'end_date'=> strtolower($exp[6]) == 'present' ? null : $exp[6],
-            'description' => $exp[7]
+            'company' => $this->getValue($array[0]),
+            'designation' => $this->getValue($array[1]),
+            'location' => $this->getValue($array[2]) . ", " . $this->getValue($array[3]) . ", " . $this->getValue($array[4]),
+            'start_date' => $this->getValue($array[5]),
+            'end_date'=> strtolower($this->getValue($array[6])) == 'present' ? null : $this->getValue($array[6]),
+            'description' => $this->getValue($array[7])
         ];
         $response = $this->getResponse(url($url),'post',['form_params'=>$data]);
         $this->info($response);
