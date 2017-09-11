@@ -60,7 +60,6 @@ class RegisterFromGoogle extends Command
         $values->pull(0);
         $bar = $this->output->createProgressBar(count($values));
         $skip = $this->argument('skip');
-        $errCount = 0;
         foreach($values as $value){
             if($value[0] <= $skip){
                 $this->error("skipping " . $value[0]);
@@ -90,13 +89,9 @@ class RegisterFromGoogle extends Command
     
                 $this->info("finished " . $this->value[5]);
             } catch (\Exception $e){
-                $errCount++;
                 \Log::error($e->getMessage());
                 $this->error($e->getMessage());
                 $this->error("Could not create profile for " . $this->value[3]);
-                if($errCount > 10){
-                    exit();
-                }
             }
             
             
