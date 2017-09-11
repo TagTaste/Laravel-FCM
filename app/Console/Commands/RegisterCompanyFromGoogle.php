@@ -73,16 +73,22 @@ class RegisterCompanyFromGoogle extends Command
             if($value[0] < $this->argument("skip")){
                 continue;
             }
-            if(empty($value[5])){
+            if(empty($value[2]) || empty($value[5])){
                 continue;
             }
             $this->value = $value;
             try {
+                
+                /*
                 $status = $this->createCompany();
                 if(!$status){
                     continue;
                 }
                 $this->addMember();
+                */
+                $this->login();
+                $this->companyId = $this->value[2];
+                $this->updateLogo();
             } catch (\Exception $e){
                 $this->error($e->getMessage());
             }
@@ -110,6 +116,39 @@ class RegisterCompanyFromGoogle extends Command
         return \Cache::remember("company_types",120,function(){
           return   Type::select("id",'name')->get()->keyBy('name');
         });
+    }
+    
+    private function updateLogo()
+    {
+        $data = [];
+        
+        try {
+            if(!empty($this->value[5])){
+                $data = [
+                    'multipart' => [
+                        [ 'name'=> 'logo',
+                            'contents' => fopen($this->value[5],'rb')],
+                    ]];
+            }
+            if(!empty($this->value[44])){
+                $data = [
+                    'multipart' => [
+                        [ 'name'=> 'hero_image',
+                            'contents' => fopen($this->value[44],'rb')],
+                    ]];
+            }
+            
+            if(empty($data)){
+                return;
+            }
+        
+        } catch (\Exception $e){
+            $this->error($e->getMessage());
+        }
+    
+    
+        $response = $this->getResponse(url('/api/profiles/227/companies'),'post',$data);
+        $response = json_decode($response);
     }
     
     private function createCompany()
@@ -153,7 +192,7 @@ class RegisterCompanyFromGoogle extends Command
     
             
         } catch (\Exception $e){
-            \Log::warning($e->getMessage());
+            $this->error($e->getMessage());
         }
         
         
@@ -253,7 +292,13 @@ class RegisterCompanyFromGoogle extends Command
     
     private function getResponse($url, $method = 'post', $data)
     {
+        usleep(100000);
+    
         $client = new Client();
+    
+        $data['headers'] =  [
+            'Authorization' => 'Bearer ' . $this->token
+        ];
         $response = $client->request($method,$url,$data);
         if($response->getStatusCode() != 200){
             \Log::error("Could not complete $method request for $url");
