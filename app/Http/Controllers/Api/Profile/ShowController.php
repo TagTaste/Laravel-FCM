@@ -39,7 +39,8 @@ class ShowController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->tvshows()->create($request->all());
+        $input = $request->except(['_method','_token']);
+        $this->model = $request->user()->profile->tvshows()->create($input);
         return $this->sendResponse();
     }
 
@@ -81,7 +82,7 @@ class ShowController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->all();
+        $input = $request->except(['_method','_token']);
         if(isset($input['date'])){
             $input['date'] = "01-".$input['date'];
             $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim($input['date'])));
