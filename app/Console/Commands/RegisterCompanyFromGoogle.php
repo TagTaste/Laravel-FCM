@@ -131,6 +131,8 @@ class RegisterCompanyFromGoogle extends Command
                         [ 'name'=> 'logo',
                             'contents' => fopen($this->value[5],'rb')],
                     ]];
+            } else {
+                $this->info("no image for " . $this->companyId);
             }
             if(!empty($this->value[44])){
                 $data = [
@@ -138,6 +140,9 @@ class RegisterCompanyFromGoogle extends Command
                         [ 'name'=> 'hero_image',
                             'contents' => fopen($this->value[44],'rb')],
                     ]];
+            } else {
+                $this->info("no banner image for " . $this->companyId);
+    
             }
             
             if(empty($data)){
@@ -151,6 +156,7 @@ class RegisterCompanyFromGoogle extends Command
     
     
         $response = $this->getResponse(url('/api/profiles/227/companies/' . $this->companyId),'post',$data);
+        $this->info($response);
         $response = json_decode($response);
     }
     
