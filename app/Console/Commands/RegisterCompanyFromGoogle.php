@@ -19,6 +19,8 @@ class RegisterCompanyFromGoogle extends Command
     
     private $companyId;
     
+    private $token = null;
+    
     /**
      * The name and signature of the console command.
      *
