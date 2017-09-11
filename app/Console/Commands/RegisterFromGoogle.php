@@ -87,8 +87,8 @@ class RegisterFromGoogle extends Command
                 $this->updateEducation();
                 $this->updateBooks();
                 $this->updateTV();
+    
                 $this->info("finished " . $this->value[5]);
-                usleep(500000);
             } catch (\Exception $e){
                 $errCount++;
                 \Log::error($e->getMessage());
@@ -289,6 +289,8 @@ class RegisterFromGoogle extends Command
     }
     private function getResponse($url, $method = 'post', $data)
     {
+        usleep(100000);
+    
         $client = new Client();
         if(!isset($data['headers']['Authorization'])){
             $data['headers']['Authorization'] = 'Bearer ' . $this->token;
