@@ -90,8 +90,14 @@ class Job extends Model implements Feedable
     
     public function apply($profileId,$resume = null,$message = null)
     {
-        return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId,
-            'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0,'message'=>$message]);
+        try{
+            return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId,
+                'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0,'message'=>$message]);
+        }
+        catch (\Illuminate\Database\QueryException $e)
+        {
+            return false;
+        }
     }
     
     public function unapply($profileId)

@@ -36,7 +36,7 @@ class JobController extends Controller
     {
         $profileId = $request->user()->id;
         $this->model = [];
-        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at')->withCount('applications');
+        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at');
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();
@@ -151,7 +151,7 @@ class JobController extends Controller
             }
         }
         $this->model = $job->apply($profileId, $response,$request->input("message"));
-    
+
         return $this->sendResponse();
     }
     
