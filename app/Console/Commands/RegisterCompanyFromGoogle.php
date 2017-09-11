@@ -143,6 +143,7 @@ class RegisterCompanyFromGoogle extends Command
             if(empty($data)){
                 return;
             }
+            $data['multipart'][] = ['name'=>'_method','contents'=>'patch'];
         
         } catch (\Exception $e){
             $this->error($e->getMessage());
