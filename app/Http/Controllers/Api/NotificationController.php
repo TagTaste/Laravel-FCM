@@ -31,6 +31,8 @@ class NotificationController extends Controller
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->notifications()->where('id',$id)->first();
+        $this->model->where("data->model->name",$this->model->data['model']['name'])
+            ->where("data->model->id",$this->model->data['model']['id'])->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
 
@@ -77,6 +79,15 @@ class NotificationController extends Controller
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->unreadNotifications;
+        return $this->sendResponse();
+    }
+
+    public function markAllAsRead(Request $request)
+    {
+        $userId = $request->user()->id;
+        $profile = \App\Notify\Profile::where('user_id',$userId)->first();
+        $this->model =  $profile->notifications()->where('notifiable_id',$id)
+            ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
     

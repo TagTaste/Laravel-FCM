@@ -153,6 +153,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //notifications
                 Route::get('notifications/unread','NotificationController@unread');
                 Route::post("notifications/read/{id}",'NotificationController@read');
+                Route::post("notifications/markAllAsRead","NotificationController@markAllAsRead");
                 Route::resource("notifications",'NotificationController');
 
             //designations
