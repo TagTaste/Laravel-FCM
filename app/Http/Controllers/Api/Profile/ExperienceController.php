@@ -11,9 +11,6 @@ class ExperienceController extends Controller
 {
     use SendsJsonResponse;
 
-    private $fields = ['company','designation','description','location',
-        'start_date','end_date','current_company'];
-
     /**
      * Display a listing of the resource.
      *
@@ -43,14 +40,8 @@ class ExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        $experiences = $request->all();
-        if(empty($experiences)){
-          return;
-            //throw new \Exception("Received empty experiences.");
-        }
-        
-        $fields = array_only($experiences,$this->fields);
-        $this->model = $request->user()->profile->experience()->create($fields);
+        $input = $request->except(['_method','_token']);
+        $this->model = $request->user()->profile->experience()->create($input);
         
         return $this->sendResponse();
 
@@ -94,7 +85,7 @@ class ExperienceController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->intersect($this->fields);
+        $input = $request->except(['_method','_token']);
         if(isset($input['start_date'])){
             $input['start_date'] = "01-".$input['start_date'];
             $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
