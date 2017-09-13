@@ -51,14 +51,7 @@ class CompanyController extends Controller
         }
         catch (\Illuminate\Database\QueryException $e)
         {
-            $company = Company::where("email",$inputs['email'])->orWhere('name',$inputs['name'])->first();
-            if(!$company)
-            {
-                \Log::warning($e->getMessage());
-                return $this->sendError("Duplicate company.");
-            }
-
-            return $this->sendError($company->name . " already exists with email " . $company->email);
+            return $this->sendError($inputs['name'] . " already exists with email " . $inputs['email']);
         }
 
         if($request->hasFile('logo')){
