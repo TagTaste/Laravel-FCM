@@ -12,6 +12,7 @@ class Product extends BaseProduct
     {
         return self::where('type','like',$this->type)
             ->orWhere('mode','like',$this->mode)
+            ->whereNull('deleted_at')
             ->skip($skip)
             ->take($take)
             ->get();
