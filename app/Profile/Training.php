@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Training extends Model
 {
-    protected $table = 'training_undertaken';
+    protected $table = 'trainings';
     protected $fillable = ['title','trained_from','completed_on','profile_id'];
 
     protected $visible = ['id','title','trained_from','completed_on','profile_id'];

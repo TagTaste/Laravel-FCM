@@ -13,7 +13,7 @@ class CreateTrainingUndertaken extends Migration
      */
     public function up()
     {
-        Schema::create('training_undertaken', function(Blueprint $table) {
+        Schema::create('trainings', function(Blueprint $table) {
             $table->increments('id');
             $table->string('title');
             $table->text('trained_from')->nullable();
@@ -32,6 +32,6 @@ class CreateTrainingUndertaken extends Migration
      */
     public function down()
     {
-        Schema::drop('training_undertaken');
+        Schema::drop('trainings');
     }
 }
