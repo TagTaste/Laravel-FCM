@@ -20,7 +20,7 @@ class Education extends Model
     {
         parent::boot();
         // Order by name ASC
-        static::addGlobalScope('experience', function (Builder $builder) {
+        static::addGlobalScope('education', function (Builder $builder) {
             $builder->orderBy('start_date', 'desc');
         });
     }

@@ -22,7 +22,7 @@ class Experience extends Model
     {
         parent::boot();
         // Order by name ASC
-        static::addGlobalScope('experience', function (Builder $builder) {
+        static::addGlobalScope('experiences', function (Builder $builder) {
             $builder->orderBy('start_date', 'desc');
         });
     }
