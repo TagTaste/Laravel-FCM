@@ -36,10 +36,7 @@ class JobController extends Controller
     {
         $profileId = $request->user()->id;
         $this->model = [];
-        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at')
-            ->with(['applications' => function ($query) use ($profileId) {
-                $query->where('applications.profile_id', $profileId);
-            }]);
+        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at');
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();

@@ -35,10 +35,7 @@ class JobController extends Controller
     public function index(Request $request, $profileId)
     {
         $this->model = [];
-        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at')
-            ->with(['applications' => function ($query) use ($profileId) {
-                $query->where('applications.profile_id', $profileId);
-            }]);
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at');
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -225,7 +222,7 @@ class JobController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $jobs->skip($skip)->take($take)->get()->makeHidden(['applications']);
+        $this->model = $jobs->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
