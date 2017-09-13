@@ -118,7 +118,7 @@ class JobController extends Controller
             $this->sendError("You can't apply your own job");
         }
         
-        $job = Job::where('id',$id)->first();
+        $job = Job::where('id',$id)->where('profile_id',$profileId)->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
