@@ -8,8 +8,14 @@ class CompanyRating extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['company_id','profile_id','rating'];
+    protected $fillable = ['company_id','profile_id','rating','review'];
 
-    protected $visible = ['rating','profile_id'];
+    protected $visible = ['rating','profile','review'];
 
+    protected $with = ['profile'];
+
+    public function profile()
+    {
+        return $this->belongsTo('App\Recipe\Profile');
+    }
 }
