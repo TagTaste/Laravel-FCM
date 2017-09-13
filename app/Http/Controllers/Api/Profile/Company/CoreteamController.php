@@ -45,16 +45,19 @@ class CoreteamController extends Controller
         if(!$company){
             throw new \Exception("User does not belong to this company.");
         }
-        $profileId = Coreteam::where("company_id",$companyId)->where("profile_id",$request->has("profile_id"))->exists();
-        if($profileId)
+        if($request->has("profile_id"))
         {
-            return $this->sendError("This is already exist in your coreteam of company");
+            $profileId = Coreteam::where("company_id",$companyId)->where("profile_id",$request->input("profile_id"))->exists();
+            if($profileId)
+            {
+                return $this->sendError("You have already added ashok manda as a core team member in your company");
+            }
         }
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
         if($request->hasFile('image')) {
             $imageName = str_random(32) . ".jpg";
-            $path = Coreteam::getCoreteamImagePath($profileId, $companyId);
+            $path = Coreteam::getCoreteamImagePath($companyId);
             $response = $request->file("image")->storeAs($path, $imageName, ['visibility' => 'public']);
             if (!$response) {
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);

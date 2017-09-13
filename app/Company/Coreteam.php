@@ -22,7 +22,7 @@ class Coreteam extends Model
     protected $appends = ['imageUrl','is_following'];
 
 
-    public static function getCoreteamImagePath($profileId,$companyId, $filename = null)
+    public static function getCoreteamImagePath($companyId, $filename = null)
     {
         $relativePath = "images/ph/$companyId/c/coreteam";
         $status = \Storage::makeDirectory($relativePath,0644,true);
