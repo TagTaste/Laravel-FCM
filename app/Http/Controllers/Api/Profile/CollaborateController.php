@@ -229,14 +229,9 @@ class CollaborateController extends Controller
     public function interested(Request $request, $profileId)
     {
         $profileId = $request->user()->profile->id;
-        $collaborateIds = \DB::table("collaborators")->select('collaborate_id')->where("profile_id",$profileId)->whereNull('company_id')->get();
-        $ids = $collaborateIds->pluck('collaborate_id');
-
-        $collaborates = Collaborate::whereIn('id',$ids);
-
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $collaborates->skip($skip)->take($take)->get();
+        $this->model = \DB::table("collaborators")->select('collaborate_id','collaborates.*')
+            ->join('collaborates','collaborators.collaborate_id','=','collaborates.id')
+            ->where("collaborators.profile_id",$profileId)->whereNull('collaborators.company_id')->get();
         return $this->sendResponse();
 
     }
