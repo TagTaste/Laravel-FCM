@@ -50,7 +50,7 @@ class CoreteamController extends Controller
             $profileId = Coreteam::where("company_id",$companyId)->where("profile_id",$request->input("profile_id"))->exists();
             if($profileId)
             {
-                return $this->sendError("You have already added ashok manda as a core team member in your company");
+                return $this->sendError("You have already added this user as a core team member in your company");
             }
         }
         $data = $request->except(['_method','_token','company_id']);
