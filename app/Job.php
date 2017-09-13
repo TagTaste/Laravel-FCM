@@ -25,7 +25,7 @@ class Job extends Model implements Feedable
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required'
     ];
     
-    protected $with = ['company','profile', 'applications'];
+    protected $with = ['company','profile'];
     
     protected $appends = ['type','job_id'];
     
