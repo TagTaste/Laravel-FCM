@@ -6,6 +6,7 @@ use App\Scopes\Profile as ScopeProfile;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PositionInCollection;
 use App\Traits\StartEndDate;
+use Illuminate\Database\Eloquent\Builder;
 
 class Book extends Model
 {
@@ -18,6 +19,15 @@ class Book extends Model
     protected $visible = ['id','title','description','publisher','release_date','url','isbn','total'];
     
     protected $appends = ['total'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        // Order by name ASC
+        static::addGlobalScope('profile_books', function (Builder $builder) {
+            $builder->orderBy('release_date', 'desc');
+        });
+    }
 
     public function setReleaseDateAttribute($value)
     {
