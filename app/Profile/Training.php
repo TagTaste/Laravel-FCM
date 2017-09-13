@@ -4,12 +4,12 @@ namespace App\Profile;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TrainingUndertaken extends Model
+class Training extends Model
 {
     protected $table = 'training_undertaken';
-    protected $fillable = ['title','traind_from','completed_on','profile_id'];
+    protected $fillable = ['title','trained_from','completed_on','profile_id'];
 
-    protected $visible = ['id','title','traind_from','completed_on','profile_id'];
+    protected $visible = ['id','title','trained_from','completed_on','profile_id'];
 
     public function profile()
     {

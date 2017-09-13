@@ -267,7 +267,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("certifications","CertificationController");
                 Route::resource("professional","ProfessionalController");
                 Route::resource("affiliations","AffiliationController");
-                Route::resource("trainings","TrainingUndertakenController");
+                Route::resource("trainings","TrainingController");
 
 
             });

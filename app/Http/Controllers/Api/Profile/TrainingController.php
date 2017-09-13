@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
-use App\Profile\TrainingUndertaken;
+use App\Profile\Training;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
-class TrainingUndertakenController extends Controller
+class TrainingController extends Controller
 {
     use SendsJsonResponse;
 
-    private $fields = ['title','traind_from','completed_on'];
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +18,7 @@ class TrainingUndertakenController extends Controller
      */
     public function index($profileId)
     {
-        $this->model = TrainingUndertaken::where('profile_id',$profileId)->get();
+        $this->model = Training::where('profile_id',$profileId)->get();
         return $this->sendResponse();
     }
 
@@ -41,9 +40,9 @@ class TrainingUndertakenController extends Controller
      */
     public function store(Request $request)
     {
-        $input = $request->only($this->fields);
+        $input = $request->except(['_method','_token']);
         $input['profile_id'] =$request->user()->profile->id;
-        $this->model = $request->user()->profile->trainingUndertaken()->create($input);
+        $this->model = Training::create($input);
         return $this->sendResponse();
     }
 
@@ -55,10 +54,10 @@ class TrainingUndertakenController extends Controller
      */
     public function show($profileId, $id)
     {
-        $this->model = TrainingUndertaken::where('profile_id',$profileId)->where('id',$id)->first();
+        $this->model = Training::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){
-            throw new \Exception("Project not found.");
+            return $this->sendError("Training not found.");
         }
 
         return $this->sendResponse();
@@ -84,14 +83,12 @@ class TrainingUndertakenController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->only($this->fields);
-        $input = array_filter($input);
+        $input = $request->except(['_method','_token']);
         if(isset($input['completed_on'])){
             $input['completed_on'] = "01-".$input['completed_on'];
             $input['completed_on'] = empty($input['completed_on']) ? null : date("Y-m-d",strtotime(trim($input['completed_on'])));
         }
-        $this->model = $request->user()->profile->trainingUndertaken()
-            ->where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
+        $this->model = Training::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
 
@@ -103,7 +100,7 @@ class TrainingUndertakenController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->trainingUndertaken()->where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
+        $this->model = Training::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }

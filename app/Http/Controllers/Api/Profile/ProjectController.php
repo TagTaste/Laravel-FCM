@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
+use App\Profile;
 use App\Profile\Project;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
@@ -11,7 +12,6 @@ class ProjectController extends Controller
 {
     use SendsJsonResponse;
 
-    private $fields = ['title','description','completed_on','url'];
     /**
      * Display a listing of the resource.
      *
@@ -41,9 +41,9 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $input = $request->only($this->fields);
+        $input = $request->except(['_method','_token']);
         $input['profile_id'] =$request->user()->profile->id;
-        $this->model = $request->user()->profile->projects()->create($input);
+        $this->model = Project::create($input);
         return $this->sendResponse();
     }
 
@@ -84,14 +84,12 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->only($this->fields);
-        $input = array_filter($input);
+        $input = $request->except(['_method','_token']);
         if(isset($input['completed_on'])){
             $input['completed_on'] = "01-".$input['completed_on'];
             $input['completed_on'] = empty($input['completed_on']) ? null : date("Y-m-d",strtotime(trim($input['completed_on'])));
         }
-        $this->model = $request->user()->profile->projects()
-            ->where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
+        $this->model = Project::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
 
@@ -103,7 +101,7 @@ class ProjectController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->projects()->where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
+        $this->model = Project::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }

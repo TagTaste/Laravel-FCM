@@ -64,7 +64,7 @@ class Profile extends Model
         'education',
         'professional',
         'affiliation',
-        'trainingUndertaken'
+        'training'
     ];
 
     protected $visible = [
@@ -117,7 +117,7 @@ class Profile extends Model
         'email_private',
         'address_private',
         'phone_private',
-        'trainingUndertaken',
+        'training',
         'affiliation'
     ];
 
@@ -386,9 +386,9 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Project');
     }
 
-    public function trainingUndertaken()
+    public function training()
     {
-        return $this->hasMany('App\Profile\TrainingUndertaken');
+        return $this->hasMany('App\Profile\Training');
     }
 
     public function affiliation()
