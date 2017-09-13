@@ -303,8 +303,9 @@ Route::post('login',function(Request $request){
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
-
 Route::get('{handle}','Api\HandleController@show');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail'); //with api/
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('admin.password.token');
-Route::post('password/reset', 'Auth\ResetPasswordController@reset');//with api/
+// Password Reset Routes...
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');
