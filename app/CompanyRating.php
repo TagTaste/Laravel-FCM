@@ -8,9 +8,9 @@ class CompanyRating extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['company_id','profile_id','rating','review'];
+    protected $fillable = ['company_id','profile_id','rating','review','title'];
 
-    protected $visible = ['rating','profile','review'];
+    protected $visible = ['rating','profile','review','title'];
 
     protected $with = ['profile'];
 
