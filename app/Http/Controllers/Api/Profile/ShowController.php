@@ -40,7 +40,7 @@ class ShowController extends Controller
     public function store(Request $request)
     {
         $input = $request->except(['_method','_token']);
-        $this->model = $request->user()->profile->tvshows()->create($input);
+        $this->model = Show::create($input);
         return $this->sendResponse();
     }
 
@@ -88,8 +88,7 @@ class ShowController extends Controller
             $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim($input['date'])));
         }
 
-        $this->model = $request->user()->profile->tvshows()
-            ->where('id',$id)->update($input);
+        $this->model = Show::where('id',$id)->update($input);
         return $this->sendResponse();
     }
 
@@ -101,7 +100,7 @@ class ShowController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->tvshows()->where('id',$id)->delete();
+        $this->model = Show::where('id',$id)->delete();
         return $this->sendResponse();
     }
 }
