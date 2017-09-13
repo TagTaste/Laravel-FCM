@@ -41,7 +41,7 @@ class ExperienceController extends Controller
     public function store(Request $request)
     {
         $input = $request->except(['_method','_token']);
-        $this->model = $request->user()->profile->experience()->create($input);
+        $this->model = Experience::create($input);
         
         return $this->sendResponse();
 
@@ -108,7 +108,7 @@ class ExperienceController extends Controller
      */
     public function destroy(Request $request,$profileId,$id)
     {
-        $this->model = $request->user()->profile->experience()->where('id',$id)->delete();
+        $this->model = Experience::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }
