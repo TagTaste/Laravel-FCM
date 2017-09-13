@@ -341,8 +341,9 @@ class ProfileController extends Controller
     
     public function all(Request $request)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
-        $models = \App\Recipe\Profile::orderBy('created_at','asc');
+        $models = \App\Recipe\Profile::where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
         $this->model = ['count' => $models->count()];
         $this->model['data'] = [];
         //paginate
@@ -354,7 +355,6 @@ class ProfileController extends Controller
         if(empty($filters)){
             $profiles = $models->get();
     
-            $loggedInProfileId = $request->user()->profile->id;
             foreach ($profiles as $profile){
                 $temp = $profile->toArray();
                 $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
