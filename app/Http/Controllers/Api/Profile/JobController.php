@@ -89,9 +89,9 @@ class JobController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $profile = $request->user()->profile;
+        $profileId = $request->user()->profile->id;
         
-        $this->model = $profile->jobs()->where('id',$id)->update($request->except(['_token','_method','company_id']));
+        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id']));
         return $this->sendResponse();
     }
     
@@ -103,8 +103,8 @@ class JobController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $profile = $request->user()->profile;
-        $this->model = $profile->jobs()->where('id',$id)->delete();
+        $profileId = $request->user()->profile->id;
+        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->delete();
         return $this->sendResponse();
         
     }
@@ -113,18 +113,12 @@ class JobController extends Controller
     {
         $applierProfileId = $request->user()->profile->id;
 
-        $profile = Profile::find($profileId);
-
-        if(!$profile){
-            throw new \Exception("Invalid profile.");
-        }
-
         if($profileId==$applierProfileId)
         {
             $this->sendError("You can't apply your own job");
         }
         
-        $job = $profile->jobs()->where('id',$id)->first();
+        $job = Job::where('id',$id)->first();
         
         if(!$job){
             throw new \Exception("Job not found.");

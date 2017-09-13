@@ -96,6 +96,7 @@ class Job extends Model implements Feedable
         }
         catch (\Illuminate\Database\QueryException $e)
         {
+            \Log::warning("You have already applied on this job ");
             return false;
         }
     }
