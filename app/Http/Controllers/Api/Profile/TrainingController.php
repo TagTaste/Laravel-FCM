@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
-use App\Profile;
-use App\Profile\Project;
+use App\Profile\Training;
 use \Tagtaste\Api\SendsJsonResponse;
 use Illuminate\Http\Request;
 
-class ProjectController extends Controller
+class TrainingController extends Controller
 {
     use SendsJsonResponse;
 
@@ -19,7 +18,7 @@ class ProjectController extends Controller
      */
     public function index($profileId)
     {
-        $this->model = Project::where('profile_id',$profileId)->get();
+        $this->model = Training::where('profile_id',$profileId)->get();
         return $this->sendResponse();
     }
 
@@ -43,7 +42,7 @@ class ProjectController extends Controller
     {
         $input = $request->except(['_method','_token']);
         $input['profile_id'] =$request->user()->profile->id;
-        $this->model = Project::create($input);
+        $this->model = Training::create($input);
         return $this->sendResponse();
     }
 
@@ -55,10 +54,10 @@ class ProjectController extends Controller
      */
     public function show($profileId, $id)
     {
-        $this->model = Project::where('profile_id',$profileId)->where('id',$id)->first();
+        $this->model = Training::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){
-            throw new \Exception("Project not found.");
+            return $this->sendError("Training not found.");
         }
 
         return $this->sendResponse();
@@ -86,9 +85,9 @@ class ProjectController extends Controller
     {
         $input = $request->except(['_method','_token']);
         if(isset($input['completed_on'])){
-            $input['completed_on'] = empty($input['completed_on']) ? null : date("Y-m-d",strtotime("01-".trim($input['completed_on'])));
+            $input['completed_on'] = empty($input['completed_on']) ? null : date("Y-m-d",strtotime( "01-" . trim($input['completed_on'])));
         }
-        $this->model = Project::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
+        $this->model = Training::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
 
@@ -100,7 +99,7 @@ class ProjectController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = Project::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
+        $this->model = Training::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }

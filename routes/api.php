@@ -55,6 +55,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 });
 
             //company rating
+            Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
             
             //channel names for socket.io
@@ -268,7 +269,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("patents","PatentController");
                 Route::resource("certifications","CertificationController");
                 Route::resource("professional","ProfessionalController");
-               
+                Route::resource("affiliations","AffiliationController");
+                Route::resource("trainings","TrainingController");
+
+
             });
 //            Route::resource('albums','AlbumController');
 //            Route::resource('photos','PhotoController');
