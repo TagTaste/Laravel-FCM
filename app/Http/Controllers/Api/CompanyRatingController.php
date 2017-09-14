@@ -54,7 +54,7 @@ class CompanyRatingController extends Controller
             return $this->sendError("Company doesn't exist.");
         }
         $this->model = [];
-        $companyRating = CompanyRating::where("company_id",$companyId)->where('profile_id','!=',$request->user()->profile->id)->get();
+        $companyRating = CompanyRating::where("company_id",$companyId)->where('profile_id','!=',$request->user()->profile->id)->first();
         $this->model['company_review'] = $companyRating->toArray();
         $this->model['my_review'] = CompanyRating::where("company_id",$companyId)->where('profile_id',$request->user()->profile->id)->first();
         return $this->sendResponse();
