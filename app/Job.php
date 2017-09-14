@@ -26,7 +26,7 @@ class Job extends Model implements Feedable
         'applicationCount'
     ];
     
-    protected $with = ['company','profile', 'applications'];
+    protected $with = ['company','profile'];
     
     protected $appends = ['type','job_id','applicationCount'];
     

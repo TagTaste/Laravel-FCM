@@ -67,10 +67,6 @@ class JobController extends Controller
         
         $profileId = $request->user()->profile->id;
 
-        $jobs = $jobs->with(['applications' => function ($query) use ($profileId) {
-            $query->where('applications.profile_id', $profileId);
-        }]);
-
         $this->model = [];
         $this->model["count"] = $jobs->count();
         

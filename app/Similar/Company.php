@@ -26,7 +26,7 @@ class Company extends BaseCompany
         
         if($distinctCompanies->count()){
             $dist = $distinctCompanies->pluck('id')->toArray();
-            return self::whereIn('id',$dist)->skip($skip)
+            return self::whereIn('id',$dist)->whereNull('deleted_at')->skip($skip)
                 ->take($take)
                 ->get();
         }

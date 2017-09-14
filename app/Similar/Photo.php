@@ -10,7 +10,7 @@ class Photo extends BasePhoto
     
     public function similar($skip,$take)
     {
-        return self::take(4)->skip($skip)
+        return self::whereNull('deleted_at')->take(4)->skip($skip)
             ->take($take)
             ->get();
     }
