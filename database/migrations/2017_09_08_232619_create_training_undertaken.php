@@ -16,7 +16,7 @@ class CreateTrainingUndertaken extends Migration
         Schema::create('trainings', function(Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->text('trained_from')->nullable();
+            $table->string('trained_from')->nullable();
             $table->date("completed_on")->nullable();
             $table->integer('profile_id')->unsigned();
             $table->foreign('profile_id')->references('id')->on('profiles');
