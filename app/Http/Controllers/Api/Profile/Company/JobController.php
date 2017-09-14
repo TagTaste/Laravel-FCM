@@ -149,14 +149,9 @@ class JobController extends Controller
             if (!$response) {
                 return $this->sendEerror("Could not save resume.");
             }
-//            for update resume in profiles table
-//            $data = \App\Profile::where('id', $profileId)->update(['resume' => $resumeName]);
         }
-//        else {
-//            $resumeName = $request->user()->profile->resume;
-//        }
-        $this->model = $job->apply($profileId, $resumeName,$request->input("message"));
-    
+        $this->model = $job->apply($profileId, $response,$request->input("message"));
+
         return $this->sendResponse();
     }
     
