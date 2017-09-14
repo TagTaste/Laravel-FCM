@@ -7,6 +7,7 @@
  */
 namespace App\Company;
 
+use App\Profile;
 use Illuminate\Database\Eloquent\Model;
 
 class Coreteam extends Model
@@ -16,12 +17,12 @@ class Coreteam extends Model
 
     protected $fillable = ['name','email','image', 'designation' ,'about' ,'company_id','order','profile_id','invited'];
 
-    protected $visible = ['id','name', 'designation' ,'about' ,'company_id','imageUrl','order','profile_id','invited'];
+    protected $visible = ['id','name', 'designation' ,'about' ,'company_id','imageUrl','order','profile_id','invited','is_following'];
 
-    protected $appends = ['imageUrl'];
+    protected $appends = ['imageUrl','is_following'];
 
 
-    public static function getCoreteamImagePath($profileId,$companyId, $filename = null)
+    public static function getCoreteamImagePath($companyId, $filename = null)
     {
         $relativePath = "images/ph/$companyId/c/coreteam";
         $status = \Storage::makeDirectory($relativePath,0644,true);
@@ -31,6 +32,11 @@ class Coreteam extends Model
     public function getImageUrlAttribute()
     {
         return !is_null($this->image) ? \Storage::url($this->image) : null;
+    }
+
+    public function getIsFollowingAttribute()
+    {
+        return $this->profile_id!=null ? Profile::isFollowing($this->profile_id, request()->user()->profile->id) : false;
     }
 
 }
