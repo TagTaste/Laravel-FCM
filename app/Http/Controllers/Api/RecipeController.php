@@ -33,6 +33,62 @@ class RecipeController extends Controller
         if (!empty($filters['is_vegetarian'])) {
             $recipes = $recipes->where('is_vegetarian', $filters['is_vegetarian']);
         }
+        
+        if(!empty($filters['preparation_time'])){
+            $start = [
+                0 => 1,
+                1 => 1,
+                2 => 4
+            ];
+    
+            $end = [
+                0 => 1,
+                1 => 4,
+                2 => 8
+            ];
+            $startAt = 999; //a very high number
+            $endAt = 0;
+            foreach($filters['preparation_time'] as $prepTime){
+                if($start[$prepTime] < $startAt){
+                    $startAt = $start[$prepTime];
+                }
+                
+                if($end[$prepTime] > $endAt){
+                    $endAt = $end[$prepTime];
+                }
+            }
+    
+            $recipes = $recipes->where('preparation_time','>=',$startAt)
+                ->where('preparation_time','<=',$endAt);
+        }
+    
+        if(!empty($filters['cooking_time'])){
+            $start = [
+                0 => 1,
+                1 => 1,
+                2 => 4
+            ];
+        
+            $end = [
+                0 => 1,
+                1 => 4,
+                2 => 8
+            ];
+            $startAt = 999; //a very high number
+            $endAt = 0;
+            foreach($filters['cooking_time'] as $prepTime){
+                if($start[$prepTime] < $startAt){
+                    $startAt = $start[$prepTime];
+                }
+            
+                if($end[$prepTime] > $endAt){
+                    $endAt = $end[$prepTime];
+                }
+            }
+        
+            $recipes = $recipes->where('cooking_time','>=',$startAt)
+                ->where('cooking_time','<=',$endAt);
+        }
 
         $this->model = [];
         $this->model['count'] = $recipes->count();
@@ -96,7 +152,21 @@ class RecipeController extends Controller
         foreach(\App\Recipe::$veg as $key => $value){
             $filters['vegetarian'][] = ['key'=>$key,'value'=>$value];
         }
+    
         $filters['ingredients']=\App\Recipe\Ingredient::select('id as key','name as value')->get();
+    
+        $filters['preparation_time'] = [
+            ['key'=>'0','value'=>"1 hour"],
+            ['key'=>'1','value'=>"1 - 4 hours"],
+            ['key'=>'2','value'=>"4 - 8 hours"],
+        ];
+    
+        $filters['cooking_time'] = [
+            ['key'=>'0','value'=>"1 hour"],
+            ['key'=>'1','value'=>"1 - 4 hours"],
+            ['key'=>'2','value'=>"4 - 8 hours"],
+        ];
+        
         $this->model = $filters;
         return $this->sendResponse();
     }

@@ -28,9 +28,9 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
-        'commentCount','likeCount'];
+        'commentCount','likeCount','applicationCount'];
     
-    protected $appends = ['commentCount','likeCount','images'];
+    protected $appends = ['commentCount','likeCount','images','applicationCount'];
     
     public static function boot()
     {
@@ -298,6 +298,11 @@ class Collaborate extends Model implements Feedable
         }
 
         return $images;
+    }
+    
+    public function getApplicationCountAttribute()
+    {
+        return \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
     }
 
 

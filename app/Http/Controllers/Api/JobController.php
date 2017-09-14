@@ -31,9 +31,9 @@ class JobController extends Controller
         $filters['location'] = \App\Filter\Job::select('location as value')->groupBy('location')
                 ->where('location','!=','null')->get();
         $filters['types'] = Job\Type::with([])->select('id as key', 'name as value')->get();
-        $filters['expected_role'] = \App\Filter\Job::select('expected_role as value')->groupBy('expected_role')
+        $filters['Expected Role'] = \App\Filter\Job::select('expected_role as value')->groupBy('expected_role')
             ->where('expected_role','!=','null')->get();
-       
+        $filters['experience_required'] = \DB::table('jobs')->selectRaw("distinct(experience_required) as value")->whereNotNull('experience_required')->get();
         $this->model = $filters;
         return $this->sendResponse();
     }
@@ -60,6 +60,11 @@ class JobController extends Controller
         if (!empty($filters['type_id'])) {
             $jobs = $jobs->whereIn('type_id', $filters['type_id']);
         }
+        
+        if(!empty($filters['experience_required'])){
+            $jobs = $jobs->whereIn('experience_required', $filters['experience_required']);
+        }
+        
         $profileId = $request->user()->profile->id;
 
         $this->model = [];

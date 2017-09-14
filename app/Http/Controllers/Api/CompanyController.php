@@ -15,11 +15,12 @@ class CompanyController extends Controller {
         $this->model = Company::with('status','type');
 
         $filters = $request->input('filters');
-        if (!empty($filters['city'])) {
-            $this->model=$this->model->whereIn('city',$filters['city']);
+
+        if (!empty($filters['location'])) {
+            $this->model=$this->model->whereIn('city',$filters['location']);
         }
-        if (!empty($filters['type'])) {
-            $this->model=$this->model->whereIn('type',$filters['type']);
+        if (!empty($filters['types'])) {
+            $this->model=$this->model->whereIn('type',array_values($filters['types']));
         }
         if (!empty($filters['status'])) {
             $this->model=$this->model->whereIn('status_id',$filters['status']);
@@ -80,7 +81,12 @@ class CompanyController extends Controller {
             ->groupBy('city')->where('city','!=','null')->get();
         $filters['types'] = \App\Company\Type::select('id as key','name as value')->get();
         $filters['status'] = \App\Company\Status::select('id as key','name as value')->get();
-
+//        $keywords = \App\Filter\Company::select('speciality')->whereNotNull('speciality')->take(10)->get();
+//        $filters['speciality'] = [];
+//        foreach($keywords as $keyword){
+//            $filters['speciality'] = array_merge($filters['speciality'],explode(",",$keyword->speciality));
+//        }
+//        \Log::info($filters['speciality']);
         $this->model = $filters;
         return $this->sendResponse();
     }

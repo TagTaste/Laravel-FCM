@@ -81,6 +81,10 @@ class CoreteamController extends Controller
 
             dispatch($mail);
         }
+
+            $this->model = $this->model->toArray();
+            $this->model['isFollowing'] = isset($this->model['profile_id']) ? Profile::isFollowing($this->model['profile_id'], $request->user()->profile->id) : false;
+
         return $this->sendResponse();
     }
 

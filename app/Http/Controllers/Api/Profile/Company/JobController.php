@@ -150,8 +150,14 @@ class JobController extends Controller
                 return $this->sendEerror("Could not save resume.");
             }
         }
-        $this->model = $job->apply($profileId, $response,$request->input("message"));
 
+      //  else {
+//            $resumeName = $request->user()->profile->resume;
+//        }
+      $this->model = $job->apply($profileId, $response,$request->input("message"));
+      
+        $this->model = $job->apply($profileId, $resumeName,$request->input("message"));
+        \Redis::hIncrBy("meta:job:" . $id,"count",1);
         return $this->sendResponse();
     }
     
@@ -170,7 +176,7 @@ class JobController extends Controller
         $profileId = $request->user()->profile->id;
         
         $this->model = $job->unapply($profileId);
-        
+        \Redis::hIncrBy("meta:job:" . $id,"count",1);
         return $this->sendResponse();
     }
     

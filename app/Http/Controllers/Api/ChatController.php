@@ -41,7 +41,6 @@ class ChatController extends Controller
             $query->where('profile_id',$profileId);
         })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
         
-        \Log::info($this->model);
 		return $this->sendResponse();
 	}
 
@@ -152,7 +151,7 @@ class ChatController extends Controller
 	 */
 	public function destroy($id)
 	{
-		$this->model = $this->model->destroy($id);
+		$this->model = $this->model->where('id',$id)->delete();
 
 		return $this->sendResponse();
 	}

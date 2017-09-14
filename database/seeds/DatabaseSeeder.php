@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(BasicRoles::class);
 
-        $this->call(DefaultAdminValues::class);
+       // $this->call(DefaultAdminValues::class);
         //$this->call(DefaultRoleUserValues::class);
 
         $this->call(PrivacyTableSeeder::class);

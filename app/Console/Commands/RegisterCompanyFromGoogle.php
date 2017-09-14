@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Company\Status;
 use App\Company\Type;
 use GuzzleHttp\Client;
-
 use Illuminate\Console\Command;
 
 class RegisterCompanyFromGoogle extends Command
@@ -20,12 +19,14 @@ class RegisterCompanyFromGoogle extends Command
     
     private $companyId;
     
+    private $token = null;
+    
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'register:company:google';
+    protected $signature = 'register:company:google {file} {skip}';
 
     /**
      * The console command description.
@@ -59,10 +60,10 @@ class RegisterCompanyFromGoogle extends Command
         $this->types = $this->fetchTypes();
         $this->statuses = $this->fetchStatuses();
         \Cache::forget("company_values");
-        $values = \Cache::remember('company_values',120,function(){
-            $sheetId = '1pMKXKtJ2lnGkGMb08OP6L1RSDP9cO0zGSlMz0YOBSGs';
+        $file = $this->argument('file');
+        $values = \Cache::remember('company_values',120,function() use ($file){
             \Sheets::setService(\Google::make('sheets'));
-            \Sheets::spreadsheet($sheetId);
+            \Sheets::spreadsheet($file);
             return \Sheets::sheet('Sheet1')->get();
         });
         $values->pull(0);
@@ -71,13 +72,25 @@ class RegisterCompanyFromGoogle extends Command
         $this->login();
         
         foreach($values as $value){
+            if($value[0] < $this->argument("skip")){
+                continue;
+            }
+            if(empty($value[2]) || empty($value[5])){
+                continue;
+            }
             $this->value = $value;
             try {
+                
+                /*
                 $status = $this->createCompany();
                 if(!$status){
                     continue;
                 }
                 $this->addMember();
+                */
+                $this->login();
+                $this->companyId = $this->value[2];
+                $this->updateLogo();
             } catch (\Exception $e){
                 $this->error($e->getMessage());
             }
@@ -107,8 +120,53 @@ class RegisterCompanyFromGoogle extends Command
         });
     }
     
+    private function updateLogo()
+    {
+        $data = [];
+        
+        try {
+            if(!empty($this->value[5])){
+                $data = [
+                    'multipart' => [
+                        [ 'name'=> 'logo',
+                            'contents' => fopen($this->value[5],'r')],
+                    ]];
+            } else {
+                $this->info("no image for " . $this->companyId);
+            }
+//            if(!empty($this->value[44])){
+//                $data = [
+//                    'multipart' => [
+//                        [ 'name'=> 'hero_image',
+//                            'contents' => fopen($this->value[44],'r')],
+//                    ]];
+//            } else {
+//                $this->info("no banner image for " . $this->companyId);
+//
+//            }
+            
+            if(empty($data)){
+                return;
+            }
+            $data['multipart'][] = ['name'=>'_method','contents'=>'patch'];
+        
+        } catch (\Exception $e){
+            $this->error($e->getMessage());
+        }
+    
+    
+        $response = $this->getResponse(url('/api/profiles/227/companies/' . $this->companyId),'post',$data);
+        $this->info($response);
+        $response = json_decode($response);
+    }
+    
     private function createCompany()
     {
+        $name = $this->value[4];
+        $exists = \App\Company::where('name',$name)->exists();
+        if($exists){
+            return false;
+        }
         $map = [
             //index in company array => index in sheets
             'name' => 4,
@@ -143,7 +201,7 @@ class RegisterCompanyFromGoogle extends Command
     
             
         } catch (\Exception $e){
-            \Log::warning($e->getMessage());
+            $this->error($e->getMessage());
         }
         
         
@@ -199,7 +257,6 @@ class RegisterCompanyFromGoogle extends Command
         'Authorization' => 'Bearer ' . $this->token
          ];
         foreach($map as $name => $index){
-            $this->info("member $name: " . $index);
     
             if(empty($this->value[$index])){
                 continue;
@@ -244,7 +301,13 @@ class RegisterCompanyFromGoogle extends Command
     
     private function getResponse($url, $method = 'post', $data)
     {
+        usleep(100000);
+    
         $client = new Client();
+    
+        $data['headers'] =  [
+            'Authorization' => 'Bearer ' . $this->token
+        ];
         $response = $client->request($method,$url,$data);
         if($response->getStatusCode() != 200){
             \Log::error("Could not complete $method request for $url");

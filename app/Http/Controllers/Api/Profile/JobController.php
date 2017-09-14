@@ -135,7 +135,7 @@ class JobController extends Controller
             }
         }
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
-
+        \Redis::hIncrBy("meta:job:" . $id,"count",1);
         return $this->sendResponse();
     }
     
@@ -153,7 +153,8 @@ class JobController extends Controller
         
         $applierProfileId = $request->user()->profile->id;
         $this->model = $job->unapply($applierProfileId);
-        
+        \Redis::hDecrBy("meta:job:" . $id,"count",1);
+    
         return $this->sendResponse();
     }
     
