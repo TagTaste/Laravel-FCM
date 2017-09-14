@@ -15,7 +15,7 @@ class AlterCompanyRatingReview extends Migration
     {
         Schema::table("company_ratings",function(Blueprint $table){
             $table->text("review")->nullable();
-            $table->text("title")->nullable();
+            $table->string("title")->nullable();
         });
     }
 
