@@ -4,6 +4,7 @@ namespace App\Profile;
 
 use App\Scopes\Profile;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Show extends Model
 {
@@ -15,6 +16,15 @@ class Show extends Model
         'date','url','appeared_as','total'];
     
     protected $appends = ['total'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        // Order by name ASC
+        static::addGlobalScope('profile_shows', function (Builder $builder) {
+            $builder->orderBy('date', 'desc');
+        });
+    }
     
     public function getTotalAttribute()
     {

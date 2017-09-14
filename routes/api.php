@@ -153,6 +153,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //notifications
                 Route::get('notifications/unread','NotificationController@unread');
                 Route::post("notifications/read/{id}",'NotificationController@read');
+                Route::post("notifications/markAllAsRead","NotificationController@markAllAsRead");
                 Route::resource("notifications",'NotificationController');
 
             //designations
@@ -190,6 +191,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
+                Route::get("collaborate/interested","CollaborateController@interested");
                 Route::resource("collaborate","CollaborateController");
     
                 Route::post("jobs/{id}/apply", "JobController@apply");
@@ -303,8 +305,9 @@ Route::post('login',function(Request $request){
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
-
 Route::get('{handle}','Api\HandleController@show');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail'); //with api/
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('admin.password.token');
-Route::post('password/reset', 'Auth\ResetPasswordController@reset');//with api/
+// Password Reset Routes...
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');

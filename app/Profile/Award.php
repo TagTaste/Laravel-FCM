@@ -5,6 +5,7 @@ namespace App\Profile;
 use App\Scopes\Profile;
 use App\Traits\PositionInCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Award extends Model
 {
@@ -15,6 +16,15 @@ class Award extends Model
     protected $visible = ['id','name','description','date','total'];
     
     protected $appends = ['total'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        // Order by name ASC
+        static::addGlobalScope('awards', function (Builder $builder) {
+            $builder->orderBy('date', 'desc');
+        });
+    }
 
     public function setDateAttribute($value)
     {

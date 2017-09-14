@@ -225,4 +225,15 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function interested(Request $request, $profileId)
+    {
+        $profileId = $request->user()->profile->id;
+        $this->model = \DB::table("collaborators")->select('collaborate_id','collaborates.*')
+            ->join('collaborates','collaborators.collaborate_id','=','collaborates.id')
+            ->where("collaborators.profile_id",$profileId)->whereNull('collaborators.company_id')->get();
+        return $this->sendResponse();
+
+    }
+
 }
