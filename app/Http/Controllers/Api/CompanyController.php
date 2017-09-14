@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Company;
-use App\CompanyRating;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller {
@@ -66,7 +65,6 @@ class CompanyController extends Controller {
         $company = Company::where('id',$id)->with('status','type')->first();
         $profileId = $request->user()->profile->id;
         $this->model = $company->toArray();
-        $this->model['userRating'] = CompanyRating::where('company_id',$id)->where('profile_id',$profileId)->first();
         $this->model['isFollowing'] = $company->isFollowing($profileId);
         if(!$this->model){
             return $this->sendError("Company not found.");

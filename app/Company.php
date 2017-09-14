@@ -84,14 +84,16 @@ class Company extends Model
         'profileId',
         'handle',
         'followerProfiles',
-        'rating',
         'city',
-        'is_admin'
+        'is_admin',
+        'avg_rating',
+        'review_count',
+        'rating_count'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','rating','is_admin'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count'];
     
     public static function boot()
     {
@@ -413,9 +415,19 @@ class Company extends Model
         return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
     }
 
-    public function getRatingAttribute()
+    public function getAvgRatingAttribute()
     {
         return $this->rating()->avg('rating');
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return $this->rating()->whereNotNull('review')->count();
+    }
+
+    public function getRatingCountAttribute()
+    {
+        return $this->rating()->count();
     }
     
     public function productCatalogue()

@@ -55,6 +55,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 });
 
             //company rating
+            Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
             
             //channel names for socket.io
