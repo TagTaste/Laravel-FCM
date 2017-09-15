@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Http\Controllers\Api\Controller;
 use App\Company\Coreteam;
+use App\Http\Controllers\Api\Controller;
 use App\Jobs\SendInvitation;
 use App\Profile;
 use Illuminate\Http\Request;
@@ -140,6 +140,9 @@ class CoreteamController extends Controller
                 throw new \Exception("Could not save resume " . $imageName . " at " . $path);
             }
             $data['image'] = $response;
+        }
+        if(isset($data['email']) && empty($data['email'])){
+            $data['email'] = null;
         }
         $this->model = $company->coreteam()->where('id',$id)->update($data);
 
