@@ -69,7 +69,7 @@ class EducationController extends Controller {
         if(isset($input['end_date'])){
             $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['end_date'])));
         }
-        $this->model = Education::where('id',$id)->where("pofile_id",$request->user()->profile->id)->update($input);
+        $this->model = Education::where('id',$id)->where("profile_id",$request->user()->profile->id)->update($input);
         return $this->sendResponse();
 	}
 
