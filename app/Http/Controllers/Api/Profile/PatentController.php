@@ -52,8 +52,9 @@ class PatentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId,$id)
+    public function show(Request $request, $profileId,$id)
     {
+        $profileId = $request->user()->profile->id;
         $this->model = Patent::where('profile_id',$profileId)->where('id',$id)->first();
         if(!$this->model){
             throw new \Exception("Patent not found.");

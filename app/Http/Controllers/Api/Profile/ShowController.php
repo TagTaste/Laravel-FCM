@@ -40,6 +40,7 @@ class ShowController extends Controller
     public function store(Request $request)
     {
         $input = $request->except(['_method','_token']);
+        $input['profile_id'] = $request->user()->profile->id;
         $this->model = Show::create($input);
         return $this->sendResponse();
     }
@@ -50,9 +51,9 @@ class ShowController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId, $id)
+    public function show(Request $request,$profileId, $id)
     {
-        $this->model =  Show::where('profile_id',$profileId)->where('id',$id)->first();
+        $this->model =  Show::where('id',$id)->where('profile_id',$request->user()->profile->id)->first();
 
         if(!$this->model){
           return;
@@ -84,11 +85,10 @@ class ShowController extends Controller
     {
         $input = $request->except(['_method','_token']);
         if(isset($input['date'])){
-            $input['date'] = "01-".$input['date'];
-            $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim($input['date'])));
+            $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['date'])));
         }
 
-        $this->model = Show::where('id',$id)->update($input);
+        $this->model = Show::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
 
@@ -100,7 +100,7 @@ class ShowController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = Show::where('id',$id)->delete();
+        $this->model = Show::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }
