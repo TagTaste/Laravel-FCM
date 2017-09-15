@@ -144,7 +144,10 @@ class Job extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        return \Redis::hGet("meta:job:" . $this->id,"count");
+        if(request()->user()->profile->id == $this->profile_id)
+        {
+            return \Redis::hGet("meta:job:" . $this->id, "count") ?: 0;
+        }
     }
     
 }
