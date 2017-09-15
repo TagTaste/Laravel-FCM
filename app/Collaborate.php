@@ -306,10 +306,6 @@ class Collaborate extends Model implements Feedable
         {
             return \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         }
-        else
-        {
-            return null;
-        }
     }
 
 
