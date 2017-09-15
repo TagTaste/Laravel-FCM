@@ -40,8 +40,9 @@ class ExperienceController extends Controller
      */
     public function store(Request $request)
     {
-        $input = $request->except(['_method','_token']);
-        $this->model = Experience::create($input);
+        $inputs = $request->except(['_method','_token']);
+        $inputs['profile_id'] = $request->user()->profile->id;
+        $this->model = Experience::create($inputs);
         
         return $this->sendResponse();
 
@@ -53,8 +54,9 @@ class ExperienceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($profileId, $id)
+    public function show(Request $request ,$profileId, $id)
     {
+        $profileId = $request->user()->profile->id;
         $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){
@@ -87,15 +89,13 @@ class ExperienceController extends Controller
     {
         $input = $request->except(['_method','_token']);
         if(isset($input['start_date'])){
-            $input['start_date'] = "01-".$input['start_date'];
-            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
+            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['start_date'])));
         }
 
         if(isset($input['end_date'])){
-            $input['end_date'] = "01-".$input['end_date'];
-            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
+            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['end_date'])));
         }
-
+        $profileId = $request->user()->profile->id;
         $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->update($input);
         return $this->sendResponse();
     }
