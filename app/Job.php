@@ -23,12 +23,12 @@ class Job extends Model implements Feedable
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
-        'applicationCount'
+        'applicationCount','hasApplied'
     ];
     
     protected $with = ['company','profile'];
     
-    protected $appends = ['type','job_id','applicationCount'];
+    protected $appends = ['type','job_id','applicationCount','hasApplied'];
     
     
     public static function boot()
@@ -53,7 +53,7 @@ class Job extends Model implements Feedable
     {
         return $this->id;
     }
-    public function hasApplied($profileId)
+    public function getHasAppliedAttribute($profileId)
     {
         return $this->applications()->where('profile_id', $profileId)->count() == 1;
     }
