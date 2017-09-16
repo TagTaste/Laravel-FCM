@@ -10,8 +10,6 @@ use Illuminate\Http\Request;
 class BookController extends Controller
 {
     use SendsJsonResponse;
-
-    private $fields = ['title','description','publisher','release_date','url','isbn'];
     /**
      * Display a listing of the resource.
      *N
@@ -41,7 +39,9 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->books()->create($request->only($this->fields));
+        $inputs = $request->except(['_method','_token']);
+        $inputs['profile_id'] = $request->user()->profile->id;
+        $this->model = Book::create($inputs);
         return $this->sendResponse();
     }
 
@@ -80,15 +80,12 @@ class BookController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $input = $request->only($this->fields);
-        $input = array_filter($input);
+        $input = $request->except(['_method','_token']);
         if(isset($input['release_date'])){
-            $input['release_date'] = "01-".$input['release_date'];
-            $input['release_date'] = empty($input['release_date']) ? null : date("Y-m-d",strtotime(trim($input['release_date'])));
+            $input['release_date'] = empty($input['release_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['release_date'])));
         }
 
-        $this->model = $request->user()->profile->books()->
-            where('id',$id)->update($input);
+        $this->model = Book::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
 
@@ -100,7 +97,7 @@ class BookController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $this->model = $request->user()->profile->books()->where('id',$id)->delete();
+        $this->model = Book::where('id',$id)->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 }
