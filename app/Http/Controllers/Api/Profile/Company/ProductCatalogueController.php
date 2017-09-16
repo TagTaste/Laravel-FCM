@@ -63,22 +63,6 @@ class ProductCatalogueController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
     {
-        $company = Company::find($companyId);
-        if(!$company){
-            return $this->sendError("Company not found.");
-        }
-    
-        if(!$request->hasFile("file")){
-            return $this->sendError("File not uploaded.");
-        }
-    
-        $user = \App\Profile\User::find($request->user()->id);
-        $isPartOfCompany = $user->isPartOfCompany($companyId);
-    
-        if(!$isPartOfCompany){
-            $this->sendError("This company does not belong to user.");
-        }
-        
         //we have the file
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
@@ -120,18 +104,6 @@ class ProductCatalogueController extends Controller
     
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $company = Company::find($companyId);
-        
-        if(!$company){
-            return $this->sendError("Company does not exist");
-        }
-        
-        $user = \App\Profile\User::find($request->user()->id);
-        $isPartOfCompany = $user->isPartOfCompany($companyId);
-    
-        if(!$isPartOfCompany){
-            $this->sendError("This company does not belong to user.");
-        }
         
         $product = ProductCatalogue::where('company_id',$companyId)->where('id',$id)->first();
         if(!$product){

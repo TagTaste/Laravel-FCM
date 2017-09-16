@@ -37,15 +37,9 @@ class AffiliationController extends Controller
      */
     public function store(Request $request,$profileId, $companyId)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
-        $this->model = $company->affiliation()->create($data);
+        $this->model = Affiliation::create($data);
         return $this->sendResponse();
     }
 
@@ -59,7 +53,7 @@ class AffiliationController extends Controller
     {
         $this->model = Affiliation::where('company_id',$companyId)->where('id',$id)->first();
         if(!$this->model){
-            throw new \Exception("Affiliation not found.");
+            return $this->sendError("Affiliation not found.");
         }
         return $this->sendResponse();
     }
@@ -84,14 +78,8 @@ class AffiliationController extends Controller
      */
     public function update(Request $request, $profileId,$companyId,$id)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
         $data = $request->except(['_method','_token','company_id']);
-        $this->model = $company->affiliation()->where('id',$id)->update($data);
+        $this->model = Affiliation::where('id',$id)->where('company_id',$companyId)->update($data);
 
 
         return $this->sendResponse();
@@ -105,14 +93,8 @@ class AffiliationController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
 
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
-
-        $this->model = $company->affiliation()->where('id',$id)->delete();
+        $this->model = Affiliation::where('id',$id)->where('company_id',$companyId)->delete();
 
         return $this->sendResponse();
     }
