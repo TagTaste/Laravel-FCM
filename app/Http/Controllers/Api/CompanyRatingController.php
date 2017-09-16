@@ -44,9 +44,9 @@ class CompanyRatingController extends Controller
 
         $companyRating = $this->model->create($inputs);
         $this->model = [];
-        $this->model['avg_rating'] = $companyRating->avg('rating');
-        $this->model['review_count'] = $companyRating->whereNotNull('review')->count();
-        $this->model['rating_count'] = $companyRating->count();
+        $this->model['avg_rating'] = $companyRating->where('company_id',$companyId)->avg('rating');
+        $this->model['review_count'] = $companyRating->where('company_id',$companyId)->whereNotNull('review')->count();
+        $this->model['rating_count'] = $companyRating->where('company_id',$companyId)->count();
         $this->model['my_review'] = $companyRating;
         return $this->sendResponse();
     }
