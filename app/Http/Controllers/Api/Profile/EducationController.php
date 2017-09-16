@@ -31,7 +31,9 @@ class EducationController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-        $this->model = $request->user()->profile->education()->create($request->except(['_method','_token']));
+        $inputs = $request->except(['_method','_token']);
+        $inputs['profile_id'] = $request->user()->profile->id;
+        $this->model = Education::create($inputs);
         return $this->sendResponse();
 	}
 
@@ -62,15 +64,12 @@ class EducationController extends Controller {
 	{
         $input = $request->except(['_method','_token']);
         if(isset($input['start_date'])){
-            $input['start_date'] = "01-".$input['start_date'];
-            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim($input['start_date'])));
+            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['start_date'])));
         }
         if(isset($input['end_date'])){
-            $input['end_date'] = "01-".$input['end_date'];
-            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim($input['end_date'])));
+            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['end_date'])));
         }
-        $this->model = $request->user()->profile->education()->
-        where('id',$id)->update($input);
+        $this->model = Education::where('id',$id)->where("profile_id",$request->user()->profile->id)->update($input);
         return $this->sendResponse();
 	}
 
@@ -82,7 +81,7 @@ class EducationController extends Controller {
 	 */
 	public function destroy(Request $request, $profileId, $id)
 	{
-        $this->model = $request->user()->profile->education()->where('id',$id)->delete();
+        $this->model = Education::where('profile_id',$request->user()->profile->id)->where('id',$id)->delete();
         return $this->sendResponse();
 	}
 
