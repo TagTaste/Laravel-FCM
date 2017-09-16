@@ -17,11 +17,7 @@ class CheckCompanyAdmin
      */
     public function handle($request, Closure $next)
     {
-        $company = Company::find($request->companyId);
-        if(!$company)
-        {
-            return response()->json(['error' => "Company does not exist."]);
-        }
+
         if($_SERVER['REQUEST_METHOD'] === 'POST'||$_SERVER['REQUEST_METHOD'] === 'PATCH'||$_SERVER['REQUEST_METHOD'] === 'DELETE'||$_SERVER['REQUEST_METHOD'] === 'PUT') {
             $checkAdmin = CompanyUser::where("company_id", $request->companyId)->where('profile_id', $request->user()->profile->id)->exists();
             if (!$checkAdmin) {
