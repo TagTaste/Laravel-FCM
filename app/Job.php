@@ -55,7 +55,7 @@ class Job extends Model implements Feedable
     }
     public function getHasAppliedAttribute($profileId = null)
     {
-        return $this->applications()->where('profile_id', $profileId ?: $request->user()->profile->id)->exists();
+        return $this->applications()->where('profile_id', $profileId ?: request()->user()->profile->id)->exists();
     }
     
     public function applications()
