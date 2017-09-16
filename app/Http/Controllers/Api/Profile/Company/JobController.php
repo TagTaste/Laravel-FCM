@@ -142,6 +142,7 @@ class JobController extends Controller
         $status = \Storage::makeDirectory($path, 0644, true);
         
         $resumeName = null;
+        $response = null;
         if($request->hasFile('resume')) {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") . "." . $ext;
