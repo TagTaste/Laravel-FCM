@@ -3,10 +3,9 @@
 namespace App\Profile;
 
 use App\Scopes\Profile as ScopeProfile;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\PositionInCollection;
-use App\Traits\StartEndDate;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
 {
@@ -14,7 +13,7 @@ class Book extends Model
 
     protected $table = 'profile_books';
 
-    protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
+    protected $fillable = ['id','title','description','publisher','release_date','url','isbn','profile_id'];
 
     protected $visible = ['id','title','description','publisher','release_date','url','isbn','total'];
     
