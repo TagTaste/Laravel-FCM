@@ -11,9 +11,10 @@ use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
 use App\Traits\PushesToChannel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use \Storage;
+use Storage;
 
 class Company extends Model
 {
@@ -300,7 +301,7 @@ class Company extends Model
         }
         
         //attach the user
-        $this->users()->attach($user->id,['profile_id'=>$user->profile->id]);
+        $this->users()->attach($user->id,['profile_id'=>$user->profile->id,'created_at'=>Carbon::now()->toDateTimeString()]);
         
         //subscribe the user to the company feed
         $user->completeProfile->subscribe("public",$this);
@@ -331,7 +332,7 @@ class Company extends Model
         //unsubscribe the user to the company feed
         $user->profile->unsubscribe("public",$this);
         $user->profile->unsubscribe("network",$this);
-    
+        
         return $user->delete();
     }
     
