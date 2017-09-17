@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
 use App\Company;
+use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
@@ -118,8 +119,11 @@ class JobController extends Controller
             return $this->sendError("This company does not belong to user.");
         }
         
+        event(new DeleteFeedable($this->model));
+
         $this->model = $company->jobs()->where('id', $id)->delete();
-        
+
+
         return $this->sendResponse();
         
     }

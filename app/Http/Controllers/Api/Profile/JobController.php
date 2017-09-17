@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Application;
+use App\Events\DeleteFeedable;
 use App\Profile;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
@@ -104,7 +105,11 @@ class JobController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
+        
+        event(new DeleteFeedable($this->model));
+
         $this->model = Job::where('id',$id)->where('profile_id',$profileId)->delete();
+
         return $this->sendResponse();
         
     }
