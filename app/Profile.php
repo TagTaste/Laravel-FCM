@@ -47,7 +47,8 @@ class Profile extends Model
         'resume',
         'email_private',
         'address_private',
-        'phone_private'
+        'phone_private',
+        'dob_private'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -117,6 +118,7 @@ class Profile extends Model
         'email_private',
         'address_private',
         'phone_private',
+        'dob_private',
         'training',
         'affiliation'
     ];
