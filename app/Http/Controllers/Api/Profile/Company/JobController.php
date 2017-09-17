@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
 use App\Company;
+use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
@@ -119,7 +120,9 @@ class JobController extends Controller
         }
         
         $this->model = $company->jobs()->where('id', $id)->delete();
-        
+
+        event(new DeleteFeedable($this->model));
+
         return $this->sendResponse();
         
     }
