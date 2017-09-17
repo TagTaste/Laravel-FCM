@@ -71,7 +71,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     public function getLikeCountAttribute()
     {
-        $count = $this->like->count();
+        $count = \Redis::hGet("recipe:" . $id . ":meta", "like");
 
         if($count >1000000)
         {
