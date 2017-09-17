@@ -119,9 +119,10 @@ class JobController extends Controller
             return $this->sendError("This company does not belong to user.");
         }
         
+        event(new DeleteFeedable($this->model));
+
         $this->model = $company->jobs()->where('id', $id)->delete();
 
-        event(new DeleteFeedable($this->model));
 
         return $this->sendResponse();
         
