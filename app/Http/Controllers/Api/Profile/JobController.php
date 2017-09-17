@@ -105,8 +105,10 @@ class JobController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->delete();
+        
         event(new DeleteFeedable($this->model));
+
+        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->delete();
 
         return $this->sendResponse();
         
