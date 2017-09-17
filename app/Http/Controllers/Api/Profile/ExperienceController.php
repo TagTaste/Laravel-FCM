@@ -56,7 +56,6 @@ class ExperienceController extends Controller
      */
     public function show(Request $request ,$profileId, $id)
     {
-        $profileId = $request->user()->profile->id;
         $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->first();
 
         if(!$this->model){

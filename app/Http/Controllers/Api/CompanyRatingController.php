@@ -39,6 +39,10 @@ class CompanyRatingController extends Controller
         $inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $request->user()->profile->id;
 
+        if(empty($inputs['review'])){
+            unset($inputs['review']);
+        }
+        
         $this->model->where('company_id', $companyId)
             ->where('profile_id', $inputs['profile_id'])->delete();
 

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Application;
 use App\Events\DeleteFeedable;
-use App\Profile;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
+use App\Profile;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
@@ -131,6 +131,7 @@ class JobController extends Controller
     
         $path = "profile/$profileId/job/$id/resume";
         $status = \Storage::makeDirectory($path, 0644, true);
+        $response = null;
         if ($request->hasFile('resume')) {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") .".". $ext;

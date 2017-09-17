@@ -2,16 +2,14 @@
 
 namespace App\Company;
 
-use App\Scopes\Profile;
-use Illuminate\Database\Eloquent\Model;
-use \App\Book as BaseBook;
+use App\Book as BaseBook;
 use Illuminate\Database\Eloquent\Builder;
 
 class Book extends BaseBook
 {
     protected $table = 'company_books';
 
-    protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
+    protected $fillable = ['id','title','description','publisher','release_date','url','isbn','profile_id'];
 
     protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
 
