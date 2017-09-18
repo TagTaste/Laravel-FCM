@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\Application;
 use App\Company;
 use App\CompanyUser;
+use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
@@ -103,6 +104,7 @@ class JobController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
+        event(new DeleteFeedable($this->model));
         $this->model = Job::where('id', $id)->delete();
         
         return $this->sendResponse();
@@ -127,6 +129,7 @@ class JobController extends Controller
         $status = \Storage::makeDirectory($path, 0644, true);
         
         $resumeName = null;
+        $response = null;
         if($request->hasFile('resume')) {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") . "." . $ext;

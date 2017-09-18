@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\CompanyUser;
-use App\Http\Controllers\Api\Controller;
 use App\Company\Coreteam;
+use App\Http\Controllers\Api\Controller;
 use App\Jobs\SendInvitation;
 use App\Profile;
 use Illuminate\Http\Request;
@@ -131,8 +131,10 @@ class CoreteamController extends Controller
             $data['image'] = $response;
         }
         $this->model = Coreteam::where('id',$id)->update($data);
-
-
+        if(isset($data['email']) && empty($data['email'])){
+            $data['email'] = null;
+        }
+        $this->model = $company->coreteam()->where('id',$id)->update($data);
         return $this->sendResponse();
     }
 

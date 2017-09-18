@@ -10,7 +10,8 @@ namespace App\Company;
 use App\Profile;
 use Illuminate\Database\Eloquent\Model;
 
-class Coreteam extends Model
+class 
+Coreteam extends Model
 {
 
     protected $table = 'core_teams';
@@ -37,6 +38,11 @@ class Coreteam extends Model
     public function getIsFollowingAttribute()
     {
         return $this->profile_id!=null ? Profile::isFollowing($this->profile_id, request()->user()->profile->id) : false;
+    }
+    
+    public function setEmailAttribute($value)
+    {
+        return empty($value) ? null : $value;
     }
 
 }

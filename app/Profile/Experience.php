@@ -4,8 +4,8 @@ namespace App\Profile;
 
 use App\Scopes\Profile;
 use App\Traits\StartEndDate;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Experience extends Model
 {
@@ -17,6 +17,7 @@ class Experience extends Model
     protected $visible = ['id','company','designation','description','location',
         'start_date','end_date','current_company'];
 
+    protected $touches = ['profile'];
 
     protected static function boot()
     {
@@ -24,6 +25,14 @@ class Experience extends Model
         // Order by name ASC
         static::addGlobalScope('experiences', function (Builder $builder) {
             $builder->orderBy('start_date', 'desc');
+        });
+        
+        self::created(function($model){
+           \App\Documents\Profile::create($model->profile);
+        });
+        
+        self::updated(function($model){
+           \App\Documents\Profile::create($model->profile);
         });
     }
 

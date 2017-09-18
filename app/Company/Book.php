@@ -2,9 +2,7 @@
 
 namespace App\Company;
 
-use App\Scopes\Profile;
-use Illuminate\Database\Eloquent\Model;
-use \App\Book as BaseBook;
+use App\Book as BaseBook;
 use Illuminate\Database\Eloquent\Builder;
 
 class Book extends BaseBook
