@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
 use App\Company;
+use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
@@ -54,15 +55,10 @@ class JobController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        
-        if (!$company) {
-            return $this->sendError("This company does not belong to user.");
-        }
-        
         $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
-        $job = $company->jobs()->create($inputs);
+        
+        $job = Job::create($inputs);
         $this->model = Job::find($job->id);
         return $this->sendResponse();
     }
@@ -96,13 +92,7 @@ class JobController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        
-        if (!$company) {
-            return $this->sendError("This company does not belong to user.");
-        }
-        
-        $this->model = $company->jobs()->where('id', $id)->update($request->except(['_token', '_method']));
+        $this->model = Job::where('id', $id)->update($request->except(['_token', '_method']));
         return $this->sendResponse();
     }
     
@@ -114,16 +104,9 @@ class JobController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        if (!$company) {
-            return $this->sendError("This company does not belong to user.");
-        }
-        
         event(new DeleteFeedable($this->model));
-
-        $this->model = $company->jobs()->where('id', $id)->delete();
-
-
+        $this->model = Job::where('id', $id)->delete();
+        
         return $this->sendResponse();
         
     }
@@ -168,13 +151,8 @@ class JobController extends Controller
     
     public function unapply(Request $request, $profileId, $companyId, $id)
     {
-        $company = Company::find($companyId);
-        if (!$company) {
-            return $this->sendError("Company not found..");
-        }
-        
-        $job = $company->jobs()->where('id', $id)->first();
-        
+        $job = \App\Job::where('company_id',$companyId)->where('id',$id)->first();
+
         if (!$job) {
             return $this->sendError("Job not found.");
         }
@@ -187,14 +165,6 @@ class JobController extends Controller
     
     public function applications(Request $request, $profileId, $companyId, $id)
     {
-        $userId = $request->user()->id;
-        $user = \App\Profile\User::find($userId);
-        $isPartOfCompany = $user->isPartOfCompany($companyId);
-    
-        if(!$isPartOfCompany){
-            $this->sendError("This company does not belong to user.");
-        }
-        
         $job = \App\Job::where('id', $id)->where('company_id',$companyId)->first();
         
         if (!$job) {
@@ -223,14 +193,6 @@ class JobController extends Controller
     
     public function shortlist(Request $request,$profileId, $companyId, $id, $shortlistedProfileId)
     {
-        $userId = $request->user()->id;
-        $user = \App\Profile\User::find($userId);
-        $isPartOfCompany = $user->isPartOfCompany($companyId);
-    
-        if(!$isPartOfCompany){
-            $this->sendError("This company does not belong to user.");
-        }
-    
         $job = \App\Job::where('id', $id)->where('company_id',$companyId)->first();
 
         if (!$job) {

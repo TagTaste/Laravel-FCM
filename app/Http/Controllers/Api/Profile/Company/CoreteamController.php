@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
+use App\CompanyUser;
 use App\Company\Coreteam;
 use App\Http\Controllers\Api\Controller;
 use App\Jobs\SendInvitation;
@@ -39,12 +40,6 @@ class CoreteamController extends Controller
      */
     public function store(Request $request,$profileId, $companyId)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
         if($request->has("profile_id"))
         {
             $profileId = Coreteam::where("company_id",$companyId)->where("profile_id",$request->input("profile_id"))->exists();
@@ -72,7 +67,7 @@ class CoreteamController extends Controller
         }
         $data['invited'] = !$request->has("profile_id") && $request->has("email");
 
-        $this->model = $company->coreteam()->create($data);
+        $this->model = Coreteam::create($data);
         
         if($request->has("email") && env('ENABLE_EMAILS',0) == 1)
         {
@@ -123,12 +118,6 @@ class CoreteamController extends Controller
      */
     public function update(Request $request, $profileId,$companyId,$id)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
         $data = $request->except(['_method','_token','company_id']);
 
         if($request->hasFile('image')){
@@ -141,12 +130,11 @@ class CoreteamController extends Controller
             }
             $data['image'] = $response;
         }
+        $this->model = Coreteam::where('id',$id)->update($data);
         if(isset($data['email']) && empty($data['email'])){
             unset($data['email']);
         }
         $this->model = $company->coreteam()->where('id',$id)->update($data);
-
-
         return $this->sendResponse();
     }
 
@@ -158,30 +146,17 @@ class CoreteamController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
-
-        $this->model = $company->coreteam()->where('id',$id)->delete();
+        $this->model = Coreteam::where('id',$id)->delete();
 
         return $this->sendResponse();
     }
 
     public function ordering(Request $request, $profileId, $companyId)
     {
-        $userId = $request->user()->id;
-        $company = \App\Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
         $members =$request->input("member");
         if(count($members)>0){
             foreach ($members as $member){
-                $this->model = $company->coreteam()->where('id',$member['id'])->update(['order'=>$member['order']]);
+                $this->model = Coreteam::where('id',$member['id'])->update(['order'=>$member['order']]);
             }
         }
         $this->model = Coreteam::where('company_id',$companyId)->orderBy('order','ASC')->get();
