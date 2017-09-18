@@ -47,16 +47,17 @@ class ProductController extends Controller
             $filename = $request->user()->id . str_random(25) . ".jpeg";
             $product->image = $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
         }
-        
+
         $product->moq = $request->input("moq");
+        $product->moq = $request->input("description");
+        $product->moq = $request->input("delivery_cities");
         $product->type = $request->input("type");
-        $product->about = $request->input("about");
         $product->ingredients = $request->input("ingredients");
         $product->certifications = $request->input("certifications");
         $product->portion_size = $request->input("portion_size");
         $product->shelf_life = $request->input("shelf_life");
         $product->mode = $request->input("mode");
-        $product->company_id = $company->id;
+        $product->company_id = $companyId;
         $product->save();
         
         $categories = $request->input('categories');
@@ -97,8 +98,9 @@ class ProductController extends Controller
             $product->image = $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
         }
         $product->moq = $request->input("moq");
+        $product->moq = $request->input("description");
+        $product->moq = $request->input("delivery_cities");
         $product->type = $request->input("type");
-        $product->about = $request->input("about");
         $product->ingredients = $request->input("ingredients");
         $product->certifications = $request->input("certifications");
         $product->portion_size = $request->input("portion_size");
