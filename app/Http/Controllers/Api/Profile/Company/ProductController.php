@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company\Product;
-use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Tagtaste\Api\SendsJsonResponse;
@@ -56,7 +55,7 @@ class ProductController extends Controller
         $product->portion_size = $request->input("portion_size");
         $product->shelf_life = $request->input("shelf_life");
         $product->mode = $request->input("mode");
-        $product->company_id = $company->id;
+        $product->company_id = $companyId;
         $product->save();
         
         $categories = $request->input('categories');
