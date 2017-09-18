@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company\Product;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Tagtaste\Api\SendsJsonResponse;
@@ -38,12 +39,6 @@ class ProductController extends Controller
      */
     public function store(Request $request, $profileid, $companyId)
     {
-        
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        if (!$company) {
-            throw new \Exception("This company does not belong to user.");
-        }
-        \Log::info($request->all());
         $product = new Product();
         $product->name = $request->input("name");
         $product->price = $request->input("price");
@@ -92,11 +87,6 @@ class ProductController extends Controller
      */
     public function update(Request $request, $profileid, $companyId, $id)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        
-        if (!$company) {
-            throw new \Exception("This company does not belong to user.");
-        }
         $product = Product::findOrFail($id);
         
         $product->name = $request->input("name");
@@ -131,11 +121,7 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id', $companyId)->first();
-        if (!$company) {
-            throw new \Exception("This company does not belong to user.");
-        }
-        $this->model = $company->products()->where('id', $id)->delete();
+        $this->model = Product::where('id', $id)->delete();
         return $this->sendResponse();
     }
     

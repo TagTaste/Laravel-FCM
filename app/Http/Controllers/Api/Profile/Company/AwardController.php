@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use App\Company\Award;
 use Illuminate\Http\Request;
@@ -39,14 +40,10 @@ class AwardController extends Controller
      */
     public function store(Request $request,$profileId, $companyId)
     {
-        $userId = $request->user()->id;
-        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
-
-        $this->model = $company->awards()->create($request->only($this->fields));
+        $data = $request->except(['_method','_token','company_id']);
+        $data['company_id'] = $companyId;
+        $this->model = Award::create($data);
+        $this->model->company()->sync($companyId);
         return $this->sendResponse();
     }
 
@@ -86,23 +83,15 @@ class AwardController extends Controller
      */
     public function update(Request $request, $profileId,$companyId,$id)
     {
-        $userId = $request->user()->id;
-        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
-        }
-        $inputs = $request->only(['name','description','date']);
-        $inputs = array_filter($inputs);
+        $data = $request->except(['_method','_token','company_id']);
+        $data['company_id'] = $companyId;
 
         if(isset($inputs['date'])){
             $inputs['date'] = "01-".$inputs['date'];
             $inputs['date'] = date('Y-m-d',strtotime($inputs['date']));
         }
 
-        $this->model = Award::where('id',$id)->forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
-            $query->where('id',$userId);
-        })->update($inputs);
+        $this->model = Award::where('id',$id)->update($inputs);
 
         return $this->sendResponse();
     }
@@ -116,15 +105,14 @@ class AwardController extends Controller
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
         $userId = $request->user()->id;
-        $company = Company::where('id',$companyId)->where('user_id',$userId)->first();
-
-        if(!$company){
-            throw new \Exception("User does not belong to this company.");
+        $loggedInProfileId = $request->user()->profile->id;
+        $company = CompanyUser::where("company_id",$companyId)->where('profile_id',$loggedInProfileId)->first();
+        if(!$company)
+        {
+            return $this->sendError("User does not belong to this company.");
         }
 
-        $this->model = Award::where('id',$id)->forCompany($companyId)->whereHas('company.user',function($query) use ($userId){
-            $query->where('id',$userId);
-        })->delete();
+        $this->model = Award::where('id',$id)->delete();
 
         return $this->sendResponse();
     }

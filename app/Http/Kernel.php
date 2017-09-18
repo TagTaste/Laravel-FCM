@@ -61,6 +61,7 @@ class Kernel extends HttpKernel
         'api.auth'=> \App\Http\Middleware\Api\Auth::class,
         'api.checkProfile' => \App\Http\Middleware\Api\CheckProfile::class,
         'sanitize' => \App\Http\Middleware\Sanitize::class,
-        'search.save' => \App\Http\Middleware\SaveSearchQuery::class
+        'search.save' => \App\Http\Middleware\SaveSearchQuery::class,
+        'api.CheckCompanyAdmin' => \App\Http\Middleware\Api\CheckCompanyAdmin::class
     ];
 }

@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company\Patent;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 
@@ -33,12 +34,8 @@ class PatentController extends Controller {
      */
     public function store(Request $request, $profileId, $companyId)
 	{
-	    $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
-        if(!$company){
-            throw new \Exception("This user does not own this company.");
-        }
         $inputs = $request->only(['title','description','number','issued_by','awarded_on','url']);
-        $inputs['company_id'] = $company->id;
+        $inputs['company_id'] = $companyId;
 
         $this->model = Patent::create(array_filter($inputs));
         return $this->sendResponse();
@@ -68,16 +65,13 @@ class PatentController extends Controller {
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $userId = $request->user()->id;
         $inputs = $request->only(['title','description','number','issued_by','awarded_on','url']);
         $inputs = array_filter($inputs);
         if(isset($inputs['awarded_on'])){
             $inputs['awarded_on'] = "01-".$inputs['awarded_on'];
             $inputs['awarded_on'] = date('Y-m-d',strtotime($inputs['awarded_on']));
         }
-        $this->model = Patent::whereHas('company.user',function($query) use ($userId){
-            $query->where('id',$userId);
-        })->where('id',$id)->where('company_id',$companyId)->update($inputs);
+        $this->model = Patent::where('id',$id)->update($inputs);
 
         return $this->sendResponse();
 	}
@@ -92,11 +86,7 @@ class PatentController extends Controller {
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
 	{
-        $userId = $request->user()->id;
-
-        $this->model = Patent::whereHas('company.user',function($query) use ($userId){
-            $query->where('id',$userId);
-        })->where('id',$id)->where('company_id',$companyId)->delete();
+        $this->model = Patent::where('id',$id)->delete();
 
         return $this->sendResponse();
 	}

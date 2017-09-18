@@ -13,7 +13,7 @@ class Affiliation extends Model
 {
     protected $table = 'affiliations';
 
-    protected $fillable = ['title'];
+    protected $fillable = ['title','company_id'];
 
     protected $visible = ['id','title'];
 
