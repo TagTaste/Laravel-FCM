@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use App\User;
 use Illuminate\Http\Request;
@@ -16,15 +17,7 @@ class UserController extends Controller
 	 */
 	public function index(Request $request,$profileId,$companyId)
 	{
-	    //check if the user belongs to the requested company.
-        $loggedInUserId = $request->user()->id;
-        $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
-        
-        if (!$company) {
-            throw new \Exception("Company does not belongs this user.");
-        }
-        
-		$this->model = $company->getUsers();
+		$this->model = CompanyUser::where("company_id",$companyId)->get();
 		return $this->sendResponse();
 	}
 
@@ -36,16 +29,15 @@ class UserController extends Controller
 	 */
     public function store(Request $request, $profileId, $companyId)
     {
-        $loggedInUserId = $request->user()->id;
-        $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
+        $company = Company::where('id', $companyId)->first();
         
         if (!$company) {
-            throw new \Exception("Company does not belongs this user.");
+            return $this->sendError("Company does not exist.");
         }
 
         $userId = User::select('id')->where('email',$request->input("email"))->first();
         if(!$userId){
-            throw new \Exception("User is not available.");
+            return $this->sendError("User does not exist");
         }
 
         try {
@@ -66,12 +58,7 @@ class UserController extends Controller
 	 */
 	public function destroy(Request $request, $profileId, $companyId, $userProfileId)
 	{
-        $loggedInUserId = $request->user()->id;
-        $company = Company::where('id', $companyId)->where('user_id', $loggedInUserId)->first();
-        
-        if (!$company) {
-            throw new \Exception("Company does not belongs this user.");
-        }
+        $company = Company::where('id', $companyId)->first();
         
         try {
             $userId = \App\Recipe\Profile::select("user_id")->where('id',$userProfileId)->first();

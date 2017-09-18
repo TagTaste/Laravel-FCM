@@ -7,8 +7,8 @@ use App\Events\Actions\Like;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Recipe;
-use App\RecipeRating;
 use App\RecipeLike;
+use App\RecipeRating;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -321,12 +321,12 @@ class RecipeController extends Controller
         if ($photoLike != null) {
             RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta", "like", -1);
+            $this->model['likeCount'] = \Redis::hIncrBy("recipe:" . $id . ":meta", "like", -1);
 
         } else {
             RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
             $this->model['liked'] = true;
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $id . ":meta", "like", 1);
+            $this->model['likeCount'] = \Redis::hIncrBy("recipe:" . $id . ":meta", "like", 1);
             $recipe = Recipe::find($id);
             event(new Like($recipe, $request->user()->profile));
         }
