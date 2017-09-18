@@ -142,7 +142,7 @@ class CoreteamController extends Controller
             $data['image'] = $response;
         }
         if(isset($data['email']) && empty($data['email'])){
-            $data['email'] = null;
+            unset($data['email']);
         }
         $this->model = $company->coreteam()->where('id',$id)->update($data);
 
