@@ -48,15 +48,6 @@ class CompanyCatalogueController extends Controller
     public function store(Request $request, $profileId, $companyId)
     {
         $inputs = $request->all();
-        $userId = $request->user()->id;
-    
-        $company = Company::where('id', $companyId)->where('users',function($query) use ($userId){
-            $query->where('user_id',$userId);
-        })->first();
-        
-        if (!$company) {
-            throw new \Exception("User does not belong to this company.");
-        }
         $inputs['company_id'] = $companyId;
         if (!$request->hasFile('image') && empty($request->input('image)'))) {
             return $this->sendError("Image missing.");
@@ -103,17 +94,7 @@ class CompanyCatalogueController extends Controller
     public function update(Request $request, $profileId, $companyId, $id)
     {
         $inputs = $request->all();
-        
-        $userId = $request->user()->id;
-        
-        $company = Company::where('id', $companyId)->where('users',function($query) use ($userId){
-            $query->where('user_id',$userId);
-        })->first();
-        
-        if (!$company) {
-            throw new \Exception("User does not belong to this company.");
-        }
-    
+
         $this->model = $this->model->findOrFail($id);
     
         if(!$this->model){
@@ -142,16 +123,6 @@ class CompanyCatalogueController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $userId = $request->user()->id;
-        
-        $company = Company::where('id', $companyId)->where('users',function($query) use ($userId){
-            $query->where('user_id',$userId);
-        })->first();
-        
-        if (!$company) {
-            throw new \Exception("User does not belong to this company.");
-        }
-        
         $this->model = $this->model->find($id);
         
         if (!$this->model) {

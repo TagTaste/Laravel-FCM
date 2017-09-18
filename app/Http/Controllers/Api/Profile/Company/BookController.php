@@ -39,13 +39,9 @@ class BookController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
-
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
-        }
-
-        $this->model = $company->books()->create(array_filter($request->only($this->fields)));
+        $data = $request->except(['_method','_token','company_id']);
+        $data['company_id'] = $companyId;
+        $this->model = Book::create($data);
 
         return $this->sendResponse();
     }
@@ -85,20 +81,13 @@ class BookController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $input = $request->only($this->fields);
-        $input = array_filter($input);
+        $input = $request->except(['_method','_token','company_id']);
         if(isset($input['release_date'])){
             $input['release_date'] = "01-".$input['release_date'];
             $input['release_date'] = date('Y-m-d',strtotime($input['release_date']));
         }
 
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
-
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
-        }
-
-        $this->model = $company->books()->where('id',$id)->update($input);
+        $this->model = Book::where('company_id',$companyId)->where('id',$id)->update($input);
 
         return $this->sendResponse();
     }
@@ -111,13 +100,7 @@ class BookController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $company = \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
-
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
-        }
-
-        $this->model = $company->books()->where('id',$id)->delete();
+        $this->model = Book::where('company_id',$companyId)->where('id',$id)->delete();
 
         return $this->sendResponse();
     }
