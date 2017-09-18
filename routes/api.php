@@ -219,7 +219,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
                 //namespace company
 
-                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::resource("websites","WebsiteController");
                     //Route::resource("blogs","BlogController");
                     Route::resource("advertisements","AdvertisementController");
