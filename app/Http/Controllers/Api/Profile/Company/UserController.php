@@ -32,12 +32,12 @@ class UserController extends Controller
         $company = Company::where('id', $companyId)->first();
         
         if (!$company) {
-            throw new \Exception("Company does not belongs this user.");
+            return $this->sendError("Company does not exist.");
         }
 
         $userId = User::select('id')->where('email',$request->input("email"))->first();
         if(!$userId){
-            throw new \Exception("User is not available.");
+            return $this->sendError("User does not exist");
         }
 
         try {
