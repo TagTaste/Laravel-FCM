@@ -221,10 +221,10 @@ class ProfileController extends Controller
         $profileId = $request->user()->profile->id;
         
         //profiles the logged in user is following
-        \Redis::sAdd("following:" . $profileId, $channelOwnerProfileId);
+        \Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
         
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:" . $channelOwnerProfileId, $profileId);
+        \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
         
         if(!$this->model){
             throw new \Exception("You are already following this profile.");
@@ -250,10 +250,10 @@ class ProfileController extends Controller
     
         $profileId = $request->user()->profile->id;
         //profiles the logged in user is following
-        \Redis::sRem("following:" . $profileId, $channelOwnerProfileId);
+        \Redis::sRem("following:profile:" . $profileId, $channelOwnerProfileId);
     
         //profiles that are following $channelOwner
-        \Redis::sRem("followers:" . $channelOwnerProfileId, $profileId);
+        \Redis::sRem("followers:profile:" . $channelOwnerProfileId, $profileId);
     
         return $this->sendResponse();
     }
