@@ -320,10 +320,12 @@ class ProfileController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
+            
             $profile->isFollowing =  in_array($profile->id,$followersOfLoggedInProfile);
         }
         return $following;
     }
+    
     public function following(Request $request, $id)
     {
         $this->model = $this->getFollowing($id, $request->user()->profile->id);
@@ -348,7 +350,7 @@ class ProfileController extends Controller
     
             foreach ($profiles as $profile){
                 $temp = $profile->toArray();
-                $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+                $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);
                 $this->model['data'][] = $temp;
             }
             
