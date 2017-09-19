@@ -104,13 +104,6 @@ class AwardController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        $userId = $request->user()->id;
-        $loggedInProfileId = $request->user()->profile->id;
-        $company = CompanyUser::where("company_id",$companyId)->where('profile_id',$loggedInProfileId)->first();
-        if(!$company)
-        {
-            return $this->sendError("User does not belong to this company.");
-        }
 
         $this->model = Award::where('id',$id)->delete();
 

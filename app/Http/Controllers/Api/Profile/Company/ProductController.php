@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company\Product;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Tagtaste\Api\SendsJsonResponse;
@@ -46,10 +47,11 @@ class ProductController extends Controller
             $filename = $request->user()->id . str_random(25) . ".jpeg";
             $product->image = $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
         }
-        
+
         $product->moq = $request->input("moq");
+        $product->description = $request->input("description");
+        $product->delivery_cities = $request->input("delivery_cities");
         $product->type = $request->input("type");
-        $product->about = $request->input("about");
         $product->ingredients = $request->input("ingredients");
         $product->certifications = $request->input("certifications");
         $product->portion_size = $request->input("portion_size");
@@ -96,8 +98,9 @@ class ProductController extends Controller
             $product->image = $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
         }
         $product->moq = $request->input("moq");
+        $product->description = $request->input("description");
+        $product->delivery_cities = $request->input("delivery_cities");
         $product->type = $request->input("type");
-        $product->about = $request->input("about");
         $product->ingredients = $request->input("ingredients");
         $product->certifications = $request->input("certifications");
         $product->portion_size = $request->input("portion_size");
