@@ -43,6 +43,9 @@ class Subscriber extends Model
     public static function getFollowing($profileId)
     {
         $profileIds = \Redis::sMembers("following:profile:$profileId");
+        if(count($profileIds) === 0) {
+            return;
+        }
         $keys = [];
         foreach($profileIds as $id){
             $keys[] = "profile:small:" . $id;
