@@ -16,7 +16,7 @@ class Product extends Model
 
 	public static $modes = ['Frozen','Fresh'];
 
-    protected $fillable = ['name','price','image','moq','imageUrl'];
+    protected $fillable = ['name','price','image','moq','imageUrl','description','certifications','delivery_cities','category'];
 
     protected $dates = ['deleted_at'];
     
