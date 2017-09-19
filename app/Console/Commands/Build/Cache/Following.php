@@ -42,7 +42,7 @@ class Following extends Command
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);
                 $channelOwnerProfileId = last($channelOwnerProfileId);
-                \Redis::del("following:" . $model->profile_id);
+                \Redis::del("following:profile:" . $model->profile_id);
     
             }
             foreach($subscribers as $model){
@@ -51,7 +51,7 @@ class Following extends Command
                 if($model->profile_id == $channelOwnerProfileId){
                     continue;
                 }
-                \Redis::sAdd("following:" . $model->profile_id, $channelOwnerProfileId);
+                \Redis::sAdd("following:profile:" . $model->profile_id, $channelOwnerProfileId);
             }
         });
     }

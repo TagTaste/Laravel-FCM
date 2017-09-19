@@ -22,7 +22,7 @@ class Subscriber extends Model
     
     public static function getFollowers($profileId)
     {
-        $profileIds = \Redis::sMembers("followers:$profileId");
+        $profileIds = \Redis::sMembers("followers:profile:$profileId");
         $keys = [];
         foreach($profileIds as $id){
             $keys[] = "profile:small:" . $id;
@@ -32,17 +32,17 @@ class Subscriber extends Model
     
     public static function countFollowers($profileId)
     {
-        return \Redis::sCard("followers:" . $profileId);
+        return \Redis::sCard("followers:profile:" . $profileId);
     }
     
     public static function countFollowing($profileId)
     {
-        return \Redis::sCard("following:" . $profileId);
+        return \Redis::sCard("following:profile:" . $profileId);
     }
     
     public static function getFollowing($profileId)
     {
-        $profileIds = \Redis::sMembers("following:$profileId");
+        $profileIds = \Redis::sMembers("following:profile:$profileId");
         $keys = [];
         foreach($profileIds as $id){
             $keys[] = "profile:small:" . $id;
