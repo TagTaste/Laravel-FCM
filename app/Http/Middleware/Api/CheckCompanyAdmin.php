@@ -24,7 +24,7 @@ class CheckCompanyAdmin
         }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST'||$_SERVER['REQUEST_METHOD'] === 'PATCH'||$_SERVER['REQUEST_METHOD'] === 'DELETE'||$_SERVER['REQUEST_METHOD'] === 'PUT') {
-            $checkAdmin = CompanyUser::where("company_id", $request->companyId)->where('profile_id', $request->user()->profile->id)->exists();
+            $checkAdmin = CompanyUser::where("company_id",(int) $request->companyId)->where('profile_id', $request->user()->profile->id)->exists();
             if (!$checkAdmin) {
                 return response()->json(['error' => "User does not belong to this company."]);
             }
