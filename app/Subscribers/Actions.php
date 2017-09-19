@@ -5,7 +5,6 @@ namespace App\Subscribers;
 
 use App\Events\Actions\Comment;
 use App\Events\Actions\Like;
-use App\Events\Actions\Share;
 use App\ModelSubscriber;
 use App\Notify\Profile;
 use Illuminate\Support\Facades\Notification;
@@ -26,9 +25,7 @@ class Actions
             ->where('model_subscribers.model_id','=',$modelId)
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
-            ->whereNull('model_subscribers.deleted_at');
-        \Log::info($profiles->getBindings());
-        $profiles = $profiles->get();
+            ->whereNull('model_subscribers.deleted_at')->get();
         //send notification
         if($profiles->count() === 0) {
             \Log::info("No model subscribers. Not sending notification.");
