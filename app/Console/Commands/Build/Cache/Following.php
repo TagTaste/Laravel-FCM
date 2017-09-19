@@ -19,7 +19,7 @@ class Following extends Command
      *
      * @var string
      */
-    protected $description = 'rebuild following cache. CLEARS old key.';
+    protected $description = 'rebuild following cache.';
 
     /**
      * Create a new command instance.
@@ -39,12 +39,7 @@ class Following extends Command
     public function handle()
     {
         Subscriber::where("channel_name","like","public.%")->chunk(200,function($subscribers){
-            foreach($subscribers as $model){
-                $channelOwnerProfileId = explode(".",$model->channel_name);
-                $channelOwnerProfileId = last($channelOwnerProfileId);
-                \Redis::del("following:profile:" . $model->profile_id);
-    
-            }
+            
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);
                 $channelOwnerProfileId = last($channelOwnerProfileId);
