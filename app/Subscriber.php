@@ -39,7 +39,11 @@ class Subscriber extends Model
     public static function getFollowers($channelName)
     {
         $profileIds = \Redis::sMembers("subscribers:".$channelName);
-        return \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+        $keys = [];
+        foreach($profileIds as $id){
+            $keys[] = "profile:small:" . $id;
+        }
+        return \Redis::mget($keys);
     }
     
     public static function count($channelName)
