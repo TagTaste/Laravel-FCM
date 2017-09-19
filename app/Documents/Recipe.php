@@ -4,5 +4,5 @@ class Recipe extends Document
 {
     public $type = 'recipe';
     
-    public $bodyProperties = ['name','equipments','ingredients'];
+    public $bodyProperties = ['name','equipments','ingredients','cuisine','description'];
 }
