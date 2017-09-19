@@ -8,7 +8,7 @@ class CompanyUser extends Model
 {
     protected $table = 'company_users';
     
-    protected $fillable = ['company_id', 'user_id'];
+    protected $fillable = ['company_id', 'user_id','profile_id'];
 
     protected $visible = ['profile', 'created_at', 'updated_at','company'];
 
