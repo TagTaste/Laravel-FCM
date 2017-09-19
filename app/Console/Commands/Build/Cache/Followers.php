@@ -19,7 +19,7 @@ class Followers extends Command
      *
      * @var string
      */
-    protected $description = 'rebuild followers cache. CLEARS old key.';
+    protected $description = 'rebuild followers cache.';
 
     /**
      * Create a new command instance.
@@ -39,11 +39,6 @@ class Followers extends Command
     public function handle()
     {
         Subscriber::chunk(200,function($subscribers){
-            foreach($subscribers as $model){
-                $channelOwnerProfileId = explode(".",$model->channel_name);
-                $channelOwnerProfileId = last($channelOwnerProfileId);
-                \Redis::del("followers:profile:" . $channelOwnerProfileId);
-            }
             
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);
