@@ -323,11 +323,14 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        //if you use \App\Profile here, it would end up nesting a lot of things.
-        $profiles = Subscriber::getFollowers("network." . $this->id);
-
         $count = Subscriber::count("network." . $this->id);
 
+        if($count === 0){
+            return ['count' => 0, 'profiles' => null];
+        }
+    
+        $profiles = Subscriber::getFollowers("network." . $this->id);
+        
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
         } elseif ($count > 1000) {
