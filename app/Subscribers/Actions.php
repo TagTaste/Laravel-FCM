@@ -25,8 +25,7 @@ class Actions
             ->where('model_subscribers.model_id','=',$modelId)
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
-            ->whereNull('model_subscribers.deleted_at');
-        $profiles = $profiles->get();
+            ->whereNull('model_subscribers.deleted_at')->get();
         //send notification
         if($profiles->count() === 0) {
             \Log::info("No model subscribers. Not sending notification.");
