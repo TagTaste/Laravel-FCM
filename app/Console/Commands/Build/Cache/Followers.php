@@ -19,7 +19,7 @@ class Followers extends Command
      *
      * @var string
      */
-    protected $description = 'rebuild followers cache';
+    protected $description = 'rebuild followers cache. CLEARS old key.';
 
     /**
      * Create a new command instance.
@@ -42,6 +42,15 @@ class Followers extends Command
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);
                 $channelOwnerProfileId = last($channelOwnerProfileId);
+                \Redis::del("followers:" . $channelOwnerProfileId);
+            }
+            
+            foreach($subscribers as $model){
+                $channelOwnerProfileId = explode(".",$model->channel_name);
+                $channelOwnerProfileId = last($channelOwnerProfileId);
+                if($model->profile_id == $channelOwnerProfileId){
+                    continue;
+                }
                 \Redis::sAdd("followers:" . $channelOwnerProfileId, $model->profile_id);
             }
         });
