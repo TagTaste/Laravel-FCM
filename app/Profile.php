@@ -580,7 +580,8 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
+        return \Redis::sIsMember("subscribers:network." . $profileId,$followerProfileId) === 1;
+        //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
     //specific to API
