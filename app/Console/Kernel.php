@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Build\Cache\Followers;
+use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,7 +18,11 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         RegisterFromGoogle::class,
-        RegisterCompanyFromGoogle::class
+        RegisterCompanyFromGoogle::class,
+        
+        //Cached Stuff
+        Followers::class,
+        Profiles::class
     ];
 
     /**
