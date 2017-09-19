@@ -36,11 +36,19 @@ class SearchController extends Controller
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
-            
             foreach($hits as $name => $hit){
                 $class = "\App\\" . ucwords($name);
                 $model = $class::whereIn('id',$hit->pluck('_id'))->get()->toArray();
                 $this->model[$name] = $model;
+            }
+            
+            if(isset($this->model['profile'])){
+                $profileId = $request->user()->profile->id;
+                $following = \Redis::sMembers("following:profile:" . $profileId);
+                
+                foreach($this->model['profile'] as &$profile){
+                    $profile['isFollowing'] = in_array($profile['id'],$following);
+                }
             }
             return $this->sendResponse();
     
