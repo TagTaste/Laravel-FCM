@@ -28,11 +28,22 @@ class Subscriber extends Model
     }
     public function profile()
     {
-        return $this->belongsTo('profile_id');
+        return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
     }
     
     public function channel()
     {
         return $this->belongsTo(Channel::class,'channel_name','name');
+    }
+    
+    public static function getFollowers($channelName)
+    {
+        $profileIds = \Redis::sMembers("subscribers:".$channelName);
+        return \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+    }
+    
+    public static function count($channelName)
+    {
+        return \Redis::sCard("subscribers:" . $channelName);
     }
 }
