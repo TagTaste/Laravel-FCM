@@ -311,48 +311,18 @@ class ProfileController extends Controller
     
     private function getFollowing($id, $loggedInProfileId)
     {
-        $following = Profile::getFollowing($id);
-        if(!$following){
-            throw new ModelNotFoundException("Following profiles not found.");
-        }
-        $followingProfileIds = $following->pluck('id')->toArray();
-        //build network names
-        $networks = [];
-        foreach($followingProfileIds as $profileId){
-            if($profileId != $loggedInProfileId){
-                $networks[] = 'network.' . $profileId;
-            }
-        }
-        $alreadySubscribed = Subscriber::where('profile_id',$loggedInProfileId)->whereIn('channel_name',$networks)
-            ->whereNull('deleted_at')
-            ->get();
-        $result = [];
-    
+        $following = Subscriber::getFollowing($id);
+        
+        $followersOfLoggedInProfile = \Redis::sMembers("following:profile:$loggedInProfileId");
+
         foreach($following as &$profile){
-            $temp = $profile->toArray();
-            $temp['isFollowing'] = false;
-            $temp['self'] = false;
-            $result[] = $temp;
-        }
-
-        if($alreadySubscribed->count() > 0){
-            $alreadySubscribed = $alreadySubscribed->keyBy('channel_name');
-            foreach($result as &$profile){
-                if($profile['id'] === $loggedInProfileId){
-                    $profile['self'] = true;
-                    continue;
-                }
-            
-                $channel = $alreadySubscribed->get('network.' . $profile['id']);
-            
-                if($channel === null){
-                    continue;
-                }
-                $profile['isFollowing'] = true;
+            if(is_null($profile)){
+                continue;
             }
+            $profile = json_decode($profile);
+            $profile->isFollowing =  in_array($profile->id,$followersOfLoggedInProfile);
         }
-
-        return $result;
+        return $following;
     }
     public function following(Request $request, $id)
     {
