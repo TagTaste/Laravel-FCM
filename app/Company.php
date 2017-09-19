@@ -423,7 +423,7 @@ class Company extends Model
 
     public function getReviewCountAttribute()
     {
-        return $this->rating()->whereNotNull('review')->count();
+        return $this->rating()->whereNotNull('title')->count();
     }
 
     public function getRatingCountAttribute()

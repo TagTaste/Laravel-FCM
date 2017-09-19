@@ -49,8 +49,8 @@ class ProductController extends Controller
         }
 
         $product->moq = $request->input("moq");
-        $product->moq = $request->input("description");
-        $product->moq = $request->input("delivery_cities");
+        $product->description = $request->input("description");
+        $product->delivery_cities = $request->input("delivery_cities");
         $product->type = $request->input("type");
         $product->ingredients = $request->input("ingredients");
         $product->certifications = $request->input("certifications");
@@ -98,8 +98,8 @@ class ProductController extends Controller
             $product->image = $request->image->storeAs('product_images', $filename,['visibility'=>'public']);
         }
         $product->moq = $request->input("moq");
-        $product->moq = $request->input("description");
-        $product->moq = $request->input("delivery_cities");
+        $product->description = $request->input("description");
+        $product->delivery_cities = $request->input("delivery_cities");
         $product->type = $request->input("type");
         $product->ingredients = $request->input("ingredients");
         $product->certifications = $request->input("certifications");
