@@ -10,22 +10,6 @@ class Subscriber extends Model
     use SoftDeletes;
     protected $fillable = ['channel_name', 'profile_id','timestamp'];
     
-    public static function boot()
-    {
-        parent::boot();
-        
-        self::created(function($model){
-            \Redis::sAdd("subscribers:" . $model->channel_name, $model->profile_id);
-        });
-        
-        self::restored(function($model){
-            \Redis::sAdd("subscribers:" . $model->channel_name, $model->profile_id);
-        });
-        
-        self::deleting(function($model){
-            \Redis::sRem("subscribers:" . $model->channel_name, $model->profile_id);
-        });
-    }
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
@@ -36,9 +20,9 @@ class Subscriber extends Model
         return $this->belongsTo(Channel::class,'channel_name','name');
     }
     
-    public static function getFollowers($channelName)
+    public static function getFollowers($profileId)
     {
-        $profileIds = \Redis::sMembers("subscribers:".$channelName);
+        $profileIds = \Redis::sMembers("followers:$profileId");
         $keys = [];
         foreach($profileIds as $id){
             $keys[] = "profile:small:" . $id;
@@ -46,8 +30,23 @@ class Subscriber extends Model
         return \Redis::mget($keys);
     }
     
-    public static function count($channelName)
+    public static function countFollowers($profileId)
     {
-        return \Redis::sCard("subscribers:" . $channelName);
+        return \Redis::sCard("followers:" . $profileId);
+    }
+    
+    public static function countFollowing($profileId)
+    {
+        return \Redis::sCard("following:" . $profileId);
+    }
+    
+    public static function getFollowing($profileId)
+    {
+        $profileIds = \Redis::sMembers("following:$profileId");
+        $keys = [];
+        foreach($profileIds as $id){
+            $keys[] = "profile:small:" . $id;
+        }
+        return \Redis::mget($keys);
     }
 }

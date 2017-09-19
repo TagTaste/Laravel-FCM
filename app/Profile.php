@@ -323,13 +323,13 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = Subscriber::count("network." . $this->id);
+        $count = Subscriber::countFollowing($this->id);
 
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
         }
     
-        $profiles = Subscriber::getFollowers("network." . $this->id);
+        $profiles = Subscriber::getFollowing($this->id);
         
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
@@ -364,19 +364,20 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        //if you use \App\Profile here, it would end up nesting a lot of things.
-        $profiles = Profile::getFollowers($this->id);
-
-        $count = $profiles->count();
-        if ($count > 1000000) {
-            $count = round($count / 1000000, 1);
-            $count = $count . "M";
-        } elseif ($count > 1000) {
-
-            $count = round($count / 1000, 1);
-            $count = $count . "K";
+        $count = Subscriber::countFollowers($this->id);
+    
+        if($count === 0){
+            return ['count' => 0, 'profiles' => null];
         }
-
+    
+        $profiles = Subscriber::getFollowers($this->id);
+    
+        if ($count > 1000000) {
+            $count = round($count / 1000000, 1) . "m";
+        } elseif ($count > 1000) {
+            $count = round($count / 1000, 1) . "k";
+        }
+    
         return ['count' => $count, 'profiles' => $profiles];
 
     }

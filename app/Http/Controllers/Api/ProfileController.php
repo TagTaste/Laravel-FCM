@@ -213,6 +213,14 @@ class ProfileController extends Controller
         }
         
         $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
+        $profileId = $request->user()->profile->id;
+        
+        //profiles the logged in user is following
+        \Redis::sAdd("following:" . $profileId, $channelOwnerProfileId);
+        
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:" . $channelOwnerProfileId, $profileId);
+        
         if(!$this->model){
             throw new \Exception("You are already following this profile.");
         }
@@ -234,6 +242,14 @@ class ProfileController extends Controller
         if(!$this->model){
             throw new \Exception("You are not following this profile.");
         }
+    
+        $profileId = $request->user()->profile->id;
+        //profiles the logged in user is following
+        \Redis::sRem("following:" . $profileId, $channelOwnerProfileId);
+    
+        //profiles that are following $channelOwner
+        \Redis::sRem("followers:" . $channelOwnerProfileId, $profileId);
+    
         return $this->sendResponse();
     }
     
