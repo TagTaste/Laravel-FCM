@@ -70,7 +70,7 @@ class ProfileController extends Controller
         $self = $id == $loggedInProfileId;
         $this->model['profile']['self'] = $self;
         
-        $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($id, $loggedInProfileId);
+        $this->model['profile']['isFollowing'] = $self ? false : Profile::isFollowing($loggedInProfileId,$id);
     
         return $this->sendResponse();
     }
