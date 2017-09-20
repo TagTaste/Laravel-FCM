@@ -117,8 +117,9 @@ class JobController extends Controller
         if (!$job) {
             return $this->sendError("Job not found.");
         }
-    
-        if($job->resume_required && !$request->hasFile("resume")){
+        
+        $resume = $request->user()->completeProfile->resume;
+        if($job->resume_required && !$request->hasFile("resume") && !$resume){
             return $this->sendError("Resume required");
         }
         
@@ -128,20 +129,16 @@ class JobController extends Controller
         $status = \Storage::makeDirectory($path, 0644, true);
         
         $resumeName = null;
-        $response = null;
         if($request->hasFile('resume')) {
             $ext = \File::extension($request->file('resume')->getClientOriginalName());
             $resumeName = str_random("32") . "." . $ext;
-            $response = $request->file("resume")->storeAs($path, $resumeName,['visibility'=>'public']);
-            if (!$response) {
+            $resume = $request->file("resume")->storeAs($path, $resumeName,['visibility'=>'public']);
+            if (!$resume) {
                 return $this->sendEerror("Could not save resume.");
             }
         }
-        else {
-            $response = $request->user()->profile->resume;
-        }
       
-        $this->model = $job->apply($profileId, $response,$request->input("message"));
+        $this->model = $job->apply($profileId, $resume,$request->input("message"));
         
         \Redis::hIncrBy("meta:job:" . $id,"count",1);
         return $this->sendResponse();
