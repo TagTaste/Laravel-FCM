@@ -79,7 +79,7 @@ class ChatController extends Controller
 		if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($this->model->id);
-            $response = $request->file('image')->storeAs($path,$imageName);
+            $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
@@ -131,7 +131,7 @@ class ChatController extends Controller
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($chat->id);
-            $response = $request->file('image')->storeAs($path,$imageName);
+            $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
