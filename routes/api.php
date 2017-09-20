@@ -244,6 +244,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource('photos','PhotoController');
                     Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                         Route::resource('comments','CommentController');
+                        Route::resource('like','PhotoLikeController');
                     });
                     
                     Route::resource("portfolio","PortfolioController");
