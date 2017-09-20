@@ -32,6 +32,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
 
+            //change password
+                Route::post("change/password","UserController@changePassword");
             //chat
                 Route::get("chatrooms","ChatController@rooms");
                 Route::post("chats/{chatId}/messages/{id}/markRead",'Chat\\MessageController@markRead');
