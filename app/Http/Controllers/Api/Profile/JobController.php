@@ -140,6 +140,9 @@ class JobController extends Controller
                 throw new \Exception("Could not save resume " . $resumeName . " at " . $path);
             }
         }
+        else {
+            $response = $request->user()->profile->resume;
+        }
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
         \Redis::hIncrBy("meta:job:" . $id,"count",1);
         return $this->sendResponse();

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
-use App\Company;
-use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
@@ -27,6 +25,7 @@ class JobController extends Controller
     public function __construct(Job $model)
     {
         $this->model = $model;
+    
     }
     
     /**
@@ -138,13 +137,12 @@ class JobController extends Controller
                 return $this->sendEerror("Could not save resume.");
             }
         }
-
-      //  else {
-//            $resumeName = $request->user()->profile->resume;
-//        }
-      $this->model = $job->apply($profileId, $response,$request->input("message"));
+        else {
+            $response = $request->user()->profile->resume;
+        }
       
-        $this->model = $job->apply($profileId, $resumeName,$request->input("message"));
+        $this->model = $job->apply($profileId, $response,$request->input("message"));
+        
         \Redis::hIncrBy("meta:job:" . $id,"count",1);
         return $this->sendResponse();
     }
