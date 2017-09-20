@@ -38,7 +38,7 @@ class Followers extends Command
      */
     public function handle()
     {
-        Subscriber::chunk(200,function($subscribers){
+        Subscriber::whereNull('deleted_at')->chunk(200,function($subscribers){
             
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);
