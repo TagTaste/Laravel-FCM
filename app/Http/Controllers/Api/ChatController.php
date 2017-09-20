@@ -79,11 +79,11 @@ class ChatController extends Controller
 		if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($this->model->id);
-            $response = $request->file('image')->storeAs($path,$imageName);
+            $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
-            $this->model->update(['image'=>$imageName]);
+            $this->model->update(['image'=>$response]);
         }
 		//add members to the chat
         $now = \Carbon\Carbon::now()->toDateTimeString();
@@ -131,11 +131,11 @@ class ChatController extends Controller
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($chat->id);
-            $response = $request->file('image')->storeAs($path,$imageName);
+            $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
-            $inputs['image'] = $imageName;
+            $inputs['image'] = $response;
         }
         
 		$this->model = $chat->update($inputs);
