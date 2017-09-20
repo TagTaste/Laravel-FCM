@@ -36,7 +36,7 @@ class JobController extends Controller
     public function index(Request $request, $profileId)
     {
         $this->model = [];
-        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at');
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id');
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -57,7 +57,8 @@ class JobController extends Controller
     {
         $profile = $request->user()->profile;
         
-        $inputs = $request->except(['_method','_token','company_id']);
+        $inputs = $request->except(['_method','_token','company_id','profile_id']);
+        
         $this->model = $profile->jobs()->create($inputs);
         return $this->sendResponse();
     }
@@ -92,7 +93,7 @@ class JobController extends Controller
     {
         $profileId = $request->user()->profile->id;
         
-        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id']));
+        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id','profile_id']));
         return $this->sendResponse();
     }
     
