@@ -89,7 +89,10 @@ class UserController extends Controller
             $this->model = $user->fill([
                 'password' => Hash::make($request->input("password"))
             ])->save();
+            $mail = (new \App\Jobs\PasswordConfirmation($user))->onQueue('emails');
+            \Log::info('Queueing Verified Email...');
 
+            dispatch($mail);
             return $this->sendResponse();
         }
 
