@@ -52,7 +52,12 @@ class Photo extends Model implements Feedable
            //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
     }
-
+    
+    public function addToCache()
+    {
+        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString()];
+        \Redis::set("photo:" . $this->id,json_encode($data));
+    }
 
     public function ideabooks()
     {
