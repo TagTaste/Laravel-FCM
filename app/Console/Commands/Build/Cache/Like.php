@@ -1,25 +1,24 @@
 <?php
 
-namespace App\Console\Commands\Build\Meta\Collaboration;
+namespace App\Console\Commands\Build\Cache;
 
-use App\Collaboration\Collaborator;
 use Illuminate\Console\Command;
 
-class CountApplications extends Command
+class Like extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:meta:collaborate:countApplication';
+    protected $signature = 'command:name';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Rebuild collaboration application Count';
+    protected $description = 'Command description';
 
     /**
      * Create a new command instance.
@@ -38,10 +37,6 @@ class CountApplications extends Command
      */
     public function handle()
     {
-        Collaborator::chunk(200,function($models){
-            foreach($models as $model){
-                \Redis::hIncrBy("meta:collaborate:" . $model->collaborate_id,"applicationCount",1);
-            }
-        });
+        //
     }
 }
