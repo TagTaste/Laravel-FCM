@@ -350,7 +350,7 @@ class ProfileController extends Controller
     
             foreach ($profiles as $profile){
                 $temp = $profile->toArray();
-                $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);
+                $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
                 $this->model['data'][] = $temp;
             }
             
