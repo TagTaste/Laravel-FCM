@@ -83,7 +83,7 @@ class ChatController extends Controller
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
-            $this->model->update(['image'=>$imageName]);
+            $this->model->update(['image'=>$response]);
         }
 		//add members to the chat
         $now = \Carbon\Carbon::now()->toDateTimeString();
@@ -135,7 +135,7 @@ class ChatController extends Controller
             if(!$response){
                 throw new \Exception("Could not save image " . $imageName . " at " . $path);
             }
-            $inputs['image'] = $imageName;
+            $inputs['image'] = $response;
         }
         
 		$this->model = $chat->update($inputs);
