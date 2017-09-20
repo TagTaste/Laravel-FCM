@@ -111,7 +111,7 @@ class ChatController extends Controller
         $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
         })->first();
-        
+
         return $this->sendResponse();
 	}
 
@@ -137,9 +137,20 @@ class ChatController extends Controller
             }
             $inputs['image'] = $response;
         }
-        
-		$this->model = $chat->update($inputs);
+        unset($inputs['profile_id']);
+        $this->model = $chat->update($inputs);
 
+        //add members to the chat
+        $profileIds = $request->input('profile_id');
+        $now = \Carbon\Carbon::now()->toDateTimeString();
+        $data = [];
+        if(count($profileIds)) {
+            foreach ($profileIds as $profileId) {
+                \Log::info($profileId);
+                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now];
+            }
+            $chat->members()->insert($data);
+        }
 		return $this->sendResponse();
 	}
 
