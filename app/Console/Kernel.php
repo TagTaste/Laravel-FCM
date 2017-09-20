@@ -9,6 +9,7 @@ use App\Console\Commands\Build\Cache\Job;
 use App\Console\Commands\Build\Cache\Photo;
 use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
+use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -32,7 +33,8 @@ class Kernel extends ConsoleKernel
         Recipe::class,
         Photo::class,
         Collaboration::class,
-        Job::class
+        Job::class,
+        Share::class
     ];
 
     /**
