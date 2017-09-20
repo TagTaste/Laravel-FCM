@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Console\Commands\Build\Cache;
+namespace App\Console\Commands\Build\Search;
 
-use App\Collaborate;
+use App\Documents\Collaborate;
 use Illuminate\Console\Command;
 
 class Collaboration extends Command
@@ -12,14 +12,14 @@ class Collaboration extends Command
      *
      * @var string
      */
-    protected $signature = 'build:cache:collaborations';
+    protected $signature = 'build:search:collaboration';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'rebuild collab cache';
+    protected $description = 'Rebuild search collaboration';
 
     /**
      * Create a new command instance.
@@ -38,10 +38,10 @@ class Collaboration extends Command
      */
     public function handle()
     {
-        Collaborate::chunk(200,function($models){
-           foreach($models as $model){
-               $model->addToCache();
-           }
+        \App\Collaborate::chunk(100,function($models){
+            foreach($models as $model){
+                \App\Documents\Collaborate::create($model);
+            }
         });
     }
 }

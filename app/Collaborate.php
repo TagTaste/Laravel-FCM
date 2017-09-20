@@ -50,7 +50,7 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount'])->toJson());
+        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount'])->toJson());
     
     }
     /**

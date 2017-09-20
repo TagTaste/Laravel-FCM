@@ -37,7 +37,7 @@ class Job extends Model implements Feedable
     
             \App\Documents\Job::create($model);
     
-            \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
+            $model->addToCache();
         });
     
         self::updated(function($model){
@@ -45,10 +45,14 @@ class Job extends Model implements Feedable
             
             //update the search
             \App\Documents\Job::create($model);
-    
+            $model->addToCache();
         });
     }
     
+    public function addToCache()
+    {
+        \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','company','applications','applicationCount','hasApplied'])->toJson());
+    }
     public function getJobIdAttribute()
     {
         return $this->id;

@@ -64,7 +64,7 @@ class PhotoController extends Controller
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
-        
+
         $this->model = $company->photos()->create($data);
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));

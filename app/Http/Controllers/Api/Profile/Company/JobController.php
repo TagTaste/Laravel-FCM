@@ -56,7 +56,7 @@ class JobController extends Controller
     {
         $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
-        
+        $inputs['company_id'] = $companyId;
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
         return $this->sendResponse();
@@ -91,7 +91,10 @@ class JobController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $this->model = Job::where('id', $id)->update($request->except(['_token', '_method']));
+        $data = $request->except(['_token', '_method']);
+        unset($data['profile_id']);
+        unset($data['company_id']);
+        $this->model = Job::where('id', $id)->update($data);
         return $this->sendResponse();
     }
     
@@ -154,7 +157,7 @@ class JobController extends Controller
         $profileId = $request->user()->profile->id;
         
         $this->model = $job->unapply($profileId);
-        \Redis::hIncrBy("meta:job:" . $id,"count",1);
+        \Redis::hIncrBy("meta:job:" . $id,"count",-1);
         return $this->sendResponse();
     }
     
