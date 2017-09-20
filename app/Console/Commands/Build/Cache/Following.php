@@ -38,7 +38,7 @@ class Following extends Command
      */
     public function handle()
     {
-        Subscriber::where("channel_name","like","public.%")->chunk(200,function($subscribers){
+        Subscriber::whereNull('deleted_at')->where("channel_name","like","public.%")->chunk(200,function($subscribers){
             
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);

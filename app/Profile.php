@@ -3,7 +3,6 @@
 namespace App;
 
 use App\Channel\Payload;
-use App\Events\Chat\Invite;
 use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -584,7 +583,7 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return \Redis::sIsMember("subscribers:network." . $profileId,$followerProfileId) === 1;
+        return \Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
