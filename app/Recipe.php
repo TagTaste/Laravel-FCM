@@ -57,7 +57,26 @@ class Recipe extends Model implements Feedable, CommentNotification
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
     }
-
+    
+    public function getNotificationContent()
+    {
+        $showcaseImage = null;
+        foreach($this->images as $image)
+        {
+            if($image->show_case)
+            {
+                $showcaseImage = $image->imageUrl;
+                break;
+            }
+        }
+    
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->name,
+            'image' => $showcaseImage
+        ];
+    }
 
     public function comments()
     {
