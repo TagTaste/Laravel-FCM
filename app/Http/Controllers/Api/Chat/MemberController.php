@@ -89,8 +89,8 @@ class MemberController extends Controller
             return $this->sendError("Only chat owner can remove members");
         }
         
-	$this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
-
-	return $this->sendResponse();
+        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
+    
+        return $this->sendResponse();
 	}
 }

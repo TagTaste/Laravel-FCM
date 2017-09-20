@@ -2,8 +2,11 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Followers;
 use App\Console\Commands\Build\Cache\Following;
+use App\Console\Commands\Build\Cache\Job;
+use App\Console\Commands\Build\Cache\Photo;
 use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -22,11 +25,14 @@ class Kernel extends ConsoleKernel
         RegisterFromGoogle::class,
         RegisterCompanyFromGoogle::class,
         
-        //Cached Stuff
+        //Rebuild Cache
         Followers::class,
         Following::class,
         Profiles::class,
-        Recipe::class
+        Recipe::class,
+        Photo::class,
+        Collaboration::class,
+        Job::class
     ];
 
     /**

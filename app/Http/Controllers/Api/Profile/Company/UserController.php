@@ -30,7 +30,7 @@ class UserController extends Controller
     public function store(Request $request, $profileId, $companyId)
     {
         $data = $request->except(['_method','_token','company_id']);
-        \Log::info($data);
+
         $profileId = \App\Recipe\Profile::where('id',$data['profile_id'])->exists();
         if(!$profileId)
         {
