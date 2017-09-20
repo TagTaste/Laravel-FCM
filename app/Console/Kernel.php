@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Console\Commands\Build\Cache\Followers;
 use App\Console\Commands\Build\Cache\Following;
 use App\Console\Commands\Build\Cache\Profiles;
+use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -24,7 +25,8 @@ class Kernel extends ConsoleKernel
         //Cached Stuff
         Followers::class,
         Following::class,
-        Profiles::class
+        Profiles::class,
+        Recipe::class
     ];
 
     /**

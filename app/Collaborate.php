@@ -35,20 +35,24 @@ class Collaborate extends Model implements Feedable
     public static function boot()
     {
         self::created(function($model){
-            \Redis::set("collaborate:" . $model->id,$model->makeHidden(['privacy','profile','company','commentCount','likeCount'])->toJson());
+            $model->addToCache();
     
             \App\Documents\Collaborate::create($model);
         });
         
         self::updated(function($model){
-            \Redis::set("collaborate:" . $model->id,$model->makeHidden(['privacy','profile','company','commentCount','likeCount'])->toJson());
-       
+            $model->addToCache();
             //update the search
             \App\Documents\Collaborate::create($model);
     
         });
     }
     
+    public function addToCache()
+    {
+        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount'])->toJson());
+    
+    }
     /**
      * Which profile created the collaboration project.
      *
