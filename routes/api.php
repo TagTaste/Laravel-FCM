@@ -217,8 +217,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
     
-                //namespace company
-
+                //namespace company - Checks for company admin
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::resource("websites","WebsiteController");
                     //Route::resource("blogs","BlogController");
@@ -248,8 +247,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     });
                     
                     Route::resource("portfolio","PortfolioController");
-                    Route::post("jobs/{id}/apply", "JobController@apply");
-                    Route::post("jobs/{id}/unapply", "JobController@unapply");
+                    
                     Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
                     Route::resource("jobs","JobController");
@@ -257,6 +255,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("users","UserController");
                 });
     
+                //Company namespace - Does not check for company admin
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
+                    Route::post("jobs/{id}/apply", "JobController@apply");
+                    Route::post("jobs/{id}/unapply", "JobController@unapply");
+                });
+                
                 Route::resource('tagboards','TagBoardController');
                 Route::post("tagboards/{id}/like","TagBoardController@like");
 
