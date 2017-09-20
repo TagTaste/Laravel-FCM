@@ -29,15 +29,20 @@ class UserController extends Controller
 	 */
     public function store(Request $request, $profileId, $companyId)
     {
-        $data = $request->except(['_method','_token','company_id']);
-
-        $profileId = \App\Recipe\Profile::where('id',$data['profile_id'])->exists();
-        if(!$profileId)
-        {
-            return $this->sendError("User not found.");
+        $company = Company::where('id', $companyId)->first();
+        if (!$company) {
+            return $this->sendError("Company does not exist.");
         }
-        $data['company_id'] = $companyId;
-        $this->model = CompanyUser::create($data);
+        $userId = User::select('id')->where('email',$request->input("email"))->first();
+        if(!$userId){
+            return $this->sendError("User does not exist");
+        }
+        try {
+            $this->model = $company->addUser($userId);
+        } catch (\Exception $e){
+            $this->errors = "Could not add user. " . $e->getMessage();
+            $this->model = false;
+        }
         return $this->sendResponse();
     }
     
@@ -47,11 +52,16 @@ class UserController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy(Request $request, $profileId, $companyId)
+	public function destroy(Request $request, $profileId, $companyId,$userProfileId)
 	{
-        $this->model = CompanyUser::where('profile_id',$request->input('profile_id'))->where('company_id',$companyId)->delete();
-
-        return $this->sendResponse();
+        $company = Company::where('id', $companyId)->first();
+        try {
+            $userId = \App\Recipe\Profile::select("user_id")->where('id',$userProfileId)->first();
+            $this->model = $company->removeUser($userId->user_id);
+        } catch(\Exception $e){
+            $this->errors = "Could not delete user. " . $e->getMessage();
+            $this->model = false;
+        }return $this->sendResponse();
 	}
 
 }
