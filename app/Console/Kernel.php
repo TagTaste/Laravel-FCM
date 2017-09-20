@@ -10,6 +10,7 @@ use App\Console\Commands\Build\Cache\Photo;
 use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
+use App\Console\Commands\Build\Meta\Collaboration\CountApplications;
 use App\Console\Commands\Build\Search\Company;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
@@ -43,6 +44,13 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\Job::class,
         \App\Console\Commands\Build\Search\Profile::class,
         \App\Console\Commands\Build\Search\Recipe::class,
+        
+        //Meta
+            //Collab
+            \App\Console\Commands\Build\Meta\Collaboration\CountApplications::class,
+            
+            //Job
+            \App\Console\Commands\Build\Meta\Job\CountApplications::class,
     ];
 
     /**

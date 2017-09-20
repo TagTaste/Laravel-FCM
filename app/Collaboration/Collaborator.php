@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Collaborator extends Model
 {
-    public $protected = 'collaborators';
-
+    protected $table = 'collaborators';
+    
+    protected $primaryKey = 'collaborate_id';
+    
+    public $incrementing = false;
+    
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
