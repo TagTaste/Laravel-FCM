@@ -30,11 +30,19 @@ class Share extends Model implements CommentNotification
     public static function boot()
     {
         static::created(function($model){
-            \Redis::set("shared:" . $model->id,$model->toJson());
+            $model->addToCache();
+        });
+        static::updated(function($model){
+            $model->addToCache();
         });
         static::deleted(function($model){
             $model->payload->delete();
         });
+    }
+    
+    public function addToCache()
+    {
+        \Redis::set("shared:" . $this->id,$this->toJson());
     }
     
     public function payload()
