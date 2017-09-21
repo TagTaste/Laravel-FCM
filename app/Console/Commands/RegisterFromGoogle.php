@@ -69,14 +69,11 @@ class RegisterFromGoogle extends Command
                 continue;
             }
             $this->value = $value;
-//            $status = $this->registerUser();
-//            if(!$status){
-//                $message = "Could not register " . $this->email;
-//                \Log::info($message);
-//                $this->error($message);
-//                $bar->advance();
-//                continue;
-//            }
+            $status = $this->registerUser();
+            if(!$status){
+                $message = "Could not register " . $this->email;
+                $this->error($message);
+            }
             try {
                 $this->login(); //get token
                 $this->getProfileId();
