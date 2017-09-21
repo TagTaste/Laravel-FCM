@@ -75,21 +75,20 @@ class RegisterCompanyFromGoogle extends Command
             if($value[0] < $this->argument("skip")){
                 continue;
             }
-            if(empty($value[2]) || empty($value[5])){
+            if(!empty($value[2])){
                 continue;
             }
             $this->value = $value;
             try {
                 
-                /*
                 $status = $this->createCompany();
                 if(!$status){
                     continue;
                 }
                 $this->addMember();
-                */
+                
                 $this->login();
-                $this->companyId = $this->value[2];
+//                $this->companyId = $this->value[2];
                 $this->updateLogo();
             } catch (\Exception $e){
                 $this->error($e->getMessage());
