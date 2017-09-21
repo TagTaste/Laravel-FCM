@@ -74,7 +74,10 @@ class BaseFilter
         $intersect = [];
         $prefix = "data:{$self->modelName}:";
         $uniqueKey = time() . str_random(10);
+        $remove = [];
+
         foreach($keys as $name => $value){
+            
             if(is_string($value)){
                 $value = $prefix . $value;
                 $intersect[] = $value;
@@ -85,11 +88,13 @@ class BaseFilter
                 }
                 $key = $uniqueKey . "union" . str_random(2);
                 $intersect[] = $key;
+                $remove[] = $key;
                 \Redis::sUnionStore($key,...$value);
             }
         }
+        
         $modelIds = \Redis::sInter(...$intersect);
-        \Redis::del($intersect);
+        if(!empty($remove)){\Redis::del($remove);}
         return $modelIds;
     }
     
@@ -97,10 +102,9 @@ class BaseFilter
     {
         $self = new static();
         $filters = [];
-        \Log::info($self->attributes);
+
         foreach($self->attributes as $attribute){
             $key = "filters:" . $self->modelName . ":" . $attribute;
-            \Log::info($key);
             $filters[$attribute] = \Redis::sMembers($key);
         }
         return $filters;

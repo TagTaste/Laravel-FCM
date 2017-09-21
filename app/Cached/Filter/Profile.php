@@ -3,5 +3,5 @@
 
 class Profile extends BaseFilter
 {
-    protected $attributes = ['city','country','keywords'];
+    protected $attributes = ['city','keywords'];
 }
