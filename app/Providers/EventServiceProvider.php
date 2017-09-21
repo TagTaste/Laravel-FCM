@@ -40,7 +40,7 @@ class EventServiceProvider extends ServiceProvider
                                                     'App\Listeners\Subscriber\Create'
             ],
 
-        'App\Events\SendFeedback' => ['App\Listeners\SendFeedbackNotifications'],
+        'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
 
 
     ];
