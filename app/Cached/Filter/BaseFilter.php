@@ -35,7 +35,7 @@ class BaseFilter
     
             //sanitize
             $key = "filters:{$this->modelName}:$attribute";
-            \Log::info($key);
+
             if(strpos($attr,",") === false){
                 \Redis::sAdd($key,$attr);
                 $attributes[] = $attr;
@@ -68,10 +68,29 @@ class BaseFilter
             $keys = "data:{$self->modelName}:$keys";
             return \Redis::sMembers($keys);
         }
-        foreach($keys as $index => &$key){
-            $key = "data:{$self->modelName}:$key";
+        //union if same filter name,
+        //intersect different filter names
+        $union = [];
+        $intersect = [];
+        $prefix = "data:{$self->modelName}:";
+        $uniqueKey = time() . str_random(10);
+        foreach($keys as $name => $value){
+            if(is_string($value)){
+                $value = $prefix . $value;
+                $intersect[] = $value;
+            }
+            if(is_array($value)){
+                foreach($value as &$k){
+                    $k = $prefix.$k;
+                }
+                $key = $uniqueKey . "union" . str_random(2);
+                $intersect[] = $key;
+                \Redis::sUnionStore($key,...$value);
+            }
         }
-        return \Redis::sInter(...$keys);
+        $modelIds = \Redis::sInter(...$intersect);
+        \Redis::del($intersect);
+        return $modelIds;
     }
     
     public static function getFilters()
