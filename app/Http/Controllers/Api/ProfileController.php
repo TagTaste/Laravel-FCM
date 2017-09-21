@@ -143,6 +143,9 @@ class ProfileController extends Controller
             $userId = $request->user()->id;
             try {
                 $this->model = \App\Profile::where('user_id',$userId)->first();
+                if(isset($data['profile']['handle']) && empty($data['profile']['handle'])){
+                    unset($data['profile']['handle']);
+                }
                 $this->model->update($data['profile']);
                 $this->model->refresh();
                 new \App\Cached\Filter\Profile($this->model);
