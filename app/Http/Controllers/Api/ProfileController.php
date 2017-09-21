@@ -357,29 +357,16 @@ class ProfileController extends Controller
             return $this->sendResponse();
         }
         
-        
-        $properties = [];
-        foreach($filters as $name => $values){
-            if(is_string($values)){
-                $properties[] = $values;
-                continue;
-            }
-    
-            foreach($values as $value){
-                $properties[] = $value;
-            }
-        }
-        $profileIds = \App\Cached\Filter\Profile::getModelIds($properties);
-        $this->model['count'] = count($profileIds);
-        $profiles = $models->whereIn('id',$profileIds)->get();
+        $profileIds = \App\Cached\Filter\Profile::getModelIds($filters);
+        $profiles = $models->whereIn('id',array_values($profileIds))->get();
+        $this->model['count'] = $profiles->count();
     
         $loggedInProfileId = $request->user()->profile->id;
         foreach ($profiles as $profile){
             $temp = $profile->toArray();
-            $temp['isFollowing'] =  Profile::isFollowing($profile->id, $loggedInProfileId);;
+            $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);;
             $this->model['data'][] = $temp;
         }
-        
         return $this->sendResponse();
     }
 

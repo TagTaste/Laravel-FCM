@@ -51,7 +51,10 @@ class Kernel extends ConsoleKernel
             
             //Job
             \App\Console\Commands\Build\Meta\Job\CountApplications::class,
-    ];
+        //Filters
+        \App\Console\Commands\Build\Filters\Profile::class,
+        
+        ];
 
     /**
      * Define the application's command schedule.
