@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Events\EmailVerification;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -67,5 +68,34 @@ class UserController extends Controller
             return $this->sendResponse();
 
         }
+    }
+
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password'          => 'required|min:6',
+            'password'              => 'required|min:6|confirmed|different:current_password',
+            'password_confirmation' => 'required|min:6',
+        ]);
+
+        if($validator->fails()){
+            return ['status'=>'failed','errors'=>$validator->messages(),'result'=>[]];
+        }
+
+        $user = \App\Profile\User::findorFail($request->user()->id);
+        $hashedPassword = $user->password;
+        if (Hash::check($request->input("current_password"), $hashedPassword)) {
+            //Change the password
+            $this->model = $user->fill([
+                'password' => Hash::make($request->input("password"))
+            ])->save();
+            $mail = (new \App\Jobs\PasswordConfirmation($user))->onQueue('emails');
+            \Log::info('Queueing Verified Email...');
+
+            dispatch($mail);
+            return $this->sendResponse();
+        }
+
+        return $this->sendError("Your password has not been changed.");
     }
 }

@@ -83,8 +83,8 @@ class AwardController extends Controller
      */
     public function update(Request $request, $profileId,$companyId,$id)
     {
-        $data = $request->except(['_method','_token','company_id']);
-        $data['company_id'] = $companyId;
+        $inputs = $request->except(['_method','_token','company_id']);
+        $inputs['company_id'] = $companyId;
 
         if(isset($inputs['date'])){
             $inputs['date'] = "01-".$inputs['date'];
