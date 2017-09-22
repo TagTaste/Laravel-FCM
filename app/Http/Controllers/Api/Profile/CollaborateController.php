@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Profile;
 
 use App\Collaborate;
+use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Field;
 use Carbon\Carbon;
@@ -141,7 +142,9 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
+
         $this->model = $collaborate->update($inputs);
+
         return $this->sendResponse();
     }
 
@@ -160,6 +163,8 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             throw new \Exception("Could not find the specified Collaborate project.");
         }
+
+        event(new DeleteFeedable($collaborate));
 
         $this->model = $collaborate->delete();
         return $this->sendResponse();
