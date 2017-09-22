@@ -62,8 +62,6 @@ class JobController extends Controller
         
         $this->model = $profile->jobs()->create($inputs);
 
-        $this->model = $this->model->fresh();
-        event(new NewFeedable($this->model, $profile));
         return $this->sendResponse();
     }
     

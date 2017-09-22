@@ -62,11 +62,6 @@ class JobController extends Controller
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
 
-        $this->model = $this->model->fresh();
-        $company = Company::find($companyId);
-
-        event(new NewFeedable($this->model, $company));
-
         return $this->sendResponse();
     }
     
