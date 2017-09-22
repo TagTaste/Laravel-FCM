@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
+use App\Company;
 use App\Events\DeleteFeedable;
+use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
 use Illuminate\Http\Request;
@@ -59,6 +61,7 @@ class JobController extends Controller
         $inputs['company_id'] = $companyId;
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
+
         return $this->sendResponse();
     }
     
@@ -106,8 +109,15 @@ class JobController extends Controller
      */
     public function destroy(Request $request, $profileId, $companyId, $id)
     {
-        event(new DeleteFeedable($this->model));
-        $this->model = Job::where('id', $id)->delete();
+        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
+
+        if ($job === null) {
+            throw new \Exception("Could not find the specified job.");
+        }
+
+        event(new DeleteFeedable($job));
+
+        $this->model = $job->delete();
         
         return $this->sendResponse();
         
