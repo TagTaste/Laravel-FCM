@@ -212,9 +212,8 @@ class JobController extends Controller
     
     public function shortlist(Request $request, $profileId, $id, $shortlistedProfileId)
     {
-        $profile = $request->user()->profile;
         
-        $job = $profile->jobs()->where('id',$id)->first();
+        $job = Job::find($id);
         
         if(!$job){
             throw new \Exception("Job not found.");
@@ -225,6 +224,7 @@ class JobController extends Controller
         if(!$shortlistedApplication){
             throw new \Exception("Application not found.");
         }
+        $profile = $request->user()->profile;
         $this->model = [];
         $this->model['success'] = $shortlistedApplication->shortlist($profile,$request->input("tag"));
         $this->model['count'] = Application::getCounts($job->id);
