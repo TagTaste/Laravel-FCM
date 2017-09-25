@@ -40,7 +40,7 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
+        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -105,7 +105,7 @@ class CollaborateController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
-        $collaboration = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->find($id);
+        $collaboration = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id')->find($id);
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -128,7 +128,7 @@ class CollaborateController extends Controller
         $inputs = $request->all();
         $profileId = $request->user()->profile->id;
 
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
 
         if ($collaborate === null) {
             throw new \Exception("Could not find the specified Collaborate project.");
@@ -158,12 +158,12 @@ class CollaborateController extends Controller
     {
         $profileId = $request->user()->profile->id;
 
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
 
         if ($collaborate === null) {
             throw new \Exception("Could not find the specified Collaborate project.");
         }
-
+        \Log::info($collaborate);
         event(new DeleteFeedable($collaborate));
 
         $this->model = $collaborate->delete();
@@ -172,7 +172,7 @@ class CollaborateController extends Controller
 
     public function approve(Request $request, $profileId, $id)
     {
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
 
         if ($collaborate === null) {
             throw new \Exception("Invalid Collaboration project.");
@@ -202,7 +202,7 @@ class CollaborateController extends Controller
 
     public function reject(Request $request, $profileId, $id)
     {
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
 
         if ($collaborate === null) {
             throw new \Exception("Invalid Collaboration project.");
