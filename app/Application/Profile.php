@@ -18,7 +18,8 @@ class Profile extends BaseProfile
         'about',
         'imageUrl',
         'name',
-        'address',
+        'city',
+        'country',
         'current',
         'handle'
     ];
