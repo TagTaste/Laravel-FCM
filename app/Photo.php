@@ -175,8 +175,7 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-    
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId);
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();

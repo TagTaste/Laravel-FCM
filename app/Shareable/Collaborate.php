@@ -28,8 +28,10 @@ class Collaborate extends Share
 
     public function getMetaFor($profileId){
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
-        $meta['likeCount'] = $this->like->count();
+        $key = "meta:collaborateShare:likes:" . $this->id;
+    
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
 
         $idLiked = $this->like()->select('profile_id')->take(3)->get();
         $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();
