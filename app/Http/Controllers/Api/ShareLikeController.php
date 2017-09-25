@@ -38,7 +38,7 @@ class ShareLikeController extends Controller
     	$columnName = $model.'_share_id';
 
     	$key = "meta:{$model}Share:likes:$modelId";
-        $exists = \Redis::sMember($key,$profileId);
+        $exists = \Redis::sIsMember($key,$profileId);
     	if($exists)
     	{
     	    \Redis::sRem($key,$profileId);

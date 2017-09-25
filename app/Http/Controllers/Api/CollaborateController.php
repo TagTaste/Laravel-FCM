@@ -188,7 +188,7 @@ class CollaborateController extends Controller
         $this->model = [];
         $profileId = $request->user()->profile->id;
         $key = "meta:collaborate:likes:$id";
-        $like = \Redis::sMember($key,$profileId);
+        $like = \Redis::sIsMember($key,$profileId);
         if($like){
             \DB::table("collaboration_likes")
                 ->where("collaboration_id",$id)->where('profile_id',$profileId)

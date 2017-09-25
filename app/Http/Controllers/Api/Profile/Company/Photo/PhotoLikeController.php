@@ -56,7 +56,7 @@ class PhotoLikeController extends Controller
 	{
         $profileId = $request->user()->profile->id;
         $key = "meta:photo:likes:" . $photoId;
-        $photoLike = \Redis::sMember($key,$profileId);
+        $photoLike = \Redis::sIsMember($key,$profileId);
         $this->model = [];
         if($photoLike) {
             PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->delete();

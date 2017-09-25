@@ -33,7 +33,7 @@ PhotoLikeController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         
         $key = "meta:photo:likes:" . $photoId;
-        $photoLike = \Redis::sMember($key,$loggedInProfileId);
+        $photoLike = \Redis::sIsMember($key,$loggedInProfileId);
         $this->model = [];
         
         if ($photoLike) {
