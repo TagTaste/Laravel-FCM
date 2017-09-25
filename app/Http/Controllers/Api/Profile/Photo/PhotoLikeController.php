@@ -32,24 +32,22 @@ PhotoLikeController extends Controller
 	{
         $loggedInProfileId = $request->user()->profile->id;
         
-        $photo = Photo::find($photoId);
-        if(!$photo){
-            return $this->sendError("This photo does not exist.");
-        }
-        
-        $photoLike = PhotoLike::where('profile_id', $loggedInProfileId)->where('photo_id', $photoId)->first();
+        $key = "meta:photo:likes:" . $photoId;
+        $photoLike = \Redis::sIsMember($key,$loggedInProfileId);
         $this->model = [];
         
-        if ($photoLike != null) {
+        if ($photoLike) {
             $photoLike->delete();
+            \Redis::sRem($key,$loggedInProfileId);
             $this->model['liked'] = false;
         } else {
             PhotoLike::create(['profile_id' => $loggedInProfileId, 'photo_id' => $photoId]);
+            \Redis::sAdd($key,$loggedInProfileId);
             $this->model['liked'] = true;
             event(new Like($photo, $request->user()->profile));
         }
         
-        $this->model['likeCount'] = \Redis::hget("photo:$photoId:meta","like");
+        $this->model['likeCount'] = \Redis::sCard($key);
         return $this->sendResponse();
 	}
 
