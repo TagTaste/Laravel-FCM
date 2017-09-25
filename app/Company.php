@@ -124,7 +124,7 @@ class Company extends Model
     {
         $data = [
             'id' => $this->id,
-            'profile_id' => $this->profileId,
+            'profile' => ['id'=>$this->profileId],
             'name' => $this->name,
             'logo' => $this->logo
         ];
