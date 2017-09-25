@@ -107,16 +107,28 @@ class Company extends Model
             
             //add creator as a user of his company
             $company->addUser($company->user);
-            
+            $company->addToCache();
             //make searchable
             \App\Documents\Company::create($company);
         });
         
         self::updated(function(Company $company){
-            
+            $company->addToCache();
+    
             //update the document
             \App\Documents\Company::create($company);
         });
+    }
+    
+    public function addToCache()
+    {
+        $data = [
+            'id' => $this->id,
+            'profile_id' => $this->profileId,
+            'name' => $this->name,
+            'logo' => $this->logo
+        ];
+        \Redis::set("company:small:" . $this->id,json_encode($data));
     }
 
     public function setEstablishedOnAttribute($value)

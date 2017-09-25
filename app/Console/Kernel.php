@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\Build\Cache\Collaboration;
+use App\Console\Commands\Build\Cache\Companies;
 use App\Console\Commands\Build\Cache\Followers;
 use App\Console\Commands\Build\Cache\Following;
 use App\Console\Commands\Build\Cache\Job;
@@ -31,6 +32,7 @@ class Kernel extends ConsoleKernel
         Followers::class,
         Following::class,
         Profiles::class,
+        Companies::class,
         Recipe::class,
         Shoutout::class,
         Photo::class,
