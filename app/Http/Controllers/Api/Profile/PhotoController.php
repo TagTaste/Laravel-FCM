@@ -151,7 +151,11 @@ class PhotoController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $this->model =  $request->user()->profile->photos()->where('id',$id)->first();
-        event(new DeleteFeedable($this->model,"photo",$id));
+        if(!$this->model)
+        {
+            return $this->sendError("Photo not found.");
+        }
+        event(new DeleteFeedable($this->model));
         $this->model = $this->model->delete();
         //remove from recent photos
         \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);

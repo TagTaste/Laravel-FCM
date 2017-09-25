@@ -14,17 +14,13 @@ class DeleteFeedable
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $model;
-    public $modelName;
-    public $modelId;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($model,$modelName,$modelId)
+    public function __construct($model)
     {
         $this->model = $model;
-        $this->modelName = $modelName;
-        $this->modelId = $modelId;
     }
 }

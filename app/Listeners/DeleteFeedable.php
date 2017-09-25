@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Channel\Payload;
 use App\Events\DeleteFeedable as DeleteFeedableEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,13 +14,6 @@ class DeleteFeedable
      *
      * @return void
      */
-    private $column = "_id";
-
-    private function setColumn(&$modelName)
-    {
-        $this->column = $modelName . $this->column;
-    }
-
     public function __construct()
     {
         //
@@ -35,15 +29,13 @@ class DeleteFeedable
     {
         \Log::info("deleting payload");
         if(method_exists($event->model,'payload')){
-            $response = $event->model->payload->delete();
-            $class = "\\App\\Shareable\\" . ucwords($event->modelName);
-            $this->setColumn($event->modelName);
-            $model = $class::where($this->column, $event->modelId)->where('profile_id', $event->model->profile_id)->whereNull('deleted_at')->first();
+            $class = "\\App\\Shareable\\" . ucwords(class_basename($event->model));
+            $model = lcfirst(class_basename($event->model));
+            $class::where($model.'_id', $event->model->id)
+            ->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+            Payload::where("payload->$model","$model:".$event->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-            if ($model) {
-                $model->delete();
-
-            }
+//            $response = $event->model->payload->delete();
 
         }
     }
