@@ -37,7 +37,7 @@ class Companies extends Command
      */
     public function handle()
     {
-        \DB::table("companies")->orderBy('id')->chunk(200,function($models){
+        \App\Company::chunk(200,function($models){
             foreach($models as $model){
                 $model->addToCache();
             }
