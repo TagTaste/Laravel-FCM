@@ -4,7 +4,7 @@ namespace App\Console\Commands\Build\Cache;
 
 use Illuminate\Console\Command;
 
-class Recipe extends Command
+class Shoutout extends Command
 {
     /**
      * The name and signature of the console command.
