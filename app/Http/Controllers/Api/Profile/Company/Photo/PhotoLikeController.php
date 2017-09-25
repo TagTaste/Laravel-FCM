@@ -55,16 +55,18 @@ class PhotoLikeController extends Controller
 	public function store(Request $request, $profileId, $photoId)
 	{
         $profileId = $request->user()->profile->id;
-        $photoLike = PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->first();
+        $key = "meta:photo:likes:" . $photoId;
+        $photoLike = \Redis::sMember($key,$profileId);
         $this->model = [];
-        if($photoLike != null) {
+        if($photoLike) {
             PhotoLike::where('profile_id', $profileId)->where('photo_id', $photoId)->delete();
+            \Redis::sRem($key,$profileId);
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta","like",-1);
-    
+            $this->model['likeCount'] = \Redis::sCard($key);
         } else {
             PhotoLike::create(['profile_id' => $profileId, 'photo_id' => $photoId]);
-            $this->model['likeCount'] = \Redis::hIncrBy("photo:" . $photoId . ":meta","like",1);
+            \Redis::sAdd($key,$profileId);
+            $this->model['likeCount'] = \Redis::sCard($key);
             $this->model['liked'] = true;
 
             $photoProfile=\DB::table("profile_photos")->select('profile_id')->where('photo_id',$photoId)->pluck('profile_id');
