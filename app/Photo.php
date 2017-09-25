@@ -174,8 +174,10 @@ class Photo extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->exists();
-        $meta['likeCount'] = \Redis::hget("photo:{$this->id}:meta","like") ?: 0;
+        $key = "meta:photo:likes:" . $this->id;
+    
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId);
+        $meta['likeCount'] = \Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
