@@ -93,6 +93,9 @@ class FeedController extends Controller
             $cached = json_decode($payload->payload, true);
             foreach($cached as $name => $key){
                 $cachedData = \Redis::get($key);
+                if(!$cachedData){
+                    \Log::warning("could not get from $key");
+                }
                 $data[$name] = json_decode($cachedData,true);
             }
             if($payload->model !== null){
