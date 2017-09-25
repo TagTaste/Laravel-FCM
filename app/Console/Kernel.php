@@ -10,8 +10,7 @@ use App\Console\Commands\Build\Cache\Photo;
 use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
-use App\Console\Commands\Build\Meta\Collaboration\CountApplications;
-use App\Console\Commands\Build\Search\Company;
+use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -33,6 +32,7 @@ class Kernel extends ConsoleKernel
         Following::class,
         Profiles::class,
         Recipe::class,
+        Shoutout::class,
         Photo::class,
         Collaboration::class,
         Job::class,
