@@ -53,7 +53,7 @@ class Kernel extends ConsoleKernel
             \App\Console\Commands\Build\Meta\Job\CountApplications::class,
         //Filters
         \App\Console\Commands\Build\Filters\Profile::class,
-        
+        \App\Console\Commands\Build\Meta\Likes::class,
         ];
 
     /**
