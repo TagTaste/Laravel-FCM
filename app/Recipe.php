@@ -125,7 +125,7 @@ class Recipe extends Model implements Feedable, CommentNotification
         $meta = [];
         $key = "meta:recipe:likes:" . $this->id;
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key,$profileId);
+        $meta['likeCount'] = \Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         return $meta;
