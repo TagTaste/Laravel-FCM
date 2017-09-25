@@ -9,7 +9,7 @@ class Book extends BaseBook
 {
     protected $table = 'company_books';
 
-    protected $fillable = ['id','title','description','publisher','release_date','url','isbn','company_id'];
+    protected $fillable = ['title','description','publisher','release_date','url','isbn','company_id'];
 
     protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
 

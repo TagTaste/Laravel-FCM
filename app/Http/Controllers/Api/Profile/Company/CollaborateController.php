@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Collaborate;
 use App\Company;
+use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -60,13 +61,6 @@ class CollaborateController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-	    $userId = $request->user()->id;
-	    $user = \App\Profile\User::find($userId);
-        $isPartOfCompany = $user->isPartOfCompany($companyId);
-        
-        if(!$isPartOfCompany){
-           $this->sendError("This company does not belong to user.");
-        }
         $profileId=$request->user()->profile->id;
 		$inputs = $request->all();
 		$inputs['company_id'] = $companyId;
@@ -91,8 +85,8 @@ class CollaborateController extends Controller
 //        $this->model->categories()->sync($categories);
 //        $this->model->syncFields($fields);
         $company = Company::find($companyId);
-        event(new NewFeedable($this->model,$company));
         $this->model = $this->model->fresh();
+        event(new NewFeedable($this->model,$company));
         return $this->sendResponse();
 	}
 
@@ -124,14 +118,7 @@ class CollaborateController extends Controller
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
 		$inputs = $request->all();
-        $userId = $request->user()->id;
-        $user = \App\Profile\User::find($userId);
-        $company = $user->isPartOfCompany($companyId);
-        
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
-        }
-		$collaborate = $this->model->where('company_id',$company->id)->where('id',$id)->first();
+		$collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 
 		if($collaborate === null){
 		    throw new \Exception("Could not find the specified Collaborate project.");
@@ -164,20 +151,13 @@ class CollaborateController extends Controller
 	 */
 	public function destroy(Request $request, $profileId, $companyId, $id)
 	{
-        $userId = $request->user()->id;
-        $user = \App\Profile\User::find($userId);
-        $company = $user->isPartOfCompany($companyId);
-        
-        if(!$company){
-            throw new \Exception("This company does not belong to user.");
-        }
-        
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         
         if($collaborate === null){
             throw new \Exception( "Could not find the specified Collaborate project.");
         }
-        
+        event(new DeleteFeedable($collaborate));
+
         $this->model = $collaborate->delete();
         return $this->sendResponse();
 	}
