@@ -218,9 +218,11 @@ class Collaborate extends Model implements Feedable
         $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
-        $meta['hasLiked'] = \DB::table('collaboration_likes')->where('collaboration_id',$this->id)->where('profile_id',$profileId)->exists();
+        $key = "meta:collaborate:likes:" . $this->id;
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
+    
         $meta['commentCount'] = $this->comments()->count();
-        $meta['likeCount'] = $this->likeCount;
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
     

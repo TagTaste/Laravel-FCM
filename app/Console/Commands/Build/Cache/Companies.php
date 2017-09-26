@@ -4,21 +4,21 @@ namespace App\Console\Commands\Build\Cache;
 
 use Illuminate\Console\Command;
 
-class Shoutout extends Command
+class Companies extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:cache:shoutouts';
+    protected $signature = 'build:cache:companies';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'rebuild shoutout cache';
+    protected $description = 'Rebuilds companies cache';
 
     /**
      * Create a new command instance.
@@ -37,7 +37,7 @@ class Shoutout extends Command
      */
     public function handle()
     {
-        \App\Shoutout::chunk(200,function($models){
+        \App\Company::chunk(200,function($models){
             foreach($models as $model){
                 $model->addToCache();
             }

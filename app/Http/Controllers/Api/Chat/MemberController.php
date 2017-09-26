@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Chat;
 
 use App\Chat;
 use App\Chat\Member;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
@@ -45,14 +45,13 @@ class MemberController extends Controller
         $this->model = Member::where('chat_id',$chatId)->get();
 		return $this->sendResponse();
 	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function store(Request $request, $chatId)
+    
+    /**
+     * @param Request $request
+     * @param $chatId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request, $chatId)
 	{
 		$profileId = $request->user()->profile->id;
 		
@@ -76,7 +75,7 @@ class MemberController extends Controller
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  int  $id
+	 * @param  int  $id Profile Id
 	 * @return Response
 	 */
 	public function destroy(Request $request, $chatId, $id)
@@ -89,7 +88,7 @@ class MemberController extends Controller
             return $this->sendError("Only chat owner can remove members");
         }
         
-        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
+        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->delete();
     
         return $this->sendResponse();
 	}

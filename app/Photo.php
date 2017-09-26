@@ -3,7 +3,6 @@
 namespace App;
 
 use App\Channel\Payload;
-use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
@@ -174,8 +173,9 @@ class Photo extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->exists();
-        $meta['likeCount'] = $this->like()->count();
+        $key = "meta:photo:likes:" . $this->id;
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);

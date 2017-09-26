@@ -316,20 +316,22 @@ class RecipeController extends Controller
     public function like(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-        $photoLike = RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->first();
+        $key = "meta:recipe:likes:" . $id;
+        $recipeLike = \Redis::sIsMember($key,$profileId);
         $this->model = [];
-        if ($photoLike != null) {
+        if ($recipeLike) {
             RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
+            \Redis::sRem($key,$profileId);
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::hIncrBy("recipe:" . $id . ":meta", "like", -1);
-
         } else {
             RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
+            \Redis::sAdd($key,$profileId);
             $this->model['liked'] = true;
-            $this->model['likeCount'] = \Redis::hIncrBy("recipe:" . $id . ":meta", "like", 1);
             $recipe = Recipe::find($id);
             event(new Like($recipe, $request->user()->profile));
         }
+        $this->model['likeCount'] = \Redis::sCard($key);
+    
         return $this->sendResponse();
     }
 }

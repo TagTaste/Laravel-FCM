@@ -41,12 +41,15 @@ class Followers extends Command
         Subscriber::whereNull('deleted_at')->chunk(200,function($subscribers){
             
             foreach($subscribers as $model){
-                $channelOwnerProfileId = explode(".",$model->channel_name);
-                $channelOwnerProfileId = last($channelOwnerProfileId);
+                $channel = explode(".",$model->channel_name);
+                $channelOwnerProfileId = last($channel);
                 if($model->profile_id == $channelOwnerProfileId){
                     continue;
                 }
-                \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $model->profile_id);
+                $key = "followers:";
+                $key .= $channel[0] === 'company' ? 'company:' : 'profile:';
+                $key .= $channelOwnerProfileId;
+                \Redis::sAdd($key, $model->profile_id);
             }
         });
     }

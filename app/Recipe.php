@@ -90,8 +90,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     public function getLikeCountAttribute()
     {
-        $count = \Redis::hGet("recipe:" . $this->id . ":meta", "like");
-
+        $count = \Redis::sCard("meta:recipe:likes:" . $this->id);
         if(is_null($count)) return 0;
         if($count >1000000)
         {
@@ -124,8 +123,9 @@ class Recipe extends Model implements Feedable, CommentNotification
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->count() === 1;
-        $meta['likeCount'] = $this->likeCount;
+        $key = "meta:recipe:likes:" . $this->id;
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         return $meta;

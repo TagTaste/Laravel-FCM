@@ -15,18 +15,12 @@ class PhotoLike extends Model
     
     public static function boot()
     {
-        self::created(function($model){
-            \Redis::hIncrBy("photo:" . $model->photo_id . ":meta", "like", 1);
-        });
-        
-        self::deleting(function($model){
-            \Redis::hIncrBy("photo:" . $model->photo_id . ":meta", "like", -1);
-        });
+    
     }
     
     public function getLikeCountAttribute()
     {
-        return \Redis::hget("photo:" . $this->photo_id . ":meta", "like");
+        return \Redis::sCard( "meta:photo:likes:" . $this->photo_id);
     }
     
 }

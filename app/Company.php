@@ -92,12 +92,14 @@ class Company extends Model
         'rating_count',
         'product_catalogue_count',
         'product_catalogue_category_count'
+        'isFollowing'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
-        'product_catalogue_count','product_catalogue_category_count'];
+        'product_catalogue_count','product_catalogue_category_count','isFollowing'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count'];
     
     public static function boot()
     {
@@ -110,16 +112,28 @@ class Company extends Model
             
             //add creator as a user of his company
             $company->addUser($company->user);
-            
+            $company->addToCache();
             //make searchable
             \App\Documents\Company::create($company);
         });
         
         self::updated(function(Company $company){
-            
+            $company->addToCache();
+    
             //update the document
             \App\Documents\Company::create($company);
         });
+    }
+    
+    public function addToCache()
+    {
+        $data = [
+            'id' => $this->id,
+            'profileId' => $this->profileId,
+            'name' => $this->name,
+            'logo' => $this->logo
+        ];
+        \Redis::set("company:small:" . $this->id,json_encode($data));
     }
 
     public function setEstablishedOnAttribute($value)
@@ -414,9 +428,18 @@ class Company extends Model
         return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
     }
     
-    public function isFollowing($followerProfileId)
+    public function getIsFollowingAttribute()
     {
-        return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
+        return $this->isFollowing(request()->user()->profile->id);
+    }
+    public function isFollowing($followerProfileId = null)
+    {
+        return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
+    }
+    
+    public static function checkFollowing($followerProfileId,$id)
+    {
+        return \Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
     }
 
     public function getAvgRatingAttribute()

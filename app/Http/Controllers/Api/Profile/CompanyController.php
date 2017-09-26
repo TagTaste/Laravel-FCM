@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\CompanyRating;
-use App\Subscriber;
 use App\Http\Controllers\Api\Controller;
+use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -144,7 +144,23 @@ class CompanyController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $userId = $request->user()->id;
+    
+        //remove subscribers
+        Subscriber::where("channel_name","like","company%$id")->delete();
+    
+        //remove from following profiles
+        $followers = \Redis::smembers("followers:company:$id");
+        if(count($followers)){
+            foreach($followers as $profileId){
+                \Redis::sRem("following:profile:$profileId",$id);
+            }
+        }
+        
         $this->model = Company::where('id',$id)->where('user_id',$userId)->delete();
+        
+        //remove from cache
+        \Redis::del("company:small:" . $id);
+        \Redis::del("followers:company:$id");
         return $this->sendResponse();
     }
     
@@ -189,6 +205,14 @@ class CompanyController extends Controller
             throw new \Exception("You are already following this company.");
         }
         
+        $profileId = $request->user()->profile->id;
+    
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.$id");
+    
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:" . $id, $profileId);
+        
         return $this->sendResponse();
     }
     
@@ -204,6 +228,12 @@ class CompanyController extends Controller
         if(!$this->model){
             throw new \Exception("You are not following this company.");
         }
+    
+        //companies the logged in user is following
+        \Redis::sRem("following:profile:" . $profileId, "company.$id");
+    
+        //profiles that are following $channelOwner
+        \Redis::sRem("followers:company:" . $id, $profileId);
         return $this->sendResponse();
     }
 

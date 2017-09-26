@@ -5,9 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Channel\Payload;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
-use App\ShoutoutLike;
-use App\RecipeLike;
-use App\Photolike;
 
 class FeedController extends Controller
 {
@@ -49,7 +46,7 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        
+        $profileId = $request->user()->profile->id;
         $this->getMeta($payloads,$profileId);
     
         return $this->sendResponse();
@@ -94,8 +91,12 @@ class FeedController extends Controller
             $data = [];
 
             $cached = json_decode($payload->payload, true);
+            \Log::info($cached);
             foreach($cached as $name => $key){
                 $cachedData = \Redis::get($key);
+                if(!$cachedData){
+                    \Log::warning("could not get from $key");
+                }
                 $data[$name] = json_decode($cachedData,true);
             }
             if($payload->model !== null){

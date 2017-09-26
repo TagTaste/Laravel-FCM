@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\Company;
-use App\CompanyUser;
-use App\Http\Controllers\Api\Controller;
 use App\Company\Award;
+use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 
 class AwardController extends Controller
@@ -41,7 +39,7 @@ class AwardController extends Controller
     public function store(Request $request,$profileId, $companyId)
     {
         $data = $request->except(['_method','_token','company_id']);
-        $data['company_id'] = $companyId;
+//        $data['company_id'] = $companyId;
         $this->model = Award::create($data);
         $this->model->company()->sync($companyId);
         return $this->sendResponse();
@@ -83,8 +81,8 @@ class AwardController extends Controller
      */
     public function update(Request $request, $profileId,$companyId,$id)
     {
-        $inputs = $request->except(['_method','_token','company_id']);
-        $inputs['company_id'] = $companyId;
+        $inputs = $request->except(['_method','_token','company_id','id']);
+//        $inputs['company_id'] = $companyId;
 
         if(isset($inputs['date'])){
             $inputs['date'] = "01-".$inputs['date'];

@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\Build\Cache\Collaboration;
+use App\Console\Commands\Build\Cache\Companies;
 use App\Console\Commands\Build\Cache\Followers;
 use App\Console\Commands\Build\Cache\Following;
 use App\Console\Commands\Build\Cache\Job;
@@ -10,8 +11,7 @@ use App\Console\Commands\Build\Cache\Photo;
 use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
-use App\Console\Commands\Build\Meta\Collaboration\CountApplications;
-use App\Console\Commands\Build\Search\Company;
+use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -32,7 +32,9 @@ class Kernel extends ConsoleKernel
         Followers::class,
         Following::class,
         Profiles::class,
+        Companies::class,
         Recipe::class,
+        Shoutout::class,
         Photo::class,
         Collaboration::class,
         Job::class,
@@ -53,7 +55,7 @@ class Kernel extends ConsoleKernel
             \App\Console\Commands\Build\Meta\Job\CountApplications::class,
         //Filters
         \App\Console\Commands\Build\Filters\Profile::class,
-        
+        \App\Console\Commands\Build\Meta\Likes::class,
         ];
 
     /**

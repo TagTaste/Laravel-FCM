@@ -37,13 +37,14 @@ class ShareLikeController extends Controller
         $sharedLikeModel = \App::make('App\Shareable\Sharelikable\\'.$modelName);
     	$columnName = $model.'_share_id';
 
-    	$exist = $sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->first();
-
-    	if($exist != null)
+    	$key = "meta:{$model}Share:likes:$modelId";
+        $exists = \Redis::sIsMember($key,$profileId);
+    	if($exists)
     	{
+    	    \Redis::sRem($key,$profileId);
     		$sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",-1);
+            $this->model['likeCount'] = \Redis::sCard($key);
     		return $this->sendResponse();
     	}
 
@@ -51,8 +52,12 @@ class ShareLikeController extends Controller
     	$model->profile_id = $profileId;
     	$model->$columnName = $modelId;
     	$model->save();
+    	
+    	\Redis::sAdd($key,$profileId);
+    	
         $this->model['liked'] = true;
-        $this->model['likeCount'] = \Redis::hIncrBy("shareLike" . strtolower($modelName) . ":" . $modelId . ":meta","like",1);
+        $this->model['likeCount'] = \Redis::sCard($key);
+        
     	event(new Like($shareModel,$request->user()->profile));
         return $this->sendResponse();
     }
