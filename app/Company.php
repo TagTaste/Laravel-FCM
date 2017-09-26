@@ -89,12 +89,13 @@ class Company extends Model
         'is_admin',
         'avg_rating',
         'review_count',
-        'rating_count'
+        'rating_count',
+        'isFollowing'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count','isFollowing'];
     
     public static function boot()
     {
@@ -423,7 +424,11 @@ class Company extends Model
         return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
     }
     
-    public function isFollowing($followerProfileId)
+    public function getIsFollowingAttribute()
+    {
+        return $this->isFollowing(request()->user()->profile->id);
+    }
+    public function isFollowing($followerProfileId = null)
     {
         return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
