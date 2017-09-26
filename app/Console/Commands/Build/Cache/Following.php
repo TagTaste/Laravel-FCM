@@ -61,9 +61,9 @@ class Following extends Command
                 foreach($subscribers as $model){
                     $channelOwnerProfileId = explode(".",$model->channel_name);
                     $channelOwnerProfileId = last($channelOwnerProfileId);
-                    if($model->profile_id == $channelOwnerProfileId){
-                        continue;
-                    }
+                    //adding profile id check for company would not make sense.
+                    //company.public.3 => company id 3
+                    // company id != profile id
                     \Redis::sAdd("following:profile:" . $model->profile_id, "company.".$channelOwnerProfileId);
                 }
             });
