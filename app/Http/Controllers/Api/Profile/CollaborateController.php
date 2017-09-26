@@ -127,7 +127,7 @@ class CollaborateController extends Controller
     {
         $inputs = $request->all();
         $profileId = $request->user()->profile->id;
-
+        unset($inputs['expires_on']);
         $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
 
         if ($collaborate === null) {
