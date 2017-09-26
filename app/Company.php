@@ -425,7 +425,7 @@ class Company extends Model
     
     public function isFollowing($followerProfileId)
     {
-        return \Redis::sIsMember("following:company:" . $this->id,$followerProfileId) === 1;
+        return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
     
     public static function checkFollowing($followerProfileId,$id)
