@@ -160,7 +160,7 @@ class CompanyController extends Controller
         
         //remove from cache
         \Redis::del("company:small:" . $id);
-        
+        \Redis::del("followers:company:$id");
         return $this->sendResponse();
     }
     
