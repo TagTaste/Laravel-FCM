@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductCatalogue extends Model
 {
-    use SoftDeletes;
-    protected $fillable = ['product', 'category', 'company_id',
+    protected $fillable = ['product', 'category', 'company_id','brand','measurement_unit','barcode','size','certified','delivery_cities',
     'price','moq','type','about','shelf_life'];
+
+    public function getCertifiedAttribute($value)
+    {
+        if($value==null) {
+            return 0;
+        }
+    }
 }

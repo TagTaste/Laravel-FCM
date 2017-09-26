@@ -90,12 +90,16 @@ class Company extends Model
         'avg_rating',
         'review_count',
         'rating_count',
+        'product_catalogue_count',
+        'product_catalogue_category_count'
         'isFollowing'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count','isFollowing'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
+        'product_catalogue_count','product_catalogue_category_count','isFollowing'];
+    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count'];
     
     public static function boot()
     {
@@ -456,6 +460,16 @@ class Company extends Model
     public function productCatalogue()
     {
         return $this->hasMany(ProductCatalogue::class);
+    }
+
+    public function getProductCatalogueCountAttribute()
+    {
+        return $this->productCatalogue()->count();
+    }
+
+    public function getProductCatalogueCategoryCountAttribute()
+    {
+        return $this->productCatalogue()->whereNotNull('category')->count();
     }
     
     public function getIsAdminAttribute()

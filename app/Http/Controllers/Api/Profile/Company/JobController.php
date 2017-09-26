@@ -8,6 +8,7 @@ use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Job;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
@@ -59,6 +60,7 @@ class JobController extends Controller
         $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $inputs['company_id'] = $companyId;
+        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
 
@@ -97,6 +99,7 @@ class JobController extends Controller
         $data = $request->except(['_token', '_method']);
         unset($data['profile_id']);
         unset($data['company_id']);
+        unset($data['expires_on']);
         $this->model = Job::where('id', $id)->update($data);
         return $this->sendResponse();
     }
