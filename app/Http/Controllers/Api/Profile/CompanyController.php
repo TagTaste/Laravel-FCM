@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\CompanyRating;
-use App\Subscriber;
 use App\Http\Controllers\Api\Controller;
+use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -144,7 +144,23 @@ class CompanyController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $userId = $request->user()->id;
+    
+        //remove subscribers
+        Subscriber::where("channel_name","like","company%$id")->delete();
+    
+        //remove from following profiles
+        $followers = \Redis::smembers("followers:company:$id");
+        if(count($followers)){
+            foreach($followers as $profileId){
+                \Redis::sRem("following:profile:$profileId",$id);
+            }
+        }
+        
         $this->model = Company::where('id',$id)->where('user_id',$userId)->delete();
+        
+        //remove from cache
+        \Redis::del("company:small:" . $id);
+        \Redis::del("followers:company:$id");
         return $this->sendResponse();
     }
     
