@@ -91,7 +91,7 @@ class Company extends Model
         'review_count',
         'rating_count',
         'product_catalogue_count',
-        'product_catalogue_category_count'
+        'product_catalogue_category_count',
         'isFollowing'
     ];
     
@@ -99,7 +99,6 @@ class Company extends Model
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
         'product_catalogue_count','product_catalogue_category_count','isFollowing'];
-    protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count'];
     
     public static function boot()
     {
