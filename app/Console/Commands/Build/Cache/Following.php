@@ -50,16 +50,23 @@ class Following extends Command
             }
         });
     
-        Subscriber::whereNull('deleted_at')->where("channel_name","like","company.public.%")->chunk(200,function($subscribers){
-        
-            foreach($subscribers as $model){
-                $channelOwnerProfileId = explode(".",$model->channel_name);
-                $channelOwnerProfileId = last($channelOwnerProfileId);
-                if($model->profile_id == $channelOwnerProfileId){
-                    continue;
-                }
-                \Redis::sAdd("following:profile:" . $model->profile_id, "company.".$channelOwnerProfileId);
+        \DB::table("companies")->select("id")->whereNull("deleted_at")->orderBy('id')->chunk(200,function($companies){
+            $channelNames = [];
+            foreach($companies->pluck('id')->toArray() as $id){
+                $channelNames[] = "company.public." . $id;
             }
+            Subscriber::whereNull("deleted_at")->whereIn("channel_name",$channelNames)
+                ->chunk(200,function($subscribers){
+    
+                foreach($subscribers as $model){
+                    $channelOwnerProfileId = explode(".",$model->channel_name);
+                    $channelOwnerProfileId = last($channelOwnerProfileId);
+                    if($model->profile_id == $channelOwnerProfileId){
+                        continue;
+                    }
+                    \Redis::sAdd("following:profile:" . $model->profile_id, "company.".$channelOwnerProfileId);
+                }
+            });
         });
     }
 }
