@@ -425,7 +425,12 @@ class Company extends Model
     
     public function isFollowing($followerProfileId)
     {
-        return Subscriber::where('profile_id',$followerProfileId)->where("channel_name",'like','company.public.' . $this->id)->exists();
+        return \Redis::sIsMember("following:company:" . $this->id,$followerProfileId) === 1;
+    }
+    
+    public static function checkFollowing($followerProfileId,$id)
+    {
+        return \Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
     }
 
     public function getAvgRatingAttribute()
