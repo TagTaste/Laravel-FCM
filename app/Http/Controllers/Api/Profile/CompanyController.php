@@ -204,6 +204,8 @@ class CompanyController extends Controller
         if(!$this->model){
             throw new \Exception("You are already following this company.");
         }
+        
+        $profileId = $request->user()->profile->id;
     
         //companies the logged in user is following
         \Redis::sAdd("following:profile:" . $profileId, "company.$id");
