@@ -188,6 +188,12 @@ class CompanyController extends Controller
         if(!$this->model){
             throw new \Exception("You are already following this company.");
         }
+    
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.$id");
+    
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:" . $id, $profileId);
         
         return $this->sendResponse();
     }
@@ -204,6 +210,12 @@ class CompanyController extends Controller
         if(!$this->model){
             throw new \Exception("You are not following this company.");
         }
+    
+        //companies the logged in user is following
+        \Redis::sRem("following:profile:" . $profileId, "company.$id");
+    
+        //profiles that are following $channelOwner
+        \Redis::sRem("followers:company:" . $id, $profileId);
         return $this->sendResponse();
     }
 

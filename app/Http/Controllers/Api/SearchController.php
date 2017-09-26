@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company;
 use App\SearchClient;
 use Illuminate\Http\Request;
 
@@ -42,12 +43,18 @@ class SearchController extends Controller
                 $this->model[$name] = $model;
             }
             
+            $profileId = $request->user()->profile->id;
+    
             if(isset($this->model['profile'])){
-                $profileId = $request->user()->profile->id;
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                
                 foreach($this->model['profile'] as &$profile){
                     $profile['isFollowing'] = in_array($profile['id'],$following);
+                }
+            }
+            
+            if(isset($this->model['company'])){
+                foreach($this->model['company'] as &$company){
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
             return $this->sendResponse();
