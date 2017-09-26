@@ -50,6 +50,7 @@ class Subscriber extends Model
         foreach($profileIds as $id){
             if(str_contains($id,"company")){
                 $keys[] = "company:small:" . last(explode(".",$id));
+                continue;
             }
             $keys[] = "profile:small:" . $id;
         }
