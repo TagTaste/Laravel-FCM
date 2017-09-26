@@ -6,6 +6,7 @@ use App\Collaborate;
 use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -66,6 +67,8 @@ class CollaborateController extends Controller
 		$inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
 
+        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -119,7 +122,7 @@ class CollaborateController extends Controller
 	{
 		$inputs = $request->all();
 		$collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
-
+        unset($inputs['expires_on']);
 		if($collaborate === null){
 		    throw new \Exception("Could not find the specified Collaborate project.");
         }

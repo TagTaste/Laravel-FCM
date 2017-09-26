@@ -38,7 +38,6 @@ class Photo extends Model implements Feedable
         self::deleting(function($photo){
 //            \DB::transaction(function() use ($photo){
                 $photo->ideabooks()->detach();
-                $photo->payload->delete();
 //            });
         });
         
