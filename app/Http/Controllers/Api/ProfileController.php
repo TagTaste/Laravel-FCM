@@ -321,14 +321,11 @@ class ProfileController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            
-            $isFollowing =  \Redis::sIsMember("following:profile:$loggedInProfileId",$profile->id) === 1;
-            $profile->type = "profile";
-            if(!$isFollowing){
-                $isFollowing = \Redis::sIsMember("following:profile:$loggedInProfileId","company." . $profile->id) === 1;
-                $profile->type = "company";
-            }
-            $profile->isFollowing = $isFollowing;
+            $key = "following:profile:$loggedInProfileId";
+            $profile->type = isset($profile->profileId) ? "company" : "profile";
+            $value = isset($profile->profileId) ? "company." : null;
+            $value .= $profile->id;
+            $profile->isFollowing =  \Redis::sIsMember($key,$value) === 1;
         }
         return $following;
     }
