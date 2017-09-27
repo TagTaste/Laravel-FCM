@@ -312,6 +312,11 @@ class Collaborate extends Model implements Feedable
             return \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         }
     }
+    
+    public function getFile1Attribute($value)
+    {
+        return !is_null($value) ? \Storage::url($value) : null;
+    }
 
 
 }
