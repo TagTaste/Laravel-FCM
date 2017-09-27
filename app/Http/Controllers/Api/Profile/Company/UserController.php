@@ -39,11 +39,7 @@ class UserController extends Controller
         }
         try {
             $this->model = $company->addUser($userId);
-            //companies the logged in user is following
-            \Redis::sAdd("following:profile:" . $userId->profile->id, "company.$companyId");
 
-            //profiles that are following $channelOwner
-            \Redis::sAdd("followers:company:" . $companyId, $userId->profile->id);
         } catch (\Exception $e){
             $this->errors = "Could not add user. " . $e->getMessage();
             $this->model = false;
