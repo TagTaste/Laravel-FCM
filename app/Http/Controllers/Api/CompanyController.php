@@ -42,7 +42,7 @@ class CompanyController extends Controller {
         $companies = \Redis::mget($companyIds);
         $profileId = $request->user()->profile->id;
         $this->model = [];
-        foreach($companies as $company){
+        foreach($companies as &$company){
             $company = json_decode($company,true);
             $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
         }
