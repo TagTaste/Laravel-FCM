@@ -19,6 +19,35 @@ Route::group(['namespace'=>'Api\Company','prefix'=>'meta/'],function(){
     Route::resource('types','TypeController');
 });
 Route::get('privacy','Api\PrivacyController@index');
+
+Route::post('login',function(Request $request){
+    $credentials = $request->only('email','password');
+//    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
+//    if($userVerified)
+//    {
+//        return response()->json(['error' => 'Please verify your email address'], 401);
+//    }
+    try {
+        // attempt to verify the credentials and create a token for the user
+        if (! $token = \JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'invalid_credentials'], 401);
+        }
+    } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+        // something went wrong whilst attempting to encode the token
+        return response()->json(['error' => 'could_not_create_token'], 500);
+    }
+    
+    return response()->json(compact('token'));
+    
+});
+
+Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+// Password Reset Routes...
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
@@ -290,35 +319,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
         });
-        
+    Route::get('{handle}','Api\HandleController@show');
+    
 });
-
-
-Route::post('login',function(Request $request){
-    $credentials = $request->only('email','password');
-//    $userVerified = \App\Profile\User::where('email',$credentials['email'])->whereNull('verified_at')->first();
-//    if($userVerified)
-//    {
-//        return response()->json(['error' => 'Please verify your email address'], 401);
-//    }
-    try {
-        // attempt to verify the credentials and create a token for the user
-        if (! $token = \JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'invalid_credentials'], 401);
-        }
-    } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
-        // something went wrong whilst attempting to encode the token
-        return response()->json(['error' => 'could_not_create_token'], 500);
-    }
-
-    return response()->json(compact('token'));
-
-});
-
-Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
-Route::get('{handle}','Api\HandleController@show');
-// Password Reset Routes...
-Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
-Route::post('password/reset', 'Auth\ResetPasswordController@reset');
