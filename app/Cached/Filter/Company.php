@@ -3,5 +3,5 @@
 
 class Company extends BaseFilter
 {
-    protected $attributes = ['city','keywords','type','speciality'];
+    protected $attributes = ['city','keywords','speciality'];
 }
