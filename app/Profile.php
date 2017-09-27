@@ -39,7 +39,7 @@ class Profile extends Model
         'created_at',
         'pincode',
         'handle',
-        'expertise',
+        'expertise', //a.k.a spokenLanguages
         'keywords',
         'city',
         'country',
