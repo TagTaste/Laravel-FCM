@@ -6,9 +6,9 @@ use App\Collaborate;
 use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
+use App\Http\Controllers\Api\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Api\Controller;
 
 class CollaborateController extends Controller
 {
@@ -83,6 +83,14 @@ class CollaborateController extends Controller
             $relativePath = "images/p/$profileId/c/$companyId/collaborate";
             $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
         }
+        
+        if($request->hasFile('file1')){
+            $relativePath = "images/p/$profileId/c/$companyId/collaborate";
+            $name = \Input::file('file1')->getClientOriginalName();
+            $extension = \Input::file('file1')->getClientOriginalExtension();
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+        
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
@@ -124,7 +132,7 @@ class CollaborateController extends Controller
 		$collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         unset($inputs['expires_on']);
 		if($collaborate === null){
-		    throw new \Exception("Could not find the specified Collaborate project.");
+		    return $this->sendError("Collaboration not found.");
         }
         
 //        if(!empty($fields)){
@@ -142,6 +150,13 @@ class CollaborateController extends Controller
                 $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
             }
         }
+        
+        if($request->hasFile('file1')){
+            $relativePath = "images/p/$profileId/c/$companyId/collaborate";
+            $name = \Input::file('file1')->getClientOriginalName();
+            $extension = \Input::file('file1')->getClientOriginalExtension();
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
         $this->model = $collaborate->update($inputs);
         return $this->sendResponse();
     }
@@ -157,7 +172,7 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         
         if($collaborate === null){
-            throw new \Exception( "Could not find the specified Collaborate project.");
+            return $this->sendError( "Collaboration not found.");
         }
         event(new DeleteFeedable($collaborate));
 
@@ -170,14 +185,14 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         
         if($collaborate === null){
-            throw new \Exception("Invalid Collaboration project.");
+            return $this->sendError( "Collaboration not found.");
         }
         
         if($request->has('company_id')){
             $companyId = $request->input('company_id');
             $company =  Company::find($companyId);
             if(!$company){
-                throw new \Exception("Company does not exist.");
+                return $this->sendError( "Company not found.");
             }
             
             return $collaborate->approveCompany($company);
@@ -187,7 +202,7 @@ class CollaborateController extends Controller
             $inputProfileId = $request->input('profile_id');
             $profile =  Profile::find($inputProfileId);
             if(!$profile){
-                throw new \Exception("Profile does not exist.");
+                return $this->sendError( "Profile not found.");
             }
             
             return $collaborate->approveProfile($profile);
@@ -199,14 +214,14 @@ class CollaborateController extends Controller
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
     
         if($collaborate === null){
-            throw new \Exception("Invalid Collaboration project.");
+            return $this->sendError( "Collaboration not found.");
         }
     
         if($request->has('company_id')){
             $companyId = $request->input('company_id');
             $company =  Company::find($companyId);
             if(!$company){
-                throw new \Exception("Company does not exist.");
+                return $this->sendError( "Company not found.");
             }
         
             return $collaborate->rejectCompany($company);
@@ -216,7 +231,7 @@ class CollaborateController extends Controller
             $inputProfileId = $request->input('profile_id');
             $profile =  Profile::find($inputProfileId);
             if(!$profile){
-                throw new \Exception("Profile does not exist.");
+                return $this->sendError( "Profile not found.");
             }
         
             return $collaborate->rejectProfile($profile);

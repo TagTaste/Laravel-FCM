@@ -50,22 +50,18 @@ class RegisterFromGoogle extends Command
     
     public function googleregister()
     {
-        \Cache::forget("values");
-        $values = \Cache::remember('values',120,function(){
-            $sheetId = $this->argument('file');
-            \Sheets::setService(\Google::make('sheets'));
-            \Sheets::spreadsheet($sheetId);
-            return \Sheets::sheet('Sheet1')->get();
-        });
+      
+        $sheetId = $this->argument('file');
+        \Sheets::setService(\Google::make('sheets'));
+        \Sheets::spreadsheet($sheetId);
+        $values =  \Sheets::sheet('Sheet1')->get();
+        
         $values->pull(0);
         $bar = $this->output->createProgressBar(count($values));
         $skip = $this->argument('skip');
         foreach($values as $value){
             if($value[0] <= $skip){
                 $this->error("skipping " . $value[0]);
-                continue;
-            }
-            if(empty($value[4])){
                 continue;
             }
             $this->value = $value;
@@ -78,7 +74,7 @@ class RegisterFromGoogle extends Command
                 $this->login(); //get token
                 $this->getProfileId();
                 //$this->uploadPhoto();
-                //$this->updateProfile();
+                $this->updateProfile();
                 $this->updateExperience();
                 $this->updateEducation();
                 $this->updateBooks();
