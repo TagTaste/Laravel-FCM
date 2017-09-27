@@ -65,7 +65,7 @@ class MemberController extends Controller
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
-		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
+		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>1];
         }
 		$this->model = Member::insert($data);
 
@@ -87,9 +87,30 @@ class MemberController extends Controller
         if(!$chat && $id != $profileId){
             return $this->sendError("Only chat owner can remove members");
         }
-        
+
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->delete();
-    
+        if($id==$profileId)
+        {
+            $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->exists();
+            if(!$adminExist) {
+                $member = Member::where('chat_id', $chatId)->first();
+                $member->update(['is_admin' => 1]);
+            }
+        }
         return $this->sendResponse();
 	}
+
+    public function addAdmin(Request $request,$chatId)
+    {
+        $profileIds = $request->input('profile_id');
+        $members = $this->model;
+        if(count($profileIds)) {
+            foreach ($profileIds as $profileId) {
+                \Log::info($profileId);
+                $this->model = $members->where('chat_id',$chatId)->where('profile_id',$profileId)->update(['is_admin'=>1]);
+            }
+        }
+        return $this->sendResponse();
+
+    }
 }

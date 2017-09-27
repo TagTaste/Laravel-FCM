@@ -36,6 +36,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
             //chat
                 Route::get("chatrooms","ChatController@rooms");
+                Route::post("chats/{chatId}/members/addAdmin",'Chat\\MemberController@addAdmin');
                 Route::post("chats/{chatId}/messages/{id}/markRead",'Chat\\MessageController@markRead');
                 Route::resource("chats/{chatId}/members",'Chat\\MemberController');
                 Route::resource("chats/{chatId}/messages",'Chat\\MessageController');

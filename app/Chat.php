@@ -23,7 +23,7 @@ class Chat extends Model
     {
         self::created(function($chat){
             $now = \Carbon\Carbon::now();
-            $data = ['chat_id'=>$chat->id,'profile_id'=>$chat->profile_id, 'created_at'=>$now->toDateTimeString()];
+            $data = ['chat_id'=>$chat->id,'profile_id'=>$chat->profile_id, 'created_at'=>$now->toDateTimeString(),'is_admin'=>1];
             Member::create($data);
         });
     }

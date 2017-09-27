@@ -90,7 +90,7 @@ class ChatController extends Controller
 		$data = [];
 		$chatId = $this->model->id;
 		foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now];
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0];
         }
         $this->model->members()->insert($data);
         
@@ -147,7 +147,7 @@ class ChatController extends Controller
         if(count($profileIds)) {
             foreach ($profileIds as $profileId) {
                 \Log::info($profileId);
-                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now];
+                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'is_admin'=>0];
             }
             $chat->members()->insert($data);
         }
