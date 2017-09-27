@@ -80,6 +80,13 @@ class CollaborateController extends Controller
             $relativePath = "images/p/$profileId/collaborate";
             $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
         }
+        if($request->hasFile('file1')){
+            $relativePath = "images/p/$profileId/collaborate";
+            $name = \Input::file('file1')->getClientOriginalName();
+            $extension = \Input::file('file1')->getClientOriginalExtension();
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+        
         if (!empty($fields)) {
             unset($inputs['fields']);
         }
@@ -140,6 +147,13 @@ class CollaborateController extends Controller
                 $relativePath = "images/p/$profileId/collaborate";
                 $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
             }
+        }
+    
+        if($request->hasFile('file1')){
+            $relativePath = "images/p/$profileId/collaborate";
+            $name = \Input::file('file1')->getClientOriginalName();
+            $extension = \Input::file('file1')->getClientOriginalExtension();
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
