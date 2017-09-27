@@ -15,41 +15,43 @@ class CompanyController extends Controller {
         $this->model = Company::with('status','type');
 
         $filters = $request->input('filters');
-
-        if (!empty($filters['location'])) {
-            $this->model=$this->model->whereIn('city',$filters['location']);
+        $companyIds = \App\Cached\Filter\Company::getModelIds($filters);
+        foreach($companyIds as &$id){
+            $id = "company:small:" . $id;
         }
-        if (!empty($filters['types'])) {
-            $this->model=$this->model->whereIn('type',array_values($filters['types']));
-        }
-        if (!empty($filters['status'])) {
-            $this->model=$this->model->whereIn('status_id',$filters['status']);
-        }
-
-        $totalCount = $this->model->count();
-        //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $companies = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-
+        $companies = \Redis::mget($companyIds);
         $profileId = $request->user()->profile->id;
-        $ids = $companies->pluck('id');
-        $channelNames = [];
-        foreach($ids as $id){
-            $channelNames[] = 'company.public.' . $id;
-        }
-        $followers  = \DB::table('subscribers')->whereNull('deleted_at')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
-        $followers  = $followers->keyBy('channel_name');
-        $this->model = [];
-        $this->model['data'] = [];
         foreach($companies as $company){
-            $temp = $company->toArray();
-            $follower = $followers->get("company.public." . $company->id);
-            $temp['isFollowing'] = $follower !== null;
-            
-            $this->model['data'][] = $temp;
+            $company = json_decode($company,true);
+            $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
         }
-        $this->model['count'] = $totalCount;
+        $this->model['data'] = $companies;
+        $this->model['count'] = count($companies);
+
+//        $totalCount = $this->model->count();
+//        //paginate
+//        $page = $request->input('page');
+//        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+//        $companies = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+//
+//        $profileId = $request->user()->profile->id;
+//        $ids = $companies->pluck('id');
+//        $channelNames = [];
+//        foreach($ids as $id){
+//            $channelNames[] = 'company.public.' . $id;
+//        }
+//        $followers  = \DB::table('subscribers')->whereNull('deleted_at')->where('profile_id',$profileId)->whereIn('channel_name',$channelNames)->get();
+//        $followers  = $followers->keyBy('channel_name');
+//        $this->model = [];
+//        $this->model['data'] = [];
+//        foreach($companies as $company){
+//            $temp = $company->toArray();
+//            $follower = $followers->get("company.public." . $company->id);
+//            $temp['isFollowing'] = $follower !== null;
+//
+//            $this->model['data'][] = $temp;
+//        }
+//        $this->model['count'] = $totalCount;
 
         return $this->sendResponse();
     }
