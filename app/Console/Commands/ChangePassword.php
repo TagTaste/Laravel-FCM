@@ -44,7 +44,7 @@ class ChangePassword extends Command
         $data =[];
         User::select('profiles.id','users.email')->join('profiles','profiles.user_id','=','users.id')
             ->whereNotIn('users.id',[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,165,44,32,160,161,176,27,253,254,255])
-            ->chunk(100,function($users) use ($data) {
+            ->chunk(100,function($users) use (&$data) {
            
             foreach ($users as $user)
             {
