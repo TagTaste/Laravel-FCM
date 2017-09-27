@@ -48,7 +48,7 @@ class ChangePassword extends Command
            
             foreach ($users as $user)
             {
-                $password = str_random(6);
+                $password = sprintf("%06d", random_int(1, 999999));
                 User::where('email',$user->email)->update(['password'=>bcrypt($password)]);
                 $data[] = $user->id .",". $user->email ."," . $password ."\n";
 
