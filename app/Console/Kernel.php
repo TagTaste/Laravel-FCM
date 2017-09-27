@@ -60,7 +60,6 @@ class Kernel extends ConsoleKernel
         //Filters
         \App\Console\Commands\Build\Filters\Profile::class,
         \App\Console\Commands\Build\Meta\Likes::class,
-        \App\Console\Commands\ChangePassword::class,
         \App\Console\Commands\Build\Filters\Company::class,
                
         ];

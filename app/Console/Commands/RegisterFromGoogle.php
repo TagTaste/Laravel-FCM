@@ -50,7 +50,6 @@ class RegisterFromGoogle extends Command
     
     public function googleregister()
     {
-      
         $sheetId = $this->argument('file');
         \Sheets::setService(\Google::make('sheets'));
         \Sheets::spreadsheet($sheetId);
