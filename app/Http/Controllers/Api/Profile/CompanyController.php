@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\CompanyRating;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -124,7 +125,7 @@ class CompanyController extends Controller
         {
             $inputs['established_on'] = date("Y-m-d",strtotime($inputs['established_on']));
         }
-        $status = \App\Company::where('id',$id)->where('user_id',$userId)->update($inputs);
+        $status = \App\Company::where('id',$id)->update($inputs);
         if(!$status){
             return $this->sendError("Could not update company");
         }

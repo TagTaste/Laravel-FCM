@@ -39,6 +39,7 @@ class UserController extends Controller
         }
         try {
             $this->model = $company->addUser($userId);
+
         } catch (\Exception $e){
             $this->errors = "Could not add user. " . $e->getMessage();
             $this->model = false;
