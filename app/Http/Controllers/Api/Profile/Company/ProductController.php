@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company\Product;
-use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
 use Tagtaste\Api\SendsJsonResponse;
@@ -41,7 +40,7 @@ class ProductController extends Controller
     {
         $product = new Product();
         $product->name = $request->input("name");
-        $product->price = $request->input("price");
+        $product->price = $request->has("price") && !empty($request->input("price")) ? $request->input("price") : null;
         $product->category = $request->input("category");
         if ($request->hasFile('image')) {
             $filename = $request->user()->id . str_random(25) . ".jpeg";
@@ -91,7 +90,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         
         $product->name = $request->input("name");
-        $product->price = $request->input("price");
+        $product->price = $request->has("price") && !empty($request->input("price")) ? $request->input("price") : null;
         $product->category = $request->input("category");
         if ($request->hasFile('image')) {
             $filename = $request->user()->id . str_random(25) . ".jpeg";
