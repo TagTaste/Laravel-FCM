@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class NewMessage extends Notification
 {
-    use Queueable;
+    //use Queueable;
 
     public $data;
     /**
