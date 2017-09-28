@@ -14,7 +14,7 @@ class CompanyController extends Controller
 {
     public function __construct()
     {
-        $this->middleware("api.CheckCompanyAdmin");
+        $this->middleware("api.CheckCompanyAdmin")->only(['update','destroy']);
     }
     
     /**
