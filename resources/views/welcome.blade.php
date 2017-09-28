@@ -79,9 +79,9 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Tagtaste
+
                 </div>
-                <h3 class="subtitle">Coming Soon</h3>
+                <h3 class="subtitle">successfully sended</h3>
             </div>
         </div>
     </body>

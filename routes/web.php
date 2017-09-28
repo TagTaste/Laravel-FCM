@@ -31,6 +31,8 @@ Route::get('login', ['middleware' => ['web'], 'as' => 'login', 'uses' => 'Auth\L
 Route::post('verifyLogin', ['middleware' => ['web'], 'as' => 'login', 'uses' => 'Auth\LoginController@doLogin']);
 Route::get('logout', ['middleware' => ['web'], 'as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 
+Route::get('mail', [ 'uses' => 'Admin\SendWelComeMailController@showMailForm']);
+Route::post('mail', [ 'uses' => 'Admin\SendWelComeMailController@doMail']);
 
 /**
  * Social site authentication routes
