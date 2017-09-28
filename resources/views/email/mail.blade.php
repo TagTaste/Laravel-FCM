@@ -32,7 +32,7 @@
                             <div class="form-group{{ $errors->has('to') ? ' has-error' : '' }}">
                                 <label for="to" class="">Send mail to (email)</label>
 
-                                <input id="to" type="email" class="form-control" name="to"
+                                <input id="to" type="text" class="form-control" name="to"
                                        value="{{ old('to') }}" required autofocus>
 
                                 @if ($errors->has('to'))
@@ -47,8 +47,8 @@
                             <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                                 <label for="email" class="">Tagtaste E-Mail</label>
 
-                                <input id="email" type="email" class="form-control" name="email"
-                                       value="{{ old('email') }}" required autofocus>
+                                <input id="email" type="text" class="form-control" name="email"
+                                       value="{{ old('email') }}"  autofocus>
 
                                 @if ($errors->has('email'))
                                     <span class="help-block">

@@ -45,7 +45,10 @@ class SendWelComeMailController extends Controller
         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
         \Mail::send('email.invite', $data, function($message)
         {
-            $message->to($this->user['to'], $this->user['name'])->subject("Welcome aboard, ".$this->user['name']."!");
+            $emails = explode(",",$this->user['to']);
+            foreach($emails as $email){
+                $message->bcc('tanvi@tagtaste.com','Tanvi')->bcc("core@tagtaste.com",'Core Team')->to($email, $this->user['name'])->subject("Welcome aboard, ".$this->user['name']."!");
+            }
         });
 
         return redirect()->to("/mail")->with(['message'=>'success']);
