@@ -1,105 +1,111 @@
+@extends('layouts.app')
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <!-- If you delete this meta tag, Half Life 3 will never be released. -->
-    <meta name="viewport" content="width=device-width" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Tagtasteemails</title>
-    <!--<link rel="stylesheet" type="text/css" href="stylesheets/email.css" /> -->
-</head>
-<body>
-<table width="100%" border ="0" cellspacing ="0" cellpadding = "0" bgcolor="#FAFAFA" style="border-bottom: 2px solid #D9222A;font-family:helvetica neue">
-    <tr>
-        <td>
-            <table class="container" width= "620" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse">
+@section('content')
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 col-md-offset-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">Send Welcome Mail</div>
+                    @if(isset($message))
+                    <p>
+                        {{ $message }}
+                    </p>
+                    @endif
+                    <div class="panel-body">
+                        <form class="form-horizontal col-md-12" role="form" method="POST"
+                              action="/mail" >
 
-                <tr>
-                    <table width= "620" align="center" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" border-collapse="collapse" style="padding:20px;margin-top: 50px;margin-bottom:50px;">
-                        <tr>
-                            <td valign="top" class="logo" align="center" style="padding: 0px 0px 30px 15px;">
-                                <img src = "https://www.tagtaste.com/images/icons/logo-transparent.png" alt="tagTaste" width="115px" height="40px">
+                            <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <label for="name" class="">Name</label>
 
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 24px;	font-weight: bold;font-family: helvetica neue;">
-                                <h1  style="font-size: 24px;	font-weight: bold;padding:0px;margin: 0px 0px 20px 0px;color:#000;"> Welcome aboard,<span style="color: #D9222A;"> {{$name}}! </span></h1>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin-bottom:0px;color: rgba(0,0,0,0.9);"> Dear {{$name}}, </span></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin-bottom: 20px;">
-                                    We are delighted to share with you that TagTaste <span style="color:#0027F9;">Beta</span> is live!
-                                </p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin-bottom: 20px;">
-                                    Please explore the platform using these credentials:
-                                </p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin-bottom: 0px;margin-top:0px;">Login ID: <a href="mailto:arun@tagtaste.com" style="text-decoration:none;color:#0027F9;">{{$email}}</a></p>
-                                <p style="margin-bottom: 20px;margin-top:0px;">Password: <span style="color:#0027F9;">{{$password}}</span></p>
-                            </td>
-                        </tr>
+                                <input id="name" type="text" class="form-control" name="name"
+                                       value="{{ old('name') }}" required autofocus>
 
-                        <tr>
-                            <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin-bottom: 20px;margin-top:0px;">We are honoured to be working closely with you to make TagTaste a de-facto platform for food professionals across the world.</p>
-                            </td>
-                        </tr>
-                        <tr padding="15px 0px 0px 10px" style="font-family: helvetica neue;">
-                            <td align="center">
-                                <button style="padding: 7px 23px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;cursor:pointer;"><a href="https://www.tagtaste.com" style="color: #FFFFFF;text-decoration:none;">Login to your account!</a></button>
-                            </td>
-                        </tr>
-                        <tr style="font-family: helvetica neue;">
-                            <td align="center">
-                                <p style="color: rgba(0,0,0,0.6);font-size: 12px;margin:10px 0px 0px 0px"> You can also copy/paste this link in your browser: <a href="https://www.tagtaste.com" style="color: #0027F9;text-decoration:none;">https://www.tagtaste.com</a></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin-bottom: 0px;margin-top:20px;margin-bottom:20px;">Note: We are in beta and the platform works best on the desktop. We would release the mobile apps soon after incorporating your valuable feedback. Please share your experience at  <a href="mailto:feedback@tagtaste.com" style="text-decoration:none;color:#0027F9 ">feedback@tagtaste.com</a>.</p>
-                            </td>
-                        </tr>
+                                @if ($errors->has('name'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('name') }}</strong>
+                                    </span>
+                                @endif
 
-                        <tr style="font-family: helvetica neue;">
-                            <td>
-                                <p style="font-size: 18px;font-weight: bold; margin: 20px 0px 0px 0px;color:#000">What is TagTaste?</p>
-                                <p style="color: rgba(0,0,0,0.8);font-size: 16px; margin: 0px;">TagTaste is World's first online community for food professionals to discover, network and collaborate with each other.</p>
-                            </td>
-                        </tr>
+                            </div>
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <div class="form-group{{ $errors->has('to') ? ' has-error' : '' }}">
+                                <label for="to" class="">Send mail to (email)</label>
+
+                                <input id="to" type="email" class="form-control" name="to"
+                                       value="{{ old('to') }}" required autofocus>
+
+                                @if ($errors->has('to'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('to') }}</strong>
+                                    </span>
+                                @endif
+
+                            </div>
 
 
-                        <tr style="font-family: helvetica neue;">
-                            <td>
-                                <p style="font-size: 18px;font-weight: bold; margin: 20px 0px 0px 0px;color:#000">Need Help?</p>
-                                <p style="color: rgba(0,0,0,0.8);font-size: 16px; margin: 0px;">Please contact us at <a href="mailto:contact@tagtaste.com" style="text-decoration:none;color: #0027F9;">contact@tagtaste.com</a> and we’ll respond.</p>
-                            </td>
-                        </tr>
-                        <tr style="font-family: helvetica neue;">
-                            <td>
-                                <p style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:25px 0px 0px 0px;">Cheers,</p>
-                                <p  style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 600;margin:0px">Jaspal Sabharwal</p>
-                                <p  style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:0px">Co-founder & CEO</p>
-                            </td>
-                        </tr>
-                    </table>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-</body>
-</html>
+                            <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <label for="email" class="">Tagtaste E-Mail</label>
+
+                                <input id="email" type="email" class="form-control" name="email"
+                                       value="{{ old('email') }}" required autofocus>
+
+                                @if ($errors->has('email'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
+
+                            </div>
+
+                            <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <label for="password" class="">Password</label>
+                                <input id="password" type="text" class="form-control" name="password" required>
+
+                                @if ($errors->has('password'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('password') }}</strong>
+                                    </span>
+                                @endif
+
+                            </div>
+
+
+                            {{--<div class="form-group">--}}
+                                {{--<div class="col-md-12 ">--}}
+                                    {{--<div class="checkbox">--}}
+                                        {{--<label>--}}
+                                            {{--<input type="checkbox" name="remember"> Remember Me--}}
+                                        {{--</label>--}}
+                                    {{--</div>--}}
+                                {{--</div>--}}
+                            {{--</div>--}}
+
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary">
+                                        Send Mail
+                                    </button>
+
+                                    @if(session()->has('message'))
+                                        <span class="error-message-text text-danger">
+                                            {{ session('message') }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            {{--<div class="form-group text-center" style="border-top:thin solid #dedede">--}}
+                            {{--<div class="col-md-12" style="margin-top:2em;">--}}
+                            {{--<a class="btn btn-primary"--}}
+                            {{--href="{{ route('social.login', ['facebook']) }}">Facebook</a>--}}
+                            {{--<a class="btn btn-primary" href="{{ route('social.login', ['google']) }}">Google</a>--}}
+                            {{--<a class="btn btn-primary" href="{{ route('social.login', ['instagram']) }}">Instagram</a>--}}
+                            {{--</div>--}}
+                            {{--</div>--}}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
