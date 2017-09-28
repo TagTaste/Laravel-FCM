@@ -107,10 +107,6 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $checkAdmin = CompanyUser::where("company_id",(int) $id)->where('profile_id', $request->user()->profile->id)->exists();
-        if (!$checkAdmin) {
-            return response()->json(['error' => "User does not belong to this company."]);
-        }
         $inputs = $request->except(['_method','_token']);
 
         if($request->hasFile('logo')){
