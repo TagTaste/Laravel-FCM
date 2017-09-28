@@ -57,7 +57,7 @@
                         </tr>
                         <tr padding="15px 0px 0px 10px" style="font-family: helvetica neue;">
                             <td align="center">
-                                <button style="padding: 7px 23px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;cursor:pointer;"><a href="https://www.tagtaste.com" style="color: #FFFFFF;text-decoration:none;">Login to your account</a></button>
+                                <a href="https://www.tagtaste.com" style="color: #FFFFFF;text-decoration:none;padding: 7px 23px;border-radius: 4px;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;cursor:pointer;">Login to your account</a>
                             </td>
                         </tr>
                         <tr style="font-family: helvetica neue;">
