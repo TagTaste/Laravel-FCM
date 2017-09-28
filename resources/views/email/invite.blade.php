@@ -67,7 +67,7 @@
                         </tr>
                         <tr>
                             <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;font-family: helvetica neue;">
-                                <p style="margin: 40px 0px 0px 0px;"><span style="font-weight: bold">Note:</span> We are in beta and the platform works best on the desktop. We would release the mobile apps soon after incorporating your valuable feedback. Please share your experience at  <a href="mailto:feedback@tagtaste.com" style="text-decoration:none;color:#0027F9 ">feedback@tagtaste.com</a>.</p>
+                                <p style="margin: 40px 0px 0px 0px;"><span style="font-weight: bold">Note:</span> We are currently in beta phase and the platform works best on the desktop. We plan to release the mobile apps soon after incorporating your valuable feedback. Please share your experience at  <a href="mailto:feedback@tagtaste.com" style="text-decoration:none;color:#0027F9 ">feedback@tagtaste.com</a>.</p>
                             </td>
                         </tr>
 
@@ -87,9 +87,8 @@
                         </tr>
                         <tr style="font-family: helvetica neue;">
                             <td>
-                                <p style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:25px 0px 0px 0px;">Cheers,</p>
-                                <p  style="color:rgba(0,0,0,0.9);font-size: 16px;font-weight: 600;margin:0px">Jaspal Sabharwal</p>
-                                <p  style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:0px">Co-founder & CEO</p>
+                                <p style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:25px 0px 0px 0px;">Cheers</p>
+                                <p  style="color:rgba(0,0,0,0.9);font-size: 16px;font-weight: 600;margin:0px">Team TagTaste</p>
                             </td>
                         </tr>
                     </table>
