@@ -87,7 +87,7 @@
                         </tr>
                         <tr style="">
                             <td>
-                                <p style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:25px 0px 0px 0px;">Cheers</p>
+                                <p style="color: rgba(0,0,0,0.9);font-size: 16px;font-weight: 400;margin:25px 0px 0px 0px;">Cheers!</p>
                                 <p  style="color:rgba(0,0,0,0.9);font-size: 16px;font-weight: 600;margin:0px">Team TagTaste</p>
                             </td>
                         </tr>
