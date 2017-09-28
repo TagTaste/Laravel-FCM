@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware\Api;
 
-use App\Company;
 use App\CompanyUser;
 use Closure;
 
@@ -17,17 +16,16 @@ class CheckCompanyAdmin
      */
     public function handle($request, Closure $next)
     {
-        $company = Company::find($request->companyId);
-        if(!$company)
-        {
-            return response()->json(['error' => "Company does not exist."]);
+        if($request->isMethod("GET")){
+            return $next($request);
         }
-
-        if($_SERVER['REQUEST_METHOD'] === 'POST'||$_SERVER['REQUEST_METHOD'] === 'PATCH'||$_SERVER['REQUEST_METHOD'] === 'DELETE'||$_SERVER['REQUEST_METHOD'] === 'PUT') {
-            $checkAdmin = CompanyUser::where("company_id",(int) $request->companyId)->where('profile_id', $request->user()->profile->id)->exists();
-            if (!$checkAdmin) {
-                return response()->json(['error' => "User does not belong to this company."]);
-            }
+        
+        $id = (int) ($request->companyId ?: $request->company);
+        
+        $checkAdmin = CompanyUser::where("company_id",$id)->where('profile_id', $request->user()->profile->id)->exists();
+        
+        if (!$checkAdmin) {
+            return response()->json(['error' => "User does not belong to this company."],401);
         }
 
         return $next($request);

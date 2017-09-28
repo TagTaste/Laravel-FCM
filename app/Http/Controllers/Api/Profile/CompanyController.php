@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware("api.CheckCompanyAdmin");
+    }
+    
     /**
      * Display a listing of the resource.
      *
