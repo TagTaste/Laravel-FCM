@@ -83,7 +83,7 @@ class MemberController extends Controller
         $profileId = $request->user()->profile->id;
         
         //check ownership of chat.
-        $chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->first();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
         if(!$chat && $id != $profileId){
             return $this->sendError("Only chat owner can remove members");
         }
