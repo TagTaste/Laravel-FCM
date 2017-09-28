@@ -43,7 +43,7 @@ class SendWelComeMailController extends Controller
         $this->user = $data;
         \Config::set('mail.driver', 'smtp');
         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
-        \Mail::send('email.loginmail', $data, function($message)
+        \Mail::send('email.invite', $data, function($message)
         {
             $message->to($this->user['to'], $this->user['name'])->subject("Welcome aboard, ".$this->user['name']."!");
         });
