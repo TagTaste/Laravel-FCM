@@ -99,7 +99,7 @@
     <tr style="">
         <td align="center" style="color:#000000">
             <table class="container" width= "620" align="center" border="0" cellspacing="0" cellpadding="0" border-collapse="collapse">
-                <p style="margin:10px 0px 50px 0px;text-align:center"> &copy; TagTaste Food Pvt. Ltd. | 2017</p>
+                <p style="margin:10px 0px 50px 0px;text-align:center"> &copy; TagTaste Foods Pvt. Ltd. | 2017</p>
             </table>
         </td>
     </tr>
