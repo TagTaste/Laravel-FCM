@@ -67,10 +67,6 @@ class PatentController extends Controller {
     {
         $inputs = $request->only(['title','description','number','issued_by','awarded_on','url']);
         $inputs = array_filter($inputs);
-        if(isset($inputs['awarded_on'])){
-            $inputs['awarded_on'] = "01-".$inputs['awarded_on'];
-            $inputs['awarded_on'] = date('Y-m-d',strtotime($inputs['awarded_on']));
-        }
         $this->model = Patent::where('id',$id)->update($inputs);
 
         return $this->sendResponse();

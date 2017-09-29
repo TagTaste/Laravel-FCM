@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Experience extends Model
 {
-    use StartEndDate,Profile;
+    use Profile;
 
     protected $fillable = ['company','designation','description','location',
     'start_date','end_date','current_company','profile_id'];
@@ -24,7 +24,7 @@ class Experience extends Model
         parent::boot();
         // Order by name ASC
         static::addGlobalScope('experiences', function (Builder $builder) {
-            $builder->orderBy('start_date', 'desc');
+            $builder->orderBy('current_company','desc')->orderBy('start_date', 'desc');
         });
         
         self::created(function($model){

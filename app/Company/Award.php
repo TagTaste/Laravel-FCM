@@ -15,19 +15,6 @@ class Award extends Model
         return $this->belongsToMany('App\Company','company_awards','award_id','company_id');
     }
 
-    public function setDateAttribute($value)
-    {
-        if(!empty($value)) {
-            $value = "01-". $value ;
-            $this->attributes['date'] = date('Y-m-d', strtotime($value));
-        }
-    }
-
-    public function getDateAttribute($value)
-    {
-        return !is_null($value) ? date("m-Y",strtotime($value)) : null;
-    }
-
     public function scopeForCompany($query,$profileId)
     {
         return $query->whereHas('company',function($query) use ($profileId){

@@ -84,9 +84,6 @@ class ShowController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->except(['_method','_token']);
-        if(isset($input['date'])){
-            $input['date'] = empty($input['date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['date'])));
-        }
 
         $this->model = Show::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
