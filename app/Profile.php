@@ -202,9 +202,7 @@ class Profile extends Model
 
     public function setDobAttribute($value)
     {
-        if (!empty($value)) {
-            $this->attributes['dob'] = date("Y-m-d", strtotime($value));
-        }
+        $this->attributes['dob'] = empty($value) ? null : date("Y-m-d", strtotime($value));
     }
 
     public function getDobAttribute($value)
