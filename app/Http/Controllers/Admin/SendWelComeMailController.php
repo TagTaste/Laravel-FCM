@@ -47,7 +47,7 @@ class SendWelComeMailController extends Controller
         {
             $emails = explode(",",$this->user['to']);
             foreach($emails as $email){
-                $message->bcc('tanvi@tagtaste.com','Tanvi')->bcc("core@tagtaste.com",'Core Team')->to($email, $this->user['name'])->subject("Welcome aboard, ".$this->user['name']."!");
+                $message->bcc('tanvi@tagtaste.com','Tanvi')->bcc("core@tagtaste.com",'Core Team')->to($email, $this->user['name'])->subject("Welcome aboard, ".$this->user['name'].".");
             }
         });
 
