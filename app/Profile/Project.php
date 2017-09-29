@@ -29,5 +29,12 @@ class Project extends Model
     {
         return $this->hasMany('App\ProjectMember');
     }
+    
+    public function getCompletedOnAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
 
 }

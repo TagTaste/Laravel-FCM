@@ -2,9 +2,8 @@
 
 namespace App;
 
-use App\Traits\StartEndDate;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Education extends Model
 {
@@ -28,5 +27,19 @@ class Education extends Model
     public function profile()
     {
         return $this->belongsTo('App\Profile');
+    }
+    
+    public function getStartDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
+    
+    public function getEndDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
     }
 }
