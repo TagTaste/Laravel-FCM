@@ -13,15 +13,7 @@ class Book extends Model
     protected $fillable = ['id','title','description','publisher','release_date','url','isbn'];
 
     protected $visible = ['id','title','description','publisher','release_date','url','isbn'];
-
-    public function setReleaseDateAttribute($value)
-    {
-        if(!empty($value)) {
-            $value = "01-" . $value;
-            $this->attributes['release_date'] = date('Y-m-d', strtotime($value));
-        }
-    }
-
+    
     public function getReleaseDateAttribute($value)
     {
         if(!$value){
