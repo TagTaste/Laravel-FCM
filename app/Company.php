@@ -137,7 +137,7 @@ class Company extends Model
 
     public function setEstablishedOnAttribute($value)
     {
-        $this->attributes['established_on'] = date("Y-m-d",strtotime($value));
+        $this->attributes['established_on'] = empty($value) ? null : date("Y-m-d",strtotime($value));
     }
 
     public function getEstablishedOnAttribute($value)
