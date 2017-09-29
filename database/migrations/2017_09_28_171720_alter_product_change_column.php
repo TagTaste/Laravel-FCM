@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterProductChangeColumn extends Migration
 {
@@ -15,7 +15,7 @@ class AlterProductChangeColumn extends Migration
     {
         Schema::table("products",function(Blueprint $table){
             $table->string("price")->nullable()->change();
-            $table->text("description")->nullable();
+            $table->text("description")->nullable()->change();
         });
     }
 
@@ -28,7 +28,7 @@ class AlterProductChangeColumn extends Migration
     {
         Schema::table("products",function(Blueprint $table){
             $table->double("price")->nullable()->change();
-            $table->dropColumn("description");
+            $table->string("description")->nullable()->change();
         });
     }
 }
