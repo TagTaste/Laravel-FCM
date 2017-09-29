@@ -31,15 +31,21 @@ class Education extends Model
     
     public function getStartDateAttribute($value)
     {
-        if (!empty($value)) {
+        if(is_null($value)) return;
+        $date = \DateTime::createFromFormat('m-Y', $value);
+        if(!$date){
             return date("m-Y", strtotime($value));
         }
+        return $value;
     }
     
     public function getEndDateAttribute($value)
     {
-        if (!empty($value)) {
+        if(is_null($value)) return;
+        $date = \DateTime::createFromFormat('m-Y', $value);
+        if(!$date){
             return date("m-Y", strtotime($value));
         }
+        return $value;
     }
 }
