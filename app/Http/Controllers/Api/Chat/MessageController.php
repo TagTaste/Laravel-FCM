@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api\Chat;
 
 use App\Chat;
 use App\Chat\Message;
+use App\Http\Controllers\Api\Controller;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Api\Controller;
 
 class MessageController extends Controller
 {
@@ -69,10 +69,10 @@ class MessageController extends Controller
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
         }
-        if($request->has("file"))
+        if($request->hasFile("file"))
         {
             $path = "profile/$profileId/chat/$chatId/file";
-            $fileName = $request->file('file')->getClientOriginalName();
+            $fileName = $request->file->getClientOriginalName();
             $inputs['file'] = $request->file("file")->storeAs($path, $fileName,['visibility'=>'public']);
         }
         $inputs['chat_id'] = $chatId;
