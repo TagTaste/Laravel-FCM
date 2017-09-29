@@ -22,23 +22,6 @@ class AlterCompaniesSubTable extends Migration
         Schema::table("company_patents",function(Blueprint $table){
             $table->string("awarded_on")->change();
         });
-        Schema::table("profile_patents",function(Blueprint $table){
-            $table->string("publish_date")->change();
-        });
-        Schema::table("trainings",function(Blueprint $table){
-            $table->string("completed_on")->change();
-        });
-        Schema::table("experiences",function(Blueprint $table){
-            $table->string("start_date")->change();
-            $table->string("end_date")->change();
-        });
-        Schema::table("education",function(Blueprint $table){
-            $table->string("start_date")->change();
-            $table->string("end_date")->change();
-        });
-        Schema::table("certifications",function(Blueprint $table){
-            $table->string("date")->change();
-        });
 
     }
 
@@ -58,22 +41,6 @@ class AlterCompaniesSubTable extends Migration
         Schema::table("company_patents",function(Blueprint $table){
             $table->date("awarded_on")->change();
         });
-        Schema::table("profile_patents",function(Blueprint $table){
-            $table->date("publish_date")->change();
-        });
-        Schema::table("trainings",function(Blueprint $table){
-            $table->date("completed_on")->change();
-        });
-        Schema::table("certifications",function(Blueprint $table){
-            $table->date("date")->change();
-        });
-        Schema::table("education",function(Blueprint $table){
-            $table->date("start_date")->change();
-            $table->date("end_date")->change();
-        });
-        Schema::table("experiences",function(Blueprint $table){
-            $table->date("start_date")->change();
-            $table->date("end_date")->change();
-        });
+
     }
 }
