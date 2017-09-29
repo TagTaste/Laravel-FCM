@@ -31,17 +31,4 @@ class Show extends Model
         return $this->where('profile_id',$this->profile_id)->count();
     }
 
-
-    public function setDateAttribute($value)
-    {
-        if(!empty($value)) {
-            $value = "01-" . $value;
-            $this->attributes['date'] = date('Y-m-d', strtotime($value));
-        }
-    }
-
-    public function getDateAttribute($value)
-    {
-        return $value == null ? null : date("m-Y",strtotime($value));
-    }
 }

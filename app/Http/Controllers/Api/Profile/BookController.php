@@ -81,10 +81,6 @@ class BookController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->except(['_method','_token']);
-        if(isset($input['release_date'])){
-            $input['release_date'] = empty($input['release_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['release_date'])));
-        }
-
         $this->model = Book::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }

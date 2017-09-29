@@ -130,7 +130,6 @@ class CollaborateController extends Controller
 	{
 		$inputs = $request->all();
 		$collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
-        unset($inputs['expires_on']);
 		if($collaborate === null){
 		    return $this->sendError("Collaboration not found.");
         }

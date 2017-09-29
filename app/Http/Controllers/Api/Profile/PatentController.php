@@ -83,10 +83,7 @@ class PatentController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->except(['_method','_token']);
-        if(isset($input['publish_date'])){
-            $input['publish_date'] = "01-".$input['publish_date'];
-            $input['publish_date'] = empty($input['publish_date']) ? null : date("Y-m-d",strtotime(trim($input['publish_date'])));
-        }
+
         $this->model = Patent::where('profile_id',$request->user()->profile->id)->
         where('id',$id)->update($input);
         return $this->sendResponse();

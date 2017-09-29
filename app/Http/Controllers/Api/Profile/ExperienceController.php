@@ -87,13 +87,7 @@ class ExperienceController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->except(['_method','_token']);
-        if(isset($input['start_date'])){
-            $input['start_date'] = empty($input['start_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['start_date'])));
-        }
 
-        if(isset($input['end_date'])){
-            $input['end_date'] = empty($input['end_date']) ? null : date("Y-m-d",strtotime(trim("01-".$input['end_date'])));
-        }
         $profileId = $request->user()->profile->id;
         $this->model = Experience::where('profile_id',$profileId)->where('id',$id)->update($input);
         return $this->sendResponse();

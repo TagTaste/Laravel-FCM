@@ -3,6 +3,7 @@
 namespace App\Profile;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Training extends Model
 {
@@ -11,23 +12,17 @@ class Training extends Model
 
     protected $visible = ['id','title','trained_from','completed_on','profile_id'];
 
+    protected static function boot()
+    {
+        parent::boot();
+        // Order by name ASC
+        static::addGlobalScope('profile_books', function (Builder $builder) {
+            $builder->orderBy('release_date', 'desc');
+        });
+    }
     public function profile()
     {
         return $this->belongsTo('App\Profile');
     }
 
-    public function setCompletedOnAttribute($value)
-    {
-        if(!empty($value)){
-            $value = "01-".$value;
-            $this->attributes['completed_on'] = date('Y-m-d',strtotime($value));
-        }
-    }
-
-    public function getCompletedOnAttribute($value)
-    {
-        if(!empty($value)){
-            return date("m-Y",strtotime($value));
-        }
-    }
 }
