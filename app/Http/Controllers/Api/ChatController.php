@@ -66,7 +66,6 @@ class ChatController extends Controller
 		//check for existing chats only for single profileId.
 		if(is_array($profileIds) && count($profileIds) === 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
-            
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
@@ -90,7 +89,7 @@ class ChatController extends Controller
 		$data = [];
 		$chatId = $this->model->id;
 		foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0];
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
         
