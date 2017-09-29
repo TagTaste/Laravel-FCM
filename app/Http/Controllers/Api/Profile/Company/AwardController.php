@@ -82,7 +82,7 @@ class AwardController extends Controller
     public function update(Request $request, $profileId,$companyId,$id)
     {
         $inputs = $request->except(['_method','_token','company_id','id']);
-        $inputs['company_id'] = $companyId;
+        //$inputs['company_id'] = $companyId;
 
         $this->model = Award::where('id',$id)->update($inputs);
 
