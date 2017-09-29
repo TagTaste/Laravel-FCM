@@ -21,4 +21,11 @@ class Award extends Model
             $query->where('id',$profileId);
         });
     }
+    
+    public function getDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
 }

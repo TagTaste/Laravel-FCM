@@ -26,5 +26,12 @@ class Patent extends Model
             $builder->orderBy('publish_date', 'desc');
         });
     }
+    
+    public function getPublishDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
 
 }

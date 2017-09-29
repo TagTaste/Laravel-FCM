@@ -39,4 +39,11 @@ class Book extends Model
         $books = $this->select('id')->where('profile_id',$this->profile_id)->orderBy('created_at','asc')->get();
         return $this->getCount($books);
     }
+    
+    public function getReleaseDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
 }

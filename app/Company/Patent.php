@@ -26,5 +26,12 @@ class Patent extends Model
     {
         return $this->belongsTo(Company::class);
     }
+    
+    public function getAwardedOnAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
 
 }
