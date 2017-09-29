@@ -62,7 +62,6 @@ class ChatController extends Controller
         }
         $loggedInProfileId = $request->user()->profile->id;
 		$inputs['profile_id'] = $loggedInProfileId;
-		
 		//check for existing chats only for single profileId.
 		if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
@@ -84,7 +83,9 @@ class ChatController extends Controller
             }
             $this->model->update(['image'=>$response]);
         }
-		//add members to the chat
+        $profileIds[] = $loggedInProfileId;
+
+        //add members to the chat
         $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
 		$chatId = $this->model->id;
