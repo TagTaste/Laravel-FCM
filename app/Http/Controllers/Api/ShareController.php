@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\Actions\Share;
 use App\Events\NewFeedable;
-use App\Events\Update;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
@@ -54,7 +53,12 @@ class ShareController extends Controller
         $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
             $modelName => $modelName . ":" . $id, 'shared' => 'shared:' . $this->model->id
         ];
-        $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
+        if($sharedModel->profile_id){
+            $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
+        } elseif($sharedModel->company_id){
+            $this->model->relatedKey = ['company' => 'company:small:' . $sharedModel->company_id];
+        }
+        
         //push to feed
         event(new NewFeedable($this->model, $request->user()->profile));
         

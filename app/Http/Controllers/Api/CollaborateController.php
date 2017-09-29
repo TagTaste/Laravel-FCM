@@ -187,22 +187,22 @@ class CollaborateController extends Controller
         }
         $this->model = [];
         $profileId = $request->user()->profile->id;
-        $like = \DB::table("collaboration_likes")->where("collaboration_id",$id)->where('profile_id',$profileId)
-            ->first();
+        $key = "meta:collaborate:likes:$id";
+        $like = \Redis::sIsMember($key,$profileId);
         if($like){
-            $unliked = \DB::table("collaboration_likes")
+            \DB::table("collaboration_likes")
                 ->where("collaboration_id",$id)->where('profile_id',$profileId)
                 ->delete();
-            //if unliked, return false;
-            //yes, counter-intuitive.
-            $this->model['likeCount'] = \Redis::hIncrBy("collaborate:" . $id . ":meta", "like", -1);
-            $this->model['liked'] = $unliked === 1 ? false : null;
+            \Redis::sRem($key,$profileId);
+            $this->model['likeCount'] = \Redis::sCard($key);
+            $this->model['liked'] = false;
             return $this->sendResponse();
         }
         
         event(new Like($collaborate,$request->user()->profile));
-        $data = \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
-        $this->model['likeCount'] = \Redis::hIncrBy("collaborate:" . $id . ":meta", "like", 1);
+        \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
+        \Redis::sAdd($key,$profileId);
+        $this->model['likeCount'] = \Redis::sCard($key);
         $this->model['liked'] = true;
         return $this->sendResponse();
         

@@ -157,6 +157,9 @@ class PhotoController extends Controller
         }
         
         $this->model = $company->photos()->where('id',$id)->first();
+        if(!$this->model){
+            return $this->sendError("Photo not found.");
+        }
         event(new DeleteFeedable($this->model));
         
         $this->model = $this->model->delete();

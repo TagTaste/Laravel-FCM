@@ -39,11 +39,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Model\Subscriber\Create' => [
                                                     'App\Listeners\Subscriber\Create'
             ],
-        'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
-        'App\Events\EmailVerification' => ['App\Listeners\EamilVarificationNotification'],
-        'App\Events\SendInvitationEmail' => ['App\Listeners\SendInvitationNotifications'],
 
-        'App\Events\SendFeedback' => ['App\Listeners\SendFeedbackNotifications'],
+        'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
 
 
     ];

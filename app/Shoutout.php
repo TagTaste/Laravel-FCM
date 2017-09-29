@@ -60,7 +60,7 @@ class Shoutout extends Model implements Feedable
     
     public function getLikeCountAttribute()
     {
-        $count = $this->like->count();
+        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
     
         if($count >1000000)
         {
@@ -93,8 +93,8 @@ class Shoutout extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = $this->like()->where('profile_id',$profileId)->first() !== null;
-        $meta['likeCount'] = \Redis::hget("shoutout:" . $this->id . ":meta","like") ?: 0;
+        $meta['hasLiked'] = \Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
+        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         $idLiked = $this->like()->select('profile_id')->take(3)->get();
         $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();

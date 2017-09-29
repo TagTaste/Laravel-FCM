@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Console\Commands\Build\Cache;
+namespace App\Console\Commands\Build\Filters;
 
 use Illuminate\Console\Command;
 
-class Shoutout extends Command
+class Company extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:cache:shoutouts';
+    protected $signature = 'build:filter:companies';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'rebuild shoutout cache';
+    protected $description = 'Build company filter cache';
 
     /**
      * Create a new command instance.
@@ -37,9 +37,9 @@ class Shoutout extends Command
      */
     public function handle()
     {
-        \App\Shoutout::chunk(200,function($models){
+        \App\Company::chunk(100,function($models){
             foreach($models as $model){
-                $model->addToCache();
+                new \App\Cached\Filter\Company($model);
             }
         });
     }

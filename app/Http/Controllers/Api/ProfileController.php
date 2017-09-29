@@ -315,16 +315,17 @@ class ProfileController extends Controller
     private function getFollowing($id, $loggedInProfileId)
     {
         $following = Subscriber::getFollowing($id);
-        
-        $followersOfLoggedInProfile = \Redis::sMembers("following:profile:$loggedInProfileId");
-
+    
         foreach($following as &$profile){
             if(is_null($profile)){
                 continue;
             }
             $profile = json_decode($profile);
-            
-            $profile->isFollowing =  in_array($profile->id,$followersOfLoggedInProfile);
+            $key = "following:profile:$loggedInProfileId";
+            $profile->type = isset($profile->profileId) ? "company" : "profile";
+            $value = isset($profile->profileId) ? "company." : null;
+            $value .= $profile->id;
+            $profile->isFollowing =  \Redis::sIsMember($key,$value) === 1;
         }
         return $following;
     }

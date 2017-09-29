@@ -49,5 +49,24 @@ class Following extends Command
                 \Redis::sAdd("following:profile:" . $model->profile_id, $channelOwnerProfileId);
             }
         });
+    
+        \DB::table("companies")->select("id")->whereNull("deleted_at")->orderBy('id')->chunk(200,function($companies){
+            $channelNames = [];
+            foreach($companies->pluck('id')->toArray() as $id){
+                $channelNames[] = "company.public." . $id;
+            }
+            Subscriber::whereNull("deleted_at")->whereIn("channel_name",$channelNames)
+                ->chunk(200,function($subscribers){
+    
+                foreach($subscribers as $model){
+                    $channelOwnerProfileId = explode(".",$model->channel_name);
+                    $channelOwnerProfileId = last($channelOwnerProfileId);
+                    //adding profile id check for company would not make sense.
+                    //company.public.3 => company id 3
+                    // company id != profile id
+                    \Redis::sAdd("following:profile:" . $model->profile_id, "company.".$channelOwnerProfileId);
+                }
+            });
+        });
     }
 }
