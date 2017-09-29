@@ -86,11 +86,6 @@ class AwardController extends Controller
         $inputs = $request->except(['_method','_token','company_id']);
         $inputs['company_id'] = $companyId;
 
-        if(isset($inputs['date'])){
-            $inputs['date'] = "01-".$inputs['date'];
-            $inputs['date'] = date('Y-m-d',strtotime($inputs['date']));
-        }
-
         $this->model = Award::where('id',$id)->update($inputs);
 
         return $this->sendResponse();

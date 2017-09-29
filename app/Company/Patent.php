@@ -27,16 +27,4 @@ class Patent extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function setAwardedOnAttribute($value)
-    {
-        if(!empty($value)) {
-            $value = "01-".$value;
-            $this->attributes['awarded_on'] = date('Y-m-d', strtotime($value));
-        }
-    }
-
-    public function getAwardedOnAttribute($value)
-    {
-        return !is_null($value) ? date("m-Y",strtotime($value)) : null;
-    }
 }

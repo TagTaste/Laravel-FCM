@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Education extends Model
 {
-    use StartEndDate;
+//    use StartEndDate;
 
     protected $table = 'education';
 
@@ -21,7 +21,7 @@ class Education extends Model
         parent::boot();
         // Order by name ASC
         static::addGlobalScope('education', function (Builder $builder) {
-            $builder->orderBy('start_date', 'desc');
+            $builder->orderBy('ongoing','desc')->orderBy('start_date', 'desc');
         });
     }
 

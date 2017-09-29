@@ -28,20 +28,6 @@ class Book extends Model
         });
     }
 
-    public function setReleaseDateAttribute($value)
-    {
-        if(!empty($value)){
-            $value = "01-".$value;
-            $this->attributes['release_date'] = date('Y-m-d',strtotime($value));
-        }
-    }
-
-    public function getReleaseDateAttribute($value)
-    {
-        if(!empty($value)){
-            return date("m-Y",strtotime($value));
-        }
-    }
     
     /**
      * Should have been named Count
