@@ -3,7 +3,6 @@
 namespace App\Profile;
 
 use App\Scopes\Profile;
-use App\Traits\StartEndDate;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -50,5 +49,19 @@ class Experience extends Model
         return false;
       }
       return $value;
+    }
+    
+    public function getStartDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
+    }
+    
+    public function getEndDateAttribute($value)
+    {
+        if (!empty($value)) {
+            return date("m-Y", strtotime($value));
+        }
     }
 }
