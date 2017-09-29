@@ -2,8 +2,8 @@
 
 namespace App\Profile;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
@@ -15,8 +15,8 @@ class Project extends Model
     {
         parent::boot();
         // Order by name ASC
-        static::addGlobalScope('profile_books', function (Builder $builder) {
-            $builder->orderBy('release_date', 'desc');
+        static::addGlobalScope('projects', function (Builder $builder) {
+            $builder->orderBy('completed_on', 'desc');
         });
     }
 
