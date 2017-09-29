@@ -2,8 +2,8 @@
 
 namespace App\Profile;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class Training extends Model
 {
@@ -16,8 +16,8 @@ class Training extends Model
     {
         parent::boot();
         // Order by name ASC
-        static::addGlobalScope('profile_books', function (Builder $builder) {
-            $builder->orderBy('release_date', 'desc');
+        static::addGlobalScope('trainings', function (Builder $builder) {
+            $builder->orderBy('completed_on', 'desc');
         });
     }
     public function profile()
