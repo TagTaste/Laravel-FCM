@@ -78,9 +78,7 @@ class Chat extends Model
         if($chatIds->count() === 0){
             return null;
         }
-        $chat = Chat::whereIn('id',$chatIds)->get();
-
-        return $chat;
+        return Chat::whereIn('id',$chatIds)->get();
 
     }
 }

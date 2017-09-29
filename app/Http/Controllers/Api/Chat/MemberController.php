@@ -58,7 +58,7 @@ class MemberController extends Controller
 		//check ownership of chat.
 		$chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->where('is_admin',1)->first();
 		if(!$chat){
-		    return $this->sendError("Only chat owners can add members");
+		    return $this->sendError("Only chat admin can add members");
         }
         
         $profileIds = $request->input('profile_id');
@@ -85,7 +85,7 @@ class MemberController extends Controller
         //check ownership of chat.
         $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
         if(!$chat && $id != $profileId){
-            return $this->sendError("Only chat owner can remove members");
+            return $this->sendError("Only chat admin can remove members");
         }
 
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->delete();
@@ -104,11 +104,7 @@ class MemberController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $members = $this->model;
-        if(count($profileIds)) {
-            foreach ($profileIds as $profileId) {
-                $this->model = $members->where('chat_id',$chatId)->where('profile_id',$profileId)->update(['is_admin'=>1]);
-            }
-        }
+        $this->model = $members->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
         return $this->sendResponse();
 
     }
