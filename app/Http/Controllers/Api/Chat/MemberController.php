@@ -56,7 +56,7 @@ class MemberController extends Controller
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
-		$chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->first();
+		$chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->where('is_admin',1)->first();
 		if(!$chat){
 		    return $this->sendError("Only chat owners can add members");
         }
@@ -65,7 +65,7 @@ class MemberController extends Controller
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
-		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>1];
+		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>1,'is_single'=>0];
         }
 		$this->model = Member::insert($data);
 
@@ -106,7 +106,6 @@ class MemberController extends Controller
         $members = $this->model;
         if(count($profileIds)) {
             foreach ($profileIds as $profileId) {
-                \Log::info($profileId);
                 $this->model = $members->where('chat_id',$chatId)->where('profile_id',$profileId)->update(['is_admin'=>1]);
             }
         }

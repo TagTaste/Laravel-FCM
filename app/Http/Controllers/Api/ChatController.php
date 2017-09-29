@@ -52,7 +52,7 @@ class ChatController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$inputs = $request->all();
+		$inputs = $request->except(['_method','_token','isSingle']);
         \Log::info($inputs);
 		//set profile_id to logged in user automatically.
         //all profileIds passed in request would be added to Chat\Member;
@@ -64,7 +64,7 @@ class ChatController extends Controller
 		$inputs['profile_id'] = $loggedInProfileId;
 		
 		//check for existing chats only for single profileId.
-		if(is_array($profileIds) && count($profileIds) === 1){
+		if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
