@@ -50,24 +50,5 @@ class Experience extends Model
       }
       return $value;
     }
-    
-    public function getStartDateAttribute($value)
-    {
-        if(is_null($value)) return;
-        $date = \DateTime::createFromFormat('m-Y', $value);
-        if(!$date){
-            return date("m-Y", strtotime($value));
-        }
-        return $value;
-    }
-    
-    public function getEndDateAttribute($value)
-    {
-        if(is_null($value)) return;
-        $date = \DateTime::createFromFormat('m-Y', $value);
-        if(!$date){
-            return date("m-Y", strtotime($value));
-        }
-        return $value;
-    }
+
 }

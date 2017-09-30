@@ -24,12 +24,5 @@ class Training extends Model
     {
         return $this->belongsTo('App\Profile');
     }
-    
-    public function getCompletedOnAttribute($value)
-    {
-        if (!empty($value)) {
-            return date("m-Y", strtotime($value));
-        }
-    }
 
 }
