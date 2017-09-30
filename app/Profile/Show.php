@@ -30,12 +30,5 @@ class Show extends Model
     {
         return $this->where('profile_id',$this->profile_id)->count();
     }
-    
-    public function getDateAttribute($value)
-    {
-        if (!empty($value)) {
-            return date("m-Y", strtotime($value));
-        }
-    }
 
 }
