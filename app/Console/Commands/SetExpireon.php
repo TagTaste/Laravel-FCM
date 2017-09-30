@@ -21,7 +21,7 @@ class SetExpireon extends Command
      *
      * @var string
      */
-    protected $description = 'Change Date Format in Profile';
+    protected $description = 'set expires_on in jobs and collaboration';
 
     /**
      * Create a new command instance.
