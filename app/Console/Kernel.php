@@ -66,7 +66,10 @@ class Kernel extends ConsoleKernel
         //for date fixes delete after run commands
         \App\Console\Commands\DateFixProfile::class,
 
-        ];
+        //set expireon in job and collaboration run once
+        \App\Console\Commands\SetExpireon::class,
+
+    ];
 
     /**
      * Define the application's command schedule.
