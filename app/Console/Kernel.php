@@ -62,8 +62,11 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Meta\Likes::class,
         \App\Console\Commands\ChangePassword::class,
         \App\Console\Commands\Build\Filters\Company::class,
-               
-        ];
+
+        //command for temporary
+        \App\Console\Commands\DateFixCompany::class,
+
+    ];
 
     /**
      * Define the application's command schedule.
