@@ -21,12 +21,6 @@ class Book extends BaseBook
             $builder->orderBy('release_date', 'desc');
         });
     }
-    
-    public function getReleaseDateAttribute($value)
-    {
-        if (!empty($value)) {
-            return date("m-Y", strtotime($value));
-        }
-    }
+
 
 }
