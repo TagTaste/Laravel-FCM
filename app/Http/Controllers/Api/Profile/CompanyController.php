@@ -128,7 +128,7 @@ class CompanyController extends Controller
         $userId = $request->user()->id;
         if(isset($inputs['established_on']))
         {
-            $inputs['established_on'] = date("Y-m-d",strtotime($inputs['established_on']));
+            $inputs['established_on'] = !empty($inputs['established_on']) ? date("Y-m-d",strtotime($inputs['established_on'])) : null;
         }
         $status = \App\Company::where('id',$id)->update($inputs);
         if(!$status){
