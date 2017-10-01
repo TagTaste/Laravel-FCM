@@ -134,16 +134,6 @@ class Company extends Model
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
     }
-
-//    public function getEstablishedOnAttribute($value)
-//    {
-//        if(is_null($value)) return;
-//            $date = \DateTime::createFromFormat('m-Y', $value);
-//        if(!$date){
-//            return date("d-m-Y", strtotime($value));
-//        }
-//        return $value;
-//    }
     
     public function photos()
     {
