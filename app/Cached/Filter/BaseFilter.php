@@ -22,43 +22,42 @@ class BaseFilter
         $this->modelName = strtolower(class_basename(static::class));
     }
     
-    protected function boot(){
-        $attributes = [];
-        //save name of the filters
-        foreach($this->attributes as $attribute){
-            if(empty($this->model->$attribute)){
-                \Log::info("empty $attribute");
+    protected function boot()
+    {
+        foreach($this->attributes as $filter){
+            $method = "getValueOf" . ucfirst($filter);
+            if(method_exists($this,$method)){
+                $value = $this->$method();
+            } else {
+                $value = $this->{$filter};
+            }
+            if(!$value){
                 continue;
             }
-    
-            $attr = $this->model->$attribute;
-    
-            //sanitize
-            $key = "filters:{$this->modelName}:$attribute";
-
-            if(strpos($attr,",") === false){
-                \Redis::sAdd($key,$attr);
-                $attributes[] = $attr;
-                
-            } else {
-                $attrs = explode(",",$attr);
-                //not used sAddArray since it doesn't provide a way to check which items of array were added.
-                //it just returns count.
-                foreach($attrs as $att){
-                    \Redis::sAdd($key,$att);
-                    $attributes[] = $att;
-                }
+            if(is_array($value)){
+                $this->addArray($filter,$value);
+                continue;
             }
+            
+            $this->addFilter($filter,$value);
         }
-        
-        //map filters to ids
-        if(!empty($attributes)){
-            $id = $this->model->id;
-            foreach($attributes as $attr){
-                $key = "data:{$this->modelName}:$attr";
-               \Redis::sAdd($key,$id);
-            }
+    }
+    
+    public function addArray($filterName, &$filterValues = array())
+    {
+        foreach($filterValues as $value){
+            $this->addFilter($filterName,$value);
         }
+    }
+    
+    public function addFilter(&$filterName,$value)
+    {
+        if(empty($value) || empty($filterName)){
+            return;
+        }
+        $value = trim($value);
+        \Redis::sAdd("filters:" . $this->modelName . ":" . $filterName,$value);
+        \Redis::sAdd("data:" . $this->modelName . ":$filterName:$value",$this->model->id);
     }
     
     public static function getModelIds($keys)
@@ -72,15 +71,16 @@ class BaseFilter
         //intersect different filter names
         $union = [];
         $intersect = [];
-        $prefix = "data:{$self->modelName}:";
+       
         $uniqueKey = time() . str_random(10);
         $remove = [];
 
         foreach($keys as $name => $value){
-            
+            $prefix = "data:{$self->modelName}:$name:";
             if(is_string($value)){
                 $value = $prefix . $value;
                 $intersect[] = $value;
+                continue;
             }
             if(is_array($value)){
                 foreach($value as &$k){
@@ -92,7 +92,6 @@ class BaseFilter
                 \Redis::sUnionStore($key,...$value);
             }
         }
-        
         $modelIds = \Redis::sInter(...$intersect);
         if(!empty($remove)){\Redis::del($remove);}
         return $modelIds;
