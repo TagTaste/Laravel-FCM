@@ -23,7 +23,7 @@ class ProfileController extends Controller
         $response = \App\Profile\User::find($userId)->toArray();
         $response['profile']['isFollowing'] = false;
         $response['profile']['self'] = true;
-        $response['companies'] = $this->getCompany($request);
+        $response['admin_companies'] = $this->getCompany($request);
         return response()->json($response);
     }
 
@@ -417,7 +417,7 @@ class ProfileController extends Controller
         }
         $data = \Redis::mget($companyIds);
         foreach($data as &$company){
-            $company = json_decode($company);
+            $company = ['company'=>json_decode($company)];
         }
         return $data;
     }
