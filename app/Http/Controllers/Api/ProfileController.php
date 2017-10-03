@@ -23,7 +23,7 @@ class ProfileController extends Controller
         $response = \App\Profile\User::find($userId)->toArray();
         $response['profile']['isFollowing'] = false;
         $response['profile']['self'] = true;
-        $response['adminCompanies'] = $this->getCompany($request);
+        $response['companies'] = $this->getCompany($request);
         return response()->json($response);
     }
 
@@ -409,9 +409,13 @@ class ProfileController extends Controller
             ->orWhere('profile_id',$request->user()->profile->id)->get()->pluck('company_id');
         $companyIds = $companyIds->union($adminCompanyIds);
         $data = [];
-        foreach ($companyIds as $companyId)
+        foreach ($companyIds as &$companyId)
         {
-            $data[] = json_decode(\Redis::get("company:small:" . $companyId),true);
+            $companyId = "company:small:" . $companyId;
+        }
+        $data = \Redis::mget($companyIds);
+        foreach($data as &$company){
+            $company = json_decode($company);
         }
         return $data;
     }
