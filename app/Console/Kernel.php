@@ -66,7 +66,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\DateFixCompany::class,
         //for date fixes delete after run commands
         \App\Console\Commands\DateFixProfile::class,
-
+        //set expireon in job and collaboration run once
+        \App\Console\Commands\SetExpireon::class,
         \App\Console\Commands\ExpireonJob::class,
         \App\Console\Commands\ExpireonCollaboration::class
 
@@ -80,7 +81,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('expires_on:job')->everyMinute();
+        $schedule->command('expires_on:job')->daily();
     }
 
     /**

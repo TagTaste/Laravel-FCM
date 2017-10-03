@@ -129,7 +129,8 @@ class CollaborateController extends Controller
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
 		$inputs = $request->all();
-		$collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+        unset($inputs['expires_on']);
+        $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 		if($collaborate === null){
 		    return $this->sendError("Collaboration not found.");
         }
