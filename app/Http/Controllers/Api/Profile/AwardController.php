@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 class AwardController extends Controller
 {
     use SendsJsonResponse;
-    private $fields = ['name','description','date'];
     /**
      * Display a listing of the resource.
      *
@@ -40,7 +39,8 @@ class AwardController extends Controller
      */
     public function store(Request $request)
     {
-        $this->model = $request->user()->profile->awards()->create($request->only($this->fields));
+        $inputs = $request->except(['_method','_token','profile_id']);
+        $this->model = $request->user()->profile->awards()->create($inputs);
         return $this->sendResponse();
     }
 
@@ -81,19 +81,12 @@ class AwardController extends Controller
     {
         $this->model = $request->user()->profile->awards
             ->where('id',$id)->first();
-        $inputs = $request->only(['name','description','date']);
-        $inputs = array_filter($inputs);
-
-        if(isset($inputs['date'])){
-            $inputs['date'] = "01-".$inputs['date'];
-            $inputs['date'] = date('Y-m-d',strtotime($inputs['date']));
-        }
-
+        $inputs = $request->except(['_method','_token','profile_id']);
         if($this->model){
             $this->model->update($inputs);
         }
-        
         return $this->sendResponse();
+
     }
 
     /**
@@ -106,9 +99,9 @@ class AwardController extends Controller
     {
         $this->model = $request->user()->profile->awards
             ->where('id',$id)->first();
-        if($this->model){
+        if($this->model) {
             $this->model = $this->model->delete();
-        return    $this->sendResponse();
+            return $this->sendResponse();
         }
         
     }
