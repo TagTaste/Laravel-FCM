@@ -408,7 +408,7 @@ class ProfileController extends Controller
         $adminCompanyIds = \DB::table('company_users')->select('company_id')->where('user_id',$request->user()->id)
             ->orWhere('profile_id',$request->user()->profile->id)->get()->pluck('company_id');
         $companyIds = $companyIds->union($adminCompanyIds)->toArray();
-        if(count($companyIds)){
+        if(count($companyIds) === 0){
             return [];
         }
         foreach($companyIds as &$companyId)
