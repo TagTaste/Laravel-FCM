@@ -11,7 +11,7 @@ class ExpireonCollaboration extends Command
      *
      * @var string
      */
-    protected $signature = 'expires_on:collaboration';
+    protected $signature = 'collaboration:delete_expired';
     /**
      * The console command description.
      *
