@@ -56,7 +56,7 @@ class MemberController extends Controller
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
-		$chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->where('is_admin',1)->first();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
 		if(!$chat){
 		    return $this->sendError("Only chat admin can add members");
         }
@@ -65,7 +65,7 @@ class MemberController extends Controller
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
-		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>1,'is_single'=>0];
+		    $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
         }
 		$this->model = Member::insert($data);
 
@@ -103,8 +103,7 @@ class MemberController extends Controller
     public function addAdmin(Request $request,$chatId)
     {
         $profileIds = $request->input('profile_id');
-        $members = $this->model;
-        $this->model = $members->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
+        $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
         return $this->sendResponse();
 
     }

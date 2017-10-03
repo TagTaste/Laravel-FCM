@@ -83,13 +83,15 @@ class ChatController extends Controller
             }
             $this->model->update(['image'=>$response]);
         }
-        $profileIds[] = $loggedInProfileId;
 
         //add members to the chat
         $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
 		$chatId = $this->model->id;
-		foreach($profileIds as $profileId){
+		//for add login profile id in member model
+        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'is_admin'=>!$request->input('isSingle'),'is_single'=>$request->input('isSingle')];
+
+        foreach($profileIds as $profileId){
             $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
@@ -110,7 +112,7 @@ class ChatController extends Controller
         //current user should be part of the chat, is a sufficient condition.
         $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
-        })->first();
+        })->get();
 
         return $this->sendResponse();
 	}

@@ -15,7 +15,7 @@ class Member extends Model
     
     protected $fillable = ['chat_id', 'profile_id','is_admin','is_single'];
     
-    protected $visible = ['profile','is_admin'];
+    protected $visible = ['profile','is_admin','is_single'];
     
     protected $with = ['profile'];
     

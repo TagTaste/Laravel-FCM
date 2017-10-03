@@ -60,16 +60,18 @@ class Chat extends Model
     
     public static function open($profileIdOne,$profileIdTwo)
     {
-        $chatIds = Member::where('profile_id',$profileIdTwo)->where('is_single',1)->get()->pluck('chat_id');
+        $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as id"))
+            ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
+            ->where('c1.profile_id','=',$profileIdOne)
+            ->where('c2.profile_id','=',$profileIdTwo)
+            ->where('c1.is_single',1)
+            ->where('c2.is_single',1)
+            ->groupBy('c1.chat_id')
+            ->get();
         if($chatIds->count() === 0){
             return null;
         }
-
-        $chatIds = Member::where('profile_id',$profileIdOne)->whereIn('chat_id',$chatIds)->get()->pluck('chat_id');
-        if($chatIds->count() === 0){
-            return null;
-        }
-        return Chat::whereIn('id',$chatIds)->get();
+        return Chat::whereIn('id',$chatIds->pluck('id')->toArray())->GET();
 
     }
 }
