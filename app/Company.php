@@ -92,14 +92,21 @@ class Company extends Model
         'rating_count',
         'product_catalogue_count',
         'product_catalogue_category_count',
-        'isFollowing'
+        'isFollowing',
+        'CompanyEmployeeCount'
     ];
     
-    protected $with = ['advertisements','addresses','type','status','awards','patents','books','portfolio','productCatalogue','coreteam','gallery','affiliation'];
+    protected $with = ['advertisements','addresses','type','status','awards','patents','books',
+        'portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
-        'product_catalogue_count','product_catalogue_category_count','isFollowing'];
-    
+        'product_catalogue_count','product_catalogue_category_count','isFollowing','CompanyEmployeeCount'];
+
+    public function getCompanyEmployeeCountAttribute()
+    {
+        \Log::info("here");
+        return ['1 - 10','11 - 50','51 - 100','100 - 500','500 - 1000','1000 - 10000','10000 - 50000','50,000+'];
+    }
     public static function boot()
     {
         parent::boot();
