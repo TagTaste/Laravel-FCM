@@ -67,7 +67,10 @@ class Kernel extends ConsoleKernel
         //for date fixes delete after run commands
         \App\Console\Commands\DateFixProfile::class,
 
-        ];
+        \App\Console\Commands\ExpireonJob::class,
+        \App\Console\Commands\ExpireonCollaboration::class
+
+    ];
 
     /**
      * Define the application's command schedule.
@@ -77,8 +80,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('expires_on:job')->everyMinute();
     }
 
     /**
