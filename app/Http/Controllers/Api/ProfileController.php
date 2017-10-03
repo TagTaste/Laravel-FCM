@@ -23,6 +23,7 @@ class ProfileController extends Controller
         $response = \App\Profile\User::find($userId)->toArray();
         $response['profile']['isFollowing'] = false;
         $response['profile']['self'] = true;
+        $response['adminCompanies'] = $this->getCompany($request);
         return response()->json($response);
     }
 
@@ -399,6 +400,20 @@ class ProfileController extends Controller
             $this->model[$model] = $class::whereIn("id",$modelIds)->get();
         }
         return $this->sendResponse();
+    }
+
+    public function getCompany($request)
+    {
+        $companyIds = \DB::table('companies')->select('id')->where('user_id',$request->user()->id)->get()->pluck('id');
+        $adminCompanyIds = \DB::table('company_users')->select('company_id')->where('user_id',$request->user()->id)
+            ->orWhere('profile_id',$request->user()->profile->id)->get()->pluck('company_id');
+        $companyIds = $companyIds->union($adminCompanyIds);
+        $data = [];
+        foreach ($companyIds as $companyId)
+        {
+            $data[] = json_decode(\Redis::get("company:small:" . $companyId),true);
+        }
+        return $data;
     }
 
 }
