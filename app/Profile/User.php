@@ -16,9 +16,9 @@ use Carbon\Carbon;
 
 class User extends BaseUser
 {
-    protected $with = ['profile','companies','adminCompanies']; //'articles','ideabooks','companies'
+    protected $with = ['profile']; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile','companies','adminCompanies']; //'articles','recommend','ideabooks',
+    protected $visible = ['name','email','profile']; //'articles','recommend','ideabooks',
     
     public static function boot()
     {
@@ -304,10 +304,5 @@ class User extends BaseUser
         }
     
         return CompanyUser::where('company_id',$companyId)->where("user_id",$this->id)->count() === 1;
-    }
-
-    public function adminCompanies()
-    {
-        return $this->hasMany('App\CompanyUser');
     }
 }
