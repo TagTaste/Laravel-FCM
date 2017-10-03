@@ -84,9 +84,6 @@ class TrainingController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $input = $request->except(['_method','_token']);
-        if(isset($input['completed_on'])){
-            $input['completed_on'] = empty($input['completed_on']) ? null : date("Y-m-d",strtotime( "01-" . trim($input['completed_on'])));
-        }
         $this->model = Training::where('id',$id)->where('profile_id',$request->user()->profile->id)->update($input);
         return $this->sendResponse();
     }
