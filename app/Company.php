@@ -104,7 +104,6 @@ class Company extends Model
 
     public function getCompanyEmployeeCountAttribute()
     {
-        \Log::info("here");
         return ['1 - 10','11 - 50','51 - 100','100 - 500','500 - 1000','1000 - 10000','10000 - 50000','50,000+'];
     }
     public static function boot()
