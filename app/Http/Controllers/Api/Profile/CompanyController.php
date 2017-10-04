@@ -56,7 +56,8 @@ class CompanyController extends Controller
         }
         catch (\Illuminate\Database\QueryException $e)
         {
-            return $this->sendError($inputs['name'] . " already exists with email " . $inputs['email']);
+            \Log::info($e->getMessage());
+            return $this->sendError("Could not create company.");
         }
 
         if($request->hasFile('logo')){
