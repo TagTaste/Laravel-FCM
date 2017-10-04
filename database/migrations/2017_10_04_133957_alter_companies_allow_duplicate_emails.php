@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AlterCompaniesAllowDuplicateEmails extends Migration
 {
@@ -13,9 +13,11 @@ class AlterCompaniesAllowDuplicateEmails extends Migration
      */
     public function up()
     {
+        Schema::disableForeignKeyConstraints();
         Schema::table("companies",function(Blueprint $table){
-            $table->dropUnique("companies_email_unique");
+            $table->dropIndex('companies_email_unique');
         });
+        Schema::enableForeignKeyConstraints();
     }
 
     /**
