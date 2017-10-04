@@ -31,7 +31,8 @@ class Recipe extends Model implements Feedable, CommentNotification
     protected $appends = ['likeCount','rating'];
 
     public static $level = ['Easy','Medium','Hard'];
-    public static $type = ['Vegan','Vegetarian','Non-Vegetarian'];
+    public static $type = ['Gluten free','Vegan','Dairy free','Lactose free','Soy free','Tree nut free','Corn free',
+        'Kosher D','Kosher DE','Sodium conscious'];
     public static $veg = ['Vegetarian','Non-Vegetarian'];
 
     public static function boot()

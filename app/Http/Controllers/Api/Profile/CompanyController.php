@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Company;
 use App\CompanyRating;
+use App\CompanyUser;
 use App\Http\Controllers\Api\Controller;
 use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -56,7 +57,8 @@ class CompanyController extends Controller
         }
         catch (\Illuminate\Database\QueryException $e)
         {
-            return $this->sendError($inputs['name'] . " already exists with email " . $inputs['email']);
+            \Log::debug($e->getMessage());
+            return $this->sendError("Could not create company.");
         }
 
         if($request->hasFile('logo')){
@@ -158,7 +160,11 @@ class CompanyController extends Controller
             }
         }
         
+        //remove company admins
+        CompanyUser::where("company_id",$id)->delete();
+        
         $this->model = Company::where('id',$id)->where('user_id',$userId)->delete();
+        
         
         //remove from cache
         \Redis::del("company:small:" . $id);
