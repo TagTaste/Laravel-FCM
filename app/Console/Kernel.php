@@ -71,7 +71,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ExpireonJob::class,
         \App\Console\Commands\ExpireonCollaboration::class,
         \App\Console\Commands\EmployeeCount::class
-
+        \App\Console\Commands\Build\CompanyAdmins::class
 
     ];
 
