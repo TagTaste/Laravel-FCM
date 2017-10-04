@@ -56,7 +56,7 @@ class CompanyController extends Controller
         }
         catch (\Illuminate\Database\QueryException $e)
         {
-            \Log::info($e->getMessage());
+            \Log::debug($e->getMessage());
             return $this->sendError("Could not create company.");
         }
 
