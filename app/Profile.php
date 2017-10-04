@@ -4,6 +4,7 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Traits\PushesToChannel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -53,7 +54,7 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'experience',
+//        'experience',
         'awards',
         'certifications',
         'tvshows',
@@ -122,7 +123,7 @@ class Profile extends Model
         'affiliation'
     ];
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl'];
+    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience'];
 
     public static function boot()
     {
@@ -210,6 +211,33 @@ class Profile extends Model
         if (!empty($value)) {
             return date("d-m-Y", strtotime($value));
         }
+    }
+    
+    public function getExperienceAttribute(){
+        $experiences = $this->experience()->get();
+        $dates = $experiences->pluck('end_date','id')->toArray();
+        $infinity = Carbon::now()->addDay()->toDateString();
+         foreach($dates as $id=>$date){
+            if(is_null($date)){
+                $date = $infinity;
+            }
+            $dateArray = explode("-",$date);
+            $temp = array_fill(0,3-count($dateArray),'01');
+            $tempdate = implode("-",array_merge($temp,$dateArray));
+            $startDates[] = ['id'=>$id,'date'=>$tempdate,'time'=>strtotime($tempdate)];
+        }
+        $sorted = collect($startDates)->sortByDesc('time')->toArray();
+        unset($startDates);
+        
+        $sortedExperience = collect([]);
+        $experiences->keyBy('id');
+        
+        foreach($sorted as $id=>$date){
+            $sortedExperience->push($experiences->get($id));
+        }
+        unset($experiences);
+        return $sortedExperience;
+        
     }
 
     public function experience()
