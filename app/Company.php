@@ -93,19 +93,28 @@ class Company extends Model
         'product_catalogue_count',
         'product_catalogue_category_count',
         'isFollowing',
-        'CompanyEmployeeCount'
+        'employeeCountArray',
+        'employeeCountValue'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
         'portfolio','productCatalogue','coreteam','gallery','affiliation'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
-        'product_catalogue_count','product_catalogue_category_count','isFollowing','CompanyEmployeeCount'];
+        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue'];
 
-    public function getCompanyEmployeeCountAttribute()
+    private $empValue = ['1 - 10','11 - 50','51 - 100','100 - 500','500 - 1000','1000 - 10000','10000 - 50000','50,000+'];
+
+    public function getEmployeeCountArrayAttribute()
     {
-        return ['1 - 10','11 - 50','51 - 100','100 - 500','500 - 1000','1000 - 10000','10000 - 50000','50,000+'];
+        return $this->empValue;
     }
+
+    public function getEmployeeCountValueAttribute()
+    {
+        return $this->employee_count ? $this->empValue[$this->employee_count] : null;
+    }
+
     public static function boot()
     {
         parent::boot();
