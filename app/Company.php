@@ -112,7 +112,7 @@ class Company extends Model
 
     public function getEmployeeCountValueAttribute()
     {
-        return $this->employee_count && isset($this->empValue[$this->employee_count]) ? $this->empValue[$this->employee_count] : null;
+        return isset($this->empValue[$this->employee_count]) ? $this->empValue[$this->employee_count] : null;
     }
 
     public static function boot()
