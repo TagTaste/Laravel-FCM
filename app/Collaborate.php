@@ -27,9 +27,9 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
-        'commentCount','likeCount','applicationCount','file1'];
+        'applicationCount','file1'];
     
-    protected $appends = ['commentCount','likeCount','images','applicationCount'];
+    protected $appends = ['images','applicationCount'];
     
     public static function boot()
     {
@@ -224,6 +224,8 @@ class Collaborate extends Model implements Feedable
         $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+
+        $meta['interestedCount'] = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
     
         return $meta;
     }
