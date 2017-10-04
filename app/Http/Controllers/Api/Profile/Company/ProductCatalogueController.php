@@ -87,9 +87,9 @@ class ProductCatalogueController extends Controller
             return $this->sendError($e->getMessage());
     
         }
-        
         foreach($data as &$element){
             $element['company_id'] = $companyId;
+            unset($element['0']);
         }
         
         unset($element);
