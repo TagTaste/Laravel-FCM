@@ -69,7 +69,9 @@ class Kernel extends ConsoleKernel
         //set expireon in job and collaboration run once
         \App\Console\Commands\SetExpireon::class,
         \App\Console\Commands\ExpireonJob::class,
-        \App\Console\Commands\ExpireonCollaboration::class
+        \App\Console\Commands\ExpireonCollaboration::class,
+        \App\Console\Commands\EmployeeCount::class
+
 
     ];
 
