@@ -225,8 +225,8 @@ class Collaborate extends Model implements Feedable
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
-        $meta['interestedCount'] = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
-    
+        $meta['interestedCount'] = \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
+
         return $meta;
     }
     
