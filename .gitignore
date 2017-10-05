@@ -1,9 +1,9 @@
-!/public/health.php
+!public/health.php
 /vendor
 /node_modules
 /bower_components
 /public/storage
-/public/*
+/public
 Homestead.yaml
 Homestead.json
 app/storage/
