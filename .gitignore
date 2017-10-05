@@ -13,4 +13,4 @@ app/storage/
 .DS_Store
 /nbproject
 newrelic_agent.log
-!
+!/public/health.php
