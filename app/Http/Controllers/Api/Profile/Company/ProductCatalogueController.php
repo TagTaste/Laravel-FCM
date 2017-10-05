@@ -97,7 +97,7 @@ class ProductCatalogueController extends Controller
         //delete all previous catalogue products
         ProductCatalogue::where('company_id',$companyId)->delete();
         //create new catalogue products
-        $this->model['date'] = ProductCatalogue::insert($data);
+        $this->model['data'] = ProductCatalogue::insert($data);
         $this->model['product_catalogue_count'] = ProductCatalogue::where('company_id',$companyId)->count();
         $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->count();
 		return $this->sendResponse();
