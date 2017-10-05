@@ -3,7 +3,7 @@
 /node_modules
 /bower_components
 /public/storage
-/public
+public/*
 Homestead.yaml
 Homestead.json
 app/storage/
