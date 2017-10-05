@@ -35,13 +35,13 @@ class ProductCatalogueController extends Controller
 	public function index(Request $request, $profileId, $companyId)
 	{
         $page = $request->input('page');
-        list($skip,$take) = Paginator::paginate($page);
-        
-		$this->model = $this->model->where('company_id',$companyId)->orderByRaw('category asc, product asc')->skip($skip)->take($take)->get();
+        list($skip,$take) = Paginator::paginate($page,10);
+		$this->model['data'] = $this->model->where('company_id',$companyId)->orderByRaw('category asc, product asc')->skip($skip)->take($take)->get();
 
 		if($this->model->count() == 0){
 		    return $this->sendError("Data not found.");
         }
+        $this->model['totalPage'] = ceil(ProductCatalogue::where('company_id',$companyId)->count()/10);
         return $this->sendResponse();
 	}
 
@@ -97,7 +97,9 @@ class ProductCatalogueController extends Controller
         //delete all previous catalogue products
         ProductCatalogue::where('company_id',$companyId)->delete();
         //create new catalogue products
-        $this->model = ProductCatalogue::insert($data);
+        $this->model['data'] = ProductCatalogue::insert($data);
+        $this->model['product_catalogue_count'] = ProductCatalogue::where('company_id',$companyId)->count();
+        $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->count();
 		return $this->sendResponse();
 	}
     
