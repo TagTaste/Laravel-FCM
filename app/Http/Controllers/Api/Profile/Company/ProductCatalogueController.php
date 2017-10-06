@@ -63,13 +63,18 @@ class ProductCatalogueController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
     {
+        if($request->has("remove")&&$request->input("remove")==1)
+        {
+            $this->model = ProductCatalogue::where('company_id',$companyId)->delete();
+            return $this->sendResponse();
+        }
         //we have the file
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
 		//$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
 		//$fullpath = \Storage::url($file);
-        
+
         //load the file
         $data = [];
         try {
