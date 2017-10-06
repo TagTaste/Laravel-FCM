@@ -56,16 +56,16 @@ class MemberController extends Controller
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
-		$chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->first();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
 		if(!$chat){
-		    return $this->sendError("Only chat owners can add members");
+		    return $this->sendError("Only chat admin can add members");
         }
         
         $profileIds = $request->input('profile_id');
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
-		    $data[] = ['chat_id'=>$chat->id,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
+		    $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
         }
 		$this->model = Member::insert($data);
 
@@ -83,13 +83,28 @@ class MemberController extends Controller
         $profileId = $request->user()->profile->id;
         
         //check ownership of chat.
-        $chat = Chat::where('id',$chatId)->where('profile_id',$profileId)->first();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
         if(!$chat && $id != $profileId){
-            return $this->sendError("Only chat owner can remove members");
+            return $this->sendError("Only chat admin can remove members");
         }
-        
+
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->delete();
-    
+        if($id==$profileId)
+        {
+            $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->exists();
+            if(!$adminExist) {
+                $member = Member::where('chat_id', $chatId)->first();
+                $member->update(['is_admin' => 1]);
+            }
+        }
         return $this->sendResponse();
 	}
+
+    public function addAdmin(Request $request,$chatId)
+    {
+        $profileIds = $request->input('profile_id');
+        $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
+        return $this->sendResponse();
+
+    }
 }
