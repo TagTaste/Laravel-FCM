@@ -41,7 +41,7 @@ class ProfileController extends Controller
         $profile = \App\Profile\User::whereHas("profile", function ($query) use ($id) {
             $query->where('id', $id);
         })->first();
-    \Log::info($profile);
+
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
@@ -404,9 +404,16 @@ class ProfileController extends Controller
 
     public function getCompany($request)
     {
-        $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')->where('user_id',$request->user()->id)->get()->pluck('id');
-        $adminCompanyIds = \DB::table('company_users')->select('company_id')->where('user_id',$request->user()->id)->whereNotIn('company_id',$companyIds)->get()->pluck('company_id');
+        $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')
+            ->where('user_id',$request->user()->id)->get()->pluck('id');
+        \Log::warning($companyIds);
+        $adminCompanyIds = \DB::table('company_users')->select('company_id')
+            ->where('user_id',$request->user()->id)
+            ->whereNotIn('company_id',$companyIds)->get()->pluck('company_id');
+        \Log::warning($adminCompanyIds);
+        
         $companyIds = $companyIds->union($adminCompanyIds)->toArray();
+        \Log::warning($companyIds);
         if(count($companyIds) === 0){
             return [];
         }
