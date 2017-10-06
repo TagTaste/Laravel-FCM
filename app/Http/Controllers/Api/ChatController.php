@@ -52,7 +52,7 @@ class ChatController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$inputs = $request->all();
+		$inputs = $request->except(['_method','_token','isSingle']);
         \Log::info($inputs);
 		//set profile_id to logged in user automatically.
         //all profileIds passed in request would be added to Chat\Member;
@@ -62,11 +62,9 @@ class ChatController extends Controller
         }
         $loggedInProfileId = $request->user()->profile->id;
 		$inputs['profile_id'] = $loggedInProfileId;
-		
 		//check for existing chats only for single profileId.
-		if(is_array($profileIds) && count($profileIds) === 1){
+		if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
-            
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
@@ -85,12 +83,16 @@ class ChatController extends Controller
             }
             $this->model->update(['image'=>$response]);
         }
-		//add members to the chat
+
+        //add members to the chat
         $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
 		$chatId = $this->model->id;
-		foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now];
+		//for add login profile id in member model
+        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
+
+        foreach($profileIds as $profileId){
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
         
@@ -110,7 +112,7 @@ class ChatController extends Controller
         //current user should be part of the chat, is a sufficient condition.
         $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
             $query->where('profile_id',$profileId);
-        })->first();
+        })->get();
 
         return $this->sendResponse();
 	}
@@ -147,7 +149,7 @@ class ChatController extends Controller
         if(count($profileIds)) {
             foreach ($profileIds as $profileId) {
                 \Log::info($profileId);
-                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now];
+                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'is_admin'=>0];
             }
             $chat->members()->insert($data);
         }
