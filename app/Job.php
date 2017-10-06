@@ -98,6 +98,8 @@ class Job extends Model implements Feedable
         try{
             return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId,
                 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0,'message'=>$message]);
+            \Redis::hIncrBy("meta:job:" . $id,"applicationCount",1);
+
         }
         catch (\Illuminate\Database\QueryException $e)
         {
