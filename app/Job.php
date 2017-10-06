@@ -96,9 +96,12 @@ class Job extends Model implements Feedable
     public function apply($profileId,$resume = null,$message = null)
     {
         try{
-            return \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId,
+
+            \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId,
                 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0,'message'=>$message]);
-            \Redis::hIncrBy("meta:job:" . $id,"applicationCount",1);
+
+            \Redis::hIncrBy("meta:job:" . $this->id,"applicationCount",1);
+            return true;
 
         }
         catch (\Illuminate\Database\QueryException $e)
@@ -110,7 +113,13 @@ class Job extends Model implements Feedable
     
     public function unapply($profileId)
     {
-        return \DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete();
+
+        if(\DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete()) {
+
+            \Redis::hIncrBy("meta:job:" . $this->id, "applicationCount", -1);
+            return true;
+        }
+        return false;
     }
     
     public function getMetaFor($profileId)
