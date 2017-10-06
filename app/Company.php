@@ -329,8 +329,8 @@ class Company extends Model
         \Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
         
         //subscribe the user to the company feed
-        $user->completeProfile->subscribe("public",$this);
-        $user->completeProfile->subscribe("network",$this);
+//        $user->completeProfile->subscribe("public",$this);
+//        $user->completeProfile->subscribe("network",$this);
         return true;
     }
     
@@ -355,8 +355,8 @@ class Company extends Model
         }
     
         //unsubscribe the user to the company feed
-        $user->profile->unsubscribe("public",$this);
-        $user->profile->unsubscribe("network",$this);
+//        $user->profile->unsubscribe("public",$this);
+//        $user->profile->unsubscribe("network",$this);
         
         return $user->delete();
     }
