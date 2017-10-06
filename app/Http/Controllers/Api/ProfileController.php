@@ -404,6 +404,7 @@ class ProfileController extends Controller
 
     public function getCompany($request)
     {
+        \Log::info($request->user()->profile->id);
         $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')
             ->where('user_id',$request->user()->id)->get()->pluck('id');
         \Log::warning($companyIds);
