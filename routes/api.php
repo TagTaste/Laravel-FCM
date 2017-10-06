@@ -319,7 +319,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
     
-            Route::get('{handle}','HandleController@show');
+            Route::get('@{handle}','HandleController@show');
     
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
