@@ -405,8 +405,7 @@ class ProfileController extends Controller
     public function getCompany($request)
     {
         $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')->where('user_id',$request->user()->id)->get()->pluck('id');
-        $adminCompanyIds = \DB::table('company_users')->select('company_id')->where('user_id',$request->user()->id)
-            ->orWhere('profile_id',$request->user()->profile->id)->get()->pluck('company_id');
+        $adminCompanyIds = \DB::table('company_users')->select('company_id')->where('user_id',$request->user()->id)->whereNotIn('company_id',$companyIds)->get()->pluck('company_id');
         $companyIds = $companyIds->union($adminCompanyIds)->toArray();
         if(count($companyIds) === 0){
             return [];
