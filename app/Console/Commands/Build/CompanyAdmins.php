@@ -39,7 +39,6 @@ class CompanyAdmins extends Command
     public function handle()
     {
         $now = Carbon::now()->toDateTimeString();
-        \DB::table("company_users")->delete();
         \DB::table("companies")->select("companies.id as id",'companies.user_id','profiles.id as profile_id')
             ->join("profiles",'profiles.user_id','=','companies.user_id')
             ->whereNull('companies.deleted_at')
