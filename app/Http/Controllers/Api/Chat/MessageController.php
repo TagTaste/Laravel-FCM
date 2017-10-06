@@ -72,8 +72,7 @@ class MessageController extends Controller
         if($request->hasFile("file"))
         {
             $path = "profile/$profileId/chat/$chatId/file";
-            $fileName = $request->file->getClientOriginalName();
-            $inputs['file'] = $request->file("file")->storeAs($path, $fileName,['visibility'=>'public']);
+            $inputs['file'] = $request->file("file")->storeAs($path, str_random(),['visibility'=>'public']);
         }
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
