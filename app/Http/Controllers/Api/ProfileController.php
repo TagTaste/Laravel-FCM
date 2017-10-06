@@ -413,7 +413,7 @@ class ProfileController extends Controller
             ->whereNotIn('company_id',$companyIds)->get()->pluck('company_id');
         \Log::warning($adminCompanyIds);
         
-        $companyIds = $companyIds->union($adminCompanyIds)->toArray();
+        $companyIds = $companyIds->merge($adminCompanyIds)->toArray();
         \Log::warning($companyIds);
         if(count($companyIds) === 0){
             return [];
