@@ -87,17 +87,42 @@ class ProductCatalogueController extends Controller
             return $this->sendError($e->getMessage());
     
         }
+        $product = [];
+        $temp = [];
         foreach($data as &$element){
-            $element['company_id'] = $companyId;
-            unset($element['0']);
+            if(isset($element['product'])) {
+                $product['product'] = $element['product'];
+                $product['category'] = isset($element['category'])?$element['category']:null;
+                $product['company_id'] = $companyId;
+                $product['brand'] = isset($element['brand'])?$element['brand']:null;
+                $product['measurement_unit'] = isset($element['brand'])?$element['brand']:null;
+                $product['barcode'] = isset($element['brand'])?$element['brand']:null;
+                $product['size'] = isset($element['brand'])?$element['brand']:null;
+                $product['certified'] = isset($element['brand'])?$element['brand']:null;
+                $product['delivery_cities'] = isset($element['brand'])?$element['brand']:null;
+                $product['price'] = isset($element['brand'])?$element['brand']:null;
+                $product['moq'] = isset($element['brand'])?$element['brand']:null;
+                $product['type'] = isset($element['brand'])?$element['brand']:null;
+                $product['about'] = isset($element['brand'])?$element['brand']:null;
+                $product['shelf_life'] = isset($element['brand'])?$element['brand']:null;
+                $temp[] = $product;
+            }
         }
-        
         unset($element);
-    
+        if(count($temp)==0)
+        {
+            return $this->sendError("Product Column is compulsory in xls sheet.");
+        }
         //delete all previous catalogue products
         ProductCatalogue::where('company_id',$companyId)->delete();
         //create new catalogue products
-        $this->model['data'] = ProductCatalogue::insert($data);
+        try{
+            $this->model['data'] = ProductCatalogue::insert($temp);
+        }
+        catch (\Illuminate\Database\QueryException $e)
+        {
+            return $this->sendError("Please upload correct xls file.");
+        }
         $this->model['product_catalogue_count'] = ProductCatalogue::where('company_id',$companyId)->count();
         $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->count();
 		return $this->sendResponse();
