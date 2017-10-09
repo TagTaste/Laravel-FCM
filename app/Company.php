@@ -49,7 +49,8 @@ class Company extends Model
         'speciality',
         'handle',
         'city',
-        'user_id'
+        'user_id',
+        'affiliations'
     ];
     
     protected $visible = [
@@ -78,7 +79,7 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery','affiliation',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery',
         'created_at',
         'milestones',
         'speciality',
@@ -94,11 +95,12 @@ class Company extends Model
         'product_catalogue_category_count',
         'isFollowing',
         'employeeCountArray',
-        'employeeCountValue'
+        'employeeCountValue',
+        'affiliations'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
-        'portfolio','productCatalogue','coreteam','gallery','affiliation'];
+        'portfolio','productCatalogue','coreteam','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
         'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue'];
