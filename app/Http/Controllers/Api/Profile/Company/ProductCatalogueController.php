@@ -63,13 +63,18 @@ class ProductCatalogueController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
     {
+        if($request->has("remove")&&$request->input("remove")==1)
+        {
+            $this->model = ProductCatalogue::where('company_id',$companyId)->delete();
+            return $this->sendResponse();
+        }
         //we have the file
         $filename = str_random(32) . ".xlsx";
         $path = "images/c/" . $companyId;
 		$file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
 		//$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
 		//$fullpath = \Storage::url($file);
-        
+
         //load the file
         $data = [];
         try {
@@ -87,17 +92,42 @@ class ProductCatalogueController extends Controller
             return $this->sendError($e->getMessage());
     
         }
-        foreach($data as &$element){
-            $element['company_id'] = $companyId;
-            unset($element['0']);
+        $product = [];
+        $temp = [];
+        foreach($data as $element){
+            if(isset($element['product'])) {
+                $product['product'] = $element['product'];
+                $product['category'] = isset($element['category']) ? $element['category'] : null;
+                $product['company_id'] = $companyId;
+                $product['brand'] = isset($element['brand']) ? $element['brand'] : null;
+                $product['measurement_unit'] = isset($element['measurement_unit']) ? $element['measurement_unit'] : null;
+                $product['barcode'] = isset($element['barcode']) ? $element['barcode'] : null;
+                $product['size'] = isset($element['size']) ? $element['size'] : null;
+                $product['certified'] = isset($element['certified']) ? $element['certified'] : null;
+                $product['delivery_cities'] = isset($element['delivery_cities']) ? $element['delivery_cities'] : null;
+                $product['price'] = isset($element['price']) ? $element['price'] : null;
+                $product['moq'] = isset($element['moq']) ? $element['moq'] : null;
+                $product['type'] = isset($element['type']) ? $element['type'] : null;
+                $product['about'] = isset($element['about']) ? $element['about'] : null;
+                $product['shelf_life'] = isset($element['shelf_life']) ? $element['shelf_life'] : null;
+                $temp[] = $product;
+            }
         }
-        
-        unset($element);
-    
+
+        if(count($temp)==0)
+        {
+            return $this->sendError("Product Column is compulsory in xls sheet.");
+        }
         //delete all previous catalogue products
         ProductCatalogue::where('company_id',$companyId)->delete();
         //create new catalogue products
-        $this->model['data'] = ProductCatalogue::insert($data);
+        try{
+            $this->model['data'] = ProductCatalogue::insert($temp);
+        }
+        catch (\Illuminate\Database\QueryException $e)
+        {
+            return $this->sendError("Please upload correct xls file.");
+        }
         $this->model['product_catalogue_count'] = ProductCatalogue::where('company_id',$companyId)->count();
         $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->count();
 		return $this->sendResponse();
