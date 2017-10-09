@@ -32,12 +32,12 @@ class ChangeAffiliationsCommand extends Command
      */
     public function handle()
     {
-        Company::select('*')->chunk(200,function($models){
-            foreach($models as $model){
-                $affiliations = Company\Affiliation::where('company_id',$model->id)->get()->pluck('title');
-                $affiliations = $affiliations->toArray();
-                $affiliations = implode(",", $affiliations);
-                Company::where('id',$model->id)->update(['affiliations'=>$affiliations]);
+        Company\Affiliation::chunk(200,function ($models){
+            $models = $models->groupBy('company_id');
+            foreach ($models as $model)
+            {
+                $title = implode(",",$model->pluck('title')->toArray());
+                Company::where('id',$model[0]->company_id)->update(['affiliations'=>$title]);
             }
         });
     }
