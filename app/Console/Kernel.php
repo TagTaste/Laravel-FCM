@@ -73,6 +73,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\EmployeeCount::class,
         \App\Console\Commands\Build\CompanyAdmins::class,
 
+        \App\Console\Commands\ChangeAffiliationsCommand::class
         \App\Console\Commands\ChatGroup::class
 
     ];
