@@ -94,26 +94,26 @@ class ProductCatalogueController extends Controller
         }
         $product = [];
         $temp = [];
-        foreach($data as &$element){
+        foreach($data as $element){
             if(isset($element['product'])) {
                 $product['product'] = $element['product'];
-                $product['category'] = isset($element['category'])?$element['category']:null;
+                $product['category'] = isset($element['category']) ? $element['category'] : null;
                 $product['company_id'] = $companyId;
-                $product['brand'] = isset($element['brand'])?$element['brand']:null;
-                $product['measurement_unit'] = isset($element['measurement_unit'])?$element['measurement_unit']:null;
-                $product['barcode'] = isset($element['barcode'])?$element['barcode']:null;
-                $product['size'] = isset($element['size'])?$element['size']:null;
-                $product['certified'] = isset($element['certified'])?$element['certified']:null;
-                $product['delivery_cities'] = isset($element['delivery_cities'])?$element['delivery_cities']:null;
-                $product['price'] = isset($element['price'])?$element['price']:null;
-                $product['moq'] = isset($element['moq'])?$element['moq']:null;
-                $product['type'] = isset($element['type'])?$element['type']:null;
-                $product['about'] = isset($element['about'])?$element['about']:null;
-                $product['shelf_life'] = isset($element['shelf_life'])?$element['shelf_life']:null;
+                $product['brand'] = isset($element['brand']) ? $element['brand'] : null;
+                $product['measurement_unit'] = isset($element['measurement_unit']) ? $element['measurement_unit'] : null;
+                $product['barcode'] = isset($element['barcode']) ? $element['barcode'] : null;
+                $product['size'] = isset($element['size']) ? $element['size'] : null;
+                $product['certified'] = isset($element['certified']) ? $element['certified'] : null;
+                $product['delivery_cities'] = isset($element['delivery_cities']) ? $element['delivery_cities'] : null;
+                $product['price'] = isset($element['price']) ? $element['price'] : null;
+                $product['moq'] = isset($element['moq']) ? $element['moq'] : null;
+                $product['type'] = isset($element['type']) ? $element['type'] : null;
+                $product['about'] = isset($element['about']) ? $element['about'] : null;
+                $product['shelf_life'] = isset($element['shelf_life']) ? $element['shelf_life'] : null;
                 $temp[] = $product;
             }
         }
-        unset($element);
+
         if(count($temp)==0)
         {
             return $this->sendError("Product Column is compulsory in xls sheet.");
