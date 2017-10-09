@@ -103,7 +103,7 @@ class ProductCatalogueController extends Controller
                 $product['measurement_unit'] = isset($element['measurement_unit']) ? $element['measurement_unit'] : null;
                 $product['barcode'] = isset($element['barcode']) ? $element['barcode'] : null;
                 $product['size'] = isset($element['size']) ? $element['size'] : null;
-                $product['certified'] = isset($element['certified']) ? $element['certified'] : null;
+                $product['certified'] = isset($element['certified']) ? (strtolower($element['certified'])=='yes'? 1 : 0) : 0;
                 $product['delivery_cities'] = isset($element['delivery_cities']) ? $element['delivery_cities'] : null;
                 $product['price'] = isset($element['price']) ? $element['price'] : null;
                 $product['moq'] = isset($element['moq']) ? $element['moq'] : null;
@@ -118,16 +118,16 @@ class ProductCatalogueController extends Controller
         {
             return $this->sendError("Product Column is compulsory in xls sheet.");
         }
-        //delete all previous catalogue products
-        ProductCatalogue::where('company_id',$companyId)->delete();
         //create new catalogue products
         try{
+            $productIds = ProductCatalogue::where('company_id',$companyId)->get()->pluck('id');
             $this->model['data'] = ProductCatalogue::insert($temp);
         }
         catch (\Illuminate\Database\QueryException $e)
         {
             return $this->sendError("Please upload correct xls file.");
         }
+        ProductCatalogue::whereIn('id',$productIds)->delete();
         $this->model['product_catalogue_count'] = ProductCatalogue::where('company_id',$companyId)->count();
         $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->count();
 		return $this->sendResponse();
