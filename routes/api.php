@@ -324,7 +324,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');
                 $tags = \App\Preview::get($url);
-                return response()->json($tags);
+                
+                return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
             });
     
             Route::get('@{handle}','HandleController@show');
