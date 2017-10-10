@@ -304,7 +304,7 @@ class CompanyController extends Controller
         {
             $datum = json_decode($datum,true);
             $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
-            $datum['self'] = $followerProfileId == $datum['id'] ? true : false;
+            $datum['self'] = $followerProfileId === $datum['id'];
         }
         $this->model = $data;
         return $this->sendResponse();
