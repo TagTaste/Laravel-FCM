@@ -28,7 +28,7 @@ class AlterProductCatalogueMeasurementUnit extends Migration
     {
         Schema::table('product_catalogues',function(Blueprint $table){
             $table->float("measurement_unit")->nullable()->change();
-            $table->string("certified")->nullable()->change();
+            $table->tinyInteger("certified")->nullable()->change();
         });
     }
 }
