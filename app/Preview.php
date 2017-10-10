@@ -21,7 +21,7 @@ class Preview
         if(!\Redis::exists($key)){
             $self = new self($url);
             $tags = $self->parseFacebookTags();
-            \Redis::set($key,$tags);
+            \Redis::set($key,json_encode($tags));
         }
     
         return json_decode(\Redis::get($key));
