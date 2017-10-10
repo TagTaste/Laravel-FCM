@@ -65,11 +65,18 @@ class ShoutoutController extends Controller
         }
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
+        $profile = $request->user()->profile;
+        if(isset($inputs['image']) && empty($inputs['image'])){
+            $file = $this->getExternalImage($inputs['image'],$profile->id);
+            
+            $response = $request->file('image')->storeAs($path,str_random(),['visibility'=>'public']);
+        }
+        
 		$this->model = $this->model->create($inputs);
-        event(new Create($this->model,$request->user()->profile));
+        event(new Create($this->model,$profile));
         
         if($inputs['has_tags']){
-            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+            event(new Tag($this->model, $profile, $this->model->content));
         }
 		return $this->sendResponse();
 	}
@@ -165,4 +172,21 @@ class ShoutoutController extends Controller
     {
         return;
 	}
+    
+    public function getExternalImage($url,$profileId){
+        $saveto = storage_path('app/p/' + $profileId + "/simages") + str_random(10);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+        if(file_exists($saveto)){
+            unlink($saveto);
+        }
+        $fp = fopen($saveto,'x');
+        fwrite($fp, $raw);
+        fclose($fp);
+        return $saveto;
+    }
 }
