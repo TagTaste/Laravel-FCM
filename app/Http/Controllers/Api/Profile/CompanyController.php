@@ -134,8 +134,11 @@ class CompanyController extends Controller
         }
         
         $this->model = \App\Company::find($id);
-        
         $this->model->addToCache();
+
+        //update the document
+        \App\Documents\Company::create($this->model);
+
         return $this->sendResponse();
     }
     
