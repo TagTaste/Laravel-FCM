@@ -7,6 +7,7 @@ use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
+use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
