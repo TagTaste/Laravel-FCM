@@ -3,7 +3,6 @@
 namespace App;
 
 use App\Channel\Payload;
-use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\GetTags;
@@ -15,10 +14,10 @@ class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','image'];
     
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
-        'created_at','privacy_id','privacy'
+        'created_at','privacy_id','privacy','image'
     ];
     
     protected $appends = ['owner','likeCount'];
@@ -143,5 +142,10 @@ class Shoutout extends Model implements Feedable
             $value = ['text'=>$value,'profiles'=>$profiles];
         }
         return $value;
+    }
+    
+    public function getImageAttribute($value)
+    {
+        return is_null($value) ? null : \Storage::url($value);
     }
 }

@@ -7,6 +7,7 @@ use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
 use App\Shoutout;
 use App\Traits\CheckTags;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 
 class ShoutoutController extends Controller
@@ -66,10 +67,12 @@ class ShoutoutController extends Controller
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-        if(isset($inputs['image']) && empty($inputs['image'])){
-            $file = $this->getExternalImage($inputs['image'],$profile->id);
-            
-            $response = $request->file('image')->storeAs($path,str_random(),['visibility'=>'public']);
+        if(isset($inputs['image']) && !empty($inputs['image'])){
+            $image = $this->getExternalImage($inputs['image'],$profile->id);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $inputs['image'] = $resp;
         }
         
 		$this->model = $this->model->create($inputs);
@@ -174,19 +177,20 @@ class ShoutoutController extends Controller
 	}
     
     public function getExternalImage($url,$profileId){
-        $saveto = storage_path('app/p/' + $profileId + "/simages") + str_random(10);
+	    $path = 'images/p/' . $profileId . "/simages/";
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(10) . ".image";
+        $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
         $raw=curl_exec($ch);
         curl_close ($ch);
-        if(file_exists($saveto)){
-            unlink($saveto);
-        }
-        $fp = fopen($saveto,'x');
+        
+        $fp = fopen($saveto,'a');
         fwrite($fp, $raw);
         fclose($fp);
-        return $saveto;
+        return "app/" . $path . $filename;
     }
 }
