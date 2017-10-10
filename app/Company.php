@@ -479,7 +479,7 @@ class Company extends Model
 
     public function getProductCatalogueCategoryCountAttribute()
     {
-        return $this->productCatalogue()->whereNotNull('category')->count();
+        return $this->productCatalogue()->whereNotNull('category')->groupBy('category')->count();
     }
     
     public function getIsAdminAttribute()
