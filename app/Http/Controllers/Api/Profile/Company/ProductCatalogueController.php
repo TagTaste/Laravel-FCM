@@ -129,7 +129,7 @@ class ProductCatalogueController extends Controller
         }
         ProductCatalogue::whereIn('id',$productIds)->delete();
         $this->model['product_catalogue_count'] = ProductCatalogue::where('company_id',$companyId)->count();
-        $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->count();
+        $this->model['product_catalogue_category_count'] = ProductCatalogue::where('company_id',$companyId)->whereNotNull('category')->groupBy('category')->count();
 		return $this->sendResponse();
 	}
     
