@@ -17,8 +17,15 @@ class Preview
     }
     public static function get($url)
     {
-        $self = new self($url);
-        return $self->parseFacebookTags();
+        $key = "preview:" . sha1($url);
+        if(!\Redis::exists($key)){
+            $self = new self($url);
+            $tags = $self->parseFacebookTags();
+            \Redis::set($key,$tags);
+        }
+    
+        return json_decode(\Redis::get($key));
+       
     }
     
     private function downloadHTMl(&$url)
