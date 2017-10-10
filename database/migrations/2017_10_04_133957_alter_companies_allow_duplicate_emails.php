@@ -13,8 +13,19 @@ class AlterCompaniesAllowDuplicateEmails extends Migration
      */
     public function up()
     {
+        $keyExists = DB::select(
+            DB::raw(
+                'SHOW KEYS
+                    FROM companies
+                    WHERE Key_name=\'companies_email_unique\''
+            )
+        );
+        if(!$keyExists){
+            return true;
+        }
         Schema::disableForeignKeyConstraints();
         Schema::table("companies",function(Blueprint $table){
+           
             $table->dropIndex('companies_email_unique');
         });
         Schema::enableForeignKeyConstraints();
