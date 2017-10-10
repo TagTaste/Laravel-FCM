@@ -19,7 +19,7 @@ class CompanyAdmins extends Command
      *
      * @var string
      */
-    protected $description = 'Builds company_users table';
+    protected $description = 'Re-Builds company_users table';
 
     /**
      * Create a new command instance.
@@ -41,6 +41,7 @@ class CompanyAdmins extends Command
         $now = Carbon::now()->toDateTimeString();
         \DB::table("companies")->select("companies.id as id",'companies.user_id','profiles.id as profile_id')
             ->join("profiles",'profiles.user_id','=','companies.user_id')
+            ->whereNull('companies.deleted_at')
             ->orderBy('companies.id')->chunk(100,function($owners) use (&$now){
                 foreach($owners as $owner){
                     $exists = \DB::table("company_users")

@@ -320,8 +320,15 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
     
-            Route::get('{handle}','HandleController@show');
+            
+            Route::post("/preview",function(Request $request){
+                $url = $request->input('url');
+                $tags = \App\Preview::get($url);
+                
+                return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
+            });
     
+            Route::get('@{handle}','HandleController@show');
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
     

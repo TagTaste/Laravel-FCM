@@ -138,6 +138,7 @@ class CompanyController extends Controller
 
         //update the document
         \App\Documents\Company::create($this->model);
+
         return $this->sendResponse();
     }
     
