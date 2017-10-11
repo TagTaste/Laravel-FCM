@@ -90,8 +90,11 @@ class Handler extends ExceptionHandler
     
     private function apiResponse(&$exception){
         $this->errors[] = class_basename($exception);
+        
         if($exception instanceof ValidationException){
             $this->messages[] = $exception->getResponse()->original;
+        } else {
+            $this->messages[] = $exception->getMessage();
         }
         $this->status = 400;
         return $this->sendResponse();
