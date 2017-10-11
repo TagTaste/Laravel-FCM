@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Chat;
 use App\Chat;
 use App\Chat\Message;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\API\Chat\Message\StoreRequest;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class MessageController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index(Request $request,$chatId)
+	public function index(StoreRequest $request,$chatId)
 	{
 	    $profileId = $request->user()->profile->id;
         //check ownership
