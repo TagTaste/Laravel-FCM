@@ -236,7 +236,7 @@ class JobController extends Controller
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
 
-        $jobs = Job::whereIn('id',$ids);
+        $jobs = Job::whereNull('deleted_at')->whereIn('id',$ids);
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
