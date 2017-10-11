@@ -34,7 +34,7 @@ class MessageController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function index(StoreRequest $request,$chatId)
+	public function index(Request $request,$chatId)
 	{
 	    $profileId = $request->user()->profile->id;
         //check ownership
@@ -59,7 +59,7 @@ class MessageController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request, $chatId)
+	public function store(StoreRequest $request, $chatId)
 	{
 	    \Log::info($request->hasFile('file'));
 		$inputs = $request->except(['file']);
