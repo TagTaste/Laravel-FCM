@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Chat;
 use App\Chat;
 use App\Chat\Message;
 use App\Http\Controllers\Api\Controller;
-use App\Http\Requests\API\Chat\Message\StoreRequest;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -59,9 +58,9 @@ class MessageController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(StoreRequest $request, $chatId)
+	public function store(Request $request, $chatId)
 	{
-	    \Log::info($request->hasFile('file'));
+
 		$inputs = $request->except(['file']);
         $profileId = $request->user()->profile->id;
         //check ownership
