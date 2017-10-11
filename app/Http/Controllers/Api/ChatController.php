@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Chat;
+use App\Http\Requests\API\Chat\Message\StoreRequest;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 
@@ -50,10 +51,10 @@ class ChatController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request)
+	public function store(StoreRequest $request)
 	{
 		$inputs = $request->except(['_method','_token','isSingle']);
-        \Log::info($inputs);
+
 		//set profile_id to logged in user automatically.
         //all profileIds passed in request would be added to Chat\Member;
 		$profileIds = $inputs['profile_id'];
