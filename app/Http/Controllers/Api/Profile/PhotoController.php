@@ -7,6 +7,8 @@ use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\API\Photo\StoreRequest;
+use App\Http\Requests\API\Photo\UpdateRequest;
 use App\Photo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -47,11 +49,8 @@ class PhotoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        if(!$request->hasFile('file')){
-            return $this->sendError("File not uploaded.");
-        }
         $profileId = $request->user()->profile->id;
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){
@@ -125,7 +124,7 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $profileId,$id)
+    public function update(UpdateRequest $request, $profileId,$id)
     {
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){
