@@ -202,13 +202,13 @@ class Profile extends Model
 
     public function setDobAttribute($value)
     {
-        $this->attributes['dob'] = empty($value) ? null : date("Y-m-d", strtotime($value));
+        return $this->attributes['dob'] = empty($value) ? null : date("Y-m-d", strtotime($value));
     }
 
     public function getDobAttribute($value)
     {
         if (!empty($value)) {
-            return date("d-m-Y", strtotime($value));
+            return $this->dob_private != 1 && request()->user()->profile->id != $this->id ? null : date("d-m-Y", strtotime($value));
         }
     }
 
@@ -589,6 +589,16 @@ class Profile extends Model
     public function getResumeUrlAttribute()
     {
         return !is_null($this->resume) ? \Storage::url($this->resume) : null;
+    }
+
+    public function getAddressAttribute($value)
+    {
+        return $this->address_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+    }
+
+    public function getPhoneAttribute($value)
+    {
+        return $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
     }
 
 }
