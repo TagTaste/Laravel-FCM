@@ -6,6 +6,7 @@ use App\Company;
 use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
 use App\Http\Requests\API\Shoutout\StoreRequest;
+use App\Http\Requests\API\Shoutout\UpdateRequest;
 use App\Shoutout;
 use App\Traits\CheckTags;
 use Illuminate\Http\File;
@@ -111,7 +112,7 @@ class ShoutoutController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(Request $request, $id)
+	public function update(UpdateRequest $request, $id)
 	{
         try {
             $this->verifyOwner($request);
