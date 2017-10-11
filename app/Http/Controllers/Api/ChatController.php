@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Chat;
-use App\Http\Requests\API\Chat\Message\StoreRequest;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 
@@ -51,7 +50,7 @@ class ChatController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(StoreRequest $request)
+	public function store(Request $request)
 	{
 		$inputs = $request->except(['_method','_token','isSingle']);
 
