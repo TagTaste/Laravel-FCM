@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Tagtaste\Api\SendsJsonResponse;
 
 class Handler extends ExceptionHandler
@@ -81,12 +82,19 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         if ($request->expectsJson()) {
-            $this->errors[] = $exception->getMessage();
-            $this->status = 400;
-            return $this->sendResponse();
+            return $this->apiResponse($exception);
         }
         
         return parent::render($request, $exception);
+    }
+    
+    private function apiResponse(&$exception){
+        $this->errors[] = class_basename($exception);
+        if($exception instanceof ValidationException){
+            $this->messages[] = $exception->getResponse()->original;
+        }
+        $this->status = 400;
+        return $this->sendResponse();
     }
 
     /**
