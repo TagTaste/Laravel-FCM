@@ -128,7 +128,9 @@ class Job extends Model implements Feedable
         $meta['hasApplied'] = $this->applications()->where('profile_id',$profileId)->first() !== null;
         $meta['shareCount']=\DB::table('job_shares')->where('job_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-    
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : null ;
+
         return $meta;
     }
     
