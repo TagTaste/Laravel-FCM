@@ -50,22 +50,6 @@ class ProfileController extends Controller
         if($this->model['profile']['email_private']!=1)
         {
             unset($this->model['email']);
-            unset($this->model['email']['email_private']);
-        }
-        if($this->model['profile']['address_private']!=1)
-        {
-            unset($this->model['profile']['address']);
-            unset($this->model['profile']['address_private']);
-        }
-        if($this->model['profile']['phone_private']!=1)
-        {
-            unset($this->model['profile']['phone']);
-            unset($this->model['profile']['phone_private']);
-        }
-        if($this->model['profile']['dob_private']!=1)
-        {
-            unset($this->model['profile']['dob']);
-            unset($this->model['profile']['dob_private']);
         }
         $loggedInProfileId = $request->user()->profile->id;
         $self = $id == $loggedInProfileId;
@@ -404,17 +388,12 @@ class ProfileController extends Controller
 
     public function getCompany($request)
     {
-        \Log::info($request->user()->profile->id);
         $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')
             ->where('user_id',$request->user()->id)->get()->pluck('id');
-        \Log::warning($companyIds);
         $adminCompanyIds = \DB::table('company_users')->select('company_id')
             ->where('user_id',$request->user()->id)
             ->whereNotIn('company_id',$companyIds)->get()->pluck('company_id');
-        \Log::warning($adminCompanyIds);
-        
-        $companyIds = $companyIds->merge($adminCompanyIds)->toArray();
-        \Log::warning($companyIds);
+
         if(count($companyIds) === 0){
             return [];
         }
