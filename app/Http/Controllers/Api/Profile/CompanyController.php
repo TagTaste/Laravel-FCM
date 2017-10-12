@@ -302,7 +302,10 @@ class CompanyController extends Controller
         {
             $profileId = "profile:small:".$profileId;
         }
-        $data = \Redis::mget($profileIds);
+        $data = [];
+        if(count($profileIds)) {
+            $data = \Redis::mget($profileIds);
+        }
         $followerProfileId = $request->user()->profile->id;
         foreach ($data as &$datum)
         {
