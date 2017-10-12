@@ -227,7 +227,7 @@ class Collaborate extends Model implements Feedable
 
         $meta['interestedCount'] = \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : null ;
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
         return $meta;
     }
