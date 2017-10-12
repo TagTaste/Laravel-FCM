@@ -181,7 +181,7 @@ class Photo extends Model implements Feedable
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : null ;
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
         return $meta;
     }
