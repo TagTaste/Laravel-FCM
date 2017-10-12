@@ -108,6 +108,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //feeds
                 Route::get("feed",'FeedController@feed');
+
+            //people who like post
+
+                Route::get("peopleLiked/{modelname}/{id}","LikeController@peopleLiked");
                 Route::get("like",'LikeController@like');
                 Route::get("feed/{profileId}",'FeedController@public');
                 Route::get("feed/companies/{companyId}",'FeedController@company');
