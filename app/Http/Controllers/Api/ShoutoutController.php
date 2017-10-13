@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Company;
 use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
+use App\Http\Requests\API\Shoutout\StoreRequest;
+use App\Http\Requests\API\Shoutout\UpdateRequest;
 use App\Shoutout;
 use App\Traits\CheckTags;
 use Illuminate\Http\File;
@@ -92,7 +94,7 @@ class ShoutoutController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-		$shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
+		$shoutout = $this->model->find($id);
 		if(!$shoutout){
 		    return $this->sendError("Shoutout not found.");
         }
