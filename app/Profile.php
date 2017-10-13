@@ -593,12 +593,12 @@ class Profile extends Model
 
     public function getAddressAttribute($value)
     {
-        return $this->address_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+        return isset($this->address_private) ? $this->address_private != 1 && request()->user()->profile->id != $this->id ? null : $value : null;
     }
 
     public function getPhoneAttribute($value)
     {
-        return $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+        return isset($this->phone_private) ? $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value : null;
     }
 
 }
