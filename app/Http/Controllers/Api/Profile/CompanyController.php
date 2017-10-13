@@ -296,24 +296,7 @@ class CompanyController extends Controller
 
     public function followers(Request $request, $profileId, $id)
     {
-        $profileIds = \Redis::SMEMBERS("followers:company:" . $id);
-
-        foreach ($profileIds as &$profileId)
-        {
-            $profileId = "profile:small:".$profileId;
-        }
-        $data = [];
-        if(count($profileIds)) {
-            $data = \Redis::mget($profileIds);
-        }
-        $followerProfileId = $request->user()->profile->id;
-        foreach ($data as &$datum)
-        {
-            $datum = json_decode($datum,true);
-            $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
-            $datum['self'] = $followerProfileId === $datum['id'];
-        }
-        $this->model = $data;
+        $this->model = Company::getFollowers($id);
         return $this->sendResponse();
     }
 }
