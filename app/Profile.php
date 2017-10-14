@@ -4,7 +4,6 @@ namespace App;
 
 use App\Channel\Payload;
 use App\Traits\PushesToChannel;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -216,26 +215,30 @@ class Profile extends Model
     public function getExperienceAttribute(){
         $experiences = $this->experience()->get();
         $dates = $experiences->pluck('end_date','id')->toArray();
-        $infinity = Carbon::now()->addDay()->toDateString();
-         foreach($dates as $id=>$date){
-            if(is_null($date)){
-                $date = $infinity;
+//        $infinity = Carbon::now()->addDay()->toDateString();
+        $experiences->keyBy('id');
+        $sortedExperience = collect([]);
+        $startDates = [];
+        foreach ($dates as $id => $date) {
+            if (is_null($date)) {
+                $sortedExperience->push($experiences->get($id));
+                continue;
             }
-            $dateArray = explode("-",$date);
-            $temp = array_fill(0,3-count($dateArray),'01');
-            $tempdate = implode("-",array_merge($temp,$dateArray));
-            $startDates[] = ['id'=>$id,'date'=>$tempdate,'time'=>strtotime($tempdate)];
+            $dateArray = explode("-", $date);
+            $temp = array_fill(0, 3 - count($dateArray), '01');
+            $tempdate = implode("-", array_merge($temp, $dateArray));
+            $startDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
         }
+        
         $sorted = collect($startDates)->sortByDesc('time')->toArray();
         unset($startDates);
-        
-        $sortedExperience = collect([]);
-        $experiences->keyBy('id');
         
         foreach($sorted as $id=>$date){
             $sortedExperience->push($experiences->get($id));
         }
+        
         unset($experiences);
+        
         return $sortedExperience;
         
     }
