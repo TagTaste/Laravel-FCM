@@ -208,7 +208,7 @@ var makeCompanyConnection = function(socket){
     var token = socket.handshake.query['token'];
     var companyId = socket.handshake.query['id'];
     var path = '/api/channels';
-    if(!companyId){
+    if(companyId){
         path = path + '/companies/' + companyId + "/public";
     }
 

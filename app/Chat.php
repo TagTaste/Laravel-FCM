@@ -19,15 +19,6 @@ class Chat extends Model
     
     protected $appends = ['latestMessages','profiles','imageUrl'];
     
-    public static function boot()
-    {
-        self::created(function($chat){
-            $now = \Carbon\Carbon::now();
-            $data = ['chat_id'=>$chat->id,'profile_id'=>$chat->profile_id, 'created_at'=>$now->toDateTimeString()];
-            Member::create($data);
-        });
-    }
-    
     public function members()
     {
         return $this->hasMany( Member::class);
@@ -70,26 +61,17 @@ class Chat extends Model
     public static function open($profileIdOne,$profileIdTwo)
     {
         $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as id"))
-                ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
-                ->where('c1.profile_id','=',$profileIdOne)
-                ->where('c2.profile_id','=',$profileIdTwo)
+            ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
+            ->where('c1.profile_id','=',$profileIdOne)
+            ->where('c2.profile_id','=',$profileIdTwo)
+            ->where('c1.is_single',1)
+            ->where('c2.is_single',1)
             ->groupBy('c1.chat_id')
             ->get();
-        
         if($chatIds->count() === 0){
             return null;
         }
-        
-        $chatIds = \DB::table("chat_members")->selectRaw("chat_id,count(chat_id)")
-            ->groupBy("chat_id")->whereIn('chat_id',$chatIds->pluck('id')->toArray())
-            ->whereNull("deleted_at")
-            ->havingRaw("count(chat_id) = 2")
-            ->get();
-        
-        if($chatIds->count() === 0){
-            return null;
-        }
-        return Chat::whereIn('id',$chatIds->pluck('chat_id')->toArray())->get();
-        
+        return Chat::whereIn('id',$chatIds->pluck('id')->toArray())->GET();
+
     }
 }

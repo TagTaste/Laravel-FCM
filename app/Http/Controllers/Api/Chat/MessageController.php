@@ -60,7 +60,8 @@ class MessageController extends Controller
 	 */
 	public function store(Request $request, $chatId)
 	{
-		$inputs = $request->all();
+
+		$inputs = $request->except(['file']);
         $profileId = $request->user()->profile->id;
         //check ownership
         
@@ -72,8 +73,9 @@ class MessageController extends Controller
         if($request->hasFile("file"))
         {
             $path = "profile/$profileId/chat/$chatId/file";
-            $fileName = $request->file->getClientOriginalName();
-            $inputs['file'] = $request->file("file")->storeAs($path, $fileName,['visibility'=>'public']);
+            $filename = $request->file('file')->getClientOriginalName();
+    
+            $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
         }
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;

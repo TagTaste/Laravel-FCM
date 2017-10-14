@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Company;
 use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
+use App\Http\Requests\API\Shoutout\StoreRequest;
+use App\Http\Requests\API\Shoutout\UpdateRequest;
 use App\Shoutout;
 use App\Traits\CheckTags;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 
 class ShoutoutController extends Controller
@@ -65,11 +68,20 @@ class ShoutoutController extends Controller
         }
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
+        $profile = $request->user()->profile;
+        if(isset($inputs['image']) && !empty($inputs['image'])){
+            $image = $this->getExternalImage($inputs['image'],$profile->id);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $inputs['image'] = $resp;
+        }
+        
 		$this->model = $this->model->create($inputs);
-        event(new Create($this->model,$request->user()->profile));
+        event(new Create($this->model,$profile));
         
         if($inputs['has_tags']){
-            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+            event(new Tag($this->model, $profile, $this->model->content));
         }
 		return $this->sendResponse();
 	}
@@ -165,4 +177,22 @@ class ShoutoutController extends Controller
     {
         return;
 	}
+    
+    public function getExternalImage($url,$profileId){
+	    $path = 'images/p/' . $profileId . "/simages/";
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(10) . ".image";
+        $saveto = storage_path("app/" . $path) .  $filename;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+        
+        $fp = fopen($saveto,'a');
+        fwrite($fp, $raw);
+        fclose($fp);
+        return "app/" . $path . $filename;
+    }
 }

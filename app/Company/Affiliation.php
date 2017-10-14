@@ -15,6 +15,6 @@ class Affiliation extends Model
 
     protected $fillable = ['title','company_id'];
 
-    protected $visible = ['id','title'];
+    protected $visible = ['id','title','company_id'];
 
 }

@@ -158,7 +158,6 @@ class JobController extends Controller
             $response = $request->user()->completeProfile->resume;
         }
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
-        \Redis::hIncrBy("meta:job:" . $id,"applicationCount",1);
         return $this->sendResponse();
     }
     
@@ -176,8 +175,7 @@ class JobController extends Controller
         
         $applierProfileId = $request->user()->profile->id;
         $this->model = $job->unapply($applierProfileId);
-        \Redis::hIncrBy("meta:job:" . $id,"applicationCount",-1);
-    
+
         return $this->sendResponse();
     }
     
@@ -238,7 +236,7 @@ class JobController extends Controller
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
 
-        $jobs = Job::whereIn('id',$ids);
+        $jobs = Job::whereNull('deleted_at')->whereIn('id',$ids);
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);

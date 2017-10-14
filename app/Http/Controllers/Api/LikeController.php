@@ -26,4 +26,33 @@ class LikeController extends Controller
         return $this->sendResponse();
         
     }
+
+    public function peopleLiked(Request $request,$modelName,$modelId)
+    {
+        $key = "meta:{$modelName}:likes:$modelId";
+        $profileIds = \Redis::SMEMBERS($key);
+
+        $loginProfileId = $request->user()->profile->id;
+
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId;
+        }
+        $data = [];
+        if(count($profileIds)) {
+            $data = \Redis::mget($profileIds);
+        }
+
+        foreach ($data as &$datum)
+        {
+            $datum = json_decode($datum,true);
+            $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $loginProfileId,$datum['id']) == 1;
+            $datum['self'] = $loginProfileId === $datum['id'];
+        }
+
+        $this->model = $data;
+
+        return $this->sendResponse();
+
+    }
 }

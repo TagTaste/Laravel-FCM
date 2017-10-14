@@ -3,7 +3,6 @@
 namespace App;
 
 use App\Channel\Payload;
-use App\Interfaces\CommentNotification;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\GetTags;
@@ -15,10 +14,10 @@ class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','image'];
     
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
-        'created_at','privacy_id','privacy'
+        'created_at','privacy_id','privacy','image'
     ];
     
     protected $appends = ['owner','likeCount'];
@@ -96,13 +95,14 @@ class Shoutout extends Model implements Feedable
         $meta['hasLiked'] = \Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
 
-        $idLiked = $this->like()->select('profile_id')->take(3)->get();
-        $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();
-
         $meta['commentCount'] = $this->comments()->count();
 
         $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+
         return $meta;
     }
     
@@ -143,5 +143,10 @@ class Shoutout extends Model implements Feedable
             $value = ['text'=>$value,'profiles'=>$profiles];
         }
         return $value;
+    }
+    
+    public function getImageAttribute($value)
+    {
+        return is_null($value) ? null : \Storage::url($value);
     }
 }

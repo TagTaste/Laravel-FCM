@@ -134,7 +134,11 @@ class CompanyController extends Controller
         }
         
         $this->model = \App\Company::find($id);
-        
+        $this->model->addToCache();
+
+        //update the document
+        \App\Documents\Company::create($this->model);
+
         return $this->sendResponse();
     }
     
@@ -292,7 +296,7 @@ class CompanyController extends Controller
 
     public function followers(Request $request, $profileId, $id)
     {
-        $this->model = $this->getFollowers($id,$request->user()->profile->id);
+        $this->model = Company::getFollowers($id);
         return $this->sendResponse();
     }
 }

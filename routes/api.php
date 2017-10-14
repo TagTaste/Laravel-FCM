@@ -65,6 +65,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
             //chat
                 Route::get("chatrooms","ChatController@rooms");
+                Route::post("chats/{chatId}/members/addAdmin",'Chat\\MemberController@addAdmin');
                 Route::post("chats/{chatId}/messages/{id}/markRead",'Chat\\MessageController@markRead');
                 Route::resource("chats/{chatId}/members",'Chat\\MemberController');
                 Route::resource("chats/{chatId}/messages",'Chat\\MessageController');
@@ -107,6 +108,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //feeds
                 Route::get("feed",'FeedController@feed');
+
+            //people who like post
+
+                Route::get("peopleLiked/{modelname}/{id}","LikeController@peopleLiked");
                 Route::get("like",'LikeController@like');
                 Route::get("feed/{profileId}",'FeedController@public');
                 Route::get("feed/companies/{companyId}",'FeedController@company');
@@ -176,7 +181,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //search
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
-                Route::get("suggest/{type}",'SearchController@suggest');
+                Route::get("autocomplete",'SearchController@autocomplete');
                 
             //history
                 Route::get("history/{type}","HistoryController@history");
@@ -319,8 +324,15 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
     
-            Route::get('{handle}','HandleController@show');
+            
+            Route::post("/preview",function(Request $request){
+                $url = $request->input('url');
+                $tags = \App\Preview::get($url);
+                
+                return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
+            });
     
+            Route::get('@{handle}','HandleController@show');
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
     

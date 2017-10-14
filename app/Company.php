@@ -49,7 +49,8 @@ class Company extends Model
         'speciality',
         'handle',
         'city',
-        'user_id'
+        'user_id',
+        'affiliations'
     ];
     
     protected $visible = [
@@ -78,7 +79,7 @@ class Company extends Model
         'establishments',
         'cuisines',
         'websites',
-        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery','affiliation',
+        'advertisements','addresses','type','status','awards','photos','patents','books','portfolio','coreteam','gallery',
         'created_at',
         'milestones',
         'speciality',
@@ -94,11 +95,12 @@ class Company extends Model
         'product_catalogue_category_count',
         'isFollowing',
         'employeeCountArray',
-        'employeeCountValue'
+        'employeeCountValue',
+        'affiliations'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
-        'portfolio','productCatalogue','coreteam','gallery','affiliation'];
+        'portfolio','productCatalogue','coreteam','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
         'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue'];
@@ -112,7 +114,7 @@ class Company extends Model
 
     public function getEmployeeCountValueAttribute()
     {
-        return $this->employee_count && isset($this->empValue[$this->employee_count]) ? $this->empValue[$this->employee_count] : null;
+        return isset($this->empValue[$this->employee_count]) ? $this->empValue[$this->employee_count] : null;
     }
 
     public static function boot()
@@ -145,7 +147,8 @@ class Company extends Model
             'id' => $this->id,
             'profileId' => $this->profileId,
             'name' => $this->name,
-            'logo' => $this->logo
+            'logo' => $this->logo,
+            'tagline' => $this->tagline
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
     }
@@ -329,8 +332,8 @@ class Company extends Model
         \Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
         
         //subscribe the user to the company feed
-        $user->completeProfile->subscribe("public",$this);
-        $user->completeProfile->subscribe("network",$this);
+//        $user->completeProfile->subscribe("public",$this);
+//        $user->completeProfile->subscribe("network",$this);
         return true;
     }
     
@@ -355,8 +358,8 @@ class Company extends Model
         }
     
         //unsubscribe the user to the company feed
-        $user->profile->unsubscribe("public",$this);
-        $user->profile->unsubscribe("network",$this);
+//        $user->profile->unsubscribe("public",$this);
+//        $user->profile->unsubscribe("network",$this);
         
         return $user->delete();
     }
@@ -402,8 +405,7 @@ class Company extends Model
     
         //if you use \App\Profile here, it would end up nesting a lot of things.
         $profiles = Company::getFollowers($this->id);
-    
-        $count = $profiles->count();
+        $count = count($profiles);
         if($count > 1000000)
         {
             $count = round($count/1000000, 1);
@@ -422,18 +424,24 @@ class Company extends Model
     
     public static function getFollowers($id)
     {
-        //just get the profile ids first
-        //then fire another query to build the required things
-        
-        $profileIds = \DB::table('profiles')->select('profiles.id')
-            ->join('subscribers','subscribers.profile_id','=','profiles.id')
-            ->where('subscribers.channel_name','like','company.public.' . $id)
-//            ->where('subscribers.profile_id','!=',$id)
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('subscribers.deleted_at')
-            ->get();
-        
-        return \App\Recipe\Profile::whereIn('id',$profileIds->pluck('id')->toArray())->get();
+        $profileIds = \Redis::SMEMBERS("followers:company:" . $id);
+
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId;
+        }
+        $data = [];
+        if(count($profileIds)) {
+            $data = \Redis::mget($profileIds);
+        }
+        $followerProfileId = request()->user()->profile->id;
+        foreach ($data as &$datum)
+        {
+            $datum = json_decode($datum,true);
+            $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
+            $datum['self'] = $followerProfileId === $datum['id'];
+        }
+        return $data;
     }
     
     public function getIsFollowingAttribute()
@@ -477,7 +485,7 @@ class Company extends Model
 
     public function getProductCatalogueCategoryCountAttribute()
     {
-        return $this->productCatalogue()->whereNotNull('category')->count();
+        return $this->productCatalogue()->whereNotNull('category')->groupBy('category')->count();
     }
     
     public function getIsAdminAttribute()
