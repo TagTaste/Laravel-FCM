@@ -216,10 +216,11 @@ class Profile extends Model
         $experiences = $this->experience()->get();
         $dates = $experiences->pluck('end_date','id')->toArray();
 //        $infinity = Carbon::now()->addDay()->toDateString();
-        $experiences->keyBy('id');
+        $experiences = $experiences->keyBy('id');
         $sortedExperience = collect([]);
         $startDates = [];
         foreach ($dates as $id => $date) {
+            
             if (is_null($date)) {
                 $sortedExperience->push($experiences->get($id));
                 continue;
@@ -230,7 +231,7 @@ class Profile extends Model
             $startDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
         }
         
-        $sorted = collect($startDates)->sortByDesc('time')->toArray();
+        $sorted = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
         unset($startDates);
         
         foreach($sorted as $id=>$date){
@@ -238,7 +239,6 @@ class Profile extends Model
         }
         
         unset($experiences);
-        
         return $sortedExperience;
         
     }
