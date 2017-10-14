@@ -215,26 +215,45 @@ class Profile extends Model
     public function getExperienceAttribute(){
         $experiences = $this->experience()->get();
         $dates = $experiences->toArray();
-//        $infinity = Carbon::now()->addDay()->toDateString();
+
         $experiences = $experiences->keyBy('id');
         $sortedExperience = collect([]);
-        $startDates = [];
+        $endDates = [];
         foreach ($dates as $exp) {
             $id = $exp['id'];
-            $date = $exp['end_date'];
             
-            if (is_null($date) || $exp['current_company'] === 1) {
+            if (is_null($exp['end_date']) || $exp['current_company'] === 1) {
                 $sortedExperience->push($experiences->get($id));
                 continue;
             }
-            $dateArray = explode("-", $date);
+            $dateArray = explode("-", $exp['end_date']);
+            $temp = array_fill(0, 3 - count($dateArray), '01');
+            $tempdate = implode("-", array_merge($temp, $dateArray));
+            $endDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
+        }
+        
+        
+        $currentCompanies = $sortedExperience->pluck('start_date','id')->toArray();
+        $startDates = [];
+
+        foreach($currentCompanies as $id=>$startDate){
+            
+            $dateArray = explode("-", $startDate);
             $temp = array_fill(0, 3 - count($dateArray), '01');
             $tempdate = implode("-", array_merge($temp, $dateArray));
             $startDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
         }
+        $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
+        $sortedExperience = collect([]);
         
-        $sorted = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
-        unset($startDates);
+        foreach($startDates as $id=>$date){
+            
+            $sortedExperience->push($experiences->get($id));
+        }
+        
+        
+        $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
+        unset($endDates);
         
         foreach($sorted as $id=>$date){
             $sortedExperience->push($experiences->get($id));
