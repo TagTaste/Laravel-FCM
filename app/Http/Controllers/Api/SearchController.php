@@ -65,12 +65,12 @@ class SearchController extends Controller
     
     public function suggest(Request $request, $type)
     {
-        $name = $request->input('description');
+                $name = $request->input('description');
         $params = [
             'index' => 'api',
             'type' => $type,
             'body' => [
-            
+
                 'suggest'=> [
                     'namesuggestion' => [
                         'text' => $name,
@@ -81,11 +81,42 @@ class SearchController extends Controller
                 ]
             ]
         ];
-        
+
         $client = SearchClient::get();
-    
+
         $response = $client->search($params);
-    
+
         return response()->json($response);
+    }
+    
+    public function autocomplete(Request $request)
+    {
+        $this->model = [];
+        $term = $request->input('term');
+        
+        $profiles = \DB::table("profiles")->select("profiles.id","users.name")
+                        ->join("users",'users.id','=','profiles.user_id')
+                        ->where("users.name",'like',"%$term%")->take(5)->get();
+        
+        $companies = \DB::table("companies")
+            ->select("companies.id",'name','profiles.id as profile_id')
+            ->join("profiles",'companies.user_id','=','profiles.user_id')
+            ->where("name",'like',"%$term%")->take(5)->get();
+        
+        if(count($profiles)){
+            foreach($profiles as $profile){
+                $profile->type = "profile";
+                $this->model[] = (array) $profile;
+            }
+        }
+        
+        if(count($companies)){
+            foreach($companies as $company){
+                $company->type = "company";
+                $this->model[] = (array) $company;
+            }
+        }
+        
+        return $this->sendResponse();
     }
 }
