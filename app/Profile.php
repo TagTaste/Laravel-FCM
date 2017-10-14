@@ -214,14 +214,16 @@ class Profile extends Model
     
     public function getExperienceAttribute(){
         $experiences = $this->experience()->get();
-        $dates = $experiences->pluck('end_date','id')->toArray();
+        $dates = $experiences->toArray();
 //        $infinity = Carbon::now()->addDay()->toDateString();
         $experiences = $experiences->keyBy('id');
         $sortedExperience = collect([]);
         $startDates = [];
-        foreach ($dates as $id => $date) {
+        foreach ($dates as $exp) {
+            $id = $exp['id'];
+            $date = $exp['end_date'];
             
-            if (is_null($date)) {
+            if (is_null($date) || $exp['current_company'] === 1) {
                 $sortedExperience->push($experiences->get($id));
                 continue;
             }
