@@ -58,14 +58,12 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
-                    $profile = json_decode($profile,true);
                     $profile['isFollowing'] = in_array($profile['id'],$following);
                 }
             }
             
             if(isset($this->model['company'])){
                 foreach($this->model['company'] as &$company){
-                    $company = json_decode($company,true);
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
