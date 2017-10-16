@@ -37,10 +37,20 @@ class SearchController extends Controller
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
+            
             foreach($hits as $name => $hit){
-                $class = "\App\\" . ucwords($name);
-                $model = $class::whereIn('id',$hit->pluck('_id'))->get()->toArray();
-                $this->model[$name] = $model;
+                $small = $name === 'profile' || $name === 'company' ? "small:" : null;
+                foreach($hit->pluck('_id') as $id){
+                    $keys[] = "$name:" . $small . "$id";
+                }
+                $this->model[$name] = \Redis::mget($keys);
+            }
+            
+            //decode json
+            foreach($this->model as $type=>&$objects){
+                foreach($objects as &$json){
+                    $json = json_decode($json,true);
+                }
             }
             
             $profileId = $request->user()->profile->id;
@@ -48,12 +58,14 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
+                    $profile = json_decode($profile,true);
                     $profile['isFollowing'] = in_array($profile['id'],$following);
                 }
             }
             
             if(isset($this->model['company'])){
                 foreach($this->model['company'] as &$company){
+                    $company = json_decode($company,true);
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
