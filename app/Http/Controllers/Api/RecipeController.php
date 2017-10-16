@@ -30,8 +30,8 @@ class RecipeController extends Controller
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
 
-        if (!empty($filters['is_vegetarian'])) {
-            $recipes = $recipes->where('is_vegetarian', $filters['is_vegetarian']);
+        if (!empty($filters['vegetarian'])) {
+            $recipes = $recipes->where('is_vegetarian', $filters['vegetarian']);
         }
         
         if(!empty($filters['preparation_time'])){
