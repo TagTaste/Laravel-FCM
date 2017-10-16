@@ -94,14 +94,16 @@ class SearchController extends Controller
         $this->model = [];
         $term = $request->input('term');
         
+        $total = 10;
         $profiles = \DB::table("profiles")->select("profiles.id","users.name")
                         ->join("users",'users.id','=','profiles.user_id')
-                        ->where("users.name",'like',"%$term%")->take(5)->get();
+                        ->where("users.name",'like',"%$term%")->take($total - 5)->get();
         
+        $count = $total - $profiles->count();
         $companies = \DB::table("companies")
             ->select("companies.id",'name','profiles.id as profile_id')
             ->join("profiles",'companies.user_id','=','profiles.user_id')
-            ->where("name",'like',"%$term%")->take(5)->get();
+            ->where("name",'like',"%$term%")->take($count)->get();
         
         if(count($profiles)){
             foreach($profiles as $profile){
