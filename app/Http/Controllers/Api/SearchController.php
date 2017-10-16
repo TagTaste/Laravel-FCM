@@ -57,6 +57,9 @@ class SearchController extends Controller
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
+            
+            $this->model['suggestions'] = $this->autocomplete($query);
+            
             return $this->sendResponse();
     
         }
@@ -89,10 +92,9 @@ class SearchController extends Controller
         return response()->json($response);
     }
     
-    public function autocomplete(Request $request)
+    private function autocomplete(&$term)
     {
-        $this->model = [];
-        $term = $request->input('term');
+        $suggestions = [];
         
         $total = 10;
         $profiles = \DB::table("profiles")->select("profiles.id","users.name")
@@ -108,17 +110,17 @@ class SearchController extends Controller
         if(count($profiles)){
             foreach($profiles as $profile){
                 $profile->type = "profile";
-                $this->model[] = (array) $profile;
+                $suggestions[] = (array) $profile;
             }
         }
         
         if(count($companies)){
             foreach($companies as $company){
                 $company->type = "company";
-                $this->model[] = (array) $company;
+                $suggestions[] = (array) $company;
             }
         }
         
-        return $this->sendResponse();
+        return $suggestions;
     }
 }
