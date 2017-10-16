@@ -64,7 +64,7 @@ class RecipeController extends Controller
         
         if(!empty($filters['ingredients'])){
             $recipes = $recipes->whereHas('ingredients',function($query) use (&$filters){
-                $query->whereIn($filters['ingredients']);
+                $query->whereIn('id',$filters['ingredients']);
             });
         }
     
