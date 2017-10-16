@@ -10,4 +10,9 @@ class Company extends Document
     {
         return $this->model->productCatalogue()->select('product','category')->get()->pluck('product','category')->toArray();
     }
+    
+    public function getValueOfspeciality()
+    {
+        return explode(",",$this->model->speciality);
+    }
 }
