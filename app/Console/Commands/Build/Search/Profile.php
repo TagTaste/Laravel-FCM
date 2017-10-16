@@ -39,6 +39,8 @@ class Profile extends Command
     {
         \App\Profile::chunk(100,function($models){
             foreach($models as $model){
+                $this->info("Building " . $model->id);
+
                 \App\Documents\Profile::create($model);
             }
         });
