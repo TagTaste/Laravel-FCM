@@ -61,6 +61,12 @@ class RecipeController extends Controller
             $recipes = $recipes->where('preparation_time','>=',$startAt)
                 ->where('preparation_time','<=',$endAt);
         }
+        
+        if(!empty($filters['ingredients'])){
+            $recipes = $recipes->whereHas('ingredients',function($query) use (&$filters){
+                $query->whereIn($filters['ingredients']);
+            });
+        }
     
         if(!empty($filters['cooking_time'])){
             $start = [
