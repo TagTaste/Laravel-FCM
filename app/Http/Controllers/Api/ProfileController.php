@@ -133,7 +133,6 @@ class ProfileController extends Controller
                 }
                 $this->model->update($data['profile']);
                 $this->model->refresh();
-                new \App\Cached\Filter\Profile($this->model);
                 
                 //update filters
                 \App\Filter\Profile::addModel($this->model);
