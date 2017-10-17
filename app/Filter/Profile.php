@@ -83,8 +83,46 @@ class Profile extends Filter {
     
     public static function getFilters()
     {
-        return static::select('key','value',\DB::raw('count(`key`) as count'))
+        $filters = static::select('key','value',\DB::raw('count(`key`) as count'))
             ->groupBy('key','value')->orderBy('count','desc')->take(10)->get()->groupBy('key');
+        
+        foreach($filters as $key=>&$sub){
+            foreach($sub as &$filter){
+                unset($filter->key);
+            }
+        }
+        return $filters;
+    }
+    
+    public static function getModels($filters)
+    {
+        $models = null;
+        foreach($filters as $filter => $value){
+
+            $profile = static::selectRaw('distinct profile_id')->where('key',$filter)->whereIn('value',$value)->get()->pluck("profile_id");
+            if(is_null($models)){
+                $models = $profile;
+                continue;
+            }
+            $models = $profile->intersect($models);
+        }
+        
+        if(count($models) == 0){
+            return $models;
+        }
+        
+        $profiles = [];
+        foreach($models as $model){
+            $profiles[] = "profile:small:" . $model;
+        }
+       
+        $profiles = \Redis::mget($profiles);
+        
+        foreach($profiles as &$model){
+            $model = json_decode($model,true);
+        }
+        
+        return $profiles;
     }
 
 }

@@ -328,6 +328,7 @@ class ProfileController extends Controller
     
     public function all(Request $request)
     {
+        
         $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
         $models = \App\Recipe\Profile::where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
@@ -351,15 +352,14 @@ class ProfileController extends Controller
             return $this->sendResponse();
         }
         
-        $profileIds = \App\Cached\Filter\Profile::getModelIds($filters);
-        $profiles = $models->whereIn('id',array_values($profileIds))->get();
-        $this->model['count'] = $profiles->count();
+        $profiles = \App\Filter\Profile::getModels($filters);
+        
+        $this->model['count'] =  count($profiles);
     
         $loggedInProfileId = $request->user()->profile->id;
-        foreach ($profiles as $profile){
-            $temp = $profile->toArray();
-            $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);;
-            $this->model['data'][] = $temp;
+        foreach ($profiles as &$profile){
+            $profile['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile['id']);;
+            $this->model['data'][] = $profile;
         }
         return $this->sendResponse();
     }
