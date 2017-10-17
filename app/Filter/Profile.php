@@ -15,12 +15,6 @@ class Profile extends Filter {
     
     public static $cacheKey = "profile:small:";
     
-    public function getProfileAttribute()
-    {
-        $key = "profile:small:" . $this->profile_id;
-        return json_decode(\Redis::get($key));
-    }
-    
     public static function addKey($profileId, $key, $value, $delimiter=false)
     {
         if(!$delimiter){
