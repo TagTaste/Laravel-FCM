@@ -134,6 +134,11 @@ class ProfileController extends Controller
                 $this->model->update($data['profile']);
                 $this->model->refresh();
                 new \App\Cached\Filter\Profile($this->model);
+                
+                //update filters
+                \App\Filter\Profile::addModel($this->model);
+                
+                
             } catch(\Exception $e){
                 \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
                 return $this->sendError("Could not update.");
@@ -361,13 +366,7 @@ class ProfileController extends Controller
 
     public function filters()
     {
-        $this->model = \App\Cached\Filter\Profile::getFilters();
-
-        foreach($this->model as &$filter){
-            foreach($filter as &$value){
-                $value = ['value'=>$value];
-            }
-        }
+        $this->model = \App\Filter\Profile::getFilters();
         return $this->sendResponse();
     }
     
