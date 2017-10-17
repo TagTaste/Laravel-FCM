@@ -13,6 +13,8 @@ class Profile extends Filter {
     
     private $strings = ['location'];
     
+    public static $cacheKey = "profile:small:";
+    
     public function getProfileAttribute()
     {
         $key = "profile:small:" . $this->profile_id;
@@ -111,18 +113,7 @@ class Profile extends Filter {
             return $models;
         }
         
-        $profiles = [];
-        foreach($models as $model){
-            $profiles[] = "profile:small:" . $model;
-        }
-       
-        $profiles = \Redis::mget($profiles);
-        
-        foreach($profiles as &$model){
-            $model = json_decode($model,true);
-        }
-        
-        return $profiles;
+        return static::getFromCache($models);
     }
 
 }
