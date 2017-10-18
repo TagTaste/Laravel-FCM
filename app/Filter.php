@@ -14,12 +14,14 @@ class Filter extends Model
     
     protected $strings = [];
     
+    protected $models = [];
+    
     public static function addKey($relatedColumnId, $key, $value, $delimiter=false)
     {
         if(!$delimiter){
             return static::insert(
                 [
-                    static::$relatedColumn => $$relatedColumnId,
+                    static::$relatedColumn => $relatedColumnId,
                     'key' => $key,
                     'value' => $value
                 ]);
@@ -72,6 +74,19 @@ class Filter extends Model
             if(isset($model->{$filter})){
                 static::updateKey($model->id,$filter,$model->{$filter});
             }
+        }
+        
+        foreach($self->models as $filter){
+            list($relationship,$attribute) = explode(".",$filter);
+            
+            if(isset($model->$relationship)){
+                foreach($model->$relationship as $rel){
+                    if(isset($rel->$attribute)){
+                        static::updateKey($model->id,$attribute,$rel->$attribute);
+                    }
+                }
+            }
+            
         }
         
     }

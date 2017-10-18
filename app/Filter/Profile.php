@@ -12,6 +12,8 @@ class Profile extends Filter {
     
     protected $strings = ['location'];
     
+    protected $models = ['education.college','experience.company'];
+    
     public static $cacheKey = "profile:small:";
     
     public static $relatedColumn = 'profile_id';
