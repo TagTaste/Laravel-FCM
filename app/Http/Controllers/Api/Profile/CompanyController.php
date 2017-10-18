@@ -170,12 +170,18 @@ class CompanyController extends Controller
         //remove company admins
         CompanyUser::where("company_id",$id)->delete();
         
+        //remove filters
+        \App\Filter\Company::removeModel($id);
+    
+        //delete company
         $this->model = Company::where('id',$id)->where('user_id',$userId)->delete();
         
         
         //remove from cache
         \Redis::del("company:small:" . $id);
         \Redis::del("followers:company:$id");
+    
+    
         return $this->sendResponse();
     }
     
