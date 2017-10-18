@@ -43,25 +43,9 @@ class CollaborateController extends Controller
 		$collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
        
-        if (!empty($filters['location'])) {
-            $collaborations = $collaborations->whereIn('location', $filters['location']);
-        }
-        if (!empty($filters['keywords'])) {
-            $keywords = $filters['keywords'];
-            
-            $collaborations = $collaborations->where(function($query) use($keywords){
-                foreach($keywords as $keyword){
-                    $query->orWhere('keywords','like',"%" . $keyword . "%");
-                }
-            });
-        }
-        if(!empty($filters['type']))
-        {
-            $collaborations = $collaborations->whereIn('template_id',$filters['type']);
-        }
-        
-        if(!empty($filters['categories'])){
-            $collaborations = $collaborations->whereIn('category_id',$filters['categories']);
+        if(!empty($filters)){
+            $this->model = \App\Filter\Collaborate::getModels($filters);
+            return $this->sendResponse();
         }
         $this->model = [];
         $this->model["count"] = $collaborations->count();
