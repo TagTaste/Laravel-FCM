@@ -16,6 +16,9 @@ class Filter extends Model
     
     protected $models = [];
     
+    public static $relatedColumn = null;
+    
+    
     public static function addKey($relatedColumnId, $key, $value, $delimiter=false)
     {
         if(!$delimiter){
@@ -90,6 +93,11 @@ class Filter extends Model
             
         }
         
+    }
+    
+    public static function removeModel($modelId)
+    {
+        return static::where(static::$relatedColumn,$modelId)->delete();
     }
     
     public static function getFilters($model = null)
