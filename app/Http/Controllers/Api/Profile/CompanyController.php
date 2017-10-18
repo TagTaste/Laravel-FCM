@@ -77,6 +77,8 @@ class CompanyController extends Controller
             $company->update();
         }
     
+        \App\Filter\Company::addModel($company);
+    
         $this->model = $company;
         return $this->sendResponse();
     }
@@ -138,6 +140,7 @@ class CompanyController extends Controller
 
         //update the document
         \App\Documents\Company::create($this->model);
+        \App\Filter\Company::addModel($this->model);
 
         return $this->sendResponse();
     }
