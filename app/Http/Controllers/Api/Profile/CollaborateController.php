@@ -100,6 +100,9 @@ class CollaborateController extends Controller
         $profile = Profile::find($profileId);
         $this->model = $this->model->fresh();
         event(new NewFeedable($this->model, $profile));
+    
+        \App\Filter\Collaborate::addModel($this->model);
+    
         return $this->sendResponse();
     }
 
@@ -159,6 +162,7 @@ class CollaborateController extends Controller
 //        $this->model->categories()->sync($categories);
 
         $this->model = $collaborate->update($inputs);
+        \App\Filter\Collaborate::addModel($this->model);
 
         return $this->sendResponse();
     }
