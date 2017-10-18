@@ -122,7 +122,10 @@ class JobController extends Controller
         }
 
         event(new DeleteFeedable($job));
-
+        
+        //remove filters
+        \App\Filter\Job::removeModel($id);
+        
         $this->model = $job->delete();
         
         return $this->sendResponse();
