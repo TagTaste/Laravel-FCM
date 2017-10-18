@@ -37,25 +37,15 @@ class JobController extends Controller
 	 */
     public function index(Request $request)
 	{
-		
+        $filters = $request->input('filters');
+        
+        if(!empty($filters)){
+            $this->model = \App\Filter\Job::getModels($filters);
+            return $this->sendResponse();
+        }
+        
         $jobs = $this->model->whereNull('deleted_at');
         $this->model = [];
-        $filters = $request->input('filters');
-        if (!empty($filters['location'])) {
-            $jobs = $jobs->whereIn('location', $filters['location']);
-        }
-        
-        if (!empty($filters['expected_role'])) {
-            $jobs = $jobs->whereIn('expected_role', $filters['expected_role']);
-        }
-        
-        if (!empty($filters['type_id'])) {
-            $jobs = $jobs->whereIn('type_id', $filters['type_id']);
-        }
-        
-        if(!empty($filters['experience_required'])){
-            $jobs = $jobs->whereIn('experience_required', $filters['experience_required']);
-        }
         
         $profileId = $request->user()->profile->id;
 
