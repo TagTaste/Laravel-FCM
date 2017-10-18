@@ -92,9 +92,13 @@ class Filter extends Model
         
     }
     
-    public static function getFilters()
+    public static function getFilters($model = null)
     {
-        $filters = static::select('key','value',\DB::raw('count(`key`) as count'))
+        $filter = static::class;
+        if($model){
+            $filter = "\\App\\Filter\\" . ucfirst($model);
+        }
+        $filters = $filter::select('key','value',\DB::raw('count(`key`) as count'))
             ->groupBy('key','value')->orderBy('count','desc')->take(10)->get()->groupBy('key');
         
         foreach($filters as $key=>&$sub){
