@@ -39,7 +39,8 @@ class Profile extends Command
     {
         \App\Recipe\Profile::chunk(200,function($models){
             foreach($models as $model){
-                new \App\Cached\Filter\Profile($model);
+               // new \App\Cached\Filter\Profile($model);
+                \App\Filter\Profile::addModel($model);
             }
         });
     }
