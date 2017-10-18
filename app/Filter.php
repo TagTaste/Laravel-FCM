@@ -80,7 +80,8 @@ class Filter extends Model
             list($relationship,$attribute) = explode(".",$filter);
             
             if(isset($model->$relationship)){
-                foreach($model->$relationship as $rel){
+                
+                foreach($model->$relationship()->get() as $rel){
                     if(isset($rel->$attribute)){
                         static::updateKey($model->id,$attribute,$rel->$attribute);
                     }
