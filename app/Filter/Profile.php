@@ -3,7 +3,6 @@
 namespace App\Filter;
 
 use App\Filter;
-use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Filter {
 
