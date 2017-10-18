@@ -63,6 +63,7 @@ class JobController extends Controller
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
+        \App\Filter\Job::addModel($this->model);
 
         return $this->sendResponse();
     }
@@ -101,6 +102,8 @@ class JobController extends Controller
         unset($data['company_id']);
         unset($data['expires_on']);
         $this->model = Job::where('id', $id)->update($data);
+        \App\Filter\Job::addModel($this->model);
+    
         return $this->sendResponse();
     }
     
