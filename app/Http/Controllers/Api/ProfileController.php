@@ -215,7 +215,7 @@ class ProfileController extends Controller
         \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
         
         if(!$this->model){
-            throw new \Exception("You are already following this profile.");
+            $this->sendError("You are already following this profile.");
         }
         
         return $this->sendResponse();
@@ -233,7 +233,7 @@ class ProfileController extends Controller
         $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
-            throw new \Exception("You are not following this profile.");
+            $this->sendError("You are not following this profile.");
         }
     
         $profileId = $request->user()->profile->id;
