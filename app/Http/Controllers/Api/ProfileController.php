@@ -365,7 +365,7 @@ class ProfileController extends Controller
 
     public function filters()
     {
-        $this->model = \App\Filter\Profile::getFilters();
+        $this->model = \App\Filter::getFilters("profile");
         return $this->sendResponse();
     }
     

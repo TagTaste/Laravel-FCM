@@ -26,15 +26,7 @@ class JobController extends Controller
     
     public function filters()
     {
-        $filters = [];
-        
-        $filters['location'] = \App\Filter\Job::select('location as value')->groupBy('location')
-                ->where('location','!=','null')->get();
-        $filters['types'] = Job\Type::with([])->select('id as key', 'name as value')->get();
-        $filters['Expected Role'] = \App\Filter\Job::select('expected_role as value')->groupBy('expected_role')
-            ->where('expected_role','!=','null')->get();
-        $filters['experience_required'] = \DB::table('jobs')->selectRaw("distinct(experience_required) as value")->whereNotNull('experience_required')->get();
-        $this->model = $filters;
+        $this->model = \App\Filter::getFilters("collaborate");
         return $this->sendResponse();
     }
 

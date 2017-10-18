@@ -34,27 +34,7 @@ class CollaborateController extends Controller
 	 */
     public function filters()
     {
-        $filters  = [];
-
-        $filters['location'] = \App\Filter\Collaborate::select('location as value')->groupBy('location')->where('location','!=','null')->get();
-        $keywords = \App\Filter\Collaborate::select('keywords as value')->groupBy('keywords')->where('keywords','!=','null')->get();
-        $filters['keywords'] = [];
-       if($keywords->count()){
-            foreach($keywords as $keyword){
-                if(empty($keyword->value)){
-                    continue;
-                }
-        
-                $filters['keywords'][] = explode(",",$keyword->value);
-            }
-            if(count($filters['keywords'])){
-               $filters['keywords'] = array_merge(...$filters['keywords']);
-            }
-        }
-        
-        $filters['type'] = \App\CollaborateTemplate::select('id as key','name as value')->get();
-        $filters['categories'] = CollaborateCategory::select("id as value","name as value")->with('children')->get();
-        $this->model = $filters;
+        $this->model = \App\Filter::getFilters("collaborate");
         return $this->sendResponse();
     }
 

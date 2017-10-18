@@ -145,35 +145,10 @@ class RecipeController extends Controller
             return response()->file($path);
         }
     }
-
+    
     public function filters()
     {
-        $filters = [];
-        foreach(\App\Recipe::$level as $key => $value){
-            $filters['level'][] = ['key'=>$key,'value'=>$value];
-        }
-        foreach(\App\Recipe::$type as $key => $value){
-            $filters['type'][] = ['key'=>$key,'value'=>$value];
-        }
-        foreach(\App\Recipe::$veg as $key => $value){
-            $filters['vegetarian'][] = ['key'=>$key,'value'=>$value];
-        }
-    
-        $filters['ingredients']=\App\Recipe\Ingredient::select('id as key','name as value')->get();
-    
-        $filters['preparation_time'] = [
-            ['key'=>'0','value'=>"1 hour"],
-            ['key'=>'1','value'=>"1 - 4 hours"],
-            ['key'=>'2','value'=>"4 - 8 hours"],
-        ];
-    
-        $filters['cooking_time'] = [
-            ['key'=>'0','value'=>"1 hour"],
-            ['key'=>'1','value'=>"1 - 4 hours"],
-            ['key'=>'2','value'=>"4 - 8 hours"],
-        ];
-        
-        $this->model = $filters;
+        $this->model = \App\Filter::getFilters("recipe");
         return $this->sendResponse();
     }
 
