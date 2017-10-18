@@ -295,6 +295,10 @@ class RecipeController extends Controller
             return $this->sendError("Recipe not found.");
         }
         event(new DeleteFeedable($recipe));
+    
+        //remove filters
+        \App\Filter\Recipe::removeModel($id);
+        
         $this->model = $recipe->delete();
 
         return $this->sendResponse();
