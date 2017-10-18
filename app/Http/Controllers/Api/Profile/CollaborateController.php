@@ -184,7 +184,10 @@ class CollaborateController extends Controller
         }
 
         event(new DeleteFeedable($collaborate));
-
+    
+        //remove filters
+        \App\Filter\Collaborate::removeModel($id);
+        
         $this->model = $collaborate->delete();
         return $this->sendResponse();
     }
