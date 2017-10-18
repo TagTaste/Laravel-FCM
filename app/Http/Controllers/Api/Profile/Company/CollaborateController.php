@@ -99,6 +99,8 @@ class CollaborateController extends Controller
         $company = Company::find($companyId);
         $this->model = $this->model->fresh();
         event(new NewFeedable($this->model,$company));
+        \App\Filter\Collaborate::addModel($this->model);
+        
         return $this->sendResponse();
 	}
 
@@ -159,6 +161,8 @@ class CollaborateController extends Controller
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
         $this->model = $collaborate->update($inputs);
+        \App\Filter\Collaborate::addModel($this->model);
+        
         return $this->sendResponse();
     }
 
