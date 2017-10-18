@@ -35,15 +35,10 @@ class CompanyController extends Controller {
             return $this->sendResponse();
         }
         
-        $companyIds = \App\Cached\Filter\Company::getModelIds($filters);
-        foreach($companyIds as &$id){
-            $id = "company:small:" . $id;
-        }
-        $companies = \Redis::mget($companyIds);
+        $companies = \App\Filter\Company::getModels($filters);
         $profileId = $request->user()->profile->id;
         $this->model = [];
         foreach($companies as &$company){
-            $company = json_decode($company,true);
             $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
         }
         $this->model['data'] = $companies;
