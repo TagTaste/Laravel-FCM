@@ -180,6 +180,9 @@ class CollaborateController extends Controller
             return $this->sendError( "Collaboration not found.");
         }
         event(new DeleteFeedable($collaborate));
+        
+        //remove filters
+        \App\Filter\Collaborate::removeModel($id);
 
         $this->model = $collaborate->delete();
         return $this->sendResponse();
