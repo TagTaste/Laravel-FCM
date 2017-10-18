@@ -8,12 +8,12 @@ class Profile extends Filter {
 
     protected $table = "profile_filters";
     
-    private $csv = ['keywords','expertise'];
+    protected $csv = ['keywords','expertise'];
     
-    private $strings = ['location'];
+    protected $strings = ['location'];
     
     public static $cacheKey = "profile:small:";
     
-    public static $relatedColumn = 'profileId';
+    public static $relatedColumn = 'profile_id';
 
 }

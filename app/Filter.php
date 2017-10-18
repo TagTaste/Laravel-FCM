@@ -10,6 +10,10 @@ class Filter extends Model
     public $separator = ',';
     public static $cacheKey = null;
     
+    protected $csv = [];
+    
+    protected $strings = [];
+    
     public static function addKey($relatedColumnId, $key, $value, $delimiter=false)
     {
         if(!$delimiter){
@@ -57,7 +61,7 @@ class Filter extends Model
     
     public static function addModel($model)
     {
-        $self = new self;
+        $self = new static;
         foreach($self->csv as $filter){
             if(isset($model->{$filter})){
                 static::updateKey($model->id,$filter,$model->{$filter},',');
