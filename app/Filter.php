@@ -85,14 +85,14 @@ class Filter extends Model
                 try {
                     $related = $model->load($relationship);
                     $related = $related->$relationship;
-                    if(!$related){
-                        continue;
-                    }
-                    foreach($related as $rel){
-                        if(isset($rel->$attribute)){
-                            static::updateKey($model->id,$attribute,$rel->$attribute);
+                    if($related){
+                        foreach($related as $rel){
+                            if(isset($rel->$attribute)){
+                                static::updateKey($model->id,$attribute,$rel->$attribute);
+                            }
                         }
                     }
+                   
                 } catch (\Exception $e){
                     \Log::error($e->getMessage() . " : " . $e->getFile() . ": " . $e->getLine());
                 }
