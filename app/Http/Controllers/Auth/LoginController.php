@@ -106,7 +106,6 @@ class LoginController extends Controller
             \Log::warning($e->getMessage());
             return response()->json(['error'=>"Could not login."],400);
         }
-
         $authUser = $this->findOrCreateUser($user, $provider);
         $token = \JWTAuth::fromUser($authUser);
         
@@ -123,19 +122,25 @@ class LoginController extends Controller
     private function findOrCreateUser($socialiteUser, $provider)
     {
         try {
-            $user = User::findSocialAccount($provider,$socialiteUser->getId());
+            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
             //then add social login
-            $user = User::where('email','like',$socialiteUser->getEmail())->first();
+            if($socialiteUser->getEmail()){
+
+                $user = User::where('email','like',$socialiteUser->getEmail())->first();
+            }
+            else
+            {
+                return redirect('/');
+            }
             if($user){
                 //create social account;
                 $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
             } else {
-                $user = User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(15),true,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(6),true,1,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
             }
         }
-
         return $user;
 
     }
