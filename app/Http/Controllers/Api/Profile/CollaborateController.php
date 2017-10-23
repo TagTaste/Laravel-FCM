@@ -71,14 +71,16 @@ class CollaborateController extends Controller
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
-        //save images
-        for ($i = 1; $i <= 5; $i++) {
-            if (!$request->hasFile("image$i")) {
-                break;
+        if ($request->has("images"))
+        {
+            for ($i = 0; $i <= 4; $i++) {
+                if (!$request->hasFile("images.$i.image")) {
+                    break;
+                }
+                $imageName = str_random("32") . ".jpg";
+                $relativePath = "images/p/$profileId/collaborate";
+                $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
             }
-            $imageName = str_random("32") . ".jpg";
-            $relativePath = "images/p/$profileId/collaborate";
-            $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
         }
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
@@ -141,11 +143,18 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-        for ($i = 1; $i <= 5; $i++) {
-            if ($request->hasFile("image$i")) {
-                $imageName = str_random("32") . ".jpg";
-                $relativePath = "images/p/$profileId/collaborate";
-                $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+        if ($request->has("images"))
+        {
+            for ($i = 0; $i <= 4; $i++) {
+                if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0) {
+                    $imageName = str_random("32") . ".jpg";
+                    $relativePath = "images/p/$profileId/collaborate";
+                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                }
+                else if($request->input("images.$i.remove")==1)
+                {
+                    $inputs["image".($i+1)] = null;
+                }
             }
         }
         if($request->hasFile('file1')){
