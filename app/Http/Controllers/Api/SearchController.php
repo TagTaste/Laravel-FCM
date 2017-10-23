@@ -63,8 +63,10 @@ class SearchController extends Controller
             }
             
             if(isset($this->model['company'])){
-                foreach($this->model['company'] as &$company){
-                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                foreach($this->model['company'] as $company){
+                    if($company && isset($company['id'])){
+                        $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    }
                 }
             }
             
