@@ -39,7 +39,8 @@ class Company extends Command
     {
         \App\Company::chunk(100,function($models){
             foreach($models as $model){
-                new \App\Cached\Filter\Company($model);
+//                new \App\Cached\Filter\Company($model);
+                \App\Filter\Company::addModel($model);
             }
         });
     }
