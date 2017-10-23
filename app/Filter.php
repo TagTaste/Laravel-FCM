@@ -82,14 +82,17 @@ class Filter extends Model
         foreach($self->models as $filter){
             list($relationship,$attribute) = explode(".",$filter);
             
-            if(isset($model->{$relationship})){
-                
-                foreach($model->$relationship()->get() as $rel){
-                    if(isset($rel->$attribute)){
-                        static::updateKey($model->id,$attribute,$rel->$attribute);
+                try {
+                    foreach($model->$relationship()->get() as $rel){
+                        if(isset($rel->$attribute)){
+                            static::updateKey($model->id,$attribute,$rel->$attribute);
+                        }
                     }
+                } catch (\Exception $e){
+                    \Log::error($e->getMessage() . " : " . $e->getFile() . ": " . $e->getLine());
                 }
-            }
+                
+            
             
         }
         
