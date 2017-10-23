@@ -181,6 +181,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //search
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
+                Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
                 
             //history
@@ -331,7 +332,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 
                 return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
             });
-    
+            
             Route::get('@{handle}','HandleController@show');
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.

@@ -2,10 +2,15 @@
 
 namespace App\Filter;
 
-use App\Company as BaseCompany;
+use App\Filter;
 
-class Company extends BaseCompany {
-    protected $with = [];
-    protected $visible = ['city','employee_count','speciality','key','value'];
-    protected $appends = [];
+class Company extends Filter {
+    
+    protected $strings = ['location'];
+    protected $csv = ['speciality'];
+    protected $models = ['type.name'];
+    
+    protected $table = "company_filters";
+    public static $cacheKey = "company:small:";
+    public static $relatedColumn = 'company_id';
 }

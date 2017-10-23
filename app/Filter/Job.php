@@ -2,10 +2,18 @@
 
 namespace App\Filter;
 
-use App\Job as BaseJob;
+use App\Filter;
 
-class Job extends BaseJob {
-    protected $with = [];
-    protected $visible = ['location','key','value'];
-    protected $appends = [];
+class Job extends Filter {
+    protected $table = "job_filters";
+    
+    protected $csv = ['keywords','expertise'];
+    
+    protected $strings = ['location','expected_role','joining_time'];
+    
+    protected $models = ['company.name','jobType.name'];
+    
+    public static $cacheKey = "job:";
+    
+    public static $relatedColumn = 'job_id';
 }

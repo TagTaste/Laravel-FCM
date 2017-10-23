@@ -118,6 +118,8 @@ class RecipeController extends Controller
         //refetch model with relationships.
         $this->model->refresh();
         $this->model->addToCache();
+        \App\Filter\Recipe::addModel($this->model);
+    
         return $this->sendResponse();
     }
 
@@ -273,6 +275,8 @@ class RecipeController extends Controller
         }
         $this->model->refresh();
         $this->model->addToCache();
+        \App\Filter\Recipe::addModel($this->model);
+    
         return $this->sendResponse();
     }
 
@@ -291,6 +295,10 @@ class RecipeController extends Controller
             return $this->sendError("Recipe not found.");
         }
         event(new DeleteFeedable($recipe));
+    
+        //remove filters
+        \App\Filter\Recipe::removeModel($id);
+        
         $this->model = $recipe->delete();
 
         return $this->sendResponse();

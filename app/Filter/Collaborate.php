@@ -2,9 +2,17 @@
 
 namespace App\Filter;
 
-use App\Collaborate as BaseCollaborate;
+use App\Filter;
 
-class Collaborate extends BaseCollaborate
+class Collaborate extends Filter
 {
-	 protected $visible = ['location','keywords','key','value'];
+    protected $table = "collaborate_filters";
+    
+    protected $csv = ['keywords'];
+    
+    protected $strings = ['location'];
+    
+    public static $cacheKey = "collaborate:";
+    
+    public static $relatedColumn = 'collaborate_id';
 }

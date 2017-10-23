@@ -62,6 +62,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Meta\Likes::class,
         \App\Console\Commands\ChangePassword::class,
         \App\Console\Commands\Build\Filters\Company::class,
+        \App\Console\Commands\Build\Filters\Job::class,
+        \App\Console\Commands\Build\Filters\Collaboration::class,
+        \App\Console\Commands\Build\Filters\Recipe::class,
         //command for temporary
         \App\Console\Commands\DateFixCompany::class,
         //for date fixes delete after run commands
