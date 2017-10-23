@@ -83,7 +83,9 @@ class Filter extends Model
             list($relationship,$attribute) = explode(".",$filter);
             
                 try {
-                    foreach($model->$relationship()->get() as $rel){
+                    $related = $model->load($relationship);
+                    $related = $related->$relationship;
+                    foreach($related as $rel){
                         if(isset($rel->$attribute)){
                             static::updateKey($model->id,$attribute,$rel->$attribute);
                         }
