@@ -82,7 +82,7 @@ class Filter extends Model
         foreach($self->models as $filter){
             list($relationship,$attribute) = explode(".",$filter);
             
-            if(isset($model->$relationship)){
+            if(isset($model->{$relationship})){
                 
                 foreach($model->$relationship()->get() as $rel){
                     if(isset($rel->$attribute)){
