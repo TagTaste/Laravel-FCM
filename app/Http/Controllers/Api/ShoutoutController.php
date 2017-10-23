@@ -49,7 +49,7 @@ class ShoutoutController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(StoreRequest $request)
+	public function store(Request $request)
 	{
 		$inputs = $request->all();
 		
@@ -94,7 +94,7 @@ class ShoutoutController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-		$shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
+		$shoutout = $this->model->find($id);
 		if(!$shoutout){
 		    return $this->sendError("Shoutout not found.");
         }
@@ -112,7 +112,7 @@ class ShoutoutController extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function update(UpdateRequest $request, $id)
+	public function update(Request $request, $id)
 	{
         try {
             $this->verifyOwner($request);

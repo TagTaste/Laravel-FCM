@@ -54,7 +54,7 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'experience',
+//        'experience',
         'awards',
         'certifications',
         'tvshows',
@@ -122,7 +122,7 @@ class Profile extends Model
         'affiliations'
     ];
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl'];
+    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience'];
 
     public static function boot()
     {
@@ -210,6 +210,58 @@ class Profile extends Model
         if (!empty($value)) {
             return $this->dob_private != 1 && request()->user()->profile->id != $this->id ? null : date("d-m-Y", strtotime($value));
         }
+    }
+    
+    public function getExperienceAttribute(){
+        $experiences = $this->experience()->get();
+        $dates = $experiences->toArray();
+
+        $experiences = $experiences->keyBy('id');
+        $sortedExperience = collect([]);
+        $endDates = [];
+        foreach ($dates as $exp) {
+            $id = $exp['id'];
+            
+            if (is_null($exp['end_date']) || $exp['current_company'] === 1) {
+                $sortedExperience->push($experiences->get($id));
+                continue;
+            }
+            $dateArray = explode("-", $exp['end_date']);
+            $temp = array_fill(0, 3 - count($dateArray), '01');
+            $tempdate = implode("-", array_merge($temp, $dateArray));
+            $endDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
+        }
+        
+        
+        $currentCompanies = $sortedExperience->pluck('start_date','id')->toArray();
+        $startDates = [];
+
+        foreach($currentCompanies as $id=>$startDate){
+            
+            $dateArray = explode("-", $startDate);
+            $temp = array_fill(0, 3 - count($dateArray), '01');
+            $tempdate = implode("-", array_merge($temp, $dateArray));
+            $startDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
+        }
+        $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
+        $sortedExperience = collect([]);
+        
+        foreach($startDates as $id=>$date){
+            
+            $sortedExperience->push($experiences->get($id));
+        }
+        
+        
+        $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
+        unset($endDates);
+        
+        foreach($sorted as $id=>$date){
+            $sortedExperience->push($experiences->get($id));
+        }
+        
+        unset($experiences);
+        return $sortedExperience;
+        
     }
 
     public function experience()
@@ -593,12 +645,14 @@ class Profile extends Model
 
     public function getAddressAttribute($value)
     {
-        return isset($this->address_private) ? $this->address_private != 1 && request()->user()->profile->id != $this->id ? null : $value : null;
+        if(!request()->user() || is_null($value)){ return; }
+        return $this->address_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
     }
 
     public function getPhoneAttribute($value)
     {
-        return isset($this->phone_private) ? $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value : null;
+        if(!request()->user() || is_null($value)){ return; }
+        return $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
     }
 
 }

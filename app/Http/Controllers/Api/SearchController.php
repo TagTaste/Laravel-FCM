@@ -37,10 +37,20 @@ class SearchController extends Controller
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
+            
             foreach($hits as $name => $hit){
-                $class = "\App\\" . ucwords($name);
-                $model = $class::whereIn('id',$hit->pluck('_id'))->get()->toArray();
-                $this->model[$name] = $model;
+                $small = $name === 'profile' || $name === 'company' ? "small:" : null;
+                foreach($hit->pluck('_id') as $id){
+                    $keys[] = "$name:" . $small . "$id";
+                }
+                $this->model[$name] = \Redis::mget($keys);
+            }
+            
+            //decode json
+            foreach($this->model as $type=>&$objects){
+                foreach($objects as &$json){
+                    $json = json_decode($json,true);
+                }
             }
             
             $profileId = $request->user()->profile->id;
@@ -57,6 +67,9 @@ class SearchController extends Controller
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
+            
+            $this->model['suggestions'] = $this->autocomplete($query);
+            
             return $this->sendResponse();
     
         }
@@ -65,12 +78,12 @@ class SearchController extends Controller
     
     public function suggest(Request $request, $type)
     {
-        $name = $request->input('description');
+                $name = $request->input('description');
         $params = [
             'index' => 'api',
             'type' => $type,
             'body' => [
-            
+
                 'suggest'=> [
                     'namesuggestion' => [
                         'text' => $name,
@@ -81,11 +94,43 @@ class SearchController extends Controller
                 ]
             ]
         ];
-        
+
         $client = SearchClient::get();
-    
+
         $response = $client->search($params);
-    
+
         return response()->json($response);
+    }
+    
+    private function autocomplete(&$term)
+    {
+        $suggestions = [];
+        
+        $total = 10;
+        $profiles = \DB::table("profiles")->select("profiles.id","users.name")
+                        ->join("users",'users.id','=','profiles.user_id')
+                        ->where("users.name",'like',"%$term%")->take($total - 5)->get();
+        
+        $count = $total - $profiles->count();
+        $companies = \DB::table("companies")
+            ->select("companies.id",'name','profiles.id as profile_id')
+            ->join("profiles",'companies.user_id','=','profiles.user_id')
+            ->where("name",'like',"%$term%")->take($count)->get();
+        
+        if(count($profiles)){
+            foreach($profiles as $profile){
+                $profile->type = "profile";
+                $suggestions[] = (array) $profile;
+            }
+        }
+        
+        if(count($companies)){
+            foreach($companies as $company){
+                $company->type = "company";
+                $suggestions[] = (array) $company;
+            }
+        }
+        
+        return $suggestions;
     }
 }

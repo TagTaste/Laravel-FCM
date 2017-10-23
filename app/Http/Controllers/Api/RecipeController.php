@@ -30,8 +30,8 @@ class RecipeController extends Controller
             $recipes = $recipes->whereIn('type', $filters['type']);
         }
 
-        if (!empty($filters['is_vegetarian'])) {
-            $recipes = $recipes->where('is_vegetarian', $filters['is_vegetarian']);
+        if (!empty($filters['vegetarian'])) {
+            $recipes = $recipes->where('is_vegetarian', $filters['vegetarian']);
         }
         
         if(!empty($filters['preparation_time'])){
@@ -60,6 +60,12 @@ class RecipeController extends Controller
     
             $recipes = $recipes->where('preparation_time','>=',$startAt)
                 ->where('preparation_time','<=',$endAt);
+        }
+        
+        if(!empty($filters['ingredients'])){
+            $recipes = $recipes->whereHas('ingredients',function($query) use (&$filters){
+                $query->whereIn('id',$filters['ingredients']);
+            });
         }
     
         if(!empty($filters['cooking_time'])){

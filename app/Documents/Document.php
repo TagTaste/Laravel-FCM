@@ -16,18 +16,25 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
     public $id;
     public $body = [];
     public $bodyProperties = [];
+    public $model = null;
     
     public static function create(Model $model)
     {
         //get the class.
         $className = "\\App\\Documents\\" . class_basename($model);
         $document = new $className;
-        
+        $document->model = $model;
         //set id
         $document->id = $model->id;
         
         //set other attributes
         foreach($document->bodyProperties as $attribute){
+            $method = 'getValueOf' . $attribute;
+            if(method_exists($document,$method)){
+                $document->body[$attribute] = $document->$method();
+                continue;
+            }
+            
             $document->body[$attribute] = $model->{$attribute};
         }
         
@@ -59,6 +66,7 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
         //making this private fails somehow,
         //unsetting it like this for now.
         unset($body['bodyProperties']);
+        unset($body['model']);
         return $body;
     }
     
