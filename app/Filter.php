@@ -85,6 +85,9 @@ class Filter extends Model
                 try {
                     $related = $model->load($relationship);
                     $related = $related->$relationship;
+                    if(!$related){
+                        continue;
+                    }
                     foreach($related as $rel){
                         if(isset($rel->$attribute)){
                             static::updateKey($model->id,$attribute,$rel->$attribute);
