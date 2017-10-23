@@ -82,8 +82,8 @@ class CollaborateController extends Controller
         }
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
-            $name = \Input::file('file1')->getClientOriginalName();
-            $extension = \Input::file('file1')->getClientOriginalExtension();
+            $name = $request->file('file1')->getClientOriginalName();
+            $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
         
@@ -148,11 +148,10 @@ class CollaborateController extends Controller
                 $inputs["image$i"] = $request->file("image$i")->storeAs($relativePath, $imageName,['visibility'=>'public']);
             }
         }
-    
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
-            $name = \Input::file('file1')->getClientOriginalName();
-            $extension = \Input::file('file1')->getClientOriginalExtension();
+            $name = $request->file('file1')->getClientOriginalName();
+            $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
 //        $categories = $request->input('categories');
