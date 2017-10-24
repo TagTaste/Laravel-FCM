@@ -15,12 +15,12 @@ class CompanyController extends Controller {
         $this->model = Company::with('status','type');
         
         $filters = $request->input('filters');
+        $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
         if(empty($filters)){
             $totalCount = $this->model->count();
             //paginate
-            $page = $request->input('page');
             $companies = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
     
             $profileId = $request->user()->profile->id;
