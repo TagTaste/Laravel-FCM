@@ -74,17 +74,37 @@ class Filter extends Model
             if(is_int($label)){
                 $label = $filter;
             }
-            if(isset($model->{$filter})){
-                static::updateKey($model->id,$label,$model->{$filter},',');
+            $method = "get{$filter}attribute";
+            $value = null;
+            
+            if(method_exists($self,$method)){
+                $value = $self->$method($model) ;
+            } elseif(isset($model->{$filter})){
+               $value = $model->{$filter};
             }
+            
+            if($value) {
+                static::updateKey($model->id,$label,$value,',');
+            }
+            
         }
         
         foreach($self->strings as $label => $filter){
             if(is_int($label)){
                 $label = $filter;
             }
-             if(isset($model->{$filter})){
-                static::updateKey($model->id,$label,$model->{$filter});
+            
+            $value = null;
+            $method = "get{$filter}attribute";
+            
+            if(method_exists($self,$method)){
+                $value = $self->$method($model) ;
+            } elseif(isset($model->{$filter})){
+                $value = $model->{$filter};
+            }
+            
+            if($value){
+                static::updateKey($model->id,$label,$value);
             }
         }
         
@@ -98,9 +118,20 @@ class Filter extends Model
                         if(is_int($label)){
                             $label = $relationship;
                         }
+                        
                         foreach($related as $rel){
-                            if(isset($rel->$attribute)){
-                                static::updateKey($model->id,$label,$rel->$attribute);
+                            
+                            $value = null;
+                            $method = "get{$filter}attribute";
+                            
+                            if(method_exists($self,$method)){
+                                $value = $self->$method($model) ;
+                            } elseif(isset($rel->$attribute)){
+                                $value = $rel->$attribute;
+                            }
+                            
+                            if($value){
+                                static::updateKey($model->id,$label,$value);
                             }
                         }
                     }
