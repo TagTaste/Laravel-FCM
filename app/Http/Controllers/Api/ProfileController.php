@@ -331,7 +331,7 @@ class ProfileController extends Controller
         
         $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
-        $models = \App\Recipe\Profile::where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
+        $models = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
         $this->model = ['count' => $models->count()];
         $this->model['data'] = [];
         //paginate
