@@ -12,20 +12,16 @@ class SendInvitation implements ShouldQueue
     use InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
-    protected $email;
-    protected $inviteUser;
-    protected $inviteCode;
+    protected $invitation;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($user,$inviteUser,$email)
+    public function __construct($user,$invitation)
     {
         $this->user = $user;
-        $this->inviteUser = $inviteUser;
-        $this->email = $email;
-        $this->inviteCode = str_random(15);
+        $this->invitation = $invitation;
     }
 
     /**
@@ -35,13 +31,11 @@ class SendInvitation implements ShouldQueue
      */
     public function handle()
     {
-        $data = ["userName"=>$this->user->name,
-            "inviteCode" => $this->inviteCode];
+        $data = ["senderName"=>$this->user->name,
+            "inviteCode" => $this->invitation['invite_code'],"mailCode"=>$this->invitation['mail_code']];
         \Mail::send('invitation.invitation', $data, function($message)
         {
-            $message->to($this->email, $this->user->name)->subject('Welcome!');
+            $message->to($this->invitation['email'], $this->user->name)->subject('Welcome!');
         });
-        Invitation::create(['invite_code'=>$this->inviteCode,'name'=>$this->inviteUser->name,'email'=>$this->email, 'accepted_at'=>null]);
-
     }
 }

@@ -86,6 +86,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource("like",'ShoutoutLikeController');
                 });
 
+            //invites
+            Route::post("invites","InviteController@invite");
             //company rating
             Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");

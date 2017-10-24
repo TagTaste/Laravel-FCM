@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 use App\CompanyUser;
 use App\Company\Coreteam;
 use App\Http\Controllers\Api\Controller;
+use App\Invitation;
 use App\Jobs\SendInvitation;
 use App\Profile;
 use Illuminate\Http\Request;
@@ -71,10 +72,24 @@ class CoreteamController extends Controller
         
         if($request->has("email") && env('ENABLE_EMAILS',0) == 1)
         {
-            $mail = (new SendInvitation($request->user(),$this->model,$request->input("email")))->onQueue('emails');
+            //state =>  mail-sent = 1 , mail-opened = 2 , registered = 3
+
+            $inputs = [];
+            $inputs['invite_code'] = str_random(15);
+            $inputs['profile_id'] = $request->user()->profile->id;
+            $inputs['state'] = 1;
+            $inputs['mail_code'] = str_random(15);
+            $inputs['email'] = $request->input("email");
+            $inputs['name'] = $request->input("name");
+
+            $inputs[]['accepted_at'] = null;
+            $mail = (new SendInvitation($request->user(),$inputs))->onQueue('emails');
             \Log::info('Queueing send invitation...');
 
             dispatch($mail);
+
+            Invitation::create($inputs);
+
         }
 
             $this->model = $this->model->toArray();
