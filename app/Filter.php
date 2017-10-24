@@ -83,8 +83,7 @@ class Filter extends Model
             list($relationship,$attribute) = explode(".",$filter);
             
                 try {
-                    $related = $model->load($relationship);
-                    $related = $related->$relationship;
+                    $related = $model->$relationship()->get();
                     if($related){
                         foreach($related as $rel){
                             if(isset($rel->$attribute)){
@@ -92,7 +91,6 @@ class Filter extends Model
                             }
                         }
                     }
-                   
                 } catch (\Exception $e){
                     \Log::error($e->getMessage() . " : " . $e->getFile() . ": " . $e->getLine());
                 }
