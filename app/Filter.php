@@ -114,12 +114,17 @@ class Filter extends Model
         if($model){
             $filter = "\\App\\Filter\\" . ucfirst($model);
         }
-        $filters = $filter::select('key','value',\DB::raw('count(`key`) as count'))
-            ->groupBy('key','value')->orderBy('count','desc')->take(10)->get()->groupBy('key');
-        
-        foreach($filters as $key=>&$sub){
+        $allFilters = $filter::select('key','value',\DB::raw('count(`key`) as count'))
+            ->groupBy('key','value')->orderBy('count','desc')->get()->groupBy('key');
+        $filters = [];
+        foreach($allFilters as $key=>&$sub){
+            $count = 0;
             foreach($sub as &$filter){
-                unset($filter->key);
+                $count++;
+                if($count > 10){
+                    break;
+                }
+                $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
             }
         }
         return $filters;
