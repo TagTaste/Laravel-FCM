@@ -121,6 +121,7 @@ class LoginController extends Controller
      */
     private function findOrCreateUser($socialiteUser, $provider)
     {
+        \Log::info($socialiteUser->token);
         try {
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
@@ -136,9 +137,10 @@ class LoginController extends Controller
             }
             if($user){
                 //create social account;
-                $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar(),$socialiteUser->token);
             } else {
-                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(6),true,1,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(6),true,1,
+                    $provider,$socialiteUser->getId(),$socialiteUser->getAvatar(),true,$socialiteUser->token);
             }
         }
         return $user;
