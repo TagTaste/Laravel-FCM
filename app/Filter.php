@@ -184,14 +184,15 @@ class Filter extends Model
             $models = $model->intersect($models);
         }
     
-        if(count($models) == 0){
-            return $models;
-        }
-    
+        return $models;
     }
     public static function getModels($filters)
     {
         $models = static::getModelIds($filters);
+    
+        if(count($models) == 0){
+            return $models;
+        }
         
         return static::getFromCache($models);
     }
