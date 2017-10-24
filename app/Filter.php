@@ -57,37 +57,50 @@ class Filter extends Model
     
     public static function updateKey($relatedColumnId, $key, $value, $separator=false)
     {
-        static::removeKey($relatedColumnId,$key);
-        
+        $label = $key;
+        if(is_array($key)){
+            $label =  array_key($key);
+        }
+        static::removeKey($relatedColumnId,$label);
         //create new filter
-        return static::addKey($relatedColumnId,$key,$value,$separator);
+        return static::addKey($relatedColumnId,$label,$value,$separator);
         
     }
     
     public static function addModel($model)
     {
         $self = new static;
-        foreach($self->csv as $filter){
+        foreach($self->csv as $label => $filter){
+            if(is_int($label)){
+                $label = $filter;
+            }
             if(isset($model->{$filter})){
-                static::updateKey($model->id,$filter,$model->{$filter},',');
+                static::updateKey($model->id,$label,$model->{$filter},',');
             }
         }
         
-        foreach($self->strings as $filter){
-            if(isset($model->{$filter})){
-                static::updateKey($model->id,$filter,$model->{$filter});
+        foreach($self->strings as $label => $filter){
+            if(is_int($label)){
+                $label = $filter;
+            }
+             if(isset($model->{$filter})){
+                static::updateKey($model->id,$label,$model->{$filter});
             }
         }
         
-        foreach($self->models as $filter){
+        foreach($self->models as $label => $filter){
+           
             list($relationship,$attribute) = explode(".",$filter);
             
                 try {
                     $related = $model->$relationship()->get();
                     if($related){
+                        if(is_int($label)){
+                            $label = $relationship;
+                        }
                         foreach($related as $rel){
                             if(isset($rel->$attribute)){
-                                static::updateKey($model->id,$relationship,$rel->$attribute);
+                                static::updateKey($model->id,$label,$rel->$attribute);
                             }
                         }
                     }
