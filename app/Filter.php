@@ -118,13 +118,14 @@ class Filter extends Model
         foreach($allFilters as $key=>&$sub){
             $count = 0;
             foreach($sub as &$filter){
+                $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
                 $count++;
                 if($count > 10){
                     break;
                 }
-                $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
             }
         }
+        \Log::info($filters);
         return $filters;
     }
     
