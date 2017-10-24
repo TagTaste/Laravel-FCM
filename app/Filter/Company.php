@@ -6,9 +6,9 @@ use App\Filter;
 
 class Company extends Filter {
     
-    protected $strings = ['location'];
+    protected $strings = ['location' => 'city'];
     protected $csv = ['speciality'];
-    protected $models = ['type.name'];
+    protected $models = ['type' => 'type.name'];
     
     protected $table = "company_filters";
     public static $cacheKey = "company:small:";

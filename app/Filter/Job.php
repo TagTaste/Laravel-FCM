@@ -11,7 +11,7 @@ class Job extends Filter {
     
     protected $strings = ['location','expected_role','joining_time'];
     
-    protected $models = ['company.name','jobType.name'];
+    protected $models = ['company.name','type' => 'jobType.name'];
     
     public static $cacheKey = "job:";
     
