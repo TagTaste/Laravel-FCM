@@ -125,7 +125,6 @@ class Filter extends Model
                 }
             }
         }
-        \Log::info($filters);
         return $filters;
     }
     
