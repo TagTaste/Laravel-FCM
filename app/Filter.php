@@ -169,11 +169,12 @@ class Filter extends Model
         return $filters;
     }
     
-    public static function getModels($filters)
+    
+    public static function getModelIds(&$filters)
     {
         $models = null;
         foreach($filters as $filter => $value){
-            
+        
             $model = static::selectRaw('distinct ' . static::$relatedColumn)->where('key',$filter)->whereIn('value',$value)->get()
                 ->pluck(static::$relatedColumn);
             if(is_null($models)){
@@ -182,10 +183,15 @@ class Filter extends Model
             }
             $models = $model->intersect($models);
         }
-        
+    
         if(count($models) == 0){
             return $models;
         }
+    
+    }
+    public static function getModels($filters)
+    {
+        $models = static::getModelIds($filters);
         
         return static::getFromCache($models);
     }
