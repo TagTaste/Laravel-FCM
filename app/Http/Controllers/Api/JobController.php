@@ -39,9 +39,13 @@ class JobController extends Controller
 	{
         $filters = $request->input('filters');
         
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        
         if(!empty($filters)){
             $this->model = [];
-            $this->model['data'] = \App\Filter\Job::getModels($filters);
+            $this->model['data'] = \App\Filter\Job::getModels($filters,$skip,$take);
             $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
@@ -54,9 +58,6 @@ class JobController extends Controller
         $this->model = [];
         $this->model["count"] = $jobs->count();
         
-        //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model['data'] = $jobs->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();

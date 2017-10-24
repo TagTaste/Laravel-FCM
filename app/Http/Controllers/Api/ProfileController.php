@@ -352,7 +352,7 @@ class ProfileController extends Controller
             return $this->sendResponse();
         }
         
-        $profiles = \App\Filter\Profile::getModels($filters);
+        $profiles = \App\Filter\Profile::getModels($filters,$skip,$take);
         
         $this->model['count'] =  count($profiles);
     
