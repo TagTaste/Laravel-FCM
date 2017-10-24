@@ -40,7 +40,8 @@ class JobController extends Controller
         $filters = $request->input('filters');
         
         if(!empty($filters)){
-            $this->model = \App\Filter\Job::getModels($filters);
+            $this->model['data'] = \App\Filter\Job::getModels($filters);
+            $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
         

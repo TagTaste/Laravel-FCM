@@ -94,9 +94,6 @@ class Filter extends Model
                 } catch (\Exception $e){
                     \Log::error($e->getMessage() . " : " . $e->getFile() . ": " . $e->getLine());
                 }
-                
-            
-            
         }
         
     }
