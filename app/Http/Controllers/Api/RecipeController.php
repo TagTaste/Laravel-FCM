@@ -19,7 +19,9 @@ class RecipeController extends Controller
 
         $filters = $request->input('filters');
         if(!empty($filters)){
-            $this->model = \App\Filter\Recipe::getModels($filters);
+            $this->model = [];
+            $this->model['data'] = \App\Filter\Recipe::getModels($filters);
+            $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
 
