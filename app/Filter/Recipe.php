@@ -10,7 +10,7 @@ class Recipe extends Filter {
     
     protected $csv = ['tags'];
     
-    protected $strings = ['level','serving'];
+    protected $strings = ['level'];
     
     protected $models = ['cuisine.name'];
     
