@@ -135,4 +135,12 @@ class SearchController extends Controller
         
         return $suggestions;
     }
+    
+    public function filterAutoComplete(Request $request,$model,$key)
+    {
+        $term = $request->input('term');
+        $filter = "\\App\\Filter\\" . ucfirst($model);
+        $this->model = $filter::where('key','like',$key)->where('value','like',"%$term%")->select('value')->get();
+        return $this->sendResponse();
+    }
 }

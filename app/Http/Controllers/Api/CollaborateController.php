@@ -34,27 +34,7 @@ class CollaborateController extends Controller
 	 */
     public function filters()
     {
-        $filters  = [];
-
-        $filters['location'] = \App\Filter\Collaborate::select('location as value')->groupBy('location')->where('location','!=','null')->get();
-        $keywords = \App\Filter\Collaborate::select('keywords as value')->groupBy('keywords')->where('keywords','!=','null')->get();
-        $filters['keywords'] = [];
-       if($keywords->count()){
-            foreach($keywords as $keyword){
-                if(empty($keyword->value)){
-                    continue;
-                }
-        
-                $filters['keywords'][] = explode(",",$keyword->value);
-            }
-            if(count($filters['keywords'])){
-               $filters['keywords'] = array_merge(...$filters['keywords']);
-            }
-        }
-        
-        $filters['type'] = \App\CollaborateTemplate::select('id as key','name as value')->get();
-        $filters['categories'] = CollaborateCategory::select("id as value","name as value")->with('children')->get();
-        $this->model = $filters;
+        $this->model = \App\Filter::getFilters("collaborate");
         return $this->sendResponse();
     }
 
@@ -63,25 +43,9 @@ class CollaborateController extends Controller
 		$collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
        
-        if (!empty($filters['location'])) {
-            $collaborations = $collaborations->whereIn('location', $filters['location']);
-        }
-        if (!empty($filters['keywords'])) {
-            $keywords = $filters['keywords'];
-            
-            $collaborations = $collaborations->where(function($query) use($keywords){
-                foreach($keywords as $keyword){
-                    $query->orWhere('keywords','like',"%" . $keyword . "%");
-                }
-            });
-        }
-        if(!empty($filters['type']))
-        {
-            $collaborations = $collaborations->whereIn('template_id',$filters['type']);
-        }
-        
-        if(!empty($filters['categories'])){
-            $collaborations = $collaborations->whereIn('category_id',$filters['categories']);
+        if(!empty($filters)){
+            $this->model = \App\Filter\Collaborate::getModels($filters);
+            return $this->sendResponse();
         }
         $this->model = [];
         $this->model["count"] = $collaborations->count();

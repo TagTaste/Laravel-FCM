@@ -4,21 +4,21 @@ namespace App\Console\Commands\Build\Filters;
 
 use Illuminate\Console\Command;
 
-class Profile extends Command
+class Job extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:filter:profiles';
+    protected $signature = 'build:filter:jobs';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Build profile filter cache';
+    protected $description = 'Build job filter cache';
 
     /**
      * Create a new command instance.
@@ -37,10 +37,10 @@ class Profile extends Command
      */
     public function handle()
     {
-        \App\Recipe\Profile::chunk(200,function($models){
+        \App\Job::chunk(100,function($models){
             foreach($models as $model){
                // new \App\Cached\Filter\Profile($model);
-                \App\Filter\Profile::addModel($model);
+                \App\Filter\Job::addModel($model);
             }
         });
     }

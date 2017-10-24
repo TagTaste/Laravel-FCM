@@ -133,13 +133,18 @@ class ProfileController extends Controller
                 }
                 $this->model->update($data['profile']);
                 $this->model->refresh();
-                new \App\Cached\Filter\Profile($this->model);
+                
+                //update filters
+                \App\Filter\Profile::addModel($this->model);
+                
+                
             } catch(\Exception $e){
                 \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
                 return $this->sendError("Could not update.");
             }
         }
-        
+        \App\Filter\Profile::addModel($this->model);
+    
         return $this->sendResponse();
     }
     
@@ -323,6 +328,7 @@ class ProfileController extends Controller
     
     public function all(Request $request)
     {
+        
         $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
         $models = \App\Recipe\Profile::where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
@@ -346,28 +352,21 @@ class ProfileController extends Controller
             return $this->sendResponse();
         }
         
-        $profileIds = \App\Cached\Filter\Profile::getModelIds($filters);
-        $profiles = $models->whereIn('id',array_values($profileIds))->get();
-        $this->model['count'] = $profiles->count();
+        $profiles = \App\Filter\Profile::getModels($filters);
+        
+        $this->model['count'] =  count($profiles);
     
         $loggedInProfileId = $request->user()->profile->id;
-        foreach ($profiles as $profile){
-            $temp = $profile->toArray();
-            $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);;
-            $this->model['data'][] = $temp;
+        foreach ($profiles as &$profile){
+            $profile['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile['id']);;
+            $this->model['data'][] = $profile;
         }
         return $this->sendResponse();
     }
 
     public function filters()
     {
-        $this->model = \App\Cached\Filter\Profile::getFilters();
-
-        foreach($this->model as &$filter){
-            foreach($filter as &$value){
-                $value = ['value'=>$value];
-            }
-        }
+        $this->model = \App\Filter::getFilters("profile");
         return $this->sendResponse();
     }
     

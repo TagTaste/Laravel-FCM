@@ -62,6 +62,7 @@ class JobController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $this->model = $profile->jobs()->create($inputs);
+        \App\Filter\Job::addModel($this->model);
 
         return $this->sendResponse();
     }
@@ -97,6 +98,7 @@ class JobController extends Controller
         $profileId = $request->user()->profile->id;
 
         $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id','profile_id','expires_on']));
+        \App\Filter\Job::addModel($this->model);
         return $this->sendResponse();
     }
     
@@ -116,6 +118,8 @@ class JobController extends Controller
         }
 
         event(new DeleteFeedable($job));
+        
+        \App\Filter\Job::removeModel($id);
 
         $this->model = $job->delete();
 

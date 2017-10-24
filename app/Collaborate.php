@@ -17,7 +17,7 @@ class Collaborate extends Model implements Feedable
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','file1'];
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','file1','deliverables','start_in'];
     
     protected $with = ['profile','company','fields','categories'];
     
@@ -27,7 +27,7 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at',
-        'applicationCount','file1'];
+        'applicationCount','file1','deliverables','start_in'];
     
     protected $appends = ['images','applicationCount'];
     
