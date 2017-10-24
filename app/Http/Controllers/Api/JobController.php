@@ -26,7 +26,7 @@ class JobController extends Controller
     
     public function filters()
     {
-        $this->model = \App\Filter::getFilters("collaborate");
+        $this->model = \App\Filter::getFilters("job");
         return $this->sendResponse();
     }
 

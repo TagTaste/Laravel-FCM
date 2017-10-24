@@ -69,7 +69,7 @@ class CompanyController extends Controller {
     
     public function filters()
     {
-        $this->model = \App\Filter::getFilters("collaborate");
+        $this->model = \App\Filter::getFilters("company");
         return $this->sendResponse();
     }
 
