@@ -61,7 +61,7 @@ class Filter extends Model
         if(is_array($key)){
             $label =  array_key($key);
         }
-        static::removeKey($relatedColumnId,$label);
+        static::removeKey($relatedColumnId,$label,$value);
         //create new filter
         return static::addKey($relatedColumnId,$label,$value,$separator);
         
@@ -118,7 +118,6 @@ class Filter extends Model
                         if(is_int($label)){
                             $label = $relationship;
                         }
-                        
                         foreach($related as $rel){
                             
                             $value = null;
@@ -129,7 +128,6 @@ class Filter extends Model
                             } elseif(isset($rel->$attribute)){
                                 $value = $rel->$attribute;
                             }
-                            
                             if($value){
                                 static::updateKey($model->id,$label,$value);
                             }
@@ -194,7 +192,7 @@ class Filter extends Model
     public static function getModels($filters, $skip, $take)
     {
         $models = static::getModelIds($filters,$skip,$take);
-    
+        
         if(count($models) == 0){
             return $models;
         }
