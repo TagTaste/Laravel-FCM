@@ -10,12 +10,17 @@ class Recipe extends Filter {
     
     protected $csv = ['tags'];
     
-    protected $strings = ['serving'];
+    protected $strings = ['level','serving'];
     
     protected $models = ['cuisine.name'];
     
     public static $cacheKey = "recipe:";
     
     public static $relatedColumn = 'recipe_id';
+    
+    public function getlevelattribute(&$model)
+    {
+        return \App\Recipe::$level[$model->level] ?? null;
+    }
 
 }
