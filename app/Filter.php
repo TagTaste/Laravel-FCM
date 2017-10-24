@@ -61,15 +61,22 @@ class Filter extends Model
         if(is_array($key)){
             $label =  array_key($key);
         }
-        static::removeKey($relatedColumnId,$label,$value);
+        static::removeKey($relatedColumnId,$label);
+        
         //create new filter
         return static::addKey($relatedColumnId,$label,$value,$separator);
-        
+    }
+    
+    public static function removeAllKeys($relatedColumnId)
+    {
+        return static::where(static::$relatedColumn,$relatedColumnId)
+            ->delete();
     }
     
     public static function addModel($model)
     {
         $self = new static;
+        $self::removeAllKeys($model->id);
         foreach($self->csv as $label => $filter){
             if(is_int($label)){
                 $label = $filter;
@@ -84,7 +91,7 @@ class Filter extends Model
             }
             
             if($value) {
-                static::updateKey($model->id,$label,$value,',');
+                static::addKey($model->id,$label,$value,',');
             }
             
         }
@@ -104,7 +111,7 @@ class Filter extends Model
             }
             
             if($value){
-                static::updateKey($model->id,$label,$value);
+                static::addKey($model->id,$label,$value);
             }
         }
         
@@ -129,7 +136,7 @@ class Filter extends Model
                                 $value = $rel->$attribute;
                             }
                             if($value){
-                                static::updateKey($model->id,$label,$value);
+                                static::addKey($model->id,$label,$value);
                             }
                         }
                     }
