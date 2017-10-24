@@ -343,10 +343,12 @@ class ProfileController extends Controller
         if(empty($filters)){
             $profiles = $models->get();
     
-            foreach ($profiles as $profile){
-                $temp = $profile->toArray();
-                $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
-                $this->model['data'][] = $temp;
+            if($profiles->count()){
+                foreach ($profiles as $profile){
+                    $temp = $profile->toArray();
+                    $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
+                    $this->model['data'][] = $temp;
+                }
             }
             
             return $this->sendResponse();
