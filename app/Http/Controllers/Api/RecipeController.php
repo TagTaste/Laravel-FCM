@@ -18,9 +18,14 @@ class RecipeController extends Controller
         $recipes = Recipe::orderBy('created_at')->whereNull('deleted_at');
 
         $filters = $request->input('filters');
+        $loggedInProfileId = $request->user()->profile->id;
+    
         if(!empty($filters)){
             $this->model = [];
-            $this->model['data'] = \App\Filter\Recipe::getModels($filters);
+            $recipes = \App\Filter\Recipe::getModels($filters);
+            foreach($recipes as $recipe){
+                $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+            }
             $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
@@ -33,7 +38,6 @@ class RecipeController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $recipes=$recipes->skip($skip)->take($take)->get();
 
-        $loggedInProfileId = $request->user()->profile->id;
         foreach($recipes as $recipe){
             $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         }
