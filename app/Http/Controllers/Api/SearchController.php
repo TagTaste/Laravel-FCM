@@ -140,7 +140,7 @@ class SearchController extends Controller
     {
         $term = $request->input('term');
         $filter = "\\App\\Filter\\" . ucfirst($model);
-        $this->model = $filter::selectRaw('distinct value')-?where('key','like',$key)->where('value','like',"%$term%")->select('value')->get();
+        $this->model = $filter::selectRaw('distinct value')->where('key','like',$key)->where('value','like',"%$term%")->select('value')->get();
         return $this->sendResponse();
     }
 }
