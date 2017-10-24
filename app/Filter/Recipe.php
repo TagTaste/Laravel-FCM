@@ -10,7 +10,7 @@ class Recipe extends Filter {
     
     protected $csv = ['tags'];
     
-    protected $strings = ['level'];
+    protected $strings = ['level','type','vegetarian'=>'veg'];
     
     protected $models = ['cuisine.name'];
     
@@ -21,6 +21,16 @@ class Recipe extends Filter {
     public function getlevelattribute(&$model)
     {
         return \App\Recipe::$level[$model->level] ?? null;
+    }
+    
+    public function gettypeattribute(&$model)
+    {
+        return \App\Recipe::$type[$model->type] ?? null;
+    }
+    
+    public function getvegattribute(&$model)
+    {
+        return \App\Recipe::$veg[$model->is_vegetarian] ?? null;
     }
 
 }
