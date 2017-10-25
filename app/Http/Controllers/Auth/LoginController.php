@@ -98,7 +98,7 @@ class LoginController extends Controller
      *
      * @return Response
      */
-    public function handleProviderCallback($provider)
+    public function handleProviderCallback(Request $request,$provider)
     {
         try {
             $user = Socialite::driver($provider)->stateless()->user();
@@ -106,7 +106,7 @@ class LoginController extends Controller
             \Log::warning($e->getMessage());
             return response()->json(['error'=>"Could not login."],400);
         }
-        $authUser = $this->findOrCreateUser($user, $provider);
+        $authUser = $this->findOrCreateUser($user, $provider,$request);
 
         if(!$authUser)
         {
@@ -125,14 +125,15 @@ class LoginController extends Controller
      * @param $key
      * @return User
      */
-    private function findOrCreateUser($socialiteUser, $provider)
+    private function findOrCreateUser($socialiteUser, $provider,$request)
     {
         try {
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser->getId());
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
             //then add social login
-            if($socialiteUser->getEmail()){
+            $email = $socialiteUser->getEmail() ? $socialiteUser->getEmail() : $request->has('email');
+            if($email){
 
                 $user = User::where('email','like',$socialiteUser->getEmail())->first();
             }
@@ -144,7 +145,7 @@ class LoginController extends Controller
                 //create social account;
                 $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
             } else {
-                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(6),true,1,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$email,str_random(6),true,1,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
             }
         }
         return $user;
