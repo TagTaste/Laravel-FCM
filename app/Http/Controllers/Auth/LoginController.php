@@ -101,9 +101,8 @@ class LoginController extends Controller
     public function handleProviderCallback(Request $request, $provider)
     {
         \Log::info($request->all());
-        dd($request->all());
         try {
-            $user = Socialite::driver($provider)->stateless()->user();
+            $user = Socialite::driver($provider)->user();
         } catch (\Exception $e) {
             \Log::warning($e->getMessage());
             \Log::warning((string) $e->getResponse()->getBody());
