@@ -107,6 +107,12 @@ class LoginController extends Controller
             return response()->json(['error'=>"Could not login."],400);
         }
         $authUser = $this->findOrCreateUser($user, $provider);
+
+        if(!$authUser)
+        {
+            return response()->json(['error'=>"Could not login."],400);
+        }
+
         $token = \JWTAuth::fromUser($authUser);
         
         return response()->json(compact('token'));
@@ -132,7 +138,7 @@ class LoginController extends Controller
             }
             else
             {
-                return redirect('/');
+                return null;
             }
             if($user){
                 //create social account;
