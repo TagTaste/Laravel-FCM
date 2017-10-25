@@ -101,6 +101,7 @@ class LoginController extends Controller
     public function handleProviderCallback(Request $request, $provider)
     {
         \Log::info($request->all());
+        dd($request->all());
         try {
             $user = Socialite::driver($provider)->stateless()->user();
         } catch (\Exception $e) {
@@ -108,6 +109,7 @@ class LoginController extends Controller
             return response()->json(['error'=>"Could not login."],400);
         } catch (\GuzzleHttp\Exception\ClientException $e){
             \Log::warning($e->getMessage());
+            \Log::warning($e->getResponse()->getBody(true));
             return response()->json(['error'=>"Could not login."],400);
         }
         $authUser = $this->findOrCreateUser($user, $provider);
