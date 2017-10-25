@@ -7,7 +7,7 @@ use Closure;
 
 class VersionCheck
 {
-    private $versionKey = 'X-API-VERSION';
+    private $versionKey = 'X-VERSION';
     /**
      * Handle an incoming request.
      *
