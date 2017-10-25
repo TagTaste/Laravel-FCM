@@ -109,7 +109,7 @@ class LoginController extends Controller
             return response()->json(['error'=>"Could not login."],400);
         } catch (\GuzzleHttp\Exception\ClientException $e){
             \Log::warning($e->getMessage());
-            \Log::warning((string) $e->getResponse()->getBody());
+            \Log::warning((string) $e->getResponse());
             return response()->json(['error'=>"Could not login."],400);
         }
         $authUser = $this->findOrCreateUser($user, $provider);
