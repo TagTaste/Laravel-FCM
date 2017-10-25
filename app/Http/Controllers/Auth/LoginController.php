@@ -100,18 +100,13 @@ class LoginController extends Controller
      */
     public function handleProviderCallback(Request $request, $provider)
     {
-        \Log::info($request->all());
         try {
-            $user = Socialite::driver($provider)->user();
+            $user = Socialite::driver($provider)->stateless()->user();
         } catch (\Exception $e) {
             \Log::warning($e->getMessage());
-            \Log::warning((string) $e->getResponse()->getBody());
-            return response()->json(['error'=>"Could not login."],400);
-        } catch (\GuzzleHttp\Exception\ClientException $e){
-            \Log::warning($e->getMessage());
-            \Log::warning((string) $e->getResponse());
             return response()->json(['error'=>"Could not login."],400);
         }
+        
         $authUser = $this->findOrCreateUser($user, $provider);
         $token = \JWTAuth::fromUser($authUser);
         
