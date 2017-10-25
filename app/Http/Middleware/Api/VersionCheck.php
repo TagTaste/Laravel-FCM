@@ -24,12 +24,12 @@ class VersionCheck
         //or if the version is compatible;
         if(!$version || $api->isCompatible($version)){
             $response = $next($request);
-            $response->headers->add($api->toHeaders());
-            return $response;
+        } else {
+            $response = response()->json(['error'=>'incompatible_version',
+                'message'=>'force_update'],400);
         }
+        $response->headers->add($api->toHeaders());
         
-        return response()->json(['error'=>'incompatible_version',
-            'message'=>'force_update'],400);
-    
+        return $response;
     }
 }
