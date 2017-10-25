@@ -106,6 +106,7 @@ class LoginController extends Controller
             $user = Socialite::driver($provider)->stateless()->user();
         } catch (\Exception $e) {
             \Log::warning($e->getMessage());
+            \Log::warning((string) $e->getResponse()->getBody());
             return response()->json(['error'=>"Could not login."],400);
         } catch (\GuzzleHttp\Exception\ClientException $e){
             \Log::warning($e->getMessage());
