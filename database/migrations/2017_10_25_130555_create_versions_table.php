@@ -13,8 +13,8 @@ class CreateVersionsTable extends Migration {
 	public function up()
 	{
 		Schema::create('versions', function(Blueprint $table) {
-            $table->decimal('compatible_version',3,3);
-            $table->decimal('latest_version',3,3);
+            $table->decimal('compatible_version',6,3);
+            $table->decimal('latest_version',6,3);
             $table->timestamps();
         });
 	}
