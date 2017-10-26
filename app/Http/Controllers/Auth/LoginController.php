@@ -147,7 +147,7 @@ class LoginController extends Controller
             }
             if($user){
                 //create social account;
-                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$user);
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
