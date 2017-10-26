@@ -114,7 +114,7 @@ class SearchController extends Controller
                         ->where("users.name",'like',"%$term%")->take($total - 5)->get();
         
         $count = $total - $profiles->count();
-        $companies = \DB::table("companies")->whereNull('deleted_at')
+        $companies = \DB::table("companies")->whereNull('companies.deleted_at')
             ->select("companies.id",'name','profiles.id as profile_id')
             ->join("profiles",'companies.user_id','=','profiles.user_id')
             ->where("name",'like',"%$term%")->take($count)->get();
