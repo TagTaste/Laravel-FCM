@@ -27,8 +27,8 @@ class SearchController extends Controller
                 ]
             ]
         ];
-        if($request->has('type')){
-            $params['type'] = $request->input('type');
+        if($type){
+            $params['type'] = $type;
         }
         $client = SearchClient::get();
     
