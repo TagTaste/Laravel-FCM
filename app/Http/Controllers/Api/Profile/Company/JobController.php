@@ -65,7 +65,6 @@ class JobController extends Controller
         $this->model = Job::find($job->id);
 
         $company = Company::find($companyId);
-        $this->model = $this->model->fresh();
         event(new NewFeedable($this->model,$company));
         \App\Filter\Job::addModel($this->model);
 
