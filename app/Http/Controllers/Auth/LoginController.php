@@ -37,9 +37,12 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->middleware('guest', ['except' => 'logout']);
+        if($request->token){
+            $request->merge(['code' => $request->token]);
+        }
     }
 
     /**
@@ -100,10 +103,7 @@ class LoginController extends Controller
      */
     public function handleProviderCallback(Request $request,$provider)
     {
-
         $input = $request->all();
-
-
         try {
             $authUser = $this->findOrCreateUser($input, $provider);
 
@@ -112,7 +112,6 @@ class LoginController extends Controller
             return response()->json(['error'=>"Could not login."],400);
         }
 
-        $result = [];
         $result = ['status'=>'success'];
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
