@@ -15,9 +15,9 @@ class Chat extends Model
     
     //protected $with = ['members'];
     
-    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles'];
+    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount'];
     
-    protected $appends = ['latestMessages','profiles','imageUrl'];
+    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount'];
     
     public function members()
     {
@@ -73,5 +73,10 @@ class Chat extends Model
         }
         return Chat::whereIn('id',$chatIds->pluck('id')->toArray())->GET();
 
+    }
+    
+    public function getUnreadMessageCountAttribute()
+    {
+        return $this->messages()->whereNull('read_on')->count();
     }
 }
