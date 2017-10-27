@@ -221,10 +221,27 @@ class CollaborateController extends Controller
     public function applications(Request $request, $id)
     {
         $this->model = [];
-        
-        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
-        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
 
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $applications = \App\Collaboration\Collaborator::whereNull('archived_at')
+            ->where('collaborate_id',$id)->with('profile','collaborate');
+        $this->model['count'] = $applications->count();
+        $this->model['application'] = $applications->skip($skip)->take($take)->get();
+        return $this->sendResponse();
+
+    }
+
+    public function archived(Request $request, $id)
+    {
+        $this->model = [];
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+	    $archived = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)
+            ->with('profile','collaborate');
+        $this->model['count'] = $archived->count();
+        $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
 
     }
