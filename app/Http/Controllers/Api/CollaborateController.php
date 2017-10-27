@@ -227,7 +227,7 @@ class CollaborateController extends Controller
         $applications = \App\Collaboration\Collaborator::whereNull('archived_at')
             ->where('collaborate_id',$id)->with('profile','collaborate');
         $this->model['count'] = $applications->count();
-        $this->model['application'] = $applications->skip($skip)->take($take)->get();
+        $this->model['applications'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
 
     }
