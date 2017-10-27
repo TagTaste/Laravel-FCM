@@ -79,7 +79,6 @@ class ProductCatalogueController extends Controller
         $data = [];
         try {
             $fullpath = $request->file->store('temp', 'local');
-            \Log::info($fullpath);
             \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
                 $data = $reader->toArray();
             })->get();
@@ -96,8 +95,8 @@ class ProductCatalogueController extends Controller
         $temp = [];
         foreach($data as $sheet){
             foreach($sheet as $element){
-                if(isset($element['product'])) {
-                    $product['product'] = $element['product'];
+                if(isset($element['product_name'])) {
+                    $product['product'] = $element['product_name'];
                     $product['category'] = isset($element['category']) ? $element['category'] : null;
                     $product['company_id'] = $companyId;
                     $product['brand'] = isset($element['brand']) ? $element['brand'] : null;
