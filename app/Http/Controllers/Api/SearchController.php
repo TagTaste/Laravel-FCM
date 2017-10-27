@@ -27,8 +27,8 @@ class SearchController extends Controller
                 ]
             ]
         ];
-        if($request->has('type')){
-            $params['type'] = $request->input('type');
+        if($type){
+            $params['type'] = $type;
         }
         $client = SearchClient::get();
     
@@ -58,7 +58,9 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
-                    $profile['isFollowing'] = in_array($profile['id'],$following);
+                    if($profile && isset($profile['id'])){
+                        $profile['isFollowing'] = in_array($profile['id'],$following);
+                    }
                 }
             }
             
