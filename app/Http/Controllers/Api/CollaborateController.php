@@ -220,22 +220,28 @@ class CollaborateController extends Controller
 
     public function applications(Request $request, $id)
     {
-	$page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = [];
 
-        $this->model = \App\Collaboration\Collaborator::whereNull('archived_at')
-		->where('collaborate_id',$id)->with('profile','collaborate')->skip($skip)->take($take)->get();
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $applications = \App\Collaboration\Collaborator::whereNull('archived_at')
+            ->where('collaborate_id',$id)->with('profile','collaborate');
+        $this->model['count'] = $applications->count();
+        $this->model['application'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
 
     }
 
     public function archived(Request $request, $id)
     {
-	     $page = $request->input('page');
+        $this->model = [];
+
+        $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-	    
-        $this->model = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)
-		->with('profile','collaborate')->skip($skip)->take($take)->get();
+	    $archived = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)
+            ->with('profile','collaborate');
+        $this->model['count'] = $archived->count();
+        $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
 
     }
