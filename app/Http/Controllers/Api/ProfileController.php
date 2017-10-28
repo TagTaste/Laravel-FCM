@@ -412,9 +412,7 @@ class ProfileController extends Controller
     public function mutualFollowers(Request $request,$id)
     {
         $loginProfileId = $request->user()->profile->id;
-        $profileIds = \Redis::sMembers("followers:profile:".$id);
-        $loginProfileIdFollowersIds = \Redis::sMembers("followers:profile:".$loginProfileId);
-        $profileIds = array_intersect((array)$loginProfileIdFollowersIds,(array)$profileIds);
+        $profileIds = \Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
 
         foreach ($profileIds as &$profileId)
         {
