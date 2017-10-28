@@ -409,4 +409,25 @@ class ProfileController extends Controller
         return $data;
     }
 
+    public function mutualFollowers(Request $request,$id)
+    {
+        $loginProfileId = $request->user()->profile->id;
+        $profileIds = \Redis::sMembers("followers:profile:".$id);
+        $loginProfileIdFollowersIds = \Redis::sMembers("followers:profile:".$loginProfileId);
+        $profileIds = array_intersect((array)$loginProfileIdFollowersIds,(array)$profileIds);
+
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId;
+        }
+
+        $this->model = \Redis::mget($profileIds);
+
+        foreach($this->model as &$profile){
+            $profile = json_decode($profile);
+        }
+
+        return $this->sendResponse();
+    }
+
 }
