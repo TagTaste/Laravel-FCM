@@ -8,6 +8,23 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
+    private $models = [
+        'collaborate'=> \App\Collaborate::class,
+        'recipe' => \App\Recipe::class,
+        'profile' => \App\Profile::class,
+        'company' => \App\Company::class,
+        'job' => \App\Job::class
+    ];
+    
+    private function getModels($type, $ids = [])
+    {
+        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
+        if($model){
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+        }
+        
+        return $model;
+    }
 
     //index = db
     //type = table
@@ -39,11 +56,7 @@ class SearchController extends Controller
             $hits = $hits->groupBy("_type");
             
             foreach($hits as $name => $hit){
-                $small = $name === 'profile' || $name === 'company' ? "small:" : null;
-                foreach($hit->pluck('_id') as $id){
-                    $keys[] = "$name:" . $small . "$id";
-                }
-                $this->model[$name] = \Redis::mget($keys);
+                $this->model[$name] = $this->getModels($name,$hit->pluck('_id'));
             }
             
             //decode json
@@ -58,17 +71,13 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
-                    if($profile && isset($profile['id'])){
-                        $profile['isFollowing'] = in_array($profile['id'],$following);
-                    }
+                    $profile['isFollowing'] = in_array($profile->id,$following);
                 }
             }
             
             if(isset($this->model['company'])){
                 foreach($this->model['company'] as $company){
-                    if($company && isset($company['id'])){
-                        $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
-                    }
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company->id);
                 }
             }
             
