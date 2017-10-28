@@ -8,7 +8,7 @@ class Profile extends Filter {
 
     protected $table = "profile_filters";
     
-    protected $csv = ['keywords','expertise'];
+    protected $csv = ['keywords','expertise','affiliations'];
     
     protected $strings = ['location'];
     
