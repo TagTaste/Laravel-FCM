@@ -18,12 +18,13 @@ class VersionCheck
     public function handle($request, Closure $next)
     {
         //if version key not specified, we've got a badass. Let 'em through.
-        $version = $request->header($this->versionKey);
-        if(!$version){
-            $next($request);
+        if(!$request->hasHeader($this->versionKey)){
+            return $next($request);
         }
-        
+    
+        $version = $request->header($this->versionKey);
         $api = Version::getVersion();
+        
         //if the version is compatible;
         if($api->isCompatible($version)){
             $response = $next($request);
