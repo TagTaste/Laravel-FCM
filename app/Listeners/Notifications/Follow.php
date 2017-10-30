@@ -4,8 +4,6 @@ namespace App\Listeners\Notifications;
 
 use App\Events\Actions\Share as ShareEvent;
 use App\Notify\Profile;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 
 class Follow
