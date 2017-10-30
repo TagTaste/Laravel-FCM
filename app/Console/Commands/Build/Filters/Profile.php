@@ -37,7 +37,7 @@ class Profile extends Command
      */
     public function handle()
     {
-        \App\Recipe\Profile::chunk(200,function($models){
+        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200,function($models){
             foreach($models as $model){
                // new \App\Cached\Filter\Profile($model);
                 \App\Filter\Profile::addModel($model);
