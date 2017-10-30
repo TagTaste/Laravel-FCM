@@ -17,12 +17,15 @@ class VersionCheck
      */
     public function handle($request, Closure $next)
     {
-        $version = $request->header($this->versionKey);
-    \Log::info($version);
-        $api = Version::getVersion();
         //if version key not specified, we've got a badass. Let 'em through.
-        //or if the version is compatible;
-        if(!$version || $api->isCompatible($version)){
+        $version = $request->header($this->versionKey);
+        if(!$version){
+            $next($request);
+        }
+        
+        $api = Version::getVersion();
+        //if the version is compatible;
+        if($api->isCompatible($version)){
             $response = $next($request);
         } else {
             $response = response()->json(['error'=>'incompatible_version',
