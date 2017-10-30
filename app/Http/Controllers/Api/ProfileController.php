@@ -223,9 +223,7 @@ class ProfileController extends Controller
         if(!$this->model){
             $this->sendError("You are already following this profile.");
         }
-
-        event(new Follow($this->model, $request->user()->profile, null));
-
+        event(new Follow($channelOwner, $request->user()->profile));
 
         return $this->sendResponse();
     }

@@ -2,7 +2,7 @@
 
 namespace App\Listeners\Notifications;
 
-use App\Events\Actions\Share as ShareEvent;
+use App\Events\Actions\Follow as FollowEvent;
 use App\Notify\Profile;
 use Illuminate\Support\Facades\Notification;
 
@@ -24,9 +24,9 @@ class Follow
      * @param  Share  $event
      * @return void
      */
-    public function handle(ShareEvent $event)
+    public function handle(FollowEvent $event)
     {
-        $profileId = $event->model->profile_id;
+        $profileId = $event->model->id;
         if(!$profileId){
             \Log::warning(get_class($event->model) . " doesn't have profile defined. Can't send notification.");
             return;
