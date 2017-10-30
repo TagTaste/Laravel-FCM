@@ -42,6 +42,8 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
 
+        'App\Events\Actions\Follow' => ['App\Listeners\Notifications\Follow'],
+
 
     ];
 
