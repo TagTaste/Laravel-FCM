@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Version extends Model
 {
+    protected $table = 'apk_versions';
     protected $primaryKey = null;
     
     protected $fillable = ['compatible_version', 'latest_version'];
     
     public function isCompatible($version)
     {
-        return $this->compatible_version === (float) $version;
+        return $this->compatible_version === $version;
     }
     
     public static function getVersion()
