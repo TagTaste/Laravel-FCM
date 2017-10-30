@@ -42,7 +42,7 @@ class JobController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();
+        $this->model['jobs'] = $this->model['jobs']->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $this->model['count'] = Job::where('profile_id',$profileId)->count();
 
@@ -62,11 +62,6 @@ class JobController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $this->model = $profile->jobs()->create($inputs);
-
-        $this->model = $this->model->fresh();
-
-        event(new NewFeedable($this->model, $profile));
-
         \App\Filter\Job::addModel($this->model);
 
         return $this->sendResponse();
