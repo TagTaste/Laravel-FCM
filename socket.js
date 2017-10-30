@@ -7,7 +7,7 @@ var requester = require("http");
 var queryString = require('querystring');
 
 var logErr = function(err,count){
-    if(err !== null) //console.log(err);
+    if(err !== null) console.log(err);
 };
 //socketio namespaces
 
