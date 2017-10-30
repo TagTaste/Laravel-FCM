@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Version extends Model
 {
     protected $table = 'apk_versions';
-    protected $primaryKey = null;
+    protected $primaryKey = 'compatible_version';
+    public $incrementing = false;
     
     protected $fillable = ['compatible_version', 'latest_version'];
     
@@ -19,6 +20,18 @@ class Version extends Model
     public static function getVersion()
     {
         return static::select("compatible_version","latest_version")->first();
+    }
+    
+    public static function setVersion($compatibleVersion,$latestVersion = null)
+    {
+        $version = static::getVersion();
+        $version->compatible_version = $compatibleVersion;
+        if(!is_null($latestVersion)){
+            $version->latest_version = $latestVersion;
+        }
+        $version->update();
+        
+        return $version;
     }
     
     public function toHeaders()
