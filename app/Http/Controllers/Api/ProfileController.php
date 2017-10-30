@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -222,7 +223,10 @@ class ProfileController extends Controller
         if(!$this->model){
             $this->sendError("You are already following this profile.");
         }
-        
+
+        event(new Follow($this->model, $request->user()->profile, null));
+
+
         return $this->sendResponse();
     }
     
