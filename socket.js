@@ -229,7 +229,7 @@ var makeCompanyConnection = function(socket){
         response.on('data',function(body){
             body = JSON.parse(body);
             if(body.error){
-                //console.log(body.error);
+                console.log(body.error);
                 return;
             }
             var rooms = Object.keys(body).map(function(k) { return body[k] });
@@ -269,7 +269,7 @@ var makeConnection = function(socket){
             //console.log("connecting on");
             //console.log(body);
             if(body.error){
-                //console.log(body.error);
+                console.log(body.error);
                 return;
             }
             var rooms = Object.keys(body).map(function(k) { return body[k] });
@@ -320,7 +320,7 @@ notificationNamespace.on('connection',function(socket){
                     return console.error(e);
                 }
                 if(body.error){
-                    //console.log(body.error);
+                    console.log(body.error);
                     return;
                 }
                 socket.join('private-App.Notify.Profile.'+body.profile.id);
@@ -360,7 +360,7 @@ var request = function(path,token,data){
                 return console.error(e);
             }
             if(body.error){
-                //console.log(body.error);
+                console.log(body.error);
                 return;
             }
         })
