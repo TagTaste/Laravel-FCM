@@ -16,6 +16,7 @@ var logErr = function(err,count){
     //private profile feed
         var feedNamespace = io.of('/feed');
         var feedEmit = function(pattern, channel, message){
+            console.log('feed');
             var message = JSON.parse(message);
             feedNamespace.to(channel).emit("message",message);
         };
@@ -33,6 +34,7 @@ var logErr = function(err,count){
         var public = new Redis();
         public.psubscribe('public.*',logErr);
         public.on('pmessage',function(pattern,channel,message){
+            console.log('public');
             var message = JSON.parse(message);
             console.log(message);
             feedNamespace.to(channel).emit("message",message);
