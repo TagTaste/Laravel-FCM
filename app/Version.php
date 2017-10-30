@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Version extends Model
 {
+    protected $primaryKey = null;
+    
     protected $fillable = ['compatible_version', 'latest_version'];
     
     public function isCompatible($version)
