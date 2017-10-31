@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -100,7 +101,7 @@ class UserController extends Controller
 
     public function fcmToken(Request $request)
     {
-        $user = \App\Profile\User::where("id", $request->user()->id)->first();
+        $user = User::where("id", $request->user()->id)->first();
         if($user)
         {
             $user->fcm_token = $request->input('fcm_token');
