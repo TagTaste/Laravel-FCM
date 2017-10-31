@@ -52,4 +52,6 @@ $app->singleton(
 |
 */
 
+$app->register(LaravelFCM\FCMServiceProvider::class);
+
 return $app;

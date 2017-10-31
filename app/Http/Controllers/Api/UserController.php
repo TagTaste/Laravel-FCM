@@ -97,4 +97,15 @@ class UserController extends Controller
 
         return $this->sendError("Your password has not been changed.");
     }
+
+    public function fcmToken(Request $request)
+    {
+        $user = \App\Profile\User::where("id", $request->user()->id)->first();
+        if($user)
+        {
+            $user->fcm_token = $request->input('fcm_token');
+            $this->model = $user->save();
+            return $this->sendResponse();
+        }
+    }
 }
