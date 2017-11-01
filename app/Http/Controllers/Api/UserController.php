@@ -104,9 +104,9 @@ class UserController extends Controller
         $user = User::where("id", $request->user()->id)->first();
         if($user)
         {
-            $user->fcm_token = $request->input('fcm_token');
-            $this->model = $user->save();
+            $this->model = \DB::table("app_info")->insert(["user_id"=>$request->user()->id,'fcm_token'=>$request->input('fcm_token')]);
             return $this->sendResponse();
         }
+        return $this->sendError("User not found.");
     }
 }
