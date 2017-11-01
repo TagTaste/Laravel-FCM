@@ -2,8 +2,6 @@
 
 namespace App\Notifications;
 
-use App\FCMPush;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -87,10 +85,6 @@ class Action extends Notification
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
 
-
-        $fcm = new FCMPush();
-        $user = User::where('id',1)->first();
-        $fcm->fcmNotification("Tagtaste","Tagtaste",$data,$user->fcm_token);
 
         return $data;
     }
