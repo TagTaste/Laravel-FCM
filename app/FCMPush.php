@@ -10,12 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class FCMPush extends Model
 {
-    public function fcmNotification($titile = null,$message = null,$data = null,$token)
+    public function fcmNotification($data,$profileId)
     {
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
 
-        $notificationBuilder = new PayloadNotificationBuilder($titile);
+        $message = $data['profile']['name'].$this->message($data['action']);
+
+        $notificationBuilder = new PayloadNotificationBuilder($data['action']);
         $notificationBuilder->setBody($message)
             ->setSound('default');
 
@@ -25,8 +27,13 @@ class FCMPush extends Model
         $option = $optionBuilder->build();
         $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
-        $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
-        $downstreamResponse->numberSuccess();
+
+        $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
+        if(count($token))
+        {
+            $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+            $downstreamResponse->numberSuccess();
+        }
 //        $downstreamResponse->numberFailure();
 //        $downstreamResponse->numberModification();
 
@@ -38,5 +45,27 @@ class FCMPush extends Model
 
 //return Array - you should try to resend the message to the tokens in the array
 //        $downstreamResponse->tokensToRetry();
+    }
+
+    protected function message($type)
+    {
+        if($type == " comment"){
+            return " commented on a post";
+        }
+        if($type == "like"){
+            return " liked a post";
+            }
+        if($type == "share"){
+            return " shared a post";
+        }
+        if($type == "tag"){
+            return " tagged you in a post";
+        }
+        if($type == "message"){
+            return " sent you a message";
+        }
+        if($type == "follow"){
+            return " has started following you." ;
+        }
     }
 }

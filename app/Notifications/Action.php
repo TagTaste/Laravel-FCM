@@ -8,6 +8,8 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use App\FCMPush;
+use App\User;
 
 class Action extends Notification
 {
@@ -84,7 +86,11 @@ class Action extends Notification
         }
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-
+        if(\Redis::SISMEMBER("disconnected:profile",$this->data->model->id))
+        {
+            $fcm = new FCMPush();
+            $fcm->fcmNotification($data,$this->data->model->id);
+        }
 
         return $data;
     }

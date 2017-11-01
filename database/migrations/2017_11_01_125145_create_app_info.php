@@ -19,8 +19,8 @@ class CreateAppInfo extends Migration
             $table->text('fcm_token')->nullable();
             $table->text('app_version')->nullable();
             $table->string('platform')->nullable();
-            $table->unsignedInteger('user_id');
-            $table->foreign("user_id")->references("id")->on("users");
+            $table->unsignedInteger('profile_id');
+            $table->foreign("profile_id")->references("id")->on("profiles");
 
         });
     }
@@ -32,6 +32,6 @@ class CreateAppInfo extends Migration
      */
     public function down()
     {
-        Schema::drop('app');
+        Schema::drop('app_info');
     }
 }
