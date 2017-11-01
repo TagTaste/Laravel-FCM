@@ -46,12 +46,12 @@ class JobController extends Controller
         if(!empty($filters)){
             $this->model = [];
             $jobIds = \App\Filter\Job::getModelIds($filters,$skip,$take);
-            $this->model['data'] = \App\Job::where('id',$jobIds)->get();
+            $this->model['data'] = \App\Job::where('id',$jobIds)->orderBy('created_at','desc')->get();
             $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
         
-        $jobs = $this->model->whereNull('deleted_at');
+        $jobs = $this->model->whereNull('deleted_at')->orderBy('created_at','desc');
         $this->model = [];
         
         $profileId = $request->user()->profile->id;

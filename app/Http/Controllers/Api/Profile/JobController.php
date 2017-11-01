@@ -42,7 +42,7 @@ class JobController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();
+        $this->model['jobs'] = $this->model['jobs']->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $this->model['count'] = Job::where('profile_id',$profileId)->count();
 
