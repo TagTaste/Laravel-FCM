@@ -12,10 +12,12 @@ class ProductCatalogue extends Model
 
     public function getCertifiedAttribute($value)
     {
+        if(is_null($value)){
+          return $value;
+        }
+      
         if($value == 1)
             return 'Yes';
-        else if($value == null)
-            return null;
 
         return 'No';
     }
