@@ -100,6 +100,7 @@ class Profile extends Model
         'patents',
         'followingProfiles',
         'followerProfiles',
+        'mutualFollowers',
         'name',
         'photos',
         'education',
@@ -122,7 +123,7 @@ class Profile extends Model
         'affiliations'
     ];
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience'];
+    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience','mutualFollowers'];
 
     public static function boot()
     {
@@ -372,7 +373,7 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = Subscriber::countFollowing($this->id);
+        $count = \Redis::SCARD("following:profile:".$this->id);
 
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
@@ -386,7 +387,7 @@ class Profile extends Model
             $count = round($count / 1000, 1) . "k";
         }
 
-        return ['count' => $count, 'profiles' => $profiles];
+        return ['count' => $count];
 
     }
 
@@ -413,22 +414,45 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = Subscriber::countFollowers($this->id);
+        $count = \Redis::SCARD("followers:profile:".$this->id);
     
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
         }
     
-        $profiles = Subscriber::getFollowers($this->id);
-    
+
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
         } elseif ($count > 1000) {
             $count = round($count / 1000, 1) . "k";
         }
     
-        return ['count' => $count, 'profiles' => $profiles];
+        return ['count' => $count];
 
+    }
+
+    public function getMutualFollowersAttribute()
+    {
+        if($this->id != request()->user()->id)
+        {
+            $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->id);
+
+            $i = 0;
+            foreach ($profileIds as &$profileId)
+            {
+                if($i == 5)
+                    break;
+                $profileId = "profile:small:".$profileId;
+                $i++;
+            }
+
+            $data = \Redis::mget($profileIds);
+
+            foreach($data as &$profile){
+                $profile = json_decode($profile);
+            }
+            return ['count' => count($profileIds), 'profiles' => $data];
+        }
     }
 
     public function photos()
