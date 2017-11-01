@@ -32,7 +32,6 @@ class Follow
             return;
         }
         $profile = Profile::find($profileId);
-
         Notification::send($profile, new \App\Notifications\Actions\Follow($event));
     }
 }
