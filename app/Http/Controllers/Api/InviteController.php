@@ -14,6 +14,7 @@ class InviteController extends Controller
     public function invite(Request $request)
     {
         $emails = $request->input("email");
+        $message = $request->input('message');
         $inputs = [];
         foreach ($emails as $email)
         {
@@ -24,7 +25,7 @@ class InviteController extends Controller
             $temp['mail_code'] = str_random(15);
             $temp['email'] = $email['email'];
             $temp['name'] = $email['name'];
-            $temp['message'] = $email['message'];
+            $temp['message'] = $message;
 
             $temp['accepted_at'] = null;
 
