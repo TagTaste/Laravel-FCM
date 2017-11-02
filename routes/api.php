@@ -88,7 +88,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //invites
             Route::post("invites","InviteController@invite");
-//            Route::post('checkinvitation',"InviteController@checkinvitation");
             //company rating
             Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Invitation;
+use App\Jobs\SendConnectionInvite;
 use App\Jobs\SendInvitation;
 use App\User;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class InviteController extends Controller
             $userExist = User::where('email',$email)->exists();
             if($userExist)
             {
-                $mail = (new SendInvitation($request->user(),$email))->onQueue('invites');
+                $mail = (new SendConnectionInvite($request->user(),$email))->onQueue('invites');
                 \Log::info('Queueing send invitation...');
                 dispatch($mail);
                 continue;
@@ -46,15 +47,11 @@ class InviteController extends Controller
 
         return $this->sendResponse();
     }
-//
-//    public function checkinvitation(Request $request)
-//    {
-//        $this->model = Invitation::where('email',$request->input('email'))->where('profile_id',$request->user()->profile->id)->exists();
-//
-//        if($this->model)
-//        {
-//            return $this->sendError("Already invite sent.");
-//        }
-//        return $this->sendResponse();
-//    }
+
+    public function mailTrack(Request $request, $mailCode)
+    {
+        $this->model = Invitation::where('mail_code',$mailCode)->update(['state'=>2]);
+
+        return $this->sendResponse();
+    }
 }
