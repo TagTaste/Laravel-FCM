@@ -31,7 +31,7 @@ class InviteController extends Controller
             dispatch($mail);
         }
 
-        $this->model = Invitation::create($inputs[0]);
+        $this->model = Invitation::create($inputs);
 
         return $this->sendResponse();
     }
