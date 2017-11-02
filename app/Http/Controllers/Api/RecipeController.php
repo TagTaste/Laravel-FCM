@@ -18,20 +18,34 @@ class RecipeController extends Controller
         $recipes = Recipe::orderBy('created_at')->whereNull('deleted_at');
 
         $filters = $request->input('filters');
+        $loggedInProfileId = $request->user()->profile->id;
+    
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        
         if(!empty($filters)){
-            $this->model = \App\Filter\Recipe::getModels($filters);
+            $this->model = [];
+            $recipeModelIds = \App\Filter\Recipe::getModelIds($filters,$skip,$take);
+            
+            if(count($recipeModelIds) == 0){
+                return $this->sendResponse();
+            }
+            
+            $recipes = \App\Recipe::whereIn('id',$recipeModelIds)->get();
+            foreach($recipes as $recipe){
+                $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
+            }
+            $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
 
         $this->model = [];
         $this->model['count'] = $recipes->count();
         $this->model['data'] = [];
-        //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+       
         $recipes=$recipes->skip($skip)->take($take)->get();
 
-        $loggedInProfileId = $request->user()->profile->id;
         foreach($recipes as $recipe){
             $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
         }

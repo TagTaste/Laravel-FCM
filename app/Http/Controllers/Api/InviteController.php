@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Invitation;
 use App\Jobs\SendInvitation;
+use App\User;
 use Illuminate\Http\Request;
 
 class InviteController extends Controller
@@ -25,13 +26,23 @@ class InviteController extends Controller
             $temp['message'] = $email['message'];
 
             $temp['accepted_at'] = null;
+
+            $userExist = User::where('email',$email)->exists();
+            if($userExist)
+            {
+                $mail = (new SendInvitation($request->user(),$email))->onQueue('invites');
+                \Log::info('Queueing send invitation...');
+                dispatch($mail);
+                continue;
+            }
+
             $mail = (new SendInvitation($request->user(),$temp))->onQueue('invites');
             \Log::info('Queueing send invitation...');
-            $inputs[] = $temp;
             dispatch($mail);
+            $inputs[] = $temp;
         }
 
-        $this->model = Invitation::create($inputs);
+        $this->model = Invitation::insert($inputs);
 
         return $this->sendResponse();
     }

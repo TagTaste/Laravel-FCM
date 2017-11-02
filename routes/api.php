@@ -149,6 +149,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("collaborate/filters","CollaborateController@filters");
                     Route::post("collaborate/{id}/like","CollaborateController@like");
                     Route::get("collaborate/{id}/applications","CollaborateController@applications");
+                    Route::get("collaborate/{id}/archived","CollaborateController@archived");
                     Route::post("collaborate/{id}/apply","CollaborateController@apply");
                     Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
                     Route::resource("collaborate","CollaborateController");
@@ -211,6 +212,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
+            Route::get("profile/{id}/mutualFollowers",['uses'=>'ProfileController@mutualFollowers']);
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
             Route::get('/people','ProfileController@all');
@@ -337,7 +339,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             });
             
             Route::get('@{handle}','HandleController@show');
+    
+            Route::get("apk_version",function(){
+                $version = \App\Version::getVersion();
+                return response()->json($version);
+            });
+    
+            Route::post("apk_version",function(Request $request){
+                $version = \App\Version::setVersion($request->input('compatible_version'),$request->input('latest_version'));
+                return response()->json($version);
+            });
+            
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
-    
 });

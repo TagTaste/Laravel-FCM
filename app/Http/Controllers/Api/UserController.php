@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Company\Coreteam;
-use App\Events\Chat\Invite;
-use App\Http\Controllers\Api\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Events\EmailVerification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -45,8 +42,10 @@ class UserController extends Controller
             $alreadyVerified = true;
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),$alreadyVerified);
-        $result['result'] = ['user'=>$user];
-
+        $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
+            ['email'=>$request->input('user.email')
+                ,'password'=>$request->input('user.password')])];
+        
         if(!$alreadyVerified)
         {
             $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');

@@ -57,40 +57,92 @@ class Filter extends Model
     
     public static function updateKey($relatedColumnId, $key, $value, $separator=false)
     {
-        static::removeKey($relatedColumnId,$key);
+        $label = $key;
+        if(is_array($key)){
+            $label =  array_key($key);
+        }
+        static::removeKey($relatedColumnId,$label);
         
         //create new filter
-        return static::addKey($relatedColumnId,$key,$value,$separator);
-        
+        return static::addKey($relatedColumnId,$label,$value,$separator);
+    }
+    
+    public static function removeAllKeys($relatedColumnId)
+    {
+        return static::where(static::$relatedColumn,$relatedColumnId)
+            ->delete();
     }
     
     public static function addModel($model)
     {
         $self = new static;
-        foreach($self->csv as $filter){
-            if(isset($model->{$filter})){
-                static::updateKey($model->id,$filter,$model->{$filter},',');
+        $self::removeAllKeys($model->id);
+        foreach($self->csv as $label => $filter){
+            if(is_int($label)){
+                $label = $filter;
+            }
+            $method = "get{$filter}attribute";
+            $value = null;
+            
+            if(method_exists($self,$method)){
+                $value = $self->$method($model) ;
+            } elseif(isset($model->{$filter})){
+               $value = $model->{$filter};
+            }
+            
+            if($value) {
+                static::addKey($model->id,$label,$value,',');
+            }
+            
+        }
+        
+        foreach($self->strings as $label => $filter){
+            if(is_int($label)){
+                $label = $filter;
+            }
+            
+            $value = null;
+            $method = "get{$filter}attribute";
+            
+            if(method_exists($self,$method)){
+                $value = $self->$method($model) ;
+            } elseif(isset($model->{$filter})){
+                $value = $model->{$filter};
+            }
+            
+            if($value){
+                static::addKey($model->id,$label,$value);
             }
         }
         
-        foreach($self->strings as $filter){
-            if(isset($model->{$filter})){
-                static::updateKey($model->id,$filter,$model->{$filter});
-            }
-        }
-        
-        foreach($self->models as $filter){
+        foreach($self->models as $label => $filter){
+           
             list($relationship,$attribute) = explode(".",$filter);
             
-            if(isset($model->$relationship)){
-                
-                foreach($model->$relationship()->get() as $rel){
-                    if(isset($rel->$attribute)){
-                        static::updateKey($model->id,$attribute,$rel->$attribute);
+                try {
+                    $related = $model->$relationship()->get();
+                    if($related){
+                        if(is_int($label)){
+                            $label = $relationship;
+                        }
+                        foreach($related as $rel){
+                            
+                            $value = null;
+                            $method = "get{$filter}attribute";
+                            
+                            if(method_exists($self,$method)){
+                                $value = $self->$method($model) ;
+                            } elseif(isset($rel->$attribute)){
+                                $value = $rel->$attribute;
+                            }
+                            if($value){
+                                static::addKey($model->id,$label,$value);
+                            }
+                        }
                     }
+                } catch (\Exception $e){
+                    \Log::error($e->getMessage() . " : " . $e->getFile() . ": " . $e->getLine());
                 }
-            }
-            
         }
         
     }
@@ -106,23 +158,34 @@ class Filter extends Model
         if($model){
             $filter = "\\App\\Filter\\" . ucfirst($model);
         }
-        $filters = $filter::select('key','value',\DB::raw('count(`key`) as count'))
-            ->groupBy('key','value')->orderBy('count','desc')->take(10)->get()->groupBy('key');
-        
-        foreach($filters as $key=>&$sub){
+        $allFilters = $filter::select('key','value',\DB::raw('count(`key`) as count'))
+            ->groupBy('key','value')->orderBy('count','desc')->get()->groupBy('key');
+        $filters = [];
+        foreach($allFilters as $key=>&$sub){
+            $count = 0;
             foreach($sub as &$filter){
-                unset($filter->key);
+                $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                $count++;
+                if($count > 10){
+                    break;
+                }
             }
         }
         return $filters;
     }
     
-    public static function getModels($filters)
+    
+    public static function getModelIds(&$filters,$skip,$take)
     {
         $models = null;
         foreach($filters as $filter => $value){
-            
-            $model = static::selectRaw('distinct ' . static::$relatedColumn)->where('key',$filter)->whereIn('value',$value)->get()
+        
+            $model = static::selectRaw('distinct ' . static::$relatedColumn)
+                ->where('key',$filter)->whereIn('value',$value)
+                ->skip($skip)
+                ->take($take)
+                ->orderBy(static::$relatedColumn)
+                ->get()
                 ->pluck(static::$relatedColumn);
             if(is_null($models)){
                 $models = $model;
@@ -130,6 +193,12 @@ class Filter extends Model
             }
             $models = $model->intersect($models);
         }
+    
+        return $models;
+    }
+    public static function getModels($filters, $skip, $take)
+    {
+        $models = static::getModelIds($filters,$skip,$take);
         
         if(count($models) == 0){
             return $models;

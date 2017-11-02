@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
-use App\CollaborateCategory;
 use App\Events\Actions\Like;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -42,17 +41,20 @@ class CollaborateController extends Controller
 	{
 		$collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
-       
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        
         if(!empty($filters)){
-            $this->model = \App\Filter\Collaborate::getModels($filters);
+            $this->model = [];
+            $this->model['data'] = \App\Filter\Collaborate::getModels($filters,$skip,$take);
+            $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
         $this->model = [];
         $this->model["count"] = $collaborations->count();
         $this->model["data"]=[];
-        //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+       
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         
         $profileId = $request->user()->profile->id;
@@ -215,14 +217,40 @@ class CollaborateController extends Controller
         
         return $this->sendResponse();
     }
-
+    
     public function applications(Request $request, $id)
     {
         $this->model = [];
-        
+
         $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
         $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
+        return $this->sendResponse();
+    }
 
+    public function Newapplications(Request $request, $id)
+    {
+        $this->model = [];
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $applications = \App\Collaboration\Collaborator::whereNull('archived_at')
+            ->where('collaborate_id',$id)->with('profile','collaborate');
+        $this->model['count'] = $applications->count();
+        $this->model['application'] = $applications->skip($skip)->take($take)->get();
+        return $this->sendResponse();
+
+    }
+
+    public function archived(Request $request, $id)
+    {
+        $this->model = [];
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+	    $archived = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)
+            ->with('profile','collaborate');
+        $this->model['count'] = $archived->count();
+        $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
 
     }

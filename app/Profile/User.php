@@ -196,7 +196,8 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken)
+    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false,
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null)
     {
         $user = static::create([
             'name' => $name,
@@ -240,11 +241,11 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-            $job = (new FetchUserAvatar($this,$avatar))->onQueue('registration')
-                ->delay(Carbon::now()->addSeconds(10));
-            \Log::info('Queueing job...');
-        
-            dispatch($job);
+            $file = file_get_contents("https://graph.facebook.com/$providerUserId/picture?type=normal");
+            $filename = str_random(20) . ".jpg";
+            file_put_contents(storage_path('app/images/p/'.$this->profile->id) . $filename,$file);
+
+            Profile::where('id',$this->profile->id)->update(['image'=>'images/p/'.$this->profile->id.'/'.$filename]);
         }
     }
 

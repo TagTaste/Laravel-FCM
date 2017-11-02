@@ -36,6 +36,9 @@ class Preview
         // Set so curl_exec returns the result instead of outputting it.
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        // Follow redirect
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    
         // Get the response and close the channel.
         $response = curl_exec($ch);
         curl_close($ch);

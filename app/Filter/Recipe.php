@@ -10,12 +10,27 @@ class Recipe extends Filter {
     
     protected $csv = ['tags'];
     
-    protected $strings = ['serving'];
+    protected $strings = ['level','type','vegetarian'=>'veg'];
     
     protected $models = ['cuisine.name'];
     
     public static $cacheKey = "recipe:";
     
     public static $relatedColumn = 'recipe_id';
+    
+    public function getlevelattribute(&$model)
+    {
+        return \App\Recipe::$level[$model->level] ?? null;
+    }
+    
+    public function gettypeattribute(&$model)
+    {
+        return \App\Recipe::$type[$model->type] ?? null;
+    }
+    
+    public function getvegattribute(&$model)
+    {
+        return \App\Recipe::$veg[$model->is_vegetarian] ?? null;
+    }
 
 }

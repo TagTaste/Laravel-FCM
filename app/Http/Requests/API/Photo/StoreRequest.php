@@ -25,7 +25,7 @@ class StoreRequest extends FormRequest
     {
         return [
           'file' => 'required',
-          'caption'=>'max:255'
+          'caption'=>'max:1300'
         ];
     }
 }

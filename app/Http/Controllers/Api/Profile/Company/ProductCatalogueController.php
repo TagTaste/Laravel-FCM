@@ -79,7 +79,6 @@ class ProductCatalogueController extends Controller
         $data = [];
         try {
             $fullpath = $request->file->store('temp', 'local');
-            \Log::info($fullpath);
             \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
                 $data = $reader->toArray();
             })->get();
@@ -96,20 +95,20 @@ class ProductCatalogueController extends Controller
         $temp = [];
         foreach($data as $sheet){
             foreach($sheet as $element){
-                if(isset($element['product'])) {
-                    $product['product'] = $element['product'];
+                if(isset($element['product_name'])) {
+                    $product['product'] = $element['product_name'];
                     $product['category'] = isset($element['category']) ? $element['category'] : null;
                     $product['company_id'] = $companyId;
                     $product['brand'] = isset($element['brand']) ? $element['brand'] : null;
                     $product['measurement_unit'] = isset($element['measurement_unit']) ? $element['measurement_unit'] : null;
                     $product['barcode'] = isset($element['barcode']) ? $element['barcode'] : null;
                     $product['size'] = isset($element['size']) ? $element['size'] : null;
-                    $product['certified'] = isset($element['certified']) ? (strtolower($element['certified'])=='yes'? 1 : 0) : 0;
+                    $product['certified'] = isset($element['fssai_compliant']) ? (strtolower($element['fssai_compliant'])=='yes'? 1 : 0) : null;
                     $product['delivery_cities'] = isset($element['delivery_cities']) ? $element['delivery_cities'] : null;
                     $product['price'] = isset($element['price']) ? $element['price'] : null;
                     $product['moq'] = isset($element['moq']) ? $element['moq'] : null;
                     $product['type'] = isset($element['type']) ? $element['type'] : null;
-                    $product['about'] = isset($element['about']) ? $element['about'] : null;
+                    $product['about'] = isset($element['product_description']) ? $element['product_description'] : null;
                     $product['shelf_life'] = isset($element['shelf_life']) ? $element['shelf_life'] : null;
                     $temp[] = $product;
                 }

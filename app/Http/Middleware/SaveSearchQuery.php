@@ -20,7 +20,11 @@ class SaveSearchQuery
     
     public function terminate($request, $response)
     {
-        $userId = $request->user()->id;
+        $user = $request->user();
+        if(!$user){
+            return;
+        }
+        $userId = $user->id;
         $key = "history:search:" . $userId;
         \Redis::lPush($key, $request->q);
         \Redis::lTrim($key,0,9);

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Profile\Company;
 
-use App\CompanyUser;
 use App\Company\Coreteam;
 use App\Http\Controllers\Api\Controller;
 use App\Invitation;
@@ -64,7 +63,9 @@ class CoreteamController extends Controller
         if($request->has("profile_id"))
         {
             $profile = \App\Recipe\Profile::find($request->input('profile_id'));
-            $data['image'] = $profile->image;
+            if($profile){
+                $data['image'] = $profile->image;
+            }
         }
         $data['invited'] = !$request->has("profile_id") && $request->has("email");
 

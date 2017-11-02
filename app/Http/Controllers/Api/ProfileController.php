@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -80,7 +81,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->except(["_method","_token"]);
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove']);
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -102,7 +103,7 @@ class ProfileController extends Controller
 
         //save profile resume
 
-        if($request->has("remove")&&$data['remove'] == 1){
+        if($request->has("remove") && $request->input('remove') == 1){
             $data['profile']['resume'] = null;
         }
         else if($request->hasFile('resume'))
@@ -222,7 +223,8 @@ class ProfileController extends Controller
         if(!$this->model){
             $this->sendError("You are already following this profile.");
         }
-        
+        event(new Follow($channelOwner, $request->user()->profile));
+
         return $this->sendResponse();
     }
     
@@ -331,7 +333,7 @@ class ProfileController extends Controller
         
         $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
-        $models = \App\Recipe\Profile::where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
+        $models = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
         $this->model = ['count' => $models->count()];
         $this->model['data'] = [];
         //paginate
@@ -343,16 +345,18 @@ class ProfileController extends Controller
         if(empty($filters)){
             $profiles = $models->get();
     
-            foreach ($profiles as $profile){
-                $temp = $profile->toArray();
-                $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
-                $this->model['data'][] = $temp;
+            if($profiles->count()){
+                foreach ($profiles as $profile){
+                    $temp = $profile->toArray();
+                    $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
+                    $this->model['data'][] = $temp;
+                }
             }
             
             return $this->sendResponse();
         }
         
-        $profiles = \App\Filter\Profile::getModels($filters);
+        $profiles = \App\Filter\Profile::getModels($filters,$skip,$take);
         
         $this->model['count'] =  count($profiles);
     
@@ -407,6 +411,25 @@ class ProfileController extends Controller
             $company = json_decode($company);
         }
         return $data;
+    }
+
+    public function mutualFollowers(Request $request,$id)
+    {
+        $loginProfileId = $request->user()->profile->id;
+        $profileIds = \Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
+
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId;
+        }
+
+        $this->model = \Redis::mget($profileIds);
+
+        foreach($this->model as &$profile){
+            $profile = json_decode($profile);
+        }
+
+        return $this->sendResponse();
     }
 
 }

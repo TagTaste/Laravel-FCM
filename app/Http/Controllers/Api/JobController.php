@@ -26,7 +26,7 @@ class JobController extends Controller
     
     public function filters()
     {
-        $this->model = \App\Filter::getFilters("collaborate");
+        $this->model = \App\Filter::getFilters("job");
         return $this->sendResponse();
     }
 
@@ -39,12 +39,19 @@ class JobController extends Controller
 	{
         $filters = $request->input('filters');
         
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        
         if(!empty($filters)){
-            $this->model = \App\Filter\Job::getModels($filters);
+            $this->model = [];
+            $jobIds = \App\Filter\Job::getModelIds($filters,$skip,$take);
+            $this->model['data'] = \App\Job::where('id',$jobIds)->orderBy('created_at','desc')->get();
+            $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
         
-        $jobs = $this->model->whereNull('deleted_at');
+        $jobs = $this->model->whereNull('deleted_at')->orderBy('created_at','desc');
         $this->model = [];
         
         $profileId = $request->user()->profile->id;
@@ -52,9 +59,6 @@ class JobController extends Controller
         $this->model = [];
         $this->model["count"] = $jobs->count();
         
-        //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model['data'] = $jobs->skip($skip)->take($take)->get();
 
 		return $this->sendResponse();

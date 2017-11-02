@@ -325,11 +325,11 @@ class Company extends Model
         //attach the user
         $this->users()->attach($user->id,['profile_id'=>$user->profile->id,'created_at'=>Carbon::now()->toDateTimeString()]);
 
-        //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
-
-        //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
+//        //companies the logged in user is following
+//        \Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
+//
+//        //profiles that are following $channelOwner
+//        \Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
         
         //subscribe the user to the company feed
 //        $user->completeProfile->subscribe("public",$this);

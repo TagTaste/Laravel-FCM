@@ -24,7 +24,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'caption'=>'max:255'
+            'caption'=>'max:1300'
         ];
     }
 }
