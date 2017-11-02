@@ -21,11 +21,11 @@ class InviteController extends Controller
             $inputs[]['mail_code'] = str_random(15);
             $inputs[]['email'] = $email['email'];
             $inputs[]['name'] = $email['name'];
+            $inputs[]['message'] = $email['message'];
 
             $inputs[]['accepted_at'] = null;
 
-            $mail = (new SendInvitation($request->user(),$inputs[],$request->input("email"),
-                $inputs[]['invite_code'],$inputs[]['mail_code']))->onQueue('emails');
+            $mail = (new SendInvitation($request->user(),$inputs[]))->onQueue('emails');
             \Log::info('Queueing send invitation...');
 
             dispatch($mail);

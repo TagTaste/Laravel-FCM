@@ -86,8 +86,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource("like",'ShoutoutLikeController');
                 });
 
-            //firend list
-            Route::get("/me/friends","UserControllers@friends");
             //invites
             Route::post("invites","InviteController@invite");
             //company rating
