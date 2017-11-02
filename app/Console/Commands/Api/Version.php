@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Console\Commands\Build\Filters;
+namespace App\Console\Commands\Api;
 
 use Illuminate\Console\Command;
 
-class Profile extends Command
+class Version extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:filter:profiles';
+    protected $signature = 'version {compatible} {latest?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Build profile filter cache';
+    protected $description = 'Sets current API version';
 
     /**
      * Create a new command instance.
@@ -37,11 +37,15 @@ class Profile extends Command
      */
     public function handle()
     {
-        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200,function($models){
-            foreach($models as $model){
-               // new \App\Cached\Filter\Profile($model);
-                \App\Filter\Profile::addModel($model);
-            }
-        });
+        $version = \App\Version::first();
+        
+        if(!$version){
+            $version = new \App\Version();
+        }
+        
+        $version->compatible_version = $this->argument('compatible');
+        $version->latest_version = $this->argument('latest');
+        $version->save();
+        
     }
 }

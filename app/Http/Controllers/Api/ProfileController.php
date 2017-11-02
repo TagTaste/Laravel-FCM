@@ -81,7 +81,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->except(["_method","_token"]);
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove']);
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -103,7 +103,7 @@ class ProfileController extends Controller
 
         //save profile resume
 
-        if($request->has("remove")&&$data['remove'] == 1){
+        if($request->has("remove") && $request->input('remove') == 1){
             $data['profile']['resume'] = null;
         }
         else if($request->hasFile('resume'))
@@ -333,7 +333,7 @@ class ProfileController extends Controller
         
         $loggedInProfileId = $request->user()->profile->id;
         $filters = $request->input('filters');
-        $models = \App\Recipe\Profile::where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
+        $models = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',$loggedInProfileId)->orderBy('created_at','asc');
         $this->model = ['count' => $models->count()];
         $this->model['data'] = [];
         //paginate
@@ -345,10 +345,12 @@ class ProfileController extends Controller
         if(empty($filters)){
             $profiles = $models->get();
     
-            foreach ($profiles as $profile){
-                $temp = $profile->toArray();
-                $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
-                $this->model['data'][] = $temp;
+            if($profiles->count()){
+                foreach ($profiles as $profile){
+                    $temp = $profile->toArray();
+                    $temp['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile->id);
+                    $this->model['data'][] = $temp;
+                }
             }
             
             return $this->sendResponse();

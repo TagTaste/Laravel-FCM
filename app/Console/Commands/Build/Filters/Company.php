@@ -37,7 +37,7 @@ class Company extends Command
      */
     public function handle()
     {
-        \App\Company::chunk(100,function($models){
+        \App\Company::whereNull('deleted_at')->chunk(100,function($models){
             foreach($models as $model){
 //                new \App\Cached\Filter\Company($model);
                 \App\Filter\Company::addModel($model);

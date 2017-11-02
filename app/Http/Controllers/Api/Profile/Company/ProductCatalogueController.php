@@ -103,12 +103,12 @@ class ProductCatalogueController extends Controller
                     $product['measurement_unit'] = isset($element['measurement_unit']) ? $element['measurement_unit'] : null;
                     $product['barcode'] = isset($element['barcode']) ? $element['barcode'] : null;
                     $product['size'] = isset($element['size']) ? $element['size'] : null;
-                    $product['certified'] = isset($element['fssai_compliant']) ? (strtolower($element['fssai_compliant'])=='yes'? 1 : 0) : 0;
+                    $product['certified'] = isset($element['fssai_compliant']) ? (strtolower($element['fssai_compliant'])=='yes'? 1 : 0) : null;
                     $product['delivery_cities'] = isset($element['delivery_cities']) ? $element['delivery_cities'] : null;
                     $product['price'] = isset($element['price']) ? $element['price'] : null;
                     $product['moq'] = isset($element['moq']) ? $element['moq'] : null;
                     $product['type'] = isset($element['type']) ? $element['type'] : null;
-                    $product['about'] = isset($element['product_descrption']) ? $element['product_descrption'] : null;
+                    $product['about'] = isset($element['product_description']) ? $element['product_description'] : null;
                     $product['shelf_life'] = isset($element['shelf_life']) ? $element['shelf_life'] : null;
                     $temp[] = $product;
                 }

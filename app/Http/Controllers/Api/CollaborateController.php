@@ -217,8 +217,17 @@ class CollaborateController extends Controller
         
         return $this->sendResponse();
     }
-
+    
     public function applications(Request $request, $id)
+    {
+        $this->model = [];
+
+        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
+        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
+        return $this->sendResponse();
+    }
+
+    public function Newapplications(Request $request, $id)
     {
         $this->model = [];
 

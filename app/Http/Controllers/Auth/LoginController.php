@@ -37,9 +37,12 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->middleware('guest', ['except' => 'logout']);
+        if($request->token){
+            $request->merge(['code' => $request->token]);
+        }
     }
 
     /**
@@ -98,18 +101,23 @@ class LoginController extends Controller
      *
      * @return Response
      */
-    public function handleProviderCallback($provider)
+    public function handleProviderCallback(Request $request,$provider)
     {
+        $input = $request->all();
         try {
-            $user = Socialite::driver($provider)->stateless()->user();
+            $authUser = $this->findOrCreateUser($input, $provider);
+
         } catch (Exception $e) {
             \Log::warning($e->getMessage());
             return response()->json(['error'=>"Could not login."],400);
         }
-        $authUser = $this->findOrCreateUser($user, $provider);
+
+        $result = ['status'=>'success'];
         $token = \JWTAuth::fromUser($authUser);
-        
-        return response()->json(compact('token'));
+        unset($authUser['profile']);
+        $result['result'] = ['user'=>$authUser,'token'=>$token];
+
+        return response()->json($result);
     }
 
     /**
@@ -122,23 +130,26 @@ class LoginController extends Controller
     private function findOrCreateUser($socialiteUser, $provider)
     {
         try {
-            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser->getId());
+
+            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
             //then add social login
-            if($socialiteUser->getEmail()){
+            if($socialiteUser['email']){
 
-                $user = User::where('email','like',$socialiteUser->getEmail())->first();
+                $user = User::where('email','like',$socialiteUser['email'])->first();
             }
             else
             {
-                return redirect('/');
+                return null;
             }
             if($user){
                 //create social account;
-                $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
-                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$socialiteUser->getEmail(),str_random(6),true,1,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
+                    true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             }
         }
         return $user;
