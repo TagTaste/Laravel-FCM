@@ -207,6 +207,40 @@ class Collaborate extends Model implements Feedable
         return ['count'=>$count,'profiles'=>$profiles];
     }
     
+    private function getInterestedProfile($profileId)
+    {
+        $interestedProfile = json_decode(\Redis::get("profile:small:" . $profileId),true);
+        return array_only($interestedProfile,['name','id']);
+    }
+    
+    private function getInterestedCompany($companyId)
+    {
+        $company = json_decode(\Redis::get("company:small:" . $companyId),true);
+        return array_only($company,['name','id','profileId']);
+    }
+    
+    private function setInterestedAsProfiles(&$meta,&$profileId)
+    {
+        $interested = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId);
+    
+        $companyIds = \DB::table("company_users")->select('company_id')->where('profile_id',$profileId)->get();
+        
+        if($companyIds->count()){
+            $interested->orWhereIn('company_id',$companyIds->pluck('company_id'));
+        }
+        $interested = $interested->first();
+        //only one of his companies can apply;
+        $meta['interested'] = !!$interested;
+    
+        if($meta['interested']){
+            $meta['interested_as']['profile'] = $this->getInterestedProfile($interested->profile_id);
+        
+            if($interested->company_id){
+                $meta['interested_as']['company'] = $this->getInterestedCompany($interested->company_id);
+            }
+        }
+    }
+    
     /**
      * @param int $profileId
      * @return array
@@ -214,7 +248,9 @@ class Collaborate extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+    
+        $this->setInterestedAsProfiles($meta,$profileId);
+        
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
