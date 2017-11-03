@@ -221,13 +221,18 @@ class Collaborate extends Model implements Feedable
     
     private function setInterestedAsProfiles(&$meta,&$profileId)
     {
-        $interested = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId);
+        $interested = \DB::table('collaborators')->where('collaborate_id',$this->id);
     
         $companyIds = \DB::table("company_users")->select('company_id')->where('profile_id',$profileId)->get();
         
         if($companyIds->count()){
-            $interested->orWhereIn('company_id',$companyIds->pluck('company_id'));
+            $interested = $interested->where(function($query) use ($profileId,$companyIds){
+                $query->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds->pluck('company_id'));
+            });
+        } else {
+            $interested = $interested->where('profile_id',$profileId);
         }
+        
         $interested = $interested->first();
         //only one of his companies can apply;
         $meta['interested'] = !!$interested;
