@@ -96,9 +96,10 @@ class CollaborateController extends Controller
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
-            $company =  \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
-            if(!$company){
-                throw new \Exception("Company does not belong to the user.");
+            $checkAdmin = \App\CompanyUser::where("company_id",$companyId)->where('profile_id', $request->user()->profile->id)->exists();
+    
+            if(!$checkAdmin){
+                throw new \Exception("User does not belong to the company");
             }
             
             $exists = $collaborate->companies()->find($companyId);
@@ -115,11 +116,10 @@ class CollaborateController extends Controller
                     [
                         'applied_on'=>Carbon::now()->toDateTimeString(),
                         'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message")
+                        'message' => $request->input("message"),
+                        'profile_id' => $request->input('profile_id')
                     ]);
-        }
-        
-        if($request->has('profile_id')){
+        } elseif($request->has('profile_id')){
             //individual wants to apply
             $profileId = $request->user()->profile->id;
             $exists = $collaborate->profiles()->find($profileId);
