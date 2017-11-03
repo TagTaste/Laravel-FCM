@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-class SendInvitation implements ShouldQueue
+class SendConnectionInvite implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
@@ -33,7 +33,7 @@ class SendInvitation implements ShouldQueue
     {
         $data = ["senderName"=>$this->user->name,
             "inviteCode" => $this->invitation['invite_code'],"mailCode"=>$this->invitation['mail_code'],'message'=>$this->invitation['message']];
-        \Mail::send('invitation.invitation', $data, function($message)
+        \Mail::send('email.connect', $data, function($message)
         {
             $message->to($this->invitation['email'], $this->user->name)->subject('Welcome!');
         });
