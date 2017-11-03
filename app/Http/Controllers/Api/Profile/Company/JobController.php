@@ -43,7 +43,7 @@ class JobController extends Controller
         $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at');
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model['jobs'] = $this->model['jobs']->skip($skip)->take($take)->get();
+        $this->model['jobs'] = $this->model['jobs']->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $this->model['count'] = Job::where('company_id', $companyId)->count();
         return $this->sendResponse();
