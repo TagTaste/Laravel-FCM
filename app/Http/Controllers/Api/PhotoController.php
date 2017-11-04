@@ -16,6 +16,10 @@ class PhotoController extends Controller
     public function show(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        if(!$loggedInProfileId){
+            \Log::info($request->all());
+            return $this->sendError("Invalid Profile.");
+        }
         $photo = Photo::where('id',$id)->with(['comments' => function($query){
             $query->orderBy('created_at','desc');
         }])
