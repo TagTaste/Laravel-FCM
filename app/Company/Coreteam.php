@@ -37,7 +37,7 @@ Coreteam extends Model
 
     public function getIsFollowingAttribute()
     {
-        return $this->profile_id!=null ? Profile::isFollowing($this->profile_id, request()->user()->profile->id) : false;
+        return $this->profile_id!=null ? Profile::isFollowing(request()->user()->profile->id, $this->profile_id) : false;
     }
     
     public function setEmailAttribute($value)
