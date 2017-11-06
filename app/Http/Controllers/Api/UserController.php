@@ -39,9 +39,8 @@ class UserController extends Controller
             }
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
             $invitation->update(["accepted_at"=>$accepted_at]);
-            event(new JoinFriend($channelOwner, $request->user()->profile));
-
             $alreadyVerified = true;
+            $profileId = $invitation->profile_id;
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),$alreadyVerified);
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
@@ -55,7 +54,12 @@ class UserController extends Controller
 
             dispatch($mail);
         }
-
+        else
+        {
+            $profile = \Redis::get("profile:small:".$profileId);
+            $loginProfile = \App\Profile::with([])->where('user_id',$user->id)->first();
+            event(new JoinFriend($profile , $loginProfile));
+        }
         return response()->json($result);
     }
 
