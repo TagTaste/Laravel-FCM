@@ -6,6 +6,7 @@ use App\Events\EmailVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Events\Actions\JoinFriend;
 
 class UserController extends Controller
 {
@@ -38,6 +39,7 @@ class UserController extends Controller
             }
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
             $invitation->update(["accepted_at"=>$accepted_at]);
+            event(new JoinFriend($channelOwner, $request->user()->profile));
 
             $alreadyVerified = true;
         }
