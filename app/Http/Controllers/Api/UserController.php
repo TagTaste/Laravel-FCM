@@ -56,8 +56,10 @@ class UserController extends Controller
         }
         else
         {
-            $profile = \App\Profile::with([])->where('id',$profileId)->first();
-            $loginProfile = \App\Profile::with([])->where('user_id',$user->id)->first();
+            $profiles = \App\Profile::with([])->where('id',$profileId)->orWhere('user_id',$user->id)->get();
+
+            $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+            $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
             event(new JoinFriend($profile , $loginProfile));
         }
         return response()->json($result);
