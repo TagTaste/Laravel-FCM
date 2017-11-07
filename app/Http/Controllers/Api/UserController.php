@@ -38,7 +38,7 @@ class UserController extends Controller
                 return $this->sendError("please use correct invite code");
             }
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-            $invitation->update(["accepted_at"=>$accepted_at]);
+            $invitation->update(["accepted_at"=>$accepted_at,'state'=>3]);
             $alreadyVerified = true;
             $profileId = $invitation->profile_id;
         }
@@ -56,7 +56,7 @@ class UserController extends Controller
         }
         else
         {
-            $profile = \Redis::get("profile:small:".$profileId);
+            $profile = \App\Profile::with([])->where('id',$profileId)->first();
             $loginProfile = \App\Profile::with([])->where('user_id',$user->id)->first();
             event(new JoinFriend($profile , $loginProfile));
         }
