@@ -303,22 +303,18 @@ class ProfileController extends Controller
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
         $this->model['count'] = count($profileIds);
-
-        $end = $request->has('page') ? $request->input('page') : 1;
-        $start = ($end - 1)*20 ;
         $data = [];
-        for($i = $start; $i < $end*20; $i++)
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        foreach ($profileIds as &$profileId)
         {
-            if(isset($profileIds[$i]))
-            {
-                $data[] = "profile:small:".$profileIds[$i];
-            }
+            $profileId = "profile:small:".$profileId ;
         }
 
         $loggedInProfileId = $request->user()->profile->id ;
-        if(count($data)> 0)
+        if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($data);
+            $data = \Redis::mget($profileIds);
 
         }
         foreach($data as &$profile){
@@ -336,28 +332,23 @@ class ProfileController extends Controller
     {
         $profileIds = \Redis::sMembers("following:profile:$id");
 
-        $end = $page ;
-        $start = ($end - 1)*20 ;
-        $data = [];
+        $count = count($profileIds);
 
-        for($i = $start; $i < $end*20; $i++)
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+
+        foreach ($profileIds as &$profileId)
         {
-            if(isset($profileIds[$i]))
-            {
-                if(str_contains($profileIds[$i],"company")){
-                    $data[] = "company:small:" . last(explode(".",$profileIds[$i]));
-                    continue;
-                }
-                $data[] = "profile:small:" . $profileIds[$i];
+            if(str_contains($profileId,"company")){
+                $profileId = "company:small:" . last(explode(".",$profileId));
+                continue;
             }
+            $profileId = "profile:small:" . $profileId;
         }
         $following = [];
-        if(count($data)> 0)
+        if(count($profileIds)> 0)
         {
-            $following = \Redis::mget($data);
-
+            $following = \Redis::mget($profileIds);
         }
-    
         foreach($following as &$profile){
             if(is_null($profile)){
                 continue;
@@ -369,7 +360,7 @@ class ProfileController extends Controller
             $value .= $profile->id;
             $profile->isFollowing =  \Redis::sIsMember($key,$value) === 1;
         }
-        return ['count'=> count($profileIds),'profile'=>$following];
+        return ['count'=> $count,'profile'=>$following];
     }
     
     public function following(Request $request, $id)
@@ -469,21 +460,17 @@ class ProfileController extends Controller
         $this->model = [];
         $loginProfileId = $request->user()->profile->id;
         $profileIds = \Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
-
-        $this->model['count'] = count($profileIds);
-        $end = $request->has('page') ? $request->input('page') : 1;
-        $start = ($end - 1)*20 ;
         $data = [];
-        for($i = $start; $i < $end*20; $i++)
+        $this->model['count'] = count($profileIds);
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        foreach ($profileIds as &$profileId)
         {
-            if(isset($profileIds[$i]))
-            {
-                $data[] = "profile:small:".$profileIds[$i];
-            }
+            $profileId = "profile:small:".$profileId ;
         }
-        if(count($data))
+        if(count($profileIds))
         {
-            $data = \Redis::mget($data);
+            $data = \Redis::mget($profileIds);
         }
         foreach($data as &$profile){
             $profile = json_decode($profile);
