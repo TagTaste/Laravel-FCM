@@ -38,7 +38,7 @@ class UserController extends Controller
                 return $this->sendError("please use correct invite code");
             }
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-            $invitation->update(["accepted_at"=>$accepted_at,'state'=>3]);
+            $invitation->update(["accepted_at"=>$accepted_at,'state'=>\App\Invitation::$registered]);
             $alreadyVerified = true;
             $profileId = $invitation->profile_id;
         }

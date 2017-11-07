@@ -21,7 +21,7 @@ class InviteController extends Controller
             $temp = [];
             $temp['invite_code'] = str_random(15);
             $temp['profile_id'] = $request->user()->profile->id;
-            $temp['state'] = 1;
+            $temp['state'] = Invitation::$mailSent;
             $temp['mail_code'] = str_random(15);
             $temp['email'] = $email['email'];
             $temp['name'] = $email['name'];
