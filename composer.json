@@ -18,8 +18,8 @@
         "stevebauman/purify": "^1.1",
         "maatwebsite/excel": "2.1.19",
         "league/flysystem-aws-s3-v3": "~1.0",
-        "revolution/laravel-google-sheets": "^2.3"
-
+        "revolution/laravel-google-sheets": "^2.3",
+        "brozot/laravel-fcm": "^1.2"
     },
 
     "require-dev": {

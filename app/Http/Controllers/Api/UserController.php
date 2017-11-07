@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -96,5 +97,16 @@ class UserController extends Controller
         }
 
         return $this->sendError("Your password has not been changed.");
+    }
+
+    public function fcmToken(Request $request)
+    {
+        $user = User::where("id", $request->user()->id)->first();
+        if($user)
+        {
+            $this->model = \DB::table("app_info")->insert(["user_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token')]);
+            return $this->sendResponse();
+        }
+        return $this->sendError("User not found.");
     }
 }
