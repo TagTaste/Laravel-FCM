@@ -27,17 +27,8 @@ class Apply
      */
     public function handle(ApplyEvent $event)
     {
-        $companyId = $event->model->company_id;
         $profileId = $event->model->profile_id;
-        if(!$companyId)
-        {
-            $profile = Profile::find($profileId);
-            Notification::send($profile, new \App\Notifications\Actions\Apply($event));
-        }
-        else
-        {
-            $profile = Profile::find($profileId);
-            notification::send($profile, new \App\Notifications\Actions\Apply($event));
-        }
+        $profile = Profile::find($profileId);
+        notification::send($profile, new \App\Notifications\Actions\Apply($event));
     }
 }
