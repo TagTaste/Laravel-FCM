@@ -46,7 +46,7 @@ class UserController extends Controller
             $this->errors = "Could not add user. " . $e->getMessage();
             $this->model = false;
         }
-        $company->profile_id = $userId->profile->id;
+        $company->user_id = $userId->id;
         event(new Admin($company, $request->user()->profile));
 
         return $this->sendResponse();

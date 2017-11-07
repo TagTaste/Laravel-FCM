@@ -26,12 +26,12 @@ class Admin
      */
     public function handle(AdminEvent $event)
     {
-        $profileId = $event->model->profile_id;
-        if(!$profileId){
+        $userId = $event->model->user_id;
+        if(!$userId){
             \Log::warning(get_class($event->model) . " doesn't have profile defined. Can't send notification.");
             return;
         }
-        $profile = Profile::find($profileId);
+        $profile = Profile::where('user_id',$userId)->first();
         Notification::send($profile, new \App\Notifications\Actions\Admin($event));
     }
 }
