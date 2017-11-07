@@ -44,6 +44,8 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Actions\Follow' => ['App\Listeners\Notifications\Follow'],
 
+        'App\Events\Actions\Admin' => ['App\Listeners\Notifications\Admin'],
+
 
     ];
 
