@@ -210,13 +210,13 @@ class Collaborate extends Model implements Feedable
     private function getInterestedProfile($profileId)
     {
         $interestedProfile = json_decode(\Redis::get("profile:small:" . $profileId),true);
-        return array_only(is_array($interestedProfile) ? $interestedProfile : [],['name','id']);
+        return is_array($interestedProfile) ? array_only($interestedProfile,['name','id']) : [];
     }
     
     private function getInterestedCompany($companyId)
     {
         $company = json_decode(\Redis::get("company:small:" . $companyId),true);
-        return array_only($company,['name','id','profileId']);
+        return is_array($company) ? array_only($company,['name','id','profileId']) : [];
     }
     
     private function setInterestedAsProfiles(&$meta,&$profileId)
