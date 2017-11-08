@@ -48,9 +48,8 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Actions\Admin' => ['App\Listeners\Notifications\Admin'],
 
+        'App\Events\Actions\Expire' => ['App\Listeners\Notifications\Expire'],
         'App\Events\Actions\JoinFriend' => ['App\Listeners\Notifications\JoinFriend'],
-
-
 
     ];
 

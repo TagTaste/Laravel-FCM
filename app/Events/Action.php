@@ -27,14 +27,10 @@ class Action
      *
      * @return void
      */
-    public function __construct(Model &$model, Profile $who, $content = null, $image = null, $action = null)
+    public function __construct(Model &$model, Profile $who = null, $content = null, $image = null, $action = null)
     {
         $this->model = $model;
-        $this->who = [
-            'id'=>$who->id,
-            'name'=>$who->name,
-            'imageUrl'=>$who->imageUrl
-        ];
+        $this->who = isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl] : null;
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
