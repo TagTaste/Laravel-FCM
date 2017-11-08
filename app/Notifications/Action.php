@@ -67,9 +67,9 @@ class Action extends Notification
             'profile' => $this->data->who
         ];
 
-        \Log::info("like: " . method_exists($this->data->model,'getNotificationContent'));
+        \Log::info("like: " . method_exists($this->model,'getNotificationContent'));
         if(method_exists($this->data->model,'getNotificationContent')){
-            $data['model'] = $this->data->model->getNotificationContent();
+            $data['model'] = $this->model->getNotificationContent();
         } else {
             \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
             $data['model'] = [
