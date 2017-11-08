@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterSocialAccountsAccessTokenAdd extends Migration
+class AlterInviteMessageAdd extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class AlterSocialAccountsAccessTokenAdd extends Migration
      */
     public function up()
     {
-        Schema::table('social_accounts',function(Blueprint $table){
-            $table->text("access_token")->nullable();
+        Schema::table('invites',function(Blueprint $table){
+            $table->text("message")->nullable();
         });
     }
+
     /**
      * Reverse the migrations.
      *
@@ -24,8 +25,8 @@ class AlterSocialAccountsAccessTokenAdd extends Migration
      */
     public function down()
     {
-        Schema::table('social_accounts',function(Blueprint $table){
-            $table->dropColumn('access_token');
+        Schema::table('invites',function(Blueprint $table){
+            $table->dropColumn('message');
         });
     }
 }

@@ -129,6 +129,7 @@ class LoginController extends Controller
      */
     private function findOrCreateUser($socialiteUser, $provider)
     {
+        \Log::info($socialiteUser->token);
         try {
 
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);

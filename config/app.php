@@ -194,6 +194,7 @@ return [
         'Maatwebsite\Excel\ExcelServiceProvider',
         PulkitJalan\Google\GoogleServiceProvider::class,
         GoogleSheets\Providers\SheetsServiceProvider::class,
+        LaravelFCM\FCMServiceProvider::class
 
     ],
 
@@ -253,6 +254,8 @@ return [
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
         'Google' => PulkitJalan\Google\Facades\Google::class,
         'Sheets' => GoogleSheets\Facades\Sheets::class,
+        'FCM'      => LaravelFCM\Facades\FCM::class,
+        'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
     ],
 
 ];
