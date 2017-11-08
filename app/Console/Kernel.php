@@ -92,7 +92,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('expires_on:job')->daily();
+        $schedule->command('expires_on:job')->everyMinute();
+        $schedule->command('expires_on:collaboration')->everyMinute();
     }
 
     /**
