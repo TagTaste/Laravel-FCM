@@ -29,6 +29,6 @@ class Apply
     {
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
-        notification::send($profile, new \App\Notifications\Actions\Apply($event));
+        Notification::send($profile, new \App\Notifications\Actions\Apply($event));
     }
 }
