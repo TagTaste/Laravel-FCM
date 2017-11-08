@@ -161,6 +161,8 @@ class JobController extends Controller
         else {
             $response = $request->user()->completeProfile->resume;
         }
+        event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
         return $this->sendResponse();
     }

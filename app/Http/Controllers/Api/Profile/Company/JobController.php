@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
 use App\Company;
+use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -159,7 +160,14 @@ class JobController extends Controller
                 return $this->sendEerror("Could not save resume.");
             }
         }
-      
+        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $job->profile_id = $profileId;
+            event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+
+        }
+
         $this->model = $job->apply($profileId, $resume,$request->input("message"));
         
         return $this->sendResponse();
