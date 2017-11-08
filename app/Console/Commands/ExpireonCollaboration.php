@@ -35,9 +35,6 @@ class ExpireonCollaboration extends Command
      */
     public function handle()
     {
-        $count =0;
-        \Log::info("collab ".$count);
-        $count++;
         //this run only once after that remove from kernel.php this file
         \DB::table("collaborates")->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
