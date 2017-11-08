@@ -327,7 +327,7 @@ class CompanyController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$loggedInProfileId,$profile->id) === 1;
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
         $this->model['profile'] = $data;
         return $this->sendResponse();
