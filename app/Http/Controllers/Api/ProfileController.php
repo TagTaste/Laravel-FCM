@@ -479,4 +479,32 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function tagging(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$profileId);
+        $data = [];
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId ;
+        }
+
+        $loggedInProfileId = $request->user()->profile->id ;
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        foreach($data as &$profile){
+            if(is_null($profile)){
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$loggedInProfileId,$profile->id) === 1;
+        }
+        $this->model = $data;
+        return $this->sendResponse();
+
+    }
+
 }
