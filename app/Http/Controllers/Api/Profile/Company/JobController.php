@@ -235,4 +235,18 @@ class JobController extends Controller
         $this->model['count'] = Application::getCounts($job->id);
         return $this->sendResponse();
     }
+
+    public function expired(Request $request,$profileId, $companyId)
+    {
+        $this->model = [];
+        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNotNull('deleted_at');
+        $this->model['count'] = $this->model['jobs']->count();
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model['jobs'] = $this->model['jobs']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+
+    }
 }

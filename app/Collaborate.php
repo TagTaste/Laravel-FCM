@@ -210,7 +210,7 @@ class Collaborate extends Model implements Feedable
     private function getInterestedProfile($profileId)
     {
         $interestedProfile = json_decode(\Redis::get("profile:small:" . $profileId),true);
-        return array_only($interestedProfile,['name','id']);
+        return array_only(is_array($interestedProfile) ? $interestedProfile : [],['name','id']);
     }
     
     private function getInterestedCompany($companyId)
@@ -253,7 +253,7 @@ class Collaborate extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-    
+
         $this->setInterestedAsProfiles($meta,$profileId);
         
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
