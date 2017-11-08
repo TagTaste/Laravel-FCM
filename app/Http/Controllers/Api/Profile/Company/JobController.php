@@ -123,7 +123,15 @@ class JobController extends Controller
         }
 
         event(new DeleteFeedable($job));
-        
+
+        //send notificants to applicants for delete job
+        $profileIds = Application::where('job_id',$id)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $job->profile_id = $profileId;
+            event(new \App\Events\Actions\DeleteModel($job, $request->user()->profile));
+        }
+
         //remove filters
         \App\Filter\Job::removeModel($id);
         

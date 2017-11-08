@@ -51,6 +51,12 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\Expire' => ['App\Listeners\Notifications\Expire'],
         'App\Events\Actions\JoinFriend' => ['App\Listeners\Notifications\JoinFriend'],
 
+        'App\Events\Actions\DeleteModel' => ['App\Listeners\Notifications\DeleteModel'],
+
+        'App\Events\Actions\ExpireModel' => ['App\Listeners\Notifications\ExpireModel'],
+
+
+
     ];
 
     protected $subscribe = ['App\Subscribers\Actions'];
