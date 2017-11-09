@@ -180,7 +180,15 @@ class CollaborateController extends Controller
             return $this->sendError( "Collaboration not found.");
         }
         event(new DeleteFeedable($collaborate));
-        
+
+        //send notificants to collaboraters for delete collab
+        $profileIds = \DB::table("collaborators")->where("collaborate_id",$id)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $collaborate->profile_id = $profileId;
+            event(new \App\Events\Actions\DeleteModel($collaborate, $request->user()->profile));
+        }
+
         //remove filters
         \App\Filter\Collaborate::removeModel($id);
 

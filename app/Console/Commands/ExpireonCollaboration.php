@@ -35,9 +35,19 @@ class ExpireonCollaboration extends Command
      */
     public function handle()
     {
-        //this run only once after that remove from kernel.php this file
-        \DB::table("collaborates")->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
-            ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
+        \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+            ->orderBy('id')->chunk(100,function($models){
+                foreach($models as $model){
+                    $model->delete();
+                    $profileIds = \DB::table("collaborators")->where("collaborate_id",$model->id)->get()->pluck('profile_id');
+                    $profileIds = $profileIds->unique();
+                    foreach ($profileIds as $profileId)
+                    {
+                        $model->profile_id = $profileId;
+                        event(new \App\Events\Actions\ExpireModel($model));
+                    }
+                }
+            });
 
         \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->addDays(1)->toDateTimeString())
             ->where('expires_on','<=',Carbon::now()->addDays(2)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
