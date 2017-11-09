@@ -483,17 +483,9 @@ class ProfileController extends Controller
     public function tagging(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         $query = $request->input('q');
-        $profiles = User::select('profiles.id','users.name')->join('profiles','profiles.user_id','=','users.id')->where('name','like',"%$query%")->get();
-        $data = [];
-        foreach ($profiles as $profile)
-        {
-            if(\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profile->id) == 1)
-            {
-                $data[] = $profile;
-            }
-        }
-        $this->model = $data;
+        $this->model = User::select('profiles.id','users.name')->join('profiles','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)->where('name','like',"%$query%")->get();
         return $this->sendResponse();
 
     }
