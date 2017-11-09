@@ -272,9 +272,27 @@ class CollaborateController extends Controller
     public function interested(Request $request, $profileId)
     {
         $profileId = $request->user()->profile->id;
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table("collaborators")->select('collaborate_id','collaborates.*')
             ->join('collaborates','collaborators.collaborate_id','=','collaborates.id')
-            ->where("collaborators.profile_id",$profileId)->whereNull('collaborators.company_id')->get();
+            ->where("collaborators.profile_id",$profileId)->whereNull('collaborators.company_id')->skip($skip)->take($take)->get();
+        return $this->sendResponse();
+
+    }
+
+    public function expired(Request $request, $profileId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->where('profile_id', $profileId)->whereNotNull('deleted_at')->whereNull('company_id')->orderBy('deleted_at', 'desc');
+        $this->model = [];
+        $this->model['count'] = $collaborations->count();
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        foreach ($collaborations as $collaboration) {
+            $this->model['data'][] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+        }
         return $this->sendResponse();
 
     }

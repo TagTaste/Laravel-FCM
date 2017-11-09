@@ -235,6 +235,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
                 Route::get("collaborate/interested","CollaborateController@interested");
+                Route::get("collaborate/expired","CollaborateController@expired");
                 Route::resource("collaborate","CollaborateController");
     
                 Route::post("jobs/{id}/apply", "JobController@apply");
@@ -242,6 +243,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get('jobs/{id}/applications', 'JobController@applications');
                 Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
                 Route::get("jobs/applied","JobController@applied");
+                Route::get("jobs/expired","JobController@expired");
 
                 Route::resource("jobs","JobController");
                 
@@ -278,6 +280,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
+                    Route::get("collaborate/expired","CollaborateController@expired");
                     Route::resource("collaborate","CollaborateController");
 
                     
@@ -293,6 +296,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     
                     Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
+                    Route::get("jobs/expired","JobController@expired");
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
                     Route::resource("users","UserController");
