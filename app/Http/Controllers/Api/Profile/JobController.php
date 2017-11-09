@@ -39,12 +39,10 @@ class JobController extends Controller
     {
         $this->model = [];
         $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id');
-
+        $this->model['count'] = $this->model['jobs']->count();
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model['jobs'] = $this->model['jobs']->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
-
-        $this->model['count'] = Job::where('profile_id',$profileId)->count();
 
         return $this->sendResponse();
     }
@@ -118,7 +116,15 @@ class JobController extends Controller
         }
 
         event(new DeleteFeedable($job));
-        
+
+        //send notificants to applicants for delete job
+        $profileIds = Application::where('job_id',$id)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $job->profile_id = $profileId;
+            event(new \App\Events\Actions\DeleteModel($job, $request->user()->profile));
+        }
+
         \App\Filter\Job::removeModel($id);
 
         $this->model = $job->delete();
@@ -249,5 +255,20 @@ class JobController extends Controller
         $this->model = $jobs->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
+    }
+
+    public function expired(Request $request)
+    {
+        $this->model = [];
+        $profileId = $request->user()->profile->id;
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNotNull('deleted_at')->whereNull('company_id');
+        $this->model['count'] = $this->model['jobs']->count();
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model['jobs'] = $this->model['jobs']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+
     }
 }
