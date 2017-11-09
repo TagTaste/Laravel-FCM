@@ -448,7 +448,8 @@ class Profile extends Model
                 $profileId = "profile:small:".$profileId;
                 $i++;
             }
-
+            $data = [];
+            if(count($profileIds))
             $data = \Redis::mget($profileIds);
 
             foreach($data as &$profile){

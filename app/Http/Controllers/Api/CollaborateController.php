@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Collaborate;
+use App\CompanyUser;
 use App\Events\Actions\Like;
+use App\Listeners\Notifications\Apply;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -96,9 +98,10 @@ class CollaborateController extends Controller
         if($request->has('company_id')){
             //company wants to apply
             $companyId = $request->input('company_id');
-            $company =  \App\Company::where('user_id',$request->user()->id)->where('id',$companyId)->first();
-            if(!$company){
-                throw new \Exception("Company does not belong to the user.");
+            $checkAdmin = \App\CompanyUser::where("company_id",$companyId)->where('profile_id', $request->user()->profile->id)->exists();
+    
+            if(!$checkAdmin){
+                throw new \Exception("User does not belong to the company");
             }
             
             $exists = $collaborate->companies()->find($companyId);
@@ -115,8 +118,18 @@ class CollaborateController extends Controller
                     [
                         'applied_on'=>Carbon::now()->toDateTimeString(),
                         'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message")
+                        'message' => $request->input("message"),
+                        'profile_id' => $request->input('profile_id')
                     ]);
+        } elseif($request->has('profile_id')){
+          
+            $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+            foreach ($profileIds as $profileId)
+            {
+                $collaborate->profile_id = $profileId;
+                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
+
+            }
         }
         
         if($request->has('profile_id')){
@@ -138,8 +151,10 @@ class CollaborateController extends Controller
                         'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message")
                     ]);
-    
+            event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
+
         }
+
         \Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
         return $this->sendResponse();
     }
