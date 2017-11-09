@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -481,26 +482,16 @@ class ProfileController extends Controller
 
     public function tagging(Request $request)
     {
-        $profileId = $request->user()->profile->id;
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$profileId);
+        $loggedInProfileId = $request->user()->profile->id;
+        $query = $request->input('q');
+        $profiles = User::select('profiles.id','users.name')->join('profiles','profiles.user_id','=','users.id')->where('name','like',"%$query%")->get();
         $data = [];
-        foreach ($profileIds as &$profileId)
+        foreach ($profiles as $profile)
         {
-            $profileId = "profile:small:".$profileId ;
-        }
-
-        $loggedInProfileId = $request->user()->profile->id ;
-        if(count($profileIds)> 0)
-        {
-            $data = \Redis::mget($profileIds);
-
-        }
-        foreach($data as &$profile){
-            if(is_null($profile)){
-                continue;
+            if(\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profile->id) == 1)
+            {
+                $data[] = $profile;
             }
-            $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$loggedInProfileId,$profile->id) === 1;
         }
         $this->model = $data;
         return $this->sendResponse();
