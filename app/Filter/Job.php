@@ -11,9 +11,16 @@ class Job extends Filter {
     
     protected $strings = ['location','expected_role','joining_time'];
     
-    protected $models = ['company.name','type' => 'jobType.name'];
+    protected $models = ['company.name','type' => 'jobType.name','profile.name'];
     
     public static $cacheKey = "job:";
     
     public static $relatedColumn = 'job_id';
+    
+    public function getprofile_nameattribute($model)
+    {
+        if(!$model->company_id){
+            return $model->profile->name;
+        }
+    }
 }
