@@ -128,7 +128,7 @@ class Filter extends Model
                         foreach($related as $rel){
                             
                             $value = null;
-                            $method = "get{$filter}attribute";
+                            $method = "get" . str_replace(".","_",$filter) . "attribute";
                             
                             if(method_exists($self,$method)){
                                 $value = $self->$method($model) ;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -477,6 +478,16 @@ class ProfileController extends Controller
         }
         $this->model['profile'] = $data;
         return $this->sendResponse();
+    }
+
+    public function tagging(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $query = $request->input('q');
+        $this->model = User::select('profiles.id','users.name')->join('profiles','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)->where('name','like',"%$query%")->get();
+        return $this->sendResponse();
+
     }
 
 }
