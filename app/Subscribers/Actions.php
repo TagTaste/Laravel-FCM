@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Notification;
 
 class Actions
 {
-    public function notifySubscribers($event)
+    public function addOrUpdateSubscriber($event)
     {
         ModelSubscriber::updateSubscriberTimestamp($event->model,$event->model->id,$event->who['id']);
     }
     
-    public function addOrUpdateSubscriber($event)
+    public function notifySubscribers($event)
     {
         $modelId = $event->model->id;
         $model = get_class($event->model);
@@ -38,11 +38,17 @@ class Actions
     public function subscribe($events)
     {
         $events->listen(
-            [Like::class,Comment::class],
+            [
+                Like::class,
+                Comment::class
+            ],
             'App\Subscribers\Actions@notifySubscribers');
         
         $events->listen(
-            [Like::class,Comment::class],
+            [
+//                Like::class, //Liking doesn't make you a subscriber.
+                Comment::class
+            ],
             'App\Subscribers\Actions@addOrUpdateSubscriber');
     }
 }
