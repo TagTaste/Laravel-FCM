@@ -99,7 +99,6 @@ class ProfileController extends Controller
             $data['profile']['hero_image'] = null;
         }
 
-        \Log::info($data['profile']);
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
