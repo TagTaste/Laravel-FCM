@@ -55,7 +55,7 @@ class CollaborateController extends Controller
                 $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
             }
             
-            $this->model['count'] = count($this->model['data']);
+            $this->model['count'] = $collaborations->count();
             return $this->sendResponse();
         }
         $this->model = [];
