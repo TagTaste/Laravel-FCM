@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Notification;
 
 class Actions
 {
-    public function addOrUpdateSubscriber($event)
+    public function notifySubscribers($event)
     {
         ModelSubscriber::updateSubscriberTimestamp($event->model,$event->model->id,$event->who['id']);
     }
     
-    public function notifySubscribers($event)
+    public function addOrUpdateSubscriber($event)
     {
         $modelId = $event->model->id;
         $model = get_class($event->model);
