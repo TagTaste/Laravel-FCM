@@ -47,8 +47,8 @@ class CollaborateController extends Controller
         
         if(!empty($filters)){
             $this->model = [];
-            $collaborations = \App\Filter\Collaborate::getModels($filters,$skip,$take);
-    
+            $collaborations = \App\Filter\Collaborate::getModelIds($filters,$skip,$take);
+            $collaborations = \App\Collaborate::whereIn('id',$collaborations)->get();
             $profileId = $request->user()->profile->id;
             foreach($collaborations as $collaboration){
                 $meta = $collaboration->getMetaFor($profileId);
