@@ -48,7 +48,9 @@ class Profile extends Model
         'address_private',
         'phone_private',
         'dob_private',
-        'affiliations'
+        'affiliations',
+        'style_image',
+        'style_hero_image'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -120,7 +122,9 @@ class Profile extends Model
         'phone_private',
         'dob_private',
         'training',
-        'affiliations'
+        'affiliations',
+        'style_image',
+        'style_hero_image'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience','mutualFollowers'];

@@ -82,12 +82,23 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->except(["_method","_token",'hero_image','image','resume','remove']);
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image','remove_hero_image']);
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
         }
-        
+
+        //delete heroimage or image
+        if($request->has("remove_image") && $request->input('remove_image') == 1)
+        {
+            $data['profile']['image'] = null;
+        }
+
+        if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
+        {
+            $data['profile']['hero_image'] = null;
+        }
+
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
