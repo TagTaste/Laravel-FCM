@@ -47,7 +47,14 @@ class CollaborateController extends Controller
         
         if(!empty($filters)){
             $this->model = [];
-            $this->model['data'] = \App\Filter\Collaborate::getModels($filters,$skip,$take);
+            $collaborations = \App\Filter\Collaborate::getModels($filters,$skip,$take);
+    
+            $profileId = $request->user()->profile->id;
+            foreach($collaborations as $collaboration){
+                $meta = $collaboration->getMetaFor($profileId);
+                $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
+            }
+            
             $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
         }
