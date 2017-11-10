@@ -215,6 +215,12 @@ class CollaborateController extends Controller
             ->orderBy('collaborates.created_at','desc')
             ->get();
         
+        $profileId = $request->user()->profile->id;
+        foreach($this->model as $collaboration){
+            $meta = $collaboration->getMetaFor($profileId);
+            $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
+        }
+        
         return $this->sendResponse();
     }
     
