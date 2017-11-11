@@ -17,13 +17,14 @@ class Job extends Model implements Feedable
     
     protected $fillable = ['title', 'description','why_us','location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
-        'company_id', 'type_id','privacy_id','resume_required','minimum_qualification','expires_on'
+        'company_id', 'type_id','privacy_id','resume_required','minimum_qualification','expires_on',
+        'start_month','start_year','end_month','end_year'
     ];
     protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
-        'applicationCount','hasApplied'
+        'applicationCount','hasApplied','start_month','start_year','end_month','end_year'
     ];
     
     protected $with = ['company','profile'];

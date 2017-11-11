@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;
-use App\Listeners\Notifications\Apply;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -121,18 +120,15 @@ class CollaborateController extends Controller
                         'message' => $request->input("message"),
                         'profile_id' => $request->input('profile_id')
                     ]);
-        } elseif($request->has('profile_id')){
-          
+    
             $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
             foreach ($profileIds as $profileId)
             {
                 $collaborate->profile_id = $profileId;
                 event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
-
-            }
-        }
         
-        if($request->has('profile_id')){
+            }
+        } elseif($request->has('profile_id')){
             //individual wants to apply
             $profileId = $request->user()->profile->id;
             $exists = $collaborate->profiles()->find($profileId);
@@ -152,7 +148,6 @@ class CollaborateController extends Controller
                         'message' => $request->input("message")
                     ]);
             event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
-
         }
 
         \Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
