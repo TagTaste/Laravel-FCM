@@ -117,7 +117,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $inputs = $request->except(['_method','_token']);
+        $inputs = $request->except(['_method','_token','style_logo','style_hero_image']);
 
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
@@ -130,6 +130,17 @@ class CompanyController extends Controller
             $path = \App\Company::getHeroImagePath($profileId, $id);
             $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
         }
+
+        if($request->has('style_logo'))
+        {
+            $inputs['style_logo'] = $request->input('style_logo');
+        }
+
+        if($request->has('style_hero_image'))
+        {
+            $inputs['style_hero_image'] = $request->input('style_hero_image');
+        }
+
         $status = \App\Company::where('id',$id)->update($inputs);
         if(!$status){
             return $this->sendError("Could not update company");
