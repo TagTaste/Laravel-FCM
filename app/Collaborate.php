@@ -26,7 +26,7 @@ class Collaborate extends Model implements Feedable
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
-        'profile','company','created_at',
+        'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in'];
     
     protected $appends = ['images','applicationCount'];

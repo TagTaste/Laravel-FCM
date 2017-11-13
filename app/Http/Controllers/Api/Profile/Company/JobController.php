@@ -77,7 +77,7 @@ class JobController extends Controller
      */
     public function show($profileId, $companyId, $id)
     {
-        $job = $this->model->where('company_id', $companyId)->whereNull('deleted_at')->where('id', $id)->first();
+        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
         
         if (!$job) {
             return $this->sendError("No job found with the given Id.");

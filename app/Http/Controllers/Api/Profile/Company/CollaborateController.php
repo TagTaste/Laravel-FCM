@@ -114,7 +114,7 @@ class CollaborateController extends Controller
 	 */
 	public function show(Request $request,$profileId, $companyId, $id)
 	{
-        $collaboration = $this->model->where('company_id',$companyId)->whereNull('deleted_at')->find($id);
+        $collaboration = $this->model->where('company_id',$companyId)->find($id);
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
