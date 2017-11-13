@@ -2,6 +2,7 @@
 
 use App\Company\Product;
 use App\Http\Controllers\Api\Controller;
+use App\Strategies\Paginator;
 use Illuminate\Http\Request;
 use Tagtaste\Api\SendsJsonResponse;
 
@@ -17,16 +18,19 @@ class ProductController extends Controller
      */
     public function index(Request $request, $profileId, $companyId)
     {
-        $this->model = Product::where('company_id', $companyId)->orderBy('id', 'desc');
-
+        $this->model = [];
+        $products = Product::where('company_id', $companyId)->orderBy('id', 'desc');
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page,10);
         if($request->has('categories')){
             $categories = $request->input('categories');
-            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
+            $products = $products->whereHas('categories',function($query) use ($categories){
                 $query->whereIn('category_id',$categories);
             });
         }
         
-        $this->model = $this->model->paginate(10);
+        $this->model['data'] = $products->skip($skip)->take($take)->get();
+        $this->model['count'] = Product::where('company_id', $companyId)->count();
         return $this->sendResponse();
     }
     
