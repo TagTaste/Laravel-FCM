@@ -48,8 +48,15 @@ class CollaborateController extends Controller
         
         if(!empty($filters)){
             $this->model = [];
-            $this->model['data'] = \App\Filter\Collaborate::getModels($filters,$skip,$take);
-            $this->model['count'] = count($this->model['data']);
+            $collaborations = \App\Filter\Collaborate::getModelIds($filters,$skip,$take);
+            $collaborations = \App\Collaborate::whereIn('id',$collaborations)->get();
+            $profileId = $request->user()->profile->id;
+            foreach($collaborations as $collaboration){
+                $meta = $collaboration->getMetaFor($profileId);
+                $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
+            }
+            
+            $this->model['count'] = $collaborations->count();
             return $this->sendResponse();
         }
         $this->model = [];
@@ -224,6 +231,12 @@ class CollaborateController extends Controller
             ->orWhere('profile_id',$profileId)
             ->orderBy('collaborates.created_at','desc')
             ->get();
+        
+        $profileId = $request->user()->profile->id;
+        foreach($this->model as $collaboration){
+            $meta = $collaboration->getMetaFor($profileId);
+            $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
+        }
         
         return $this->sendResponse();
     }

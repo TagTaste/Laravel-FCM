@@ -20,7 +20,7 @@ class SearchController extends Controller
     {
         $model = isset($this->models[$type]) ? new $this->models[$type] : false;
         if($model){
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
         }
         
         return $model;
@@ -59,13 +59,6 @@ class SearchController extends Controller
                 $this->model[$name] = $this->getModels($name,$hit->pluck('_id'));
             }
             
-            //decode json
-            foreach($this->model as $type=>&$objects){
-                foreach($objects as &$json){
-                    $json = json_decode($json,true);
-                }
-            }
-            
             $profileId = $request->user()->profile->id;
     
             if(isset($this->model['profile'])){
@@ -80,7 +73,7 @@ class SearchController extends Controller
             
             if(isset($this->model['company'])){
                 foreach($this->model['company'] as $company){
-                    $company['isFollowing'] = Company::checkFollowing($profileId,$company->id);
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
             
