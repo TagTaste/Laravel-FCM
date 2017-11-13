@@ -193,7 +193,7 @@ class JobController extends Controller
     
     public function applications(Request $request, $profileId, $id)
     {
-        $job = $request->user()->profile->jobs()->where('id',$id)->whereNull('deleted_at')->first();
+        $job = $request->user()->profile->jobs()->where('id',$id)->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
@@ -225,7 +225,7 @@ class JobController extends Controller
     {
         $profile = $request->user()->profile;
         
-        $job = $profile->jobs()->where('id',$id)->whereNull('deleted_at')->first();
+        $job = $profile->jobs()->where('id',$id)->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
