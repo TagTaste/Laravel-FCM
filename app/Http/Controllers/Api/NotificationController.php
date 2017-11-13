@@ -14,9 +14,17 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
+        $this->model = [];
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
-        $this->model = $profile->notifications()->paginate();
+        $notifications = $profile->notifications();
+
+        $this->model['data'] = $notifications->skip($skip)->take($take)->get();
+        $this->model['count']= $notifications->count();
         return $this->sendResponse();
     }
 
@@ -86,7 +94,7 @@ class NotificationController extends Controller
     {
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
-        $this->model =  $profile->notifications()->where('notifiable_id',$id)
+        $this->model =  $profile->notifications()->where('notifiable_id',$profile->id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }

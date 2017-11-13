@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Company;
 use App\CompanyUser;
+use App\Events\Actions\Admin;
 use App\Http\Controllers\Api\Controller;
+use App\Profile;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -44,6 +46,9 @@ class UserController extends Controller
             $this->errors = "Could not add user. " . $e->getMessage();
             $this->model = false;
         }
+        $company->user_id = $userId->id;
+        event(new Admin($company, $request->user()->profile));
+
         return $this->sendResponse();
     }
     
@@ -62,7 +67,8 @@ class UserController extends Controller
         } catch(\Exception $e){
             $this->errors = "Could not delete user. " . $e->getMessage();
             $this->model = false;
-        }return $this->sendResponse();
+        }
+        return $this->sendResponse();
 	}
 
 }
