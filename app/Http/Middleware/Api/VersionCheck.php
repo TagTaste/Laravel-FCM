@@ -23,6 +23,11 @@ class VersionCheck
         }
     
         $version = $request->header($this->versionKey);
+        
+        if(empty($version)){
+            return $next($request);
+        }
+        
         $api = Version::getVersion();
         
         //if the version is compatible;
