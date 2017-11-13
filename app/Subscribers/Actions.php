@@ -63,7 +63,7 @@ class Actions
     {
         $events->listen(
             [
-                Like::class,
+//                Like::class,
                 Comment::class
             ],
             'App\Subscribers\Actions@notifySubscribers');
