@@ -502,4 +502,33 @@ class ProfileController extends Controller
 
     }
 
+    public function allFollowers(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id ;
+
+        $this->model = [];
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $this->model['count'] = count($profileIds);
+        $data = [];
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId ;
+        }
+
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        foreach($data as &$profile){
+            if(is_null($profile)){
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+        $this->model['profile'] = $data;
+        return $this->sendResponse();
+    }
+
 }
