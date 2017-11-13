@@ -208,6 +208,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //profile routes
+            Route::get("profile/allFollowers",['uses'=>'ProfileController@allFollowers']);
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
