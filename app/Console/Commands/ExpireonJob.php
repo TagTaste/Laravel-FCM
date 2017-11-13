@@ -1,5 +1,7 @@
 <?php
 namespace App\Console\Commands;
+use App\Application;
+use App\CompanyUser;
 use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -34,8 +36,87 @@ class ExpireonJob extends Command
      */
     public function handle()
     {
-        //this run only once after that remove from kernel.php this file
-        \DB::table("jobs")->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
-            ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
+
+        \App\Job::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+            ->orderBy('id')->chunk(100,function($models) {
+                foreach ($models as $model) {
+                    $model->delete();
+                    //send notificants to applicants for delete job
+                    $profileIds = Application::where('job_id',$model->id)->get()->pluck('profile_id');
+                    foreach ($profileIds as $profileId)
+                    {
+                        $model->profile_id = $profileId;
+                        event(new \App\Events\Actions\ExpireModel($model));
+                    }
+                }
+            });
+
+        \App\Job::with([])->where('expires_on','>=',Carbon::now()->addDays(1)->toDateTimeString())
+            ->where('expires_on','<=',Carbon::now()->addDays(2)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+            foreach($models as $model){
+               $companyId = $model->company_id;
+               if(isset($companyId))
+               {
+                   $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+                   foreach ($profileIds as $profileId)
+                   {
+                       $model->profile_id = $profileId;
+                       event(new \App\Events\Actions\Expire($model));
+
+                   }
+               }
+               else {
+                   event(new \App\Events\Actions\Expire($model));
+               }
+            }
+
+
+        });
+
+        \App\Job::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
+            ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+                foreach($models as $model){
+                    $companyId = $model->company_id;
+                    if(isset($companyId))
+                    {
+
+                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+                        foreach ($profileIds as $profileId)
+                        {
+                            $model->profile_id = $profileId;
+                            event(new \App\Events\Actions\Expire($model));
+
+                        }
+                    }
+                    else {
+                        event(new \App\Events\Actions\Expire($model));
+                    }
+                }
+
+
+            });
+
+        \App\Job::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
+            ->where('expires_on','<=',Carbon::now()->addDays(8)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+                foreach($models as $model){
+                    $companyId = $model->company_id;
+                    if(isset($companyId))
+                    {
+                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+                        foreach ($profileIds as $profileId)
+                        {
+                            $model->profile_id = $profileId;
+                            event(new \App\Events\Actions\Expire($model));
+
+                        }
+                    }
+                    else {
+                        event(new \App\Events\Actions\Expire($model));
+                    }
+                }
+
+
+            });
+
     }
 }

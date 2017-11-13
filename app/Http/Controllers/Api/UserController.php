@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Events\Actions\JoinFriend;
 
 class UserController extends Controller
 {
@@ -37,9 +39,9 @@ class UserController extends Controller
                 return $this->sendError("please use correct invite code");
             }
             $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-            $invitation->update(["accepted_at"=>$accepted_at]);
-
+            $invitation->update(["accepted_at"=>$accepted_at,'state'=>\App\Invitation::$registered]);
             $alreadyVerified = true;
+            $profileId = $invitation->profile_id;
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),$alreadyVerified);
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
@@ -53,7 +55,14 @@ class UserController extends Controller
 
             dispatch($mail);
         }
+        else
+        {
+            $profiles = \App\Profile::with([])->where('id',$profileId)->orWhere('user_id',$user->id)->get();
 
+            $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+            $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
+            event(new JoinFriend($profile , $loginProfile));
+        }
         return response()->json($result);
     }
 
@@ -96,5 +105,16 @@ class UserController extends Controller
         }
 
         return $this->sendError("Your password has not been changed.");
+    }
+
+    public function fcmToken(Request $request)
+    {
+        $user = User::where("id", $request->user()->id)->first();
+        if($user)
+        {
+            $this->model = \DB::table("app_info")->insert(["user_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token')]);
+            return $this->sendResponse();
+        }
+        return $this->sendError("User not found.");
     }
 }

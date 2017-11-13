@@ -220,7 +220,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$user);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken);
         }
 
         $user->createDefaultIdeabook();

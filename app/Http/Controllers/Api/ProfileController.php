@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
+use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -81,12 +82,24 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->except(["_method","_token",'hero_image','image','resume','remove']);
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
+            'remove_hero_image']);
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
         }
-        
+
+        //delete heroimage or image
+        if($request->has("remove_image") && $request->input('remove_image') == 1)
+        {
+            $data['profile']['image'] = null;
+        }
+
+        if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
+        {
+            $data['profile']['hero_image'] = null;
+        }
+
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
@@ -300,14 +313,55 @@ class ProfileController extends Controller
     
     public function followers(Request $request, $id)
     {
-        $this->model = $this->getFollowers($id,$request->user()->profile->id);
+        $this->model = [];
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
+        $this->model['count'] = count($profileIds);
+        $data = [];
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId ;
+        }
+
+        $loggedInProfileId = $request->user()->profile->id ;
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        foreach($data as &$profile){
+            if(is_null($profile)){
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+        $this->model['profile'] = $data;
         return $this->sendResponse();
     }
     
-    private function getFollowing($id, $loggedInProfileId)
+    private function getFollowing($id, $loggedInProfileId, $page)
     {
-        $following = Subscriber::getFollowing($id);
-    
+        $profileIds = \Redis::sMembers("following:profile:$id");
+
+        $count = count($profileIds);
+
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+
+        foreach ($profileIds as &$profileId)
+        {
+            if(str_contains($profileId,"company")){
+                $profileId = "company:small:" . last(explode(".",$profileId));
+                continue;
+            }
+            $profileId = "profile:small:" . $profileId;
+        }
+        $following = [];
+        if(count($profileIds)> 0)
+        {
+            $following = \Redis::mget($profileIds);
+        }
         foreach($following as &$profile){
             if(is_null($profile)){
                 continue;
@@ -319,12 +373,13 @@ class ProfileController extends Controller
             $value .= $profile->id;
             $profile->isFollowing =  \Redis::sIsMember($key,$value) === 1;
         }
-        return $following;
+        return ['count'=> $count,'profile'=>$following];
     }
     
     public function following(Request $request, $id)
     {
-        $this->model = $this->getFollowing($id, $request->user()->profile->id);
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $this->model = $this->getFollowing($id, $request->user()->profile->id,$page);
         return $this->sendResponse();
     }
     
@@ -415,21 +470,36 @@ class ProfileController extends Controller
 
     public function mutualFollowers(Request $request,$id)
     {
+        $this->model = [];
         $loginProfileId = $request->user()->profile->id;
         $profileIds = \Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
-
+        $data = [];
+        $this->model['count'] = count($profileIds);
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
         foreach ($profileIds as &$profileId)
         {
-            $profileId = "profile:small:".$profileId;
+            $profileId = "profile:small:".$profileId ;
         }
-
-        $this->model = \Redis::mget($profileIds);
-
-        foreach($this->model as &$profile){
+        if(count($profileIds))
+        {
+            $data = \Redis::mget($profileIds);
+        }
+        foreach($data as &$profile){
             $profile = json_decode($profile);
         }
-
+        $this->model['profile'] = $data;
         return $this->sendResponse();
+    }
+
+    public function tagging(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $query = $request->input('q');
+        $this->model = User::select('profiles.id','users.name')->join('profiles','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)->where('name','like',"%$query%")->get();
+        return $this->sendResponse();
+
     }
 
 }

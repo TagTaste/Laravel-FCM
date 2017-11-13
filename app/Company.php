@@ -50,7 +50,9 @@ class Company extends Model
         'handle',
         'city',
         'user_id',
-        'affiliations'
+        'affiliations',
+        'style_logo',
+        'style_hero_image'
     ];
     
     protected $visible = [
@@ -96,7 +98,9 @@ class Company extends Model
         'isFollowing',
         'employeeCountArray',
         'employeeCountValue',
-        'affiliations'
+        'affiliations',
+        'style_logo',
+        'style_hero_image'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',

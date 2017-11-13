@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Company;
 
 use App\Application;
 use App\Company;
+use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -122,7 +123,15 @@ class JobController extends Controller
         }
 
         event(new DeleteFeedable($job));
-        
+
+        //send notificants to applicants for delete job
+        $profileIds = Application::where('job_id',$id)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $job->profile_id = $profileId;
+            event(new \App\Events\Actions\DeleteModel($job, $request->user()->profile));
+        }
+
         //remove filters
         \App\Filter\Job::removeModel($id);
         
@@ -159,7 +168,14 @@ class JobController extends Controller
                 return $this->sendEerror("Could not save resume.");
             }
         }
-      
+        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $job->profile_id = $profileId;
+            event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+
+        }
+
         $this->model = $job->apply($profileId, $resume,$request->input("message"));
         
         return $this->sendResponse();
@@ -226,5 +242,19 @@ class JobController extends Controller
         $this->model['success'] = $shortlistedApplication->shortlist($profile, $request->input("tag"));
         $this->model['count'] = Application::getCounts($job->id);
         return $this->sendResponse();
+    }
+
+    public function expired(Request $request,$profileId, $companyId)
+    {
+        $this->model = [];
+        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNotNull('deleted_at');
+        $this->model['count'] = $this->model['jobs']->count();
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model['jobs'] = $this->model['jobs']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+
     }
 }

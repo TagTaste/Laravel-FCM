@@ -180,7 +180,15 @@ class CollaborateController extends Controller
             return $this->sendError( "Collaboration not found.");
         }
         event(new DeleteFeedable($collaborate));
-        
+
+        //send notificants to collaboraters for delete collab
+        $profileIds = \DB::table("collaborators")->where("collaborate_id",$id)->get()->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $collaborate->profile_id = $profileId;
+            event(new \App\Events\Actions\DeleteModel($collaborate, $request->user()->profile));
+        }
+
         //remove filters
         \App\Filter\Collaborate::removeModel($id);
 
@@ -244,5 +252,21 @@ class CollaborateController extends Controller
         
             return $collaborate->rejectProfile($profile);
         }
+    }
+
+    public function expired(Request $request,$profileId, $companyId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->where('company_id',$companyId)->whereNotNull('deleted_at')->orderBy('deleted_at','desc');
+        $this->model = [];
+        $this->model['count'] = $collaborations->count();
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        foreach($collaborations as $collaboration){
+            $this->model['data'] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+        }
+        return $this->sendResponse();
+
     }
 }
