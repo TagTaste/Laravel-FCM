@@ -130,6 +130,7 @@ class CompanyController extends Controller
             $path = \App\Company::getHeroImagePath($profileId, $id);
             $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
         }
+
         $status = \App\Company::where('id',$id)->update($inputs);
         if(!$status){
             return $this->sendError("Could not update company");
