@@ -130,14 +130,15 @@ class UserController extends Controller
         }
         $otp = mt_rand(100000, 999999);
         $client = new Client();
-        $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=TRadsx6kDk6uGls2qlcN4g&senderid=TAGTST&channel=Trans&DCS=0&flashsms=0&number=91$phone&text='your otp is $otp'&route=2");
-        \Log::info($response);
-        if($response->ErrorCode =='000')
-        {
-            $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
-            return $this->sendResponse();
-        }
+        $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=TRadsx6kDk6uGls2qlcN4g&senderid=TAGTST&channel=Trans&DCS=0&flashsms=0&number=91$phone&text=your otp is $otp&route=2");
+        $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
+        return $this->sendResponse();
+    }
 
-        return $this->sendError("Something went to wrong.");
+    public function otp(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['phone_varified'=>1]);
+        return $this->sendResponse();
     }
 }
