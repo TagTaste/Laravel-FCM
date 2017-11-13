@@ -88,7 +88,7 @@ class CollaborateController extends Controller
     
     public function apply(Request $request, $id)
     {
-        $collaborate = $this->model->where('id',$id)->first();
+        $collaborate = $this->model->where('id',$id)->whereNull('deleted_at')->first();
         
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");

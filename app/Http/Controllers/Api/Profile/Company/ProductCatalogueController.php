@@ -42,6 +42,7 @@ class ProductCatalogueController extends Controller
 		    return $this->sendError("Data not found.");
         }
         $this->model['totalPage'] = ceil(ProductCatalogue::where('company_id',$companyId)->count()/10);
+        $this->model['count'] = ProductCatalogue::where('company_id',$companyId)->count();
         return $this->sendResponse();
 	}
 

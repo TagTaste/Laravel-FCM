@@ -109,7 +109,7 @@ class JobController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($job === null) {
             throw new \Exception("Could not find the specified job.");
@@ -142,7 +142,7 @@ class JobController extends Controller
             $this->sendError("You can't apply your own job");
         }
         
-        $job = Job::where('id',$id)->where('profile_id',$profileId)->first();
+        $job = Job::where('id',$id)->where('profile_id',$profileId)->whereNull('deleted_at')->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
@@ -180,7 +180,7 @@ class JobController extends Controller
             throw new \Exception("Invalid profile.");
         }
     
-        $job = $profile->jobs()->where('id',$id)->first();
+        $job = $profile->jobs()->where('id',$id)->whereNull('deleted_at')->first();
         if(!$job){
             throw new \Exception("Job not found.");
         }
@@ -193,7 +193,7 @@ class JobController extends Controller
     
     public function applications(Request $request, $profileId, $id)
     {
-        $job = $request->user()->profile->jobs()->where('id',$id)->first();
+        $job = $request->user()->profile->jobs()->where('id',$id)->whereNull('deleted_at')->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
@@ -225,7 +225,7 @@ class JobController extends Controller
     {
         $profile = $request->user()->profile;
         
-        $job = $profile->jobs()->where('id',$id)->first();
+        $job = $profile->jobs()->where('id',$id)->whereNull('deleted_at')->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
