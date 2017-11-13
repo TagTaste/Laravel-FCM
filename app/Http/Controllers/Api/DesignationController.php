@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Designation;
-use \Cache;
+use Cache;
+use Illuminate\Http\Request;
 
 class DesignationController extends Controller
 {
@@ -14,8 +14,13 @@ class DesignationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if($request->has('term')){
+            $this->model = Designation::where('desig_name','like',"%" . $request->input('term') . "%")->get();
+            return $this->sendResponse();
+        }
+        
         $this->model = Cache::remember('designations',1440,function(){
             return Designation::all();
         });
