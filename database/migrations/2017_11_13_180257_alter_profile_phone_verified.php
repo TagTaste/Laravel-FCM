@@ -14,7 +14,7 @@ class AlterProfilePhoneVerified extends Migration
     public function up()
     {
         Schema::table('profiles',function(Blueprint $table){
-            $table->boolean("verify_phone")->default(0);
+            $table->boolean("verified_phone")->default(0);
             $table->integer("otp")->nullable();
         });
     }
@@ -27,7 +27,7 @@ class AlterProfilePhoneVerified extends Migration
     public function down()
     {
         Schema::table('profiles',function(Blueprint $table){
-            $table->dropColumn('verify_phone');
+            $table->dropColumn('verified_phone');
             $table->dropColumn('otp');
         });
     }
