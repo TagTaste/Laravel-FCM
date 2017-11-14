@@ -138,7 +138,7 @@ class UserController extends Controller
     public function otp(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['phone_varified'=>1]);
+        $this->model = Profile::where('id',$loggedInProfileId)->where('request_otp',$request->input('otp'))->update(['verify_phone'=>1]);
         return $this->sendResponse();
     }
 }

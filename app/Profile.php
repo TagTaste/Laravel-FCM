@@ -51,8 +51,8 @@ class Profile extends Model
         'affiliations',
         'style_image',
         'style_hero_image',
-        'otp',
-        'phone_varified'
+        'request_otp',
+        'verify_phone'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -127,7 +127,7 @@ class Profile extends Model
         'affiliations',
         'style_image',
         'style_hero_image',
-        'phone_varified'
+        'verify_phone'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience','mutualFollowers'];
