@@ -313,15 +313,17 @@ class ProfileController extends Controller
     
     public function followers(Request $request, $id)
     {
+        $loggedInProfileId = $request->user()->profile->id ;
+
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
-        $this->model['count'] = count($profileIds) - 1;
+        if(\Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
+                    $this->model['count'] = count($profileIds) - 1;
+        }
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
-
-        $loggedInProfileId = $request->user()->profile->id ;
 
         foreach ($profileIds as $key => $value)
         {
@@ -354,17 +356,25 @@ class ProfileController extends Controller
     {
         $profileIds = \Redis::sMembers("following:profile:$id");
 
-        $count = count($profileIds);
+        if(\Redis::sIsMember("following:profile:".$loggedInProfileId,$loggedInProfileId)){
+                $count = count($profileIds) - 1;
+        }
 
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
 
-        foreach ($profileIds as &$profileId)
+        foreach ($profileIds as $key => $value)
         {
-            if(str_contains($profileId,"company")){
-                $profileId = "company:small:" . last(explode(".",$profileId));
+            if(str_contains($value,"company")){
+                $profileIds[$key] = "company:small:" . last(explode(".",$value));
                 continue;
             }
-            $profileId = "profile:small:" . $profileId;
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+
         }
         $following = [];
         if(count($profileIds)> 0)
@@ -517,7 +527,7 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $this->model['count'] = count($profileIds)-1;
+        $this->model['count'] = count($profileIds) - \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId);
         $data = [];
         foreach ($profileIds as $key => $value)
         {
