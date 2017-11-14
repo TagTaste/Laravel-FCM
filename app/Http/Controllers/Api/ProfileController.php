@@ -315,19 +315,24 @@ class ProfileController extends Controller
     {
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
-        $this->model['count'] = count($profileIds);
+        $this->model['count'] = count($profileIds) - 1;
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
 
-        
-        foreach ($profileIds as &$profileId)
+        $loggedInProfileId = $request->user()->profile->id ;
+
+        foreach ($profileIds as $key => $value)
         {
-            $profileId = "profile:small:".$profileId ;
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
         }
 
-        $loggedInProfileId = $request->user()->profile->id ;
         if(count($profileIds)> 0)
         {
             $data = \Redis::mget($profileIds);
@@ -512,11 +517,16 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $this->model['count'] = count($profileIds);
+        $this->model['count'] = count($profileIds)-1;
         $data = [];
-        foreach ($profileIds as &$profileId)
+        foreach ($profileIds as $key => $value)
         {
-            $profileId = "profile:small:".$profileId ;
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
         }
 
         if(count($profileIds)> 0)
@@ -548,9 +558,14 @@ class ProfileController extends Controller
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
         */
 
-        foreach ($profileIds as &$profileId)
+        foreach ($profileIds as $key => $value)
         {
-            $profileId = "profile:small:".$profileId ;
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
         }
 
         if(count($profileIds)> 0)
