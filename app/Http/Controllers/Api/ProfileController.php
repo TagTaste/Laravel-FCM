@@ -317,7 +317,9 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
-        $this->model['count'] = count($profileIds) - \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId);
+        if(\Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
+                    $this->model['count'] = count($profileIds) - 1;
+        }
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
@@ -354,7 +356,9 @@ class ProfileController extends Controller
     {
         $profileIds = \Redis::sMembers("following:profile:$id");
 
-        $count = count($profileIds) - \Redis::sIsMember("following:profile:".$loggedInProfileId,$loggedInProfileId);
+        if(\Redis::sIsMember("following:profile:".$loggedInProfileId,$loggedInProfileId)){
+                $count = count($profileIds) - 1;
+        }
 
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
 
