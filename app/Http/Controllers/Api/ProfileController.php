@@ -315,12 +315,12 @@ class ProfileController extends Controller
     {
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
-        //$this->model['count'] = count($profileIds);
+        $this->model['count'] = count($profileIds);
         $data = [];
-        /*
+
         $page = $request->has('page') ? $request->input('page') : 1;
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
-        */
+
         
         foreach ($profileIds as &$profileId)
         {
@@ -341,7 +341,7 @@ class ProfileController extends Controller
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        $this->model = $data;
+        $this->model['profile'] = $data;
         return $this->sendResponse();
     }
     
@@ -532,6 +532,41 @@ class ProfileController extends Controller
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
         $this->model['profile'] = $data;
+        return $this->sendResponse();
+    }
+
+    public function oldtagging(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id ;
+
+        $this->model = [];
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        //$this->model['count'] = count($profileIds);
+        $data = [];
+        /*
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        */
+
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId ;
+        }
+
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        foreach($data as &$profile){
+            if(is_null($profile)){
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->self = false;
+        }
+        $this->model = $data;
         return $this->sendResponse();
     }
 
