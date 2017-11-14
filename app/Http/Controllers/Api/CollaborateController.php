@@ -241,7 +241,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
     
-    public function applications(Request $request, $id)
+    public function Oldapplications(Request $request, $id)
     {
         $this->model = [];
 
@@ -250,7 +250,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function Newapplications(Request $request, $id)
+    public function applications(Request $request, $id)
     {
         $this->model = [];
 

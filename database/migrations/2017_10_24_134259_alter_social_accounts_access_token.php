@@ -13,9 +13,11 @@ class AlterSocialAccountsAccessToken extends Migration
      */
     public function up()
     {
-        Schema::table('social_accounts',function(Blueprint $table){
-            $table->text("access_token")->nullable();
-        });
+        if(!Schema::hasColumn('social_accounts','access_token')){
+            Schema::table('social_accounts',function(Blueprint $table){
+                $table->text("access_token")->nullable();
+            });
+        }
     }
 
     /**
@@ -25,8 +27,12 @@ class AlterSocialAccountsAccessToken extends Migration
      */
     public function down()
     {
-        Schema::table('social_accounts',function(Blueprint $table){
-            $table->dropColumn('access_token');
-        });
+        if(Schema::hasColumn('social_accounts','access_token')){
+            Schema::table('social_accounts',function(Blueprint $table){
+                $table->dropColumn('access_token');
+            });
+        }
+        
+        
     }
 }

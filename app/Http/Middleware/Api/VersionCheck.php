@@ -23,7 +23,15 @@ class VersionCheck
         }
     
         $version = $request->header($this->versionKey);
+    
         $api = Version::getVersion();
+        
+        if(empty($version)){
+            $response = response()->json(['error'=>'invalid_version',
+                'message'=>'empty_version'],400);
+            $response->headers->add($api->toHeaders());
+            return $response;
+        }
         
         //if the version is compatible;
         if($api->isCompatible($version)){
@@ -32,6 +40,7 @@ class VersionCheck
             $response = response()->json(['error'=>'incompatible_version',
                 'message'=>'force_update'],400);
         }
+        
         $response->headers->add($api->toHeaders());
         
         return $response;

@@ -502,5 +502,16 @@ class Company extends Model
      {
          return $this->hasMany(\App\Company\Gallery::class);
      }
+    
+    //added by manda.
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->name,
+            'image' => $this->logo
+        ];
+    }
 
 }
