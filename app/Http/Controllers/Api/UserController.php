@@ -135,10 +135,10 @@ class UserController extends Controller
         return $this->sendResponse();
     }
 
-    public function otp(Request $request)
+    public function requestOtp(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = Profile::where('id',$loggedInProfileId)->where('request_otp',$request->input('otp'))->update(['verify_phone'=>1]);
+        $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['verify_phone'=>1]);
         return $this->sendResponse();
     }
 }

@@ -51,7 +51,7 @@ class Profile extends Model
         'affiliations',
         'style_image',
         'style_hero_image',
-        'request_otp',
+        'otp',
         'verify_phone'
     ];
 
