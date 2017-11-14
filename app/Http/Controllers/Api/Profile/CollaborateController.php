@@ -116,7 +116,7 @@ class CollaborateController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
-        $collaboration = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id')->find($id);
+        $collaboration = $this->model->where('profile_id', $profileId)->whereNull('company_id')->find($id);
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -274,9 +274,14 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = \DB::table("collaborators")->select('collaborate_id','collaborates.*')
-            ->join('collaborates','collaborators.collaborate_id','=','collaborates.id')
+        $collaborations = $this->model->select('collaborate_id','collaborates.*')
+            ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
             ->where("collaborators.profile_id",$profileId)->whereNull('collaborators.company_id')->skip($skip)->take($take)->get();
+
+        $this->model = [];
+        foreach ($collaborations as $collaboration) {
+            $this->model[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+        }
         return $this->sendResponse();
 
     }
@@ -287,11 +292,10 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->where('profile_id', $profileId)->whereNotNull('deleted_at')->whereNull('company_id')->orderBy('deleted_at', 'desc');
         $this->model = [];
-        $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         $profileId = $request->user()->profile->id;
         foreach ($collaborations as $collaboration) {
-            $this->model['data'][] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+            $this->model[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
         return $this->sendResponse();
 
