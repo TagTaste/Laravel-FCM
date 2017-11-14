@@ -95,7 +95,7 @@ class CollaborateController extends Controller
     
     public function apply(Request $request, $id)
     {
-        $collaborate = $this->model->where('id',$id)->first();
+        $collaborate = $this->model->where('id',$id)->whereNull('deleted_at')->first();
         
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
@@ -241,7 +241,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
     
-    public function applications(Request $request, $id)
+    public function Oldapplications(Request $request, $id)
     {
         $this->model = [];
 
@@ -250,7 +250,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function Newapplications(Request $request, $id)
+    public function applications(Request $request, $id)
     {
         $this->model = [];
 

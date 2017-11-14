@@ -208,7 +208,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //profile routes
+            //remove when profile/tagging api run proper on website and app
+            //website all followers
+            Route::get("profile/allFollowerslist",['uses'=>'ProfileController@oldtagging']);
+            //app all followers
             Route::get("profile/allFollowers",['uses'=>'ProfileController@allFollowers']);
+
+
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);

@@ -24,7 +24,7 @@ class Job extends Model implements Feedable
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
-        'applicationCount','hasApplied','start_month','start_year','end_month','end_year'
+        'applicationCount','hasApplied','start_month','start_year','end_month','end_year','deleted_at'
     ];
     
     protected $with = ['company','profile'];
