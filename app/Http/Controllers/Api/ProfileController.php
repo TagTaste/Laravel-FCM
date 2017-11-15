@@ -318,7 +318,7 @@ class ProfileController extends Controller
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
         $count = count($profileIds);
-        if($count > 0 && \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
+        if($count > 0 && \Redis::sIsMember("followers:profile:".$id,$id)){
                   $count = $count - 1;
         }
         $this->model['count'] = $count;
@@ -329,7 +329,7 @@ class ProfileController extends Controller
 
         foreach ($profileIds as $key => $value)
         {
-            if($loggedInProfileId == $value)
+            if($id == $value)
             {
                 unset($profileIds[$key]);
                 continue;
@@ -360,7 +360,7 @@ class ProfileController extends Controller
     
         $count = count($profileIds);
         
-        if($count > 0 && \Redis::sIsMember("following:profile:".$loggedInProfileId,$loggedInProfileId)){
+        if($count > 0 && \Redis::sIsMember("following:profile:".$id,$id)){
               $count = $count - 1;
         }
 
@@ -372,7 +372,7 @@ class ProfileController extends Controller
                 $profileIds[$key] = "company:small:" . last(explode(".",$value));
                 continue;
             }
-            if($loggedInProfileId == $value)
+            if($id == $value)
             {
                 unset($profileIds[$key]);
                 continue;
