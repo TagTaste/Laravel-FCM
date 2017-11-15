@@ -325,7 +325,7 @@ class ProfileController extends Controller
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
 
         foreach ($profileIds as $key => $value)
         {
@@ -364,8 +364,8 @@ class ProfileController extends Controller
               $count = $count - 1;
         }
 
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
-
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
+        \Log::info($profileIds);
         foreach ($profileIds as $key => $value)
         {
             if(str_contains($value,"company")){
@@ -499,7 +499,7 @@ class ProfileController extends Controller
         $data = [];
         $this->model['count'] = count($profileIds);
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20);
         foreach ($profileIds as &$profileId)
         {
             $profileId = "profile:small:".$profileId ;
@@ -569,7 +569,7 @@ class ProfileController extends Controller
         $data = [];
         /*
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
         */
 
         foreach ($profileIds as $key => $value)
