@@ -48,7 +48,7 @@ class SetExpireon extends Command
             }
         });
 
-        \DB::table("jobs")->where('expires_on','>','deleted_at')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+        \DB::table("jobs")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[1]]);
             }
@@ -60,7 +60,7 @@ class SetExpireon extends Command
             }
         });
 
-        \DB::table("collaborates")->where('expires_on','>','deleted_at')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+        \DB::table("collaborates")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[1]]);
             }
