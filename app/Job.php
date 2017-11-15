@@ -14,11 +14,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Job extends Model implements Feedable
 {
     use SoftDeletes, IdentifiesOwner, CachedPayload;
-    
+
     protected $fillable = ['title', 'description','why_us','location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id','privacy_id','resume_required','minimum_qualification','expires_on',
-        'start_month','start_year','end_month','end_year'
+        'start_month','start_year','end_month','end_year','state','deleted_at'
     ];
     protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
@@ -26,7 +26,9 @@ class Job extends Model implements Feedable
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
         'applicationCount','hasApplied','start_month','start_year','end_month','end_year','deleted_at'
     ];
-    
+
+    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+
     protected $with = ['company','profile'];
     
     protected $appends = ['type','job_id','applicationCount','hasApplied'];

@@ -61,6 +61,7 @@ class JobController extends Controller
         $inputs = $request->except(['_method', '_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $inputs['company_id'] = $companyId;
+        $inputs['state'] = Job::$state[0];
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
@@ -134,8 +135,8 @@ class JobController extends Controller
 
         //remove filters
         \App\Filter\Job::removeModel($id);
-        
-        $this->model = $job->delete();
+
+        $this->model = $job->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[1]]);
         
         return $this->sendResponse();
         
@@ -247,7 +248,7 @@ class JobController extends Controller
     public function expired(Request $request,$profileId, $companyId)
     {
         $this->model = [];
-        $this->model['jobs'] = Job::where('company_id', $companyId)->whereNotNull('deleted_at');
+        $this->model['jobs'] = Job::where('company_id', $companyId)->where('state',Job::$state[2]);
         $this->model['count'] = $this->model['jobs']->count();
 
         $page = $request->input('page');

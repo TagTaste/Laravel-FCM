@@ -67,7 +67,7 @@ class CollaborateController extends Controller
 		$inputs = $request->all();
 		$inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
-
+        $inputs['state'] = Collaborate::$state[0];
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
 
         $fields = $request->has("fields") ? $request->input('fields') : [];
@@ -192,7 +192,7 @@ class CollaborateController extends Controller
         //remove filters
         \App\Filter\Collaborate::removeModel($id);
 
-        $this->model = $collaborate->delete();
+        $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);
         return $this->sendResponse();
 	}
     
@@ -258,7 +258,7 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->whereNotNull('deleted_at')->orderBy('deleted_at','desc');
+        $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[2])->orderBy('deleted_at','desc');
         $this->model = [];
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         $profileId = $request->user()->profile->id;
