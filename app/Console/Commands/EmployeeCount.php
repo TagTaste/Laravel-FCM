@@ -68,7 +68,7 @@ class EmployeeCount extends Command
                 {
                     $model->update(['employee_count'=>7]);
                 }
-                else
+                else if($model->employee_count == 7)
                 {
                     $model->update(['employee_count'=>8]);
                 }
