@@ -38,7 +38,7 @@ class MessageController extends Controller
 	    $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exists();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
@@ -46,8 +46,15 @@ class MessageController extends Controller
         
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
-        
-		$this->model = $this->model->where('chat_id',$chatId)->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+
+        if(isset($memberOfChat->deleted_at))
+        {
+            $this->model = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->deleted_at])->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+        }
+        else
+        {
+            $this->model = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+        }
 
 		return $this->sendResponse();
 	}

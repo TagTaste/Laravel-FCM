@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Chat;
 use App\Chat;
 use App\Chat\Member;
 use App\Http\Controllers\Api\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MemberController extends Controller
@@ -36,13 +37,20 @@ class MemberController extends Controller
 	    $profileId = $request->user()->profile->id;
 	    
 	    //check if profileId is member of given $chatId
-		$memberOfChat = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exists();
-  
+		$memberOfChat = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
+
 		if(!$memberOfChat){
 		    return $this->sendError("Profile is not part of the chat.");
         }
-        
-        $this->model = Member::where('chat_id',$chatId)->get();
+
+        if(isset($memberOfChat->deleted_at))
+        {
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->deleted_at)->get();
+        }
+        else
+        {
+            $this->model = Member::where('chat_id',$chatId)->get();
+        }
 		return $this->sendResponse();
 	}
     
@@ -56,17 +64,20 @@ class MemberController extends Controller
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
-        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('is_single',0)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
 		if(!$chat){
 		    return $this->sendError("Only chat admin can add members");
         }
         
         $profileIds = $request->input('profile_id');
 		$data = [];
+		$chatProfileIds = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
 		    $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
+            $chatProfileIds[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
         }
+        \DB::table('chat_profiles')->insert($chatProfileIds);
 		$this->model = Member::insert($data);
 
 		return $this->sendResponse();
@@ -83,7 +94,7 @@ class MemberController extends Controller
         $profileId = $request->user()->profile->id;
         
         //check ownership of chat.
-        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->exists();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
         if(!$chat && $id != $profileId){
             return $this->sendError("Only chat admin can remove members");
         }
@@ -91,9 +102,9 @@ class MemberController extends Controller
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->delete();
         if($id==$profileId)
         {
-            $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->exists();
+            $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('deleted_at')->exists();
             if(!$adminExist) {
-                $member = Member::where('chat_id', $chatId)->first();
+                $member = Member::where('chat_id', $chatId)->whereNull('deleted_at')->first();
                 $member->update(['is_admin' => 1]);
             }
         }

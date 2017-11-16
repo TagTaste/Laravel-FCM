@@ -88,12 +88,14 @@ class ChatController extends Controller
         $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
 		$chatId = $this->model->id;
+        $chatProfileIds = [];
 		//for add login profile id in member model
         $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
-
         foreach($profileIds as $profileId){
             $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
+            $chatProfileIds[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now];
         }
+        \DB::table('chat_profiles')->insert($chatProfileIds);
         $this->model->members()->insert($data);
         
         return $this->sendResponse();
@@ -162,18 +164,20 @@ class ChatController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request)
 	{
-		$this->model = $this->model->where('id',$id)->delete();
+	    $chadIds = $request->input('chat_id');
+	    $loggedInProfileId = $request->user()->profile->id;
+        $this->model = \DB::table('chat_profiles')->whereIn('chat_id',$chadIds)->where('profile_id',$loggedInProfileId)->delete();
 
-		return $this->sendResponse();
+        return $this->sendResponse();
 	}
     
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = \DB::table('chats')->select('chats.id')
-            ->join('chat_members','chat_members.chat_id','=','chats.id')
+        $this->model = \DB::table('chat_profiles')->select('chat_profiles.chat_id')
+            ->join('chat_members','chat_members.chat_id','=','chat_profiles.chat_id')
             ->where('chat_members.profile_id','=',$profileId)->get();
         return $this->sendResponse();
 	}

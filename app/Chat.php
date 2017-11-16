@@ -21,7 +21,7 @@ class Chat extends Model
     
     public function members()
     {
-        return $this->hasMany( Member::class);
+        return $this->hasMany( Member::class)->withTrashed();
     }
     
     public function getProfilesAttribute()
@@ -41,7 +41,15 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
-        return $this->messages()->orderBy('created_at','desc')->take(5)->get();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        if(isset($memberOfChat->deleted_at))
+        {
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->deleted_at])->orderBy('created_at','desc')->take(5)->get();
+        }
+        else
+        {
+            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+        }
     }
     
     public static function getImagePath($id, $filename = null)
