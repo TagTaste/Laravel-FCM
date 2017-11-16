@@ -37,7 +37,7 @@ class ChatController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         
-        $this->model = Chat::join('chat_profiles','chat_profiles.chat_id','=','chats.id')->where('chat_profiles.profile_id',$profileId)
+        $this->model = Chat::withTrashed()->join('chat_profiles','chat_profiles.chat_id','=','chats.id')->where('chat_profiles.profile_id',$profileId)
             ->orderByRaw('chats.updated_at desc, chats.created_at desc')->skip($skip)->take($take)->get();
         
 		return $this->sendResponse();
