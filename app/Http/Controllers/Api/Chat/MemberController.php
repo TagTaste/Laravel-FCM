@@ -45,7 +45,7 @@ class MemberController extends Controller
 
         if(isset($memberOfChat->deleted_at))
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->deleted_at)->get();
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->deleted_at)->whereNull('deleted_at')->get();
         }
         else
         {
