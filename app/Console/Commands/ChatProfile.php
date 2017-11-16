@@ -34,7 +34,11 @@ class ChatProfile extends Command
     {
         \DB::table("chat_members")->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
-                \DB::table('chat_profiles')->insert(['chat_id'=>$model->chat_id,'profile_id'=>$model->profile_id,'created_at'=>$model->created_at]);
+                $dataExists = \DB::table('chat_profiles')->where('chat_id',$model->chat_id)->where('profile_id',$model->profile_id)->exists();
+                if(!$dataExists)
+                {
+                    \DB::table('chat_profiles')->insert(['chat_id'=>$model->chat_id,'profile_id'=>$model->profile_id,'created_at'=>$model->created_at]);
+                }
             }
         });
     }
