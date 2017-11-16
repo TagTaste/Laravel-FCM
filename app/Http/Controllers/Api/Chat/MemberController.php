@@ -37,7 +37,7 @@ class MemberController extends Controller
 	    $profileId = $request->user()->profile->id;
 	    
 	    //check if profileId is member of given $chatId
-		$memberOfChat = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
+		$memberOfChat = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
 
 		if(!$memberOfChat){
 		    return $this->sendError("Profile is not part of the chat.");
