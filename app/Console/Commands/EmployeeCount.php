@@ -40,37 +40,37 @@ class EmployeeCount extends Command
     {
         Company::select('*')->chunk(200,function($models){
             foreach($models as $model){
-                if($model->employee_count<=10)
-                {
-                    $model->update(['employee_count'=>0]);
-                }
-                else if($model->employee_count<=50)
+                if($model->employee_count == 0)
                 {
                     $model->update(['employee_count'=>1]);
                 }
-                else if($model->employee_count<=100)
+                else if($model->employee_count == 1)
                 {
                     $model->update(['employee_count'=>2]);
                 }
-                else if($model->employee_count<=500)
+                else if($model->employee_count == 2)
                 {
                     $model->update(['employee_count'=>3]);
                 }
-                else if($model->employee_count<=1000)
+                else if($model->employee_count == 3)
                 {
                     $model->update(['employee_count'=>4]);
                 }
-                else if($model->employee_count<=10000)
+                else if($model->employee_count == 4)
                 {
                     $model->update(['employee_count'=>5]);
                 }
-                else if($model->employee_count<=50000)
+                else if($model->employee_count == 5)
                 {
                     $model->update(['employee_count'=>6]);
                 }
-                else
+                else if($model->employee_count == 6)
                 {
                     $model->update(['employee_count'=>7]);
+                }
+                else
+                {
+                    $model->update(['employee_count'=>8]);
                 }
             }
         });
