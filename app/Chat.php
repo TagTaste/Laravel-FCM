@@ -15,9 +15,11 @@ class Chat extends Model
     
     //protected $with = ['members'];
     
-    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount'];
+    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount','is_enabled'];
     
-    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount'];
+    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount','is_enabled'];
+
+    protected $isEnabled = true;
     
     public function members()
     {
@@ -44,10 +46,12 @@ class Chat extends Model
         $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
         if(isset($memberOfChat->exited_on))
         {
+            $this->isEnabled = false;
             return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
         }
         else
         {
+            $this->isEnabled = true;
             return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
         }
     }
@@ -86,5 +90,10 @@ class Chat extends Model
     public function getUnreadMessageCountAttribute()
     {
         return $this->messages()->whereNull('read_on')->count();
+    }
+
+    public function getIsEnabledAttribute()
+    {
+        return $this->isEnabled;
     }
 }
