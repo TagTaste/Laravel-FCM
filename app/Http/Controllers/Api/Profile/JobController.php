@@ -59,6 +59,18 @@ class JobController extends Controller
         
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
         $this->model = $profile->jobs()->create($inputs);
         if(empty($inputs['salary_min'])){
             unset($inputs['salary_min']);
