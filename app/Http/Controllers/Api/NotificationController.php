@@ -16,14 +16,16 @@ class NotificationController extends Controller
     {
         $this->model = [];
         //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
+//        $page = $request->input('page');
+//        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
+        if(!$profile){
+           return $this->sendError("Profile not found.");
+        }
         $notifications = $profile->notifications();
 
-        $this->model['data'] = $notifications->skip($skip)->take($take)->get();
+        $this->model['data'] = $notifications->paginate();
         $this->model['count']= $notifications->count();
         return $this->sendResponse();
     }
