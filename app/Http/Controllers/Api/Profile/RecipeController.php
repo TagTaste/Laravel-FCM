@@ -46,7 +46,8 @@ class RecipeController extends Controller
      */
     public function store(Request $request)
     {
-        $profileId = $request->user()->profile->id;
+        $profile = $request->user()->profile;
+        $profileId = $profile->id;
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_token'],'cuisine');
         $inputs['profile_id'] = $profileId;
         
@@ -120,6 +121,8 @@ class RecipeController extends Controller
         $this->model->addToCache();
         \App\Filter\Recipe::addModel($this->model);
     
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+        
         return $this->sendResponse();
     }
 
@@ -276,6 +279,9 @@ class RecipeController extends Controller
         $this->model->refresh();
         $this->model->addToCache();
         \App\Filter\Recipe::addModel($this->model);
+    
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
     
         return $this->sendResponse();
     }
