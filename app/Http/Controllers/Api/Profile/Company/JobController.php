@@ -65,6 +65,15 @@ class JobController extends Controller
         if(empty($inputs['salary_min'])){
             unset($inputs['salary_min']);
         }
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
         \App\Filter\Job::addModel($this->model);
