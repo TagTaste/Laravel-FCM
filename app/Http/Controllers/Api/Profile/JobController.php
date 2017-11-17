@@ -60,7 +60,11 @@ class JobController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $this->model = $profile->jobs()->create($inputs);
+        
         \App\Filter\Job::addModel($this->model);
+    
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
 
         return $this->sendResponse();
     }
