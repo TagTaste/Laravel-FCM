@@ -42,10 +42,9 @@ class MemberController extends Controller
 		if(!$memberOfChat){
 		    return $this->sendError("Profile is not part of the chat.");
         }
-        \Log::info($memberOfChat);
         if(isset($memberOfChat->exited_on))
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get();
+            $this->model = Member::where('chat_id',$chatId)->where('profile_id','!=',$profileId)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get();
         }
         else
         {
@@ -91,10 +90,10 @@ class MemberController extends Controller
         $profileId = $request->user()->profile->id;
         
         //check ownership of chat.
-//        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
-//        if(!$chat && $id != $profileId){
-//            return $this->sendError("Only chat admin can remove members");
-//        }
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
+        if(!$chat && $id != $profileId){
+            return $this->sendError("Only chat admin can remove members");
+        }
 
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->update(['exited_on'=>Carbon::now()]);
         if($id==$profileId)
