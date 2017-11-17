@@ -37,15 +37,15 @@ class MemberController extends Controller
 	    $profileId = $request->user()->profile->id;
 	    
 	    //check if profileId is member of given $chatId
-		$memberOfChat = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
+		$memberOfChat = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
 
 		if(!$memberOfChat){
 		    return $this->sendError("Profile is not part of the chat.");
         }
 
-        if(isset($memberOfChat->deleted_at))
+        if(isset($memberOfChat->exited_on))
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->deleted_at)->whereNull('deleted_at')->get();
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get();
         }
         else
         {
@@ -71,13 +71,10 @@ class MemberController extends Controller
         
         $profileIds = $request->input('profile_id');
 		$data = [];
-		$chatProfileIds = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
 		    $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
-            $chatProfileIds[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString()];
         }
-        \DB::table('chat_profiles')->insert($chatProfileIds);
 		$this->model = Member::insert($data);
 
 		return $this->sendResponse();
@@ -99,12 +96,12 @@ class MemberController extends Controller
             return $this->sendError("Only chat admin can remove members");
         }
 
-        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->delete();
+        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->update(['exited_on'=>Carbon::now()]);
         if($id==$profileId)
         {
-            $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('deleted_at')->exists();
+            $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
             if(!$adminExist) {
-                $member = Member::where('chat_id', $chatId)->whereNull('deleted_at')->first();
+                $member = Member::where('chat_id', $chatId)->whereNull('exited_on')->first();
                 $member->update(['is_admin' => 1]);
             }
         }

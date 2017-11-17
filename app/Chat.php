@@ -41,10 +41,10 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
-        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
-        if(isset($memberOfChat->deleted_at))
+        $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        if(isset($memberOfChat->exited_on))
         {
-            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->deleted_at])->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
         }
         else
         {

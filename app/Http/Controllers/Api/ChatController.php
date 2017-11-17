@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Chat;
 use App\Strategies\Paginator;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
@@ -36,9 +37,10 @@ class ChatController extends Controller
         
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
-        
-        $this->model = Chat::withTrashed()->join('chat_profiles','chat_profiles.chat_id','=','chats.id')->where('chat_profiles.profile_id',$profileId)
-            ->orderByRaw('chats.updated_at desc, chats.created_at desc')->skip($skip)->take($take)->get();
+
+        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+                        $query->where('profile_id',$profileId)->whereNull('deleted_at');
+                        })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
         
 		return $this->sendResponse();
 	}
@@ -87,15 +89,11 @@ class ChatController extends Controller
         $now = \Carbon\Carbon::now()->toDateTimeString();
 		$data = [];
 		$chatId = $this->model->id;
-        $chatProfileIds = [];
 		//for add login profile id in member model
         $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
-        $chatProfileIds[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now];
         foreach($profileIds as $profileId){
             $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
-            $chatProfileIds[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now];
         }
-        \DB::table('chat_profiles')->insert($chatProfileIds);
         $this->model->members()->insert($data);
         
         return $this->sendResponse();
@@ -112,8 +110,9 @@ class ChatController extends Controller
 	    $profileId = $request->user()->profile->id;
         
         //current user should be part of the chat, is a sufficient condition.
-        $this->model = Chat::join('chat_profiles','chat_profiles.chat_id','=','chats.id')->where('chats.id',$id)->where('chat_profiles.profile_id',$profileId)->get();
-
+        $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
+                        $query->where('profile_id',$profileId)->whereNull('deleted_at');
+                    })->get();
         return $this->sendResponse();
 	}
 
@@ -166,7 +165,8 @@ class ChatController extends Controller
 	{
 	    $chadIds = $request->input('chat_id');
 	    $loggedInProfileId = $request->user()->profile->id;
-        $this->model = \DB::table('chat_profiles')->whereIn('chat_id',$chadIds)->where('profile_id',$loggedInProfileId)->delete();
+        $this->model = Chat\Member::whereIn('chat_id',$chadIds)->where('profile_id',$loggedInProfileId)
+            ->update(['created_at'=>Carbon::now(),'deleted_at'=>Carbon::now()]);
 
         return $this->sendResponse();
 	}
@@ -174,9 +174,9 @@ class ChatController extends Controller
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = \DB::table('chat_profiles')->select('chat_profiles.chat_id')
-            ->join('chat_members','chat_members.chat_id','=','chat_profiles.chat_id')
-            ->where('chat_members.profile_id','=',$profileId)->get();
+        $this->model = \DB::table('chats')->select('chats.id')
+                ->join('chat_members','chat_members.chat_id','=','chats.id')
+            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
         return $this->sendResponse();
 	}
  
