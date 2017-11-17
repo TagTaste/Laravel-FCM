@@ -42,7 +42,7 @@ class MemberController extends Controller
 		if(!$memberOfChat){
 		    return $this->sendError("Profile is not part of the chat.");
         }
-
+        \Log::info($memberOfChat);
         if(isset($memberOfChat->exited_on))
         {
             $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get();
