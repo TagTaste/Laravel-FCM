@@ -7,6 +7,7 @@ use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
+use App\Listeners\Subscriber\Create;
 use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -101,8 +102,13 @@ class CollaborateController extends Controller
 
         $profile = Profile::find($profileId);
         $this->model = $this->model->fresh();
+        
+        //push to feed
         event(new NewFeedable($this->model, $profile));
     
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+        
         \App\Filter\Collaborate::addModel($this->model);
     
         return $this->sendResponse();
