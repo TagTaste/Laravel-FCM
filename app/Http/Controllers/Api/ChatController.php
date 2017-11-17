@@ -161,11 +161,10 @@ class ChatController extends Controller
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy(Request $request)
+	public function destroy(Request $request,$chadId)
 	{
-	    $chadIds = $request->input('chat_id');
 	    $loggedInProfileId = $request->user()->profile->id;
-        $this->model = Chat\Member::whereIn('chat_id',$chadIds)->where('profile_id',$loggedInProfileId)
+        $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['created_at'=>Carbon::now(),'deleted_at'=>Carbon::now()->toDateTimeString()]);
 
         return $this->sendResponse();
