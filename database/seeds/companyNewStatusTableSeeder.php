@@ -13,7 +13,7 @@ class companyNewStatusTableSeeder extends Seeder
     {
         \App\Company\Status::where('id',1)->update(['name'=>'Operational']);
         \App\Company\Status::where('id',2)->update(['name'=>'Operational Subsidiary']);
-        \App\Company\Status::where('id',3)->update(['name'=>'Out of Business ']);
+        \App\Company\Status::where('id',3)->update(['name'=>'Out of Business']);
         \App\Company\Status::where('id',4)->update(['name'=>'Acquired']);
         \App\Company\Status::where('id',5)->update(['name'=>'Others']);
     }
