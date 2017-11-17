@@ -166,7 +166,7 @@ class ChatController extends Controller
 	    $chadIds = $request->input('chat_id');
 	    $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::whereIn('chat_id',$chadIds)->where('profile_id',$loggedInProfileId)
-            ->update(['created_at'=>Carbon::now(),'deleted_at'=>Carbon::now()]);
+            ->update(['created_at'=>Carbon::now(),'deleted_at'=>Carbon::now()->toDateTimeString()]);
 
         return $this->sendResponse();
 	}

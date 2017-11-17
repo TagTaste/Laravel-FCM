@@ -72,7 +72,15 @@ class MemberController extends Controller
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
-		    $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
+		    $exists = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exist();
+		    if($exists)
+            {
+                Member::where('chat_id',$chatId)->where('profile_id',$profileId)->update(['created_at'=>$now->toDateTimeString(),'deleted_at'=>null,'exited_on'=>null]);
+            }
+            else
+            {
+                $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
+            }
         }
 		$this->model = Member::insert($data);
 
@@ -95,7 +103,7 @@ class MemberController extends Controller
             return $this->sendError("Only chat admin can remove members");
         }
 
-        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->update(['exited_on'=>Carbon::now()]);
+        $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->update(['exited_on'=>Carbon::now()->toDateTimeString()]);
         if($id==$profileId)
         {
             $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
