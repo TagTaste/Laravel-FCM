@@ -60,7 +60,9 @@ class JobController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $this->model = $profile->jobs()->create($inputs);
-        
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
         \App\Filter\Job::addModel($this->model);
     
         //add subscriber

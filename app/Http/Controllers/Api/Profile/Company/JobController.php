@@ -63,6 +63,9 @@ class JobController extends Controller
         $inputs['profile_id'] = $profile->id;
         $inputs['company_id'] = $companyId;
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
         \App\Filter\Job::addModel($this->model);
