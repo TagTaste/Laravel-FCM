@@ -50,7 +50,9 @@ class Profile extends Model
         'dob_private',
         'affiliations',
         'style_image',
-        'style_hero_image'
+        'style_hero_image',
+        'otp',
+        'verified_phone'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -124,7 +126,8 @@ class Profile extends Model
         'training',
         'affiliations',
         'style_image',
-        'style_hero_image'
+        'style_hero_image',
+        'verified_phone'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience','mutualFollowers'];
