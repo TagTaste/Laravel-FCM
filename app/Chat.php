@@ -28,7 +28,16 @@ class Chat extends Model
     
     public function getProfilesAttribute()
     {
-        return $this->members->pluck('profile');
+        $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+
+        if(isset($memberOfChat->exited_on))
+        {
+            return $this->members()->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get()->pluck('profile');
+        }
+        else
+        {
+            return $this->members()->whereNull('exited_on')->get()->pluck('profile');
+        }
     }
     
     public function messages()
