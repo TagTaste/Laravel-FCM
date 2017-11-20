@@ -44,7 +44,8 @@ class MemberController extends Controller
         }
         if(isset($memberOfChat->exited_on))
         {
-            $this->model = Member::where('chat_id',$chatId)->where('profile_id','!=',$profileId)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get();
+            $this->model = Member::where('chat_id',$chatId)->where('profile_id','!=',$profileId)
+                ->where('created_at','<=',$memberOfChat->exited_on)->whereNull('exited_on')->get();
         }
         else
         {
@@ -72,10 +73,10 @@ class MemberController extends Controller
 		$data = [];
 		$now = \Carbon\Carbon::now();
 		foreach($profileIds as $profileId){
-		    $exists = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exist();
+		    $exists = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->first();
 		    if($exists)
             {
-                Member::where('chat_id',$chatId)->where('profile_id',$profileId)->update(['created_at'=>$now->toDateTimeString(),'deleted_at'=>null,'exited_on'=>null,'is_admin'=>0,'is_single'=>0]);
+                $exists->update(['created_at'=>$now->toDateTimeString(),'deleted_at'=>null,'exited_on'=>null,'is_admin'=>0,'is_single'=>0]);
             }
             else
             {
@@ -104,7 +105,7 @@ class MemberController extends Controller
         }
 
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->update(['exited_on'=>Carbon::now()->toDateTimeString()]);
-        if($id==$profileId)
+        if($id == $profileId)
         {
             $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
             if(!$adminExist) {
