@@ -187,13 +187,14 @@ class Filter extends Model
                 ->orderBy(static::$relatedColumn)
                 ->get()
                 ->pluck(static::$relatedColumn);
+            
             if(is_null($models)){
                 $models = $model;
                 continue;
             }
+            
             $models = $model->intersect($models);
         }
-    
         return $models;
     }
     public static function getModels($filters, $skip, $take)
