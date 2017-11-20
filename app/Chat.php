@@ -28,7 +28,7 @@ class Chat extends Model
     
     public function getProfilesAttribute()
     {
-        return $this->members->pluck('profile');
+        return $this->members;
     }
     
     public function messages()
