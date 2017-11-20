@@ -75,7 +75,7 @@ class MemberController extends Controller
 		    $exists = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exist();
 		    if($exists)
             {
-                Member::where('chat_id',$chatId)->where('profile_id',$profileId)->update(['created_at'=>$now->toDateTimeString(),'deleted_at'=>null,'exited_on'=>null]);
+                Member::where('chat_id',$chatId)->where('profile_id',$profileId)->update(['created_at'=>$now->toDateTimeString(),'deleted_at'=>null,'exited_on'=>null,'is_admin'=>0,'is_single'=>0]);
             }
             else
             {
