@@ -249,7 +249,7 @@ class JobController extends Controller
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
 
-        $jobs = Job::whereNull('deleted_at')->whereIn('id',$ids);
+        $jobs = Job::whereIn('id',$ids);
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -271,5 +271,29 @@ class JobController extends Controller
 
         return $this->sendResponse();
 
+    }
+
+    public function reopen(Request $request,$profileId,$id)
+    {
+        $profileId = $request->user()->profile->id;
+        $inputs = $request->all();
+        $inputs['state'] = Job::$state[0];
+        $inputs['deleted_at'] = null;
+        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        $job = $this->model->where('id', $id)->where('profile_id', $profileId)->where('state',Job::$state[2])->whereNull('company_id')->first();
+
+        if ($job === null) {
+            return $this->sendError( "Job not found.");
+        }
+
+        $this->model = $job->update($inputs);
+
+        $profile = Profile::find($profileId);
+        $this->model = Job::find($id);
+
+        event(new NewFeedable($this->model, $profile));
+        \App\Filter\Job::addModel($this->model);
+
+        return $this->sendResponse();
     }
 }

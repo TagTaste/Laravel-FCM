@@ -268,4 +268,63 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function reopen(Request $request, $profileId, $companyId, $id)
+    {
+        $inputs = $request->all();
+        $inputs['state'] = Collaborate::$state[0];
+        $inputs['deleted_at'] = null;
+        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        $collaborate = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[2])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError( "Collaboration not found.");
+        }
+
+        if ($request->has("images"))
+        {
+            for ($i = 0; $i <= 4; $i++) {
+                if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0) {
+                    $imageName = str_random("32") . ".jpg";
+                    $relativePath = "images/p/$profileId/collaborate";
+                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                }
+                else if($request->input("images.$i.remove")==1)
+                {
+                    $inputs["image".($i+1)] = null;
+                }
+            }
+        }
+        if($request->hasFile('file1')){
+            $relativePath = "images/p/$profileId/collaborate";
+            $name = $request->file('file1')->getClientOriginalName();
+            $extension = \File::extension($request->file('file1')->getClientOriginalName());
+            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+        $this->model = $collaborate->update($inputs);
+        $company = Company::find($companyId);
+        $this->model = Collaborate::find($id);
+
+        event(new NewFeedable($this->model, $company));
+        \App\Filter\Collaborate::addModel($this->model);
+
+        return $this->sendResponse();
+    }
+
+    public function interested(Request $request, $profileId, $companyId)
+    {
+        $profileId = $request->user()->profile->id;
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->select('collaborate_id','collaborates.*')
+            ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
+            ->where("collaborators.company_id",$companyId)->skip($skip)->take($take)->get();
+
+        $this->model = [];
+        foreach ($collaborations as $collaboration) {
+            $this->model[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+        }
+        return $this->sendResponse();
+
+    }
 }
