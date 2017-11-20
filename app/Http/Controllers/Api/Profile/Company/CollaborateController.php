@@ -167,11 +167,9 @@ class CollaborateController extends Controller
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-        }
-        $this->model = $collaborate->update($inputs);
 
-        if($collaborate->state == 3)
-        {
+            $this->model = $collaborate->update($inputs);
+
             $company = Company::find($companyId);
             $this->model = Collaborate::find($id);
 
@@ -179,8 +177,8 @@ class CollaborateController extends Controller
             \App\Filter\Collaborate::addModel($this->model);
 
             return $this->sendResponse();
-
         }
+        $this->model = $collaborate->update($inputs);
 
         \App\Filter\Collaborate::addModel($this->model);
         

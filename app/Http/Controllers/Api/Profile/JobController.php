@@ -108,19 +108,19 @@ class JobController extends Controller
             $inputs['state'] = Job::$state[0];
             $inputs['deleted_at'] = null;
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-        }
-        $this->model = $job->update($inputs);
-        if($job->state == 3)
-        {
+            $this->model = $job->update($inputs);
+
+
             $profile = Profile::find($profileId);
             $this->model = Job::find($id);
-
             event(new NewFeedable($this->model, $profile));
             \App\Filter\Job::addModel($this->model);
 
             return $this->sendResponse();
 
         }
+        $this->model = $job->update($inputs);
+
         \App\Filter\Job::addModel($this->model);
         return $this->sendResponse();
     }
