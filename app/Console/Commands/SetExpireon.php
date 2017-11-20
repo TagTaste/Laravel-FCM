@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Collaborate;
 use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -41,15 +42,27 @@ class SetExpireon extends Command
     public function handle()
     {
         //this run only once after that remove from kernel.php this file
-        \DB::table("jobs")->orderBy('id')->chunk(100,function($models){
+        \DB::table("jobs")->where('expires_on','<=',Carbon::now()->toDateTimeString())->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
-                \DB::table('jobs')->where('id',$model->id)->update(['expires_on'=>(Carbon::parse($model->created_at))->addMonth()->toDateTimeString()]);
+                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
             }
         });
 
-        \DB::table("collaborates")->orderBy('id')->chunk(100,function($models){
+        \DB::table("jobs")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
-                \DB::table('collaborates')->where('id',$model->id)->update(['expires_on'=>(Carbon::parse($model->created_at))->addMonth()->toDateTimeString()]);
+                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[1]]);
+            }
+        });
+
+        \DB::table("collaborates")->where('expires_on','<=',Carbon::now()->toDateTimeString())->orderBy('id')->chunk(100,function($models){
+            foreach($models as $model){
+                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[2]]);
+            }
+        });
+
+        \DB::table("collaborates")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+            foreach($models as $model){
+                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[1]]);
             }
         });
 
