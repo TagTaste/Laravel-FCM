@@ -39,7 +39,8 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
+        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')
+            ->whereNull('company_id')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -169,8 +170,25 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-
+        if($collaborate->state == 3)
+        {
+            $inputs['state'] = Collaborate::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        }
         $this->model = $collaborate->update($inputs);
+
+        if($collaborate->state == 3)
+        {
+            $profile = Profile::find($profileId);
+            $this->model = Collaborate::find($id);
+
+            event(new NewFeedable($this->model, $profile));
+            \App\Filter\Collaborate::addModel($this->model);
+
+            return $this->sendResponse();
+
+        }
         \App\Filter\Collaborate::addModel($this->model);
 
         return $this->sendResponse();
@@ -301,51 +319,6 @@ class CollaborateController extends Controller
         }
         return $this->sendResponse();
 
-    }
-
-    public function reopen(Request $request,$profileId,$id)
-    {
-        $profileId = $request->user()->profile->id;
-        $inputs = $request->all();
-        $inputs['state'] = Collaborate::$state[0];
-        $inputs['deleted_at'] = null;
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-        $collaborate = $this->model->where('id', $id)->where('profile_id', $profileId)->where('state',Collaborate::$state[2])->whereNull('company_id')->first();
-
-        if ($collaborate === null) {
-            return $this->sendError( "Collaboration not found.");
-        }
-
-        if ($request->has("images"))
-        {
-            for ($i = 0; $i <= 4; $i++) {
-                if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0) {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
-                }
-                else if($request->input("images.$i.remove")==1)
-                {
-                    $inputs["image".($i+1)] = null;
-                }
-            }
-        }
-        if($request->hasFile('file1')){
-            $relativePath = "images/p/$profileId/collaborate";
-            $name = $request->file('file1')->getClientOriginalName();
-            $extension = \File::extension($request->file('file1')->getClientOriginalName());
-            $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
-        }
-
-        $this->model = $collaborate->update($inputs);
-
-        $profile = Profile::find($profileId);
-        $this->model = Collaborate::find($id);
-
-        event(new NewFeedable($this->model, $profile));
-        \App\Filter\Collaborate::addModel($this->model);
-
-        return $this->sendResponse();
     }
 
 }

@@ -95,8 +95,32 @@ class JobController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
+        $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
 
-        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id','profile_id','expires_on']));
+        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+
+        if ($job === null) {
+            throw new \Exception("Could not find the specified job.");
+        }
+
+        if($job->state == 3)
+        {
+            $inputs['state'] = Job::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        }
+        $this->model = $job->update($inputs);
+        if($job->state == 3)
+        {
+            $profile = Profile::find($profileId);
+            $this->model = Job::find($id);
+
+            event(new NewFeedable($this->model, $profile));
+            \App\Filter\Job::addModel($this->model);
+
+            return $this->sendResponse();
+
+        }
         \App\Filter\Job::addModel($this->model);
         return $this->sendResponse();
     }
@@ -271,29 +295,5 @@ class JobController extends Controller
 
         return $this->sendResponse();
 
-    }
-
-    public function reopen(Request $request,$profileId,$id)
-    {
-        $profileId = $request->user()->profile->id;
-        $inputs = $request->all();
-        $inputs['state'] = Job::$state[0];
-        $inputs['deleted_at'] = null;
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-        $job = $this->model->where('id', $id)->where('profile_id', $profileId)->where('state',Job::$state[2])->whereNull('company_id')->first();
-
-        if ($job === null) {
-            return $this->sendError( "Job not found.");
-        }
-
-        $this->model = $job->update($inputs);
-
-        $profile = Profile::find($profileId);
-        $this->model = Job::find($id);
-
-        event(new NewFeedable($this->model, $profile));
-        \App\Filter\Job::addModel($this->model);
-
-        return $this->sendResponse();
     }
 }
