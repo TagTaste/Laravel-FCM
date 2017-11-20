@@ -15,9 +15,11 @@ class Chat extends Model
     
     //protected $with = ['members'];
     
-    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount'];
+    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount','is_enabled'];
     
-    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount'];
+    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount','is_enabled'];
+
+    protected $isEnabled = true;
     
     public function members()
     {
@@ -26,7 +28,16 @@ class Chat extends Model
     
     public function getProfilesAttribute()
     {
-        return $this->members->pluck('profile');
+        $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+
+        if(isset($memberOfChat->exited_on))
+        {
+            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get()->pluck('profile');
+        }
+        else
+        {
+            return $this->members()->whereNull('exited_on')->get()->pluck('profile');
+        }
     }
     
     public function messages()
@@ -41,7 +52,17 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
-        return $this->messages()->orderBy('created_at','desc')->take(5)->get();
+        $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        if(isset($memberOfChat->exited_on))
+        {
+            $this->isEnabled = false;
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
+        }
+        else
+        {
+            $this->isEnabled = true;
+            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+        }
     }
     
     public static function getImagePath($id, $filename = null)
@@ -78,5 +99,10 @@ class Chat extends Model
     public function getUnreadMessageCountAttribute()
     {
         return $this->messages()->whereNull('read_on')->count();
+    }
+
+    public function getIsEnabledAttribute()
+    {
+        return $this->isEnabled;
     }
 }
