@@ -378,12 +378,9 @@ class Profile extends Model
     public function getFollowingProfilesAttribute()
     {
         $count = \Redis::SCARD("following:profile:".$this->id);
-
-        if($count === 0){
-            return ['count' => 0, 'profiles' => null];
+        if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
+                $count = $count - 1;
         }
-    
-        $profiles = Subscriber::getFollowing($this->id);
         
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
@@ -419,6 +416,9 @@ class Profile extends Model
     public function getFollowerProfilesAttribute()
     {
         $count = \Redis::SCARD("followers:profile:".$this->id);
+        if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+                $count = $count - 1;
+        }
     
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
