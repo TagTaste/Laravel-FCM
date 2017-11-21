@@ -52,7 +52,10 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
+        \Log::info($this->id);
+        \Log::info(request()->user()->profile->id);
         $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        \Log::info($memberOfChat);
         if(isset($memberOfChat->exited_on))
         {
             $this->isEnabled = false;
