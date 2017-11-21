@@ -60,8 +60,26 @@ class JobController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $inputs['state'] = Job::$state[0];
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
         $this->model = $profile->jobs()->create($inputs);
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
         \App\Filter\Job::addModel($this->model);
+    
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
 
         return $this->sendResponse();
     }

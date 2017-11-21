@@ -322,7 +322,7 @@ class CompanyController extends Controller
         $this->model['count'] = count($profileIds);
         $data = [];
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
         foreach ($profileIds as &$profileId)
         {
             $profileId = "profile:small:".$profileId ;

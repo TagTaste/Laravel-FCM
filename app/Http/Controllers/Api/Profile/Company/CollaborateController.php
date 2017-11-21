@@ -64,7 +64,8 @@ class CollaborateController extends Controller
 	 */
 	public function store(Request $request, $profileId, $companyId)
 	{
-        $profileId=$request->user()->profile->id;
+        $profile = $request->user()->profile;
+        $profileId = $profile->id ;
 		$inputs = $request->all();
 		$inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
@@ -101,8 +102,15 @@ class CollaborateController extends Controller
 //        $this->model->syncFields($fields);
         $company = Company::find($companyId);
         $this->model = $this->model->fresh();
+        
+        //push to feed
         event(new NewFeedable($this->model,$company));
+        
+        //add to filters
         \App\Filter\Collaborate::addModel($this->model);
+        
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
         
         return $this->sendResponse();
 	}

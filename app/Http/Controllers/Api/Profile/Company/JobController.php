@@ -59,14 +59,32 @@ class JobController extends Controller
     public function store(Request $request, $profileId, $companyId)
     {
         $inputs = $request->except(['_method', '_token']);
-        $inputs['profile_id'] = $request->user()->profile->id;
+        $profile = $request->user()->profile;
+        $inputs['profile_id'] = $profile->id;
         $inputs['company_id'] = $companyId;
         $inputs['state'] = Job::$state[0];
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
+
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
+
         $job = Job::create($inputs);
         $this->model = Job::find($job->id);
         \App\Filter\Job::addModel($this->model);
-
+    
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+        
         return $this->sendResponse();
     }
     
