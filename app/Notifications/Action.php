@@ -66,7 +66,6 @@ class Action extends Notification
      */
     public function toArray($notifiable)
     {
-        \Log::info($notifiable->id);
         $data = [
             'action' => $this->data->action,
             'profile' => $this->data->who
@@ -91,7 +90,7 @@ class Action extends Notification
         {
 
         }
-
+        \Log::info("here");
         return $data;
     }
 }

@@ -31,8 +31,6 @@ class Follow
             \Log::warning(get_class($event->model) . " doesn't have profile defined. Can't send notification.");
             return;
         }
-        \Log::info("listener");
-        \Log::info($profileId);
         $profile = Profile::find($profileId);
         Notification::send($profile, new \App\Notifications\Actions\Follow($event));
     }
