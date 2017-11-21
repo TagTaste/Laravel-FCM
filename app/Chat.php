@@ -93,11 +93,11 @@ class Chat extends Model
             ->where('c1.is_single',1)
             ->where('c2.is_single',1)
             ->groupBy('c1.chat_id')
-            ->get();
+            ->first();
         if($chatIds->count() === 0){
             return null;
         }
-        return Chat::whereIn('id',$chatIds->pluck('id')->toArray())->GET();
+        return Chat::where('id',$chatIds->id)->first();
 
     }
     
