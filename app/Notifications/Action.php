@@ -66,6 +66,7 @@ class Action extends Notification
      */
     public function toArray($notifiable)
     {
+        \Log::info($notifiable->id);
         $data = [
             'action' => $this->data->action,
             'profile' => $this->data->who
@@ -84,8 +85,11 @@ class Action extends Notification
         }
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-        $fcm = new FCMPush();
-        $fcm->fcmNotification($data,2);
+        if(! \Redis::SISMEMBER("connected:profile".$notifiable->id))
+        {
+            $fcm = new FCMPush();
+            $fcm->fcmNotification($data,$notifiable->id);
+        }
 
         return $data;
     }
