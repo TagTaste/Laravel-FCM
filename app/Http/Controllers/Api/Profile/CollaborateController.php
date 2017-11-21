@@ -193,8 +193,8 @@ class CollaborateController extends Controller
         }
 
         $this->model = $collaborate->update($inputs);
-
-        \App\Filter\Collaborate::addModel($this->model);
+    
+        \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
     }

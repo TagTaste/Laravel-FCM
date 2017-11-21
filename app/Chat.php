@@ -39,7 +39,7 @@ class Chat extends Model
         {
             if(isset($memberOfChat->deleted_at))
             {
-                $memberOfChat->update(['update_at'=>Carbon::now()->toDateTimeString(),'deleted_at'=>null]);
+                $memberOfChat->restore();
             }
             return $this->members()->withTrashed()->whereNull('exited_on')->get()->pluck('profile');
         }

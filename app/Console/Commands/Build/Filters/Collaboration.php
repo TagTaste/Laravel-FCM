@@ -37,6 +37,8 @@ class Collaboration extends Command
      */
     public function handle()
     {
+        \DB::table("collaborate_filters")->delete();
+        
         \App\Collaborate::whereNull('deleted_at')->chunk(100,function($models){
             foreach($models as $model){
                // new \App\Cached\Filter\Profile($model);

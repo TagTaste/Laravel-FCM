@@ -2,12 +2,9 @@
 
 namespace App\Notifications;
 
+use App\FCMPush;
 use Carbon\Carbon;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use App\FCMPush;
-use App\User;
 
 class Action extends Notification
 {
