@@ -52,20 +52,19 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
-        \Log::info($this->id);
-        \Log::info(request()->user()->profile->id);
         $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
-        \Log::info($memberOfChat);
         if(isset($memberOfChat->exited_on))
         {
             $this->isEnabled = false;
             return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
         }
-        else
+        else if(isset($memberOfChat->created_at))
         {
             $this->isEnabled = true;
             return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
         }
+        $this->isEnabled = true;
+        return $this->messages()->orderBy('created_at','desc')->take(5)->get();
     }
     
     public static function getImagePath($id, $filename = null)
