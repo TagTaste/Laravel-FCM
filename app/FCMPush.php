@@ -36,7 +36,6 @@ class FCMPush extends Model
         $data = $dataBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
-        \Log::info($token);
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
