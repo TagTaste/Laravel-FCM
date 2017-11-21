@@ -56,7 +56,7 @@ class FCMPush extends Model
 
     protected function message($type)
     {
-        if($type == " comment"){
+        if($type == "comment"){
             return " commented on a post";
         }
         if($type == "like"){
