@@ -14,12 +14,6 @@ class FCMPush extends Model
     public function send($notifiable,Notification $notification)
     {
         $data = $notification->toArray($notifiable);
-
-        if(\Redis::SISMEMBER("connected:profile",$notifiable->id))
-        {
-            $this->fcmNotification($data,$notifiable->id);
-        }
-        
         $this->fcmNotification($data,$notifiable->id);
     }
     
@@ -42,6 +36,7 @@ class FCMPush extends Model
         $data = $dataBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
+        \Log::info($token);
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
