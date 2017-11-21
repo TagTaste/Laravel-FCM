@@ -37,6 +37,8 @@ class Recipe extends Command
      */
     public function handle()
     {
+        \DB::table('recipe_filters')->delete();
+        
         \App\Recipe::whereNull('deleted_at')->chunk(100,function($models){
             foreach($models as $model){
                // new \App\Cached\Filter\Profile($model);
