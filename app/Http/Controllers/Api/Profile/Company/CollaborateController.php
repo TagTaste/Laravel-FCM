@@ -161,7 +161,8 @@ class CollaborateController extends Controller
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
         $this->model = $collaborate->update($inputs);
-        \App\Filter\Collaborate::addModel($this->model);
+        
+        \App\Filter\Collaborate::addModel(Collaborate::find($id));
         
         return $this->sendResponse();
     }
