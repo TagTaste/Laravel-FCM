@@ -55,6 +55,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
         Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+        Route::post('/user/verify/phone','UserController@phoneVerify');
+        Route::post('/user/requestOtp','UserController@requestOtp');
         Route::get('/user/verify/email/{token}', 'UserController@verify');
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
@@ -288,6 +290,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::get("collaborate/expired","CollaborateController@expired");
+                    Route::get("collaborate/interested","CollaborateController@interested");
                     Route::resource("collaborate","CollaborateController");
 
                     

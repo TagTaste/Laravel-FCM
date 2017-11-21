@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\Profile;
 use App\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -116,5 +118,27 @@ class UserController extends Controller
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
+    }
+
+    public function phoneVerify(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $phone = $request->input('phone');
+        if(!isset($phone) || strlen($phone)!=10)
+        {
+            return $this->sendError("Please enter correct phone no.");
+        }
+        $otp = mt_rand(100000, 999999);
+        $client = new Client();
+        $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=TRadsx6kDk6uGls2qlcN4g&senderid=TAGTST&channel=Trans&DCS=0&flashsms=0&number=91$phone&text=your otp is $otp&route=2");
+        $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
+        return $this->sendResponse();
+    }
+
+    public function requestOtp(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['verified_phone'=>1]);
+        return $this->sendResponse();
     }
 }

@@ -39,7 +39,8 @@ class CollaborateController extends Controller
 	{
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+        $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')
+            ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -68,7 +69,7 @@ class CollaborateController extends Controller
 		$inputs = $request->all();
 		$inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
-
+        $inputs['state'] = Collaborate::$state[0];
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
 
         $fields = $request->has("fields") ? $request->input('fields') : [];
@@ -168,7 +169,25 @@ class CollaborateController extends Controller
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
+
+        if($collaborate->state == 3)
+        {
+            $inputs['state'] = Collaborate::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+
+            $this->model = $collaborate->update($inputs);
+
+            $company = Company::find($companyId);
+            $this->model = Collaborate::find($id);
+
+            event(new NewFeedable($this->model, $company));
+            \App\Filter\Collaborate::addModel($this->model);
+
+            return $this->sendResponse();
+        }
         $this->model = $collaborate->update($inputs);
+
         \App\Filter\Collaborate::addModel($this->model);
         
         return $this->sendResponse();
@@ -200,7 +219,7 @@ class CollaborateController extends Controller
         //remove filters
         \App\Filter\Collaborate::removeModel($id);
 
-        $this->model = $collaborate->delete();
+        $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);
         return $this->sendResponse();
 	}
     
@@ -266,12 +285,29 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->whereNotNull('deleted_at')->orderBy('deleted_at','desc');
+        $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[2])->orderBy('deleted_at','desc');
         $this->model = [];
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         $profileId = $request->user()->profile->id;
         foreach($collaborations as $collaboration){
             $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+        }
+        return $this->sendResponse();
+
+    }
+
+    public function interested(Request $request, $profileId, $companyId)
+    {
+        $profileId = $request->user()->profile->id;
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->select('collaborate_id','collaborates.*')
+            ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
+            ->where("collaborators.company_id",$companyId)->skip($skip)->take($take)->get();
+
+        $this->model = [];
+        foreach ($collaborations as $collaboration) {
+            $this->model[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
         return $this->sendResponse();
 
