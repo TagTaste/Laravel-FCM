@@ -290,6 +290,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::get("collaborate/expired","CollaborateController@expired");
+                    Route::get("collaborate/interested","CollaborateController@interested");
                     Route::resource("collaborate","CollaborateController");
 
                     

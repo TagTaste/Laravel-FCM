@@ -99,11 +99,32 @@ class JobController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        $data = $request->except(['_token', '_method']);
-        unset($data['profile_id']);
-        unset($data['company_id']);
-        unset($data['expires_on']);
-        $this->model = Job::where('id', $id)->update($data);
+        $profileId = $request->user()->profile->id;
+        $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
+        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
+
+        if ($job === null) {
+            throw new \Exception("Could not find the specified job.");
+        }
+
+        if($job->state == 3)
+        {
+            $inputs['state'] = Job::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+
+            $this->model = $job->update($inputs);
+
+            $company = Company::find($companyId);
+            $this->model = Job::find($id);
+
+            event(new NewFeedable($this->model, $company));
+            \App\Filter\Job::addModel($this->model);
+
+            return $this->sendResponse();
+        }
+        $this->model = $job->update($inputs);
+
         \App\Filter\Job::addModel($this->model);
     
         return $this->sendResponse();

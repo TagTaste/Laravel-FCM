@@ -95,8 +95,32 @@ class JobController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
+        $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
 
-        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id','profile_id','expires_on']));
+        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+
+        if ($job === null) {
+            throw new \Exception("Could not find the specified job.");
+        }
+
+        if($job->state == 3)
+        {
+            $inputs['state'] = Job::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+            $this->model = $job->update($inputs);
+
+
+            $profile = Profile::find($profileId);
+            $this->model = Job::find($id);
+            event(new NewFeedable($this->model, $profile));
+            \App\Filter\Job::addModel($this->model);
+
+            return $this->sendResponse();
+
+        }
+        $this->model = $job->update($inputs);
+
         \App\Filter\Job::addModel($this->model);
         return $this->sendResponse();
     }
@@ -249,7 +273,7 @@ class JobController extends Controller
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
 
-        $jobs = Job::whereNull('deleted_at')->whereIn('id',$ids);
+        $jobs = Job::whereIn('id',$ids);
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
