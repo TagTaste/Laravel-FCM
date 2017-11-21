@@ -33,7 +33,7 @@ class FCMPush extends Model
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $x = $downstreamResponse->numberSuccess();
-            \Log::info($x);
+            \Log::info("here".$x);
         }
 //        $downstreamResponse->numberFailure();
 //        $downstreamResponse->numberModification();
