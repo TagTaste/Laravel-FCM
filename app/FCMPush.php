@@ -32,8 +32,7 @@ class FCMPush extends Model
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
-            $x = $downstreamResponse->numberSuccess();
-            \Log::info("here".$x);
+            $downstreamResponse->numberSuccess();
         }
 //        $downstreamResponse->numberFailure();
 //        $downstreamResponse->numberModification();

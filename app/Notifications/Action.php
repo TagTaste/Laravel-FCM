@@ -87,10 +87,10 @@ class Action extends Notification
         $data['created_at'] = Carbon::now()->toDateTimeString();
         $fcm = new FCMPush();
         $fcm->fcmNotification($data,$notifiable->id);
-        if(! \Redis::SISMEMBER("connected:profile".$notifiable->id))
-        {
-
-        }
+//        if(! \Redis::SISMEMBER("connected:profile".$notifiable->id))
+//        {
+//
+//        }
 
         return $data;
     }
