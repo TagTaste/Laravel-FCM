@@ -94,7 +94,7 @@ class Chat extends Model
             ->where('c2.is_single',1)
             ->groupBy('c1.chat_id')
             ->first();
-        if($chatIds->count() === 0){
+        if(empty($chatIds)){
             return null;
         }
         return Chat::where('id',$chatIds->id)->first();
