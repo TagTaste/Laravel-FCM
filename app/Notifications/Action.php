@@ -84,7 +84,7 @@ class Action extends Notification
 //        if(!\Redis::SISMEMBER("connected:profile",$this->data->model->id))
 //        {
             $fcm = new FCMPush();
-            $fcm->fcmNotification($data,9);
+            $fcm->fcmNotification($data,2);
 //        }
 
         return $data;
