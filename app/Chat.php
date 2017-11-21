@@ -4,6 +4,7 @@ namespace App;
 
 use App\Chat\Member;
 use App\Chat\Message;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -28,7 +29,7 @@ class Chat extends Model
     
     public function getProfilesAttribute()
     {
-        $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
 
         if(isset($memberOfChat->exited_on))
         {
@@ -36,7 +37,11 @@ class Chat extends Model
         }
         else
         {
-            return $this->members()->whereNull('exited_on')->get()->pluck('profile');
+            if(isset($memberOfChat->deleted_at))
+            {
+                $memberOfChat->update(['update_at'=>Carbon::now()->toDateTimeString(),'deleted_at'=>null]);
+            }
+            return $this->members()->withTrashed()->whereNull('exited_on')->get()->pluck('profile');
         }
     }
     
@@ -52,19 +57,17 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
-        $memberOfChat = Chat\Member::where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
         if(isset($memberOfChat->exited_on))
         {
             $this->isEnabled = false;
             return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
         }
-        else if(isset($memberOfChat->created_at))
+        else
         {
             $this->isEnabled = true;
-            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->where('updated_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
         }
-        $this->isEnabled = true;
-        return $this->messages()->orderBy('created_at','desc')->take(5)->get();
     }
     
     public static function getImagePath($id, $filename = null)
