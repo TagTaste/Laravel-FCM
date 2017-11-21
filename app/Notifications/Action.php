@@ -41,7 +41,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database','broadcast'];
+        return ['database'];
     }
 
     /**
@@ -90,7 +90,6 @@ class Action extends Notification
         {
 
         }
-        \Log::info("here");
         return $data;
     }
 }
