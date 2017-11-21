@@ -34,6 +34,7 @@ class Action
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
+        \Log::info("event");
     }
 
     public function getModelName(){
