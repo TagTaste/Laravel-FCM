@@ -38,7 +38,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database','broadcast'];
+        return ['database',FCMPush::class,'broadcast'];
     }
 
     /**
@@ -81,11 +81,6 @@ class Action extends Notification
         }
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-//        if(!\Redis::SISMEMBER("connected:profile",$this->data->model->id))
-//        {
-            $fcm = new FCMPush();
-            $fcm->fcmNotification($data,2);
-//        }
 
         return $data;
     }

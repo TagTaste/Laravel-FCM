@@ -7,9 +7,16 @@ use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
 use LaravelFCM\Facades\FCM;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 
 class FCMPush extends Model
 {
+    public function send($notifiable,Notification $notification)
+    {
+        $data = $notification->toArray($notifiable);
+        $this->fcmNotification($data,$notifiable->id);
+    }
+    
     public function fcmNotification($data,$profileId)
     {
         $optionBuilder = new OptionsBuilder();
@@ -49,7 +56,7 @@ class FCMPush extends Model
 
     protected function message($type)
     {
-        if($type == " comment"){
+        if($type == "comment"){
             return " commented on a post";
         }
         if($type == "like"){
