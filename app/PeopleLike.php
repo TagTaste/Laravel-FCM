@@ -16,13 +16,13 @@ class PeopleLike extends Model
 
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$length );
 
-        foreach ($profileIds as $profileId)
+        foreach ($profileIds as &$profileId)
         {
             if($profileId == $loggedInProfileId)
             {
                 continue;
             }
-            $profileIds[$key] = "profile:small:".$profileId ;
+            $profileId = "profile:small:".$profileId ;
         }
 
         if(count($profileIds)> 0)
