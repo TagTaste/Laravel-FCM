@@ -177,6 +177,8 @@ class Photo extends Model implements Feedable
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photo' ,request()->user()->proflie->id);
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();

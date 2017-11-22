@@ -2,6 +2,8 @@
 
 namespace App\Shareable;
 
+use App\PeopleLike;
+
 class Shoutout extends Share
 {
     protected $with = ['shoutout'];
@@ -30,8 +32,8 @@ class Shoutout extends Share
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
 
-        $idLiked = $this->like()->select('profile_id')->take(3)->get();
-        $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutoutShare' ,request()->user()->proflie->id);
 
         $meta['commentCount'] = $this->comments()->count();
 
