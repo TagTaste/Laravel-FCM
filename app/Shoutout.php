@@ -97,7 +97,7 @@ class Shoutout extends Model implements Feedable
 
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutout' ,1);
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutout' ,request()->user()->profile->id);
 
         $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
