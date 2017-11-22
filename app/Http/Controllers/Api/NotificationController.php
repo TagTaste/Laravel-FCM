@@ -24,6 +24,7 @@ class NotificationController extends Controller
            return $this->sendError("Profile not found.");
         }
         $this->model = $profile->notifications()->paginate();
+        \DB::table('notifications')->where('notifiable_id',$profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
         return $this->sendResponse();
     }
 
@@ -96,6 +97,15 @@ class NotificationController extends Controller
         $this->model =  $profile->notifications()->where('notifiable_id',$profile->id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
+    }
+
+    public function notificationCount(Request $request)
+    {
+        $this->model = [];
+        $this->model['notificationCount'] = \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',$request->user()->profile->id)->count();
+        $this->model['messageCount'] = \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',$request->user()->profile->id)->count();
+        return $this->sendResponse();
+
     }
     
 }
