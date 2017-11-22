@@ -24,21 +24,21 @@ class FCMPush extends Model
 
         $message = $data['profile']['name'].$this->message($data['action']);
 
-        $notificationBuilder = new PayloadNotificationBuilder($data['action']);
-        $notificationBuilder->setBody($message)
-            ->setSound('default');
+//        $notificationBuilder = new PayloadNotificationBuilder($data['action']);
+//        $notificationBuilder->setBody($message)
+//            ->setSound('default');
 
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
 
         $option = $optionBuilder->build();
-        $notification = $notificationBuilder->build();
+//        $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
-            $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+            $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
         }
 //        $downstreamResponse->numberFailure();
