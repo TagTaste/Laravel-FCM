@@ -90,6 +90,13 @@ class CollaborateController extends Controller
         
         $profileId = $request->user()->profile->id;
         
+        if(!is_null($collaboration->deleted_at)){
+            $meta = $collaboration->getMetaFor($profileId);
+            $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
+            return $this->sendResponse();
+        }
+        
+        
         if($collaboration->company_id != null){
 		    $checkUser = CompanyUser::where('company_id',$collaboration->company_id)->where('profile_id',$profileId)->exists();
 		    if(!$checkUser){
