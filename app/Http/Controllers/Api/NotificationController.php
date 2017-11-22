@@ -98,14 +98,14 @@ class NotificationController extends Controller
         return $this->sendResponse();
     }
 
-    public function notificationSeen(Request $request)
+    public function seen(Request $request,$type)
     {
         $this->model = false;
-        if($request->input('type') == 'notification')
+        if($type == 'notification')
         {
             $this->model = \DB::table('notifications')->where('notifiable_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
         }
-        if($request->input('type') == 'message')
+        if($type == 'message')
         {
             $this->model = \DB::table('chat_members')->where('profile_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
         }
