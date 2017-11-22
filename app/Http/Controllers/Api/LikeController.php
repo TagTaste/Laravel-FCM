@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\PeopleLike;
 use Illuminate\Http\Request;
 
 class LikeController extends Controller
@@ -29,29 +30,10 @@ class LikeController extends Controller
 
     public function peopleLiked(Request $request,$modelName,$modelId)
     {
-        $key = "meta:{$modelName}:likes:$modelId";
-        $profileIds = \Redis::SMEMBERS($key);
-
-        $loginProfileId = $request->user()->profile->id;
-
-        foreach ($profileIds as &$profileId)
-        {
-            $profileId = "profile:small:".$profileId;
-        }
-        $data = [];
-        if(count($profileIds)) {
-            $data = \Redis::mget($profileIds);
-        }
-
-        foreach ($data as &$datum)
-        {
-            $datum = json_decode($datum,true);
-            $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $loginProfileId,$datum['id']) == 1;
-            $datum['self'] = $loginProfileId === $datum['id'];
-        }
-
-        $this->model = $data;
-
+        $loggedInProfileId = $request->user()->profile->id ;
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $peopleLike = new PeopleLike();
+        $this->model = $peopleLike->peopleLike($modelId, $modelName ,$loggedInProfileId, $page,20);
         return $this->sendResponse();
 
     }
