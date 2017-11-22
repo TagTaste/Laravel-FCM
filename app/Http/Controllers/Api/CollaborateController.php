@@ -90,7 +90,7 @@ class CollaborateController extends Controller
         
         $profileId = $request->user()->profile->id;
         
-        if(!is_null($collaboration->deleted_at)){
+        if(is_null($collaboration->deleted_at)){
             $meta = $collaboration->getMetaFor($profileId);
             $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
             return $this->sendResponse();
