@@ -22,11 +22,9 @@ class FCMPush extends Model
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
 
-        $message = $data['profile']['name'].$this->message($data['action']);
+//        $message = $data['profile']['name'].$this->message($data['action']);
 
-//        $notificationBuilder = new PayloadNotificationBuilder($data['action']);
-//        $notificationBuilder->setBody($message)
-//            ->setSound('default');
+//        $notificationBuilder = new PayloadNotificationBuilder();
 
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
