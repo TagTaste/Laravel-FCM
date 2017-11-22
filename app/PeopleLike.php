@@ -34,7 +34,7 @@ class PeopleLike extends Model
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        return ['count'=>$count ,'data'=>$data];
+        return $length == 3 ? $data : ['count'=>$count ,'data'=>$data];
     }
 
 }
