@@ -196,7 +196,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
             //notifications
-                Route::post('notificationSeen','NotificationController@notificationSeen');
+                Route::post('notifications/{type}/seen','NotificationController@seen');
                 Route::get('notifications/unread','NotificationController@unread');
                 Route::post("notifications/read/{id}",'NotificationController@read');
                 Route::post("notifications/markAllAsRead","NotificationController@markAllAsRead");
