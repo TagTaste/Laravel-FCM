@@ -36,7 +36,7 @@ class Collaborate extends Share
         $meta['likeCount'] = \Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->proflie->id);
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
 

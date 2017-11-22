@@ -33,7 +33,7 @@ class Recipe extends Share
         $meta['likeCount'] = \Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'recipeShare' ,request()->user()->proflie->id);
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'recipeShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
 
