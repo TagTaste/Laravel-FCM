@@ -97,5 +97,21 @@ class NotificationController extends Controller
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
+
+    public function seen(Request $request,$type)
+    {
+        $this->model = false;
+        if($type == 'notification')
+        {
+            $this->model = \DB::table('notifications')->where('notifiable_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
+        }
+        if($type == 'message')
+        {
+            $this->model = \DB::table('chat_members')->where('profile_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
+        }
+
+        return $this->sendResponse();
+
+    }
     
 }

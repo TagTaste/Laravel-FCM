@@ -82,11 +82,33 @@ class CollaborateController extends Controller
 	 */
 	public function show(Request $request, $id)
 	{
-		$collaboration = $this->model->whereNull('deleted_at')->find($id);
-		$profileId = $request->user()->profile->id;
+		$collaboration = $this->model->find($id);
+        
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
+        
+        $profileId = $request->user()->profile->id;
+        
+        if(is_null($collaboration->deleted_at)){
+            $meta = $collaboration->getMetaFor($profileId);
+            $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
+            return $this->sendResponse();
+        }
+        
+        
+        if($collaboration->company_id != null){
+		    $checkUser = CompanyUser::where('company_id',$collaboration->company_id)->where('profile_id',$profileId)->exists();
+		    if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        
+        if($collaboration->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        
+        
         $meta = $collaboration->getMetaFor($profileId);
         $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
 		return $this->sendResponse();
@@ -95,7 +117,7 @@ class CollaborateController extends Controller
     
     public function apply(Request $request, $id)
     {
-        $collaborate = $this->model->where('id',$id)->first();
+        $collaborate = $this->model->where('id',$id)->whereNull('deleted_at')->first();
         
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");

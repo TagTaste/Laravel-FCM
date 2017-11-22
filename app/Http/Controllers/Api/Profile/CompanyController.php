@@ -117,7 +117,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $inputs = $request->except(['_method','_token']);
+        $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
@@ -129,6 +129,17 @@ class CompanyController extends Controller
             $heroImageName = str_random(32) . ".jpg";
             $path = \App\Company::getHeroImagePath($profileId, $id);
             $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
+        }
+
+        //delete heroimage or image
+        if($request->has("remove_logo") && $request->input('remove_logo') == 1)
+        {
+            $inputs['logo'] = null;
+        }
+
+        if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
+        {
+            $inputs['hero_image'] = null;
         }
 
         $status = \App\Company::where('id',$id)->update($inputs);

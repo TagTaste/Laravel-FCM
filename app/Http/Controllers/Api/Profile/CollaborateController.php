@@ -7,6 +7,7 @@ use App\Company;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
+use App\Listeners\Subscriber\Create;
 use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -39,7 +40,8 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
+        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')
+            ->whereNull('company_id')->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
@@ -68,6 +70,7 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->all();
         $inputs['profile_id'] = $profileId;
+        $inputs['state'] = Collaborate::$state[0];
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
@@ -101,8 +104,13 @@ class CollaborateController extends Controller
 
         $profile = Profile::find($profileId);
         $this->model = $this->model->fresh();
+        
+        //push to feed
         event(new NewFeedable($this->model, $profile));
     
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+        
         \App\Filter\Collaborate::addModel($this->model);
     
         return $this->sendResponse();
@@ -116,7 +124,7 @@ class CollaborateController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
-        $collaboration = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')->whereNull('company_id')->find($id);
+        $collaboration = $this->model->where('id',$id)->where('profile_id', $profileId)->whereNull('company_id')->first();
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -168,6 +176,21 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
+        if($collaborate->state == 3)
+        {
+            $inputs['state'] = Collaborate::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+
+            $this->model = $collaborate->update($inputs);
+
+            $profile = Profile::find($profileId);
+            $this->model = Collaborate::find($id);
+
+            event(new NewFeedable($this->model, $profile));
+            \App\Filter\Collaborate::addModel($this->model);
+            return $this->sendResponse();
+        }
 
         $this->model = $collaborate->update($inputs);
     
@@ -205,7 +228,7 @@ class CollaborateController extends Controller
         //remove filters
         \App\Filter\Collaborate::removeModel($id);
         
-        $this->model = $collaborate->delete();
+        $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);;
         return $this->sendResponse();
     }
 
@@ -275,9 +298,14 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = \DB::table("collaborators")->select('collaborate_id','collaborates.*')
-            ->join('collaborates','collaborators.collaborate_id','=','collaborates.id')
+        $collaborations = $this->model->select('collaborate_id','collaborates.*')
+            ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
             ->where("collaborators.profile_id",$profileId)->whereNull('collaborators.company_id')->skip($skip)->take($take)->get();
+
+        $this->model = [];
+        foreach ($collaborations as $collaboration) {
+            $this->model[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+        }
         return $this->sendResponse();
 
     }
@@ -286,13 +314,13 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNotNull('deleted_at')->whereNull('company_id')->orderBy('deleted_at', 'desc');
+        $profileId = $request->user()->profile->id;
+        $collaborations = $this->model->where('profile_id', $profileId)->where('state',Collaborate::$state[2])->whereNull('company_id')->orderBy('deleted_at', 'desc');
         $this->model = [];
-        $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         $profileId = $request->user()->profile->id;
         foreach ($collaborations as $collaboration) {
-            $this->model['data'][] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+            $this->model[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
         return $this->sendResponse();
 

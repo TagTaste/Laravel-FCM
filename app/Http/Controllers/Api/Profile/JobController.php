@@ -59,6 +59,7 @@ class JobController extends Controller
         
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        $inputs['state'] = Job::$state[0];
         if(empty($inputs['salary_min'])){
             unset($inputs['salary_min']);
         }
@@ -72,7 +73,11 @@ class JobController extends Controller
             unset($inputs['experience_max']);
         }
         $this->model = $profile->jobs()->create($inputs);
+     
         \App\Filter\Job::addModel($this->model);
+    
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
 
         return $this->sendResponse();
     }
@@ -85,7 +90,7 @@ class JobController extends Controller
      */
     public function show($profileId, $id)
     {
-        $job = $this->model->where('profile_id',$profileId)->whereNull('deleted_at')->where('id',$id)->first();
+        $job = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
         
         if (!$job) {
             return $this->sendError("No job found with the given Id.");
@@ -106,9 +111,46 @@ class JobController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
+        $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
+    
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
+        
+        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
 
-        $this->model = Job::where('id',$id)->where('profile_id',$profileId)->update($request->except(['_token','_method','company_id','profile_id','expires_on']));
-        \App\Filter\Job::addModel($this->model);
+        if ($job === null) {
+            throw new \Exception("Could not find the specified job.");
+        }
+
+        if($job->state == 3)
+        {
+            $inputs['state'] = Job::$state[0];
+            $inputs['deleted_at'] = null;
+            $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+            $this->model = $job->update($inputs);
+
+
+            $profile = Profile::find($profileId);
+            $this->model = Job::find($id);
+            event(new NewFeedable($this->model, $profile));
+            \App\Filter\Job::addModel($this->model);
+
+            return $this->sendResponse();
+
+        }
+        $this->model = $job->update($inputs);
+
+        \App\Filter\Job::addModel(Job::find($id));
         return $this->sendResponse();
     }
     
@@ -121,7 +163,7 @@ class JobController extends Controller
     public function destroy(Request $request, $profileId, $id)
     {
         $profileId = $request->user()->profile->id;
-        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $job = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('deleted_at')->first();
 
         if ($job === null) {
             throw new \Exception("Could not find the specified job.");
@@ -139,7 +181,7 @@ class JobController extends Controller
 
         \App\Filter\Job::removeModel($id);
 
-        $this->model = $job->delete();
+        $this->model = $job->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[1]]);
 
         return $this->sendResponse();
         
@@ -154,7 +196,7 @@ class JobController extends Controller
             $this->sendError("You can't apply your own job");
         }
         
-        $job = Job::where('id',$id)->where('profile_id',$profileId)->first();
+        $job = Job::where('id',$id)->where('profile_id',$profileId)->whereNull('deleted_at')->first();
         
         if(!$job){
             throw new \Exception("Job not found.");
@@ -192,7 +234,7 @@ class JobController extends Controller
             throw new \Exception("Invalid profile.");
         }
     
-        $job = $profile->jobs()->where('id',$id)->first();
+        $job = $profile->jobs()->where('id',$id)->whereNull('deleted_at')->first();
         if(!$job){
             throw new \Exception("Job not found.");
         }
@@ -260,7 +302,7 @@ class JobController extends Controller
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
 
-        $jobs = Job::whereNull('deleted_at')->whereIn('id',$ids);
+        $jobs = Job::whereIn('id',$ids);
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -273,7 +315,7 @@ class JobController extends Controller
     {
         $this->model = [];
         $profileId = $request->user()->profile->id;
-        $this->model['jobs'] = Job::where('profile_id', $profileId)->whereNotNull('deleted_at')->whereNull('company_id');
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->where('state',Job::$state[2])->whereNull('company_id');
         $this->model['count'] = $this->model['jobs']->count();
 
         $page = $request->input('page');

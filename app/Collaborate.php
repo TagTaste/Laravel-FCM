@@ -17,16 +17,19 @@ class Collaborate extends Model implements Feedable
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','file1','deliverables','start_in'];
+        'profile_id', 'company_id','template_fields','template_id',
+        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at'];
     
     protected $with = ['profile','company','fields','categories'];
-    
+
+    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
-        'profile','company','created_at',
+        'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in'];
     
     protected $appends = ['images','applicationCount'];
@@ -263,6 +266,8 @@ class Collaborate extends Model implements Feedable
         $meta['likeCount'] = \Redis::sCard($key);
     
         $meta['commentCount'] = $this->comments()->count();
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 

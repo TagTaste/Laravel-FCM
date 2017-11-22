@@ -2,6 +2,7 @@
 
 namespace App\Shareable;
 
+use App\PeopleLike;
 use App\Shareable\Share;
 
 class Photo extends Share
@@ -33,8 +34,8 @@ class Photo extends Share
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
 
-        $idLiked = $this->like()->select('profile_id')->take(3)->get();
-        $meta['peopleLiked'] = \App\User::whereIn('id',$idLiked)->select('name')->get();
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photoShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
 
