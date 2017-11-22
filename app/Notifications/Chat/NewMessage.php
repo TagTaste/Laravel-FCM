@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Chat;
 
+use App\FCMPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,7 +31,7 @@ class NewMessage extends Notification
      */
     public function via($notifiable)
     {
-        return ['database','broadcast'];
+        return ['database',FCMPush::class,'broadcast'];
     }
 
     /**
