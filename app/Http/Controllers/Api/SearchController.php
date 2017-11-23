@@ -16,14 +16,31 @@ class SearchController extends Controller
         'job' => \App\Job::class
     ];
     
-    private function getModels($type, $ids = [])
+    private $filters = [
+        'collaborate'=> \App\Filter\Collaborate::class,
+        'recipe' => \App\Filter\Recipe::class,
+        'profile' => \App\Filter\Profile::class,
+        'company' => \App\Filter\Company::class,
+        'job' => \App\Filter\Job::class
+    ];
+    
+    private function getModels($type, $ids = [], $filters = [],$skip,$take)
     {
-        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
-        if($model){
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+        if(empty($ids)){
+            return false;
         }
-        
-        return $model;
+        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
+        if(!$model){
+            return $model;
+        }
+    
+        if(!empty($filters) && isset($this->filters[$type])){
+            $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
+            if($modelIds->count()){
+                $ids = array_merge($ids,$modelIds->toArray());
+            }
+        }
+        return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
     }
 
     //index = db
@@ -54,9 +71,12 @@ class SearchController extends Controller
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
+    
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
             
             foreach($hits as $name => $hit){
-                $this->model[$name] = $this->getModels($name,$hit->pluck('_id'));
+                $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
             }
             
             $profileId = $request->user()->profile->id;

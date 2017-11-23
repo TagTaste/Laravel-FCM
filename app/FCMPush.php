@@ -7,31 +7,36 @@ use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
 use LaravelFCM\Facades\FCM;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 
 class FCMPush extends Model
 {
+    public function send($notifiable,Notification $notification)
+    {
+        $data = $notification->toArray($notifiable);
+        $this->fcmNotification($data,$notifiable->id);
+    }
+    
     public function fcmNotification($data,$profileId)
     {
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
 
-        $message = $data['profile']['name'].$this->message($data['action']);
+//        $message = $data['profile']['name'].$this->message($data['action']);
 
-        $notificationBuilder = new PayloadNotificationBuilder($data['action']);
-        $notificationBuilder->setBody($message)
-            ->setSound('default');
+//        $notificationBuilder = new PayloadNotificationBuilder();
 
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
 
         $option = $optionBuilder->build();
-        $notification = $notificationBuilder->build();
+//        $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
-            $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+            $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
         }
 //        $downstreamResponse->numberFailure();
@@ -49,7 +54,7 @@ class FCMPush extends Model
 
     protected function message($type)
     {
-        if($type == " comment"){
+        if($type == "comment"){
             return " commented on a post";
         }
         if($type == "like"){

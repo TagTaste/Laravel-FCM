@@ -50,7 +50,9 @@ class Profile extends Model
         'dob_private',
         'affiliations',
         'style_image',
-        'style_hero_image'
+        'style_hero_image',
+        'otp',
+        'verified_phone'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -124,10 +126,14 @@ class Profile extends Model
         'training',
         'affiliations',
         'style_image',
-        'style_hero_image'
+        'style_hero_image',
+        'verified_phone',
+        'notificationCount',
+        'messageCount'
     ];
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience','mutualFollowers'];
+    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
+        'resumeUrl','experience','mutualFollowers','notificationCount','messageCount'];
 
     public static function boot()
     {
@@ -685,6 +691,16 @@ class Profile extends Model
     {
         if(!request()->user() || is_null($value)){ return; }
         return $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+    }
+
+    public function getNotificationCountAttribute()
+    {
+        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+    }
+
+    public function getMessageCountAttribute()
+    {
+        return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();
     }
 
 }
