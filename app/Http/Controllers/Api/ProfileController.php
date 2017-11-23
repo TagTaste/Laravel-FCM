@@ -157,7 +157,8 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-        \App\Filter\Profile::addModel($this->model);
+        
+        \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
     
         return $this->sendResponse();
     }
