@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Events\Actions\Tag;
 use App\Events\DeleteFeedable;
 use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
@@ -10,11 +11,13 @@ use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\API\Photo\StoreRequest;
 use App\Http\Requests\API\Photo\UpdateRequest;
 use App\Photo;
+use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
 {
+    use CheckTags;
     /**
      * Display a listing of the resource.
      *
@@ -51,13 +54,15 @@ class PhotoController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $profileId = $request->user()->profile->id;
+        $profile = $request->user()->profile;
+        $profileId = $profile->id;
         $data = $request->except(['_method','_token','profile_id']);
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
+        $data['has_tags'] = $this->hasTags($data['caption']);
         $photo = Photo::create($data);
         if(!$photo){
             return $this->sendError("Could not create photo.");
@@ -79,6 +84,10 @@ class PhotoController extends Controller
         \Redis::lTrim("recent:user:" . $request->user()->id . ":photos",0,9);
         
         $this->model = $photo;
+    
+        if($data['has_tags']){
+            event(new Tag($this->model, $profile, $this->model->caption));
+        }
         return $this->sendResponse();
     }
     
@@ -132,12 +141,18 @@ class PhotoController extends Controller
         }
         $path = Photo::getProfileImagePath($profileId);
         $this->saveFileToData("file",$path,$request,$data);
-        
+        $data['has_tags'] = $this->hasTags($data['caption']);
+    
         $this->model = $request->user()->profile->photos()->where('id',$id)->update($data);
+        $this->model = \App\Profile\Photo::find($id);
+        if($data['has_tags']){
+            event(new Tag($this->model, $request->user()->profile, $this->model->caption));
+        }
+        
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
-    
+        
         return $this->sendResponse();
     }
 
