@@ -61,12 +61,12 @@ class Chat extends Model
         if(isset($memberOfChat->exited_on))
         {
             $this->isEnabled = false;
-            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->updated_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
         }
         else
         {
             $this->isEnabled = true;
-            return $this->messages()->where('updated_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->where('created_at','>=',$memberOfChat->updated_at)->orderBy('created_at','desc')->take(5)->get();
         }
     }
     

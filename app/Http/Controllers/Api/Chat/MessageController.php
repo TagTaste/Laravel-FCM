@@ -49,13 +49,13 @@ class MessageController extends Controller
         $isEnabled = true;
         if(isset($memberOfChat->exited_on))
         {
-            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])
+            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->updated_at,$memberOfChat->exited_on])
                 ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
             $isEnabled = false;
         }
         else
         {
-            $data = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->created_at)
+            $data = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->updated_at)
                 ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
         }
         $this->model = [];
