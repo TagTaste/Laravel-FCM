@@ -152,7 +152,7 @@ class JobController extends Controller
         }
         $this->model = $job->update($inputs);
 
-        \App\Filter\Job::addModel($this->model);
+        \App\Filter\Job::addModel(Job::find($id));
         return $this->sendResponse();
     }
     
