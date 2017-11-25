@@ -419,7 +419,6 @@ class ProfileController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
         $models = $models->skip($skip)->take($take);
-        
         if(empty($filters)){
             $profiles = $models->get();
     
@@ -597,6 +596,27 @@ class ProfileController extends Controller
         }
         $this->model = $data;
         return $this->sendResponse();
+    }
+
+    public function onboarding(Request $request)
+    {
+        $filters = [];
+        $companyFilter = [];
+        $keywords = $request->user()->profile->keywords;
+        $keywords = explode(',', $keywords);
+        foreach ($keywords as $keyword)
+        {
+            $filters['skills'][] = $keyword;
+            $companyFilter['speciality'][] = $keyword;
+        }
+        list($skip,$take) = \App\Strategies\Paginator::paginate(1);
+        $profiles = \App\Filter\Profile::getModels($filters,$skip,$take);
+        $companies = \App\Filter\Company::getModels($companyFilter,$skip,$take);
+        $this->model = [];
+        $this->model['profile'] = $profiles;
+        $this->model['company'] = $companies;
+        return $this->sendResponse();
+
     }
 
 }
