@@ -611,7 +611,6 @@ class ProfileController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $otp = $request->input('otp');
-        \Log::info($otp);
         $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$otp)->whereNotNull('otp')->update(['verified_phone'=>1]);
 
         return $this->sendResponse();
