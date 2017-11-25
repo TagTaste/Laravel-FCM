@@ -610,6 +610,7 @@ class ProfileController extends Controller
     public function requestOtp(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        \Log::info($request->input('otp'));
         $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['verified_phone'=>1]);
         return $this->sendResponse();
     }
