@@ -610,11 +610,20 @@ class ProfileController extends Controller
             $companyFilter['speciality'][] = $keyword;
         }
         list($skip,$take) = \App\Strategies\Paginator::paginate(1);
-        $profiles = \App\Filter\Profile::getModels($filters,$skip,$take);
-        $companies = \App\Filter\Company::getModels($companyFilter,$skip,$take);
+        $profiles = \App\Filter\Profile::getModels($filters,$skip,15);
+        $companies = \App\Filter\Company::getModels($companyFilter,$skip,5);
         $this->model = [];
-        $this->model['profile'] = $profiles;
-        $this->model['company'] = $companies;
+        $profileCount = count($profiles);
+        $companyCount = count($companies);
+        if($profileCount)
+        {
+            $this->model['profile'] = $profiles;
+        }
+        if($companyCount)
+        {
+            $this->model['company'] = $companies;
+        }
+
         return $this->sendResponse();
 
     }
