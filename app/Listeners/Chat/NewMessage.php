@@ -30,14 +30,13 @@ class NewMessage
      */
     public function handle(Message $event)
     {
-        $profiles = Profile::join('chat_members','chat_members.profile_id','=','profiles.id')
+        $profiles = Profile::select('profiles.*')->join('chat_members','profiles.id','=','chat_members.profile_id')
                     ->where('chat_id',$event->chatId)
                     ->where('profile_id','!=',$event->profile->id)->whereNull('chat_members.exited_on')->get();
         
         if($profiles->count() == 0){
             return;
         }
-        \Log::info($profiles);
         Notification::send($profiles, new ChatMessage($event));
     }
 }
