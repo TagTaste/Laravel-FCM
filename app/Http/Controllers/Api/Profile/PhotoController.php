@@ -85,7 +85,7 @@ class PhotoController extends Controller
         
         $this->model = $photo;
     
-        if($data['has_tags']){
+        if(isset($data['has_tags'])){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
         return $this->sendResponse();

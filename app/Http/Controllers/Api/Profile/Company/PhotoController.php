@@ -139,7 +139,7 @@ class PhotoController extends Controller
         $this->model = $company->photos()->where('id',$id)->update($data);
         
         $this->model = Company\Photo::find($id);
-        if($data['has_tags']){
+        if(isset($data['has_tags'])){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
