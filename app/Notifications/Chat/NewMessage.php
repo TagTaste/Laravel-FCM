@@ -42,9 +42,20 @@ class NewMessage extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            'message' => ['chat_id'=>$this->data->chatId],
+        $data = [
+            'action' => 'chat',
             'profile' => $notifiable
         ];
+
+        $data['model'] = [
+            'name' => 'chat',
+            'id' => $this->data->chatId,
+            'content' => $this->data->content,
+            'image' => $this->data->image
+        ];
+
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
     }
 }

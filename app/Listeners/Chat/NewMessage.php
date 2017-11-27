@@ -32,7 +32,7 @@ class NewMessage
     {
         $profiles = Profile::join('chat_members','chat_members.profile_id','=','profiles.id')
                     ->where('chat_id',$event->chatId)
-                    ->where('profile_id','!=',$event->profile->id)->get();
+                    ->where('profile_id','!=',$event->profile->id)->whereNull('chat_members.exited_on')->get();
         
         if($profiles->count() == 0){
             return;
