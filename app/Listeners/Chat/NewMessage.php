@@ -37,7 +37,7 @@ class NewMessage
         if($profiles->count() == 0){
             return;
         }
-        
+        \Log::info($profiles);
         Notification::send($profiles, new ChatMessage($event));
     }
 }
