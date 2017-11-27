@@ -615,15 +615,66 @@ class ProfileController extends Controller
         $this->model = [];
         $profileCount = count($profiles);
         $companyCount = count($companies);
-        if($profileCount)
+        $conut = 0;
+
+        foreach ($profiles as $profile)
         {
-            $this->model['profile'] = $profiles;
+            if($profile['id'] <= 15)
+            {
+                $conut++;
+                continue ;
+            }
+            $this->model['profile'][] = $profile;
         }
-        if($companyCount)
+        $profileCount = $profileCount - $conut;
+        $conut = 0;
+        $ids = [];
+        for($i = 1; $i <= 15 - $profileCount ; $i++ )
         {
-            $this->model['company'] = $companies;
+            $ids [$i] = "profile:small:".$i;
+        }
+        $data = [];
+        if(count($ids))
+        {
+            $data = \Redis::mget($ids);
+        }
+        foreach ($data as $profile)
+        {
+            $profile = json_decode($profile);
+            if(is_null($profile)){
+                continue;
+            }
+            $this->model['profile'][] = $profile;
         }
 
+        foreach ($companies as $company)
+        {
+            if($company['id'] <= 5)
+            {
+                $conut++;
+                continue ;
+            }
+            $this->model['company'][] = $company;
+        }
+        $companyCount = $companyCount - $conut;
+        $conut = 0;
+        $ids = [];
+        for($i = 1; $i <= 5 - $companyCount ; $i++ )
+        {
+            $ids [$i] = "company:small:".$i;
+        }
+        if(count($ids))
+        {
+            $data = \Redis::mget($ids);
+        }
+        foreach ($data as $company)
+        {
+            $company = json_decode($company);
+            if(is_null($company)){
+                continue;
+            }
+            $this->model['company'][] = $company;
+        }
         return $this->sendResponse();
 
     }
