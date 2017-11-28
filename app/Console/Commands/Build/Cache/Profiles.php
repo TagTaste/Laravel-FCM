@@ -37,7 +37,7 @@ class Profiles extends Command
      */
     public function handle()
     {
-        \App\Recipe\Profile::chunk(200,function($profiles){
+        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200,function($profiles){
             foreach($profiles as $model){
                 \Redis::set("profile:small:" . $model->id,$model->toJson());
             }

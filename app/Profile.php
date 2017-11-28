@@ -48,7 +48,11 @@ class Profile extends Model
         'address_private',
         'phone_private',
         'dob_private',
-        'affiliations'
+        'affiliations',
+        'style_image',
+        'style_hero_image',
+        'otp',
+        'verified_phone'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -100,6 +104,7 @@ class Profile extends Model
         'patents',
         'followingProfiles',
         'followerProfiles',
+        'mutualFollowers',
         'name',
         'photos',
         'education',
@@ -119,10 +124,16 @@ class Profile extends Model
         'phone_private',
         'dob_private',
         'training',
-        'affiliations'
+        'affiliations',
+        'style_image',
+        'style_hero_image',
+        'verified_phone',
+        'notificationCount',
+        'messageCount'
     ];
 
-    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,'resumeUrl','experience'];
+    protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
+        'resumeUrl','experience','mutualFollowers','notificationCount','messageCount'];
 
     public static function boot()
     {
@@ -372,13 +383,10 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = Subscriber::countFollowing($this->id);
-
-        if($count === 0){
-            return ['count' => 0, 'profiles' => null];
+        $count = \Redis::SCARD("following:profile:".$this->id);
+        if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
+                $count = $count - 1;
         }
-    
-        $profiles = Subscriber::getFollowing($this->id);
         
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
@@ -386,7 +394,7 @@ class Profile extends Model
             $count = round($count / 1000, 1) . "k";
         }
 
-        return ['count' => $count, 'profiles' => $profiles];
+        return ['count' => $count];
 
     }
 
@@ -413,22 +421,52 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = Subscriber::countFollowers($this->id);
+        $count = \Redis::SCARD("followers:profile:".$this->id);
+        if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+                $count = $count - 1;
+        }
     
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
         }
     
-        $profiles = Subscriber::getFollowers($this->id);
-    
+
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
         } elseif ($count > 1000) {
             $count = round($count / 1000, 1) . "k";
         }
     
-        return ['count' => $count, 'profiles' => $profiles];
+        return ['count' => $count];
 
+    }
+
+    public function getMutualFollowersAttribute()
+    {
+        if($this->id != request()->user()->id)
+        {
+            $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->id);
+            if(count($profileIds) == 0){
+                return ['count' => 0, 'profiles' => []];
+            }
+            $i = 0;
+            
+            foreach ($profileIds as &$profileId)
+            {
+                if($i == 5)
+                    break;
+                $profileId = "profile:small:".$profileId;
+                $i++;
+            }
+            $data = [];
+            if(count($profileIds))
+            $data = \Redis::mget($profileIds);
+
+            foreach($data as &$profile){
+                $profile = json_decode($profile);
+            }
+            return ['count' => count($profileIds), 'profiles' => $data];
+        }
     }
 
     public function photos()
@@ -653,6 +691,16 @@ class Profile extends Model
     {
         if(!request()->user() || is_null($value)){ return; }
         return $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+    }
+
+    public function getNotificationCountAttribute()
+    {
+        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+    }
+
+    public function getMessageCountAttribute()
+    {
+        return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();
     }
 
 }

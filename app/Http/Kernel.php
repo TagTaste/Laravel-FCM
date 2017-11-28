@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Api\VersionCheck;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -14,7 +15,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class
     ];
 
     /**
@@ -35,7 +36,8 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:240,1',
             'bindings',
-            'sanitize'
+            'sanitize',
+            'versionCheck'
         ],
     ];
 
@@ -62,6 +64,8 @@ class Kernel extends HttpKernel
         'api.checkProfile' => \App\Http\Middleware\Api\CheckProfile::class,
         'sanitize' => \App\Http\Middleware\Sanitize::class,
         'search.save' => \App\Http\Middleware\SaveSearchQuery::class,
-        'api.CheckCompanyAdmin' => \App\Http\Middleware\Api\CheckCompanyAdmin::class
+        'api.CheckCompanyAdmin' => \App\Http\Middleware\Api\CheckCompanyAdmin::class,
+        'versionCheck' => VersionCheck::class
+
     ];
 }

@@ -35,14 +35,49 @@ class Actions
         Notification::send($profiles, new $class($event));
     }
     
+    public function likeaddOrUpdateSubscriber($event)
+    {
+        $modelId = $event->model->id;
+        $model = get_class($event->model);
+        $profiles = Profile::select('profiles.*')->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
+            ->where('model_subscribers.model','=',$model)
+            ->where('model_subscribers.model_id','=',$modelId);
+    
+        if(isset($model->profile_id)){
+            $profiles = $profiles->where('model_subscribers.profile_id','=',$model->profile_id);
+        }
+        
+        $profiles = $profiles->where('model_subscribers.profile_id','!=',$event->who['id'])
+            ->whereNull('muted_on')
+            ->whereNull('model_subscribers.deleted_at')->get();
+        //send notification
+        if($profiles->count() === 0) {
+            \Log::info("No model subscribers. Not sending notification.");
+            return;
+        }
+        $class = "\App\Notifications\Actions\\" . ucwords($event->action);
+        Notification::send($profiles, new $class($event));
+    }
+    
     public function subscribe($events)
     {
         $events->listen(
-            [Like::class,Comment::class],
+            [
+//                Like::class,
+                Comment::class
+            ],
             'App\Subscribers\Actions@notifySubscribers');
         
         $events->listen(
-            [Like::class,Comment::class],
+            [
+                Comment::class
+            ],
             'App\Subscribers\Actions@addOrUpdateSubscriber');
+        
+        $events->listen(
+            [
+                Like::class,
+            ],
+            'App\Subscribers\Actions@likeaddOrUpdateSubscriber');
     }
 }

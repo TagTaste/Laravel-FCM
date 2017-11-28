@@ -62,14 +62,21 @@ class Filter extends Model
             $label =  array_key($key);
         }
         static::removeKey($relatedColumnId,$label);
+        
         //create new filter
         return static::addKey($relatedColumnId,$label,$value,$separator);
-        
+    }
+    
+    public static function removeAllKeys($relatedColumnId)
+    {
+        return static::where(static::$relatedColumn,$relatedColumnId)
+            ->delete();
     }
     
     public static function addModel($model)
     {
         $self = new static;
+        $self::removeAllKeys($model->id);
         foreach($self->csv as $label => $filter){
             if(is_int($label)){
                 $label = $filter;
@@ -84,7 +91,7 @@ class Filter extends Model
             }
             
             if($value) {
-                static::updateKey($model->id,$label,$value,',');
+                static::addKey($model->id,$label,$value,',');
             }
             
         }
@@ -104,7 +111,7 @@ class Filter extends Model
             }
             
             if($value){
-                static::updateKey($model->id,$label,$value);
+                static::addKey($model->id,$label,$value);
             }
         }
         
@@ -118,20 +125,18 @@ class Filter extends Model
                         if(is_int($label)){
                             $label = $relationship;
                         }
-                        
                         foreach($related as $rel){
                             
                             $value = null;
-                            $method = "get{$filter}attribute";
+                            $method = "get" . str_replace(".","_",$filter) . "attribute";
                             
                             if(method_exists($self,$method)){
                                 $value = $self->$method($model) ;
                             } elseif(isset($rel->$attribute)){
                                 $value = $rel->$attribute;
                             }
-                            
                             if($value){
-                                static::updateKey($model->id,$label,$value);
+                                static::addKey($model->id,$label,$value);
                             }
                         }
                     }
@@ -182,19 +187,20 @@ class Filter extends Model
                 ->orderBy(static::$relatedColumn)
                 ->get()
                 ->pluck(static::$relatedColumn);
+            
             if(is_null($models)){
                 $models = $model;
                 continue;
             }
+            
             $models = $model->intersect($models);
         }
-    
         return $models;
     }
     public static function getModels($filters, $skip, $take)
     {
         $models = static::getModelIds($filters,$skip,$take);
-    
+        
         if(count($models) == 0){
             return $models;
         }

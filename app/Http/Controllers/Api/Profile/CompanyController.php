@@ -117,7 +117,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $inputs = $request->except(['_method','_token']);
+        $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
         if($request->hasFile('logo')){
             $imageName = str_random(32) . ".jpg";
@@ -130,6 +130,18 @@ class CompanyController extends Controller
             $path = \App\Company::getHeroImagePath($profileId, $id);
             $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
         }
+
+        //delete heroimage or image
+        if($request->has("remove_logo") && $request->input('remove_logo') == 1)
+        {
+            $inputs['logo'] = null;
+        }
+
+        if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
+        {
+            $inputs['hero_image'] = null;
+        }
+
         $status = \App\Company::where('id',$id)->update($inputs);
         if(!$status){
             return $this->sendError("Could not update company");
@@ -305,7 +317,31 @@ class CompanyController extends Controller
 
     public function followers(Request $request, $profileId, $id)
     {
-        $this->model = Company::getFollowers($id);
+        $this->model = [];
+        $profileIds = \Redis::SMEMBERS("followers:company:".$id);
+        $this->model['count'] = count($profileIds);
+        $data = [];
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId ;
+        }
+
+        $loggedInProfileId = $request->user()->profile->id ;
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        foreach($data as &$profile){
+            if(is_null($profile)){
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+        $this->model['profile'] = $data;
         return $this->sendResponse();
     }
 }

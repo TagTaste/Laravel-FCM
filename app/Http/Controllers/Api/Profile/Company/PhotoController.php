@@ -69,6 +69,9 @@ class PhotoController extends Controller
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model,$company));
+    
+        //add subscriber
+        event(new \App\Events\Model\Subscriber\Create($this->model,$request->user()->profile));
         return $this->sendResponse();
     }
 

@@ -10,9 +10,18 @@ class Collaborate extends Filter
     
     protected $csv = ['keywords'];
     
-    protected $strings = ['location'];
+    protected $strings = ['location','starts in'=>'start_in','duration'];
+    
+    protected $models = ['By Company'=>'company.name','By People' => 'profile.name'];
     
     public static $cacheKey = "collaborate:";
     
     public static $relatedColumn = 'collaborate_id';
+    
+    public function getprofile_nameattribute($model)
+    {
+        if(!$model->company_id){
+           return $model->profile->name;
+        }
+    }
 }

@@ -8,6 +8,40 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
+    private $models = [
+        'collaborate'=> \App\Collaborate::class,
+        'recipe' => \App\Recipe::class,
+        'profile' => \App\Profile::class,
+        'company' => \App\Company::class,
+        'job' => \App\Job::class
+    ];
+    
+    private $filters = [
+        'collaborate'=> \App\Filter\Collaborate::class,
+        'recipe' => \App\Filter\Recipe::class,
+        'profile' => \App\Filter\Profile::class,
+        'company' => \App\Filter\Company::class,
+        'job' => \App\Filter\Job::class
+    ];
+    
+    private function getModels($type, $ids = [], $filters = [],$skip,$take)
+    {
+        if(empty($ids)){
+            return false;
+        }
+        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
+        if(!$model){
+            return $model;
+        }
+    
+        if(!empty($filters) && isset($this->filters[$type])){
+            $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
+            if($modelIds->count()){
+                $ids = array_merge($ids,$modelIds->toArray());
+            }
+        }
+        return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+    }
 
     //index = db
     //type = table
@@ -27,8 +61,8 @@ class SearchController extends Controller
                 ]
             ]
         ];
-        if($request->has('type')){
-            $params['type'] = $request->input('type');
+        if($type){
+            $params['type'] = $type;
         }
         $client = SearchClient::get();
     
@@ -37,20 +71,12 @@ class SearchController extends Controller
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
+    
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
             
             foreach($hits as $name => $hit){
-                $small = $name === 'profile' || $name === 'company' ? "small:" : null;
-                foreach($hit->pluck('_id') as $id){
-                    $keys[] = "$name:" . $small . "$id";
-                }
-                $this->model[$name] = \Redis::mget($keys);
-            }
-            
-            //decode json
-            foreach($this->model as $type=>&$objects){
-                foreach($objects as &$json){
-                    $json = json_decode($json,true);
-                }
+                $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
             }
             
             $profileId = $request->user()->profile->id;
@@ -58,15 +84,16 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
-                    $profile['isFollowing'] = in_array($profile['id'],$following);
+                    if($profile && isset($profile['id'])){
+                        $profile['isFollowing'] = in_array($profile['id'],$following);
+                    }
+
                 }
             }
             
             if(isset($this->model['company'])){
                 foreach($this->model['company'] as $company){
-                    if($company && isset($company['id'])){
-                        $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
-                    }
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
             
@@ -114,7 +141,7 @@ class SearchController extends Controller
                         ->where("users.name",'like',"%$term%")->take($total - 5)->get();
         
         $count = $total - $profiles->count();
-        $companies = \DB::table("companies")
+        $companies = \DB::table("companies")->whereNull('companies.deleted_at')
             ->select("companies.id",'name','profiles.id as profile_id')
             ->join("profiles",'companies.user_id','=','profiles.user_id')
             ->where("name",'like',"%$term%")->take($count)->get();

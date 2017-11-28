@@ -42,6 +42,20 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Model\Subscriber\Destroy' => ['App\Listeners\Subscriber\Destroy'],
 
+        'App\Events\Actions\Follow' => ['App\Listeners\Notifications\Follow'],
+        'App\Events\Actions\Apply' => ['App\Listeners\Notifications\Apply'],
+
+
+        'App\Events\Actions\Admin' => ['App\Listeners\Notifications\Admin'],
+
+        'App\Events\Actions\Expire' => ['App\Listeners\Notifications\Expire'],
+        'App\Events\Actions\JoinFriend' => ['App\Listeners\Notifications\JoinFriend'],
+
+        'App\Events\Actions\DeleteModel' => ['App\Listeners\Notifications\DeleteModel'],
+
+        'App\Events\Actions\ExpireModel' => ['App\Listeners\Notifications\ExpireModel'],
+
+
 
     ];
 

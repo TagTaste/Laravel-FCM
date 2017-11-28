@@ -17,16 +17,19 @@ class Collaborate extends Model implements Feedable
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','file1','deliverables','start_in'];
+        'profile_id', 'company_id','template_fields','template_id',
+        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at'];
     
     protected $with = ['profile','company','fields','categories'];
-    
+
+    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
-        'profile','company','created_at',
+        'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in'];
     
     protected $appends = ['images','applicationCount'];
@@ -207,6 +210,45 @@ class Collaborate extends Model implements Feedable
         return ['count'=>$count,'profiles'=>$profiles];
     }
     
+    private function getInterestedProfile($profileId)
+    {
+        $interestedProfile = json_decode(\Redis::get("profile:small:" . $profileId),true);
+        return is_array($interestedProfile) ? array_only($interestedProfile,['name','id']) : [];
+    }
+    
+    private function getInterestedCompany($companyId)
+    {
+        $company = json_decode(\Redis::get("company:small:" . $companyId),true);
+        return is_array($company) ? array_only($company,['name','id','profileId']) : [];
+    }
+    
+    private function setInterestedAsProfiles(&$meta,&$profileId)
+    {
+        $interested = \DB::table('collaborators')->where('collaborate_id',$this->id);
+    
+        $companyIds = \DB::table("company_users")->select('company_id')->where('profile_id',$profileId)->get();
+        
+        if($companyIds->count()){
+            $interested = $interested->where(function($query) use ($profileId,$companyIds){
+                $query->where('profile_id',$profileId)->orWhereIn('company_id',$companyIds->pluck('company_id'));
+            });
+        } else {
+            $interested = $interested->where('profile_id',$profileId);
+        }
+        
+        $interested = $interested->first();
+        //only one of his companies can apply;
+        $meta['interested'] = !!$interested;
+    
+        if($meta['interested']){
+            $meta['interested_as']['profile'] = $this->getInterestedProfile($interested->profile_id);
+        
+            if($interested->company_id){
+                $meta['interested_as']['company'] = $this->getInterestedCompany($interested->company_id);
+            }
+        }
+    }
+    
     /**
      * @param int $profileId
      * @return array
@@ -214,7 +256,9 @@ class Collaborate extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
+
+        $this->setInterestedAsProfiles($meta,$profileId);
+        
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
@@ -222,6 +266,8 @@ class Collaborate extends Model implements Feedable
         $meta['likeCount'] = \Redis::sCard($key);
     
         $meta['commentCount'] = $this->comments()->count();
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
@@ -311,10 +357,7 @@ class Collaborate extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        if(request()->user()->profile->id == $this->profile_id)
-        {
-            return \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
-        }
+        return \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
     }
     
     public function getFile1Attribute($value)

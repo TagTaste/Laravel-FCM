@@ -54,13 +54,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
-        Route::get('/user/verify/email/{token}', 'UserController@verify');
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
-
+    
+            Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+            Route::post('/user/verify/phone','UserController@phoneVerify');
+            Route::post('/user/requestOtp','UserController@requestOtp');
+            Route::get('/user/verify/email/{token}', 'UserController@verify');
+            
             //change password
                 Route::post("change/password","UserController@changePassword");
             //chat
@@ -86,6 +90,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource("like",'ShoutoutLikeController');
                 });
 
+            //invites
+            Route::post("invites","InviteController@invite");
             //company rating
             Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
@@ -146,6 +152,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("collaborate/filters","CollaborateController@filters");
                     Route::post("collaborate/{id}/like","CollaborateController@like");
                     Route::get("collaborate/{id}/applications","CollaborateController@applications");
+                    Route::get("collaborate/{id}/archived","CollaborateController@archived");
                     Route::post("collaborate/{id}/apply","CollaborateController@apply");
                     Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
                     Route::resource("collaborate","CollaborateController");
@@ -189,6 +196,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
             //notifications
+                Route::post('notifications/{type}/seen','NotificationController@seen');
                 Route::get('notifications/unread','NotificationController@unread');
                 Route::post("notifications/read/{id}",'NotificationController@read');
                 Route::post("notifications/markAllAsRead","NotificationController@markAllAsRead");
@@ -204,10 +212,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //profile routes
-            
+            //remove when profile/tagging api run proper on website and app
+            //website all followers
+            Route::get("profile/allFollowerslist",['uses'=>'ProfileController@oldtagging']);
+            //app all followers
+            Route::get("profile/allFollowers",['uses'=>'ProfileController@allFollowers']);
+
+
+            Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
+            Route::get("profile/{id}/mutualFollowers",['uses'=>'ProfileController@mutualFollowers']);
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
             Route::get('/people','ProfileController@all');
@@ -230,6 +246,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
                 Route::get("collaborate/interested","CollaborateController@interested");
+                Route::get("collaborate/expired","CollaborateController@expired");
                 Route::resource("collaborate","CollaborateController");
     
                 Route::post("jobs/{id}/apply", "JobController@apply");
@@ -237,6 +254,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get('jobs/{id}/applications', 'JobController@applications');
                 Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
                 Route::get("jobs/applied","JobController@applied");
+                Route::get("jobs/expired","JobController@expired");
 
                 Route::resource("jobs","JobController");
                 
@@ -273,6 +291,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
+                    Route::get("collaborate/expired","CollaborateController@expired");
+                    Route::get("collaborate/interested","CollaborateController@interested");
                     Route::resource("collaborate","CollaborateController");
 
                     
@@ -288,6 +308,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     
                     Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
+                    Route::get("jobs/expired","JobController@expired");
                     Route::resource("jobs","JobController");
                     Route::resource("products","ProductController");
                     Route::resource("users","UserController");
@@ -334,7 +355,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             });
             
             Route::get('@{handle}','HandleController@show');
+    
+            Route::get("apk_version",function(){
+                $version = \App\Version::getVersion();
+                return response()->json($version);
+            });
+    
+            Route::post("apk_version",function(Request $request){
+                $version = \App\Version::setVersion($request->input('compatible_version'),$request->input('latest_version'));
+                return response()->json($version);
+            });
+            
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
-    
 });

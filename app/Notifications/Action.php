@@ -2,12 +2,9 @@
 
 namespace App\Notifications;
 
+use App\FCMPush;
 use Carbon\Carbon;
-use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 
 class Action extends Notification
 {
@@ -41,7 +38,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database','broadcast'];
+        return ['database',FCMPush::class,'broadcast'];
     }
 
     /**
@@ -71,8 +68,8 @@ class Action extends Notification
             'profile' => $this->data->who
         ];
 
-        if(method_exists($this->data->model,'getNotificationContent')){
-            $data['model'] = $this->data->model->getNotificationContent();
+        if(method_exists($this->model,'getNotificationContent')){
+            $data['model'] = $this->model->getNotificationContent();
         } else {
             \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
             $data['model'] = [
@@ -82,7 +79,9 @@ class Action extends Notification
                 'image' => $this->data->image
             ];
         }
+
         $data['created_at'] = Carbon::now()->toDateTimeString();
+
         return $data;
     }
 }

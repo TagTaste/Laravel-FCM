@@ -77,7 +77,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\CompanyAdmins::class,
 
         \App\Console\Commands\ChangeAffiliationsCommand::class,
-        \App\Console\Commands\ChatGroup::class
+        \App\Console\Commands\ChatGroup::class,
+        
+        //API VERSION
+        \App\Console\Commands\Api\Version::class,
 
     ];
 
@@ -89,7 +92,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('expires_on:job')->daily();
+        $schedule->command('expires_on:job')->dailyAt('12:00');
+        $schedule->command('expires_on:collaboration')->dailyAt('12:00');
     }
 
     /**

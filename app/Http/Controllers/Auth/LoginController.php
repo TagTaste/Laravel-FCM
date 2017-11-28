@@ -37,9 +37,12 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->middleware('guest', ['except' => 'logout']);
+        if($request->token){
+            $request->merge(['code' => $request->token]);
+        }
     }
 
     /**
@@ -100,22 +103,20 @@ class LoginController extends Controller
      */
     public function handleProviderCallback(Request $request,$provider)
     {
-        try {
-            $user = Socialite::driver($provider)->stateless()->user();
-        } catch (Exception $e) {
-            \Log::warning($e->getMessage());
-            return response()->json(['error'=>"Could not login."],400);
-        }
-        $authUser = $this->findOrCreateUser($user, $provider,$request);
-
+        $input = $request->all();
+        $authUser = $this->findOrCreateUser($input, $provider);
+      
         if(!$authUser)
         {
             return response()->json(['error'=>"Could not login."],400);
         }
+        $result = ['status'=>'success'];
 
         $token = \JWTAuth::fromUser($authUser);
-        
-        return response()->json(compact('token'));
+        unset($authUser['profile']);
+        $result['result'] = ['user'=>$authUser,'token'=>$token];
+
+        return response()->json($result);
     }
 
     /**
@@ -128,14 +129,14 @@ class LoginController extends Controller
     private function findOrCreateUser($socialiteUser, $provider,$request)
     {
         try {
-            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser->getId());
+
+            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
             //then add social login
-            $email = $socialiteUser->getEmail() ? $socialiteUser->getEmail() : $request->has('email');
-            if($email){
-
-                $user = User::where('email','like',$socialiteUser->getEmail())->first();
+            if($socialiteUser['email']){
+                $user = User::where('email','like',$socialiteUser['email'])->first();
             }
             else
             {
@@ -143,9 +144,11 @@ class LoginController extends Controller
             }
             if($user){
                 //create social account;
-                $user->createSocialAccount($provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
-                $user = \App\Profile\User::addFoodie($socialiteUser->getName(),$email,str_random(6),true,1,$provider,$socialiteUser->getId(),$socialiteUser->getAvatar());
+
+                $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
+                    true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             }
         }
         return $user;

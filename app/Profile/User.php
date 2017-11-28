@@ -196,7 +196,8 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false, $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0)
+    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false,
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null)
     {
         $user = static::create([
             'name' => $name,
@@ -219,7 +220,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken);
         }
 
         $user->createDefaultIdeabook();
@@ -228,22 +229,23 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken)
     {
         //create social account
         $this->social()->create([
             'provider' => $provider,
             'provider_user_id' => $providerUserId,
+            'access_token' =>$accessToken
             //     'profile_type_id' => ProfileType::getTypeId('foodie')
         ]);
     
         //get profile image from $provider
         if($avatar){
-            $job = (new FetchUserAvatar($this,$avatar))->onQueue('registration')
-                ->delay(Carbon::now()->addSeconds(10));
-            \Log::info('Queueing job...');
-        
-            dispatch($job);
+            $file = file_get_contents("https://graph.facebook.com/$providerUserId/picture?type=normal");
+            $filename = str_random(20) . ".jpg";
+            file_put_contents(storage_path('app/images/p/'.$this->profile->id) . $filename,$file);
+
+            Profile::where('id',$this->profile->id)->update(['image'=>'images/p/'.$this->profile->id.'/'.$filename]);
         }
     }
 

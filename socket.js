@@ -16,8 +16,8 @@ var logErr = function(err,count){
     //private profile feed
         var feedNamespace = io.of('/feed');
         var feedEmit = function(pattern, channel, message){
-            console.log(channel);
-            console.log(message);
+            var message = JSON.parse(message);
+            feedNamespace.to(channel).emit("message",message);
         };
         var feed = new Redis();
         feed.psubscribe('feed.*', logErr);
@@ -34,7 +34,6 @@ var logErr = function(err,count){
         public.psubscribe('public.*',logErr);
         public.on('pmessage',function(pattern,channel,message){
             var message = JSON.parse(message);
-            console.log(message);
             feedNamespace.to(channel).emit("message",message);
             publicNamespace.to(channel).emit("message",message);
         });
@@ -47,7 +46,7 @@ var logErr = function(err,count){
         var notification = new Redis();
         notification.psubscribe('private-App.Notify.Profile.*',logErr);
         notification.on('pmessage',function(pattern,channel,message){
-            console.log(message);
+            //console.log(message);
             notificationNamespace.to(channel).emit("message",message);
         });
 
@@ -55,8 +54,8 @@ var logErr = function(err,count){
         var companyFeedNamespace = io.of("/company/public");
         var companyPublicEmit = function(pattern, channel, message){
             var message = JSON.parse(message);
-            console.log(channel);
-            console.log(message);
+            //console.log(channel);
+            //console.log(message);
             feedNamespace.to(channel).emit("message",message);
             companyFeedNamespace.to(channel).emit("message", message);
         };
@@ -69,7 +68,7 @@ var logErr = function(err,count){
 
         var chatNamespace = io.of("/chat");
         var chatEmit = function(pattern,channel,message){
-            console.log(message);
+            //console.log(message);
             chatNamespace.to(channel).emit("message",message);
         };
 
@@ -95,10 +94,10 @@ var logErr = function(err,count){
                 }
                 response.setEncoding('utf8');
                 response.on('data',function(body){
-                    console.log(body);
+                    //console.log(body);
                     body = JSON.parse(body);
                     if(body.error){
-                        console.log(body.error);
+                        //console.log(body.error);
                         return;
                     }
                     body = body.data;
@@ -188,7 +187,7 @@ var logErr = function(err,count){
                                 notificationNamespace.to("private-App.Notify.Profile." + profile.id).emit("new-chat",JSON.stringify(body));
                             });
                         } catch (e){
-                            console.log(e);
+                            //console.log(e);
                         }
                     })
                 });
@@ -201,10 +200,10 @@ var logErr = function(err,count){
         });
 
 io.on('disconnect', function(){
-    //console.log('user disconnected');
+    ////console.log('user disconnected');
 });
 var makeCompanyConnection = function(socket){
-    //console.log('connected');
+    ////console.log('connected');
     var token = socket.handshake.query['token'];
     var companyId = socket.handshake.query['id'];
     var path = '/api/channels';
@@ -242,7 +241,7 @@ var makeCompanyConnection = function(socket){
 };
 
 var makeConnection = function(socket){
-    //console.log('connected');
+    ////console.log('connected');
     var token = socket.handshake.query['token'];
     var profileId = socket.handshake.query['id'];
     var path = '/api/channels';
@@ -267,8 +266,8 @@ var makeConnection = function(socket){
         response.setEncoding('utf8');
         response.on('data',function(body){
             body = JSON.parse(body);
-            console.log("connecting on");
-            console.log(body);
+            //console.log("connecting on");
+            //console.log(body);
             if(body.error){
                 console.log(body.error);
                 return;
@@ -314,10 +313,10 @@ notificationNamespace.on('connection',function(socket){
                 try {
                     body = JSON.parse(responseData);
                 } catch (e) {
-                    console.log("path");
-                    console.log(path);
-                    console.log("body");
-                    console.log(response);
+                    //console.log("path");
+                    //console.log(path);
+                    //console.log("body");
+                    //console.log(response);
                     return console.error(e);
                 }
                 if(body.error){
@@ -354,10 +353,10 @@ var request = function(path,token,data){
             try {
                 data = JSON.parse(rawData);
             } catch (e) {
-                console.log("path");
-                console.log(path);
-                console.log("body");
-                console.log(response);
+                //console.log("path");
+                //console.log(path);
+                //console.log("body");
+                //console.log(response);
                 return console.error(e);
             }
             if(body.error){
@@ -368,5 +367,5 @@ var request = function(path,token,data){
     }).end();
 };
 http.listen(3001, function(){
-    console.log('Listening on Port 3001');
+    //console.log('Listening on Port 3001');
 });

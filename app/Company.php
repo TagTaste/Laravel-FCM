@@ -50,7 +50,9 @@ class Company extends Model
         'handle',
         'city',
         'user_id',
-        'affiliations'
+        'affiliations',
+        'style_logo',
+        'style_hero_image'
     ];
     
     protected $visible = [
@@ -96,7 +98,9 @@ class Company extends Model
         'isFollowing',
         'employeeCountArray',
         'employeeCountValue',
-        'affiliations'
+        'affiliations',
+        'style_logo',
+        'style_hero_image'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
@@ -105,7 +109,7 @@ class Company extends Model
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
         'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue'];
 
-    private $empValue = ['1 - 10','11 - 50','51 - 100','100 - 500','500 - 1000','1000 - 10000','10000 - 50000','50,000+'];
+    private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
 
     public function getEmployeeCountArrayAttribute()
     {
@@ -498,5 +502,16 @@ class Company extends Model
      {
          return $this->hasMany(\App\Company\Gallery::class);
      }
+    
+    //added by manda.
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->name,
+            'image' => $this->logo
+        ];
+    }
 
 }

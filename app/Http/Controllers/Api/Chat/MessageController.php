@@ -38,7 +38,7 @@ class MessageController extends Controller
 	    $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exists();
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
@@ -46,9 +46,21 @@ class MessageController extends Controller
         
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
-        
-		$this->model = $this->model->where('chat_id',$chatId)->orderBy('created_at','desc')->skip($skip)->take($take)->get();
-
+        $isEnabled = true;
+        if(isset($memberOfChat->exited_on))
+        {
+            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])
+                ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+            $isEnabled = false;
+        }
+        else
+        {
+            $data = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->created_at)
+                ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+        }
+        $this->model = [];
+        $this->model['data'] = $data;
+        $this->model['is_enabled'] = $isEnabled;
 		return $this->sendResponse();
 	}
 	
@@ -65,7 +77,7 @@ class MessageController extends Controller
         $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->exists();
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->exists();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
@@ -80,7 +92,6 @@ class MessageController extends Controller
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
-
 		event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}
@@ -96,7 +107,7 @@ class MessageController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->exists();
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");

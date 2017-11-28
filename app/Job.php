@@ -14,18 +14,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Job extends Model implements Feedable
 {
     use SoftDeletes, IdentifiesOwner, CachedPayload;
-    
+
     protected $fillable = ['title', 'description','why_us','location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
-        'company_id', 'type_id','privacy_id','resume_required','minimum_qualification','expires_on'
+        'company_id', 'type_id','privacy_id','resume_required','minimum_qualification','expires_on',
+        'start_month','start_year','end_month','end_year','state','deleted_at'
     ];
     protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
-        'applicationCount','hasApplied'
+        'applicationCount','hasApplied','start_month','start_year','end_month','end_year','deleted_at'
     ];
-    
+
+    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+
     protected $with = ['company','profile'];
     
     protected $appends = ['type','job_id','applicationCount','hasApplied'];
@@ -41,8 +44,6 @@ class Job extends Model implements Feedable
         });
     
         self::updated(function($model){
-            \Redis::set("job:" . $model->id,$model->makeHidden(['privacy','owner','company','applications'])->toJson());
-            
             //update the search
             \App\Documents\Job::create($model);
             $model->addToCache();
@@ -51,7 +52,7 @@ class Job extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','company','applications','applicationCount','hasApplied'])->toJson());
+        \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','profile','company','applications','applicationCount','hasApplied'])->toJson());
     }
     public function getJobIdAttribute()
     {
@@ -161,10 +162,7 @@ class Job extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        if(request()->user()->profile->id == $this->profile_id)
-        {
-            return \Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
-        }
+        return \Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
     }
     
 }

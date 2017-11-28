@@ -16,6 +16,11 @@ class Collaborator extends Model
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
     }
+    
+    public function company()
+    {
+        return $this->belongsTo(\App\Company::class);
+    }
 
     public function collaborate()
     {
