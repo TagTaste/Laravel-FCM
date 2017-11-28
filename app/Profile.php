@@ -700,7 +700,7 @@ class Profile extends Model
 
     public function getMessageCountAttribute()
     {
-        return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();
+        return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',6)->count();
     }
 
 }
