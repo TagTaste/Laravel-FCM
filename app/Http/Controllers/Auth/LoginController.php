@@ -126,7 +126,7 @@ class LoginController extends Controller
      * @param $key
      * @return User
      */
-    private function findOrCreateUser($socialiteUser, $provider,$request)
+    private function findOrCreateUser($socialiteUser, $provider)
     {
         try {
 
