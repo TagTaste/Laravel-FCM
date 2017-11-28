@@ -3,6 +3,8 @@
 namespace App\Notifications\Chat;
 
 use App\FCMPush;
+use App\Recipe\Profile;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,9 +44,20 @@ class NewMessage extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            'message' => ['chat_id'=>$this->data->chatId],
-            'profile' => $notifiable
+        $data = [
+            'action' => 'chat',
+            'profile' =>request()->user()->profile
         ];
+
+        $data['model'] = [
+            'name' => 'chat',
+            'id' => $this->data->chatId,
+            'content' => $this->data->message,
+            'image' => $this->data->image
+            ];
+
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
     }
 }

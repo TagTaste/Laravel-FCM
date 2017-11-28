@@ -32,7 +32,6 @@ class FCMPush extends Model
         $option = $optionBuilder->build();
 //        $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
-
         $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
