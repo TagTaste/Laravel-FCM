@@ -435,8 +435,9 @@ class ProfileController extends Controller
             return $this->sendResponse();
         }
         
-        $profiles = \App\Filter\Profile::getModels($filters,$skip,$take);
-        
+        $profiles = \App\Filter\Profile::getModelIds($filters);
+        $this->model = ['count' => count($profiles)];
+        $profiles = Profile::whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
         foreach ($profiles as &$profile){
             $profile['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile['id']);;

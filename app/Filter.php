@@ -175,16 +175,19 @@ class Filter extends Model
     }
     
     
-    public static function getModelIds(&$filters,$skip,$take)
+    public static function getModelIds(&$filters,$skip = null,$take = null)
     {
         $models = null;
         foreach($filters as $filter => $value){
         
             $model = static::selectRaw('distinct ' . static::$relatedColumn)
-                ->where('key',$filter)->whereIn('value',$value)
-                ->skip($skip)
-                ->take($take)
-                ->orderBy(static::$relatedColumn)
+                ->where('key',$filter)->whereIn('value',$value);
+            
+            if((null !== $skip) || (null !== $take)){
+                $model = $model->skip($skip)->take($take);
+            }
+           
+            $model = $model->orderBy(static::$relatedColumn)
                 ->get()
                 ->pluck(static::$relatedColumn);
             
@@ -197,7 +200,7 @@ class Filter extends Model
         }
         return $models;
     }
-    public static function getModels($filters, $skip, $take)
+    public static function getModels($filters, $skip = null, $take = null)
     {
         $models = static::getModelIds($filters,$skip,$take);
         

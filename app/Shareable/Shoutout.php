@@ -44,8 +44,8 @@ class Shoutout extends Share
     {
         return [
             'name' => strtolower(class_basename(self::class)),
-            'id' => $this->id,
-            'content' => $this->content,
+            'id' => $this->shoutout->id,
+            'content' => null != $this->content ? $this->content : $this->shoutout->content,
             'image' => null,
             'shared' => true
         ];
