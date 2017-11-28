@@ -436,6 +436,7 @@ class ProfileController extends Controller
         }
         
         $profiles = \App\Filter\Profile::getModelIds($filters);
+        \Log::info(count($profiles));
         $this->model = ['count' => count($profiles)];
         $profiles = Profile::whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
