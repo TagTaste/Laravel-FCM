@@ -48,6 +48,20 @@ class Job extends Model implements Feedable
             \App\Documents\Job::create($model);
             $model->addToCache();
         });
+        
+        self::deleting(function($model){
+            \App\Documents\Job::delete($model);
+            $model->applications()->delete();
+            $model->payload()->delete();
+            $model->deleteShares();
+            $model->deleteFromCache();
+        });
+    }
+    
+    public function deleteShares()
+    {
+        $now = \Carbon\Carbon::now();
+        \DB::table("job_shares")->where('job_id',$this->id)->update(['deleted_at'=>$now,'updated_at'=>$now]);
     }
     
     public function addToCache()
