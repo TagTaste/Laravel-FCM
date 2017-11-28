@@ -49,12 +49,13 @@ class NewMessage extends Notification
             'action' => 'chat',
             'profile' =>request()->user()->profile
         ];
+        $chat = Chat::where('id',$this->data->chatId)->first();
         $data['model'] = [
             'name' => 'chat',
             'id' => $this->data->chatId,
             'content' => $this->data->message,
             'image' => $this->data->image,
-            'data' => Chat::where('id',$this->data->chatId)->first()
+            'data' => $chat
             ];
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
