@@ -443,7 +443,7 @@ class Profile extends Model
 
     public function getMutualFollowersAttribute()
     {
-        if($this->id != 6)
+        if($this->id != request()->user()->profile->id)
         {
             $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->id);
             if(count($profileIds) == 0){
@@ -695,12 +695,12 @@ class Profile extends Model
 
     public function getNotificationCountAttribute()
     {
-        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',6)->count();
+        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
     }
 
     public function getMessageCountAttribute()
     {
-        return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',6)->count();
+        return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();
     }
 
 }
