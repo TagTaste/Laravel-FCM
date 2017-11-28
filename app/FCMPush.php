@@ -14,10 +14,7 @@ class FCMPush extends Model
     public function send($notifiable,Notification $notification)
     {
         $data = $notification->toArray($notifiable);
-        if(!\Redis::sIsMember('connected:profile',$notifiable->id))
-        {
-            $this->fcmNotification($data,$notifiable->id);
-        }
+        $this->fcmNotification($data,$notifiable->id);
     }
     
     public function fcmNotification($data,$profileId)
