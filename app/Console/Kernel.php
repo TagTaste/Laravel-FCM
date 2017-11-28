@@ -85,7 +85,7 @@ class Kernel extends ConsoleKernel
         //API VERSION
         \App\Console\Commands\Api\Version::class,
 
-        fixKeywords::class,
+        //fixKeywords::class,
         ProfileDelete::class,
 
     ];
