@@ -45,17 +45,21 @@ class NewMessage extends Notification
      */
     public function toArray($notifiable)
     {
+        $profile = request()->user()->profile;
         $data = [
             'action' => 'chat',
-            'profile' =>request()->user()->profile
+            'profile' =>$profile
         ];
-//        $chat = Chat::where('id',$this->data->chatId)->first();
+        $profileId = $profile->id;
+        $chat = Chat::where('id',$this->data->chatId)->whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->get();
         $data['model'] = [
             'name' => 'chat',
             'id' => $this->data->chatId,
             'content' => $this->data->message,
             'image' => $this->data->image,
-//            'data' => $chat
+            'data' => $chat
             ];
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
