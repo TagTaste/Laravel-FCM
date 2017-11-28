@@ -47,8 +47,8 @@ class Collaborate extends Share
     {
         return [
             'name' => strtolower(class_basename(self::class)),
-            'id' => $this->id,
-            'content' => $this->title,
+            'id' => $this->collaborate->id,
+            'content' => null != $this->content ? $this->content : $this->collaborate->looking_for,
             'image' => null,
             'shared' => true
         ];

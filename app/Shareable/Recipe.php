@@ -44,8 +44,8 @@ class Recipe extends Share
     {
         return [
             'name' => strtolower(class_basename(self::class)),
-            'id' => $this->id,
-            'content' => $this->name,
+            'id' => $this->recipe->id,
+            'content' => null != $this->content ? $this->content : $this->recipe->title,
             'image' => null,
             'shared' => true
         ];

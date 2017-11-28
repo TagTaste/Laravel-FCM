@@ -12,8 +12,8 @@ class Job extends Share
     {
         return [
             'name' => strtolower(class_basename(self::class)),
-            'id' => $this->id,
-            'content' => $this->title,
+            'id' => $this->job->id,
+            'content' => null != $this->content ? $this->content : $this->job->title,
             'image' => null,
             'shared' => true
         ];
