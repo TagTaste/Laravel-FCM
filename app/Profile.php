@@ -695,7 +695,7 @@ class Profile extends Model
 
     public function getNotificationCountAttribute()
     {
-        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',6)->count();
     }
 
     public function getMessageCountAttribute()
