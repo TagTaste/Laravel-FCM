@@ -104,15 +104,14 @@ class LoginController extends Controller
     public function handleProviderCallback(Request $request,$provider)
     {
         $input = $request->all();
-        try {
-            $authUser = $this->findOrCreateUser($input, $provider);
-
-        } catch (Exception $e) {
-            \Log::warning($e->getMessage());
+        $authUser = $this->findOrCreateUser($input, $provider);
+      
+        if(!$authUser)
+        {
             return response()->json(['error'=>"Could not login."],400);
         }
-
         $result = ['status'=>'success'];
+
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
@@ -127,7 +126,7 @@ class LoginController extends Controller
      * @param $key
      * @return User
      */
-    private function findOrCreateUser($socialiteUser, $provider)
+    private function findOrCreateUser($socialiteUser, $provider,$request)
     {
         try {
 
@@ -137,7 +136,6 @@ class LoginController extends Controller
             //check if user exists,
             //then add social login
             if($socialiteUser['email']){
-
                 $user = User::where('email','like',$socialiteUser['email'])->first();
             }
             else
@@ -148,6 +146,7 @@ class LoginController extends Controller
                 //create social account;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
+
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             }
