@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Http\Controllers\Api\Controller;
-use App\User;
+use App\Profile\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
