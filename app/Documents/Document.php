@@ -115,7 +115,7 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
         $client =  SearchClient::get();
         $response = $client->delete($params);
         \Log::warning("Deleted Document " . $this->type . " (" . $this->id . ")");
-        \Log::info((array) $response);
+        \Log::info($response);
     }
     
     
