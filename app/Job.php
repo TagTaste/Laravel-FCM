@@ -52,8 +52,8 @@ class Job extends Model implements Feedable
         self::deleting(function($model){
             \App\Documents\Job::delete($model);
             $model->applications()->delete();
-            $model->payload()->delete();
             $model->deleteShares();
+            $model->payload()->delete();
             $model->deleteFromCache();
         });
     }
