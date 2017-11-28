@@ -54,8 +54,14 @@ class Job extends Model implements Feedable
             $model->applications()->delete();
             $model->deleteShares();
             $model->payload()->delete();
+            $model->deleteFilters();
             $model->deleteFromCache();
         });
+    }
+    
+    public function deleteFilters()
+    {
+        \DB::table("job_filters")->where('job_id',$this->id)->delete();
     }
     
     public function deleteShares()
