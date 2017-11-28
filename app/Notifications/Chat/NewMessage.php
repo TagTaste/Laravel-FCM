@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Chat;
 
+use App\Chat;
 use App\FCMPush;
 use App\Recipe\Profile;
 use Carbon\Carbon;
@@ -48,12 +49,12 @@ class NewMessage extends Notification
             'action' => 'chat',
             'profile' =>request()->user()->profile
         ];
-
         $data['model'] = [
             'name' => 'chat',
             'id' => $this->data->chatId,
             'content' => $this->data->message,
-            'image' => $this->data->image
+            'image' => $this->data->image,
+            'data' => Chat::where('id',$this->data->chatId)->first()
             ];
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
