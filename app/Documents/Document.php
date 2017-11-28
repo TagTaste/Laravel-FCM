@@ -6,6 +6,7 @@ namespace App\Documents;
 use App\Events\Searchable;
 use App\Interfaces\CreatesDocument;
 use App\Interfaces\Document as SearchDocument;
+use App\SearchClient;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -100,6 +101,21 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
     public function getId()
     {
         return $this->id;
+    }
+    
+    //delete document
+    public function delete()
+    {
+        $params = [
+            'index' => $this->index,
+            'type' => $this->type,
+            'id' => $this->id
+        ];
+    
+        $client =  SearchClient::get();
+        $response = $client->delete($params);
+        \Log::warning("Deleted Document " . $this->type . " (" . $this->id . ")");
+        \Log::info((array) $response);
     }
     
     
