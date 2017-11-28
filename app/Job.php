@@ -54,6 +54,12 @@ class Job extends Model implements Feedable
     {
         \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','profile','company','applications','applicationCount','hasApplied'])->toJson());
     }
+    
+    public function deleteFromCache()
+    {
+        \Redis::del("job:" . $this->id);
+    }
+    
     public function getJobIdAttribute()
     {
         return $this->id;

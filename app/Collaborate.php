@@ -55,6 +55,11 @@ class Collaborate extends Model implements Feedable
         \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount'])->toJson());
     
     }
+    
+    public function removeFromCache()
+    {
+        \Redis::del("collaborate:" . $this->id);
+    }
     /**
      * Which profile created the collaboration project.
      *

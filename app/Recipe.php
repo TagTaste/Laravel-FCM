@@ -49,11 +49,20 @@ class Recipe extends Model implements Feedable, CommentNotification
             //update the document
             \App\Documents\Recipe::create($recipe);
         });
+        
+        self::deleting(function($recipe){
+            $recipe->deleteCached();
+        });
     }
     
     public function addToCache()
     {
         \Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
+    }
+    
+    public function removeFromCache()
+    {
+        \Redis::del("recipe:" . $this->id);
     }
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
