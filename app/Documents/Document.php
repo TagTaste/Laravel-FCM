@@ -104,18 +104,24 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
     }
     
     //delete document
-    public function delete()
+    public static function delete(Model $model)
     {
+        $self = new static();
         $params = [
-            'index' => $this->index,
-            'type' => $this->type,
-            'id' => $this->id
+            'index' => $self->index,
+            'type' => $self->type,
+            'id' => $model->id
         ];
     
         $client =  SearchClient::get();
-        $response = $client->delete($params);
-        \Log::warning("Deleted Document " . $this->type . " (" . $this->id . ")");
-        \Log::info($response);
+        try {
+            $response = $client->delete($params);
+            \Log::warning("Deleted Document " . $self->type . " (" . $model->id . ")");
+            \Log::info($response);
+        } catch (\Exception $e){
+            \Log::warning("Could not delete document {$self->type} $model->id. " . $e->getMessage());
+        }
+       
     }
     
     
