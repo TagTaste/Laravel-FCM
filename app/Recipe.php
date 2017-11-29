@@ -51,7 +51,13 @@ class Recipe extends Model implements Feedable, CommentNotification
         });
         
         self::deleting(function($recipe){
-            $recipe->deleteCached();
+            $recipe->removeFromCache();
+            \App\Documents\Recipe::delete($recipe);
+            $recipe->deleteShares();
+            //delete share likes
+            //delete share comments
+            //delete payloads
+            
         });
     }
     
