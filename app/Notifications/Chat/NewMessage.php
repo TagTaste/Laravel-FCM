@@ -54,7 +54,7 @@ class NewMessage extends Notification
             'name' => $chat->name,
             'id' => $this->data->chatId,
             'imageUrl' => !is_null($chat->image) ? \Storage::url($chat->image) : null,
-            'message'=> isset($this->data->image)&&(!empty($this->data->image)) ? $this->data->image :$this->data->message,
+            'message'=>['image'=>$this->data->image,'content'=>$this->data->message],
             'is_enabled'=>true
             ];
 
