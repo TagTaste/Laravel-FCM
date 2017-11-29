@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Http\Controllers\Api\Controller;
-use App\User;
+use App\Profile\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -126,7 +126,7 @@ class LoginController extends Controller
      * @param $key
      * @return User
      */
-    private function findOrCreateUser($socialiteUser, $provider,$request)
+    private function findOrCreateUser($socialiteUser, $provider)
     {
         try {
 
@@ -143,6 +143,7 @@ class LoginController extends Controller
                 return null;
             }
             if($user){
+                \Log::info($user);
                 //create social account;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
