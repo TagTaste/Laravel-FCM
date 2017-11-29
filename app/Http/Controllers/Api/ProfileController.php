@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company;
+use App\CompanyUser;
 use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
@@ -610,71 +612,15 @@ class ProfileController extends Controller
             $companyFilter['speciality'][] = $keyword;
         }
         list($skip,$take) = \App\Strategies\Paginator::paginate(1);
-        $profiles = \App\Filter\Profile::getModels($filters,$skip,15);
-        $companies = \App\Filter\Company::getModels($companyFilter,$skip,5);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
         $this->model = [];
-        $profileCount = count($profiles);
-        $companyCount = count($companies);
-        $conut = 0;
-
-        foreach ($profiles as $profile)
-        {
-            if($profile['id'] <= 15)
-            {
-                $conut++;
-                continue ;
-            }
-            $this->model['profile'][] = $profile;
-        }
-        $profileCount = $profileCount - $conut;
-        $conut = 0;
-        $ids = [];
-        for($i = 1; $i <= 15 - $profileCount ; $i++ )
-        {
-            $ids [$i] = "profile:small:".$i;
-        }
-        $data = [];
-        if(count($ids))
-        {
-            $data = \Redis::mget($ids);
-        }
-        foreach ($data as $profile)
-        {
-            $profile = json_decode($profile);
-            if(is_null($profile)){
-                continue;
-            }
-            $this->model['profile'][] = $profile;
-        }
-
-        foreach ($companies as $company)
-        {
-            if($company['id'] <= 5)
-            {
-                $conut++;
-                continue ;
-            }
-            $this->model['company'][] = $company;
-        }
-        $companyCount = $companyCount - $conut;
-        $conut = 0;
-        $ids = [];
-        for($i = 1; $i <= 5 - $companyCount ; $i++ )
-        {
-            $ids [$i] = "company:small:".$i;
-        }
-        if(count($ids))
-        {
-            $data = \Redis::mget($ids);
-        }
-        foreach ($data as $company)
-        {
-            $company = json_decode($company);
-            if(is_null($company)){
-                continue;
-            }
-            $this->model['company'][] = $company;
-        }
+        $companies = Company::with([])->whereIn('id',$companiesIds)->get();
+        $profiles = \App\Recipe\Profile::with([])->whereIn('id',$profilesIds)->get();
+        $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->take(15 - $profilesIds->count())
+            ->get()->merge($profiles);
+        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(15 - $companiesIds->count())
+            ->get()->merge($companies);
         return $this->sendResponse();
 
     }
