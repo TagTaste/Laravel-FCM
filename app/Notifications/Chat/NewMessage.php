@@ -51,7 +51,7 @@ class NewMessage extends Notification
             'profile' =>$profile
         ];
         $profileId = $profile->id;
-        $chat = Chat::with(['imageUrl'])->where('id',$this->data->chatId)->get();
+        $chat = Chat::with([])->where('id',$this->data->chatId)->first();
         $data['model'] = [
             'name' => 'chat',
             'id' => $this->data->chatId,
