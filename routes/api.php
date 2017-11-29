@@ -54,14 +54,19 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
-        Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
-        Route::get('/user/verify/email/{token}', 'UserController@verify');
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
 
     //authenticated routes.
         Route::group(['middleware'=>'api.auth'],function(){
+    
+            Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+            Route::post('/logout','UserController@logout');
+            Route::post('/user/verify/phone','UserController@phoneVerify');
+            Route::post('/user/requestOtp','UserController@requestOtp');
 
+            Route::get('/user/verify/email/{token}', 'UserController@verify');
+            
             //change password
                 Route::post("change/password","UserController@changePassword");
             //chat
@@ -193,6 +198,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
             //notifications
+                Route::post('notifications/{type}/seen','NotificationController@seen');
                 Route::get('notifications/unread','NotificationController@unread');
                 Route::post("notifications/read/{id}",'NotificationController@read');
                 Route::post("notifications/markAllAsRead","NotificationController@markAllAsRead");
@@ -208,6 +214,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //profile routes
+
+            //phone verify
+            Route::post('profile/requestOtp','ProfileController@requestOtp');
             //remove when profile/tagging api run proper on website and app
             //website all followers
             Route::get("profile/allFollowerslist",['uses'=>'ProfileController@oldtagging']);
@@ -223,6 +232,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
             Route::get('/people','ProfileController@all');
+            Route::get('/people/onboarding','ProfileController@onboarding');
             Route::get("people/filters", "ProfileController@filters");
 //            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');
@@ -288,6 +298,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::get("collaborate/expired","CollaborateController@expired");
+                    Route::get("collaborate/interested","CollaborateController@interested");
                     Route::resource("collaborate","CollaborateController");
 
                     

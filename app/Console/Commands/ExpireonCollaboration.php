@@ -1,5 +1,6 @@
 <?php
 namespace App\Console\Commands;
+use App\Collaborate;
 use App\CompanyUser;
 use App\Job;
 use Carbon\Carbon;
@@ -38,7 +39,7 @@ class ExpireonCollaboration extends Command
         \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models){
                 foreach($models as $model){
-                    $model->delete();
+                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
                     $profileIds = \DB::table("collaborators")->where("collaborate_id",$model->id)->get()->pluck('profile_id');
                     $profileIds = $profileIds->unique();
                     foreach ($profileIds as $profileId)

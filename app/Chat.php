@@ -4,6 +4,7 @@ namespace App;
 
 use App\Chat\Member;
 use App\Chat\Message;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -15,9 +16,11 @@ class Chat extends Model
     
     //protected $with = ['members'];
     
-    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount'];
+    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount','is_enabled'];
     
-    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount'];
+    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount','is_enabled'];
+
+    protected $isEnabled = true;
     
     public function members()
     {
@@ -26,7 +29,20 @@ class Chat extends Model
     
     public function getProfilesAttribute()
     {
-        return $this->members->pluck('profile');
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+
+        if(isset($memberOfChat->exited_on))
+        {
+            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get()->pluck('profile');
+        }
+        else
+        {
+            if(isset($memberOfChat->deleted_at))
+            {
+                $memberOfChat->restore();
+            }
+            return $this->members()->withTrashed()->whereNull('exited_on')->get()->pluck('profile');
+        }
     }
     
     public function messages()
@@ -41,7 +57,17 @@ class Chat extends Model
     
     public function getLatestMessagesAttribute()
     {
-        return $this->messages()->orderBy('created_at','desc')->take(5)->get();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        if(isset($memberOfChat->exited_on))
+        {
+            $this->isEnabled = false;
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
+        }
+        else
+        {
+            $this->isEnabled = true;
+            return $this->messages()->where('updated_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+        }
     }
     
     public static function getImagePath($id, $filename = null)
@@ -67,16 +93,21 @@ class Chat extends Model
             ->where('c1.is_single',1)
             ->where('c2.is_single',1)
             ->groupBy('c1.chat_id')
-            ->get();
-        if($chatIds->count() === 0){
+            ->first();
+        if(empty($chatIds)){
             return null;
         }
-        return Chat::whereIn('id',$chatIds->pluck('id')->toArray())->GET();
+        return Chat::where('id',$chatIds->id)->first();
 
     }
     
     public function getUnreadMessageCountAttribute()
     {
         return $this->messages()->whereNull('read_on')->count();
+    }
+
+    public function getIsEnabledAttribute()
+    {
+        return $this->isEnabled;
     }
 }

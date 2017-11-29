@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company;
+use App\CompanyUser;
 use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
 use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use App\Jobs\PhoneVerify;
 
 class ProfileController extends Controller
 {
@@ -137,6 +140,14 @@ class ProfileController extends Controller
                 $data['profile']['resume'] = $response;
             }
         }
+
+        //phone verified for request otp
+
+        if(isset($data['profile']['phone'])&&!empty($data['profile']['phone']))
+        {
+            dispatch((new PhoneVerify($data['profile']['phone'],$request->user()->profile))->onQueue('phone_verify'));
+        }
+
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;
@@ -147,7 +158,6 @@ class ProfileController extends Controller
                 }
                 $this->model->update($data['profile']);
                 $this->model->refresh();
-                
                 //update filters
                 \App\Filter\Profile::addModel($this->model);
                 
@@ -313,21 +323,30 @@ class ProfileController extends Controller
     
     public function followers(Request $request, $id)
     {
+        $loggedInProfileId = $request->user()->profile->id ;
+
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
-        $this->model['count'] = count($profileIds);
+        $count = count($profileIds);
+        if($count > 0 && \Redis::sIsMember("followers:profile:".$id,$id)){
+                  $count = $count - 1;
+        }
+        $this->model['count'] = $count;
         $data = [];
 
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
 
-        
-        foreach ($profileIds as &$profileId)
+        foreach ($profileIds as $key => $value)
         {
-            $profileId = "profile:small:".$profileId ;
+            if($id == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
         }
 
-        $loggedInProfileId = $request->user()->profile->id ;
         if(count($profileIds)> 0)
         {
             $data = \Redis::mget($profileIds);
@@ -348,18 +367,28 @@ class ProfileController extends Controller
     private function getFollowing($id, $loggedInProfileId, $page)
     {
         $profileIds = \Redis::sMembers("following:profile:$id");
-
+    
         $count = count($profileIds);
+        
+        if($count > 0 && \Redis::sIsMember("following:profile:".$id,$id)){
+              $count = $count - 1;
+        }
 
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
-
-        foreach ($profileIds as &$profileId)
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
+        \Log::info($profileIds);
+        foreach ($profileIds as $key => $value)
         {
-            if(str_contains($profileId,"company")){
-                $profileId = "company:small:" . last(explode(".",$profileId));
+            if(str_contains($value,"company")){
+                $profileIds[$key] = "company:small:" . last(explode(".",$value));
                 continue;
             }
-            $profileId = "profile:small:" . $profileId;
+            if($id == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+
         }
         $following = [];
         if(count($profileIds)> 0)
@@ -400,7 +429,6 @@ class ProfileController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
         $models = $models->skip($skip)->take($take);
-        
         if(empty($filters)){
             $profiles = $models->get();
     
@@ -480,7 +508,7 @@ class ProfileController extends Controller
         $data = [];
         $this->model['count'] = count($profileIds);
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20);
         foreach ($profileIds as &$profileId)
         {
             $profileId = "profile:small:".$profileId ;
@@ -512,11 +540,16 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $this->model['count'] = count($profileIds);
+        $this->model['count'] = count($profileIds) - \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId);
         $data = [];
-        foreach ($profileIds as &$profileId)
+        foreach ($profileIds as $key => $value)
         {
-            $profileId = "profile:small:".$profileId ;
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
         }
 
         if(count($profileIds)> 0)
@@ -545,12 +578,17 @@ class ProfileController extends Controller
         $data = [];
         /*
         $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,$page*20 );
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
         */
 
-        foreach ($profileIds as &$profileId)
+        foreach ($profileIds as $key => $value)
         {
-            $profileId = "profile:small:".$profileId ;
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
         }
 
         if(count($profileIds)> 0)
@@ -567,6 +605,40 @@ class ProfileController extends Controller
             $profile->self = false;
         }
         $this->model = $data;
+        return $this->sendResponse();
+    }
+
+    public function onboarding(Request $request)
+    {
+        $filters = [];
+        $companyFilter = [];
+        $keywords = $request->user()->profile->keywords;
+        $keywords = explode(',', $keywords);
+        foreach ($keywords as $keyword)
+        {
+            $filters['skills'][] = $keyword;
+            $companyFilter['speciality'][] = $keyword;
+        }
+        list($skip,$take) = \App\Strategies\Paginator::paginate(1);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
+        $this->model = [];
+        $companies = Company::with([])->whereIn('id',$companiesIds)->get();
+        $profiles = \App\Recipe\Profile::with([])->whereIn('id',$profilesIds)->get();
+        $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->take(15 - $profilesIds->count())
+            ->get()->merge($profiles);
+        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(15 - $companiesIds->count())
+            ->get()->merge($companies);
+        return $this->sendResponse();
+
+    }
+  
+    public function requestOtp(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $otp = $request->input('otp');
+        $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$otp)->whereNotNull('otp')->update(['verified_phone'=>1]);
+
         return $this->sendResponse();
     }
 

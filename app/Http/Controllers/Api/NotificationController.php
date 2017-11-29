@@ -16,15 +16,14 @@ class NotificationController extends Controller
     {
         $this->model = [];
         //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
+//        $page = $request->input('page');
+//        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
-        $notifications = $profile->notifications();
-
-        $this->model['data'] = $notifications->skip($skip)->take($take)->get();
-        $this->model['count']= $notifications->count();
+        if(!$profile){
+           return $this->sendError("Profile not found.");
+        }
+        $this->model = $profile->notifications()->paginate();
         return $this->sendResponse();
     }
 
@@ -97,6 +96,22 @@ class NotificationController extends Controller
         $this->model =  $profile->notifications()->where('notifiable_id',$profile->id)
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
+    }
+
+    public function seen(Request $request,$type)
+    {
+        $this->model = false;
+        if($type == 'notification')
+        {
+            $this->model = \DB::table('notifications')->where('notifiable_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
+        }
+        if($type == 'message')
+        {
+            $this->model = \DB::table('chat_members')->where('profile_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
+        }
+
+        return $this->sendResponse();
+
     }
     
 }

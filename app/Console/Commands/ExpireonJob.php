@@ -40,7 +40,7 @@ class ExpireonJob extends Command
         \App\Job::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models) {
                 foreach ($models as $model) {
-                    $model->delete();
+                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
                     //send notificants to applicants for delete job
                     $profileIds = Application::where('job_id',$model->id)->get()->pluck('profile_id');
                     foreach ($profileIds as $profileId)
