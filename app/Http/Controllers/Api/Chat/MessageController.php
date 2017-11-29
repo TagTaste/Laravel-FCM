@@ -55,7 +55,7 @@ class MessageController extends Controller
         }
         else
         {
-            $data = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->updated_at)
+            $data = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->created_at)
                 ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
         }
         $this->model = [];
