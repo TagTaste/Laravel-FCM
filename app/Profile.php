@@ -443,7 +443,7 @@ class Profile extends Model
 
     public function getMutualFollowersAttribute()
     {
-        if($this->id != request()->user()->id)
+        if($this->id != request()->user()->profile->id)
         {
             $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->id);
             if(count($profileIds) == 0){
