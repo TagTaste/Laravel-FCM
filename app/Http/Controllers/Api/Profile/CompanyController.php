@@ -259,19 +259,9 @@ class CompanyController extends Controller
         $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
-            
-            //ensure it's removed from cache as well
-            if($channelOwner->isFollowing($request->user()->profile->id)){
-                //companies the logged in user is following
-                \Redis::sRem("following:profile:" . $profileId, "company.$id");
-    
-                //profiles that are following $channelOwner
-                \Redis::sRem("followers:company:" . $id, $profileId);
-            }
-            
             throw new \Exception("You are not following this company.");
         }
-    
+        $profileId = $request->user()->profile->id;
         //companies the logged in user is following
         \Redis::sRem("following:profile:" . $profileId, "company.$id");
     
