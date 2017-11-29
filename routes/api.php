@@ -228,6 +228,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
             Route::get('/people','ProfileController@all');
+            Route::get('/people/onboarding','ProfileController@onboarding');
             Route::get("people/filters", "ProfileController@filters");
 //            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Company;
+use App\CompanyUser;
 use App\Events\Actions\Follow;
 use App\Profile;
 use App\Subscriber;
@@ -427,7 +429,6 @@ class ProfileController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
         $models = $models->skip($skip)->take($take);
-        
         if(empty($filters)){
             $profiles = $models->get();
     
@@ -607,6 +608,31 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function onboarding(Request $request)
+    {
+        $filters = [];
+        $companyFilter = [];
+        $keywords = $request->user()->profile->keywords;
+        $keywords = explode(',', $keywords);
+        foreach ($keywords as $keyword)
+        {
+            $filters['skills'][] = $keyword;
+            $companyFilter['speciality'][] = $keyword;
+        }
+        list($skip,$take) = \App\Strategies\Paginator::paginate(1);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
+        $this->model = [];
+        $companies = Company::with([])->whereIn('id',$companiesIds)->get();
+        $profiles = \App\Recipe\Profile::with([])->whereIn('id',$profilesIds)->get();
+        $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->take(15 - $profilesIds->count())
+            ->get()->merge($profiles);
+        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(15 - $companiesIds->count())
+            ->get()->merge($companies);
+        return $this->sendResponse();
+
+    }
+  
     public function requestOtp(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
