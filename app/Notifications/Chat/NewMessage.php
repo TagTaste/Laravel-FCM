@@ -51,9 +51,7 @@ class NewMessage extends Notification
             'profile' =>$profile
         ];
         $profileId = $profile->id;
-        $chat = Chat::where('id',$this->data->chatId)->whereHas('members',function($query) use ($profileId) {
-            $query->where('profile_id',$profileId)->whereNull('deleted_at');
-        })->get();
+        $chat = Chat::with(['imageUrl'])->where('id',$this->data->chatId)->get();
         $data['model'] = [
             'name' => 'chat',
             'id' => $this->data->chatId,
