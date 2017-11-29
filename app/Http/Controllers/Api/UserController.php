@@ -144,7 +144,8 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
+        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
+            ->where('profile_id',$request->user()->profile->id)->update(['fcm_token'=>null]);
         return $this->sendResponse();
     }
 }
