@@ -16,3 +16,13 @@ use Illuminate\Foundation\Inspiring;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+\Artisan::command("recipe:delete {recipeId}",function($recipeId){
+    $recipe = \App\Recipe::find($recipeId);
+    $recipe->delete();
+});
+
+\Artisan::command("job:delete {jobId}",function($jobId){
+    $job = \App\Job::find($jobId);
+    $job->delete();
+});
