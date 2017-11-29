@@ -64,6 +64,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');
             Route::post('/user/requestOtp','UserController@requestOtp');
+
             Route::get('/user/verify/email/{token}', 'UserController@verify');
             
             //change password
@@ -213,6 +214,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //profile routes
+
+            //phone verify
+            Route::post('profile/requestOtp','ProfileController@requestOtp');
             //remove when profile/tagging api run proper on website and app
             //website all followers
             Route::get("profile/allFollowerslist",['uses'=>'ProfileController@oldtagging']);
@@ -228,6 +232,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
             Route::get('/people','ProfileController@all');
+            Route::get('/people/onboarding','ProfileController@onboarding');
             Route::get("people/filters", "ProfileController@filters");
 //            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
-use App\Profile;
 use App\User;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -148,4 +146,5 @@ class UserController extends Controller
             ->where('profile_id',$request->user()->profile->id)->update(['fcm_token'=>null]);
         return $this->sendResponse();
     }
+
 }
