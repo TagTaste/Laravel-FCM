@@ -10,6 +10,7 @@ use App\Subscriber;
 use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use App\Jobs\PhoneVerify;
 
 class ProfileController extends Controller
 {
@@ -139,6 +140,14 @@ class ProfileController extends Controller
                 $data['profile']['resume'] = $response;
             }
         }
+
+        //phone verified for request otp
+
+        if(isset($data['profile']['phone'])&&!empty($data['profile']['phone']))
+        {
+            dispatch((new PhoneVerify($data['profile']['phone'],$request->user()->profile))->onQueue('phone_verify'));
+        }
+
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
             $userId = $request->user()->id;
@@ -149,7 +158,6 @@ class ProfileController extends Controller
                 }
                 $this->model->update($data['profile']);
                 $this->model->refresh();
-                
                 //update filters
                 \App\Filter\Profile::addModel($this->model);
                 
@@ -623,6 +631,15 @@ class ProfileController extends Controller
             ->get()->merge($companies);
         return $this->sendResponse();
 
+    }
+  
+    public function requestOtp(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $otp = $request->input('otp');
+        $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$otp)->whereNotNull('otp')->update(['verified_phone'=>1]);
+
+        return $this->sendResponse();
     }
 
 }

@@ -121,6 +121,19 @@ class JobController extends Controller
         $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
         $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
 
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
+
         if ($job === null) {
             throw new \Exception("Could not find the specified job.");
         }
@@ -143,7 +156,7 @@ class JobController extends Controller
         }
         $this->model = $job->update($inputs);
 
-        \App\Filter\Job::addModel($this->model);
+        \App\Filter\Job::addModel(Job::find($id));
     
         return $this->sendResponse();
     }

@@ -55,6 +55,9 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Actions\ExpireModel' => ['App\Listeners\Notifications\ExpireModel'],
 
+        'App\Events\PhoneVerify' => ['App\Listeners\PhoneVerifyNotification'],
+
+
 
 
     ];
