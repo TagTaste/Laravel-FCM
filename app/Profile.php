@@ -66,7 +66,7 @@ class Profile extends Model
         //'albums',
         'patents',
         'projects',
-        'education',
+//        'education',
         'professional',
         'training'
     ];
@@ -273,6 +273,58 @@ class Profile extends Model
         unset($experiences);
         return $sortedExperience;
         
+    }
+
+    public function getEducationAttribute(){
+        $educations = $this->education()->get();
+        $dates = $educations->toArray();
+
+        $educations = $educations->keyBy('id');
+        $sortedEducation = collect([]);
+        $endDates = [];
+        foreach ($dates as $exp) {
+            $id = $exp['id'];
+
+            if (is_null($exp['end_date']) || $exp['ongoing'] === 1) {
+                $sortedEducation->push($educations->get($id));
+                continue;
+            }
+            $dateArray = explode("-", $exp['end_date']);
+            $temp = array_fill(0, 3 - count($dateArray), '01');
+            $tempdate = implode("-", array_merge($temp, $dateArray));
+            $endDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
+        }
+
+
+        $currentColleges = $sortedEducation->pluck('start_date','id')->toArray();
+        $startDates = [];
+
+        foreach($currentColleges as $id=>$startDate){
+
+            $dateArray = explode("-", $startDate);
+            $temp = array_fill(0, 3 - count($dateArray), '01');
+            $tempdate = implode("-", array_merge($temp, $dateArray));
+            $startDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
+        }
+        $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
+        $sortedEducation = collect([]);
+
+        foreach($startDates as $id=>$date){
+
+            $sortedEducation->push($educations->get($id));
+        }
+
+
+        $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
+        unset($endDates);
+
+        foreach($sorted as $id=>$date){
+            $sortedEducation->push($educations->get($id));
+        }
+
+        unset($educations);
+        return $sortedEducation;
+
     }
 
     public function experience()
