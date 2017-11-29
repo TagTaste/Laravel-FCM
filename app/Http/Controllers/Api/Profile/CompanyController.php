@@ -255,7 +255,7 @@ class CompanyController extends Controller
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
-        
+        \Log::info($channelOwner->isFollowing($request->user()->profile->id));
         $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
