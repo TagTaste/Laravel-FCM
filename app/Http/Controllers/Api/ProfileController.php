@@ -167,7 +167,8 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-        \App\Filter\Profile::addModel($this->model);
+        
+        \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
     
         return $this->sendResponse();
     }
@@ -443,10 +444,10 @@ class ProfileController extends Controller
             return $this->sendResponse();
         }
         
-        $profiles = \App\Filter\Profile::getModels($filters,$skip,$take);
-        
-        $this->model['count'] =  count($profiles);
-    
+        $profiles = \App\Filter\Profile::getModelIds($filters);
+        \Log::info(count($profiles));
+        $this->model = ['count' => count($profiles)];
+        $profiles = Profile::whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
         foreach ($profiles as &$profile){
             $profile['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile['id']);;

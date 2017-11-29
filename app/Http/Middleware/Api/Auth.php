@@ -24,6 +24,7 @@ class Auth extends GetUserFromToken
             $user = \App\User::find(1);
             $token = \JWTAuth::fromUser($user);
             $this->auth->authenticate($token);
+            
             return $next($request);
         }
         

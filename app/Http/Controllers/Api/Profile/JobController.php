@@ -73,9 +73,7 @@ class JobController extends Controller
             unset($inputs['experience_max']);
         }
         $this->model = $profile->jobs()->create($inputs);
-        if(empty($inputs['salary_min'])){
-            unset($inputs['salary_min']);
-        }
+     
         \App\Filter\Job::addModel($this->model);
     
         //add subscriber

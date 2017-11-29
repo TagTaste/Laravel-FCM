@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\Actions\Share;
+use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use Illuminate\Http\Request;
 
@@ -63,8 +64,13 @@ class ShareController extends Controller
         
         //push to feed
         event(new NewFeedable($this->model, $request->user()->profile));
-        
-        event(new Share($sharedModel,$request->user()->profile));
+    
+        if($loggedInProfileId != $sharedModel->profile_id){
+            event(new Share($sharedModel,$request->user()->profile));
+        }
+    
+        //add model subscriber
+        event(new Create($this->model,$request->user()->profile));
         return $this->sendResponse();
     }
     

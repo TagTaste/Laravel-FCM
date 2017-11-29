@@ -96,7 +96,6 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
 
-
         if($collaboration->company_id != null){
             $checkUser = CompanyUser::where('company_id',$collaboration->company_id)->where('profile_id',$profileId)->exists();
             if(!$checkUser){
