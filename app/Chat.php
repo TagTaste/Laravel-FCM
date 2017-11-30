@@ -96,11 +96,8 @@ class Chat extends Model
             ->groupBy('c1.chat_id')
             ->orderBy('c1.chat_id')
             ->first();
-        \Log::info((array) $chatIds);
-        if(empty($chatIds)){
-            return null;
-        }
-        return Chat::where('id',$chatIds->id)->first();
+
+        return $chatIds == null ? null : Chat::where('id',$chatIds->id)->first();
 
     }
     
