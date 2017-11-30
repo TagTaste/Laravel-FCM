@@ -89,9 +89,11 @@ class Chat extends Model
         $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as id"))
             ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
             ->where(function($query) use ($profileIdOne){
-                $query->where('c1.profile_id','=',$profileIdOne)->where('c1.is_single','=',1);
+                $query->where('c1.profile_id','=',$profileIdOne)->where('c1.is_single','=',1)->whereNull('c1.deleted_at')
+                ;
             })->where(function($query) use ($profileIdTwo) {
-                $query->where('c2.profile_id','=',$profileIdTwo)->where('c2.is_single','=',1);
+                $query->where('c2.profile_id','=',$profileIdTwo)->where('c2.is_single','=',1)->whereNull('c2.deleted_at')
+                ;
             })
             ->groupBy('c1.chat_id')
             ->orderBy('c1.chat_id')
