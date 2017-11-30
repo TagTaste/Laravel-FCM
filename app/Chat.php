@@ -100,11 +100,8 @@ class Chat extends Model
             ->groupBy('c1.chat_id')
             ->orderBy('c1.chat_id')
             ->first();
-        \Log::info((array) $chatIds);
-        \Log::info($chatIds->id);
-        $chat = $chatIds == null ? null : Chat::where('id',$chatIds->id)->first();
-        \Log::info($chat);
-        return $chat;
+ 
+        return $chatIds == null ? null : Chat::where('id',$chatIds->id)->first();
     }
     
     public function getUnreadMessageCountAttribute()
