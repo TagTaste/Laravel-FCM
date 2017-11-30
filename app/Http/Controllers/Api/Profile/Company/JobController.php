@@ -133,6 +133,19 @@ class JobController extends Controller
         }
         $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
 
+        if(empty($inputs['salary_min'])){
+            unset($inputs['salary_min']);
+        }
+        if(empty($inputs['salary_max'])){
+            unset($inputs['salary_max']);
+        }
+        if(empty($inputs['experience_min'])){
+            unset($inputs['experience_min']);
+        }
+        if(empty($inputs['experience_max'])){
+            unset($inputs['experience_max']);
+        }
+
         if ($job === null) {
             throw new \Exception("Could not find the specified job.");
         }

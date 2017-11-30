@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
-use App\Profile;
 use App\User;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -141,4 +139,12 @@ class UserController extends Controller
         $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['verified_phone'=>1]);
         return $this->sendResponse();
     }
+
+    public function logout(Request $request)
+    {
+        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
+            ->where('profile_id',$request->user()->profile->id)->update(['fcm_token'=>null]);
+        return $this->sendResponse();
+    }
+
 }

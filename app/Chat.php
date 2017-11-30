@@ -66,7 +66,7 @@ class Chat extends Model
         else
         {
             $this->isEnabled = true;
-            return $this->messages()->where('updated_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
         }
     }
     

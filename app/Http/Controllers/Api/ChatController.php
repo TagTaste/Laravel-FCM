@@ -90,9 +90,9 @@ class ChatController extends Controller
 		$data = [];
 		$chatId = $this->model->id;
 		//for add login profile id in member model
-        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
+        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
         foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
         
@@ -148,7 +148,7 @@ class ChatController extends Controller
         if(count($profileIds)) {
             foreach ($profileIds as $profileId) {
                 \Log::info($profileId);
-                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'is_admin'=>0];
+                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'updated_at'=>$now,'is_admin'=>0];
             }
             $chat->members()->insert($data);
         }

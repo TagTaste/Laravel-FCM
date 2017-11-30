@@ -49,7 +49,7 @@ class MessageController extends Controller
         $isEnabled = true;
         if(isset($memberOfChat->exited_on))
         {
-            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])
+            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->updated_at,$memberOfChat->exited_on])
                 ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
             $isEnabled = false;
         }
@@ -92,7 +92,6 @@ class MessageController extends Controller
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
-
 		event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}
