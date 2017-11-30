@@ -221,10 +221,15 @@ class JobController extends Controller
         else {
             $response = $request->user()->completeProfile->resume;
         }
-        event(new \App\Events\Actions\Apply($job, $request->user()->profile));
-
+    
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
-        return $this->sendResponse();
+        
+        if($this->model){
+            event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+            return $this->sendResponse();
+        }
+        
+        return $this->sendError("Could not apply to this job.");
     }
     
     public function unapply(Request $request, $profileId, $id)

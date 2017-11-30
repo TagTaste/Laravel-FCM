@@ -223,16 +223,21 @@ class JobController extends Controller
         
         $this->model = $job->apply($profileId, $resume,$request->input("message"));
         
-        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-        foreach ($profileIds as $profileId)
-        {
-            $job->profile_id = $profileId;
-            event(new \App\Events\Actions\Apply($job, $request->user()->profile));
-
+        if($this->model){
+            $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+            foreach ($profileIds as $profileId)
+            {
+                $job->profile_id = $profileId;
+                event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+        
+            }
+            return $this->sendResponse();
         }
+        
+        return $this->sendError("Could not apply at this time.");
+        
 
         
-        return $this->sendResponse();
     }
     
     public function unapply(Request $request, $profileId, $companyId, $id)
