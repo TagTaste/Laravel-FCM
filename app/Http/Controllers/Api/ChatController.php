@@ -65,6 +65,7 @@ class ChatController extends Controller
 		//check for existing chats only for single profileId.
 		if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
+            \Log::info($existingChats);
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
