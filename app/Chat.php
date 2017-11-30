@@ -94,6 +94,7 @@ class Chat extends Model
                 $query->where('c2.profile_id','=',$profileIdTwo)->where('c2.is_single','=',1);
             })
             ->groupBy('c1.chat_id')
+            ->orderBy('c1.chat_id')
             ->first();
         if(empty($chatIds)){
             return null;
