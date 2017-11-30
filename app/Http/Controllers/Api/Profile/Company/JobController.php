@@ -217,9 +217,12 @@ class JobController extends Controller
             $resumeName = str_random("32") . "." . $ext;
             $resume = $request->file("resume")->storeAs($path, $resumeName,['visibility'=>'public']);
             if (!$resume) {
-                return $this->sendEerror("Could not save resume.");
+                return $this->sendError("Could not save resume.");
             }
         }
+        
+        $this->model = $job->apply($profileId, $resume,$request->input("message"));
+        
         $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
         foreach ($profileIds as $profileId)
         {
@@ -228,7 +231,6 @@ class JobController extends Controller
 
         }
 
-        $this->model = $job->apply($profileId, $resume,$request->input("message"));
         
         return $this->sendResponse();
     }
