@@ -40,9 +40,10 @@ class PhoneVerify implements ShouldQueue
         $client = new Client();
         $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=91".$this->phone."&text=".$otp." is your One Time Password to verify your Number with TagTaste. Valid for 5 min&route=2");
         $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
-        $job = ((new ChangeOtp($loggedInProfileId))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
-
-        dispatch($job);
+        \Log::info("here");
+//        $job = ((new ChangeOtp($loggedInProfileId))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
+//
+//        dispatch($job);
 
     }
 }
