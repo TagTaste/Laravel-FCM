@@ -241,7 +241,7 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-            $file = file_get_contents("https://graph.facebook.com/$providerUserId/picture?type=normal");
+            $file = file_get_contents($avatar);
             $filename = str_random(20) . ".jpg";
             file_put_contents(storage_path('app/images/p/'.$this->profile->id) . $filename,$file);
 
