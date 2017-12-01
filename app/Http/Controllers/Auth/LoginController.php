@@ -143,7 +143,6 @@ class LoginController extends Controller
                 return null;
             }
             if($user){
-                \Log::info($user);
                 //create social account;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
