@@ -214,6 +214,8 @@ class User extends BaseUser
         }
         $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
         Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
+        \Log::info($inviteCode);
+
         //attach default role
         $user->attachDefaultRole();
 

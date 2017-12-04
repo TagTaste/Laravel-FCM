@@ -32,6 +32,7 @@ class UserController extends Controller
         $alreadyVerified = false;
         $result = ['status'=>'success'];
         $inviteCode = $request->input("invite_code");
+        \Log::info($inviteCode);
         if(isset($inviteCode) && !empty($inviteCode))
         {
             $invitation = Invitation::where('invite_code', $inviteCode)
