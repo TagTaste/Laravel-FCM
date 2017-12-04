@@ -12,7 +12,6 @@ class PeopleLike extends Model
         $profileIds = \Redis::SMEMBERS($key);
 
         $count = count($profileIds);
-        $likeCount = $count;
         $data = [];
 
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$length );
@@ -21,7 +20,6 @@ class PeopleLike extends Model
         {
             if($loggedInProfileId == $value)
             {
-                $likeCount -- ;
                 unset($profileIds[$key]);
                 continue;
             }
@@ -37,12 +35,11 @@ class PeopleLike extends Model
             if(is_null($profile)){
                 continue;
             }
-            $likeCount -- ;
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        return ['count'=>$count ,'data'=>$data , 'likeCount'=>$likeCount];
+        return $length == 3 ? $data : ['count'=>$count ,'profile'=>$data];
     }
 
 }
