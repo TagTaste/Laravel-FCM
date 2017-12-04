@@ -74,7 +74,7 @@
                                                                     <tr>
                                                                         <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                                            <a href="http://website.app/register?invite_code={{$inviteCode}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">ACCEPT INVITE</a>
+                                                                            <a href="http://www.tagtaste.app/register?invite_code={{$inviteCode}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">ACCEPT INVITE</a>
 
                                                                         </td>
                                                                     </tr>

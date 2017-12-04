@@ -52,7 +52,7 @@
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
                                                                 
-                                                                        <a href="https://tagtaste.com/api/user/verify/email/{{$email_token}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">VERIFY EMAIL</a>
+                                                                        <a href="https://www.tagtaste.com/api/user/verify/email/{{$email_token}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">VERIFY EMAIL</a>
                                                                 
                                                                 </td>
                                                             </tr>
