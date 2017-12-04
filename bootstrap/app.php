@@ -51,27 +51,22 @@ $app->singleton(
 | from the actual running of the application and sending responses.
 |
 */
+if(env('logger') == 'rabbitmq'){
 
-$app->configureMonologUsing( function($monolog) {
-    
-    if(env('log_to_file')){
-        $formatter = new \Monolog\Formatter\LineFormatter(null, null, false, true);
-        $infoHandler = new \Monolog\Handler\StreamHandler('/home/vagrant/Code/webapp/storage/logs/laravel.log');
-        $infoHandler->setFormatter($formatter);
-        $monolog->pushHandler($infoHandler);
-    }
-   
-    $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection(
-        env('rabbitmq_host','localhost'),
-        env('rabbitmq_port','5672'),
-        env('rabbitmq_user','test'),
-        env('rabbitmq_password','test'));
-    $channel = $connection->channel();
-    $channel->exchange_declare('log', 'direct', false, false, false);
-    
-    $rmqhandler = new \App\Handler\RabbitMQHandler($channel);
-    $monolog->pushHandler($rmqhandler);
-    
-});
+    $app->configureMonologUsing( function($monolog) {
+        
+        $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection(
+            env('rabbitmq_host','localhost'),
+            env('rabbitmq_port','5672'),
+            env('rabbitmq_user','test'),
+            env('rabbitmq_password','test'));
+        $channel = $connection->channel();
+        $channel->exchange_declare('log', 'direct', false, false, false);
+        
+        $rmqhandler = new \App\Handler\RabbitMQHandler($channel);
+        $monolog->pushHandler($rmqhandler);
+        
+    });
+}
 
 return $app;
