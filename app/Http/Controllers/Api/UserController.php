@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\Invitation;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -32,8 +33,7 @@ class UserController extends Controller
         $result = ['status'=>'success'];
         if($request->input("invite_code"))
         {
-            $invitation = \App\Invitation::where('invite_code', $request->input("invite_code"))
-                        ->where('email',$request->input('user.email'))->first();
+            $invitation = \App\Invitation::where('invite_code', $request->input("invite_code"))->where('state',Invitation::$mailSent)->first();
             if(!$invitation)
             {
                 return $this->sendError("please use correct invite code");
