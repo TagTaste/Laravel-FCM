@@ -7,6 +7,7 @@ use App\Company\Coreteam;
 use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
+use App\Invitation;
 use App\Jobs\FetchUserAvatar;
 use App\Privacy;
 use App\Profile;
@@ -196,8 +197,8 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null)
+    public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode)
     {
         $user = static::create([
             'name' => $name,
@@ -211,7 +212,8 @@ class User extends BaseUser
         if(!$user){
             throw new \Exception("Could not create user.");
         }
-
+        $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+        Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
         //attach default role
         $user->attachDefaultRole();
 
