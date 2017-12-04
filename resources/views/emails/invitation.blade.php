@@ -63,7 +63,7 @@
                                             <tr>
                                                 <td valign="top" align="center" bgcolor="#FFFFFF ">
                                                     <a style="color: #FFFFFF ;text-decoration: none" href="http://website.app/register?invite_code={{$inviteCode}}">
-                                                        <button style="cursor: pointer;padding: 15px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 14px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">
+                                                        <button style="cursor: pointer !important;padding: 15px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 14px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">
                                                             ACCEPT INVITE</button></a>
                                                 </td>
 
