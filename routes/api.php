@@ -83,6 +83,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //share
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
+                Route::get("share/{modelName}/{id}",'ShareController@show');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
