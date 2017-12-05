@@ -78,7 +78,7 @@
                                     
                                     <tr>
                                         <td align="center" bgcolor="#FFFFFF" style="padding:0px 0px 30px 0px;">
-                                            <a href="#" style="text-decoration:none;font-size: 14px;color:#0D86E3">https://tagtaste.com/api/user/verify/email/{{$email_token}}</a>
+                                            <a href="#" style="text-decoration:none;font-size: 14px;color:#0D86E3">https://tagtaste.com/user/verify/email/{{$email_token}}</a>
                                         </td>
                                     </tr>
                                     <tr>
