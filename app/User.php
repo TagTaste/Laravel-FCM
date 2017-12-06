@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Notifications\PasswordReset;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -20,11 +21,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_active', 'social_registration','email_token'
+        'name', 'email', 'password', 'is_active', 'social_registration','email_token','verified_at'
     ];
 
 
-    protected $visible = ['name','email','profile','id'];
+    protected $visible = ['name','email','profile','id','verified_at'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -59,5 +60,10 @@ class User extends Authenticatable
     public function restore()
     {
         return $this->softRestore();
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new PasswordReset($token));
     }
 }

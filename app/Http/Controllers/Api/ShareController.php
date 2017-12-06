@@ -87,6 +87,44 @@ class ShareController extends Controller
         $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
     }
+
+    public function show(Request $request, $modelName, $id)
+    {
+        //photo
+        $this->model = [];
+        $modelName = strtolower($modelName);
+        $this->setColumn($modelName);
+
+
+        $sharedModel = $this->getModel($modelName, $id);
+
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+
+        $share = new $class();
+        $exists = $share->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
+
+        if (!$exists) {
+            return $this->sendError("Nothing found for given shared model.");
+        }
+        $this->model['shared'] = $exists;
+        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $loggedInProfileId));
+        $this->model['type'] = $modelName;
+        if($sharedModel->company_id){
+            $this->model['company'] = json_decode(\Redis::get('company:small:' . $sharedModel->company_id));
+        } elseif($sharedModel->profile_id){
+            $this->model['profile'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
+        }
+        $this->model[$modelName] = $sharedModel;
+        $this->model['meta']= $share->getMetaFor($loggedInProfileId);
+        return $this->sendResponse();
+
+    }
     
     
 }
