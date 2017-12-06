@@ -20,7 +20,7 @@ Artisan::command('inspire', function () {
 \Artisan::command("config:generate {path} {prefix} {host}",function($path,$prefix,$host){
     $file = fopen($path,"ab");
     $count = 0;
-    $host = "http://$host/v1/kv/";
+    $host = "http://$host/v1/kv/\n";
     echo $host;
     foreach($_ENV as $key => $value){
         if(trim($value) == null){
@@ -38,7 +38,7 @@ Artisan::command('inspire', function () {
             echo $status;
             $count++;
         }else{
-            echo "Couldnt write $key : $value";
+            echo "Couldnt write $key : $value\n";
         }
     }
     echo "wrote: " . $count;
