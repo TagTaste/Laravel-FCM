@@ -32,10 +32,11 @@ Artisan::command('inspire', function () {
        }
         //write the template
         fwrite($file,$key . '={{ key "' . $prefix . $key . "\"}}\n");
-    
+        echo "running:\n";
+        echo "curl -s --request PUT --data $value $host" . $prefix . $key ."\n";
         $status = shell_exec("curl -s --request PUT --data $value $host" . $prefix . $key);
         if($status){
-            echo $status;
+            echo $status . "\n";
             $count++;
         }else{
             echo "Couldnt write $key : $value\n";
