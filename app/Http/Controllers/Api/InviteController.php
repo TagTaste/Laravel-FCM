@@ -29,15 +29,6 @@ class InviteController extends Controller
 
             $temp['accepted_at'] = null;
 
-            $userExist = User::where('email',$email)->exists();
-            if($userExist)
-            {
-                $mail = (new SendConnectionInvite($request->user(),$email))->onQueue('invites');
-                \Log::info('Queueing send invitation...');
-                dispatch($mail);
-                continue;
-            }
-
             $mail = (new SendInvitation($request->user(),$temp))->onQueue('invites');
             \Log::info('Queueing send invitation...');
             dispatch($mail);
