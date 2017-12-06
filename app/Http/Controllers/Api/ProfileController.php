@@ -146,12 +146,12 @@ class ProfileController extends Controller
         if(isset($data['profile']['phone'])&&!empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
-            if($profile->verified_phone)
+            if($data['profile']['phone'] != $profile->photo)
             {
                 $profile->update(['verified_phone'=>0]);
+                dispatch((new PhoneVerify($data['profile']['phone'],$request->user()->profile))->onQueue('phone_verify'));
             }
 
-            dispatch((new PhoneVerify($data['profile']['phone'],$request->user()->profile))->onQueue('phone_verify'));
         }
 
         //save the model
