@@ -32,6 +32,8 @@ class LoginController extends Controller
      */
     protected $redirectTo = '/';
 
+    protected $newRegistered = false;
+
     /**
      * Create a new controller instance.
      *
@@ -110,7 +112,7 @@ class LoginController extends Controller
         {
             return response()->json(['error'=>"Could not login."],400);
         }
-        $result = ['status'=>'success'];
+        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
 
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
@@ -131,6 +133,7 @@ class LoginController extends Controller
         try {
 
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+            $this->newRegistered = true;
 
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
@@ -151,6 +154,9 @@ class LoginController extends Controller
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             }
+
+            $this->newRegistered = false;
+
         }
         return $user;
 
