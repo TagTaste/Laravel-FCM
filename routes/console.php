@@ -20,6 +20,8 @@ Artisan::command('inspire', function () {
 \Artisan::command("config:generate {path} {prefix} {host}",function($path,$prefix,$host){
     $file = fopen($path,"ab");
     $count = 0;
+    $host = "http://$host/v1/kv/";
+    echo $host;
     foreach($_ENV as $key => $value){
         if(trim($value) == null){
            continue;
@@ -31,7 +33,7 @@ Artisan::command('inspire', function () {
         //write the template
         fwrite($file,$key . '={{ key "' . $prefix . $key . "\"}}\n");
     
-        $status = shell_exec("curl -s --request PUT --data $value http://$host/v1/kv/" . $prefix . $key);
+        $status = shell_exec("curl -s --request PUT --data $value $host" . $prefix . $key);
         if($status){
             echo $status;
             $count++;
