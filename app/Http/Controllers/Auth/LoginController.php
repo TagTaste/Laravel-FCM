@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\Actions\JoinFriend;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Http\Controllers\Api\Controller;
+use App\Invitation;
 use App\Profile\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -31,6 +33,8 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
+
+    protected $newRegistered = false;
 
     /**
      * Create a new controller instance.
@@ -110,7 +114,7 @@ class LoginController extends Controller
         {
             return response()->json(['error'=>"Could not login."],400);
         }
-        $result = ['status'=>'success'];
+        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
 
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
@@ -131,6 +135,7 @@ class LoginController extends Controller
         try {
 
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+            $this->newRegistered = true;
 
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
@@ -143,13 +148,39 @@ class LoginController extends Controller
                 return null;
             }
             if($user){
+                \Log::info($user);
                 //create social account;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
 
+                $inviteCode = $socialiteUser['invite_code'];
+                $alreadyVerified = false;
+                if(isset($inviteCode) && !empty($inviteCode))
+                {
+                    $invitation = Invitation::where('invite_code', $inviteCode)
+                        ->where('state',Invitation::$mailSent)->first();
+                    if(!$invitation)
+                    {
+                        return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                    }
+                    $alreadyVerified = true;
+                    $profileId = $invitation->profile_id;
+                }
+              
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
-                    true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
+
+                if($alreadyVerified) {
+                    $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
+
+                    $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+                    $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
+                    event(new JoinFriend($profile, $loginProfile));
+                }
             }
+
+            $this->newRegistered = false;
+
         }
         return $user;
 

@@ -63,6 +63,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
             Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');
+
             Route::post('/user/requestOtp','UserController@requestOtp');
 
             Route::get('/user/verify/email/{token}', 'UserController@verify');
@@ -83,6 +84,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //share
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
+                Route::get("share/{modelName}/{id}",'ShareController@show');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
@@ -217,6 +219,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //phone verify
             Route::post('profile/requestOtp','ProfileController@requestOtp');
+            Route::post('profile/verify/email','ProfileController@sendVerifyMail');
             //remove when profile/tagging api run proper on website and app
             //website all followers
             Route::get("profile/allFollowerslist",['uses'=>'ProfileController@oldtagging']);
