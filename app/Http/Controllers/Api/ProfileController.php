@@ -644,4 +644,27 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function sendVerifyMail(Request $request)
+    {
+        $user = $request->user();
+        $alreadyVerified = \App\Profile\User::where('id',$user->id)->whereNull('verified_at')->first();
+        $this->model = false;
+        if($alreadyVerified)
+        {
+            $alreadyVerified->update(['email_token'=>str_random(15)]);
+
+            $mail = (new \App\Jobs\EmailVerification($alreadyVerified))->onQueue('emails');
+            \Log::info('Queueing Verified Email...');
+
+            dispatch($mail);
+            $this->model = true;
+            return $this->sendResponse();
+
+        }
+        else
+        {
+            $this->sendError("Already verified");
+        }
+    }
+
 }
