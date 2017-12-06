@@ -20,8 +20,8 @@ Artisan::command('inspire', function () {
 \Artisan::command("config:generate {path} {prefix} {host}",function($path,$prefix,$host){
     $file = fopen($path,"ab");
     $count = 0;
-    $host = "http://$host/v1/kv/\n";
-    echo $host;
+    $host = "http://$host/v1/kv/";
+    echo $host . "\n";
     foreach($_ENV as $key => $value){
         if(trim($value) == null){
            continue;
