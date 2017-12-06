@@ -230,20 +230,27 @@ class JobController extends Controller
             $resumeName = str_random("32") . "." . $ext;
             $resume = $request->file("resume")->storeAs($path, $resumeName,['visibility'=>'public']);
             if (!$resume) {
-                return $this->sendEerror("Could not save resume.");
+                return $this->sendError("Could not save resume.");
             }
         }
-        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-        foreach ($profileIds as $profileId)
-        {
-            $job->profile_id = $profileId;
-            event(new \App\Events\Actions\Apply($job, $request->user()->profile));
-
-        }
-
+        
         $this->model = $job->apply($profileId, $resume,$request->input("message"));
         
-        return $this->sendResponse();
+        if($this->model){
+            $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+            foreach ($profileIds as $profileId)
+            {
+                $job->profile_id = $profileId;
+                event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+        
+            }
+            return $this->sendResponse();
+        }
+        
+        return $this->sendError("Could not apply at this time.");
+        
+
+        
     }
     
     public function unapply(Request $request, $profileId, $companyId, $id)

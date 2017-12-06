@@ -151,7 +151,6 @@ class ProfileController extends Controller
                 $profile->update(['verified_phone'=>0]);
                 dispatch((new PhoneVerify($data['profile']['phone'],$request->user()->profile))->onQueue('phone_verify'));
             }
-
         }
 
         //save the model
@@ -672,5 +671,4 @@ class ProfileController extends Controller
             $this->sendError("Already verified");
         }
     }
-
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Tagtaste\Api\SendsJsonResponse;
 
 class ForgotPasswordController extends Controller
 {
@@ -18,7 +19,7 @@ class ForgotPasswordController extends Controller
     |
     */
 
-    use SendsPasswordResetEmails;
+    use SendsPasswordResetEmails, SendsJsonResponse;
 
     /**
      * Create a new controller instance.
@@ -28,5 +29,29 @@ class ForgotPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+    
+    /**
+     * Get the response for a successful password reset link.
+     *
+     * @param  string  $response
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendResetLinkResponse($response)
+    {
+        return $this->sendResponse(trans($response));
+    }
+    
+    /**
+     * Get the response for a failed password reset link.
+     *
+     * @param  \Illuminate\Http\Request
+     * @param  string  $response
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendResetLinkFailedResponse(Request $request, $response)
+    {
+        $this->messages = ['email' => trans($response)];
+        return $this->sendError("reset_failed");
     }
 }

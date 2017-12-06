@@ -64,6 +64,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');
 
+            Route::post('/user/requestOtp','UserController@requestOtp');
+
             Route::get('/user/verify/email/{token}', 'UserController@verify');
             
             //change password

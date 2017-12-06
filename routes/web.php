@@ -159,3 +159,7 @@ Route::group(['middleware'=>'auth'],function(){
 
 
 });
+Route::get("test",function(){
+    \Log::info("foo");
+    \Log::warning("bar");
+});
