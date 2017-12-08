@@ -60,7 +60,8 @@ class ChatController extends Controller
 		if(!is_array($profileIds)){
 		    $profileIds = [$profileIds];
         }
-        $loggedInProfileId = $request->user()->profile->id;
+        $user = $request->user();
+        $loggedInProfileId = $user->profile->id;
 		$inputs['profile_id'] = $loggedInProfileId;
 		//check for existing chats only for single profileId.
 		if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
@@ -72,9 +73,12 @@ class ChatController extends Controller
                 return $this->sendResponse();
             }
         }
-        unset($inputs['image']);
-		$this->model = $this->model->create($inputs);
-  
+        
+        if(!\App\ChatLimit::checkLimit($loggedInProfileId)){
+            return $this->sendError("max_limit_reached");
+        }
+        
+        $this->model = \App\Chat::create($inputs);
 		if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($this->model->id);
@@ -166,7 +170,7 @@ class ChatController extends Controller
 	    $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
-
+        \App\ChatLimit::increaseLimit($loggedInProfileId);
         return $this->sendResponse();
 	}
     
