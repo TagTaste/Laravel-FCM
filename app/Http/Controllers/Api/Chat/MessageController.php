@@ -77,7 +77,7 @@ class MessageController extends Controller
         $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->exists();
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->first();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
