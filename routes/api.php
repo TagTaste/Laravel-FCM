@@ -61,8 +61,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::group(['middleware'=>'api.auth'],function(){
     
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+            Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');
+
             Route::post('/user/requestOtp','UserController@requestOtp');
+
             Route::get('/user/verify/email/{token}', 'UserController@verify');
             
             //change password
@@ -81,6 +84,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //share
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
+                Route::get("share/{modelName}/{id}",'ShareController@show');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
@@ -212,6 +216,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //profile routes
+
+            //phone verify
+            Route::post('profile/requestOtp','ProfileController@requestOtp');
+            Route::post('profile/verify/email','ProfileController@sendVerifyMail');
             //remove when profile/tagging api run proper on website and app
             //website all followers
             Route::get("profile/allFollowerslist",['uses'=>'ProfileController@oldtagging']);
@@ -227,6 +235,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
             Route::get('/people','ProfileController@all');
+            Route::get('/people/onboarding','ProfileController@onboarding');
             Route::get("people/filters", "ProfileController@filters");
 //            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');

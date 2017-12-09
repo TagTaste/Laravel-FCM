@@ -7,6 +7,7 @@ use App\Company\Coreteam;
 use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
+use App\Invitation;
 use App\Jobs\FetchUserAvatar;
 use App\Privacy;
 use App\Profile;
@@ -18,7 +19,7 @@ class User extends BaseUser
 {
     protected $with = ['profile']; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile']; //'articles','recommend','ideabooks',
+    protected $visible = ['name','email','profile','verified_at']; //'articles','recommend','ideabooks',
     
     public static function boot()
     {
@@ -196,8 +197,8 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null)
+    public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode)
     {
         $user = static::create([
             'name' => $name,
@@ -211,6 +212,9 @@ class User extends BaseUser
         if(!$user){
             throw new \Exception("Could not create user.");
         }
+        $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+        Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
+        \Log::info($inviteCode);
 
         //attach default role
         $user->attachDefaultRole();
@@ -241,7 +245,7 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-            $file = file_get_contents("https://graph.facebook.com/$providerUserId/picture?type=normal");
+            $file = file_get_contents($avatar);
             $filename = str_random(20) . ".jpg";
             file_put_contents(storage_path('app/images/p/'.$this->profile->id) . $filename,$file);
 

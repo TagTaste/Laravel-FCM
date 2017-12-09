@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
-use App\Profile;
+use App\Invitation;
 use App\User;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -32,39 +31,37 @@ class UserController extends Controller
 
         $alreadyVerified = false;
         $result = ['status'=>'success'];
-        if($request->input("invite_code"))
+        $inviteCode = $request->input("invite_code");
+        \Log::info($inviteCode);
+        if(isset($inviteCode) && !empty($inviteCode))
         {
-            $invitation = \App\Invitation::where('invite_code', $request->input("invite_code"))
-                        ->where('email',$request->input('user.email'))->first();
+            $invitation = Invitation::where('invite_code', $inviteCode)
+                ->where('state',Invitation::$mailSent)->first();
             if(!$invitation)
             {
-                return $this->sendError("please use correct invite code");
+                return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
             }
-            $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-            $invitation->update(["accepted_at"=>$accepted_at,'state'=>\App\Invitation::$registered]);
             $alreadyVerified = true;
             $profileId = $invitation->profile_id;
         }
-        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),$alreadyVerified);
+        $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
+            false,null,null,null,$alreadyVerified,null,$inviteCode);
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
             ['email'=>$request->input('user.email')
                 ,'password'=>$request->input('user.password')])];
-        
-        if(!$alreadyVerified)
-        {
-            $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
-            \Log::info('Queueing Verified Email...');
 
-            dispatch($mail);
-        }
-        else
-        {
-            $profiles = \App\Profile::with([])->where('id',$profileId)->orWhere('user_id',$user->id)->get();
+        $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
+        \Log::info('Queueing Verified Email...');
+
+        dispatch($mail);
+        if($alreadyVerified) {
+            $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
 
             $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
             $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
-            event(new JoinFriend($profile , $loginProfile));
+            event(new JoinFriend($profile, $loginProfile));
         }
+
         return response()->json($result);
     }
 
@@ -141,4 +138,12 @@ class UserController extends Controller
         $this->model = Profile::where('id',$loggedInProfileId)->where('otp',$request->input('otp'))->update(['verified_phone'=>1]);
         return $this->sendResponse();
     }
+
+    public function logout(Request $request)
+    {
+        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
+            ->where('profile_id',$request->user()->profile->id)->update(['fcm_token'=>null]);
+        return $this->sendResponse();
+    }
+
 }

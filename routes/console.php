@@ -16,3 +16,33 @@ use Illuminate\Foundation\Inspiring;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+\Artisan::command("config:generate {path} {prefix} {host}",function($path,$prefix,$host){
+    $file = fopen($path,"ab");
+    $count = 0;
+    $host = "http://$host/v1/kv/";
+    echo $host . "\n";
+    foreach($_ENV as $key => $value){
+        if(trim($value) == null){
+           continue;
+       }
+       if(substr($value,0,1) == '@'){
+          $value = substr($value,1);
+          echo "$key has @\n : new value $value";
+       }
+        //write the template
+        fwrite($file,$key . '={{ key "' . $prefix . $key . "\"}}\n");
+        echo "running:\n";
+        $cmd = "curl -s --request PUT --data '$value' $host" . $prefix . $key;
+        echo $cmd ."\n";
+        $status = shell_exec($cmd);
+        if($status){
+            echo $status . "\n";
+            $count++;
+        }else{
+            echo "Couldnt write $key : $value\n";
+        }
+    }
+    echo "wrote: " . $count;
+    fclose($file);
+});

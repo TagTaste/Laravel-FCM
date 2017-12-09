@@ -2,13 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Profile;
+use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class EmailVerification implements ShouldQueue
+class ChangeOtp implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -17,12 +19,10 @@ class EmailVerification implements ShouldQueue
      *
      * @return void
      */
-    public $user;
-
-    public function __construct($user)
+    public $loggedInProfileId;
+    public function __construct($loggedInProfileId)
     {
-        $this->user = $user;
-
+        $this->loggedInProfileId = $loggedInProfileId;
     }
 
     /**
@@ -32,10 +32,6 @@ class EmailVerification implements ShouldQueue
      */
     public function handle()
     {
-        $data = ["email_token" => $this->user->email_token];
-        \Mail::send('emails.verify-mail', $data, function($message)
-        {
-            $message->to($this->user->email, $this->user->name)->subject('Verified Your Account!');
-        });
+        Profile::where('id',$this->loggedInProfileId)->update(['otp'=>null]);
     }
 }

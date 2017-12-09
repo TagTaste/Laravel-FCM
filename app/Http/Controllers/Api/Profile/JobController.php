@@ -112,7 +112,7 @@ class JobController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
-    
+
         if(empty($inputs['salary_min'])){
             unset($inputs['salary_min']);
         }
@@ -125,7 +125,7 @@ class JobController extends Controller
         if(empty($inputs['experience_max'])){
             unset($inputs['experience_max']);
         }
-        
+
         $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
 
         if ($job === null) {
