@@ -9,10 +9,12 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
+use App\Traits\CheckTags;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
 {
+    use CheckTags;
     /**
      * Display a listing of the resource.
      *
