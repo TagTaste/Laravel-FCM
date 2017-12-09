@@ -38,7 +38,7 @@ class MessageController extends Controller
 	    $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
@@ -82,6 +82,26 @@ class MessageController extends Controller
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
         }
+        
+        if($memberOfChat->is_single){
+            //undelete other members
+            
+            $otherMemberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where("profile_id",'!=',$profileId)
+                ->whereNotNull('deleted_at')->first();
+            
+            if($otherMemberOfChat){
+                //restore if deleted
+                $data = [];
+                if($otherMemberOfChat->trashed()){
+                    $data['deleted_at'] = null;
+                }
+                
+                $data['exited_at'] = null;
+                //set exited to null, if exited;
+                $otherMemberOfChat->update($data);
+            }
+        }
+        
         if($request->hasFile("file"))
         {
             $path = "profile/$profileId/chat/$chatId/file";
