@@ -36,6 +36,8 @@ class LoginController extends Controller
 
     protected $newRegistered = false;
 
+    protected $validInviteCode = true;
+
     /**
      * Create a new controller instance.
      *
@@ -115,7 +117,10 @@ class LoginController extends Controller
             return response()->json(['error'=>"Could not login."],400);
         }
         $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
-
+        if(!$this->validInviteCode)
+        {
+            return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+        }
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
@@ -161,6 +166,7 @@ class LoginController extends Controller
                         ->where('state',Invitation::$mailSent)->first();
                     if(!$invitation)
                     {
+                        $this->validInviteCode = false;
                         return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
                     }
                     $alreadyVerified = true;
