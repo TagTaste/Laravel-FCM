@@ -34,7 +34,7 @@ class NewMessage extends Notification
      */
     public function via($notifiable)
     {
-        return ['database',FCMPush::class,'broadcast'];
+        return [FCMPush::class,'broadcast'];
     }
 
     /**
@@ -54,7 +54,7 @@ class NewMessage extends Notification
             'name' => $chat->name,
             'id' => $this->data->chatId,
             'imageUrl' => !is_null($chat->image) ? \Storage::url($chat->image) : null,
-            'message'=>['image'=>$this->data->image,'content'=>$this->data->message],
+            'message'=>['id' => $this->data->id,'image'=>$this->data->image,'content'=>$this->data->message],
             'is_enabled'=>true
             ];
 
