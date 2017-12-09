@@ -28,7 +28,7 @@ class InviteController extends Controller
             $temp['message'] = $message;
 
             $temp['accepted_at'] = null;
-
+            \Log::info($temp['invite_code']);
             $mail = (new SendInvitation($request->user(),$temp))->onQueue('invites');
             \Log::info('Queueing send invitation...');
             dispatch($mail);
