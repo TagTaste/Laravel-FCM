@@ -25,14 +25,32 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="width:100%!important;background-color:#FFFFFF!important;">
-                                            <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
+                                        <td  style="width:100%!important;background-color:#FFFFFF !important;">
+                                            <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF ">
                                                 <tr>
-                                                    <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                        <a href="https://www.tagtaste.com/password/reset/{{$token}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">RESET PASSWORD</a>
+                                                    <td style="height:31px;background-color:#FFFFFF ">
                                                     </td>
                                                 </tr>
-                                                
+                                                <tr>
+                                                    <td style="width:100%!important;background-color:#FFFFFF !important;padding: 18px 36px;" align="center">
+                                                        <table>
+
+                                                            <tr>
+                                                                <td valign="top" align="center"  bgcolor="#FFFFFF " >
+
+                                                                    <a href="https://www.tagtaste.com/password/reset/{{$token}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">RESET PASSWORD</a>
+
+                                                                </td>
+                                                            </tr>
+
+
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="height:31px;background-color:#FFFFFF ">
+                                                    </td>
+                                                </tr>
                                             </table>
                                         </td>
                                     </tr>
