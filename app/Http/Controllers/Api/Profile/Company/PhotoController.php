@@ -43,7 +43,7 @@ class PhotoController extends Controller
         if(!$company){
             throw new \Exception( "This company does not exist");
         }
-        $profile = $request->user()->profile->id;
+        $profile = $request->user()->profile;
         $profileId = $profile->id;
         //check if user belongs to the company
         $userId = $request->user()->id;
