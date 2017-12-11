@@ -133,7 +133,7 @@ class Profile extends Model
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','mutualFollowers','notificationCount','messageCount'];
+        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount'];
 
     public static function boot()
     {
@@ -278,8 +278,6 @@ class Profile extends Model
     public function getEducationAttribute(){
         
         $educations = $this->education()->get();
-        
-        return $educations;
         
         $dates = $educations->toArray();
 
