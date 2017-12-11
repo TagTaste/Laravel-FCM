@@ -3,6 +3,7 @@
 namespace App\Subscribers;
 
 
+use App\CompanyUser;
 use App\Events\Actions\Comment;
 use App\Events\Actions\Like;
 use App\ModelSubscriber;
@@ -37,10 +38,22 @@ class Actions
     
     public function likeaddOrUpdateSubscriber($event)
     {
-        //send only to the creator
-        $profile = Profile::where('id',$event->model->profile_id)->first();
         $class = "\App\Notifications\Actions\\" . ucwords($event->action);
-        Notification::send($profile, new $class($event));
+        $profiles = null;
+        if($event->model->company_id){
+            $companyUsers = CompanyUser::where('company_id',$event->model->company_id)->select("profile_id")->get();
+            
+            if($companyUsers->count()){
+                $profiles = Profile::whereIn('id',$companyUsers->pluck('profile_id'))->get();
+            }
+        }
+        
+        //send only to the creator, if not a company model.
+        if(!$profiles){
+            $profiles = Profile::where('id',$event->model->profile_id)->first();
+        }
+        
+        Notification::send($profiles, new $class($event));
     }
     
     public function subscribe($events)
