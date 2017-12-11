@@ -276,7 +276,11 @@ class Profile extends Model
     }
 
     public function getEducationAttribute(){
+        
         $educations = $this->education()->get();
+        
+        return $educations;
+        
         $dates = $educations->toArray();
 
         $educations = $educations->keyBy('id');
