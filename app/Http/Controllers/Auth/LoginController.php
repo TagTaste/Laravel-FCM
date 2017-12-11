@@ -153,11 +153,11 @@ class LoginController extends Controller
                 return null;
             }
             if($user){
-                \Log::info($user);
                 //create social account;
+                $this->newRegistered = true;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
-
+                $this->newRegistered = false;
                 $inviteCode = $socialiteUser['invite_code'];
                 $alreadyVerified = false;
                 if(isset($inviteCode) && !empty($inviteCode))
@@ -172,6 +172,11 @@ class LoginController extends Controller
                     $alreadyVerified = true;
                     $profileId = $invitation->profile_id;
                 }
+                else
+                {
+                    $this->validInviteCode = false;
+                    return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                }
               
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
@@ -184,8 +189,6 @@ class LoginController extends Controller
                     event(new JoinFriend($profile, $loginProfile));
                 }
             }
-
-            $this->newRegistered = false;
 
         }
         return $user;

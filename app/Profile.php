@@ -129,11 +129,12 @@ class Profile extends Model
         'style_hero_image',
         'verified_phone',
         'notificationCount',
-        'messageCount'
+        'messageCount',
+        'addPassword'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','mutualFollowers','notificationCount','messageCount'];
+        'resumeUrl','experience','mutualFollowers','notificationCount','messageCount','addPassword'];
 
     public static function boot()
     {
@@ -753,6 +754,18 @@ class Profile extends Model
     public function getMessageCountAttribute()
     {
         return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();
+    }
+
+    public function getAddPasswordAttribute()
+    {
+        if(request()->user()->profile->id != $this->id)
+        {
+            return false;
+        }
+        else
+        {
+            return \DB::table('users')->whereNull('password')->where('id',request()->user()->id)->exists();
+        }
     }
 
 }
