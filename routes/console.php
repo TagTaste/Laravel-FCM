@@ -49,14 +49,14 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("deleteFilters:expired",function(){
     
-    $collabs = \App\Collaborate::with([])->whereNotNull('deleted_at')->where('state',\App\Collaborate::$state[3])->get();
+    $collabs = \App\Collaborate::with([])->whereNotNull('deleted_at')->where('state',\App\Collaborate::$state[2])->get();
     if($collabs->count()){
         $collabs->each(function($model){
             \App\Filter\Collaborate::removeModel($model->id);
         });
     }
     
-    $jobs = \App\Job::with([])->whereNotNull('deleted_at')->where('state',\App\Job::$state[3])->get();
+    $jobs = \App\Job::with([])->whereNotNull('deleted_at')->where('state',\App\Job::$state[2])->get();
     if($jobs->count()){
         $jobs->each(function($model){
             \App\Filter\Job::removeModel($model->id);
