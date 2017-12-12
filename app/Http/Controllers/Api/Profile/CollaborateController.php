@@ -278,9 +278,7 @@ class CollaborateController extends Controller
             }
 
             $this->model = $collaborate->rejectCompany($company);
-        }
-
-        if ($request->has('profile_id')) {
+        } elseif ($request->has('profile_id')) {
             $inputProfileId = $request->input('profile_id');
             $profile = Profile::find($inputProfileId);
             if (!$profile) {
