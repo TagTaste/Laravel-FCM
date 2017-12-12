@@ -21,7 +21,7 @@
                                     </tr>
                                     <tr>
                                         <td valign="top" class="logo" align="center" style="padding: 20px 40px 0px 40px;border-radius: 0px 0px 5px 5px;" bgcolor="#FFFFFF">
-                                            <div style="font-size: 16px;color: #181818;">You recently made a request to recover your account on TagTaste account. Click the button below to complete the process.</div>
+                                            <div style="font-size: 16px;color: #181818;">You recently made a request to recover your account on TagTaste. Click the button below to complete the process.</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -61,7 +61,7 @@
                                     </tr>
                                     <tr>
                                         <td align="center" bgcolor="#FFFFFF" >
-                                            <div style="color: #181818;font-family: Arial;	font-size: 14px;padding: 20px 40px 30px 40px;">Please ignore this email if you did not request the account recovery. Ensure that your email and phone number are entered correctly to keep your account safe. Reach out to us at support@tagtaste.com for an help.</div>
+                                            <div style="color: #181818;font-family: Arial;	font-size: 14px;padding: 20px 40px 30px 40px;">Please ignore this email if you did not request the account recovery. Ensure that your email is entered correctly to keep your account safe. Reach out to us at support@tagtaste.com for help.</div>
                                         </td>
                                     </tr>
                                     <tr>
