@@ -46,3 +46,42 @@ Artisan::command('inspire', function () {
     echo "wrote: " . $count;
     fclose($file);
 });
+
+\Artisan::command("deleteFilters:expired",function(){
+    
+    $collabs = \App\Collaborate::with([])->whereNotNull('deleted_at')->where('state',\App\Collaborate::$state[3])->get();
+    if($collabs->count()){
+        $collabs->each(function($model){
+            \App\Filter\Collaborate::removeModel($model->id);
+        });
+    }
+    
+    $jobs = \App\Job::with([])->whereNotNull('deleted_at')->where('state',\App\Job::$state[3])->get();
+    if($jobs->count()){
+        $jobs->each(function($model){
+            \App\Filter\Job::removeModel($model->id);
+        });
+    }
+    
+    $recipes = \App\Recipe::with([])->whereNotNull('deleted_at')->get();
+    if($recipes->count()){
+        $recipes->each(function($model){
+            \App\Filter\Recipe::removeModel($model->id);
+        });
+    }
+    
+    $profiles = \App\Profile::with([])->whereNotNull('deleted_at')->get();
+    if($profiles->count()){
+        $profiles->each(function($model){
+            \App\Filter\Profile::removeModel($model->id);
+        });
+    }
+    
+    $companies = \App\Company::with([])->whereNotNull('deleted_at')->get();
+    if($companies->count()){
+        $companies->each(function($model){
+            \App\Filter\Company::removeModel($model->id);
+        });
+    }
+    
+});
