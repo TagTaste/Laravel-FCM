@@ -19,6 +19,7 @@ class Message
     public $profile;
     public $message;
     public $image;
+    public $id;
     /**
      * Create a new event instance.
      *
@@ -26,6 +27,7 @@ class Message
      */
     public function __construct(Chat\Message $message, $profile)
     {
+        $this->id = $message->id;
         $this->chatId = $message->chat_id;
         $this->message = $message->message;
         $this->image = $message->fileUrl;

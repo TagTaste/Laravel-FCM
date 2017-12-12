@@ -52,6 +52,9 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
 
+    //verify invite code
+    Route::post('/verifyInviteCode','UserController@verifyInviteCode');
+
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);

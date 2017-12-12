@@ -198,7 +198,7 @@ class User extends BaseUser
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null)
     {
         $user = static::create([
             'name' => $name,
@@ -206,15 +206,18 @@ class User extends BaseUser
             'password' => bcrypt($password),
             'email_token' =>str_random(15),
             'social_registration'=>$socialRegistration,
-            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null
+            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
+            'invite_code'=>mt_rand(100000, 999999)
         ]);
 
         if(!$user){
             throw new \Exception("Could not create user.");
         }
-        $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-        Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
-        \Log::info($inviteCode);
+        if(!is_null($inviteCode))
+        {
+            $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+            Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
+        }
 
         //attach default role
         $user->attachDefaultRole();

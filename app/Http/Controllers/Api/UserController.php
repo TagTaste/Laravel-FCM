@@ -30,9 +30,8 @@ class UserController extends Controller
         }
 
         $alreadyVerified = false;
-        $result = ['status'=>'success'];
+        $result = ['status'=>'success','newRegistered' =>true];
         $inviteCode = $request->input("invite_code");
-        \Log::info($inviteCode);
         if(isset($inviteCode) && !empty($inviteCode))
         {
             $invitation = Invitation::where('invite_code', $inviteCode)
@@ -43,6 +42,10 @@ class UserController extends Controller
             }
             $alreadyVerified = true;
             $profileId = $invitation->profile_id;
+        }
+        else
+        {
+            return ['status'=>'failed','errors'=>"please use invite code",'result'=>[]];
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
             false,null,null,null,$alreadyVerified,null,$inviteCode);
@@ -143,6 +146,12 @@ class UserController extends Controller
     {
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
             ->where('profile_id',$request->user()->profile->id)->update(['fcm_token'=>null]);
+        return $this->sendResponse();
+    }
+
+    public function verifyInviteCode (Request $request)
+    {
+        $this->model = Invitation::where('invite_code',$request->input('invite_code'))->exists();
         return $this->sendResponse();
     }
 
