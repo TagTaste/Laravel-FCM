@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Filter extends Model
 {
+    private static $maxFilters = 6;
     protected $primaryKey = null;
     public $separator = ',';
     public static $cacheKey = null;
@@ -166,7 +167,7 @@ class Filter extends Model
             foreach($sub as &$filter){
                 $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
                 $count++;
-                if($count > 10){
+                if($count >= static::$maxFilters){
                     break;
                 }
             }
