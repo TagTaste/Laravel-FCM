@@ -266,8 +266,8 @@ class CollaborateController extends Controller
     {
         $this->model = [];
 
-        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
-        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
+        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
+        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
         return $this->sendResponse();
     }
 
