@@ -138,9 +138,8 @@ class LoginController extends Controller
     private function findOrCreateUser($socialiteUser, $provider)
     {
         try {
-
+            $this->newRegistered = false;
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
-            $this->newRegistered = true;
 
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
@@ -154,10 +153,10 @@ class LoginController extends Controller
             }
             if($user){
                 //create social account;
-                $this->newRegistered = true;
+                $this->newRegistered = false;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
-                $this->newRegistered = false;
+                $this->newRegistered = true;
                 $inviteCode = $socialiteUser['invite_code'];
                 $alreadyVerified = false;
                 if(isset($inviteCode) && !empty($inviteCode))
