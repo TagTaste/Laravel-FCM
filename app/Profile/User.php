@@ -254,6 +254,8 @@ class User extends BaseUser
 
             Profile::where('id',$this->profile->id)->update(['image'=>'images/p/'.$this->profile->id.'/'.$filename]);
         }
+
+        \App\User::where('id',request()->user()->id)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
     }
 
     public function getSocial($typeId)
