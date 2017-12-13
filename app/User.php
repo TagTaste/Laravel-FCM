@@ -21,11 +21,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_active', 'social_registration','email_token','verified_at','invite_code'
+        'name', 'email', 'password', 'is_active', 'social_registration','email_token','verified_at','invite_code','use_invite_code'
     ];
 
 
-    protected $visible = ['name','email','profile','id','verified_at','invite_code'];
+    protected $visible = ['name','email','profile','id','verified_at','invite_code','use_invite_code'];
 
     /**
      * The attributes that should be hidden for arrays.

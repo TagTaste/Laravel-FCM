@@ -34,8 +34,7 @@ class UserController extends Controller
         $inviteCode = $request->input("invite_code");
         if(isset($inviteCode) && !empty($inviteCode))
         {
-            $invitation = Invitation::where('invite_code', $inviteCode)
-                ->where('state',Invitation::$mailSent)->first();
+            $invitation = Invitation::where('invite_code', $inviteCode)->first();
             if(!$invitation)
             {
                 return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];

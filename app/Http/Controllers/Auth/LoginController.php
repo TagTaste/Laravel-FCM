@@ -161,8 +161,7 @@ class LoginController extends Controller
                 $alreadyVerified = false;
                 if(isset($inviteCode) && !empty($inviteCode))
                 {
-                    $invitation = Invitation::where('invite_code', $inviteCode)
-                        ->where('state',Invitation::$mailSent)->first();
+                    $invitation = Invitation::where('invite_code', $inviteCode)->first();
                     if(!$invitation)
                     {
                         $this->validInviteCode = false;

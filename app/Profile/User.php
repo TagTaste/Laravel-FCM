@@ -207,7 +207,8 @@ class User extends BaseUser
             'email_token' =>str_random(15),
             'social_registration'=>$socialRegistration,
             'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
-            'invite_code'=>mt_rand(100000, 999999)
+            'invite_code'=>mt_rand(100000, 999999),
+            'use_invite_code'=>$inviteCode
         ]);
 
         if(!$user){
