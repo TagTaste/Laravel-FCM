@@ -157,7 +157,7 @@ class LoginController extends Controller
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
                 $this->newRegistered = true;
-                $inviteCode = $socialiteUser['invite_code'];
+                $inviteCode = isset($socialiteUser['invite_code']) ? $socialiteUser['invite_code'] : null ;
                 $alreadyVerified = false;
                 if(isset($inviteCode) && !empty($inviteCode))
                 {
@@ -174,7 +174,7 @@ class LoginController extends Controller
                 else
                 {
                     $this->validInviteCode = false;
-                    return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                    return false;
                 }
               
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
