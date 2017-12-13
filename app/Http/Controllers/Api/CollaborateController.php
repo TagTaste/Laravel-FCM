@@ -117,7 +117,6 @@ class CollaborateController extends Controller
     public function apply(Request $request, $id)
     {
         $collaborate = $this->model->where('id',$id)->whereNull('deleted_at')->first();
-        
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
@@ -148,15 +147,26 @@ class CollaborateController extends Controller
                         'message' => $request->input("message"),
                         'profile_id' => $request->input('profile_id')
                     ]);
-    
-            $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-            foreach ($profileIds as $profileId)
+
+            $company = \Redis::get('company:small:' . $companyId);
+            $company = json_decode($company);
+            if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
             {
-                $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
-        
+                $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+                foreach ($profileIds as $profileId)
+                {
+                    $collaborate->profile_id = $profileId;
+                    event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,null,null,null, $company));
+
+                }
             }
-        } elseif($request->has('profile_id')){
+            else
+            {
+                event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,null,null,null, $company));
+            }
+
+        }
+        elseif($request->has('profile_id')){
             //individual wants to apply
             $profileId = $request->user()->profile->id;
             $exists = $collaborate->profiles()->find($profileId);
@@ -175,9 +185,22 @@ class CollaborateController extends Controller
                         'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message")
                     ]);
-            event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
-        }
 
+            if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+            {
+                $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+                foreach ($profileIds as $profileId)
+                {
+                    $collaborate->profile_id = $profileId;
+                    event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
+
+                }
+            }
+            else
+            {
+                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
+            }
+        }
         \Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
         return $this->sendResponse();
     }
@@ -266,8 +289,8 @@ class CollaborateController extends Controller
     {
         $this->model = [];
 
-        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
-        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','collaborate')->get();
+        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
+        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
         return $this->sendResponse();
     }
 
@@ -278,7 +301,7 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $applications = \App\Collaboration\Collaborator::whereNull('archived_at')
-            ->where('collaborate_id',$id)->with('profile','collaborate');
+            ->where('collaborate_id',$id)->with('profile','collaborate','company');
         $this->model['count'] = $applications->count();
         $this->model['application'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
@@ -292,7 +315,7 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 	    $archived = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)
-            ->with('profile','collaborate');
+            ->with('profile','collaborate','company');
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();

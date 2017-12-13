@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Company;
 use App\ModelSubscriber;
 use App\Profile;
 use Illuminate\Broadcasting\Channel;
@@ -27,10 +28,10 @@ class Action
      *
      * @return void
      */
-    public function __construct(Model &$model, Profile $who = null, $content = null, $image = null, $action = null)
+    public function __construct(Model &$model, Profile $who = null, $content = null, $image = null, $action = null, $company = null)
     {
         $this->model = $model;
-        $this->who = isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl] : null;
+        $this->who = isset($company) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->logo,'type'=>'company'] : isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl,'type'=>'profile'] : null;
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;

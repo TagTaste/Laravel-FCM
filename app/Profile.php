@@ -7,10 +7,11 @@ use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Notifications\Notifiable;
 
 class Profile extends Model
 {
-    use PushesToChannel;
+    use PushesToChannel,Notifiable;
 
     protected $fillable = [
         'tagline',
@@ -129,11 +130,12 @@ class Profile extends Model
         'style_hero_image',
         'verified_phone',
         'notificationCount',
-        'messageCount'
+        'messageCount',
+        'addPassword'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount'];
+        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword'];
 
     public static function boot()
     {
@@ -755,6 +757,23 @@ class Profile extends Model
     public function getMessageCountAttribute()
     {
         return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();
+    }
+
+    public function getAddPasswordAttribute()
+    {
+        if(request()->user()->profile->id != $this->id)
+        {
+            return false;
+        }
+        else
+        {
+            return \DB::table('users')->whereNull('password')->where('id',request()->user()->id)->exists();
+        }
+    }
+
+    public function routeNotificationForMail()
+    {
+        return $this->user->email;
     }
 
 }
