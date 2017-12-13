@@ -156,13 +156,13 @@ class CollaborateController extends Controller
                 foreach ($profileIds as $profileId)
                 {
                     $collaborate->profile_id = $profileId;
-                    event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile, $company));
+                    event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,null,null,null, $company));
 
                 }
             }
             else
             {
-                event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile, $company));
+                event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,null,null,null, $company));
             }
 
         }

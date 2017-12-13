@@ -28,7 +28,7 @@ class Action
      *
      * @return void
      */
-    public function __construct(Model &$model, Profile $who = null, $company = null, $content = null, $image = null, $action = null)
+    public function __construct(Model &$model, Profile $who = null, $content = null, $image = null, $action = null, $company = null)
     {
         $this->model = $model;
         $this->who = isset($company) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->logo,'type'=>'company'] : isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl,'type'=>'profile'] : null;
