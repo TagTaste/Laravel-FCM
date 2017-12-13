@@ -110,6 +110,7 @@ class LoginController extends Controller
     public function handleProviderCallback(Request $request,$provider)
     {
         $input = $request->all();
+        \Log::info($input);
         $authUser = $this->findOrCreateUser($input, $provider);
       
         if(!$authUser)
