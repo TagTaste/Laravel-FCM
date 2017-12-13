@@ -14,7 +14,7 @@ class AlterUserUseInviteCode extends Migration
     public function up()
     {
         Schema::table("users",function(Blueprint $table){
-            $table->integer('use_invite_code')->nullable();
+            $table->integer('used_invite_code')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterUserUseInviteCode extends Migration
     public function down()
     {
         Schema::table("users",function(Blueprint $table){
-            $table->dropColumn('use_invite_code');
+            $table->dropColumn('used_invite_code');
         });
     }
 }
