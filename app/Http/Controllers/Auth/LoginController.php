@@ -114,12 +114,12 @@ class LoginController extends Controller
       
         if(!$authUser)
         {
-            return response()->json(['error'=>"Could not login."],400);
+            return response()->json(['status'=>'failed','error'=>"Could not login.",'status'=>'failed'],400);
         }
         $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         if(!$this->validInviteCode)
         {
-            return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+            return ['status'=>'failed','errors'=>"please use correct invite code",'status'=>'failed'];
         }
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
