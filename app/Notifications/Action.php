@@ -52,12 +52,12 @@ class Action extends Notification
     {
         if($this->data->action == 'apply')
         return (new MailMessage())->view(
-            'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'notifiable'=>$notifiable]
-        )->to('ashok@tagtaste.com');
+            'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+        );
         if($this->data->action == 'comment')
         {
             return (new MailMessage())->view(
-                'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'notifiable'=>$notifiable]
+                'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
             );
         }
     }

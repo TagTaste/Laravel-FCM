@@ -11,7 +11,7 @@
                                 <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse">
                                     <tr>
                                         <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px">
-                                            <div style="font-size: 20px;font-weight: bold;color: #181818;">{{$data->who->name}} tagged you in a post.</div>
+                                            <div style="font-size: 20px;font-weight: bold;color: #181818;">{{$data->who['name']}} tagged you in a post.</div>
                                         </td>
                                     </tr>
                                 </table>
@@ -29,14 +29,14 @@
                                 <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" style="margin-top:10px">
                                     <tr>
                                         <td bgcolor="#FFFFFF">
-                                            <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{substr($data->model->content, 0, 50)}} ...</div>
+                                            <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{substr($model->content, 0, 50)}} ...</div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td bgcolor="#FFFFFF" align= "center">
                                             <div style="padding: 0px 40px;">
                                                 <div style="padding: 20px 0px;border-bottom: 1px solid rgba(0,0,0,0.2);">
-                                                    <img src="{{$data->model->image}}" width="350px"	height="230px"/>
+                                                    <img src="{{$model->image}}" width="350px"	height="230px"/>
                                                 </div>
                                             </div>
                                         </td>
@@ -60,7 +60,7 @@
                                                 <tr>
                                                     <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                        <a href="{{env(APP_URL)}}/feed" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">VIEW ON TAGTASTE</a>
+                                                        <a href="{{env('APP_URL')}}/feed" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">VIEW ON TAGTASTE</a>
 
                                                     </td>
                                                 </tr>

@@ -11,7 +11,7 @@
                                 <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#F8F6F9" style="background-color:#F8F6F9">
                                     <tr>
                                         <td align="center"  bgcolor="#FFFFFF" style="border-radius:5px 5px 0px 0px;" width="100%">
-                                            <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 20px 78px 20px 78px;">{{$data->who->name}} has applied for {{$data->model->title}}</div>
+                                            <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 20px 78px 20px 78px;">{{$data->who['name']}} has applied for {{$model->title}}</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -29,11 +29,11 @@
                                                                     <div style="padding:0px 10px 0px 10px;">
                                                                         <div>
                                                                             <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi {{$notifiable->name}},</p>
-                                                                            <p style="font-size: 16px;color: #181818;margin:0px">{{$data->who->name}} has applied for {{$data->model->title}}.
+                                                                            <p style="font-size: 16px;color: #181818;margin:0px">{{$data->who['name']}} has applied for {{$model->title}}.
                                                                                 <% if(isset($data->model->company_id)) { %>
-                                                                                <a href="{{env(APP_URL)}}/companies/{{$data->model->company_id}}/jobs/{{$data->model->id}}/applications" style="color: #4397E7;">Click here</a> to  see the list of all applicants.</p>
+                                                                                <a href="{{env('APP_URL')}}/companies/{{$model->company_id}}/jobs/{{$model->id}}/applications" style="color: #4397E7;">Click here</a> to  see the list of all applicants.</p>
                                                                             <% } else { %>
-                                                                            <a href="{{env(APP_URL)}}/profiles/{{$data->model->company_id}}/jobs/{{$data->model->id}}/applications" style="color: #4397E7;">Click here</a> to  see the list of all applicants.</p>
+                                                                            <a href="{{env('APP_URL')}}/profiles/{{$model->company_id}}/jobs/{{$model->id}}/applications" style="color: #4397E7;">Click here</a> to  see the list of all applicants.</p>
                                                                             <% } %>
                                                                         </div>
                                                                     </div>
@@ -53,7 +53,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             <tbody><tr>
                                                                 <td>
-                                                                    <img src="{{$data->who->imageUrl}}" height="71px" width="71px" class="CToWUd">
+                                                                    <img src="{{$data->who['imageUrl']}}" height="71px" width="71px" class="CToWUd">
                                                                 </td>
                                                             </tr>
                                                         </tbody></table>
@@ -63,7 +63,7 @@
                                                             <tbody><tr>
                                                                 <td>
                                                                     <div style="color:#181818;font-weight:bold;font-size:18px;word-wrap:break-word">
-                                                                        {{$data->who->name}}
+                                                                        {{$data->who['name']}}
                                                                     </div>
                                                                     <div style="padding-top:8px;font-size:18px;color:#717171;word-wrap:break-word">
 
@@ -90,7 +90,7 @@
                                                                                     <tr>
                                                                                         <td valign="top" align="center"  bgcolor="#FFFFFF " >
 
-                                                                                            <a href="{{env(APP_URL)}}/profile/{{$data->who->id}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">View Profile</a>
+                                                                                            <a href="{{env('APP_URL')}}/profile/{{$data->who['id']}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">View Profile</a>
 
                                                                                         </td>
                                                                                     </tr>
@@ -126,7 +126,7 @@
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF " >
 
-                                                                    <a href="{{env(APP_URL)}}/jobs/{{$data->model->id}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">DOWNLOAD RESUME</a>
+                                                                    <a href="{{env('APP_URL')}}/jobs/{{$model->id}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">DOWNLOAD RESUME</a>
 
                                                                 </td>
                                                             </tr>
