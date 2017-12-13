@@ -38,14 +38,14 @@ class UserController extends Controller
                 ->where('state',Invitation::$mailSent)->first();
             if(!$invitation)
             {
-                return ['status'=>'failed','errors'=>"please use correct invite code",'message'=>"Please use correct invite code",'result'=>[],'newRegistered' =>false];
+                return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];
             }
             $alreadyVerified = true;
             $profileId = $invitation->profile_id;
         }
         else
         {
-            return ['status'=>'failed','errors'=>"please use invite code",'message'=>"please use invite code",'result'=>[],'newRegistered' =>false];
+            return ['status'=>'failed','errors'=>"please use invite code",'result'=>[],'newRegistered' =>false];
         }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
             false,null,null,null,$alreadyVerified,null,$inviteCode);
