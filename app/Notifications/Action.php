@@ -54,6 +54,12 @@ class Action extends Notification
         return (new MailMessage())->view(
             'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'notifiable'=>$notifiable]
         );
+        if($this->data->action == 'comment')
+        {
+            return (new MailMessage())->view(
+                'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'notifiable'=>$notifiable]
+            );
+        }
     }
 
     /**
