@@ -35,8 +35,10 @@ class PhoneVerify implements ShouldQueue
      */
     public function handle()
     {
+        \Log::debug("Sending otp");
         $loggedInProfileId = $this->profile->id;
         $otp = mt_rand(100000, 999999);
+        \Log::debug("otp is $otp");
         $client = new Client();
 
         $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=91".$this->phone."&text=".$otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min&route=2");
