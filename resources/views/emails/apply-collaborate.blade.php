@@ -11,7 +11,7 @@
                                 <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" >
                                     <tr>
                                         <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%" style="width=100%!important">
-                                            <div style="font-size: 20px;font-weight: bold;color: #181818;margin: 0px 70px 0px 70px;">Arun Tangri has expressed interest in your 
+                                            <div style="font-size: 20px;font-weight: bold;color: #181818;margin: 0px 70px 0px 70px;">{{$data->who->name}} has expressed interest in your
                                                 colloboration</div>
                                         </td>
                                     </tr>
@@ -29,8 +29,8 @@
                                                                 <td>
                                                                     <div style="padding:0px 10px 0px 10px;">
                                                                         <div>
-                                                                            <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi Tanvi,</p>
-                                                                            <p style="font-size: 16px;color: #181818;margin:0px">Arun Tangri expressed interest in your collaboration  Fresh fruits for gelato manufacturing</p>
+                                                                            <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi {{$notifiable->name}},</p>
+                                                                            <p style="font-size: 16px;color: #181818;margin:0px">{{$data->who->name}} expressed interest in your collaboration {{$data->model->title}}</p>
                                                                         </div>
                                                                     </div>
                                                                 </td>
@@ -50,7 +50,7 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                                 <tr>
                                                                     <td>
-                                                                        <img src="https://i1.wp.com/www.femmehub.com/wp-content/uploads/2015/04/foods-wallpaper.jpg" height="50px" width="50px" style="border-radius: 50%;"/>
+                                                                        <img src="{{$data->who->imageUrl}}" height="50px" width="50px" style="border-radius: 50%;"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -60,11 +60,11 @@
                                                                 <tr>
                                                                     <td style="padding: 13px 14px;">
                                                                         <div style="color: #181818;font-weight: bold;font-size: 16px;">
-                                                                            Naman
+                                                                            {{$data->who->name}}
                                                                         </div>
                                                                         <div style="padding-top:8px;color: #717171;">
                                                                             <!-- message -->
-                                                                            we do source and market...<span style="color: #4397E7;">(more)</span>                                             
+                                                                            {{--we do source and market...<span style="color: #4397E7;">(more)</span>                                             --}}
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -74,7 +74,7 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%"  style="border-radius:12px;" >
                                                                 <tr>
                                                                     <td style="padding: 13px 14px;">
-                                                                        <button style="background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius:5px;">Reply</button>
+                                                                        <a href= "" style="background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius:5px;">Reply</a>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -86,7 +86,7 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                                 <tr>
                                                                     <td>
-                                                                        <img src="https://i1.wp.com/www.femmehub.com/wp-content/uploads/2015/04/foods-wallpaper.jpg" height="50px" width="50px" style="border-radius: 50%;"/>
+                                                                        <img src="{{$data->who->imageUrl}}" height="50px" width="50px" style="border-radius: 50%;"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -96,11 +96,11 @@
                                                                 <tr>
                                                                     <td >
                                                                         <div style="color: #181818;font-weight: bold;">
-                                                                            Arun Tangri
+                                                                            {{$data->who->name}}
                                                                         </div>
                                                                         <div style="padding-top:8px;color: #181818;">
                                                                             <!-- message -->
-                                                                            Co-founder &amp; COO @tagTaste                                             
+                                                                            {{--Co-founder &amp; COO @tagTaste                                             --}}
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -110,7 +110,7 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%"  style="border-radius:12px;padding-left:20px;" >
                                                                 <tr>
                                                                     <td >
-                                                                        <button style="background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius: 4px;">Reply</button>
+                                                                        <a href="{{env(APP_URL)}}/collaborate/{{$data->model->id}}/applications" style="background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius:5px;">Reply</a>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -124,8 +124,33 @@
                                         <td style="width:100%!important;background-color:#FFFFFF!important;">
                                             <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
                                                 <tr>
-                                                    <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                        <button style="padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px;">VIEW ON TAGTASTE</button>
+                                                    <td  style="width:100%!important;background-color:#FFFFFF !important;">
+                                                        <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF ">
+                                                            <tr>
+                                                                <td style="height:31px;background-color:#FFFFFF ">
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width:100%!important;background-color:#FFFFFF !important;padding: 18px 36px;" align="center">
+                                                                    <table>
+
+                                                                        <tr>
+                                                                            <td valign="top" align="center"  bgcolor="#FFFFFF " >
+
+                                                                                <a href="{{env(APP_URL)}}/collaborate/{{$data->model->id}}/applications" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF ;background-color: #D9222A ;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">SEE ALL INTERESTS</a>
+
+                                                                            </td>
+                                                                        </tr>
+
+
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="height:31px;background-color:#FFFFFF ">
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </td>
                                                 </tr>
                                                 

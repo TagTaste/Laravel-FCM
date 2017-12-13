@@ -39,7 +39,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database',FCMPush::class,'broadcast'];
+        return ['database',FCMPush::class,'broadcast','mail'];
     }
 
     /**
@@ -51,7 +51,7 @@ class Action extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage())->view(
-            'emails.apply-job', ['data' => $this->data,'notifiable'=>$notifiable]
+            'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'notifiable'=>$notifiable]
         );
     }
 
