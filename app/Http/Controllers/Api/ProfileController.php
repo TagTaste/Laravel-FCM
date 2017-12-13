@@ -142,14 +142,17 @@ class ProfileController extends Controller
         }
 
         //phone verified for request otp
-
-        if(isset($data['profile']['phone'])&&!empty($data['profile']['phone']))
+        \Log::debug($data['profile']['phone']);
+        if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
-            if($data['profile']['phone'] != $profile->photo)
+            if($data['profile']['phone'] != $profile->phone || $profile->verified_phone == 0)
             {
+                
+                \Log::debug("dispatching phone verify");
                 $profile->update(['verified_phone'=>0]);
-                dispatch((new PhoneVerify($data['profile']['phone'],$request->user()->profile))->onQueue('phone_verify'));
+                $number = substr($data['profile']['phone'],3);
+                dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
             }
         }
 
