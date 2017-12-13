@@ -176,7 +176,7 @@ class LoginController extends Controller
                     $this->validInviteCode = false;
                     return false;
                 }
-              
+                \Log::info("yoyoy");
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
 
