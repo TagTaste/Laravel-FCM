@@ -140,12 +140,14 @@ class LoginController extends Controller
     {
         try {
             $this->newRegistered = false;
+            \Log::info("yoyoy5");
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
             //then add social login
             if($socialiteUser['email']){
+                \Log::info("yoyoy4");
                 $user = User::where('email','like',$socialiteUser['email'])->first();
             }
             else
@@ -153,10 +155,13 @@ class LoginController extends Controller
                 return null;
             }
             if($user){
+                \Log::info("yoyoy3");
                 //create social account;
                 $this->newRegistered = false;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
+                \Log::info("yoyoy2");
+
                 $this->newRegistered = true;
                 $inviteCode = isset($socialiteUser['invite_code']) ? $socialiteUser['invite_code'] : null ;
                 $alreadyVerified = false;
@@ -176,7 +181,7 @@ class LoginController extends Controller
                     $this->validInviteCode = false;
                     return false;
                 }
-                \Log::info("yoyoy");
+                \Log::info("yoyoy1");
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
 
