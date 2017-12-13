@@ -50,6 +50,7 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
+        if($this->data->action == 'apply')
         return (new MailMessage())->view(
             'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'notifiable'=>$notifiable]
         );
