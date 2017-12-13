@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\FCMPush;
 use Carbon\Carbon;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class Action extends Notification
@@ -38,7 +39,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database',FCMPush::class,'broadcast'];
+        return ['database',FCMPush::class,'broadcast','mail'];
     }
 
     /**
@@ -49,10 +50,16 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
-//        return (new MailMessage)
-//                    ->line('The introduction to the notification.')
-//                    ->action('Notification Action', url('/'))
-//                    ->line('Thank you for using our application!');
+        if($this->data->action == 'apply')
+        return (new MailMessage())->view(
+            'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+        );
+        if($this->data->action == 'comment')
+        {
+            return (new MailMessage())->view(
+                'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+            );
+        }
     }
 
     /**

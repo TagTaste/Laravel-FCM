@@ -70,28 +70,6 @@ class CoreteamController extends Controller
         $data['invited'] = !$request->has("profile_id") && $request->has("email");
 
         $this->model = Coreteam::create($data);
-        
-        if($request->has("email") && env('ENABLE_EMAILS',0) == 1)
-        {
-            //state =>  mail-sent = 1 , mail-opened = 2 , registered = 3
-
-            $inputs = [];
-            $inputs['invite_code'] = str_random(15);
-            $inputs['profile_id'] = $request->user()->profile->id;
-            $inputs['state'] = 1;
-            $inputs['mail_code'] = str_random(15);
-            $inputs['email'] = $request->input("email");
-            $inputs['name'] = $request->input("name");
-
-            $inputs[]['accepted_at'] = null;
-            $mail = (new SendInvitation($request->user(),$inputs))->onQueue('emails');
-            \Log::info('Queueing send invitation...');
-
-            dispatch($mail);
-
-            Invitation::create($inputs);
-
-        }
 
             $this->model = $this->model->toArray();
             $this->model['isFollowing'] = isset($this->model['profile_id']) ? Profile::isFollowing($this->model['profile_id'], $request->user()->profile->id) : false;

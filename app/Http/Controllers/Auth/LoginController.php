@@ -114,12 +114,12 @@ class LoginController extends Controller
       
         if(!$authUser)
         {
-            return response()->json(['error'=>"Could not login."],400);
+            return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
         }
         $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         if(!$this->validInviteCode)
         {
-            return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+            return ['status'=>'failed','errors'=>"Please use correct invite code",'result'=>[],'newRegistered' => false];
         }
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
@@ -156,13 +156,13 @@ class LoginController extends Controller
                 $this->newRegistered = false;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
+
                 $this->newRegistered = true;
-                $inviteCode = $socialiteUser['invite_code'];
+                $inviteCode = isset($socialiteUser['invite_code']) ? $socialiteUser['invite_code'] : null ;
                 $alreadyVerified = false;
                 if(isset($inviteCode) && !empty($inviteCode))
                 {
-                    $invitation = Invitation::where('invite_code', $inviteCode)
-                        ->where('state',Invitation::$mailSent)->first();
+                    $invitation = Invitation::where('invite_code', $inviteCode)->first();
                     if(!$invitation)
                     {
                         $this->validInviteCode = false;
@@ -174,9 +174,8 @@ class LoginController extends Controller
                 else
                 {
                     $this->validInviteCode = false;
-                    return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                    return false;
                 }
-              
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
 
