@@ -7,10 +7,11 @@ use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Notifications\Notifiable;
 
 class Profile extends Model
 {
-    use PushesToChannel;
+    use PushesToChannel,Notifiable;
 
     protected $fillable = [
         'tagline',
@@ -766,6 +767,11 @@ class Profile extends Model
         {
             return \DB::table('users')->whereNull('password')->where('id',request()->user()->id)->exists();
         }
+    }
+
+    public function routeNotificationForMail()
+    {
+        return $this->user->email;
     }
 
 }
