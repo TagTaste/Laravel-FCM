@@ -110,7 +110,9 @@ class MemberController extends Controller
             $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
             if(!$adminExist) {
                 $member = Member::where('chat_id', $chatId)->whereNull('exited_on')->first();
-                $member->update(['is_admin' => 1]);
+                if($member){
+                    $member->update(['is_admin' => 1]);
+                }
             }
         }
         return $this->sendResponse();

@@ -9,10 +9,12 @@ use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
 use App\Http\Controllers\Api\Controller;
 use App\Photo;
+use App\Traits\CheckTags;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
 {
+    use CheckTags;
     /**
      * Display a listing of the resource.
      *
@@ -43,7 +45,7 @@ class PhotoController extends Controller
         if(!$company){
             throw new \Exception( "This company does not exist");
         }
-        $profile = $request->user()->profile->id;
+        $profile = $request->user()->profile;
         $profileId = $profile->id;
         //check if user belongs to the company
         $userId = $request->user()->id;
