@@ -634,7 +634,7 @@ class ProfileController extends Controller
             ->where('id','!=',$request->user()->profile->id)->get();
         $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
             ->get()->merge($profiles);
-        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(15 - $companiesIds->count())
+        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
             ->get()->merge($companies);
         return $this->sendResponse();
 

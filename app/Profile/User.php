@@ -207,7 +207,8 @@ class User extends BaseUser
             'email_token' =>str_random(15),
             'social_registration'=>$socialRegistration,
             'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
-            'invite_code'=>mt_rand(100000, 999999)
+            'invite_code'=>mt_rand(100000, 999999),
+            'used_invite_code'=>$inviteCode
         ]);
 
         if(!$user){
@@ -255,7 +256,7 @@ class User extends BaseUser
             Profile::where('id',$this->profile->id)->update(['image'=>'images/p/'.$this->profile->id.'/'.$filename]);
         }
 
-        \App\User::where('id',request()->user()->id)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+        \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
     }
 
     public function getSocial($typeId)
