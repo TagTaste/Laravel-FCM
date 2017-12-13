@@ -114,7 +114,7 @@ class LoginController extends Controller
       
         if(!$authUser)
         {
-            return response()->json(['status'=>'failed','error'=>"Could not login.",'result'=>[],'newRegistered' => false],400);
+            return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
         }
         $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         if(!$this->validInviteCode)
