@@ -177,7 +177,7 @@ class Profile extends Model
         self::deleting(function($profile){
             \App\Filter\Profile::removeModel($profile->id);
             \App\Documents\Profile::delete($profile);
-            static::removeFromCache($profile->id);
+            $profile->removeFromCache();
         });
     }
 
@@ -192,9 +192,9 @@ class Profile extends Model
         return \Redis::get('profile:small:' . $id);
     }
     
-    public static function removeFromCachce($id)
+    public function removeFromCachce()
     {
-        return \Redis::del('profile:small:' . $id);
+        return \Redis::del('profile:small:' . $this->id);
     }
 
     public static function getMultipleFromCache($ids = [])
