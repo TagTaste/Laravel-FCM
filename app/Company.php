@@ -148,7 +148,7 @@ class Company extends Model
             \App\Documents\Company::delete($company);
             \App\Filter\Company::removeModel($company->id);
             $company->removeFromCache();
-        })
+        });
     }
     
     public function addToCache()
