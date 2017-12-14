@@ -60,20 +60,25 @@ class ChatController extends Controller
 		if(!is_array($profileIds)){
 		    $profileIds = [$profileIds];
         }
-        $loggedInProfileId = $request->user()->profile->id;
+        $user = $request->user();
+        $loggedInProfileId = $user->profile->id;
 		$inputs['profile_id'] = $loggedInProfileId;
 		//check for existing chats only for single profileId.
 		if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
+            \Log::info($existingChats);
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
                 return $this->sendResponse();
             }
         }
-        unset($inputs['image']);
-		$this->model = $this->model->create($inputs);
-  
+        
+        if(!\App\ChatLimit::checkLimit($loggedInProfileId)){
+            return $this->sendError("max_limit_reached");
+        }
+        
+        $this->model = \App\Chat::create($inputs);
 		if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($this->model->id);
@@ -89,9 +94,9 @@ class ChatController extends Controller
 		$data = [];
 		$chatId = $this->model->id;
 		//for add login profile id in member model
-        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
+        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
         foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
         
@@ -147,7 +152,7 @@ class ChatController extends Controller
         if(count($profileIds)) {
             foreach ($profileIds as $profileId) {
                 \Log::info($profileId);
-                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'is_admin'=>0];
+                $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'updated_at'=>$now,'is_admin'=>0];
             }
             $chat->members()->insert($data);
         }
@@ -165,7 +170,7 @@ class ChatController extends Controller
 	    $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
-
+        \App\ChatLimit::increaseLimit($loggedInProfileId);
         return $this->sendResponse();
 	}
     

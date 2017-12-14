@@ -7,6 +7,7 @@ use App\Interfaces\Feedable;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
 use App\Traits\CachedPayload;
+use App\Traits\GetTags;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model implements Feedable
 {
-    use ScopeProfile, ScopeCompany, SoftDeletes;
+    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags;
     
     use IdentifiesOwner, CachedPayload;
     
@@ -209,6 +210,16 @@ class Photo extends Model implements Feedable
             return ['profile'=>'profile:small:' . $this->profile_id];
         }
         return ['company'=>'company:small:' . $this->company_id];
+    }
+    
+    public function getCaptionAttribute($value)
+    {
+        $profiles = $this->getTaggedProfiles($value);
+        
+        if($profiles){
+            $value = ['text'=>$value,'profiles'=>$profiles];
+        }
+        return $value;
     }
    
 }

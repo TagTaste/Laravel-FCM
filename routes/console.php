@@ -26,3 +26,72 @@ Artisan::command('inspire', function () {
     $job = \App\Job::find($jobId);
     $job->delete();
 });
+
+\Artisan::command("config:generate {path} {prefix} {host}",function($path,$prefix,$host){
+    $file = fopen($path,"ab");
+    $count = 0;
+    $host = "http://$host/v1/kv/";
+    echo $host . "\n";
+    foreach($_ENV as $key => $value){
+        if(trim($value) == null){
+           continue;
+       }
+       if(substr($value,0,1) == '@'){
+          $value = substr($value,1);
+          echo "$key has @\n : new value $value";
+       }
+        //write the template
+        fwrite($file,$key . '={{ key "' . $prefix . $key . "\"}}\n");
+        echo "running:\n";
+        $cmd = "curl -s --request PUT --data '$value' $host" . $prefix . $key;
+        echo $cmd ."\n";
+        $status = shell_exec($cmd);
+        if($status){
+            echo $status . "\n";
+            $count++;
+        }else{
+            echo "Couldnt write $key : $value\n";
+        }
+    }
+    echo "wrote: " . $count;
+    fclose($file);
+});
+
+\Artisan::command("deleteFilters:expired",function(){
+    
+    $collabs = \App\Collaborate::with([])->whereNotNull('deleted_at')->where('state',\App\Collaborate::$state[2])->get();
+    if($collabs->count()){
+        $collabs->each(function($model){
+            \App\Filter\Collaborate::removeModel($model->id);
+        });
+    }
+    
+    $jobs = \App\Job::with([])->whereNotNull('deleted_at')->where('state',\App\Job::$state[2])->get();
+    if($jobs->count()){
+        $jobs->each(function($model){
+            \App\Filter\Job::removeModel($model->id);
+        });
+    }
+    
+    $recipes = \App\Recipe::with([])->whereNotNull('deleted_at')->get();
+    if($recipes->count()){
+        $recipes->each(function($model){
+            \App\Filter\Recipe::removeModel($model->id);
+        });
+    }
+    
+    $profiles = \App\Profile::with([])->whereNotNull('deleted_at')->get();
+    if($profiles->count()){
+        $profiles->each(function($model){
+            \App\Filter\Profile::removeModel($model->id);
+        });
+    }
+    
+    $companies = \App\Company::with([])->whereNotNull('deleted_at')->get();
+    if($companies->count()){
+        $companies->each(function($model){
+            \App\Filter\Company::removeModel($model->id);
+        });
+    }
+    
+});

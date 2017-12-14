@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\Actions\JoinFriend;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Http\Controllers\Api\Controller;
-use App\User;
+use App\Invitation;
+use App\Profile\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +33,10 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
+
+    protected $newRegistered = false;
+
+    protected $validInviteCode = true;
 
     /**
      * Create a new controller instance.
@@ -104,15 +110,17 @@ class LoginController extends Controller
     public function handleProviderCallback(Request $request,$provider)
     {
         $input = $request->all();
-        try {
-            $authUser = $this->findOrCreateUser($input, $provider);
-
-        } catch (Exception $e) {
-            \Log::warning($e->getMessage());
-            return response()->json(['error'=>"Could not login."],400);
+        $authUser = $this->findOrCreateUser($input, $provider);
+      
+        if(!$authUser)
+        {
+            return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
         }
-
-        $result = ['status'=>'success'];
+        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
+        if(!$this->validInviteCode)
+        {
+            return ['status'=>'failed','errors'=>"Please use correct invite code",'result'=>[],'newRegistered' => false];
+        }
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
@@ -130,14 +138,13 @@ class LoginController extends Controller
     private function findOrCreateUser($socialiteUser, $provider)
     {
         try {
-
+            $this->newRegistered = false;
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
             //then add social login
             if($socialiteUser['email']){
-
                 $user = User::where('email','like',$socialiteUser['email'])->first();
             }
             else
@@ -146,11 +153,41 @@ class LoginController extends Controller
             }
             if($user){
                 //create social account;
+                $this->newRegistered = false;
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
             } else {
+
+                $this->newRegistered = true;
+                $inviteCode = isset($socialiteUser['invite_code']) ? $socialiteUser['invite_code'] : null ;
+                $alreadyVerified = false;
+                if(isset($inviteCode) && !empty($inviteCode))
+                {
+                    $invitation = Invitation::where('invite_code', $inviteCode)->first();
+                    if(!$invitation)
+                    {
+                        $this->validInviteCode = false;
+                        return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                    }
+                    $alreadyVerified = true;
+                    $profileId = $invitation->profile_id;
+                }
+                else
+                {
+                    $this->validInviteCode = false;
+                    return false;
+                }
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
-                    true,1,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
+
+                if($alreadyVerified) {
+                    $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
+
+                    $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+                    $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
+                    event(new JoinFriend($profile, $loginProfile));
+                }
             }
+
         }
         return $user;
 

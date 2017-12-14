@@ -112,7 +112,7 @@ class JobController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
-    
+
         if(empty($inputs['salary_min'])){
             unset($inputs['salary_min']);
         }
@@ -125,7 +125,7 @@ class JobController extends Controller
         if(empty($inputs['experience_max'])){
             unset($inputs['experience_max']);
         }
-        
+
         $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
 
         if ($job === null) {
@@ -221,10 +221,15 @@ class JobController extends Controller
         else {
             $response = $request->user()->completeProfile->resume;
         }
-        event(new \App\Events\Actions\Apply($job, $request->user()->profile));
-
+    
         $this->model = $job->apply($applierProfileId, $response,$request->input("message"));
-        return $this->sendResponse();
+        
+        if($this->model){
+            event(new \App\Events\Actions\Apply($job, $request->user()->profile));
+            return $this->sendResponse();
+        }
+        
+        return $this->sendError("Could not apply to this job.");
     }
     
     public function unapply(Request $request, $profileId, $id)

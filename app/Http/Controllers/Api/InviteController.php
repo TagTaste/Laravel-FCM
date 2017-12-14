@@ -16,10 +16,20 @@ class InviteController extends Controller
         $emails = $request->input("email");
         $message = $request->input('message');
         $inputs = [];
+        $user = User::where('id',$request->user()->id)->first();
+        $invideCode = mt_rand(100000, 999999);
+        if(!$user->invite_code)
+        {
+            $user->update(['invite_code'=>$invideCode]);
+        }
+        else
+        {
+            $invideCode = $user->invite_code;
+        }
         foreach ($emails as $email)
         {
             $temp = [];
-            $temp['invite_code'] = str_random(15);
+            $temp['invite_code'] = $invideCode;
             $temp['profile_id'] = $request->user()->profile->id;
             $temp['state'] = Invitation::$mailSent;
             $temp['mail_code'] = str_random(15);
@@ -28,16 +38,6 @@ class InviteController extends Controller
             $temp['message'] = $message;
 
             $temp['accepted_at'] = null;
-
-            $userExist = User::where('email',$email)->exists();
-            if($userExist)
-            {
-                $mail = (new SendConnectionInvite($request->user(),$email))->onQueue('invites');
-                \Log::info('Queueing send invitation...');
-                dispatch($mail);
-                continue;
-            }
-
             $mail = (new SendInvitation($request->user(),$temp))->onQueue('invites');
             \Log::info('Queueing send invitation...');
             dispatch($mail);

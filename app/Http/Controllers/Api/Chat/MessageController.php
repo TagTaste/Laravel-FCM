@@ -38,7 +38,7 @@ class MessageController extends Controller
 	    $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
@@ -49,7 +49,7 @@ class MessageController extends Controller
         $isEnabled = true;
         if(isset($memberOfChat->exited_on))
         {
-            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])
+            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->updated_at,$memberOfChat->exited_on])
                 ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
             $isEnabled = false;
         }
@@ -77,11 +77,31 @@ class MessageController extends Controller
         $profileId = $request->user()->profile->id;
         //check ownership
         
-        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->exists();
+        $memberOfChat = Chat\Member::where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->first();
         
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
         }
+        
+        if($memberOfChat->is_single){
+            //undelete other members
+            
+            $otherMemberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where("profile_id",'!=',$profileId)
+                ->whereNotNull('deleted_at')->first();
+            
+            if($otherMemberOfChat){
+                //restore if deleted
+                $data = [];
+                if($otherMemberOfChat->trashed()){
+                    $data['deleted_at'] = null;
+                }
+                
+                $data['exited_at'] = null;
+                //set exited to null, if exited;
+                $otherMemberOfChat->update($data);
+            }
+        }
+        
         if($request->hasFile("file"))
         {
             $path = "profile/$profileId/chat/$chatId/file";
@@ -92,7 +112,6 @@ class MessageController extends Controller
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
-
 		event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}

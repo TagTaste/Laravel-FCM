@@ -31,11 +31,14 @@ class SendInvitation implements ShouldQueue
      */
     public function handle()
     {
-        $data = ["senderName"=>$this->user->name,
-            "inviteCode" => $this->invitation['invite_code'],"mailCode"=>$this->invitation['mail_code'],'message'=>$this->invitation['message']];
-        \Mail::send('invitation.invitation', $data, function($message)
+        if(isset($this->invitation['name']))
         {
-            $message->to($this->invitation['email'], $this->user->name)->subject('Welcome!');
-        });
+            $data = ["senderName"=>$this->user->name,"senderImage"=>$this->user->imageUrl,"receiverName"=>$this->invitation['name'],
+                "inviteCode" => $this->invitation['invite_code'],"mailCode"=>$this->invitation['mail_code'],'message'=>$this->invitation['message']];
+            \Mail::send('emails.invitation', $data, function($message)
+            {
+                $message->to($this->invitation['email'], $this->user->name)->subject('Welcome!');
+            });
+        }
     }
 }

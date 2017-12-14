@@ -2,7 +2,10 @@
 
 namespace App\Notifications\Chat;
 
+use App\Chat;
 use App\FCMPush;
+use App\Recipe\Profile;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,7 +34,7 @@ class NewMessage extends Notification
      */
     public function via($notifiable)
     {
-        return ['database',FCMPush::class,'broadcast'];
+        return [FCMPush::class,'broadcast'];
     }
 
     /**
@@ -42,9 +45,21 @@ class NewMessage extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            'message' => ['chat_id'=>$this->data->chatId],
-            'profile' => $notifiable
+        $data = [
+            'action' => 'chat',
+            'profile' =>request()->user()->profile
         ];
+        $chat = \DB::table('chats')->where('id',$this->data->chatId)->first();
+        $data['model'] = [
+            'name' => $chat->name,
+            'id' => $this->data->chatId,
+            'imageUrl' => !is_null($chat->image) ? \Storage::url($chat->image) : null,
+            'message'=>['id' => $this->data->id,'image'=>$this->data->image,'content'=>$this->data->message],
+            'is_enabled'=>true
+            ];
+
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
     }
 }

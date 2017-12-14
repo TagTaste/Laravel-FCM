@@ -255,13 +255,13 @@ class CompanyController extends Controller
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
-        
+
         $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
             throw new \Exception("You are not following this company.");
         }
-    
+        $profileId = $request->user()->profile->id;
         //companies the logged in user is following
         \Redis::sRem("following:profile:" . $profileId, "company.$id");
     

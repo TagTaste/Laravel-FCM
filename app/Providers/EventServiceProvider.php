@@ -54,6 +54,10 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\DeleteModel' => ['App\Listeners\Notifications\DeleteModel'],
 
         'App\Events\Actions\ExpireModel' => ['App\Listeners\Notifications\ExpireModel'],
+        'App\Events\DeleteFilters' => ['App\Listeners\DeleteFilters'],
+
+//        'App\Events\PhoneVerify' => ['App\Listeners\PhoneVerifyNotification'],
+
 
 
 

@@ -11,6 +11,7 @@ class Collaborator extends Model
     protected $primaryKey = 'collaborate_id';
     
     public $incrementing = false;
+    public $timestamps = false;
     
     public function profile()
     {

@@ -58,6 +58,10 @@ class Chat extends Model
     public function getLatestMessagesAttribute()
     {
         $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        if(!$memberOfChat){
+            return;
+        }
+        
         if(isset($memberOfChat->exited_on))
         {
             $this->isEnabled = false;
@@ -66,7 +70,7 @@ class Chat extends Model
         else
         {
             $this->isEnabled = true;
-            return $this->messages()->where('updated_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
         }
     }
     
@@ -88,17 +92,20 @@ class Chat extends Model
     {
         $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as id"))
             ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
-            ->where('c1.profile_id','=',$profileIdOne)
-            ->where('c2.profile_id','=',$profileIdTwo)
-            ->where('c1.is_single',1)
-            ->where('c2.is_single',1)
+            ->join("chats",'chats.id','=','c1.chat_id')
+            ->where(function($query) use ($profileIdOne){
+                $query->where('c1.profile_id','=',$profileIdOne)->where('c1.is_single','=',1)
+                ;
+            })->where(function($query) use ($profileIdTwo) {
+                $query->where('c2.profile_id','=',$profileIdTwo)->where('c2.is_single','=',1)
+                ;
+            })
+            ->whereNull('chats.deleted_at')
             ->groupBy('c1.chat_id')
+            ->orderBy('c1.chat_id')
             ->first();
-        if(empty($chatIds)){
-            return null;
-        }
-        return Chat::where('id',$chatIds->id)->first();
-
+ 
+        return $chatIds == null ? null : Chat::where('id',$chatIds->id)->first();
     }
     
     public function getUnreadMessageCountAttribute()

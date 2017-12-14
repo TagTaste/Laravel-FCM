@@ -7,6 +7,7 @@ use App\Company\Coreteam;
 use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
+use App\Invitation;
 use App\Jobs\FetchUserAvatar;
 use App\Privacy;
 use App\Profile;
@@ -18,7 +19,7 @@ class User extends BaseUser
 {
     protected $with = ['profile']; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile']; //'articles','recommend','ideabooks',
+    protected $visible = ['name','email','profile','verified_at']; //'articles','recommend','ideabooks',
     
     public static function boot()
     {
@@ -27,11 +28,6 @@ class User extends BaseUser
         self::created(function(User $user){
             $profile=$user->profile()->create([]);
             //update core team profile when using invite code registration
-            $coreteam = Coreteam::where('email',$user->email)->where('invited',1)->first();
-            if($coreteam)
-            {
-                $coreteam->update(['profile_id'=>$profile->id,'invited'=>0]);
-            }
         });
 
         self::deleting(function($user){
@@ -196,8 +192,8 @@ class User extends BaseUser
         return $user;
     }
 
-    public static function addFoodie($name, $email = null, $password,$emailToken = null, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null)
+    public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null)
     {
         $user = static::create([
             'name' => $name,
@@ -205,11 +201,18 @@ class User extends BaseUser
             'password' => bcrypt($password),
             'email_token' =>str_random(15),
             'social_registration'=>$socialRegistration,
-            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null
+            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
+            'invite_code'=>mt_rand(100000, 999999),
+            'used_invite_code'=>$inviteCode
         ]);
 
         if(!$user){
             throw new \Exception("Could not create user.");
+        }
+        if(!is_null($inviteCode))
+        {
+            $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
+            Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
         }
 
         //attach default role
@@ -241,12 +244,14 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-            $file = file_get_contents("https://graph.facebook.com/$providerUserId/picture?type=normal");
+            $file = file_get_contents($avatar);
             $filename = str_random(20) . ".jpg";
             file_put_contents(storage_path('app/images/p/'.$this->profile->id) . $filename,$file);
 
             Profile::where('id',$this->profile->id)->update(['image'=>'images/p/'.$this->profile->id.'/'.$filename]);
         }
+
+        \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
     }
 
     public function getSocial($typeId)
