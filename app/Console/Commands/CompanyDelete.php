@@ -18,7 +18,7 @@ class CompanyDelete extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Delete Company';
 
     /**
      * Create a new command instance.
@@ -37,6 +37,12 @@ class CompanyDelete extends Command
      */
     public function handle()
     {
-        //
+        $companyId = $this->argument('companyId');
+    
+        $company = \App\Company::find($companyId);
+        
+        if($company){
+            $company->delete();
+        }
     }
 }
