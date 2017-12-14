@@ -57,6 +57,11 @@ class Photo extends Model implements Feedable
         $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->id,json_encode($data));
     }
+    
+    public function deleteFromCache()
+    {
+        \Redis::del("photo:" . $this->id);
+    }
 
     public function ideabooks()
     {

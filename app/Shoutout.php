@@ -37,6 +37,11 @@ class Shoutout extends Model implements Feedable
     public function addToCache(){
         \Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
     }
+    
+    public function removeFromCache()
+    {
+        \Redis::del("shoutout:" . $this->id);
+    }
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);

@@ -173,6 +173,12 @@ class Profile extends Model
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
         });
+        
+        self::deleting(function($profile){
+            \App\Filter\Profile::removeModel($profile->id);
+            \App\Documents\Profile::delete($profile);
+            static::removeFromCache($profile->id);
+        });
     }
 
     public function addToCache()
@@ -184,6 +190,11 @@ class Profile extends Model
     public static function getFromCache($id)
     {
         return \Redis::get('profile:small:' . $id);
+    }
+    
+    public static function removeFromCachce($id)
+    {
+        return \Redis::del('profile:small:' . $id);
     }
 
     public static function getMultipleFromCache($ids = [])
