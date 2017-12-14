@@ -85,10 +85,13 @@ class ProfileDelete extends Command
     private function deleteModel()
     {
         $this->info("Deleting model " . $this->profileId);
-    }
+        $profile = \App\Profile::find($this->profileId));
+        if(!$profile){
+            echo "Could not find profile.";
+        }
     
-    private function deleteFollers()
-    {
-        
+        if($this->confirm("Delete " . $profile->id . "?")){
+            $profile->delete();
+        }
     }
 }
