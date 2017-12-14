@@ -143,6 +143,12 @@ class Company extends Model
             //update the document
             \App\Documents\Company::create($company);
         });
+        
+        self::deleting(function($company){
+            \App\Documents\Company::delete($company);
+            \App\Filter\Company::removeModel($company->id);
+            $company->removeFromCache();
+        })
     }
     
     public function addToCache()
@@ -155,6 +161,11 @@ class Company extends Model
             'tagline' => $this->tagline
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
+    }
+    
+    public function removeFromCache()
+    {
+        \Redis::del("company:small:" . $this->id);
     }
     
     public function photos()

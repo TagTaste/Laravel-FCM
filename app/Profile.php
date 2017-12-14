@@ -175,7 +175,7 @@ class Profile extends Model
         });
         
         self::deleting(function($profile){
-            \App\Filter\Profile::removeModel($profile);
+            \App\Filter\Profile::removeModel($profile->id);
             \App\Documents\Profile::delete($profile);
             static::removeFromCache($profile->id);
         });
