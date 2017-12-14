@@ -91,8 +91,8 @@ class ProfileDelete extends Command
         }
     
         if($this->confirm("Delete " . $profile->id . "?")){
-            \App\SocialAccount::where('user_id',$profile->user->id)->delete();
-           
+            \App\SocialAccount::where('user_id',$profile->user_id)->delete();
+            
             $profile->user->delete();
             $profile->delete();
         }
