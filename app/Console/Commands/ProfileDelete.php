@@ -91,6 +91,7 @@ class ProfileDelete extends Command
         }
     
         if($this->confirm("Delete " . $profile->id . "?")){
+            $profile->user->delete();
             $profile->delete();
         }
     }
