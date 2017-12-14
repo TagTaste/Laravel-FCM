@@ -82,6 +82,8 @@ class Kernel extends ConsoleKernel
         //API VERSION
         \App\Console\Commands\Api\Version::class,
 
+        \App\Console\Commands\ExpireReopen::class
+
     ];
 
     /**
