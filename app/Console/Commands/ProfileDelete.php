@@ -85,7 +85,7 @@ class ProfileDelete extends Command
     private function deleteModel()
     {
         $this->info("Deleting model " . $this->profileId);
-        $profile = \App\Profile::withTrashed()->where('id',$this->profileId)->first();
+        $profile = \App\Profile::where('id',$this->profileId)->first();
         if(!$profile){
             echo "Could not find profile.";
         }
