@@ -138,13 +138,18 @@ class SearchController extends Controller
         $total = 10;
         $profiles = \DB::table("profiles")->select("profiles.id","users.name")
                         ->join("users",'users.id','=','profiles.user_id')
-                        ->where("users.name",'like',"%$term%")->take($total - 5)->get();
+                        ->where("users.name",'like',"%$term%")
+                        ->whereNull('users.deleted_at')
+                    ->take($total - 5)->get();
         
         $count = $total - $profiles->count();
         $companies = \DB::table("companies")->whereNull('companies.deleted_at')
             ->select("companies.id",'name','profiles.id as profile_id')
             ->join("profiles",'companies.user_id','=','profiles.user_id')
-            ->where("name",'like',"%$term%")->take($count)->get();
+            ->where("name",'like',"%$term%")->take($count)
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('companies.deleted_at')
+            ->get();
         
         if(count($profiles)){
             foreach($profiles as $profile){
