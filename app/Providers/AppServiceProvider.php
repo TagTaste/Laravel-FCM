@@ -24,7 +24,9 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         if($this->app->environment('testing') || $this->app->environment('local')){
-            $this->app->register('Laralib\L5scaffold\GeneratorsServiceProvider');
+            if(class_exists('Laralib\L5scaffold\GeneratorsServiceProvider')){
+                $this->app->register('Laralib\L5scaffold\GeneratorsServiceProvider');
+            }
         }
     
         if(env('LOG_QUERY') === 1){
