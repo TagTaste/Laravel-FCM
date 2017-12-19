@@ -120,7 +120,7 @@ class LoginController extends Controller
 
         if(!$authUser)
         {
-            return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => $this->newRegistered];
+            return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
         }
 
         $token = \JWTAuth::fromUser($authUser);
