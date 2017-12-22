@@ -15,7 +15,7 @@ class AlterShoutoutPreviewAdd extends Migration
     {
         Schema::table("shoutouts",function(Blueprint $table){
             $table->dropColumn("image");
-            $table->text("preview")->nullable();
+            $table->json("preview")->nullable();
         });
     }
 
