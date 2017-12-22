@@ -48,12 +48,38 @@ class Job extends Model implements Feedable
             \App\Documents\Job::create($model);
             $model->addToCache();
         });
+        
+        self::deleting(function($model){
+            \App\Documents\Job::delete($model);
+            $model->applications()->delete();
+            $model->deleteShares();
+            $model->payload()->delete();
+            $model->deleteFilters();
+            $model->deleteFromCache();
+        });
+    }
+    
+    public function deleteFilters()
+    {
+        \DB::table("job_filters")->where('job_id',$this->id)->delete();
+    }
+    
+    public function deleteShares()
+    {
+        $now = \Carbon\Carbon::now();
+        \DB::table("job_shares")->where('job_id',$this->id)->update(['deleted_at'=>$now,'updated_at'=>$now]);
     }
     
     public function addToCache()
     {
         \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','profile','company','applications','applicationCount','hasApplied'])->toJson());
     }
+    
+    public function deleteFromCache()
+    {
+        \Redis::del("job:" . $this->id);
+    }
+    
     public function getJobIdAttribute()
     {
         return $this->id;

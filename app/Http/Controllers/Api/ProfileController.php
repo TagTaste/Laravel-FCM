@@ -142,7 +142,6 @@ class ProfileController extends Controller
         }
 
         //phone verified for request otp
-        \Log::debug($data['profile']['phone']);
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
