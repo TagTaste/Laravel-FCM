@@ -85,12 +85,18 @@ class ProfileDelete extends Command
     private function deleteModel()
     {
         $this->info("Deleting model " . $this->profileId);
-        $profile = \App\Profile::find($this->profileId);
+        $profile = \App\Profile::where('id',$this->profileId)->first();
         if(!$profile){
             echo "Could not find profile.";
         }
     
         if($this->confirm("Delete " . $profile->id . "?")){
+            \DB::table("social_accounts")->where('user_id',$profile->user_id)->delete();
+            
+            if($profile->user){
+                $profile->user->delete();
+            }
+            
             $profile->delete();
         }
     }
