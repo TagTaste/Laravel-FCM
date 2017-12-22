@@ -87,8 +87,6 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\ExpireReopen::class
         //fixKeywords::class,
-        ProfileDelete::class,
-
     ];
 
     /**
