@@ -58,7 +58,7 @@ class CompanyController extends Controller {
 	public function show(Request $request,$id)
     {
         $company = Company::where('id',$id)->with('status','type')->first();
-        if($company){
+        if(!$company){
             return $this->sendError("Company not found.");
         }
         $profileId = $request->user()->profile->id;
