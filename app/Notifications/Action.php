@@ -39,7 +39,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database',FCMPush::class,'broadcast','mail'];
+        return ['database',FCMPush::class,'broadcast'];
     }
 
     /**
