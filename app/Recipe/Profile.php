@@ -116,6 +116,7 @@ class Profile extends BaseProfile
 
     public function getIsFollowingAttribute()
     {
+        if(!request()->user()) { return ;}
         return $this->isFollowing(request()->user()->profile->id,$this->id);
     }
 }
