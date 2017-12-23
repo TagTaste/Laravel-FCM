@@ -316,9 +316,9 @@ class User extends BaseUser
 
     public function getAvatarImage($avatar)
     {
-        $path = 'images/p/' . $this->profile->id . "/simages/";
+        $path = 'images/p/' . $this->profile->id . "/";
         \Storage::disk('s3')->makeDirectory($path);
-        $filename = str_random(10) . ".image";
+        $filename = str_random(20) . ".jpeg";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($avatar);
         curl_setopt($ch, CURLOPT_HEADER, 0);
