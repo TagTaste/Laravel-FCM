@@ -246,7 +246,11 @@ class User extends BaseUser
         if($avatar){
             $image = $this->getAvatarImage($avatar);
             $s3 = \Storage::disk('s3');
+<<<<<<< HEAD
             $filePath = 'images/p/' . $this->profile->id."/";
+=======
+            $filePath = 'images/p/' . $this->profile->id;
+>>>>>>> 7c79f48f08f2dc34ee94e9768902e7a75ecf2078
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             \Log::info($resp);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
@@ -316,7 +320,11 @@ class User extends BaseUser
 
     public function getAvatarImage($avatar)
     {
+<<<<<<< HEAD
         $path = 'images/p/' . $this->profile->id . "/";
+=======
+        $path = 'images/p/' . $this->profile->id;
+>>>>>>> 7c79f48f08f2dc34ee94e9768902e7a75ecf2078
         \Storage::disk('s3')->makeDirectory($path);
         $filename = str_random(20) . ".jpeg";
         $saveto = storage_path("app/" . $path) .  $filename;
