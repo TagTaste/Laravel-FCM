@@ -8,7 +8,6 @@ use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Invitation;
-use App\Jobs\FetchUserAvatar;
 use App\Privacy;
 use App\Profile;
 use App\Role;
@@ -245,8 +244,6 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-//            $file = file_get_contents($avatar);
-
             $image = $this->getAvatarImage($avatar);
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $this->profile->id . "/si";
@@ -319,7 +316,7 @@ class User extends BaseUser
     public function getAvatarImage($avatar)
     {
         $path = 'images/p/' . $this->profile->id;
-        \Storage::disk('local')->makeDirectory($path);
+        \Storage::disk('s3')->makeDirectory($path);
         $filename = str_random(20) . ".jpg";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($avatar);
