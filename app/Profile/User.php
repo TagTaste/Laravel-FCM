@@ -246,8 +246,9 @@ class User extends BaseUser
         if($avatar){
             $image = $this->getAvatarImage($avatar);
             $s3 = \Storage::disk('s3');
-            $filePath = 'images/p/' . $this->profile->id;
+            $filePath = 'images/p/' . $this->profile->id."/";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            \Log::info($resp);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
 
@@ -315,9 +316,9 @@ class User extends BaseUser
 
     public function getAvatarImage($avatar)
     {
-        $path = 'images/p/' . $this->profile->id;
+        $path = 'images/p/' . $this->profile->id . "/simages/";
         \Storage::disk('s3')->makeDirectory($path);
-        $filename = str_random(20) . ".jpg";
+        $filename = str_random(10) . ".image";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($avatar);
         curl_setopt($ch, CURLOPT_HEADER, 0);
