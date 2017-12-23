@@ -3,7 +3,6 @@
 namespace App\Profile;
 
 use App\Api\Recommend;
-use App\Company\Coreteam;
 use App\CompanyUser;
 use App\Events\Auth\Registered;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
@@ -14,6 +13,7 @@ use App\Role;
 use \App\User as BaseUser;
 use Carbon\Carbon;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 
 class User extends BaseUser
 {
@@ -245,8 +245,8 @@ class User extends BaseUser
         //get profile image from $provider
         if($avatar){
             $image = $this->getAvatarImage($avatar);
-            $s3 = \Storage::disk('s3');
-            $filePath = 'p/' . $this->profile->id . "/si";
+            $s3 = Storage::disk('s3');
+            $filePath = 'images/p/' . $this->profile->id;
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
@@ -316,7 +316,7 @@ class User extends BaseUser
     public function getAvatarImage($avatar)
     {
         $path = 'images/p/' . $this->profile->id;
-        \Storage::disk('s3')->makeDirectory($path);
+        Storage::disk('s3')->makeDirectory($path);
         $filename = str_random(20) . ".jpg";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($avatar);
