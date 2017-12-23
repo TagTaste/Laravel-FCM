@@ -14,6 +14,7 @@ use App\Profile;
 use App\Role;
 use \App\User as BaseUser;
 use Carbon\Carbon;
+use Illuminate\Http\File;
 
 class User extends BaseUser
 {
@@ -244,11 +245,13 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-            $file = file_get_contents($avatar);
-            $filename = str_random(20) . ".jpg";
-            file_put_contents(storage_path('app/images/p/'.$this->profile->id) . $filename,$file);
+//            $file = file_get_contents($avatar);
 
-            Profile::where('id',$this->profile->id)->update(['image'=>'images/p/'.$this->profile->id.'/'.$filename]);
+            $image = $this->getAvatarImage($avatar);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $this->profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
 
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
@@ -311,5 +314,23 @@ class User extends BaseUser
         }
     
         return CompanyUser::where('company_id',$companyId)->where("user_id",$this->id)->count() === 1;
+    }
+
+    public function getAvatarImage($avatar)
+    {
+        $path = 'images/p/' . $this->profile->id;
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(20) . ".jpg";
+        $saveto = storage_path("app/" . $path) .  $filename;
+        $ch = curl_init($avatar);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+
+        $fp = fopen($saveto,'a');
+        fwrite($fp, $raw);
+        fclose($fp);
     }
 }
