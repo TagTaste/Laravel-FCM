@@ -39,6 +39,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
+        $view = "";
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
@@ -70,6 +71,7 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
+        $view = "";
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
