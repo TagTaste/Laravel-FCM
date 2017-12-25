@@ -9,15 +9,15 @@ class Message extends Model
 {
     protected $table = 'chat_messages';
     
-    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file'];
+    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview'];
     
-    protected $visible = ['id','message','created_at','chat_id','profile','read_on','fileUrl'];
+    protected $visible = ['id','message','created_at','chat_id','profile','read_on','fileUrl','preview'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl'];
+    protected $appends = ['fileUrl','preview'];
 
 
     public static function boot()
@@ -42,5 +42,15 @@ class Message extends Model
     public function getFileUrlAttribute()
     {
         return !is_null($this->file) ? \Storage::url($this->file) : null;
+    }
+
+    public function getPreviewAttribute($value)
+    {
+        $preview = json_decode($value,true);
+        if(isset($preview['image']))
+        {
+            $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+        }
+        return $preview;
     }
 }
