@@ -17,7 +17,7 @@ class Message extends Model
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl','preview'];
+    protected $appends = ['fileUrl'];
 
 
     public static function boot()
