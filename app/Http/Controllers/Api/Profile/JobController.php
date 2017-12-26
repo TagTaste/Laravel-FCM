@@ -304,10 +304,10 @@ class JobController extends Controller
 
     public function applied(Request $request)
     {
+        $this->model = [];
         $profileId = $request->user()->profile->id;
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
-
         $jobs = Job::whereIn('id',$ids);
         $this->model['count'] = $jobs->count();
         $page = $request->input('page');
@@ -322,7 +322,7 @@ class JobController extends Controller
         $this->model = [];
         $profileId = $request->user()->profile->id;
         $this->model['jobs'] = Job::where('profile_id', $profileId)->where('state',Job::$state[2])->whereNull('company_id');
-        $this->model['count'] = $this->model['data']->count();
+        $this->model['count'] = $this->model['jobs']->count();
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
