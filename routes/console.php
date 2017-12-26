@@ -95,3 +95,10 @@ Artisan::command('inspire', function () {
     }
     
 });
+
+\Artisan::command("reopen:collab {id}",function($id){
+    $status = \DB::table('collaborates')->where('id',$id)
+        ->update(['state'=>\App\Collaborate::$state[0],'deleted_at'=>null,
+            'expires_on'=>\Carbon\Carbon::now()->addMonth()->toDateTimeString()]);
+    echo $status;
+});
