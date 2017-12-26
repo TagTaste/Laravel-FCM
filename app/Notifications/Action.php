@@ -39,6 +39,7 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
+        $view = "";
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
@@ -46,10 +47,6 @@ class Action extends Notification
         if($this->data->action == 'comment')
         {
             $view = 'emails.commented-post';
-        }
-        if($this->data->action == 'tag')
-        {
-            $view = 'emails.tagging-post';
         }
 
         if(view()->exists($view)){
@@ -70,6 +67,7 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
+        $view = "";
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
@@ -78,11 +76,6 @@ class Action extends Notification
         {
             $view = 'emails.commented-post';
         }
-        if($this->data->action == 'tag')
-        {
-            $view = 'emails.tagging-post';
-        }
-
         if(view()->exists($view)){
             return (new MailMessage())->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]

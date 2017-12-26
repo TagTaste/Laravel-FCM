@@ -50,6 +50,13 @@
                                         </div>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td bgcolor="#FFFFFF ">
+                                        <div style="padding: 0px 60px 0px 60px;">
+                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS:  {{$inviteCode}} </p>
+                                        </div>
+                                    </td>
+                                </tr>
                             </table>
 
                         </td>
