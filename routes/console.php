@@ -100,5 +100,14 @@ Artisan::command('inspire', function () {
     $status = \DB::table('collaborates')->where('id',$id)
         ->update(['state'=>\App\Collaborate::$state[0],'deleted_at'=>null,
             'expires_on'=>\Carbon\Carbon::now()->addMonth()->toDateTimeString()]);
+    \App\Filter\Collaborate::addModel(\App\Collaborate::find($id));
+    echo $status;
+});
+
+\Artisan::command("expire:collab {id}",function($id){
+    $status = \DB::table('collaborates')->where('id',$id)->update(['state'=>\App\Collaborate::$state[3]]);
+    
+    \App\Filter\Collaborate::removeModel($id);
+    
     echo $status;
 });
