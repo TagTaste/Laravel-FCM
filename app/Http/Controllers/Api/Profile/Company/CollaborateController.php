@@ -40,13 +40,17 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')
-            ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+            ->orderBy('created_at','desc');
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
+        $data = [];
+        $this->model['count'] = $collaborations->count();
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
         foreach($collaborations as $collaboration){
-            $this->model[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+            $data[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
         }
+        $this->model['collaborations'] = $data;
 //        if($request->has('categories')){
 //            $categories = $request->input('categories');
 //            $this->model = $this->model->whereHas('categories',function($query) use ($categories){
@@ -287,12 +291,14 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[2])->orderBy('deleted_at','desc');
         $this->model = [];
+        $data = [];
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         $profileId = $request->user()->profile->id;
         foreach($collaborations as $collaboration){
-            $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+            $data[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
         }
+        $this->model['collaborations'] = $data;
         return $this->sendResponse();
 
     }
@@ -307,11 +313,13 @@ class CollaborateController extends Controller
             ->where("collaborators.company_id",$companyId);
 
         $this->model = [];
+        $data = [];
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         foreach ($collaborations as $collaboration) {
-            $this->model['data'][] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+            $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
+        $this->model['collaborations'] = $data;
         return $this->sendResponse();
 
     }

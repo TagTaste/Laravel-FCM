@@ -320,12 +320,12 @@ class JobController extends Controller
     {
         $this->model = [];
         $profileId = $request->user()->profile->id;
-        $this->model['data'] = Job::where('profile_id', $profileId)->where('state',Job::$state[2])->whereNull('company_id');
+        $this->model['jobs'] = Job::where('profile_id', $profileId)->where('state',Job::$state[2])->whereNull('company_id');
         $this->model['count'] = $this->model['data']->count();
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model['jobs'] = $this->model['data']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
+        $this->model['jobs'] = $this->model['jobs']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
 
