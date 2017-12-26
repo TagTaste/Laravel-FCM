@@ -48,10 +48,6 @@ class Action extends Notification
         {
             $view = 'emails.commented-post';
         }
-        if($this->data->action == 'tag')
-        {
-            $view = 'emails.tagging-post';
-        }
 
         if(view()->exists($view)){
             return ['database',FCMPush::class,'broadcast','mail'];
@@ -80,11 +76,6 @@ class Action extends Notification
         {
             $view = 'emails.commented-post';
         }
-        if($this->data->action == 'tag')
-        {
-            $view = 'emails.tagging-post';
-        }
-
         if(view()->exists($view)){
             return (new MailMessage())->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
