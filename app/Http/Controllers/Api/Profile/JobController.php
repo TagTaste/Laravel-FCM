@@ -60,17 +60,18 @@ class JobController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $inputs['state'] = Job::$state[0];
-        if(empty($inputs['salary_min'])){
-            unset($inputs['salary_min']);
+
+        if(empty($inputs['salary_min'])&&isset($inputs['salary_min_remove'])&&$inputs['salary_min_remove']){
+            $inputs['salary_min'] = null;
         }
-        if(empty($inputs['salary_max'])){
-            unset($inputs['salary_max']);
+        if(empty($inputs['salary_max'])&&isset($inputs['salary_max_remove'])&&$inputs['salary_max_remove']){
+            $inputs['salary_max'] = null;
         }
-        if(empty($inputs['experience_min'])){
-            unset($inputs['experience_min']);
+        if(empty($inputs['experience_min'])&&isset($inputs['experience_min_remove'])&&$inputs['experience_min_remove']){
+            $inputs['experience_min'] = null;
         }
-        if(empty($inputs['experience_max'])){
-            unset($inputs['experience_max']);
+        if(empty($inputs['experience_max'])&&isset($inputs['experience_max_remove'])&&$inputs['experience_max_remove']){
+            $inputs['experience_max'] = null;
         }
         $this->model = $profile->jobs()->create($inputs);
      
@@ -113,17 +114,17 @@ class JobController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
 
-        if(empty($inputs['salary_min'])){
-            unset($inputs['salary_min']);
+        if(empty($inputs['salary_min'])&&isset($inputs['salary_min_remove'])&&$inputs['salary_min_remove']){
+            $inputs['salary_min'] = null;
         }
-        if(empty($inputs['salary_max'])){
-            unset($inputs['salary_max']);
+        if(empty($inputs['salary_max'])&&isset($inputs['salary_max_remove'])&&$inputs['salary_max_remove']){
+            $inputs['salary_max'] = null;
         }
-        if(empty($inputs['experience_min'])){
-            unset($inputs['experience_min']);
+        if(empty($inputs['experience_min'])&&isset($inputs['experience_min_remove'])&&$inputs['experience_min_remove']){
+            $inputs['experience_min'] = null;
         }
-        if(empty($inputs['experience_max'])){
-            unset($inputs['experience_max']);
+        if(empty($inputs['experience_max'])&&isset($inputs['experience_max_remove'])&&$inputs['experience_max_remove']){
+            $inputs['experience_max'] = null;
         }
 
         $job = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
