@@ -304,10 +304,10 @@ class JobController extends Controller
 
     public function applied(Request $request)
     {
+        $this->model = [];
         $profileId = $request->user()->profile->id;
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
-
         $jobs = Job::whereIn('id',$ids);
         $this->model['count'] = $jobs->count();
         $page = $request->input('page');
