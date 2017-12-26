@@ -319,12 +319,12 @@ class JobController extends Controller
     public function expired(Request $request,$profileId, $companyId)
     {
         $this->model = [];
-        $this->model['jobs'] = Job::where('company_id', $companyId)->where('state',Job::$state[2]);
-        $this->model['count'] = $this->model['jobs']->count();
+        $this->model['data'] = Job::where('company_id', $companyId)->where('state',Job::$state[2]);
+        $this->model['count'] = $this->model['data']->count();
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model['jobs'] = $this->model['jobs']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
+        $this->model['jobs'] = $this->model['data']->orderBy('expires_on', 'desc')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
 
