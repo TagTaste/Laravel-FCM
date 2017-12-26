@@ -30,7 +30,7 @@
                                 <tr>
                                     <td bgcolor="#FFFFFF " align="center">
                                         <div style="padding: 30px 40px 30px 40px;">
-                                            <img src="https://i1.wp.com/www.femmehub.com/wp-content/uploads/2015/04/foods-wallpaper.jpg" height="80px" width="80px" style="border-radius:50%"/>
+                                            <img src="{{$senderImage}}" height="80px" width="80px" style="border-radius:50%"/>
                                         </div>
                                         <p style="font-size: 16px;color: #181818 ;margin:0px;font-weight:bold;">{{$senderName}} has invited you to join TagTaste </p>
                                     </td>
