@@ -35,7 +35,18 @@ class UserController extends Controller
         if (!$company) {
             return $this->sendError("Company does not exist.");
         }
-        $userId = User::select('id')->where('email',$request->input("email"))->first();
+        if(!$request->has("profile_id"))
+        {
+            return $this->sendError("User does not exist");
+        }
+        $profiles = \DB::table('profiles')->where('id',$request->input('profile_id'))->get();
+
+        if(!isset($profiles[0]->user_id))
+        {
+            return $this->sendError("User does not exist");
+        }
+        $userId = User::select('id')->where('id',$profiles[0]->user_id)->first();
+
         if(!$userId){
             return $this->sendError("User does not exist");
         }
