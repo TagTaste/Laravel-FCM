@@ -39,7 +39,9 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        $view = "";
+        $via = ['database',FCMPush::class,'broadcast'];
+        
+        $view = null;
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
@@ -49,14 +51,12 @@ class Action extends Notification
             $view = 'emails.commented-post';
         }
 
-        if(view()->exists($view)){
-            return ['database',FCMPush::class,'broadcast','mail'];
+        if($view && view()->exists($view)){
+            $via[] = 'mail';
 
         }
-        else
-        {
-            return ['database',FCMPush::class,'broadcast'];
-        }
+        
+        return $via;
     }
 
     /**

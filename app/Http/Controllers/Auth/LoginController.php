@@ -109,18 +109,20 @@ class LoginController extends Controller
      */
     public function handleProviderCallback(Request $request,$provider)
     {
+        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         $input = $request->all();
         $authUser = $this->findOrCreateUser($input, $provider);
-      
+
+        if(!$this->validInviteCode)
+        {
+            return ['status'=>'failed','errors'=>"Please use correct invite code",'result'=>[],'newRegistered' => $this->newRegistered];
+        }
+
         if(!$authUser)
         {
             return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
         }
-        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
-        if(!$this->validInviteCode)
-        {
-            return ['status'=>'failed','errors'=>"Please use correct invite code",'result'=>[],'newRegistered' => false];
-        }
+
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
@@ -166,7 +168,7 @@ class LoginController extends Controller
                     if(!$invitation)
                     {
                         $this->validInviteCode = false;
-                        return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                        return false;
                     }
                     $alreadyVerified = true;
                     $profileId = $invitation->profile_id;
