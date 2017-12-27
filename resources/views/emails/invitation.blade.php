@@ -30,7 +30,7 @@
                                 <tr>
                                     <td bgcolor="#FFFFFF " align="center">
                                         <div style="padding: 30px 40px 30px 40px;">
-                                            <img src="https://i1.wp.com/www.femmehub.com/wp-content/uploads/2015/04/foods-wallpaper.jpg" height="80px" width="80px" style="border-radius:50%"/>
+                                            <img src="{{$senderImage}}" height="80px" width="80px" style="border-radius:50%"/>
                                         </div>
                                         <p style="font-size: 16px;color: #181818 ;margin:0px;font-weight:bold;">{{$senderName}} has invited you to join TagTaste </p>
                                     </td>
@@ -47,6 +47,13 @@
                                     <td bgcolor="#FFFFFF ">
                                         <div style="padding: 0px 60px 0px 60px;">
                                             <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">Join now and leverage the power of this community.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td bgcolor="#FFFFFF ">
+                                        <div style="padding: 0px 60px 0px 60px;">
+                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS:  {{$inviteCode}} </p>
                                         </div>
                                     </td>
                                 </tr>

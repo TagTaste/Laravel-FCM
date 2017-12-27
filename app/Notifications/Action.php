@@ -39,7 +39,24 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
-        return ['database',FCMPush::class,'broadcast'];
+        $via = ['database',FCMPush::class,'broadcast'];
+        
+        $view = null;
+        if($this->data->action == 'apply')
+        {
+            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+        }
+        if($this->data->action == 'comment')
+        {
+            $view = 'emails.commented-post';
+        }
+
+        if($view && view()->exists($view)){
+            $via[] = 'mail';
+
+        }
+        
+        return $via;
     }
 
     /**
@@ -50,14 +67,18 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
+        $view = "";
         if($this->data->action == 'apply')
-        return (new MailMessage())->view(
-            'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
-        );
+        {
+            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+        }
         if($this->data->action == 'comment')
         {
+            $view = 'emails.commented-post';
+        }
+        if(view()->exists($view)){
             return (new MailMessage())->view(
-                'emails.'.$this->data->action.'-'.$this->modelName, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+                $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
             );
         }
     }

@@ -7,13 +7,14 @@ use App\Interfaces\Feedable;
 use App\Job\Type;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
+use App\Traits\JobInternshipDate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Job extends Model implements Feedable
 {
-    use SoftDeletes, IdentifiesOwner, CachedPayload;
+    use SoftDeletes, IdentifiesOwner, CachedPayload,JobInternshipDate;
 
     protected $fillable = ['title', 'description','why_us','location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
@@ -48,12 +49,38 @@ class Job extends Model implements Feedable
             \App\Documents\Job::create($model);
             $model->addToCache();
         });
+        
+        self::deleting(function($model){
+            \App\Documents\Job::delete($model);
+            $model->applications()->delete();
+            $model->deleteShares();
+            $model->payload()->delete();
+            $model->deleteFilters();
+            $model->deleteFromCache();
+        });
+    }
+    
+    public function deleteFilters()
+    {
+        \DB::table("job_filters")->where('job_id',$this->id)->delete();
+    }
+    
+    public function deleteShares()
+    {
+        $now = \Carbon\Carbon::now();
+        \DB::table("job_shares")->where('job_id',$this->id)->update(['deleted_at'=>$now,'updated_at'=>$now]);
     }
     
     public function addToCache()
     {
         \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','profile','company','applications','applicationCount','hasApplied'])->toJson());
     }
+    
+    public function deleteFromCache()
+    {
+        \Redis::del("job:" . $this->id);
+    }
+    
     public function getJobIdAttribute()
     {
         return $this->id;

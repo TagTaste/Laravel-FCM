@@ -64,18 +64,17 @@ class JobController extends Controller
         $inputs['company_id'] = $companyId;
         $inputs['state'] = Job::$state[0];
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-        if(empty($inputs['salary_min'])){
-            unset($inputs['salary_min']);
+        if(empty($inputs['salary_min'])&&isset($inputs['salary_min_remove'])&&$inputs['salary_min_remove']){
+            $inputs['salary_min'] = null;
         }
-
-        if(empty($inputs['salary_max'])){
-            unset($inputs['salary_max']);
+        if(empty($inputs['salary_max'])&&isset($inputs['salary_max_remove'])&&$inputs['salary_max_remove']){
+            $inputs['salary_max'] = null;
         }
-        if(empty($inputs['experience_min'])){
-            unset($inputs['experience_min']);
+        if(empty($inputs['experience_min'])&&isset($inputs['experience_min_remove'])&&$inputs['experience_min_remove']){
+            $inputs['experience_min'] = null;
         }
-        if(empty($inputs['experience_max'])){
-            unset($inputs['experience_max']);
+        if(empty($inputs['experience_max'])&&isset($inputs['experience_max_remove'])&&$inputs['experience_max_remove']){
+            $inputs['experience_max'] = null;
         }
 
         $job = Job::create($inputs);
@@ -119,35 +118,25 @@ class JobController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $inputs = $request->except(['_token','_method','company_id','profile_id','expires_on']);
-        if(empty($inputs['salary_min'])){
-            unset($inputs['salary_min']);
-        }
-        if(empty($inputs['salary_max'])){
-            unset($inputs['salary_max']);
-        }
-        if(empty($inputs['experience_min'])){
-            unset($inputs['experience_min']);
-        }
-        if(empty($inputs['experience_max'])){
-            unset($inputs['experience_max']);
-        }
-        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
 
-        if(empty($inputs['salary_min'])){
-            unset($inputs['salary_min']);
-        }
-        if(empty($inputs['salary_max'])){
-            unset($inputs['salary_max']);
-        }
-        if(empty($inputs['experience_min'])){
-            unset($inputs['experience_min']);
-        }
-        if(empty($inputs['experience_max'])){
-            unset($inputs['experience_max']);
-        }
+        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
 
         if ($job === null) {
             throw new \Exception("Could not find the specified job.");
+        }
+
+
+        if(empty($inputs['salary_min'])&&isset($inputs['salary_min_remove'])&&$inputs['salary_min_remove']){
+            $inputs['salary_min'] = null;
+        }
+        if(empty($inputs['salary_max'])&&isset($inputs['salary_max_remove'])&&$inputs['salary_max_remove']){
+            $inputs['salary_max'] = null;
+        }
+        if(empty($inputs['experience_min'])&&isset($inputs['experience_min_remove'])&&$inputs['experience_min_remove']){
+            $inputs['experience_min'] = null;
+        }
+        if(empty($inputs['experience_max'])&&isset($inputs['experience_max_remove'])&&$inputs['experience_max_remove']){
+            $inputs['experience_max'] = null;
         }
 
         if($job->state == 3)

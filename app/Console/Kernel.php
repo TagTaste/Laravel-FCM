@@ -12,6 +12,9 @@ use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
+
+use App\Console\Commands\fixKeywords;
+use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use Illuminate\Console\Scheduling\Schedule;
@@ -82,6 +85,9 @@ class Kernel extends ConsoleKernel
         //API VERSION
         \App\Console\Commands\Api\Version::class,
 
+        \App\Console\Commands\ExpireReopen::class,
+        //fixKeywords::class,
+        ProfileDelete::class,
     ];
 
     /**
