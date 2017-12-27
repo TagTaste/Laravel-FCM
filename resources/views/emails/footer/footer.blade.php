@@ -7,10 +7,10 @@
                     <img src = "http://139.59.59.78:8081/images/emails/logogray.png" alt="tagTaste" width="100px" height="27px">
                 </td>
                 <td style="padding: 20px 0px 0px 0px;width:70%" align="right">
-                    <a href="https://twitter.com/tagtaste" style="text-decoration:none">
+                    <a href="https://www.facebook.com/tagtastefoods/" style="text-decoration:none">
                         <img src = "http://139.59.59.78:8081/images/emails/Facebook.png" alt="tagTaste" width="36px" height="36px" style="margin-left:14px;">
                     </a>
-                    <a href="https://www.facebook.com/tagtastefoods/" style="text-decoration:none">
+                    <a href="https://twitter.com/tagtaste" style="text-decoration:none">
                         <img src = "http://139.59.59.78:8081/images/emails/twitter.png" alt="tagTaste" width="36px" height="36px" style="margin-left:14px;">
                     </a>
                     <a href="https://www.linkedin.com/company/13231131/"  style="text-decoration:none">
