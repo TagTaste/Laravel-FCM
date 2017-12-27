@@ -17,7 +17,7 @@ class Profile extends BaseProfile
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise',
         'keywords','image','isFollowing'];
 
-    protected $appends = ['name','designation','imageUrl','isFollowing'];
+    protected $appends = ['name','designation','imageUrl'];
     
     public function getDesignationAttribute()
     {
@@ -112,11 +112,5 @@ class Profile extends BaseProfile
     public function jobs()
     {
         return $this->hasMany(Job::class);
-    }
-
-    public function getIsFollowingAttribute()
-    {
-        if(!request()->user()) { return ;}
-        return $this->isFollowing(request()->user()->profile->id,$this->id);
     }
 }
