@@ -195,16 +195,26 @@ class User extends BaseUser
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
                                      $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null)
     {
-        $user = static::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => bcrypt($password),
-            'email_token' =>str_random(15),
-            'social_registration'=>$socialRegistration,
-            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
-            'invite_code'=>mt_rand(100000, 999999),
-            'used_invite_code'=>$inviteCode
-        ]);
+
+        $user = BaseUser::withTrashed()->where('email',$email)->first();
+
+        if($user)
+        {
+            $user->restore();
+        }
+        else
+        {
+            $user = static::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => bcrypt($password),
+                'email_token' =>str_random(15),
+                'social_registration'=>$socialRegistration,
+                'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
+                'invite_code'=>mt_rand(100000, 999999),
+                'used_invite_code'=>$inviteCode
+            ]);
+        }
 
         if(!$user){
             throw new \Exception("Could not create user.");
