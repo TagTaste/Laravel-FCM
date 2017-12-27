@@ -244,11 +244,10 @@ class User extends BaseUser
     
         //get profile image from $provider
         if($avatar){
-            $image = $this->getAvatarImage($avatar);
+            $filename = $this->getAvatarImage($avatar);
             $s3 = \Storage::disk('s3');
             $filePath = 'images/p/' . $this->profile->id;
-            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-            \Log::info($resp);
+            $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
 
@@ -316,21 +315,49 @@ class User extends BaseUser
 
     public function getAvatarImage($avatar)
     {
+        
+        //$file = file_get_contents($avatar);
+        $file = $this->get_web_page($avatar);
+        $filename = str_random(20) . ".jpg";
         $path = 'images/p/' . $this->profile->id;
-        \Storage::disk('s3')->makeDirectory($path);
-        $filename = str_random(20) . ".jpeg";
-        $saveto = storage_path("app/" . $path) .  $filename;
-        $ch = curl_init($avatar);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
-        $raw=curl_exec($ch);
-        curl_close ($ch);
+        $path = storage_path($path);
 
-        $fp = fopen($saveto,'a');
-        fwrite($fp, $raw);
-        fclose($fp);
-        return "app/" . $path . $filename;
-
+        if(!is_dir($path) && !mkdir($path,0755,true)){
+            \Log::info("Did not create directory.");
+        }
+        $filename = $path . "/" . $filename;
+        file_put_contents($filename,$file);
+        return $filename;
+        
+    }
+    
+    public function get_web_page( $url )
+    {
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,     // return web page
+            CURLOPT_HEADER         => false,    // don't return headers
+            CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+            CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+            CURLOPT_TIMEOUT        => 120,      // timeout on response
+            CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+            CURLOPT_CAINFO => app_path("cacert.pem")
+        );
+        
+        $ch      = curl_init( $url );
+        curl_setopt_array( $ch, $options );
+        $content = curl_exec( $ch );
+        $err     = curl_errno( $ch );
+        $errmsg  = curl_error( $ch );
+        $header  = curl_getinfo( $ch );
+        curl_close( $ch );
+        \Log::info($err);
+        \Log::info($errmsg);
+        \Log::info($header);
+        return $content;
+        
+//        $header['errno']   = $err;
+//        $header['errmsg']  = $errmsg;
+//        $header['content'] = $content;
+//        return $header;
     }
 }
