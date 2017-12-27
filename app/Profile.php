@@ -192,7 +192,7 @@ class Profile extends Model
         return \Redis::get('profile:small:' . $id);
     }
     
-    public function removeFromCachce()
+    public function removeFromCache()
     {
         return \Redis::del('profile:small:' . $this->id);
     }
