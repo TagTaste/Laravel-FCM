@@ -17,6 +17,7 @@ class AlterProfileSocialConnectAdd extends Migration
             $table->boolean('facebook_connect')->default(0);
             $table->boolean('google_connect')->default(0);
             $table->boolean('linkedin_connect')->default(0);
+            $table->string('google_url')->nullable();
         });
     }
 
@@ -27,10 +28,11 @@ class AlterProfileSocialConnectAdd extends Migration
      */
     public function down()
     {
-        Schema::table("users",function(Blueprint $table){
+        Schema::table("profiles",function(Blueprint $table){
             $table->dropColumn('facebook_connect');
             $table->dropColumn('google_connect');
             $table->dropColumn('linkedin_connect');
+            $table->dropColumn('google_url');
         });
     }
 }

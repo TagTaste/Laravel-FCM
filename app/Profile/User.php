@@ -232,7 +232,7 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null)
     {
         //create social account
         $this->social()->create([
@@ -253,7 +253,7 @@ class User extends BaseUser
 
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_connect',1]);
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_connect'=>1,$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)
