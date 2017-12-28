@@ -193,7 +193,7 @@ class User extends BaseUser
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null,$socialLink = null)
     {
         $user = static::create([
             'name' => $name,
@@ -223,7 +223,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink);
         }
 
         $user->createDefaultIdeabook();
