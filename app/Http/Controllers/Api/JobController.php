@@ -72,7 +72,7 @@ class JobController extends Controller
 	 */
 	public function show(Request $request,$id)
 	{
-	    $job = $this->model->whereNull('deleted_at')->find($id);
+	    $job = $this->model->where('id',$id)->where('state','!=',Job::$state[1])->first();
         if (!$job) {
             return $this->sendError("No job found with the given Id.");
         }
