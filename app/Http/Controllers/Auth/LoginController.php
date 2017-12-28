@@ -126,6 +126,7 @@ class LoginController extends Controller
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
+        $result['newRegistered'] = $this->newRegistered;
 
         return response()->json($result);
     }
@@ -178,7 +179,6 @@ class LoginController extends Controller
                     $this->validInviteCode = false;
                     return false;
                 }
-                \Log::info($this->newRegistered);
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode,isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
 

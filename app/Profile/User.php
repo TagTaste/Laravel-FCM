@@ -250,8 +250,8 @@ class User extends BaseUser
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
-        \Log::info("here");
-        \Log::info($socialLink);
+
+
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
         \App\Profile::where('id',$this->profile->id)->update([$provider.'_connect'=>1,$provider.'_url'=>$socialLink]);
