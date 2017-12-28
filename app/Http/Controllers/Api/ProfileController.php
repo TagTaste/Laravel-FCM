@@ -147,10 +147,12 @@ class ProfileController extends Controller
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
             if($data['profile']['phone'] != $profile->phone || $profile->verified_phone == 0)
             {
-                
-                \Log::debug("dispatching phone verify");
                 $profile->update(['verified_phone'=>0]);
-                $number = substr($data['profile']['phone'],3);
+                $number = $data['profile']['phone'];
+                if(strlen($number) == 13)
+                {
+                    $number = substr($number,3);
+                }
                 dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
             }
         }
