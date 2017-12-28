@@ -254,7 +254,7 @@ class User extends BaseUser
 
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_connect'=>1,$provider.'_url'=>$socialLink]);
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)

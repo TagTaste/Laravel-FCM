@@ -53,10 +53,7 @@ class Profile extends Model
         'style_image',
         'style_hero_image',
         'otp',
-        'verified_phone',
-        'facebook_connect',
-        'google_connect',
-        'linkedin_connect'
+        'verified_phone'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -134,10 +131,7 @@ class Profile extends Model
         'verified_phone',
         'notificationCount',
         'messageCount',
-        'addPassword',
-        'facebook_connect',
-        'google_connect',
-        'linkedin_connect'
+        'addPassword'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
