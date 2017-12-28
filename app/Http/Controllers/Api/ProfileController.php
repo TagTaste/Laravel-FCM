@@ -145,7 +145,7 @@ class ProfileController extends Controller
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
-            if($data['profile']['phone'] != $profile->phone && $profile->verified_phone == 0)
+            if($data['profile']['phone'] != $profile->phone || $profile->verified_phone == 0)
             {
                 $profile->update(['verified_phone'=>0]);
                 $number = $data['profile']['phone'];
