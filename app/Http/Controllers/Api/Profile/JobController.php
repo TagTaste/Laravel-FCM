@@ -91,7 +91,7 @@ class JobController extends Controller
      */
     public function show($profileId, $id)
     {
-        $job = $this->model->where('profile_id',$profileId)->where('id',$id)->first();
+        $job = $this->model->where('profile_id',$profileId)->where('id',$id)->where('state','!=',Job::$state[1])->first();
         
         if (!$job) {
             return $this->sendError("No job found with the given Id.");
