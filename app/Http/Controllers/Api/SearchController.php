@@ -8,20 +8,29 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
+    //aliases added for frontend
     private $models = [
         'collaborate'=> \App\Collaborate::class,
         'recipe' => \App\Recipe::class,
+        'recipes' => \App\Recipe::class,
         'profile' => \App\Profile::class,
+        'people' => \App\Profile::class,
         'company' => \App\Company::class,
-        'job' => \App\Job::class
+        'companies' => \App\Company::class,
+        'job' => \App\Job::class,
+        'jobs' => \App\Job::class
     ];
     
     private $filters = [
         'collaborate'=> \App\Filter\Collaborate::class,
         'recipe' => \App\Filter\Recipe::class,
+        'recipes' => \App\Filter\Recipe::class,
         'profile' => \App\Filter\Profile::class,
+        'people' => \App\Filter\Profile::class,
         'company' => \App\Filter\Company::class,
-        'job' => \App\Filter\Job::class
+        'companies' => \App\Filter\Company::class,
+        'job' => \App\Filter\Job::class,
+        'jobs' => \App\Filter\Job::class
     ];
     
     private function getModels($type, $ids = [], $filters = [],$skip,$take)
