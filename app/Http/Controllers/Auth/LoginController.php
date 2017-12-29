@@ -109,21 +109,24 @@ class LoginController extends Controller
      */
     public function handleProviderCallback(Request $request,$provider)
     {
+        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         $input = $request->all();
         $authUser = $this->findOrCreateUser($input, $provider);
-      
+
+        if(!$this->validInviteCode)
+        {
+            return ['status'=>'failed','errors'=>"Please use correct invite code",'result'=>[],'newRegistered' => $this->newRegistered];
+        }
+
         if(!$authUser)
         {
             return ['status'=>'failed','errors'=>"Could not login.",'result'=>[],'newRegistered' => false];
         }
-        $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
-        if(!$this->validInviteCode)
-        {
-            return ['status'=>'failed','errors'=>"Please use correct invite code",'result'=>[],'newRegistered' => false];
-        }
+
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
+        $result['newRegistered'] = $this->newRegistered;
 
         return response()->json($result);
     }
@@ -154,7 +157,7 @@ class LoginController extends Controller
             if($user){
                 //create social account;
                 $this->newRegistered = false;
-                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
             } else {
 
                 $this->newRegistered = true;
@@ -166,7 +169,7 @@ class LoginController extends Controller
                     if(!$invitation)
                     {
                         $this->validInviteCode = false;
-                        return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[]];
+                        return false;
                     }
                     $alreadyVerified = true;
                     $profileId = $invitation->profile_id;
@@ -177,7 +180,7 @@ class LoginController extends Controller
                     return false;
                 }
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
-                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode,isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
 
                 if($alreadyVerified) {
                     $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();

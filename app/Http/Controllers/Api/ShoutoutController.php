@@ -69,14 +69,17 @@ class ShoutoutController extends Controller
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-        if(isset($inputs['image']) && !empty($inputs['image'])){
-            $image = $this->getExternalImage($inputs['image'],$profile->id);
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $profile->id . "/si";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-            $inputs['image'] = $resp;
+            $inputs['preview']['image'] = $resp;
         }
-        
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
+        }
 		$this->model = $this->model->create($inputs);
         event(new Create($this->model,$profile));
         

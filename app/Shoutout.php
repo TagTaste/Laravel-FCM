@@ -14,10 +14,10 @@ class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
     
-    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','image'];
+    protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview'];
     
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
-        'created_at','privacy_id','privacy','image'
+        'created_at','privacy_id','privacy','image','preview'
     ];
     
     protected $appends = ['owner','likeCount'];
@@ -151,9 +151,19 @@ class Shoutout extends Model implements Feedable
         }
         return $value;
     }
-    
+
     public function getImageAttribute($value)
     {
         return is_null($value) ? null : \Storage::url($value);
+    }
+
+    public function getPreviewAttribute($value)
+    {
+        $preview = json_decode($value,true);
+        if(isset($preview['image']))
+        {
+            $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+        }
+        return $preview;
     }
 }
