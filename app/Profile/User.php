@@ -226,7 +226,7 @@ class User extends BaseUser
         }
 
         //attach default role
-        $user->attachDefaultRole();
+        //$user->attachDefaultRole();
 
         //create default profile
         //$user->createDefaultProfile();
