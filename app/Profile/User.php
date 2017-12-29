@@ -193,7 +193,7 @@ class User extends BaseUser
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null,$socialLink = null)
     {
 
         $user = BaseUser::withTrashed()->where('email',$email)->first();
@@ -233,7 +233,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink);
         }
 
         $user->createDefaultIdeabook();
@@ -242,7 +242,7 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null)
     {
         //create social account
         $this->social()->create([
@@ -261,7 +261,10 @@ class User extends BaseUser
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
 
+
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)
