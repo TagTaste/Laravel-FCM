@@ -126,6 +126,7 @@ class LoginController extends Controller
         $token = \JWTAuth::fromUser($authUser);
         unset($authUser['profile']);
         $result['result'] = ['user'=>$authUser,'token'=>$token];
+        $result['newRegistered'] = $this->newRegistered;
 
         return response()->json($result);
     }
@@ -156,7 +157,7 @@ class LoginController extends Controller
             if($user){
                 //create social account;
                 $this->newRegistered = false;
-                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token']);
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
             } else {
 
                 $this->newRegistered = true;
@@ -179,7 +180,7 @@ class LoginController extends Controller
                     return false;
                 }
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],str_random(6),
-                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode,isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
 
                 if($alreadyVerified) {
                     $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
