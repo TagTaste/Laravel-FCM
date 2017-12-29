@@ -149,11 +149,12 @@ class ProfileController extends Controller
             {
                 $profile->update(['verified_phone'=>0]);
                 $number = $data['profile']['phone'];
-                if(strlen($number) == 13)
+                $countryCode = $data['profile']['country_code'];
+                if($countryCode[0] == '+')
                 {
-                    $number = substr($number,3);
+                    $countryCode = substr($countryCode,1);
                 }
-                dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
+                dispatch((new PhoneVerify($number,$countryCode,$request->user()->profile))->onQueue('phone_verify'));
             }
         }
 

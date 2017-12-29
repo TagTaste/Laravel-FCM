@@ -22,7 +22,8 @@ class PhoneVerify implements ShouldQueue
      */
     public $phone;
     public $profile;
-    public function __construct($phone, Profile $profile)
+    public $countryCode;
+    public function __construct($phone,$countryCode, Profile $profile)
     {
         $this->phone = $phone;
         $this->profile = $profile;
@@ -41,7 +42,7 @@ class PhoneVerify implements ShouldQueue
         \Log::debug("otp is $otp");
         $client = new Client();
 
-        $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=91".$this->phone."&text=".$otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min&route=2");
+        $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=".$this->countryCode.$this->phone."&text=".$otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min&route=2");
 
         $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
         $job = ((new ChangeOtp($loggedInProfileId))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
