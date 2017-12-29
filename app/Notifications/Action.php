@@ -39,6 +39,9 @@ class Action extends Notification
      */
     public function via($notifiable)
     {
+        $via = ['database',FCMPush::class,'broadcast'];
+        
+        $view = null;
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
@@ -47,19 +50,13 @@ class Action extends Notification
         {
             $view = 'emails.commented-post';
         }
-        if($this->data->action == 'tag')
-        {
-            $view = 'emails.tagging-post';
-        }
 
-        if(view()->exists($view)){
-            return ['database',FCMPush::class,'broadcast','mail'];
+        if($view && view()->exists($view)){
+            $via[] = 'mail';
 
         }
-        else
-        {
-            return ['database',FCMPush::class,'broadcast'];
-        }
+        
+        return $via;
     }
 
     /**
@@ -70,6 +67,7 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
+        $view = "";
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
@@ -78,11 +76,6 @@ class Action extends Notification
         {
             $view = 'emails.commented-post';
         }
-        if($this->data->action == 'tag')
-        {
-            $view = 'emails.tagging-post';
-        }
-
         if(view()->exists($view)){
             return (new MailMessage())->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]

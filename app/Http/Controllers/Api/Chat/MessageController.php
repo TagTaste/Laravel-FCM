@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\File;
 
 class MessageController extends Controller
 {
@@ -109,6 +110,19 @@ class MessageController extends Controller
     
             $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
         }
+
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+            $image = $this->getExternalImage($inputs['preview']['image'],$profileId);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profileId . "/ci";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $inputs['preview']['image'] = $resp;
+        }
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
+        }
+
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
@@ -158,4 +172,22 @@ class MessageController extends Controller
         $this->model = $this->model->where('chat_id',$chatId)->where('id',$id)->update(['read_on'=>$now]);
         return $this->sendResponse();
 	}
+
+    public function getExternalImage($url,$profileId){
+        $path = 'images/p/' . $profileId . "/cimages/";
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(10) . ".image";
+        $saveto = storage_path("app/" . $path) .  $filename;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+
+        $fp = fopen($saveto,'a');
+        fwrite($fp, $raw);
+        fclose($fp);
+        return "app/" . $path . $filename;
+    }
 }

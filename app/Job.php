@@ -7,13 +7,14 @@ use App\Interfaces\Feedable;
 use App\Job\Type;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
+use App\Traits\JobInternshipDate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Job extends Model implements Feedable
 {
-    use SoftDeletes, IdentifiesOwner, CachedPayload;
+    use SoftDeletes, IdentifiesOwner, CachedPayload,JobInternshipDate;
 
     protected $fillable = ['title', 'description','why_us','location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',

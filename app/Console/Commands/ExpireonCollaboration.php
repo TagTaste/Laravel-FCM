@@ -45,6 +45,7 @@ class ExpireonCollaboration extends Command
                     event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
                     
                     $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
+                    \App\Filter\Collaborate::removeModel($model->id);
                     $profileIds = \DB::table("collaborators")->where("collaborate_id",$model->id)->get()->pluck('profile_id');
                     $profileIds = $profileIds->unique();
                     foreach ($profileIds as $profileId)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
 use App\Invitation;
+use App\SocialAccount;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -152,6 +153,28 @@ class UserController extends Controller
     {
         $this->model = Invitation::where('invite_code',$request->input('invite_code'))->exists();
         return $this->sendResponse();
+    }
+
+    public function socialLink(Request $request,$provider)
+    {
+        $socialiteUser = $request->all();
+        if($request->has('remove')&&$request->input('remove'))
+        {
+            $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
+            return $this->sendResponse();
+        }
+        $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+
+        if($user)
+        {
+            return $this->sendError("Already link ".$provider." with out plateform");
+        }
+        $user = $request->user();
+
+        $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
+
+        return $this->sendResponse();
+
     }
 
 }
