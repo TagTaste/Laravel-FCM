@@ -634,11 +634,11 @@ class ProfileController extends Controller
         $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
         $this->model = [];
         $companies = Company::with([])->whereIn('id',$companiesIds)->get();
-        $profiles = \App\Recipe\Profile::with([])->whereIn('id',$profilesIds)
+        $profiles = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereIn('id',$profilesIds)
             ->where('id','!=',$request->user()->profile->id)->get();
-        $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
+        $this->model['profile'] = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
             ->get()->merge($profiles);
-        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
+        $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
             ->get()->merge($companies);
         return $this->sendResponse();
 
