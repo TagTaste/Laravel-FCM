@@ -33,4 +33,7 @@ class Recipe extends Filter {
         return \App\Recipe::$veg[$model->is_vegetarian] ?? null;
     }
 
+    public static $filterOrder = ['Food Type','level','type','cuisine.name','tags'];
+
+
 }
