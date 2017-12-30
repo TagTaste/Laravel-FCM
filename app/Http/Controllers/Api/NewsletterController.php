@@ -1,8 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php namespace App\Http\Controllers\Api;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Newsletter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -48,8 +46,9 @@ class NewsletterController extends Controller {
 
 		$newsletter->email = $request->input("email");
 
-		$newsletter->save();
-		return 'Thank you, we\'ve got your mail';
+		$this->model = $newsletter->save();
+
+        return $this->sendResponse();
     }
 
 	/**
