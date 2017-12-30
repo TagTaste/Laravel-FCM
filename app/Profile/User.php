@@ -233,7 +233,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink,true);
         }
 
         $user->createDefaultIdeabook();
@@ -242,7 +242,7 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null,$newavatar = false)
     {
         //create social account
         $this->social()->create([
@@ -253,7 +253,7 @@ class User extends BaseUser
         ]);
     
         //get profile image from $provider
-        if($avatar){
+        if($avatar && $newavatar){
             $filename = $this->getAvatarImage($avatar);
             $s3 = \Storage::disk('s3');
             $filePath = 'images/p/' . $this->profile->id;
