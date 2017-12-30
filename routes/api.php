@@ -72,7 +72,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('social/link/{provider}','UserController@socialLink');
 
             Route::get('/user/verify/email/{token}', 'UserController@verify');
-            
+
+            //newse letter
+            Route::post('newsletter','NewsletterController@store');
+
             //change password
                 Route::post("change/password","UserController@changePassword");
             //chat
