@@ -310,7 +310,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->select('collaborate_id','collaborates.*')
             ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
-            ->where("collaborators.company_id",$companyId);
+            ->where("collaborators.company_id",$companyId)->where("collaborates.state",Collaborate::$state[0]);
 
         $this->model = [];
         $data = [];
