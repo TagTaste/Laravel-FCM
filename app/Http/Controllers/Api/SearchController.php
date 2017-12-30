@@ -70,6 +70,9 @@ class SearchController extends Controller
                 ]
             ]
         ];
+        
+        $this->setType($type);
+        
         if($type){
             $params['type'] = $type;
         }
@@ -116,7 +119,9 @@ class SearchController extends Controller
     
     public function suggest(Request $request, $type)
     {
-                $name = $request->input('description');
+        $this->setType($type);
+    
+        $name = $request->input('description');
         $params = [
             'index' => 'api',
             'type' => $type,
@@ -185,5 +190,23 @@ class SearchController extends Controller
             ->take(6)
             ->get();
         return $this->sendResponse();
+    }
+    
+    private function setType(&$type){
+        //for frontend peeps
+        switch($type){
+            case "companies":
+                $type = "company";
+                break;
+            case "recipes":
+                $type = "recipe";
+                break;
+            case "people":
+                $type = "profile";
+                break;
+            case "jobs":
+                $type = "job";
+                break;
+        }
     }
 }
