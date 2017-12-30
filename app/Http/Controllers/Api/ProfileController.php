@@ -567,14 +567,16 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
+        $foollowerData = [];
         foreach($data as &$profile){
             if(is_null($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $foollowerData[] = $profile;
         }
-        $this->model['profile'] = $data;
+        $this->model['profile'] = $foollowerData;
         return $this->sendResponse();
     }
 
@@ -620,6 +622,8 @@ class ProfileController extends Controller
 
     public function onboarding(Request $request)
     {
+        $fixProfileIds = [1,2,10,44,32,165];
+        $fixCompaniesIds = [111,137];
         $filters = [];
         $companyFilter = [];
         $keywords = $request->user()->profile->keywords;
@@ -630,9 +634,14 @@ class ProfileController extends Controller
             $companyFilter['speciality'][] = $keyword;
         }
         list($skip,$take) = \App\Strategies\Paginator::paginate(1);
-        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
-        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,9);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,3);
         $this->model = [];
+
+        $profilesIds = $profilesIds->merge($fixProfileIds);
+
+        $companiesIds = $companiesIds->merge($fixCompaniesIds);
+
         $companies = Company::with([])->whereIn('id',$companiesIds)->get();
         $profiles = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereIn('id',$profilesIds)
             ->where('id','!=',$request->user()->profile->id)->get();
