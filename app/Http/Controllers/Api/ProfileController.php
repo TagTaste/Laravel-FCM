@@ -634,8 +634,8 @@ class ProfileController extends Controller
             $companyFilter['speciality'][] = $keyword;
         }
         list($skip,$take) = \App\Strategies\Paginator::paginate(1);
-        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
-        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,9);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,3);
         $this->model = [];
 
         $profilesIds = $profilesIds->merge($fixProfileIds);
