@@ -46,10 +46,6 @@ class Action extends Notification
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
         }
-        if($this->data->action == 'comment')
-        {
-            $view = 'emails.commented-post';
-        }
 
         if($view && view()->exists($view)){
             $via[] = 'mail';
