@@ -620,8 +620,8 @@ class ProfileController extends Controller
 
     public function onboarding(Request $request)
     {
-        $fixProfileIds = [1,2,10,44,32,65];
-        $fixCompaniesIds = [11,13];
+        $fixProfileIds = [1,2,10,44,32,165];
+        $fixCompaniesIds = [111,137];
         $filters = [];
         $companyFilter = [];
         $keywords = $request->user()->profile->keywords;
