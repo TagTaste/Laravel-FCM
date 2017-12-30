@@ -620,8 +620,8 @@ class ProfileController extends Controller
 
     public function onboarding(Request $request)
     {
-        $fixProfileIds = [1,2,10,44,32,165];
-        $fixCompaniesIds = [111,137];
+        $fixProfileIds = [1,2,10,44,32,65];
+        $fixCompaniesIds = [11,13];
         $filters = [];
         $companyFilter = [];
         $keywords = $request->user()->profile->keywords;
@@ -637,10 +637,8 @@ class ProfileController extends Controller
         $this->model = [];
 
         $profilesIds = $profilesIds->merge($fixProfileIds);
-        $profilesIds = array_unique($profilesIds);
 
         $companiesIds = $companiesIds->merge($fixCompaniesIds);
-        $companiesIds = array_unique($companiesIds);
 
         $companies = Company::with([])->whereIn('id',$companiesIds)->get();
         $profiles = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereIn('id',$profilesIds)
