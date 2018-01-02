@@ -183,9 +183,7 @@ class ShoutoutController extends Controller
     
     public function getExternalImage($url,$profileId){
 	    $path = 'images/p/' . $profileId . "/simages/";
-	    $dir = storage_path("app/") . $path;
-	    \Log::info($dir);
-        \Storage::disk('local')->makeDirectory($dir);
+        \Storage::disk('local')->makeDirectory("app/" . $path);
         $filename = str_random(10) . ".jpg";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($url);
