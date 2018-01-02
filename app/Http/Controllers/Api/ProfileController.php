@@ -569,7 +569,8 @@ class ProfileController extends Controller
         }
         $followerData = [];
         foreach($data as &$profile){
-            if(is_null($profile)){
+            \Log::info($profile);
+            if(empty($profile)){
                 continue;
             }
             $profile = json_decode($profile);
