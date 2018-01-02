@@ -567,16 +567,16 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
-        $foollowerData = [];
+        $followerData = [];
         foreach($data as &$profile){
             if(is_null($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-            $foollowerData[] = $profile;
+            $followerData[] = $profile;
         }
-        $this->model['profile'] = $foollowerData;
+        $this->model['profile'] = array_filter($followerData);
         return $this->sendResponse();
     }
 
