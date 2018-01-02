@@ -569,7 +569,6 @@ class ProfileController extends Controller
         }
         $followerData = [];
         foreach($data as &$profile){
-            \Log::info($profile);
             if(empty($profile)){
                 continue;
             }
@@ -610,14 +609,14 @@ class ProfileController extends Controller
 
         }
         foreach($data as &$profile){
-            if(is_null($profile)){
+            if(empty($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        $this->model = $data;
+        $this->model = array_filter($data);
         return $this->sendResponse();
     }
 
