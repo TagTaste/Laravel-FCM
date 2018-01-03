@@ -8,20 +8,29 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
+    //aliases added for frontend
     private $models = [
         'collaborate'=> \App\Collaborate::class,
         'recipe' => \App\Recipe::class,
+        'recipes' => \App\Recipe::class,
         'profile' => \App\Profile::class,
+        'people' => \App\Profile::class,
         'company' => \App\Company::class,
-        'job' => \App\Job::class
+        'companies' => \App\Company::class,
+        'job' => \App\Job::class,
+        'jobs' => \App\Job::class
     ];
     
     private $filters = [
         'collaborate'=> \App\Filter\Collaborate::class,
         'recipe' => \App\Filter\Recipe::class,
+        'recipes' => \App\Filter\Recipe::class,
         'profile' => \App\Filter\Profile::class,
+        'people' => \App\Filter\Profile::class,
         'company' => \App\Filter\Company::class,
-        'job' => \App\Filter\Job::class
+        'companies' => \App\Filter\Company::class,
+        'job' => \App\Filter\Job::class,
+        'jobs' => \App\Filter\Job::class
     ];
     
     private function getModels($type, $ids = [], $filters = [],$skip,$take)
@@ -61,6 +70,9 @@ class SearchController extends Controller
                 ]
             ]
         ];
+        
+        $this->setType($type);
+        
         if($type){
             $params['type'] = $type;
         }
@@ -107,7 +119,9 @@ class SearchController extends Controller
     
     public function suggest(Request $request, $type)
     {
-                $name = $request->input('description');
+        $this->setType($type);
+    
+        $name = $request->input('description');
         $params = [
             'index' => 'api',
             'type' => $type,
@@ -176,5 +190,23 @@ class SearchController extends Controller
             ->take(6)
             ->get();
         return $this->sendResponse();
+    }
+    
+    private function setType(&$type){
+        //for frontend peeps
+        switch($type){
+            case "companies":
+                $type = "company";
+                break;
+            case "recipes":
+                $type = "recipe";
+                break;
+            case "people":
+                $type = "profile";
+                break;
+            case "jobs":
+                $type = "job";
+                break;
+        }
     }
 }

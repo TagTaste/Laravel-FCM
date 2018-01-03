@@ -235,7 +235,7 @@ class CompanyController extends Controller
         $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
         
         if(!$this->model){
-            throw new \Exception("You are already following this company.");
+           return $this->sendError("You are already following this company.");
         }
         
         $profileId = $request->user()->profile->id;
@@ -259,7 +259,7 @@ class CompanyController extends Controller
         $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
         
         if(!$this->model){
-            throw new \Exception("You are not following this company.");
+            return $this->sendError("You are not following this company.");
         }
         $profileId = $request->user()->profile->id;
         //companies the logged in user is following

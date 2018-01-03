@@ -95,3 +95,35 @@ Artisan::command('inspire', function () {
     }
     
 });
+
+\Artisan::command("reopen:collab {id}",function($id){
+    $status = \DB::table('collaborates')->where('id',$id)
+        ->update(['state'=>\App\Collaborate::$state[0],'deleted_at'=>null,
+            'expires_on'=>\Carbon\Carbon::now()->addMonth()->toDateTimeString()]);
+    \App\Filter\Collaborate::addModel(\App\Collaborate::find($id));
+    echo $status;
+});
+
+\Artisan::command("reopen:job {id}",function($id){
+    $status = \DB::table('jobs')
+        ->where('id',$id)->update(['state'=>\App\Job::$state[0],
+            'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
+    
+    \App\Filter\Job::addModel(\App\Job::find($id));
+    echo $status;
+});
+
+\Artisan::command("expire:collab {id}",function($id){
+    $status = \DB::table('collaborates')->where('id',$id)->update(['state'=>\App\Collaborate::$state[2]]);
+    
+    \App\Filter\Collaborate::removeModel($id);
+    
+    echo $status;
+});
+
+\Artisan::command("expire:job {id}",function($id){
+    $status = \DB::table('jobs')->where('id',$id)->update(['state'=>\App\Job::$state[2]]);
+    
+    \App\Filter\Job::removeModel($id);
+    echo $status;
+});
