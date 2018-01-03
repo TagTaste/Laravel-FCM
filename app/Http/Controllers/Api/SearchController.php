@@ -48,8 +48,14 @@ class SearchController extends Controller
             if($modelIds->count()){
                 $ids = array_merge($ids,$modelIds->toArray());
             }
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+
         }
-        return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+        else
+        {
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get()->toArray();
+
+        }
     }
 
     //index = db
