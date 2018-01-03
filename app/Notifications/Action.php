@@ -46,10 +46,6 @@ class Action extends Notification
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
         }
-        if($this->data->action == 'comment')
-        {
-            $view = 'emails.commented-post';
-        }
 
         if($view && view()->exists($view)){
             $via[] = 'mail';
@@ -71,10 +67,6 @@ class Action extends Notification
         if($this->data->action == 'apply')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
-        }
-        if($this->data->action == 'comment')
-        {
-            $view = 'emails.commented-post';
         }
         if(view()->exists($view)){
             return (new MailMessage())->view(

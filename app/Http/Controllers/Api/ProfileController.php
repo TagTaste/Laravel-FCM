@@ -454,9 +454,9 @@ class ProfileController extends Controller
         }
         
         $profiles = \App\Filter\Profile::getModelIds($filters);
-        \Log::info(count($profiles));
+
         $this->model = ['count' => count($profiles)];
-        $profiles = Profile::whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
+        $profiles = Profile::whereNull('deleted_at')->whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
         foreach ($profiles as &$profile){
             $profile['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile['id']);;
@@ -567,14 +567,16 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
+        $followerData = [];
         foreach($data as &$profile){
-            if(is_null($profile)){
+            if(empty($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $followerData[] = $profile;
         }
-        $this->model['profile'] = $data;
+        $this->model['profile'] = array_filter($followerData);
         return $this->sendResponse();
     }
 
@@ -607,19 +609,21 @@ class ProfileController extends Controller
 
         }
         foreach($data as &$profile){
-            if(is_null($profile)){
+            if(empty($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        $this->model = $data;
+        $this->model = array_filter($data);
         return $this->sendResponse();
     }
 
     public function onboarding(Request $request)
     {
+        $fixProfileIds = [1,2,10,44,32,165];
+        $fixCompaniesIds = [111,137];
         $filters = [];
         $companyFilter = [];
         $keywords = $request->user()->profile->keywords;
@@ -630,15 +634,20 @@ class ProfileController extends Controller
             $companyFilter['speciality'][] = $keyword;
         }
         list($skip,$take) = \App\Strategies\Paginator::paginate(1);
-        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
-        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,9);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,3);
         $this->model = [];
+
+        $profilesIds = $profilesIds->merge($fixProfileIds);
+
+        $companiesIds = $companiesIds->merge($fixCompaniesIds);
+
         $companies = Company::with([])->whereIn('id',$companiesIds)->get();
-        $profiles = \App\Recipe\Profile::with([])->whereIn('id',$profilesIds)
+        $profiles = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereIn('id',$profilesIds)
             ->where('id','!=',$request->user()->profile->id)->get();
-        $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
+        $this->model['profile'] = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
             ->get()->merge($profiles);
-        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
+        $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
             ->get()->merge($companies);
         return $this->sendResponse();
 
