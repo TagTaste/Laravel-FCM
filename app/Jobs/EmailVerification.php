@@ -35,7 +35,7 @@ class EmailVerification implements ShouldQueue
         $data = ["email_token" => $this->user->email_token];
         \Mail::send('emails.verify-mail', $data, function($message)
         {
-            $message->to($this->user->email, $this->user->name)->subject('Verified Your Account!');
+            $message->to($this->user->email, $this->user->name)->subject('Verify your email');
         });
     }
 }

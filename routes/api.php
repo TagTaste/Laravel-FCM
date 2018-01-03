@@ -198,6 +198,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete('comments/{id}','CommentController@destroy');
             
             //search
+                Route::get("filterSearch/{type?}",'SearchController@filterSearch');
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
