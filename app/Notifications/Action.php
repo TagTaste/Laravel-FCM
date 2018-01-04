@@ -50,15 +50,13 @@ class Action extends Notification
             }
             else
             {
-                $view = $this->data->action;
+                $view = 'emails.'.$this->data->action;
             }
         }
-
         if($view && view()->exists($view)){
             $via[] = 'mail';
 
         }
-        \Log::info($via);
         return $via;
     }
 
