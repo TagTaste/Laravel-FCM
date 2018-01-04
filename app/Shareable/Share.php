@@ -42,7 +42,7 @@ class Share extends Model implements CommentNotification
     
     public function addToCache()
     {
-        $model = class_basename(static::class);
+        $model = class_basename($this);
         \Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
     }
     
@@ -79,7 +79,7 @@ class Share extends Model implements CommentNotification
     public function getCacheKey() : array
     {
         $name = strtolower(class_basename($this));
-        $key  =  "shared:" . $this->id;
+        $key  =  "shared:$name:" . $this->id;
         
         if(!\Redis::exists($key))
         {
