@@ -198,6 +198,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete('comments/{id}','CommentController@destroy');
             
             //search
+                Route::get("filterSearch/{type?}",'SearchController@filterSearch');
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
@@ -225,6 +226,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //profile routes
 
             //phone verify
+            Route::post('profile/phoneVerify','ProfileController@phoneVerify');
             Route::post('profile/requestOtp','ProfileController@requestOtp');
             Route::post('profile/verify/email','ProfileController@sendVerifyMail');
             //remove when profile/tagging api run proper on website and app
