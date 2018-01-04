@@ -69,11 +69,18 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
-        $view = "";
+        $view = null;
         if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
-            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            if($this->data->action == 'apply')
+            {
+                $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            }
+            else{
+                $view = $this->data->action;
+            }
         }
+
         if(view()->exists($view)){
             return (new MailMessage())->subject($this->data->action)->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
