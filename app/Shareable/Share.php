@@ -42,7 +42,8 @@ class Share extends Model implements CommentNotification
     
     public function addToCache()
     {
-        \Redis::set("shared:" . $this->id,$this->toJson());
+        $model = class_basename(static::class);
+        \Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
     }
     
     public function payload()
