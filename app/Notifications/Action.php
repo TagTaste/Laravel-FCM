@@ -48,7 +48,8 @@ class Action extends Notification
             {
                 $view = 'emails.'.$this->data->action.'-'.$this->modelName;
             }
-            else{
+            else
+            {
                 $view = $this->data->action;
             }
         }
@@ -57,7 +58,7 @@ class Action extends Notification
             $via[] = 'mail';
 
         }
-        
+        \Log::info($via);
         return $via;
     }
 
