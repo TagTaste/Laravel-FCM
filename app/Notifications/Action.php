@@ -42,9 +42,15 @@ class Action extends Notification
         $via = ['database',FCMPush::class,'broadcast'];
         
         $view = null;
-        if($this->data->action == 'apply')
+        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
-            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            if($this->data->action == 'apply')
+            {
+                $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            }
+            else{
+                $view = $this->data->action;
+            }
         }
 
         if($view && view()->exists($view)){
@@ -64,12 +70,12 @@ class Action extends Notification
     public function toMail($notifiable)
     {
         $view = "";
-        if($this->data->action == 'apply')
+        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
             $view = 'emails.'.$this->data->action.'-'.$this->modelName;
         }
         if(view()->exists($view)){
-            return (new MailMessage())->view(
+            return (new MailMessage())->subject($this->data->action)->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
             );
         }
