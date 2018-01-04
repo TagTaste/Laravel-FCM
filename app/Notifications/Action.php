@@ -82,7 +82,7 @@ class Action extends Notification
         }
 
         if(view()->exists($view)){
-            return (new MailMessage())->subject($this->data->action)->view(
+            return (new MailMessage())->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
             );
         }
