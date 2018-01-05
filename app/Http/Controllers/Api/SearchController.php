@@ -66,7 +66,7 @@ class SearchController extends Controller
     public function search(Request $request, $type = null)
     {
         $query = $request->input('q');
-    
+        $this->model = [];
         $this->model['suggestions'] = $this->autocomplete($query);
     
         $params = [
@@ -88,8 +88,9 @@ class SearchController extends Controller
         $client = SearchClient::get();
     
         $response = $client->search($params);
-        $this->model = [];
+        
         if($response['hits']['total'] > 0){
+            
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
     
