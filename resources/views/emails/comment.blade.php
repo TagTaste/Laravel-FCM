@@ -26,7 +26,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF">
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF">
-                                                                    <div style="font-size: 16px;color: #181818;">{{$model->content}}<a style="color: #4397E7;text-decoration: none">(more)</a></div>
+                                                                    <div style="font-size: 16px;color: #181818;">{{$model->content['text']}}<a style="color: #4397E7;text-decoration: none">(more)</a></div>
                                                                 </td>
                                                             </tr>   
                                                         </table>
