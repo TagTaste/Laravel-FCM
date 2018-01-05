@@ -272,33 +272,33 @@ class SearchController extends Controller
                 }
             }
 
-            if(isset($this->model['job']))
-            {
-                $jobs = $this->model['job'];
-                $data = [];
-                foreach($jobs as $job){
-                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-                }
-                $this->model['job'] = $data;
-            }
+//            if(isset($this->model['job']))
+//            {
+//                $jobs = $this->model['job'];
+//                $data = [];
+//                foreach($jobs as $job){
+//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
+//                }
+//                $this->model['job'] = $data;
+//            }
 
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $data = [];
-                foreach($recipes as $recipe){
-                    $data[] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-                $this->model['recipe'] = $data;
-
-            }
+//            if(isset($this->model['recipe']))
+//            {
+//                $recipes = $this->model['recipe'];
+//                $data = [];
+//                foreach($recipes as $recipe){
+//                    $data[] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
+//                }
+//                $this->model['recipe'] = $data;
+//
+//            }
 
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
                 $data = [];
                 foreach($collaborates as $collaborate){
-                    $data[] = ['collaborate' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                    $data[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
                 $this->model['collaborate'] = $data;
 
