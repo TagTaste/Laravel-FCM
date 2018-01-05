@@ -683,7 +683,7 @@ class ProfileController extends Controller
         }
     }
 
-    public function phoneVerified(Request $request)
+    public function phoneVerify(Request $request)
     {
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
