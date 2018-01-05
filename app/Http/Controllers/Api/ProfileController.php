@@ -687,14 +687,11 @@ class ProfileController extends Controller
     {
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
-        \Log::info($data);
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
-            \Log::info("here");
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
             if(($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0)
             {
-                \Log::info("here");
                 $profile->update(['verified_phone'=>0]);
                 $number = $data['profile']['phone'];
                 if(strlen($number) == 13)
