@@ -79,8 +79,6 @@ class Action extends Notification
                 $view = $this->data->action;
             }
         }
-        \Log::info($this->data);
-        \Log::info($this->model);
 
         if(view()->exists($view)){
             return (new MailMessage())->view(
