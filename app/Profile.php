@@ -133,11 +133,12 @@ class Profile extends Model
         'verified_phone',
         'notificationCount',
         'messageCount',
-        'addPassword'
+        'addPassword',
+        'unreadNotificationCount'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword'];
+        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount'];
 
     public static function boot()
     {
@@ -787,6 +788,11 @@ class Profile extends Model
     public function routeNotificationForMail()
     {
         return $this->user->email;
+    }
+
+    public function getUnreadNotificationCountAttribute()
+    {
+        return \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',request()->user()->profile->id)->count();
     }
 
 }
