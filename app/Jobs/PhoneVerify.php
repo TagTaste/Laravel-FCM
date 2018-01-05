@@ -41,14 +41,10 @@ class PhoneVerify implements ShouldQueue
         $otp = mt_rand(100000, 999999);
         \Log::debug("otp is $otp");
         $client = new Client();
-<<<<<<< HEAD
 
-        $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=".$this->countryCode.$this->phone."&text=".$otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min&route=2");
-=======
         $url = "http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=91".$this->phone."&text=".$otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min&route=2";
         \Log::info($url);
         $response = $client->get("http://websmsapp.in/api/mt/SendSMS?APIKey=".env('TOP10SMS_API_KEY')."&senderid=".env('TOP10SMS_SENDERID')."&channel=Trans&DCS=0&flashsms=0&number=91".$this->phone."&text=".$otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min&route=2");
->>>>>>> a8da96344a2e242970ca340bcd6b804aa8ba9ee1
 
         $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
         $job = ((new ChangeOtp($loggedInProfileId))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
