@@ -119,13 +119,10 @@ class SearchController extends Controller
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
-            
-            return $this->sendResponse();
-    
         }
     
         
-        return $this->sendResponse("Nothing found.");
+        return $this->sendResponse();
     }
     
     public function suggest(Request $request, $type)
