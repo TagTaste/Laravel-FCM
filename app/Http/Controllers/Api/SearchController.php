@@ -48,8 +48,14 @@ class SearchController extends Controller
             if($modelIds->count()){
                 $ids = array_merge($ids,$modelIds->toArray());
             }
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+
         }
-        return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+        else
+        {
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get()->toArray();
+
+        }
     }
 
     //index = db
@@ -70,6 +76,9 @@ class SearchController extends Controller
                 ]
             ]
         ];
+        
+        $this->setType($type);
+        
         if($type){
             $params['type'] = $type;
         }
@@ -116,7 +125,9 @@ class SearchController extends Controller
     
     public function suggest(Request $request, $type)
     {
-                $name = $request->input('description');
+        $this->setType($type);
+    
+        $name = $request->input('description');
         $params = [
             'index' => 'api',
             'type' => $type,
@@ -186,4 +197,116 @@ class SearchController extends Controller
             ->get();
         return $this->sendResponse();
     }
+    
+    private function setType(&$type){
+        //for frontend peeps
+        switch($type){
+            case "companies":
+                $type = "company";
+                break;
+            case "recipes":
+                $type = "recipe";
+                break;
+            case "people":
+                $type = "profile";
+                break;
+            case "jobs":
+                $type = "job";
+                break;
+        }
+    }
+
+    public function filterSearch(Request $request, $type = null)
+    {
+        $query = $request->input('q');
+        $params = [
+            'index' => "api",
+            'body' => [
+                'query' => [
+                    'query_string' => [
+                        'query' => $query
+                    ]
+                ]
+            ]
+        ];
+
+        $this->setType($type);
+
+        if($type){
+            $params['type'] = $type;
+        }
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+        $this->model = [];
+        if($response['hits']['total'] > 0){
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+            foreach($hits as $name => $hit){
+                $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
+            }
+
+            $profileId = $request->user()->profile->id;
+
+            if(isset($this->model['profile'])){
+                $following = \Redis::sMembers("following:profile:" . $profileId);
+                foreach($this->model['profile'] as &$profile){
+                    if($profile && isset($profile['id'])){
+                        $profile['isFollowing'] = in_array($profile['id'],$following);
+                    }
+
+                }
+            }
+
+            if(isset($this->model['company'])){
+                foreach($this->model['company'] as $company){
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                }
+            }
+
+            if(isset($this->model['job']))
+            {
+                $jobs = $this->model['job'];
+                $data = [];
+                foreach($jobs as $job){
+                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
+                }
+                $this->model['job'] = $data;
+            }
+
+            if(isset($this->model['recipe']))
+            {
+                $jobs = $this->model['recipe'];
+                $data = [];
+                foreach($jobs as $job){
+                    $data[] = ['recipe' => $job, 'meta' => $job->getMetaFor($profileId)];
+                }
+                $this->model['recipe'] = $data;
+
+            }
+
+            if(isset($this->model['collaborate']))
+            {
+                $jobs = $this->model['collaborate'];
+                $data = [];
+                foreach($jobs as $job){
+                    $data[] = ['collaborate' => $job, 'meta' => $job->getMetaFor($profileId)];
+                }
+                $this->model['collaborate'] = $data;
+
+            }
+
+            $this->model['suggestions'] = $this->autocomplete($query);
+
+            return $this->sendResponse();
+
+        }
+        return $this->sendResponse("Nothing found.");
+    }
+
+
 }

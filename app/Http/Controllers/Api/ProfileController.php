@@ -86,7 +86,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
-            'remove_hero_image']);
+            'remove_hero_image','verified_phone']);
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -145,8 +145,9 @@ class ProfileController extends Controller
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
-            if($data['profile']['phone'] != $profile->phone || $profile->verified_phone == 0)
+            if($data['profile']['phone'] != $profile->phone)
             {
+<<<<<<< HEAD
                 $profile->update(['verified_phone'=>0]);
                 $number = $data['profile']['phone'];
                 $countryCode = $data['profile']['country_code'];
@@ -155,6 +156,9 @@ class ProfileController extends Controller
                     $countryCode = substr($countryCode,1);
                 }
                 dispatch((new PhoneVerify($number,$countryCode,$request->user()->profile))->onQueue('phone_verify'));
+=======
+                $data['profile']['verified_phone'] = 0;
+>>>>>>> a8da96344a2e242970ca340bcd6b804aa8ba9ee1
             }
         }
 
@@ -455,9 +459,9 @@ class ProfileController extends Controller
         }
         
         $profiles = \App\Filter\Profile::getModelIds($filters);
-        \Log::info(count($profiles));
+
         $this->model = ['count' => count($profiles)];
-        $profiles = Profile::whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
+        $profiles = Profile::whereNull('deleted_at')->whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
         foreach ($profiles as &$profile){
             $profile['isFollowing'] =  Profile::isFollowing($loggedInProfileId,$profile['id']);;
@@ -568,14 +572,16 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
+        $followerData = [];
         foreach($data as &$profile){
-            if(is_null($profile)){
+            if(empty($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $followerData[] = $profile;
         }
-        $this->model['profile'] = $data;
+        $this->model['profile'] = array_filter($followerData);
         return $this->sendResponse();
     }
 
@@ -608,19 +614,21 @@ class ProfileController extends Controller
 
         }
         foreach($data as &$profile){
-            if(is_null($profile)){
+            if(empty($profile)){
                 continue;
             }
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        $this->model = $data;
+        $this->model = array_filter($data);
         return $this->sendResponse();
     }
 
     public function onboarding(Request $request)
     {
+        $fixProfileIds = [1,2,10,44,32,165];
+        $fixCompaniesIds = [111,137];
         $filters = [];
         $companyFilter = [];
         $keywords = $request->user()->profile->keywords;
@@ -631,15 +639,20 @@ class ProfileController extends Controller
             $companyFilter['speciality'][] = $keyword;
         }
         list($skip,$take) = \App\Strategies\Paginator::paginate(1);
-        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,15);
-        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,5);
+        $profilesIds = \App\Filter\Profile::getModelIds($filters,$skip,9);
+        $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,3);
         $this->model = [];
+
+        $profilesIds = $profilesIds->merge($fixProfileIds);
+
+        $companiesIds = $companiesIds->merge($fixCompaniesIds);
+
         $companies = Company::with([])->whereIn('id',$companiesIds)->get();
-        $profiles = \App\Recipe\Profile::with([])->whereIn('id',$profilesIds)
+        $profiles = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereIn('id',$profilesIds)
             ->where('id','!=',$request->user()->profile->id)->get();
-        $this->model['profile'] = \App\Recipe\Profile::with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
+        $this->model['profile'] = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
             ->get()->merge($profiles);
-        $this->model['company'] = Company::with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
+        $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
             ->get()->merge($companies);
         return $this->sendResponse();
 
@@ -675,5 +688,48 @@ class ProfileController extends Controller
         {
             $this->sendError("Already verified");
         }
+    }
+
+    public function phoneVerify(Request $request)
+    {
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
+            'remove_hero_image','verified_phone']);
+
+        if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
+        {
+            $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
+            if(($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0)
+            {
+                \Log::info("here");
+                $profile->update(['verified_phone'=>0]);
+                $number = $data['profile']['phone'];
+                if(strlen($number) == 13)
+                {
+                    $number = substr($number,3);
+                }
+                dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
+            }
+        }
+
+        //save the model
+        if(isset($data['profile']) && !empty($data['profile'])){
+            $userId = $request->user()->id;
+            try {
+                $this->model = \App\Profile::where('user_id',$userId)->first();
+                $this->model->update($data['profile']);
+                $this->model->refresh();
+                //update filters
+                \App\Filter\Profile::addModel($this->model);
+
+
+            } catch(\Exception $e){
+                \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
+                return $this->sendError("Could not update.");
+            }
+        }
+
+        \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
+
+        return $this->sendResponse();
     }
 }

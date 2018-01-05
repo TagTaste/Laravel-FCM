@@ -74,6 +74,9 @@ class ShoutoutController extends Controller
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $profile->id . "/si";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            if($resp){
+                \File::delete(storage_path($image));
+            }
             $inputs['preview']['image'] = $resp;
         }
         if(isset($inputs['preview']))
@@ -184,7 +187,7 @@ class ShoutoutController extends Controller
     public function getExternalImage($url,$profileId){
 	    $path = 'images/p/' . $profileId . "/simages/";
         \Storage::disk('local')->makeDirectory($path);
-        $filename = str_random(10) . ".image";
+        $filename = str_random(10) . ".jpg";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
