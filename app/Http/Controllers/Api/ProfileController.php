@@ -147,18 +147,7 @@ class ProfileController extends Controller
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
             if($data['profile']['phone'] != $profile->phone)
             {
-<<<<<<< HEAD
-                $profile->update(['verified_phone'=>0]);
-                $number = $data['profile']['phone'];
-                $countryCode = $data['profile']['country_code'];
-                if($countryCode[0] == '+')
-                {
-                    $countryCode = substr($countryCode,1);
-                }
-                dispatch((new PhoneVerify($number,$countryCode,$request->user()->profile))->onQueue('phone_verify'));
-=======
                 $data['profile']['verified_phone'] = 0;
->>>>>>> a8da96344a2e242970ca340bcd6b804aa8ba9ee1
             }
         }
 
