@@ -12,7 +12,7 @@
                                 <tr>
                                     <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%" style="width=100%!important">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;margin: 0px 70px 0px 70px;">{{$data->who['name']}} has expressed interest in your
-                                            colloboration</div>
+                                            collaboration</div>
                                     </td>
                                 </tr>
                                 <tr>
