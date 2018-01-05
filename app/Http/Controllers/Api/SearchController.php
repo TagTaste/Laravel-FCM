@@ -66,6 +66,9 @@ class SearchController extends Controller
     public function search(Request $request, $type = null)
     {
         $query = $request->input('q');
+    
+        $this->model['suggestions'] = $this->autocomplete($query);
+    
         $params = [
             'index' => "api",
             'body' => [
@@ -115,11 +118,11 @@ class SearchController extends Controller
                 }
             }
             
-            $this->model['suggestions'] = $this->autocomplete($query);
-            
             return $this->sendResponse();
     
         }
+    
+        
         return $this->sendResponse("Nothing found.");
     }
     
