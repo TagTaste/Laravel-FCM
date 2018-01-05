@@ -681,7 +681,7 @@ class ProfileController extends Controller
 
     public function phoneVerified(Request $request)
     {
-        $data = $request->input(["_method","_token",'hero_image','image','resume','remove','remove_image',
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
         \Log::info($data);
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
