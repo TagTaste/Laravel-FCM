@@ -150,6 +150,10 @@ class ProfileController extends Controller
                 $data['profile']['verified_phone'] = 0;
             }
         }
+        else
+        {
+            $data['profile']['verified_phone'] = 0;
+        }
 
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
@@ -683,11 +687,10 @@ class ProfileController extends Controller
     {
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
-
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
-            if($data['profile']['phone'] != $profile->phone || $profile->verified_phone == 0)
+            if(($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0)
             {
                 $profile->update(['verified_phone'=>0]);
                 $number = $data['profile']['phone'];
