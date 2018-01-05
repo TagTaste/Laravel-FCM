@@ -226,7 +226,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //profile routes
 
             //phone verify
-            Route::post('profile/phoneVerify','ProfileController@phoneVerify');
+            Route::post('profile/phoneVerify','ProfileController@phoneVerified');
             Route::post('profile/requestOtp','ProfileController@requestOtp');
             Route::post('profile/verify/email','ProfileController@sendVerifyMail');
             //remove when profile/tagging api run proper on website and app

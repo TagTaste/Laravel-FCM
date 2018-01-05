@@ -679,13 +679,14 @@ class ProfileController extends Controller
         }
     }
 
-    public function phoneVerify(Request $request)
+    public function phoneVerified(Request $request)
     {
-        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
+        $data = $request->input(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
-
+        \Log::info($data);
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
+            \Log::info("here");
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
             if(($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0)
             {

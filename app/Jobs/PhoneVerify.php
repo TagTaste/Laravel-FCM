@@ -23,7 +23,7 @@ class PhoneVerify implements ShouldQueue
     public $phone;
     public $profile;
     public $countryCode;
-    public function __construct($phone,$countryCode, Profile $profile)
+    public function __construct($phone, Profile $profile)
     {
         $this->phone = $phone;
         $this->profile = $profile;
