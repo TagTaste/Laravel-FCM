@@ -280,10 +280,10 @@ class SearchController extends Controller
 
             if(isset($this->model['recipe']))
             {
-                $jobs = $this->model['recipe'];
+                $recipes = $this->model['recipe'];
                 $data = [];
-                foreach($jobs as $job){
-                    $data[] = ['recipe' => $job, 'meta' => $job->getMetaFor($profileId)];
+                foreach($recipes as $recipe){
+                    $data[] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
                 }
                 $this->model['recipe'] = $data;
 
@@ -291,10 +291,10 @@ class SearchController extends Controller
 
             if(isset($this->model['collaborate']))
             {
-                $jobs = $this->model['collaborate'];
+                $collaborates = $this->model['collaborate'];
                 $data = [];
-                foreach($jobs as $job){
-                    $data[] = ['collaborate' => $job, 'meta' => $job->getMetaFor($profileId)];
+                foreach($collaborates as $collaborate){
+                    $data[] = ['collaborate' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
                 $this->model['collaborate'] = $data;
 
