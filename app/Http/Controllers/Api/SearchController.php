@@ -48,12 +48,12 @@ class SearchController extends Controller
             if($modelIds->count()){
                 $ids = array_merge($ids,$modelIds->toArray());
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
         else
         {
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get()->toArray();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get();
 
         }
     }
@@ -100,6 +100,7 @@ class SearchController extends Controller
             $profileId = $request->user()->profile->id;
     
             if(isset($this->model['profile'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
                     if($profile && isset($profile['id'])){
@@ -110,6 +111,7 @@ class SearchController extends Controller
             }
             
             if(isset($this->model['company'])){
+                $this->model['company'] = $this->model['company']->toArray();
                 foreach($this->model['company'] as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
@@ -253,6 +255,7 @@ class SearchController extends Controller
             $profileId = $request->user()->profile->id;
 
             if(isset($this->model['profile'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
                     if($profile && isset($profile['id'])){
@@ -263,6 +266,7 @@ class SearchController extends Controller
             }
 
             if(isset($this->model['company'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
                 foreach($this->model['company'] as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
