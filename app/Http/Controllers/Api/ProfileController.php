@@ -150,6 +150,10 @@ class ProfileController extends Controller
                 $data['profile']['verified_phone'] = 0;
             }
         }
+        else
+        {
+            $data['profile']['verified_phone'] = 0;
+        }
 
         //save the model
         if(isset($data['profile']) && !empty($data['profile'])){
