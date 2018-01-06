@@ -70,7 +70,7 @@ class Action extends Notification
     public function toMail($notifiable)
     {
         $view = null;
-        $sub = 'Notification from Tagtaste'
+        $sub = 'Notification from Tagtaste';
         if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
             if($this->data->action == 'apply')
