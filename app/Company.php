@@ -159,7 +159,6 @@ class Company extends Model
             'profileId' => $this->profileId,
             'name' => $this->name,
             'logo' => $this->logo,
-            'thumbnail'=>$this->thumbnail,
             'tagline' => $this->tagline
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
