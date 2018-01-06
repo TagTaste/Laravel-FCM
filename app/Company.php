@@ -52,7 +52,8 @@ class Company extends Model
         'user_id',
         'affiliations',
         'style_logo',
-        'style_hero_image'
+        'style_hero_image',
+        'thumbnail',
     ];
     
     protected $visible = [
@@ -100,7 +101,9 @@ class Company extends Model
         'employeeCountValue',
         'affiliations',
         'style_logo',
-        'style_hero_image'
+        'style_hero_image',
+        'thumbnail',
+
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
@@ -158,6 +161,7 @@ class Company extends Model
             'profileId' => $this->profileId,
             'name' => $this->name,
             'logo' => $this->logo,
+            'thumbnail'=>$this->thumbnail,
             'tagline' => $this->tagline
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
@@ -523,6 +527,11 @@ class Company extends Model
             'content' => $this->name,
             'image' => $this->logo
         ];
+    }
+    
+    public function getThumbnailAttribute($value)
+    {
+        return !is_null(trim($value)) ? \Storage::url($value) : null;
     }
 
 }
