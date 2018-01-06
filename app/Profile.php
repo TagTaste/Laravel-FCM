@@ -54,7 +54,8 @@ class Profile extends Model
         'style_image',
         'style_hero_image',
         'otp',
-        'verified_phone'
+        'verified_phone',
+        'thumbnail'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -134,7 +135,8 @@ class Profile extends Model
         'notificationCount',
         'messageCount',
         'addPassword',
-        'unreadNotificationCount'
+        'unreadNotificationCount',
+        'thumbnail',
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
@@ -388,6 +390,11 @@ class Profile extends Model
         } catch (\Exception $e){
             \Log::warning("Could not get image for profile:" . $this->id);
         }
+    }
+    
+    public function getThumbnailAttribute($value = null)
+    {
+        return !is_null($value) ? \Storage::url($value) : null;
     }
 
     //specific to API
