@@ -63,7 +63,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     Route::post('newsletter','NewsletterController@store');
     
     //authenticated routes.
-        Route::group(['middleware'=>'api.auth'],function(){
+        Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
             Route::post('/logout','UserController@logout');

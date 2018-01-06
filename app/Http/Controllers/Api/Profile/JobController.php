@@ -308,7 +308,7 @@ class JobController extends Controller
         $profileId = $request->user()->profile->id;
         $applications = Application::where('profile_id',$profileId)->get();
         $ids = $applications->pluck('job_id');
-        $jobs = Job::whereIn('id',$ids);
+        $jobs = Job::whereIn('id',$ids)->where('state',Job::$state[0]);
         $this->model['count'] = $jobs->count();
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
