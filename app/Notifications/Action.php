@@ -90,11 +90,11 @@ class Action extends Notification
                 $view = 'emails.'.$this->data->action;
                 if($this->data->action == 'tag')
                 {
-                    $sub = $this->data->who['name'] ." has mentioned you in a post";
+                    $sub = $this->data->who['name'] ." mentioned you in a post";
                 }
                 else
                 {
-                    $sub = $this->data->who['name'] ." has commented on your post";
+                    $sub = $this->data->who['name'] ." commented on your post";
                 }
 
             }
