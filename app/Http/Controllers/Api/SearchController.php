@@ -66,6 +66,9 @@ class SearchController extends Controller
     public function search(Request $request, $type = null)
     {
         $query = $request->input('q');
+        $this->model = [];
+        $this->model['suggestions'] = $this->autocomplete($query);
+    
         $params = [
             'index' => "api",
             'body' => [
@@ -85,8 +88,9 @@ class SearchController extends Controller
         $client = SearchClient::get();
     
         $response = $client->search($params);
-        $this->model = [];
+        
         if($response['hits']['total'] > 0){
+            
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
     
@@ -116,13 +120,10 @@ class SearchController extends Controller
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
-            
-            $this->model['suggestions'] = $this->autocomplete($query);
-            
-            return $this->sendResponse();
-    
         }
-        return $this->sendResponse("Nothing found.");
+    
+        
+        return $this->sendResponse();
     }
     
     public function suggest(Request $request, $type)
@@ -266,7 +267,7 @@ class SearchController extends Controller
             }
 
             if(isset($this->model['company'])){
-                $this->model['profile'] = $this->model['profile']->toArray();
+                $this->model['company'] = $this->model['company']->toArray();
                 foreach($this->model['company'] as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }

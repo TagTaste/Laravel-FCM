@@ -21,7 +21,7 @@ class FeedController extends Controller
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
-            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
+//            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
