@@ -53,7 +53,6 @@ class Company extends Model
         'affiliations',
         'style_logo',
         'style_hero_image',
-        'thumbnail',
     ];
     
     protected $visible = [
@@ -102,7 +101,6 @@ class Company extends Model
         'affiliations',
         'style_logo',
         'style_hero_image',
-        'thumbnail',
 
     ];
     
@@ -527,11 +525,6 @@ class Company extends Model
             'content' => $this->name,
             'image' => $this->logo
         ];
-    }
-    
-    public function getThumbnailAttribute($value)
-    {
-        return !is_null(trim($value)) ? \Storage::url($value) : null;
     }
 
 }
