@@ -159,6 +159,7 @@ class RecipeController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
+        $profile = $request->user()->profile;
         $profileId = $request->user()->profile->id;
 
         $this->model = Recipe::where('profile_id', $profileId)->where('id', $id)->first();
