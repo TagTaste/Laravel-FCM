@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Collaborate;
+use App\Company;
+use App\Events\NewFeedable;
 use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -41,15 +43,58 @@ class ExpireReopen extends Command
      */
     public function handle()
     {
+        $jobIds = [];
         //this run only once after that remove from kernel.php this file
-        \DB::table("jobs")->where('state',Job::$state[2])->orderBy('id')->chunk(100,function($models){
+        \DB::table("jobs")->where('state',Job::$state[2])->whereIn('id',$jobIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
+                $profile = \App\Profile::find($model->profile_id);
+                if($model->comapny_id != null)
+                {
+                    $company = Company::find($model->comapny_id);
+                    event(new NewFeedable($model, $company));
+                }
+                else
+                {
+                    $profile = \App\Profile::find($model->profile_id);
+                    event(new NewFeedable($model, $profile));
+                }
+
+                //push to feed
+
+
+                //add subscriber
+                event(new \App\Events\Model\Subscriber\Create($model,$profile));
+
+                \App\Filter\Collaborate::addModel($model);
+
                 \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
             }
         });
 
-        \DB::table("collaborates")->where('state',Collaborate::$state[2])->orderBy('id')->chunk(100,function($models){
+        $collabIds = [];
+        \DB::table("collaborates")->where('state',Collaborate::$state[2])->whereIn('id',$collabIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
+
+                $profile = \App\Profile::find($model->profile_id);
+                if($model->comapny_id != null)
+                {
+                    $company = Company::find($model->comapny_id);
+                    event(new NewFeedable($model, $company));
+                }
+                else
+                {
+                    $profile = \App\Profile::find($model->profile_id);
+                    event(new NewFeedable($model, $profile));
+                }
+
+                //push to feed
+
+
+                //add subscriber
+                event(new \App\Events\Model\Subscriber\Create($model,$profile));
+
+                \App\Filter\Collaborate::addModel($model);
+
                 \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
             }
         });

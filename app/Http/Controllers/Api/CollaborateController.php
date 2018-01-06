@@ -102,8 +102,7 @@ class CollaborateController extends Controller
                 return $this->sendError("Invalid Collaboration Project.");
             }
         }
-
-        if($collaboration->profile_id != $profileId){
+        else if($collaboration->profile_id != $profileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
 
@@ -150,7 +149,7 @@ class CollaborateController extends Controller
 
             $company = \Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
-            if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+            if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
             {
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
                 foreach ($profileIds as $profileId)
@@ -186,7 +185,7 @@ class CollaborateController extends Controller
                         'message' => $request->input("message")
                     ]);
 
-            if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+            if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
             {
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
                 foreach ($profileIds as $profileId)
@@ -296,6 +295,25 @@ class CollaborateController extends Controller
 
     public function applications(Request $request, $id)
     {
+        $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+
         $this->model = [];
 
         $page = $request->input('page');
@@ -310,6 +328,24 @@ class CollaborateController extends Controller
 
     public function archived(Request $request, $id)
     {
+        $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
         $this->model = [];
 
         $page = $request->input('page');
