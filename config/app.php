@@ -196,6 +196,7 @@ return [
         GoogleSheets\Providers\SheetsServiceProvider::class,
         LaravelFCM\FCMServiceProvider::class,
         Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
 
     ],
 
@@ -257,6 +258,7 @@ return [
         'Sheets' => GoogleSheets\Facades\Sheets::class,
         'FCM'      => LaravelFCM\Facades\FCM::class,
         'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
+        'InterventionImage' => Intervention\Image\Facades\Image::class,
     ],
 
 ];
