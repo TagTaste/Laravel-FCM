@@ -10,7 +10,7 @@
                         <td align="center" width="100%" bgcolor="#F8F6F9" >
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" >
                                 <tr>
-                                    <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%" style="width=100%!important">
+                                    <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%" style="width:100%!important">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;margin: 0px 70px 0px 70px;">{{$data->who['name']}} has expressed interest in your
                                             collaboration</div>
                                     </td>
@@ -87,7 +87,7 @@
                                         <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model->id}}/applications" style="text-decoration:none; display:inline-block;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px;">SEE ALL INTERESTS</a>
+                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model->id}}/applications" style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: bold;">SEE ALL APPLICANTS</a>
                                                 </td>
                                             </tr>
 

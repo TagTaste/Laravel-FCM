@@ -40,7 +40,7 @@ class Action extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        
+        \Log::warning(print_r($this->data,TRUE));
         $view = null;
         if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
@@ -76,7 +76,7 @@ class Action extends Notification
                 $view = 'emails.'.$this->data->action.'-'.$this->modelName;
             }
             else{
-                $view = $this->data->action;
+                $view = 'emails.'.$this->data->action;
             }
         }
 
