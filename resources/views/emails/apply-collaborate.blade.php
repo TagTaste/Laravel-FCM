@@ -49,7 +49,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                             <tr>
                                                                 <td>
-                                                                    <img src="{{$data->who['imageUrl']}}" height="50px" width="50px" style="border-radius: 50%;"/>
+                                                                    <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="50px" width="50px" style="border-radius: 50%;" >
                                                                 </td>
                                                             </tr>
                                                         </table>

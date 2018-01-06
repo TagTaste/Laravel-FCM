@@ -30,7 +30,7 @@
                                                                     <div>
                                                                         <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi {{$notifiable->name}},</p>
                                                                         <p style="font-size: 16px;color: #181818;margin:0px">{{$data->who['name']}} has applied for {{$model->title}}.
-                                                                            <a href="{{env('APP_URL')}}/jobs/{{$model->id}}" style="color: #4397E7;">Click here</a> to  see the list of all applicants.</p>
+                                                                            <a href="{{env('APP_URL')}}/jobs/{{$model->id}}" style="color: #4397E7; text-decoration: none;">Click here</a> to  see the list of all applicants.</p>
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -49,7 +49,7 @@
                                                     <table border="0" cellpadding="0" cellspacing="0">
                                                         <tbody><tr>
                                                             <td>
-                                                                <img src="{{$data->who['imageUrl']}}" height="71px" width="71px" class="CToWUd">
+                                                                <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="71px" width="71px" class="CToWUd">
                                                             </td>
                                                         </tr>
                                                         </tbody></table>

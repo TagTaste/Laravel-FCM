@@ -32,6 +32,7 @@
                                         <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{$model->content['text']}}</div>
                                     </td>
                                 </tr>
+                                @if(isset($model->image))
                                 <tr>
                                     <td bgcolor="#FFFFFF" align= "center">
                                         <div style="padding: 0px 40px;">
@@ -41,6 +42,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                                @endif
                             </table>
                         </td>
                     </tr>
