@@ -97,6 +97,7 @@ class ProfileController extends Controller
         if($request->has("remove_image") && $request->input('remove_image') == 1)
         {
             $data['profile']['image'] = null;
+            $data['profile']['thumbnail'] = null;
         }
 
         if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
@@ -195,7 +196,6 @@ class ProfileController extends Controller
                 })->stream('jpg');
                 \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
                 $data['profile']['thumbnail'] = $path;
-                    \Log::info($data['profile']['thumbnail']);
             }
         }
     }
