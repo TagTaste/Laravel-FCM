@@ -185,7 +185,7 @@ class CollaborateController extends Controller
                         'message' => $request->input("message")
                     ]);
 
-            if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+            if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
             {
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
                 foreach ($profileIds as $profileId)
@@ -302,7 +302,7 @@ class CollaborateController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
             if(!$checkUser){
@@ -335,7 +335,7 @@ class CollaborateController extends Controller
         }
         $profileId = $request->user()->profile->id;
 
-        if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
         {
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
             if(!$checkUser){
