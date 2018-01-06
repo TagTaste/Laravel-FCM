@@ -97,7 +97,6 @@ class ProfileController extends Controller
         if($request->has("remove_image") && $request->input('remove_image') == 1)
         {
             $data['profile']['image'] = null;
-            $data['profile']['thumbnail'] = null;
         }
 
         if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
@@ -186,16 +185,16 @@ class ProfileController extends Controller
     {
         if($request->hasFile($key)){
     
-            $data['profile'][$key] = $this->saveFile($path,$request,$key);
+            //$data['profile'][$key] = $this->saveFile($path,$request,$key);
             
             if($key == 'image'){
                 //create a thumbnail
-                $path = $path . "/thumbnails/" . str_random(20) . ".jpg";
-                $thumbnail = \Image::make($request->file('image'))->resize(85, null,function ($constraint) {
+                $path = $path . "/" . str_random(20) . ".jpg";
+                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
                     $constraint->aspectRatio();
-                })->stream('jpg');
+                })->stream('jpg',70);
                 \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-                $data['profile']['thumbnail'] = $path;
+                $data['profile']['image'] = $path;
             }
         }
     }
