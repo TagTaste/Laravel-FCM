@@ -149,7 +149,7 @@ class CollaborateController extends Controller
 
             $company = \Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
-            if(isset($collaborate->company_id)&&!(is_null($collaborate->company_id)))
+            if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
             {
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
                 foreach ($profileIds as $profileId)
