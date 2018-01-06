@@ -2,6 +2,7 @@
 namespace App\Console\Commands;
 use App\Collaborate;
 use App\CompanyUser;
+use App\Events\DeleteFeedable;
 use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -53,6 +54,7 @@ class ExpireonCollaboration extends Command
                         $model->profile_id = $profileId;
                         event(new \App\Events\Actions\ExpireModel($model));
                     }
+                    event(new DeleteFeedable($model));
     
                 }
             });

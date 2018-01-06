@@ -2,6 +2,7 @@
 namespace App\Console\Commands;
 use App\Application;
 use App\CompanyUser;
+use App\Events\DeleteFeedable;
 use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -42,6 +43,7 @@ class ExpireonJob extends Command
                 foreach ($models as $model) {
                     $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
                     \App\Filter\Job::removeModel($model->id);
+                    event(new DeleteFeedable($model));
                     //send notificants to applicants for delete job
                     $profileIds = Application::where('job_id',$model->id)->get()->pluck('profile_id');
                     foreach ($profileIds as $profileId)
