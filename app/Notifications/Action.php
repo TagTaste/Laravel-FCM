@@ -70,20 +70,38 @@ class Action extends Notification
     public function toMail($notifiable)
     {
         $view = null;
+        $sub = 'Notification from Tagtaste'
         if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
             if($this->data->action == 'apply')
             {
                 $view = 'emails.'.$this->data->action.'-'.$this->modelName;
-//                $subject = ''
+                if($this->modelName == 'collaborate')
+                {
+                    $sub = $this->data->who['name'] ."wants to collaborate with you on ".$this->model->title;
+                }
+                else
+                {
+                    $sub = $this->data->who['name'] ."applied to your job : ".$this->model->title;
+
+                }
             }
             else{
                 $view = 'emails.'.$this->data->action;
+                if($this->modelName == 'tag')
+                {
+                    $sub = $this->data->who['name'] ."has mentioned you in a post";
+                }
+                else
+                {
+                    $sub = $this->data->who['name'] ."has commented on your post";
+                }
+
             }
         }
 
         if(view()->exists($view)){
-            return (new MailMessage())->from('TagTaste')->subject($this->data->action)->view(
+            return (new MailMessage())->subject($sub)->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'content'=>$this->getContent($this->model)]
             );
         }
