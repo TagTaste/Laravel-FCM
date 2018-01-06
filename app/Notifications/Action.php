@@ -124,13 +124,16 @@ class Action extends Notification
         if(isset($model->content['text']))
         {
             $profiles = $this->getTaggedProfiles($model->content['text']);
+
             $pattern = [];
-            foreach ($profiles as $profile)
+            $replacement = [];
+            foreach ($profiles as $index => $profile)
             {
-                $pattern[] = '@['.$profile->id.']';
+                $pattern[] = '/@['.$profile->id.':'.$index.']/i';
+                $replacement[] = $profile->name;
             }
             $profiles = array_reverse($profiles);
-            return preg_replace($pattern,$profiles,$model->content['text']);
+            return preg_replace($pattern,$replacement,$model->content['text']);
         }
         else
         {
