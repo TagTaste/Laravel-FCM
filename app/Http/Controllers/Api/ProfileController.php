@@ -85,6 +85,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+        \Log::info($request->all());
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
         //proper verified.
@@ -183,7 +184,18 @@ class ProfileController extends Controller
     private function saveFileToData($key,$path,&$request,&$data)
     {
         if($request->hasFile($key)){
-            $data['profile'][$key] = $this->saveFile($path,$request,$key);
+    
+            //$data['profile'][$key] = $this->saveFile($path,$request,$key);
+            
+            if($key == 'image'){
+                //create a thumbnail
+                $path = $path . "/" . str_random(20) . ".jpg";
+                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
+                    $constraint->aspectRatio();
+                })->stream('jpg',70);
+                \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+                $data['profile']['image'] = $path;
+            }
         }
     }
     

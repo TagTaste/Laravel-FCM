@@ -62,9 +62,18 @@ class CompanyController extends Controller
         }
 
         if($request->hasFile('logo')){
-            $imageName = str_random(32) . ".jpg";
-            $path = \App\Company::getLogoPath($profileId, $company->id);
-            $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
+            //image
+//            $imageName = str_random(32) . ".jpg";
+//            $path = \App\Company::getLogoPath($profileId, $company->id);
+//            $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
+    
+            //store thumbnail
+            $path = \App\Company::getLogoPath($profileId, $company->id) . "/" . str_random(20) . ".jpg";
+            $thumbnail = \Image::make($request->file('logo'))->resize(180, null,function ($constraint) {
+                $constraint->aspectRatio();
+            })->stream('jpg',70);
+            \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+            $inputs['logo'] = $path;
         }
 
         if($request->hasFile('hero_image')){
@@ -120,9 +129,12 @@ class CompanyController extends Controller
         $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
         if($request->hasFile('logo')){
-            $imageName = str_random(32) . ".jpg";
-            $path = \App\Company::getLogoPath($profileId, $id);
-            $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
+            $path = \App\Company::getLogoPath($profileId, $id) . "/" . str_random(20) . ".jpg";
+            $thumbnail = \Image::make($request->file('logo'))->resize(180, null,function ($constraint) {
+                $constraint->aspectRatio();
+            })->stream('jpg',70);
+            \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+            $inputs['logo'] = $path;
         }
 
         if($request->hasFile('hero_image')){

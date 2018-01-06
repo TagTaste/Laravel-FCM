@@ -52,7 +52,7 @@ class Company extends Model
         'user_id',
         'affiliations',
         'style_logo',
-        'style_hero_image'
+        'style_hero_image',
     ];
     
     protected $visible = [
@@ -100,7 +100,8 @@ class Company extends Model
         'employeeCountValue',
         'affiliations',
         'style_logo',
-        'style_hero_image'
+        'style_hero_image',
+
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
