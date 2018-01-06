@@ -78,23 +78,23 @@ class Action extends Notification
                 $view = 'emails.'.$this->data->action.'-'.$this->modelName;
                 if($this->modelName == 'collaborate')
                 {
-                    $sub = $this->data->who['name'] ."wants to collaborate with you on ".$this->model->title;
+                    $sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
                 }
                 else
                 {
-                    $sub = $this->data->who['name'] ."applied to your job : ".$this->model->title;
+                    $sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
 
                 }
             }
             else{
                 $view = 'emails.'.$this->data->action;
-                if($this->modelName == 'tag')
+                if($this->data->action == 'tag')
                 {
-                    $sub = $this->data->who['name'] ."has mentioned you in a post";
+                    $sub = $this->data->who['name'] ." has mentioned you in a post";
                 }
                 else
                 {
-                    $sub = $this->data->who['name'] ."has commented on your post";
+                    $sub = $this->data->who['name'] ." has commented on your post";
                 }
 
             }
