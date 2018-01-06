@@ -42,7 +42,6 @@ class Action extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        \Log::warning(print_r($this->data,TRUE));
         $view = null;
         if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
@@ -76,6 +75,7 @@ class Action extends Notification
             if($this->data->action == 'apply')
             {
                 $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+//                $subject = ''
             }
             else{
                 $view = 'emails.'.$this->data->action;
@@ -83,7 +83,7 @@ class Action extends Notification
         }
 
         if(view()->exists($view)){
-            return (new MailMessage())->view(
+            return (new MailMessage())->from('TagTaste')->subject($this->data->action)->view(
                 $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'content'=>$this->getContent($this->model)]
             );
         }
@@ -124,15 +124,14 @@ class Action extends Notification
         if(isset($model->content['text']))
         {
             $profiles = $this->getTaggedProfiles($model->content['text']);
-
             $pattern = [];
             $replacement = [];
             foreach ($profiles as $index => $profile)
             {
-                $pattern[] = '/@['.$profile->id.':'.$index.']/i';
+                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
                 $replacement[] = $profile->name;
             }
-            $profiles = array_reverse($profiles);
+            $replacement = array_reverse($replacement);
             return preg_replace($pattern,$replacement,$model->content['text']);
         }
         else
