@@ -26,7 +26,7 @@
                                                         <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FFFFFF">
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF">
-                                                                    <div style="font-size: 16px;color: #181818;">{{$model->content['text']}}</div>
+                                                                    <div style="font-size: 16px;color: #181818;">{{$content}}</div>
                                                                 </td>
                                                             </tr>   
                                                         </table>

@@ -29,7 +29,7 @@
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" style="margin-top:10px">
                                 <tr>
                                     <td bgcolor="#FFFFFF">
-                                        <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{$model->content['text']}}</div>
+                                        <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{$content}}</div>
                                     </td>
                                 </tr>
                                 @if(isset($model->image))

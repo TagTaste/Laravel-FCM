@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\FCMPush;
+use App\Traits\GetTags;
 use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -10,6 +11,7 @@ use Illuminate\Notifications\Notification;
 class Action extends Notification
 {
     //use Queueable;
+    use GetTags;
     
     public $data;
     public $model;
@@ -82,7 +84,7 @@ class Action extends Notification
 
         if(view()->exists($view)){
             return (new MailMessage())->view(
-                $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+                $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'content'=>$this->getContent($this->model)]
             );
         }
     }
@@ -116,4 +118,24 @@ class Action extends Notification
 
         return $data;
     }
+
+    public function getContent($model)
+    {
+        if(isset($model->content['text']))
+        {
+            $profiles = $this->getTaggedProfiles($model->content['text']);
+            $pattern = [];
+            foreach ($profiles as $profile)
+            {
+                $pattern[] = '@['.$profile->id.']';
+            }
+            $profiles = array_reverse($profiles);
+            return preg_replace($pattern,$profiles,$model->content['text']);
+        }
+        else
+        {
+            return "";
+        }
+    }
+
 }
