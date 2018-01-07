@@ -6,12 +6,13 @@ use App\Channel\Payload;
 use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 
 class Profile extends Model
 {
-    use PushesToChannel,Notifiable;
+    use PushesToChannel,Notifiable, SoftDeletes;
 
     protected $fillable = [
         'tagline',
