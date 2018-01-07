@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\FCMPush;
+use App\Traits\GetTags;
 use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -10,6 +11,7 @@ use Illuminate\Notifications\Notification;
 class Action extends Notification
 {
     //use Queueable;
+    use GetTags;
     
     public $data;
     public $model;
@@ -40,18 +42,22 @@ class Action extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        
         $view = null;
-        if($this->data->action == 'apply')
+        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
-            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            if($this->data->action == 'apply')
+            {
+                $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            }
+            else
+            {
+                $view = 'emails.'.$this->data->action;
+            }
         }
-
         if($view && view()->exists($view)){
             $via[] = 'mail';
 
         }
-        
         return $via;
     }
 
@@ -63,14 +69,40 @@ class Action extends Notification
      */
     public function toMail($notifiable)
     {
-        $view = "";
-        if($this->data->action == 'apply')
+        $view = null;
+        $sub = 'Notification from Tagtaste';
+        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
         {
-            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            if($this->data->action == 'apply')
+            {
+                $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+                if($this->modelName == 'collaborate')
+                {
+                    $sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
+                }
+                else
+                {
+                    $sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
+
+                }
+            }
+            else{
+                $view = 'emails.'.$this->data->action;
+                if($this->data->action == 'tag')
+                {
+                    $sub = $this->data->who['name'] ." mentioned you in a post";
+                }
+                else
+                {
+                    $sub = $this->data->who['name'] ." commented on your post";
+                }
+
+            }
         }
+
         if(view()->exists($view)){
-            return (new MailMessage())->view(
-                $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable]
+            return (new MailMessage())->subject($sub)->view(
+                $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'content'=>$this->getContent($this->model)]
             );
         }
     }
@@ -104,4 +136,26 @@ class Action extends Notification
 
         return $data;
     }
+
+    public function getContent($model)
+    {
+        if(isset($model->content['text']))
+        {
+            $profiles = $this->getTaggedProfiles($model->content['text']);
+            $pattern = [];
+            $replacement = [];
+            foreach ($profiles as $index => $profile)
+            {
+                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
+                $replacement[] = $profile->name;
+            }
+            $replacement = array_reverse($replacement);
+            return preg_replace($pattern,$replacement,$model->content['text']);
+        }
+        else
+        {
+            return "";
+        }
+    }
+
 }

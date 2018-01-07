@@ -27,7 +27,7 @@
                         </tr>
                         <tr>
                             <td padding="11px 0px 0px 0px" style="color: rgba(0,0,0,0.9);font-size: 16px;">
-                                <p style="margin-top: 10px;"><span style="font-weight:400">Your recently changed your <span style="font-weight: bold"> Tagtaste</span> password. This is an acknowledgement for the same.</p>
+                                <p style="margin-top: 10px;"><span style="font-weight:400">You recently changed your <span style="font-weight: bold"> Tagtaste</span> password. This is an acknowledgement for the same.</p>
                             </td>
                         </tr>
                         <tr>
