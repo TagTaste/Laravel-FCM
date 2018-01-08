@@ -242,6 +242,8 @@ class SearchController extends Controller
 
         $response = $client->search($params);
         $this->model = [];
+        $this->model['suggestions'] = $this->autocomplete($query);
+    
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -304,9 +306,7 @@ class SearchController extends Controller
                 $this->model['collaborate'] = $data;
 
             }
-
-            $this->model['suggestions'] = $this->autocomplete($query);
-
+            
             return $this->sendResponse();
 
         }
