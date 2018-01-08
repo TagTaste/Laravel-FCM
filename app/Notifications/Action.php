@@ -152,6 +152,20 @@ class Action extends Notification
             $replacement = array_reverse($replacement);
             return preg_replace($pattern,$replacement,$model->content['text']);
         }
+        else if(isset($model->content))
+        {
+            $profiles = $this->getTaggedProfiles($model->content);
+            if($profiles == false) return $model->content;
+            $pattern = [];
+            $replacement = [];
+            foreach ($profiles as $index => $profile)
+            {
+                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
+                $replacement[] = $profile->name;
+            }
+            $replacement = array_reverse($replacement);
+            return preg_replace($pattern,$replacement,$model->content);
+        }
         else
         {
             return "";
