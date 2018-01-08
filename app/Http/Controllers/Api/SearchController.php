@@ -325,7 +325,7 @@ class SearchController extends Controller
     
         $suggestions = $this->getModels($type,array_pluck($suggestions,'id'),[],$skip,$take);
     
-        if(!is_null($suggestions) && $suggestions->count()){
+        if($suggestions && $suggestions->count()){
             if(!array_key_exists($type,$this->model)){
                 $this->model[$type] = [];
             }
