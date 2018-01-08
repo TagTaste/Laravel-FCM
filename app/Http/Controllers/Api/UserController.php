@@ -157,21 +157,26 @@ class UserController extends Controller
     public function socialLink(Request $request,$provider)
     {
         $socialiteUser = $request->all();
+        \Log::info($socialiteUser);
         if($request->has('remove')&&$request->input('remove'))
         {
+            \Log::info("remove");
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
+            \Log::info($this->model);
+
             return $this->sendResponse();
         }
         $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
         if($user)
         {
+            \Log::info("user");
             return $this->sendError("Already link ".$provider." with out plateform");
         }
         $user = $request->user();
 
         $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
-
+        \Log::info($this->model);
         return $this->sendResponse();
 
     }
