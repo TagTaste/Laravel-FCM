@@ -5,13 +5,14 @@ namespace App\Notifications;
 use App\FCMPush;
 use App\Traits\GetTags;
 use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Action extends Notification
+class Action extends Notification implements ShouldQueue
 {
-    //use Queueable;
-    use GetTags;
+    use GetTags, Queueable;
     
     public $data;
     public $model;
