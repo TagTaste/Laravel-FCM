@@ -158,12 +158,9 @@ class UserController extends Controller
     public function socialLink(Request $request,$provider)
     {
         $socialiteUser = $request->all();
-        \Log::info($socialiteUser);
         if($request->has('remove')&&$request->input('remove'))
         {
-            \Log::info("remove");
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
-            \Log::info($this->model);
 
             return $this->sendResponse();
         }
@@ -172,22 +169,24 @@ class UserController extends Controller
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
         } catch (SocialAccountUserNotFound $e){
-            \Log::info("Already");
-
-            return $this->sendError("Social Account for $provider Provider Not Found for User.");
+            $user = $request->user();
+            $userLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null;
+            $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$userLink);
+            return $this->sendResponse();
         }
 
         if($user)
         {
-            \Log::info("Already");
             return $this->sendError("Already link ".$provider." with out plateform");
         }
-        $user = $request->user();
-        \Log::info("here");
-        $userLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null;
-        $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$userLink);
-        \Log::info($this->model);
-        return $this->sendResponse();
+        else
+        {
+            $user = $request->user();
+            $userLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null;
+            $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$userLink);
+            return $this->sendResponse();
+
+        }
 
     }
 
