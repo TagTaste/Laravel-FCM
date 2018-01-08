@@ -172,6 +172,7 @@ class UserController extends Controller
             $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
         } catch (SocialAccountUserNotFound $e){
+            \Log::info("Already");
 
             return $this->sendError("Social Account for $provider Provider Not Found for User.");
         }
