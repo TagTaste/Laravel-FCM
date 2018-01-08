@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Collaborate;
+use App\Events\DeleteFeedable;
 use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -44,6 +45,7 @@ class SetExpireon extends Command
         //this run only once after that remove from kernel.php this file
         \DB::table("jobs")->where('expires_on','<=',Carbon::now()->toDateTimeString())->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
+                event(new DeleteFeedable($model));
                 \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
             }
         });
@@ -56,6 +58,7 @@ class SetExpireon extends Command
 
         \DB::table("collaborates")->where('expires_on','<=',Carbon::now()->toDateTimeString())->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
+                event(new DeleteFeedable($model));
                 \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[2]]);
             }
         });

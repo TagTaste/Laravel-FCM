@@ -40,7 +40,6 @@ class UserController extends Controller
             {
                 return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];
             }
-            $alreadyVerified = true;
             $profileId = $invitation->profile_id;
         }
         else
