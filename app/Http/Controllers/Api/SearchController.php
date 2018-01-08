@@ -48,12 +48,12 @@ class SearchController extends Controller
             if($modelIds->count()){
                 $ids = array_merge($ids,$modelIds->toArray());
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get()->toArray();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
         else
         {
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get()->toArray();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get();
 
         }
     }
@@ -66,6 +66,9 @@ class SearchController extends Controller
     public function search(Request $request, $type = null)
     {
         $query = $request->input('q');
+        $this->model = [];
+        $this->model['suggestions'] = $this->autocomplete($query);
+    
         $params = [
             'index' => "api",
             'body' => [
@@ -85,8 +88,9 @@ class SearchController extends Controller
         $client = SearchClient::get();
     
         $response = $client->search($params);
-        $this->model = [];
+        
         if($response['hits']['total'] > 0){
+            
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
     
@@ -100,6 +104,7 @@ class SearchController extends Controller
             $profileId = $request->user()->profile->id;
     
             if(isset($this->model['profile'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
                     if($profile && isset($profile['id'])){
@@ -110,17 +115,15 @@ class SearchController extends Controller
             }
             
             if(isset($this->model['company'])){
+                $this->model['company'] = $this->model['company']->toArray();
                 foreach($this->model['company'] as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
-            
-            $this->model['suggestions'] = $this->autocomplete($query);
-            
-            return $this->sendResponse();
-    
         }
-        return $this->sendResponse("Nothing found.");
+    
+        
+        return $this->sendResponse();
     }
     
     public function suggest(Request $request, $type)
@@ -253,6 +256,7 @@ class SearchController extends Controller
             $profileId = $request->user()->profile->id;
 
             if(isset($this->model['profile'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
                     if($profile && isset($profile['id'])){
@@ -263,38 +267,39 @@ class SearchController extends Controller
             }
 
             if(isset($this->model['company'])){
+                $this->model['company'] = $this->model['company']->toArray();
                 foreach($this->model['company'] as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                 }
             }
 
-            if(isset($this->model['job']))
-            {
-                $jobs = $this->model['job'];
-                $data = [];
-                foreach($jobs as $job){
-                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-                }
-                $this->model['job'] = $data;
-            }
+//            if(isset($this->model['job']))
+//            {
+//                $jobs = $this->model['job'];
+//                $data = [];
+//                foreach($jobs as $job){
+//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
+//                }
+//                $this->model['job'] = $data;
+//            }
 
-            if(isset($this->model['recipe']))
-            {
-                $jobs = $this->model['recipe'];
-                $data = [];
-                foreach($jobs as $job){
-                    $data[] = ['recipe' => $job, 'meta' => $job->getMetaFor($profileId)];
-                }
-                $this->model['recipe'] = $data;
-
-            }
+//            if(isset($this->model['recipe']))
+//            {
+//                $recipes = $this->model['recipe'];
+//                $data = [];
+//                foreach($recipes as $recipe){
+//                    $data[] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
+//                }
+//                $this->model['recipe'] = $data;
+//
+//            }
 
             if(isset($this->model['collaborate']))
             {
-                $jobs = $this->model['collaborate'];
+                $collaborates = $this->model['collaborate'];
                 $data = [];
-                foreach($jobs as $job){
-                    $data[] = ['collaborate' => $job, 'meta' => $job->getMetaFor($profileId)];
+                foreach($collaborates as $collaborate){
+                    $data[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
                 $this->model['collaborate'] = $data;
 

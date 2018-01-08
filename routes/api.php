@@ -63,7 +63,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     Route::post('newsletter','NewsletterController@store');
     
     //authenticated routes.
-        Route::group(['middleware'=>'api.auth'],function(){
+        Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
             Route::post('/logout','UserController@logout');
@@ -226,6 +226,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //profile routes
 
             //phone verify
+            Route::post('profile/phoneVerify','ProfileController@phoneVerify');
             Route::post('profile/requestOtp','ProfileController@requestOtp');
             Route::post('profile/verify/email','ProfileController@sendVerifyMail');
             //remove when profile/tagging api run proper on website and app

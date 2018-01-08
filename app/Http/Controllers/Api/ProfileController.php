@@ -85,8 +85,9 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+        \Log::info($request->all());
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
-            'remove_hero_image']);
+            'remove_hero_image','verified_phone']);
         //proper verified.
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
@@ -145,16 +146,14 @@ class ProfileController extends Controller
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
             $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
-            if($data['profile']['phone'] != $profile->phone || $profile->verified_phone == 0)
+            if($data['profile']['phone'] != $profile->phone)
             {
-                $profile->update(['verified_phone'=>0]);
-                $number = $data['profile']['phone'];
-                if(strlen($number) == 13)
-                {
-                    $number = substr($number,3);
-                }
-                dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
+                $data['profile']['verified_phone'] = 0;
             }
+        }
+        else
+        {
+            $data['profile']['verified_phone'] = 0;
         }
 
         //save the model
@@ -185,7 +184,18 @@ class ProfileController extends Controller
     private function saveFileToData($key,$path,&$request,&$data)
     {
         if($request->hasFile($key)){
-            $data['profile'][$key] = $this->saveFile($path,$request,$key);
+    
+            //$data['profile'][$key] = $this->saveFile($path,$request,$key);
+            
+            if($key == 'image'){
+                //create a thumbnail
+                $path = $path . "/" . str_random(20) . ".jpg";
+                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
+                    $constraint->aspectRatio();
+                })->stream('jpg',70);
+                \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+                $data['profile']['image'] = $path;
+            }
         }
     }
     
@@ -683,5 +693,46 @@ class ProfileController extends Controller
         {
             $this->sendError("Already verified");
         }
+    }
+
+    public function phoneVerify(Request $request)
+    {
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
+            'remove_hero_image','verified_phone']);
+        if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
+        {
+            $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
+            if(($data['profile']['phone'] != $profile->phone) || $profile->verified_phone == 0)
+            {
+                $profile->update(['verified_phone'=>0]);
+                $number = $data['profile']['phone'];
+                if(strlen($number) == 13)
+                {
+                    $number = substr($number,3);
+                }
+                dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
+            }
+        }
+
+        //save the model
+        if(isset($data['profile']) && !empty($data['profile'])){
+            $userId = $request->user()->id;
+            try {
+                $this->model = \App\Profile::where('user_id',$userId)->first();
+                $this->model->update($data['profile']);
+                $this->model->refresh();
+                //update filters
+                \App\Filter\Profile::addModel($this->model);
+
+
+            } catch(\Exception $e){
+                \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
+                return $this->sendError("Could not update.");
+            }
+        }
+
+        \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
+
+        return $this->sendResponse();
     }
 }

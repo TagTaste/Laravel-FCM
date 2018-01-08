@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Api\VersionCheck;
+use App\Http\Middleware\SmallImage;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -65,7 +66,7 @@ class Kernel extends HttpKernel
         'sanitize' => \App\Http\Middleware\Sanitize::class,
         'search.save' => \App\Http\Middleware\SaveSearchQuery::class,
         'api.CheckCompanyAdmin' => \App\Http\Middleware\Api\CheckCompanyAdmin::class,
-        'versionCheck' => VersionCheck::class
-
+        'versionCheck' => VersionCheck::class,
+        'optimizeImages'=> \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
     ];
 }
