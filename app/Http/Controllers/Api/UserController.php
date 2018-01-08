@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Invitation;
 use App\SocialAccount;
 use App\User;
@@ -166,11 +167,20 @@ class UserController extends Controller
 
             return $this->sendResponse();
         }
+
+        try {
+            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+
+        } catch (SocialAccountUserNotFound $e){
+
+            return $this->sendError("Social Account for $provider Provider Not Found for User.");
+        }
+        return $user;
+
         $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
         if($user)
         {
-            \Log::info("user");
             return $this->sendError("Already link ".$provider." with out plateform");
         }
         $user = $request->user();
