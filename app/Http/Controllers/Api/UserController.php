@@ -174,8 +174,8 @@ class UserController extends Controller
             return $this->sendError("Already link ".$provider." with out plateform");
         }
         $user = $request->user();
-
-        $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
+        $userLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null;
+        $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$userLink);
         \Log::info($this->model);
         return $this->sendResponse();
 
