@@ -21,6 +21,7 @@ class Action extends Notification implements ShouldQueue
     public $content;
     public $image;
     public $modelName;
+    public $allData ;
     /**
      * Create a new notification instance.
      *
@@ -32,6 +33,10 @@ class Action extends Notification implements ShouldQueue
         $this->data = $event;
         $this->model = $event->model;
         $this->modelName = strtolower(class_basename($event->model));
+        if(method_exists($this->model,'getNotificationContent')){
+            $this->allData = $this->model->getNotificationContent();
+        }
+
     }
 
     /**
@@ -72,38 +77,35 @@ class Action extends Notification implements ShouldQueue
     {
         $view = null;
         $sub = 'Notification from Tagtaste';
-        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
+
+        if($this->data->action == 'apply')
         {
-            if($this->data->action == 'apply')
+            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
+            if($this->modelName == 'collaborate')
             {
-                $view = 'emails.'.$this->data->action.'-'.$this->modelName;
-                if($this->modelName == 'collaborate')
-                {
-                    $sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
-                }
-                else
-                {
-                    $sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
-
-                }
+                $sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
             }
-            else{
-                $view = 'emails.'.$this->data->action;
-                if($this->data->action == 'tag')
-                {
-                    $sub = $this->data->who['name'] ." mentioned you in a post";
-                }
-                else
-                {
-                    $sub = $this->data->who['name'] ." commented on your post";
-                }
+            else
+            {
+                $sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
 
             }
+        }
+        elseif ($this->data->action == 'tag')
+        {
+            $view = 'emails.'.$this->data->action;
+            $sub = $this->data->who['name'] ." mentioned you in a post";
+        }
+        elseif ($this->data->action == 'comment')
+        {
+            $view = 'emails.'.$this->data->action;
+            $sub = $this->data->who['name'] ." commented on your post";
+
         }
 
         if(view()->exists($view)){
             return (new MailMessage())->subject($sub)->view(
-                $view, ['data' => $this->data,'model'=>$this->model,'notifiable'=>$notifiable,'content'=>$this->getContent($this->model)]
+                $view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
             );
         }
     }
@@ -122,7 +124,7 @@ class Action extends Notification implements ShouldQueue
         ];
 
         if(method_exists($this->model,'getNotificationContent')){
-            $data['model'] = $this->model->getNotificationContent();
+            $data['model'] = $this->allData;
         } else {
             \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
             $data['model'] = [
@@ -138,11 +140,11 @@ class Action extends Notification implements ShouldQueue
         return $data;
     }
 
-    public function getContent($model)
+    public function getContent($text)
     {
-        if(isset($model->content['text']))
+        if(isset($text['text']))
         {
-            $profiles = $this->getTaggedProfiles($model->content['text']);
+            $profiles = $this->getTaggedProfiles($text['text']);
             $pattern = [];
             $replacement = [];
             foreach ($profiles as $index => $profile)
@@ -151,21 +153,24 @@ class Action extends Notification implements ShouldQueue
                 $replacement[] = $profile->name;
             }
             $replacement = array_reverse($replacement);
-            return preg_replace($pattern,$replacement,$model->content['text']);
+            return preg_replace($pattern,$replacement,$text['text']);
+
         }
-        else if(isset($model->content))
+        elseif($text != '')
         {
-            $profiles = $this->getTaggedProfiles($model->content);
-            if($profiles == false) return $model->content;
+            $profiles = $this->getTaggedProfiles($text);
             $pattern = [];
             $replacement = [];
+            if($profiles == false) {
+                return $text;
+            }
             foreach ($profiles as $index => $profile)
             {
                 $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
                 $replacement[] = $profile->name;
             }
             $replacement = array_reverse($replacement);
-            return preg_replace($pattern,$replacement,$model->content);
+            return preg_replace($pattern,$replacement,$text);
         }
         else
         {
