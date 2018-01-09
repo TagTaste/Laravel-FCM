@@ -158,6 +158,7 @@ class UserController extends Controller
     public function socialLink(Request $request,$provider)
     {
         $socialiteUser = $request->all();
+        \Log::info($socialiteUser);
         if(isset($socialiteUser['remove'])&&$socialiteUser['remove'] == 1)
         {
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
