@@ -262,7 +262,7 @@ class SearchController extends Controller
             foreach($hits as $name => $hit){
                 $ids = $hit->pluck('_id')->toArray();
                 if(!empty($suggestions)){
-                    $ids = array_unique($ids,array_pluck($suggestions,'id'));
+                    $ids = array_merge($ids,array_pluck($suggestions,'id'));
                 }
                 $ids = array_unique($ids);
                
