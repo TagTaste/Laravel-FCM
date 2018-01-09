@@ -16,6 +16,9 @@
                     <a href="https://www.linkedin.com/company/13231131/"  style="text-decoration:none">
                         <img src = "http://139.59.59.78:8081/images/emails/linkedin.png" alt="tagTaste" width="36px" height="36px" style="margin-left:14px;">
                     </a>
+                    <a href="https://www.instagram.com/tagtaste/"  style="text-decoration:none">
+                        <img src = "https://tagtaste.com/images/emails/instagram.png" alt="tagTaste" width="36px" height="36px" style="margin-left:14px;">
+                    </a>
                 </td>
             </tr>
 
