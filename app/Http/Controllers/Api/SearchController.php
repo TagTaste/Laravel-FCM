@@ -263,9 +263,9 @@ class SearchController extends Controller
 
 
             foreach($hits as $name => $hit){
-                $ids = array_merge(array_pluck($suggestions,'id'),$hits->pluck('_id')->toArray());
+                $ids = array_merge(array_pluck($suggestions,'id'),$hit->pluck('_id')->toArray());
                 $ids = array_unique($ids);
-                \Log::info($hits->pluck('_id')->toArray());
+                \Log::info($hit->pluck('_id')->toArray());
                 \Log::info($ids);
                 $this->model[$name] = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
             }
