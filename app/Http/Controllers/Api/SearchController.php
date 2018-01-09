@@ -316,8 +316,11 @@ class SearchController extends Controller
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
-                
+                \Log::info("suggested");
+                \Log::info($suggested->toArray());
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                \Log::info("all");
+                \Log::info($this->model[$name]->toArray());
             }
 
             $profileId = $request->user()->profile->id;
