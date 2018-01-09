@@ -169,17 +169,15 @@ class UserController extends Controller
         }
         catch (SocialAccountUserNotFound $e)
         {
-            \Log::info("heere");
-            $user = $request->user();
-            \Log::info((array)$user);
-            \Log::info($user->profile->id);
+            $user = \App\Profile\User::where('email',$request->user()->email)->first();
             $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
             return $this->sendResponse();
 
         }
         if($user)
-        return $this->sendError("Already link ".$provider." with out plateform");
-
+        {
+            return $this->sendError("Already link ".$provider." with out plateform");
+        }
 
     }
 
