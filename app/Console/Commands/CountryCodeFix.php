@@ -38,7 +38,7 @@ class CountryCodeFix extends Command
      */
     public function handle()
     {
-        \DB::table('profiles')->whereNotNull('phone')->orderBy('id')->chunk(100, function ($models) {
+        \DB::table('profiles')->whereNotNull('phone')->whereRaw('phone like "+91%"')->orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
                 $phone = substr($model->phone,-10);
                 $countryCode = '+91';
