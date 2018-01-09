@@ -169,6 +169,7 @@ class UserController extends Controller
         }
         catch (SocialAccountUserNotFound $e)
         {
+            \Log::info("heere");
             $user = $request->user();
             \Log::info((array)$user);
             \Log::info($user->profile->id);
