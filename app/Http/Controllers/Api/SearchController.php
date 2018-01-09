@@ -263,10 +263,14 @@ class SearchController extends Controller
 
 
             foreach($hits as $name => $hit){
-                $ids = array_merge(array_pluck($suggestions,'id'),$hit->pluck('_id')->toArray());
-                $ids = array_unique($ids);
-                \Log::info($hit->pluck('_id')->toArray());
+                $ids = $hit->pluck('_id')->toArray();
                 \Log::info($ids);
+                if(!empty($suggestions)){
+                    $ids = array_unique($ids,array_pluck($suggestions,'id'));
+                    \LOg::info($ids);
+                }
+                $ids = array_unique($ids);
+               
                 $this->model[$name] = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
             }
 
