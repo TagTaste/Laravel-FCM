@@ -735,4 +735,17 @@ class ProfileController extends Controller
 
         return $this->sendResponse();
     }
+
+    public function handleAvailable(Request $request)
+    {
+        $this->model = 0;
+        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
+            'remove_hero_image','verified_phone']);
+        if(isset($data['handle']) && !empty($data['handle'])) {
+            $this->model = !Profile::where('handle', $data['handle'])->exists();
+        }
+
+        return $this->sendResponse();
+
+    }
 }
