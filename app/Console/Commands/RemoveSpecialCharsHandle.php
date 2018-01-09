@@ -37,7 +37,6 @@ class RemoveSpecialCharsHandle extends Command
      */
     public function handle()
     {
-//        $res = preg_replace("/[^a-zA-Z0-9]/", "", $string);
         \DB::table('profiles')->whereNotNull('handle')->orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
                 $fixedHandle = preg_replace("/[^a-zA-Z0-9]/", "", $model->handle);
