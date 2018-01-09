@@ -739,9 +739,8 @@ class ProfileController extends Controller
     public function handleAvailable(Request $request)
     {
         $this->model = 0;
-        $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
-            'remove_hero_image','verified_phone']);
-        if(isset($data['handle']) && !empty($data['handle'])) {
+        $data = $request->input('handle');
+        if(isset($data)) {
             $this->model = !Profile::where('handle', $data['handle'])->exists();
         }
 
