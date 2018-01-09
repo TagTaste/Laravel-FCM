@@ -256,6 +256,7 @@ class SearchController extends Controller
         $suggestions = $this->autocomplete($query,$type);
         \Log::info("search results");
         \Log::info($response['hits']['total'] > 0);
+        \Log::info($response);
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
