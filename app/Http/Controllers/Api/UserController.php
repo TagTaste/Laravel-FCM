@@ -169,6 +169,8 @@ class UserController extends Controller
         catch (SocialAccountUserNotFound $e)
         {
             $user = $request->user();
+            \Log::info((array)$user);
+            \Log::info($user->profile->id);
             $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
             return $this->sendResponse();
 
