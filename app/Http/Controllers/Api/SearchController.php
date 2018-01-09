@@ -154,18 +154,18 @@ class SearchController extends Controller
         return response()->json($response);
     }
     
-    private function autocomplete(&$term, $type = null)
+    private function autocomplete(&$term, $type = null, $skip = 0, $take = 10)
     {
         $suggestions = [];
-        
-        $total = 10;
         
         if(null === $type || "profile" === $type){
             $profiles = \DB::table("profiles")->select("profiles.id","users.name")
                 ->join("users",'users.id','=','profiles.user_id')
                 ->where("users.name",'like',"%$term%")
                 ->whereNull('users.deleted_at')
-                ->take($total - 5)->get();
+                ->skip($skip)
+                ->take($take)
+                ->get();
     
             if(count($profiles)){
                 foreach($profiles as $profile){
@@ -174,14 +174,15 @@ class SearchController extends Controller
                 }
             }
             
-            $count = $total - $profiles->count();
         }
         
         if(null === $type || "company" === $type){
             $companies = \DB::table("companies")->whereNull('companies.deleted_at')
                 ->select("companies.id",'name','profiles.id as profile_id')
                 ->join("profiles",'companies.user_id','=','profiles.user_id')
-                ->where("name",'like',"%$term%")->take($count ?? 10)
+                ->where("name",'like',"%$term%")
+                ->skip($skip)
+                ->take($take)
                 ->whereNull('profiles.deleted_at')
                 ->whereNull('companies.deleted_at')
                 ->get();
@@ -253,7 +254,7 @@ class SearchController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
     
-        $suggestions = $this->autocomplete($query,$type);
+        $suggestions = $this->autocomplete($query,$type,$skip,$take);
         \Log::info($suggestions);
 
         if($response['hits']['total'] > 0){
