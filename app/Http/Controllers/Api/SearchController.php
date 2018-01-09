@@ -374,7 +374,7 @@ class SearchController extends Controller
 
         }
     
-    
+        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
         $suggestions = $this->getModels($type,array_pluck($suggestions,'id'),[],$skip,$take);
     
         if($suggestions && $suggestions->count()){
