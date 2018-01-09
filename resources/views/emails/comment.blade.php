@@ -35,12 +35,12 @@
                                             </table>
                                         </td>
                                     </tr>
-                                    @if(isset($model->imageUrl))
+                                    @if(isset($model['image']))
                                     <tr>
                                         <td bgcolor="#FFFFFF" align= "center">
                                             <div style="padding: 0px 40px;">
                                                 <div style="padding: 20px 0px;border-bottom: 1px solid rgba(0,0,0,0.2);">
-                                                    <img src="{{ $model->imageUrl}}" width="350px"	height=230px"/>
+                                                    <img src="{{ $model['image']}}" width="350px"	height=230px"/>
                                                 </div>
                                             </div>
                                         </td>

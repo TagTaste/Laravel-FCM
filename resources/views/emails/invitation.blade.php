@@ -103,7 +103,7 @@
                                             <tr>
                                                 <td valign="top" align="center" bgcolor="#FFFFFF ">
                                                     <div style="font-size: 14px;color: #181818 ;font-weight:bold;padding:0px 0px 30px 0px;">
-                                                        Read more about us on our blogs: <a href = "https://blog.tagtaste.com" style="color: #4397E7 ;text-decoration:none">https://blog.tagtaste.com </a>.
+                                                        Read more about us on our blog: <a href = "https://blog.tagtaste.com" style="color: #4397E7 ;text-decoration:none">https://blog.tagtaste.com </a>
                                                     </div>
                                                 </td>
                                             </tr>
