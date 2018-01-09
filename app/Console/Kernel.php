@@ -13,6 +13,7 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 
+use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\fixKeywords;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
@@ -92,6 +93,9 @@ class Kernel extends ConsoleKernel
         
         //generate thumbnails
         GenerateThumbnails::class,
+
+        //Fixes
+        CountryCodeFix::class,
     ];
 
     /**
