@@ -254,21 +254,15 @@ class SearchController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
     
         $suggestions = $this->autocomplete($query,$type);
-        \Log::info("search results");
-        \Log::info($response['hits']['total'] > 0);
-        \Log::info($response);
+
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
             
-
-            \Log::info($hits->toArray());
             foreach($hits as $name => $hit){
                 $ids = $hit->pluck('_id')->toArray();
-                \Log::info($ids);
                 if(!empty($suggestions)){
                     $ids = array_unique($ids,array_pluck($suggestions,'id'));
-                    \LOg::info($ids);
                 }
                 $ids = array_unique($ids);
                
@@ -319,7 +313,6 @@ class SearchController extends Controller
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
-                \Log::info($collaborates);
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
