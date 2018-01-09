@@ -19,6 +19,7 @@ use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
+use App\Console\Commands\RemoveSpecialCharsHandle;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -96,6 +97,9 @@ class Kernel extends ConsoleKernel
 
         // Capitalize each word of expertise of a user
         CapitalizeExpertise::class,
+
+        // Strip special chars and whitespaces in handle
+        RemoveSpecialCharsHandle::class,
     ];
 
     /**
