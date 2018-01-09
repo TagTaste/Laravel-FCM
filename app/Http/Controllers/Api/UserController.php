@@ -162,7 +162,7 @@ class UserController extends Controller
         if(isset($socialiteUser['remove'])&&$socialiteUser['remove'] == 1)
         {
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
-
+            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>null]);
             return $this->sendResponse();
         }
         try {
