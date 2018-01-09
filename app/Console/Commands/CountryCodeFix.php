@@ -38,13 +38,13 @@ class CountryCodeFix extends Command
      */
     public function handle()
     {
-        \DB::table('profiles')->whereRaw('LENGTH(phone) > 10')->whereNotNull('phone')->orderBy('id')->chunk(100, function ($models) {
-           foreach ($models as $model) {
-               $phone = substr($model->phone,-10);
-               $countryCode = substr($model->phone, 0, strlen($model->phone)-10);
-               \DB::table('profiles')->where('id', $model->id)->update(['phone'=>$phone, 'country_code'=>$countryCode]);
-               echo "Profile id: ".$model->id." Done..\n";
-           }
+        \DB::table('profiles')->whereNotNull('phone')->orderBy('id')->chunk(100, function ($models) {
+            foreach ($models as $model) {
+                $phone = substr($model->phone,-10);
+                $countryCode = '+91';
+                \DB::table('profiles')->where('id', $model->id)->update(['phone'=>$phone, 'country_code'=>$countryCode]);
+                echo "Profile id: ".$model->id." Done..\n";
+            }
         });
     }
 }
