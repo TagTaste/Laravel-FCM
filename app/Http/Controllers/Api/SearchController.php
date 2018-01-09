@@ -311,11 +311,10 @@ class SearchController extends Controller
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
-                $data = [];
+                \Log::info($collaborates);
                 foreach($collaborates as $collaborate){
-                    $data[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
-                $this->model['collaborate'] = $data;
 
             }
             
