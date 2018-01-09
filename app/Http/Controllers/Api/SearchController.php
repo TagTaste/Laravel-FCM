@@ -260,8 +260,9 @@ class SearchController extends Controller
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
+            
 
-
+            \Log::info($hits->toArray());
             foreach($hits as $name => $hit){
                 $ids = $hit->pluck('_id')->toArray();
                 \Log::info($ids);
