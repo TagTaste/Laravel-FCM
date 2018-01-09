@@ -254,6 +254,7 @@ class SearchController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
     
         $suggestions = $this->autocomplete($query,$type);
+        \Log::info($suggestions);
 
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
@@ -261,6 +262,7 @@ class SearchController extends Controller
             
             foreach($hits as $name => $hit){
                 $ids = $hit->pluck('_id')->toArray();
+                    \Log::info($ids);
                 if(!empty($suggestions)){
                     $ids = array_merge($ids,array_pluck($suggestions,'id'));
                 }
