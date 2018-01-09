@@ -93,6 +93,18 @@ class ProfileController extends Controller
             $data['verified'] = empty($data['verified']) ? 0 : 1;
         }
 
+        if(isset($data['profile']['handle']) && !empty($data['profile']['handle'])){
+            $handleExist = \DB::table('profiles')->where('handle',$data['profile']['handle'])->exists();
+            if($handleExist)
+            {
+                return $this->sendError("This handle is already in use");
+            }
+        }
+        else
+        {
+            unset($data['profile']['handle']);
+        }
+
         //delete heroimage or image
         if($request->has("remove_image") && $request->input('remove_image') == 1)
         {
@@ -161,9 +173,6 @@ class ProfileController extends Controller
             $userId = $request->user()->id;
             try {
                 $this->model = \App\Profile::where('user_id',$userId)->first();
-                if(isset($data['profile']['handle']) && empty($data['profile']['handle'])){
-                    unset($data['profile']['handle']);
-                }
                 $this->model->update($data['profile']);
                 $this->model->refresh();
                 //update filters

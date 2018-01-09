@@ -236,7 +236,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("profile/allFollowers",['uses'=>'ProfileController@allFollowers']);
 
             //check handle
-            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
+//            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
