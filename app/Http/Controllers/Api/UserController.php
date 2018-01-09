@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Invitation;
 use App\SocialAccount;
 use App\User;
@@ -157,22 +158,23 @@ class UserController extends Controller
     public function socialLink(Request $request,$provider)
     {
         $socialiteUser = $request->all();
-        if($request->has('remove')&&$request->input('remove'))
+        if(isset($socialiteUser['remove'])&&$socialiteUser['remove'] == 1)
         {
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
             return $this->sendResponse();
         }
-        $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
-
-        if($user)
-        {
-            return $this->sendError("Already link ".$provider." with out plateform");
+        try {
+            $user = \App\Profile\User::findSocialAccount($provider, $socialiteUser['id']);
         }
-        $user = $request->user();
+        catch (SocialAccountUserNotFound $e)
+        {
+            $user = $request->user();
+            $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
+            return $this->sendResponse();
 
-        $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
-
-        return $this->sendResponse();
+        }
+        if($user)
+        return $this->sendError("Already link ".$provider." with out plateform");
 
     }
 
