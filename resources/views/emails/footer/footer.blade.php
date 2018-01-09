@@ -48,7 +48,7 @@
                 <td style="padding: 10px 0px 20px 0px;font-size: 12px;color: #181818;" align="center">
                     <span>&copy; TagTaste Foods Pvt. Ltd.</span>
                     <span>|</span>
-                    <span>2017</span>
+                    <span>2018</span>
                 </td>
             </tr>
         </table>

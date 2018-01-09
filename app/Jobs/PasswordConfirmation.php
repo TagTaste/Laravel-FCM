@@ -32,7 +32,7 @@ class PasswordConfirmation implements ShouldQueue
      */
     public function handle()
     {
-        \Mail::send('password.password', [], function($message)
+        \Mail::send('emails.password-change', [], function($message)
         {
             $message->to($this->user->email, $this->user->name)->subject('Tagtaste Password Changed');
         });
