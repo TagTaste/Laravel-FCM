@@ -87,7 +87,7 @@
                                         <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}/applications" style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: bold;">SEE ALL APPLICANTS</a>
+                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}/applications" style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">SEE ALL APPLICANTS</a>
                                                 </td>
                                             </tr>
 

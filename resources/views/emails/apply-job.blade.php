@@ -86,7 +86,7 @@
                                         <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                    <a href="{{env('APP_URL')}}/jobs/{{$model['id']}}" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 14px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">DOWNLOAD RESUME</a>
+                                                    <a href="{{env('APP_URL')}}/jobs/{{$model['id']}}" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 14px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:normal;">DOWNLOAD RESUME</a>
                                                 </td>
                                             </tr>
 
