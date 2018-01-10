@@ -195,6 +195,8 @@ class ProfileController extends Controller
                 })->stream('jpg',70);
                 \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
                 $data['profile']['image'] = $path;
+            } else {
+                $data['profile'][$key] = $this->saveFile($path,$request,$key);
             }
         }
     }
