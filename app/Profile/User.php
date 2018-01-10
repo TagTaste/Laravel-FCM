@@ -365,10 +365,9 @@ class User extends BaseUser
         $errmsg  = curl_error( $ch );
         $header  = curl_getinfo( $ch );
         curl_close( $ch );
-        \Log::info($url);
-        \Log::info($err);
-        \Log::info($errmsg);
-        \Log::info($header);
+        \Log::debug($err);
+        \Log::debug($errmsg);
+        \Log::debug($header);
         return $content;
         
 //        $header['errno']   = $err;
