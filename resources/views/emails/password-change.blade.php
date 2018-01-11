@@ -52,7 +52,7 @@
                                                         <tr>
                                                             <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                                <a href="https://www.tagtaste.com" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: bold;">LOGIN NOW</a>
+                                                                <a href="https://www.tagtaste.com" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal;">LOGIN NOW</a>
 
                                                             </td>
                                                         </tr>
