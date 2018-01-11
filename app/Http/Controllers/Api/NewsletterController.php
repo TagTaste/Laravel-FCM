@@ -37,10 +37,13 @@ class NewsletterController extends Controller {
 	 */
 	public function store(Request $request)
 	{
-        Validator::make($request->all(), [
-            'email' => 'required|unique:newsletters|max:200',
+        $this->model = \DB::table('newsletters')->where('email',$request->input('email'))->exists();
 
-        ], [ 'email.unique' => 'We already have this email on our list!'])->validate();
+        if($this->model)
+        {
+            $this->model = false;
+            return $this->sendResponse();
+        }
 
 		$newsletter = new Newsletter();
 

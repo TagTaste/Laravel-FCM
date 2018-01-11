@@ -61,7 +61,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
     //newsletter
     Route::post('newsletters','NewsletterController@store');
-    
+
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
