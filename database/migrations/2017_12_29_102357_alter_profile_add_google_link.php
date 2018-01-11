@@ -14,7 +14,7 @@ class AlterProfileAddGoogleLink extends Migration
     public function up()
     {
         Schema::table("profiles",function(Blueprint $table){
-            $table->string('google_url')->nullable();
+//            $table->string('google_url')->nullable();
         });
     }
 
