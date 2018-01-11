@@ -40,7 +40,7 @@ class CountryCodeFix extends Command
     {
         \DB::table('profiles')->whereNotNull('phone')->whereRaw('phone like "+91%"')->orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
-                if(!is_null($model->phone) && substr($model->phone,3) == "+91"){
+                if(!is_null($model->phone) && substr($model->phone,0,3) == "+91"){
                     $phone = substr($model->phone,-10);
                     $countryCode = '+91';
                     \DB::table('profiles')->where('id', $model->id)->update(['phone'=>$phone, 'country_code'=>$countryCode]);
