@@ -65,7 +65,8 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        if(\DB::table('users')->whereNull('password')->where('email',$this->email)->exists()) {
+        $isPassExists = \DB::table('users')->whereNull('password')->where('email',$this->email)->exists();
+        if($isPassExists) {
             $this->notify(new PasswordCreate($token));
         } else {
             $this->notify(new PasswordReset($token));
