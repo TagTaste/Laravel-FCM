@@ -17,10 +17,12 @@ class PasswordCreate extends Notification
      * @return void
      */
     public $token;
+    public $email;
 
-    public function __construct($token)
+    public function __construct($token, $email)
     {
         $this->token = $token;
+        $this->email = $email;
     }
 
     /**
@@ -43,7 +45,7 @@ class PasswordCreate extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)->view(
-            'emails.create-password', ['token' => $this->token]
+            'emails.create-password', ['token' => $this->token, 'email'=>$this->email]
         );
     }
 
