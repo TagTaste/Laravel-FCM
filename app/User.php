@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Notifications\PasswordCreate;
 use App\Notifications\PasswordReset;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -64,6 +65,11 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new PasswordReset($token));
+        if(\DB::table('users')->whereNull('password')->where('email',$this->email)->exists()) {
+            $this->notify(new PasswordCreate($token));
+        } else {
+            $this->notify(new PasswordReset($token));
+        }
+
     }
 }
