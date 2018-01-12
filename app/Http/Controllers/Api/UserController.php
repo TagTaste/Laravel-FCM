@@ -165,7 +165,7 @@ class UserController extends Controller
             return $this->sendResponse();
         }
 
-        $userExist = \Db::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exsits();
+        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exsits();
         if(!$userExist)
         {
             $user = \App\Profile\User::where('email',$request->user()->email)->first();
