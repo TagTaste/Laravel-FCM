@@ -92,8 +92,7 @@ class ProfileController extends Controller
         if(isset($data['verified'])){
             $data['verified'] = empty($data['verified']) ? 0 : 1;
         }
-
-        if(isset($data['profile']['handle']) && !empty($data['profile']['handle'])){
+        if(isset($data['profile']['handle']) && !empty($data['profile']['handle']) && ($data['profile']['handle'] != $request->user()->profile->handle)){
             $handleExist = \DB::table('profiles')->where('handle',$data['profile']['handle'])->exists();
             if($handleExist)
             {
