@@ -164,19 +164,18 @@ class UserController extends Controller
             \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>null]);
             return $this->sendResponse();
         }
-        try {
-            $user = \App\Profile\User::findSocialAccount($provider, $socialiteUser['id']);
-        }
-        catch (SocialAccountUserNotFound $e)
+
+        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exists();
+        if(!$userExist)
         {
             $user = \App\Profile\User::where('email',$request->user()->email)->first();
-            $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null;
+            $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
             return $this->sendResponse();
-
         }
-        if($user)
+        else
         {
-            return $this->sendError("Already link ".$provider." with out plateform");
+            return $this->sendError("Already link ".$provider." with our plateform");
         }
 
     }
