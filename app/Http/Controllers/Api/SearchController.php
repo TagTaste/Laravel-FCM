@@ -302,7 +302,6 @@ class SearchController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
-        \Log::info($response['hits']['total']);
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
@@ -316,11 +315,9 @@ class SearchController extends Controller
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
-                \Log::info("suggested");
-                \Log::info($suggested->toArray());
+                
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-                \Log::info("all");
-                \Log::info($this->model[$name]->toArray());
+               
             }
 
             $profileId = $request->user()->profile->id;
@@ -384,7 +381,7 @@ class SearchController extends Controller
             if(!array_key_exists($type,$this->model)){
                 $this->model[$type] = [];
             }
-            $this->model[$type] = array_merge($this->model[$type],$suggestions->toArray());
+            $this->model[$type][] = array_merge($this->model[$type],$suggestions->toArray());
         }
         
         if(!empty($this->model)){
