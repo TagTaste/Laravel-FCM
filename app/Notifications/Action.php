@@ -84,6 +84,9 @@ class Action extends Notification implements ShouldQueue
             if($this->modelName == 'collaborate')
             {
                 $sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
+                if(!is_null($this->data->content)) {
+                    $this->allData['message'] = $this->data->content;
+                }
             }
             else
             {

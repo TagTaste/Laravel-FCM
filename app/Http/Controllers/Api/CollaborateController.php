@@ -155,13 +155,13 @@ class CollaborateController extends Controller
                 foreach ($profileIds as $profileId)
                 {
                     $collaborate->profile_id = $profileId;
-                    event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,null,null,null, $company));
+                    event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,$request->input("message",""),null,null, $company));
 
                 }
             }
             else
             {
-                event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,null,null,null, $company));
+                event(new \App\Events\Actions\Apply($collaborate,$request->user()->profile,$request->input("message",""),null,null, $company));
             }
 
         }
@@ -191,13 +191,13 @@ class CollaborateController extends Controller
                 foreach ($profileIds as $profileId)
                 {
                     $collaborate->profile_id = $profileId;
-                    event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
+                    event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
 
                 }
             }
             else
             {
-                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile));
+                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
             }
         }
         \Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
