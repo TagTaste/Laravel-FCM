@@ -135,10 +135,14 @@ Artisan::command('inspire', function () {
     foreach($users as $user){
         $email = $user;
         echo "Sending mail to " . $email . "\n";
-        Mail::queueOn('invites', 'emails.invite-all', [], function($message) use ($email)
-        {
-            $message->to($email)->subject('Welcome!');
-        });
+    
+        $message = (new \App\Mail\Launch())
+            ->onQueue('emails');
+    
+        
+        \Mail::to($email)
+            ->later(\Carbon\Carbon::now()->addSeconds(5),$message);
+        
     }
     
 });
