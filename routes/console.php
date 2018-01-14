@@ -130,19 +130,16 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("inviteall",function(){
     
-    $users = ["amitabh@tagtaste.com"];
+    \App\User::whereNull('deleted_at')->chunk(50,function($users){
+        $users->each(function($user){
+            $email = $user->email;
+            echo "Sending mail to " . $email . "\n";
     
-    foreach($users as $user){
-        $email = $user;
-        echo "Sending mail to " . $email . "\n";
+            $message = (new \App\Mail\Launch())
+                ->onQueue('emails');
     
-        $message = (new \App\Mail\Launch())
-            ->onQueue('emails');
     
-        
-        \Mail::to($email)
-            ->later(\Carbon\Carbon::now()->addSeconds(5),$message);
-        
-    }
-    
+            \Mail::to($email)->later(\Carbon\Carbon::now()->addSeconds(5),$message);
+        });
+    });
 });
