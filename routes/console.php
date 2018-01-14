@@ -133,8 +133,8 @@ Artisan::command('inspire', function () {
     $users = ["amitabh@tagtaste.com"];
     
     foreach($users as $user){
-        
         $email = $user;
+        echo "Sending mail to " . $email . "\n";
         Mail::queueOn('invites', 'emails.invite-all', [], function($message) use ($email)
         {
             $message->to($email)->subject('Welcome!');
