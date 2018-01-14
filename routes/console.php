@@ -127,3 +127,18 @@ Artisan::command('inspire', function () {
     \App\Filter\Job::removeModel($id);
     echo $status;
 });
+
+\Artisan::command("inviteall",function(){
+    
+    $users = ["amitabh@tagtaste.com"];
+    
+    foreach($users as $user){
+        
+        $email = $user;
+        Mail::queueOn('invites', 'emails.invite-all', [], function($message) use ($email)
+        {
+            $message->to($email)->subject('Welcome!');
+        });
+    }
+    
+});

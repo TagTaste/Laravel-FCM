@@ -23,18 +23,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', ['as'=>'home','uses'=>'HomeController@index']);
-Route::get("/inviteall",function(){
-    
-    $users = ["amitabh@tagtaste.com"];
-    
-    foreach($users as $user){
-        \Mail::send('emails.invite-all', [],function($message) use ($user)
-        {
-            $message->to($user)->subject('Happy Makar Sankranti and Pongal!');
-        });
-    }
-    
-});
+
 /**
  * Login Authencating Routes
  */
