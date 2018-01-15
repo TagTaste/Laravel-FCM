@@ -165,11 +165,11 @@ class UserController extends Controller
             return $this->sendResponse();
         }
 
-        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exsits();
+        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exists();
         if(!$userExist)
         {
             $user = \App\Profile\User::where('email',$request->user()->email)->first();
-            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null;
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
             $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
             return $this->sendResponse();
         }

@@ -346,6 +346,8 @@ class User extends BaseUser
     
     public function get_web_page( $url )
     {
+        $url = urldecode($url);
+        $url = htmlspecialchars_decode($url);
         $options = array(
             CURLOPT_RETURNTRANSFER => true,     // return web page
             CURLOPT_HEADER         => false,    // don't return headers
@@ -363,9 +365,9 @@ class User extends BaseUser
         $errmsg  = curl_error( $ch );
         $header  = curl_getinfo( $ch );
         curl_close( $ch );
-        \Log::info($err);
-        \Log::info($errmsg);
-        \Log::info($header);
+        \Log::debug($err);
+        \Log::debug($errmsg);
+        \Log::debug($header);
         return $content;
         
 //        $header['errno']   = $err;

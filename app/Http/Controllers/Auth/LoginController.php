@@ -111,6 +111,7 @@ class LoginController extends Controller
     {
         $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         $input = $request->all();
+        \Log::info($input);
         $authUser = $this->findOrCreateUser($input, $provider);
 
         if(!$this->validInviteCode)
@@ -157,7 +158,7 @@ class LoginController extends Controller
             if($user){
                 //create social account;
                 $this->newRegistered = false;
-                $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null;
+                $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
             } else {
 
@@ -180,7 +181,7 @@ class LoginController extends Controller
                     $this->validInviteCode = false;
                     return false;
                 }
-                $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null;
+                $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
 
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$alreadyVerified,$socialiteUser['token'],$inviteCode,$socialiteUserLink);
