@@ -375,5 +375,21 @@ class Collaborate extends Model implements Feedable
         return !is_null($value) ? \Storage::url($value) : null;
     }
 
+    public function getPreviewContent()
+    {
+        $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
+        $data = [];
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($this->description,0,155);
+        $data['og:title'] = 'Shared collaboration on Tagtaste';
+        $data['og:description'] = substr($this->looking_for,0,65);
+        $images = $this->getImagesAttribute();
+        $data['og:og:image'] = $images[0];
+        $data['og:url'] = 'https://www.tagtaste.com/preview/collaborate/'.$this->id;
+
+        return $data;
+
+    }
+
 
 }

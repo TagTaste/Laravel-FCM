@@ -191,5 +191,20 @@ class Job extends Model implements Feedable
     {
         return \Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
     }
+
+    public function getPreviewContent()
+    {
+        $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
+        $data = [];
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($this->title,0,155);
+        $data['og:title'] = 'Shared job on Tagtaste';
+        $data['og:description'] = substr($this->description,0,65);
+        $data['og:og:image'] = null;
+        $data['og:url'] = 'https://www.tagtaste.com/preview/collaborate/'.$this->id;
+
+        return $data;
+
+    }
     
 }
