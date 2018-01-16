@@ -207,7 +207,6 @@ class LoginController extends Controller
 
     public function getPreview(Request $request,$modelName,$modelId)
     {
-        \Log::info("here");
         $sharedModel = $this->getModel($modelName, $modelId);
 
         if (!$sharedModel) {
