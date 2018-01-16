@@ -175,7 +175,7 @@ class Shoutout extends Model implements Feedable
         $data['description'] = substr($this->content,0,155);
         $data['og:title'] = 'Shared post on Tagtaste';
         $data['og:description'] = substr($this->content,0,65);
-        $data['og:url'] = 'https://www.tagtaste.com/preview/shoutout/'.$this->id;
+        $data['og:url'] = 'http://139.59.59.78:8081/preview/shoutout/'.$this->id;
 
         return $data;
 
