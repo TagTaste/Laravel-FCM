@@ -127,7 +127,7 @@ class CollaborateController extends Controller
 	 */
 	public function show(Request $request,$profileId, $companyId, $id)
 	{
-        $collaboration = $this->model->where('company_id',$companyId)->find($id);
+        $collaboration = $this->model->where('id',$id)->where('company_id',$companyId)->where('state','!=',Collaborate::$state[1])->first();
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
@@ -310,7 +310,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->select('collaborate_id','collaborates.*')
             ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
-            ->where("collaborators.company_id",$companyId);
+            ->where("collaborators.company_id",$companyId)->where("collaborates.state",Collaborate::$state[0]);
 
         $this->model = [];
         $data = [];

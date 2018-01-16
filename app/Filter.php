@@ -16,7 +16,9 @@ class Filter extends Model
     protected $strings = [];
     
     protected $models = [];
-    
+
+    public static $filterOrder = [];
+
     public static $relatedColumn = null;
     
     
@@ -155,23 +157,53 @@ class Filter extends Model
     
     public static function getFilters($model = null)
     {
-        $filter = static::class;
+        $filterClass = static::class;
         if($model){
-            $filter = "\\App\\Filter\\" . ucfirst($model);
+            $filterClass = "\\App\\Filter\\" . ucfirst($model);
         }
-        $allFilters = $filter::select('key','value',\DB::raw('count(`key`) as count'))
+        $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
             ->groupBy('key','value')->orderBy('count','desc')->get()->groupBy('key');
         $filters = [];
-        foreach($allFilters as $key=>&$sub){
-            $count = 0;
-            foreach($sub as &$filter){
-                $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
-                $count++;
-                if($count >= static::$maxFilters){
-                    break;
+        //$allFilters = $allFilters->keyBy('key');
+        $order = $filterClass::$filterOrder;
+        if(count($order))
+        {
+            foreach($order as $key){
+                $count = 0;
+                $singleFilter = $allFilters->get($key);
+                if(!$singleFilter)
+                {
+                    continue;
+                }
+                foreach($singleFilter as &$filter){
+
+                    if(!array_key_exists($key,$filters)){
+                        $filters[$key] = [];
+                    }
+
+                    $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                    $count++;
+                    if($count >= static::$maxFilters){
+                        break;
+                    }
+                }
+            }
+
+        }
+        else
+        {
+            foreach($allFilters as $key=>&$sub){
+                $count = 0;
+                foreach($sub as &$filter){
+                    $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
+                    $count++;
+                    if($count >= static::$maxFilters){
+                        break;
+                    }
                 }
             }
         }
+
         return $filters;
     }
     

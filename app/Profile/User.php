@@ -193,18 +193,28 @@ class User extends BaseUser
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null,$socialLink = null)
     {
-        $user = static::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => bcrypt($password),
-            'email_token' =>str_random(15),
-            'social_registration'=>$socialRegistration,
-            'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
-            'invite_code'=>mt_rand(100000, 999999),
-            'used_invite_code'=>$inviteCode
-        ]);
+
+        $user = BaseUser::withTrashed()->where('email',$email)->first();
+
+        if($user)
+        {
+            $user->restore();
+        }
+        else
+        {
+            $user = static::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => bcrypt($password),
+                'email_token' =>str_random(15),
+                'social_registration'=>$socialRegistration,
+                'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
+                'invite_code'=>mt_rand(100000, 999999),
+                'used_invite_code'=>$inviteCode
+            ]);
+        }
 
         if(!$user){
             throw new \Exception("Could not create user.");
@@ -216,14 +226,14 @@ class User extends BaseUser
         }
 
         //attach default role
-        $user->attachDefaultRole();
+        //$user->attachDefaultRole();
 
         //create default profile
         //$user->createDefaultProfile();
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink,true);
         }
 
         $user->createDefaultIdeabook();
@@ -232,7 +242,7 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null,$newavatar = false)
     {
         //create social account
         $this->social()->create([
@@ -243,7 +253,7 @@ class User extends BaseUser
         ]);
     
         //get profile image from $provider
-        if($avatar){
+        if($avatar && $newavatar){
             $filename = $this->getAvatarImage($avatar);
             $s3 = \Storage::disk('s3');
             $filePath = 'images/p/' . $this->profile->id;
@@ -251,7 +261,10 @@ class User extends BaseUser
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
 
+
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)

@@ -14,6 +14,7 @@ use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 
 use App\Console\Commands\fixKeywords;
+use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
@@ -88,6 +89,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ExpireReopen::class,
         //fixKeywords::class,
         ProfileDelete::class,
+        
+        //generate thumbnails
+        GenerateThumbnails::class,
     ];
 
     /**

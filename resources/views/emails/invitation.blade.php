@@ -50,10 +50,11 @@
                                         </div>
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <td bgcolor="#FFFFFF ">
                                         <div style="padding: 0px 60px 0px 60px;">
-                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS:  {{$inviteCode}} </p>
+                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS: <span style="color: #b42128">{{$inviteCode}}</span> </p>
                                         </div>
                                     </td>
                                 </tr>
@@ -81,7 +82,7 @@
                                                                     <tr>
                                                                         <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                                            <a href="{{ env('APP_URL') }}/register?invite_code={{$inviteCode}}" style="text-decoration:none;padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px;">ACCEPT INVITE</a>
+                                                                            <a href="{{ env('APP_URL') }}/register?invite_code={{$inviteCode}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: bold">ACCEPT INVITE</a>
 
                                                                         </td>
                                                                     </tr>

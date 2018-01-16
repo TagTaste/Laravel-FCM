@@ -53,7 +53,7 @@ class ShareController extends Controller
             'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         
         $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
-            $modelName => $modelName . ":" . $id, 'shared' => 'shared:' . $this->model->id
+            $modelName => $modelName . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
         ];
         
         if($sharedModel->company_id){
@@ -121,7 +121,7 @@ class ShareController extends Controller
             $this->model['profile'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
         }
         $this->model[$modelName] = $sharedModel;
-        $this->model['meta']= $share->getMetaFor($loggedInProfileId);
+        $this->model['meta']= $exists->getMetaFor($loggedInProfileId);
         return $this->sendResponse();
 
     }

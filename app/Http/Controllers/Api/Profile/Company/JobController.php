@@ -44,9 +44,9 @@ class JobController extends Controller
         $this->model['jobs'] = Job::where('company_id', $companyId)->whereNull('deleted_at');
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model['count'] = $this->model['jobs']->count();
         $this->model['jobs'] = $this->model['jobs']->orderBy('created_at', 'desc')->skip($skip)->take($take)->get();
 
-        $this->model['count'] = Job::where('company_id', $companyId)->count();
         return $this->sendResponse();
     }
     
@@ -95,7 +95,7 @@ class JobController extends Controller
      */
     public function show($profileId, $companyId, $id)
     {
-        $job = $this->model->where('company_id', $companyId)->where('id', $id)->first();
+        $job = $this->model->where('company_id', $companyId)->where('id', $id)->where('state','!=',Job::$state[1])->first();
         
         if (!$job) {
             return $this->sendError("No job found with the given Id.");
