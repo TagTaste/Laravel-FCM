@@ -200,7 +200,7 @@ class Job extends Model implements Feedable
         $data['description'] = substr($this->title,0,155);
         $data['og:title'] = 'Shared job on Tagtaste';
         $data['og:description'] = substr($this->description,0,65);
-        $data['og:og:image'] = null;
+        $data['og:image'] = null;
         $data['og:url'] = '139.59.59.78:8081/preview/collaborate/'.$this->id;
 
         return $data;
