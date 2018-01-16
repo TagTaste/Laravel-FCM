@@ -136,7 +136,7 @@ Artisan::command('inspire', function () {
             $email = $user->email;
             echo "Sending mail to " . $email . "\n";
 
-            \Mail::to($email)->later(\Carbon\Carbon::now()->addSeconds(5),new \App\Mail\Launch());
+            \Mail::to($email)->send(new \App\Mail\Launch());
         });
     });
 });
