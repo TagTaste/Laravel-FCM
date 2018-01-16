@@ -129,17 +129,14 @@ Artisan::command('inspire', function () {
 });
 
 \Artisan::command("inviteall",function(){
-    
-    \App\User::whereNull('deleted_at')->chunk(50,function($users){
+
+    \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users)
+    {
         $users->each(function($user){
             $email = $user->email;
             echo "Sending mail to " . $email . "\n";
-    
-            $message = (new \App\Mail\Launch())
-                ->onQueue('emails');
-    
-    
-            \Mail::to($email)->later(\Carbon\Carbon::now()->addSeconds(5),$message);
+
+            \Mail::to($email)->later(\Carbon\Carbon::now()->addSeconds(5),new \App\Mail\Launch());
         });
     });
 });

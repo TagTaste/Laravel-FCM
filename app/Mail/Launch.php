@@ -28,6 +28,6 @@ class Launch extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.invite-all');
+        return $this->subject('testing')->view('emails.Invitation-beta');
     }
 }
