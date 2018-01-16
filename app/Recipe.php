@@ -207,10 +207,10 @@ class Recipe extends Model implements Feedable, CommentNotification
         $data = [];
         $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
         $data['description'] = substr($this->name,0,155);
-        $data['og:title'] = 'Shared recipe on Tagtaste';
-        $data['og:description'] = substr($this->description,0,65);
-        $data['og:image'] = $showcaseImage;
-        $data['og:url'] = 'http://139.59.59.78:8081/preview/recipe/'.$this->id;
+        $data['ogTitle'] = 'Shared recipe on Tagtaste';
+        $data['ogDescription'] = substr($this->description,0,65);
+        $data['ogImage'] = $showcaseImage;
+        $data['ogUrl'] = 'http://139.59.59.78:8081/preview/recipe/'.$this->id;
 
         return $data;
 
