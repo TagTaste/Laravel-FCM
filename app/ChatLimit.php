@@ -14,7 +14,7 @@ class ChatLimit extends Model
     public static function checkLimit(&$profileId)
     {
         return true;
-        2
+        
         $currentLimit = ChatLimit::where('profile_id',$profileId)->first();
         
         if(!$currentLimit){
