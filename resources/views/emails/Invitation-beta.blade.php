@@ -38,7 +38,7 @@
                                 <tr>
                                     <td bgcolor="#FFFFFF ">
                                         <div style="padding: 20px 40px 0px 40px;">
-                                            <p style="font-size: 16px;color: #181818 ;margin:0px;padding:0px 0px 0px 0px;">Thank you for showing interest in joining TagTaste.</p>
+                                            <p style="font-size: 16px;color: #181818 ;margin:0px;padding:0px 0px 0px 0px;">Thank you for showing interest in TagTaste.</p>
                                         </div>
                                     </td>
                                 </tr>

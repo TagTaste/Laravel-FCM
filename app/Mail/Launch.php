@@ -28,6 +28,6 @@ class Launch extends Mailable
      */
     public function build()
     {
-        return $this->subject('testing')->view('emails.Invitation-beta');
+        return $this->subject('Invitation to join TagTaste')->view('emails.Invitation-beta');
     }
 }
