@@ -28,8 +28,8 @@
                                                             <td>
                                                                 <div style="padding:0px 10px 0px 10px;">
                                                                     <div>
-                                                                        <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi {{$data->who['name']}},</p>
-                                                                        <p style="font-size: 16px;color: #181818;margin:0px">Your friend {{ $data->model->name }} joined TagTaste</p>
+                                                                        <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi {{ $data->model->name }},</p>
+                                                                        <p style="font-size: 16px;color: #181818;margin:0px">Your friend {{$data->who['name']}} joined TagTaste</p>
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -48,7 +48,7 @@
                                                     <table border="0" cellpadding="0" cellspacing="0">
                                                         <tbody><tr>
                                                             <td>
-                                                                <img src="https://i1.wp.com/www.femmehub.com/wp-content/uploads/2015/04/foods-wallpaper.jpg" height="71px" width="71px" class="CToWUd" style="border-radius: 4px;">
+                                                                <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="71px" width="71px" class="CToWUd" style="border-radius: 4px;">
                                                             </td>
                                                         </tr>
                                                         </tbody></table>
@@ -58,10 +58,7 @@
                                                         <tbody><tr>
                                                             <td>
                                                                 <div style="color:#181818;font-weight:bold;font-size:18px;word-wrap:break-word">
-                                                                    {{ $data->model->name }}
-                                                                </div>
-                                                                <div style="padding-top:8px;font-size:16px;color:#717171;word-wrap:break-word">
-                                                                    {{ !empty($data->model->tagline) ? $data->model->tagline : '' }}
+                                                                    {{ $data->who['name'] }}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -72,7 +69,7 @@
                                                         <tbody>
                                                         <tr>
                                                             <td>
-                                                                <a href="{{env('APP_URL')}}/profile/{{ $data->model->id }}" style="display:inline-block;text-decoration:none;text-align: center;background-color:#d81f2e;padding: 8px 7px;color:#ffffff;font-size:13px;border:none;border-radius: 4px;font-weight: bold;text-align: center;">View Profile</a>
+                                                                <a href="{{env('APP_URL')}}/profile/{{ $data->who['id'] }}" style="display:inline-block;text-decoration:none;text-align: center;background-color:#d81f2e;padding: 8px 7px;color:#ffffff;font-size:13px;border:none;border-radius: 4px;font-weight: bold;text-align: center;">View Profile</a>
                                                             </td>
                                                         </tr>
                                                         </tbody>
