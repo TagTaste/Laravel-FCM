@@ -49,7 +49,7 @@ class Action extends Notification implements ShouldQueue
     {
         $via = ['database',FCMPush::class,'broadcast'];
         $view = null;
-        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment')
+        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment' || $this->data->action == 'joinfriend')
         {
             if($this->data->action == 'apply')
             {
@@ -104,6 +104,11 @@ class Action extends Notification implements ShouldQueue
             $view = 'emails.'.$this->data->action;
             $sub = $this->data->who['name'] ." commented on your post";
 
+        }
+        elseif( $this->data->action == 'joinfriend')
+        {
+            $view = 'emails.'.$this->data->action;
+            $sub = "Invitation Accepted";
         }
 
         if(view()->exists($view)){
