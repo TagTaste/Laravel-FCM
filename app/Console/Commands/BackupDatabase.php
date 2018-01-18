@@ -38,25 +38,47 @@ class BackupDatabase extends Command
      */
     public function handle()
     {
-        if(env('DB_CONNECTION') == 'mysql') {
-            $backupFile = 'mysql_dump_'.date("Y-m-d_H:i:s").'.sql';
-            $backupFilePath = storage_path('backup/db/'.$backupFile);
-            if(!is_dir(storage_path('backup/db/'))) {
-                mkdir(storage_path('backup/'));
-                mkdir(storage_path('backup/db'));
-            }
-            $command = 'mysqldump -h '.env('DB_HOST').' -P '.env('DB_PORT').' -u '.env('DB_USERNAME').' -p'.env('DB_PASSWORD').' '.env('DB_DATABASE').' > '.$backupFilePath;
-            echo exec($command);
-            echo "DB backup done...\nMoving dump to S3...";
-            $s3 = Storage::disk('s3');
-            $status = $s3->put('backup/'.env('APP_ENV').'/db/'.$backupFile, file_get_contents($backupFilePath));
-            if($status == 1) {
-                echo "\nDump moved to S3. Deleting local dump...";
-                unlink($backupFilePath);
-            }
-            echo "\nDone.\n";
+        if(env('DB_CONNECTION') != 'mysql') {
+            $this->error("Incompatible db. Cannot create backup.");
+            return;
         }
-
-
+        
+        $this->mysqlBackup();
+    }
+    
+    private function mysqlBackup(){
+        $now = \Carbon\Carbon::now()->toDateTimeString();
+    
+        $backupFile = 'mysql_dump_'.date("Y-m-d_H:i:s").'.sql';
+        $backupFilePath = storage_path('backup/db/'.$backupFile);
+        
+        if(!mkdir(storage_path('backup/db',true)) && !is_dir(storage_path('backup/db/'))) {
+            $this->error("could not create local backup directory.");
+            return;
+        }
+    
+        $command = 'mysqldump -h '.env('DB_HOST').' -P '.env('DB_PORT').' -u '.escapeshellarg(env('DB_USERNAME')).' -p'.escapeshellarg(env('DB_PASSWORD')).' '.env('DB_DATABASE').' > '.$backupFilePath;
+        
+        echo exec($command);
+        
+        if(filesize($backupFilePath) == 0){
+            $this->error("Could not backup sql");
+            return;
+        }
+    
+        $this->info("DB backup done at $now...\nMoving dump to S3...");
+        
+        $this->putToS3('backup/'.env('APP_ENV').'/db/'.$backupFile,$backupFilePath);
+        
+    }
+    
+    private function putToS3($path,$backupFilePath)
+    {
+        $s3 = Storage::disk('s3');
+        $status = $s3->put($path, file_get_contents($backupFilePath));
+        if($status == 1) {
+            $this->info("\nDump moved to S3. Deleting local dump...");
+            unlink($backupFilePath);
+        }
     }
 }
