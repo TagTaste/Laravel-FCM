@@ -129,14 +129,18 @@ Artisan::command('inspire', function () {
 });
 
 \Artisan::command("inviteall",function(){
-
-    \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users)
-    {
-        $users->each(function($user){
-            $email = $user->email;
-            echo "Sending mail to " . $email . "\n";
-
-            \Mail::to($email)->send(new \App\Mail\Launch());
-        });
-    });
+    $when = \Carbon\Carbon::now()->addMinute(1);
+    
+    $email = "amitabh@tagtaste.com";
+    $mail = (new \App\Mail\Launch())->onQueue('emails');
+    \Mail::to($email)->later($when,$mail);
+//    \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users)
+//    {
+//        $users->each(function($user){
+//            $email = $user->email;
+//            echo "Sending mail to " . $email . "\n";
+//
+//            \Mail::to($email)->send(new \App\Mail\Launch());
+//        });
+//    });
 });
