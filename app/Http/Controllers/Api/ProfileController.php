@@ -642,6 +642,7 @@ class ProfileController extends Controller
 
     public function onboarding(Request $request)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $fixProfileIds = [1,2,10,44,32,165];
         $fixCompaniesIds = [111,137];
         $filters = [];
@@ -669,6 +670,15 @@ class ProfileController extends Controller
             ->get()->merge($profiles);
         $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
             ->get()->merge($companies);
+        foreach ($this->model['profile'] as &$profile)
+        {
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+
+        foreach ($this->model['company'] as &$company)
+        {
+            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+        }
         return $this->sendResponse();
 
     }
