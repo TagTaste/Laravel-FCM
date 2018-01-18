@@ -57,13 +57,13 @@ class UserController extends Controller
         \Log::info('Queueing Verified Email...');
 
         dispatch($mail);
-        if($alreadyVerified) {
-            $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
 
-            $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
-            $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
-            event(new JoinFriend($profile, $loginProfile));
-        }
+        $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
+
+        $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+        $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
+        event(new JoinFriend($profile, $loginProfile));
+
 
         return response()->json($result);
     }
