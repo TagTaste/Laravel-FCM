@@ -49,7 +49,7 @@ class BackupDatabase extends Command
             echo exec($command);
             echo "DB backup done...\nMoving dump to S3...";
             $s3 = Storage::disk('s3');
-            $status = $s3->put('backup_'.env('APP_ENV').'/db/'.$backupFile, file_get_contents($backupFilePath));
+            $status = $s3->put('backup/'.env('APP_ENV').'/db/'.$backupFile, file_get_contents($backupFilePath));
             if($status == 1) {
                 echo "\nDump moved to S3. Deleting local dump...";
                 unlink($backupFilePath);
