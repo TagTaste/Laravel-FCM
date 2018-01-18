@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Companies;
 use App\Console\Commands\Build\Cache\Followers;
@@ -106,6 +107,9 @@ class Kernel extends ConsoleKernel
 
         // Strip special chars and whitespaces in handle
         RemoveSpecialCharsHandle::class,
+
+        // Backup
+        BackupDatabase::class,
     ];
 
     /**
@@ -118,6 +122,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
+        $schedule->command('backup:db')->dailyAt('18:00');
     }
 
     /**
