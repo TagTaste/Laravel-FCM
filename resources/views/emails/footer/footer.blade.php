@@ -31,8 +31,7 @@
             <tr>
                 <td style="	color: #181818;padding:20px 0px 0px 0px;font-size: 14px;width:100%!important;">
                     <div>
-                        TagTaste is the world's first online community for food professionals to discover,
-                        network and collaborate with each other. Reach out to us at <a href="mailto:contact@tagtaste.com" style="color: #4397E7;text-decoration:none">contact@tagtaste.com</a> for any query or feedback.
+                        Reach out to us at <a href="mailto:contact@tagtaste.com" style="color: #4397E7;text-decoration:none">contact@tagtaste.com</a> for any query or feedback.
                     </div>
                 </td>
             </tr>
