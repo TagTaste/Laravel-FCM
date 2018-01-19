@@ -110,6 +110,8 @@ class Kernel extends ConsoleKernel
 
         // Backup
         BackupDatabase::class,
+        \App\Console\Commands\SetInviteCode::class,
+
     ];
 
     /**
