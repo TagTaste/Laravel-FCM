@@ -201,7 +201,7 @@ class Job extends Model implements Feedable
         $data['ogTitle'] = 'Shared job on Tagtaste';
         $data['ogDescription'] = substr($this->description,0,65);
         $data['ogImage'] = null;
-        $data['ogUrl'] = '139.59.59.78:8081/preview/collaborate/'.$this->id;
+        $data['ogUrl'] = env('WEBSITE_URL').'/jobs/'.$this->id;
 
         return $data;
 

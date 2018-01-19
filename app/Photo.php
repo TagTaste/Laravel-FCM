@@ -231,7 +231,7 @@ class Photo extends Model implements Feedable
         $data['ogTitle'] = 'Shared photo on Tagtaste';
         $data['ogDescription'] = substr($this->caption,0,65);
         $data['ogImage'] = $this->photoUrl;
-        $data['ogUrl'] = 'http://139.59.59.78:8081/preview/photo/'.$this->id;
+        $data['ogUrl'] = env('WEBSITE_URL').'/feed/view/photo/'.$this->id;
 
         return $data;
 

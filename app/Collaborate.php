@@ -385,7 +385,7 @@ class Collaborate extends Model implements Feedable
         $data['ogDescription'] = substr($this->looking_for,0,65);
         $images = $this->getImagesAttribute();
         $data['ogImage'] = $images[0];
-        $data['ogUrl'] = 'http://139.59.59.78:8081/preview/collaborate/'.$this->id;
+        $data['ogUrl'] = env('WEBSITE_URL').'/collaborate/'.$this->id;
 
         return $data;
 
