@@ -56,6 +56,7 @@ class Profile extends Model
         'style_hero_image',
         'otp',
         'verified_phone',
+        'onboarding_step',
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -136,6 +137,7 @@ class Profile extends Model
         'messageCount',
         'addPassword',
         'unreadNotificationCount',
+        'onboarding_step',
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
