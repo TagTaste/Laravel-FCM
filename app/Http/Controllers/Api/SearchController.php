@@ -307,6 +307,7 @@ class SearchController extends Controller
             $hits = $hits->groupBy("_type");
             
             foreach($hits as $name => $hit){
+                $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
     
