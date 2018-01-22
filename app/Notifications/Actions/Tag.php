@@ -10,5 +10,13 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class Tag extends Action
 {
+    public $view;
+    public $sub;
 
+    public function __construct($event)
+    {
+        parent::__construct($event);
+        $this->view = 'emails.'.$this->data->action;
+        $this->sub = $this->data->who['name'] ." mentioned you in a post";
+    }
 }
