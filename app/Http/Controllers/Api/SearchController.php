@@ -317,7 +317,7 @@ class SearchController extends Controller
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
                 
-                $this->model[$name] = [$searched->merge($suggested)->keyBy('id')->sortBy('name')->toArray()];
+                $this->model[$name] = $searched->merge($suggested)->keyBy('id')->sortBy('name')->toArray();
                \Log::info(gettype($this->model[$name]));
             }
 
