@@ -381,7 +381,7 @@ class SearchController extends Controller
             if(!array_key_exists($type,$this->model)){
                 $this->model[$type] = [];
             }
-            $this->model[$type][] = array_merge($this->model[$type],$suggestions->toArray());
+            $this->model[$type][] = $suggestions->toArray();
         }
         
         if(!empty($this->model)){
