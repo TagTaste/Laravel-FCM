@@ -317,8 +317,7 @@ class SearchController extends Controller
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
                 
-                $this->model[$name] = $searched->merge($suggested)->keyBy('id')->sortBy('name')->toArray();
-               \Log::info(gettype($this->model[$name]));
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name')->toArray();
             }
 
             $profileId = $request->user()->profile->id;
@@ -326,10 +325,12 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                foreach($this->model['profile'] as &$profile){
+                $profiles = $this->model[$name];
+                foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                     }
+                    $this->model['profile'][] = $profile;
 
                 }
             }
