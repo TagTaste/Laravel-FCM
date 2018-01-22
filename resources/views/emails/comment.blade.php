@@ -132,7 +132,7 @@
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
                                                                 
-                                                                        <a href="{{env('APP_URL')}}/feed" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">VIEW ON TAGTASTE</a>
+                                                                        <a href="{{env('APP_URL')}}/feed/view/{{$model['name']}}/{{$model['id']}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">VIEW ON TAGTASTE</a>
                                                                 
                                                                 </td>
                                                             </tr>

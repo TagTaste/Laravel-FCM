@@ -61,7 +61,7 @@
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse">
                                 <tr>
                                     <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                        <a href="{{env('APP_URL')}}/feed" style="text-decoration:none; display:inline-block; padding: 15px 67px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">VIEW ON TAGTASTE</a>
+                                        <a href="{{env('APP_URL')}}/feed/view/{{$model['name']}}/{{$model['id']}}" style="text-decoration:none; display:inline-block; padding: 15px 67px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">VIEW ON TAGTASTE</a>
                                     </td>
                                 </tr>
 
