@@ -384,7 +384,8 @@ class Collaborate extends Model implements Feedable
         $data['ogTitle'] = 'Shared collaboration on Tagtaste';
         $data['ogDescription'] = substr($this->looking_for,0,65);
         $images = $this->getImagesAttribute();
-        $data['ogImage'] = $images[0];
+        $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
+        $data['ogImage'] = isset($images[0]) ? $images[0]:null;
         $data['ogUrl'] = env('WEBSITE_URL').'/collaborate/'.$this->id;
 
         return $data;

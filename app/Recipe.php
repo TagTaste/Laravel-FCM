@@ -210,7 +210,8 @@ class Recipe extends Model implements Feedable, CommentNotification
         $data['ogTitle'] = 'Shared recipe on Tagtaste';
         $data['ogDescription'] = substr($this->description,0,65);
         $data['ogImage'] = $showcaseImage;
-        $data['ogUrl'] = 'http://139.59.59.78:8081/preview/recipe/'.$this->id;
+        $data['cardType'] = 'summary_large_image';
+        $data['ogUrl'] = env('WEBSITE_URL').'/recipes/'.$this->id;
 
         return $data;
 

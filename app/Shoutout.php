@@ -176,6 +176,7 @@ class Shoutout extends Model implements Feedable
         $data['ogTitle'] = 'Shared post on Tagtaste';
         $data['ogDescription'] = substr($this->content,0,65);
         $data['ogImage'] = null;
+        $data['cardType'] = 'summary';
         $data['ogUrl'] = env('WEBSITE_URL').'/feed/view/shoutout/'.$this->id;
 
         return $data;
