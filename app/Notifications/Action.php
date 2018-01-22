@@ -48,19 +48,8 @@ class Action extends Notification implements ShouldQueue
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        $view = null;
-        if($this->data->action == 'apply' || $this->data->action == 'tag' || $this->data->action == 'comment' || $this->data->action == 'follow' || $this->data->action == 'joinfriend')
-        {
-            if($this->data->action == 'apply')
-            {
-                $view = 'emails.'.$this->data->action.'-'.$this->modelName;
-            }
-            else
-            {
-                $view = 'emails.'.$this->data->action;
-            }
-        }
-        if($view && view()->exists($view)){
+
+        if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
 
         }
@@ -75,55 +64,9 @@ class Action extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $view = null;
-        $sub = 'Notification from Tagtaste';
-
-        if($this->data->action == 'apply')
-        {
-            $view = 'emails.'.$this->data->action.'-'.$this->modelName;
-            if($this->modelName == 'collaborate')
-            {
-                $sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
-                if(!is_null($this->data->content)) {
-                    $this->allData['message'] = $this->data->content;
-                }
-            }
-            else
-            {
-                $sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
-
-            }
-        }
-        elseif ($this->data->action == 'tag')
-        {
-            $view = 'emails.'.$this->data->action;
-            $sub = $this->data->who['name'] ." mentioned you in a post";
-        }
-        elseif ($this->data->action == 'comment')
-        {
-            $view = 'emails.'.$this->data->action;
-            $sub = $this->data->who['name'] ." commented on your post";
-
-        }
-        elseif( $this->data->action == 'joinfriend')
-        {
-            $view = 'emails.' . $this->data->action;
-            $sub = "Invitation Accepted";
-        }
-
-        elseif ($this->data->action == 'follow')
-        {
-            $view = 'emails.'.$this->data->action;
-            $sub = "Yay! You have a new follower.";
-            if(method_exists($this->model,'getNotificationContent')){
-                $this->allData = $this->model->getNotificationContent($this->data->action);
-            }
-
-        }
-
-        if(view()->exists($view)){
-            return (new MailMessage())->subject($sub)->view(
-                $view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
+        if(view()->exists($this->view)){
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
             );
         }
     }
