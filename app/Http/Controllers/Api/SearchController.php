@@ -318,7 +318,7 @@ class SearchController extends Controller
                 }
                 
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name')->toArray();
-               
+               \Log::info(gettype($this->model[$name]));
             }
 
             $profileId = $request->user()->profile->id;
