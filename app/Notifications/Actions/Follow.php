@@ -9,6 +9,7 @@ class Follow extends Action
 {
     public $view;
     public $sub;
+    public $notification;
 
     public function __construct($event)
     {
@@ -18,5 +19,6 @@ class Follow extends Action
         if(method_exists($this->model,'getNotificationContent')){
             $this->allData = $this->model->getNotificationContent($this->data->action);
         }
+        $this->notification = $this->data->who['name'] ." has started following you.";
     }
 }

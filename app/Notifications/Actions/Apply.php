@@ -9,6 +9,7 @@ class Apply extends Action
 {
     public $view;
     public $sub;
+    public $notification ;
 
     public function __construct($event)
     {
@@ -27,6 +28,8 @@ class Apply extends Action
             $this->sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
 
         }
+        $this->notification = $this->sub;
+
     }
 
 }
