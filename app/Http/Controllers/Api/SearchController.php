@@ -338,8 +338,10 @@ class SearchController extends Controller
 
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
-                foreach($this->model['company'] as $company){
+                $companies = $this->model['company'];
+                foreach($companies as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    $this->model['company'] = $company;
                 }
             }
 
