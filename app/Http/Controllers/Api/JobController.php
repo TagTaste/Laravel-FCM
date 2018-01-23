@@ -46,6 +46,7 @@ class JobController extends Controller
         if(!empty($filters)){
             $this->model = [];
             $jobIds = \App\Filter\Job::getModelIds($filters,$skip,$take);
+            $this->model["data"]=[];
             $this->model['data'] = \App\Job::whereIn('id',$jobIds)->orderBy('created_at','desc')->get();
             $this->model['count'] = count($this->model['data']);
             return $this->sendResponse();
