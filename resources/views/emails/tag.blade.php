@@ -32,7 +32,7 @@
                                         @if(strlen($content) <= 140)
                                         <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{$content}}</div>
                                         @else
-                                        <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{substr($content, 0, 140)}}...<a href="{{env('APP_URL')}}/feed" style="color: #4397E7; text-decoration: none;">(more)</a></div>
+                                        <div style="font-size: 16px;padding: 20px 40px 0px 40px;color: #181818;">{{substr($content, 0, 140)}}...<a href="{{env('APP_URL')}}/feed/view/{{$model['name']}}/{{$model['id']}}" style="color: #4397E7; text-decoration: none;">(more)</a></div>
                                         @endif
                                     </td>
                                 </tr>
