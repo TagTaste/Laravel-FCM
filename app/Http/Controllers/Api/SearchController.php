@@ -392,8 +392,9 @@ class SearchController extends Controller
         if(!empty($this->model)){
             return $this->sendResponse();
         }
-        
-        return $this->sendResponse("Nothing found.");
+        $this->model = [];
+        $this->messages = ['Nothing found.'];
+        return $this->sendResponse();
     }
 
 
