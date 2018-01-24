@@ -22,17 +22,24 @@
                                 <tr>
                                     <td bgcolor="#FFFFFF ">
                                         <div style="padding: 20px 40px 0px 40px;">
-                                            <p style="font-size: 16px;color: #181818 ;margin:0px;padding:0px 0px 0px 0px;font-weight:bold;">Hi {{$receiverName}},</p>
+                                            <p style="font-size: 16px;color: #181818 ;margin:0px;padding:0px 0px 0px 0px;">Hi,</p>
 
                                         </div>
                                     </td>
                                 </tr>
+                                {{--<tr>--}}
+                                {{--<td bgcolor="#FFFFFF " align="center">--}}
+                                {{--<div style="padding: 30px 40px 30px 40px;">--}}
+                                {{--<img src="{{$senderImage}}" height="80px" width="80px" style="border-radius:50%"/>--}}
+                                {{--</div>--}}
+                                {{--<p style="font-size: 16px;color: #181818 ;margin:0px;font-weight:bold;">Invitation to join TagTaste </p>--}}
+                                {{--</td>--}}
+                                {{--</tr>--}}
                                 <tr>
-                                    <td bgcolor="#FFFFFF " align="center">
-                                        <div style="padding: 30px 40px 30px 40px;">
-                                            <img src="{{$senderImage}}" height="80px" width="80px" style="border-radius:50%"/>
+                                    <td bgcolor="#FFFFFF ">
+                                        <div style="padding: 20px 40px 0px 40px;">
+                                            <p style="font-size: 16px;color: #181818 ;margin:0px;padding:0px 0px 0px 0px;">Thank you for showing interest in TagTaste.</p>
                                         </div>
-                                        <p style="font-size: 16px;color: #181818 ;margin:0px;font-weight:bold;">{{$senderName}} has invited you to join TagTaste </p>
                                     </td>
                                 </tr>
                                 <tr>
@@ -53,8 +60,8 @@
 
                                 <tr>
                                     <td bgcolor="#FFFFFF ">
-                                        <div style="padding: 0px 60px 0px 60px;">
-                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS: <span style="color: #b42128">{{$inviteCode}}</span> </p>
+                                        <div style="padding: 5px 60px 0px 60px;">
+                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS: <span style="color: #b42128">542090</span> </p>
                                         </div>
                                     </td>
                                 </tr>
@@ -82,7 +89,7 @@
                                                                     <tr>
                                                                         <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                                            <a href="{{ env('APP_URL') }}/register?invite_code={{$inviteCode}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">ACCEPT INVITE</a>
+                                                                            <a href="{{ env('APP_URL') }}/register?invite_code=542090" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">ACCEPT INVITE</a>
 
                                                                         </td>
                                                                     </tr>

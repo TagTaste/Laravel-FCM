@@ -10,7 +10,7 @@ class Collaborate extends Filter
     
     protected $csv = ['keywords'];
     
-    protected $strings = ['location','starts in'=>'start_in','duration'];
+    protected $strings = ['location','Starts'=>'start_in','duration'];
     
     protected $models = ['By Company'=>'company.name','By Person' => 'profile.name'];
     

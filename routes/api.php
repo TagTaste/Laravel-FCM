@@ -60,8 +60,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
         Route::get("profile/hero/{id}.jpg",['as'=>'profile.heroImage','uses'=>'ProfileController@heroImage']);
     //newsletter
-    Route::post('newsletter','NewsletterController@store');
-    
+    Route::post('newsletters','NewsletterController@store');
+
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
@@ -77,6 +77,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //change password
                 Route::post("change/password","UserController@changePassword");
+
             //chat
                 Route::get("chatrooms","ChatController@rooms");
                 Route::post("chats/{chatId}/members/addAdmin",'Chat\\MemberController@addAdmin');
@@ -235,6 +236,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //app all followers
             Route::get("profile/allFollowers",['uses'=>'ProfileController@allFollowers']);
 
+            //check handle
+//            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);

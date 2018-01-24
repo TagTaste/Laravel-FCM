@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
-
+use Carbon\Carbon;
 /*
 |--------------------------------------------------------------------------
 | Console Routes
@@ -126,4 +126,20 @@ Artisan::command('inspire', function () {
     
     \App\Filter\Job::removeModel($id);
     echo $status;
+});
+
+\Artisan::command("inviteall",function(){
+    $when = \Carbon\Carbon::createFromTime(10,00,00);
+    
+   
+    \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users) use ($when)
+    {
+        $users->each(function($user) use($when) {
+            $email = $user->email;
+            \Log::info("Sending invite mail to " . $email . "\n");
+    
+            $mail = (new \App\Mail\Launch())->onQueue('emails');
+            \Mail::to($email)->later($when,$mail);
+        });
+    });
 });

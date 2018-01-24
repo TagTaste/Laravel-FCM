@@ -11,7 +11,7 @@
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#F8F6F9" style="background-color:#F8F6F9">
                                 <tr>
                                     <td align="center"  bgcolor="#FFFFFF" style="border-radius:5px 5px 0px 0px;" width="100%">
-                                        <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 20px 78px 20px 78px;">{{$data->who['name']}} has applied for {{$model->title}}</div>
+                                        <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 20px 78px 20px 78px;">{{$data->who['name']}} has applied for {{$model['content']}}</div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -29,8 +29,8 @@
                                                                 <div style="padding:0px 10px 0px 10px;">
                                                                     <div>
                                                                         <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">Hi {{$notifiable->name}},</p>
-                                                                        <p style="font-size: 16px;color: #181818;margin:0px">{{$data->who['name']}} has applied for {{$model->title}}.
-                                                                            <a href="{{env('APP_URL')}}/jobs/{{$model->id}}" style="color: #4397E7; text-decoration: none;">Click here</a> to  see the list of all applicants.</p>
+                                                                        <p style="font-size: 16px;color: #181818;margin:0px">{{$data->who['name']}} has applied for {{$model['content']}}.
+                                                                            <a href="{{env('APP_URL')}}/jobs/{{$model['id']}}" style="color: #4397E7; text-decoration: none;">Click here</a> to  see the list of all applicants.</p>
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -86,7 +86,7 @@
                                         <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                    <a href="{{env('APP_URL')}}/jobs/{{$model->id}}" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 14px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">DOWNLOAD RESUME</a>
+                                                    <a href="{{env('APP_URL')}}/jobs/{{$model['id']}}" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 14px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:normal;">DOWNLOAD RESUME</a>
                                                 </td>
                                             </tr>
 

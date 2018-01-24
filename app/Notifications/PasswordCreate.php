@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class PasswordReset extends Notification
+class PasswordCreate extends Notification
 {
     use Queueable;
 
@@ -45,7 +45,7 @@ class PasswordReset extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)->view(
-            'emails.reset-password', ['token' => $this->token, 'email'=>$this->email]
+            'emails.create-password', ['token' => $this->token, 'email'=>$this->email]
         );
     }
 

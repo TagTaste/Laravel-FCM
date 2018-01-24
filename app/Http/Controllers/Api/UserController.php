@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
+use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Invitation;
 use App\SocialAccount;
 use App\User;
@@ -56,13 +57,13 @@ class UserController extends Controller
         \Log::info('Queueing Verified Email...');
 
         dispatch($mail);
-        if($alreadyVerified) {
-            $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
 
-            $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
-            $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
-            event(new JoinFriend($profile, $loginProfile));
-        }
+        $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
+
+        $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+        $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
+        event(new JoinFriend($profile, $loginProfile));
+
 
         return response()->json($result);
     }
@@ -157,22 +158,25 @@ class UserController extends Controller
     public function socialLink(Request $request,$provider)
     {
         $socialiteUser = $request->all();
-        if($request->has('remove')&&$request->input('remove'))
+        if(isset($socialiteUser['remove'])&&$socialiteUser['remove'] == 1)
         {
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
+            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>null]);
             return $this->sendResponse();
         }
-        $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
 
-        if($user)
+        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exists();
+        if(!$userExist)
         {
-            return $this->sendError("Already link ".$provider." with out plateform");
+            $user = \App\Profile\User::where('email',$request->user()->email)->first();
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
+            $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
+            return $this->sendResponse();
         }
-        $user = $request->user();
-
-        $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:null);
-
-        return $this->sendResponse();
+        else
+        {
+            return $this->sendError("Already link ".$provider." with our plateform");
+        }
 
     }
 

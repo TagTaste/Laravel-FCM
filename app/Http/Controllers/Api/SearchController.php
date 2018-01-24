@@ -33,7 +33,7 @@ class SearchController extends Controller
         'jobs' => \App\Filter\Job::class
     ];
     
-    private function getModels($type, $ids = [], $filters = [],$skip,$take)
+    private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
     {
         if(empty($ids)){
             return false;
@@ -51,11 +51,16 @@ class SearchController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
-        else
-        {
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->skip($skip)->take($take)->get();
-
+        
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+        
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
         }
+        
+        return $model->get();
+
+    
     }
 
     //index = db
@@ -154,39 +159,90 @@ class SearchController extends Controller
         return response()->json($response);
     }
     
-    private function autocomplete(&$term)
+    private function filterSuggestions(&$term,$type = null,$skip,$take)
+    {
+    
+        $suggestions = [];
+    
+        if(null === $type || "profile" === $type){
+            $profiles = \DB::table("profiles")->select("profiles.id")
+                ->join("users",'users.id','=','profiles.user_id')
+                ->where("users.name",'like',"%$term%")
+                ->whereNull('users.deleted_at')
+                ->skip($skip)
+                ->take($take)
+                ->get();
+        
+            if(count($profiles)){
+                foreach($profiles as $profile){
+                    $profile->type = "profile";
+                    $suggestions[] = (array) $profile;
+                }
+            }
+        
+        }
+    
+        if(null === $type || "company" === $type){
+            $companies = \DB::table("companies")->whereNull('companies.deleted_at')
+                ->select("companies.id")
+                ->join("profiles",'companies.user_id','=','profiles.user_id')
+                ->where("name",'like',"%$term%")
+                ->whereNull('profiles.deleted_at')
+                ->whereNull('companies.deleted_at')
+                ->skip($skip)
+                ->take($take)
+                ->get();
+        
+            if(count($companies)){
+                foreach($companies as $company){
+                    $company->type = "company";
+                    $suggestions[] = (array) $company;
+                }
+            }
+        }
+    
+    
+        return $suggestions;
+    }
+    private function autocomplete(&$term, $type = null)
     {
         $suggestions = [];
         
-        $total = 10;
-        $profiles = \DB::table("profiles")->select("profiles.id","users.name")
-                        ->join("users",'users.id','=','profiles.user_id')
-                        ->where("users.name",'like',"%$term%")
-                        ->whereNull('users.deleted_at')
-                    ->take($total - 5)->get();
+        if(null === $type || "profile" === $type){
+            $profiles = \DB::table("profiles")->select("profiles.id","users.name")
+                ->join("users",'users.id','=','profiles.user_id')
+                ->where("users.name",'like',"%$term%")
+                ->whereNull('users.deleted_at')
+                ->take(5)
+                ->get();
+    
+            if(count($profiles)){
+                foreach($profiles as $profile){
+                    $profile->type = "profile";
+                    $suggestions[] = (array) $profile;
+                }
+            }
+            
+        }
         
-        $count = $total - $profiles->count();
-        $companies = \DB::table("companies")->whereNull('companies.deleted_at')
-            ->select("companies.id",'name','profiles.id as profile_id')
-            ->join("profiles",'companies.user_id','=','profiles.user_id')
-            ->where("name",'like',"%$term%")->take($count)
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('companies.deleted_at')
-            ->get();
-        
-        if(count($profiles)){
-            foreach($profiles as $profile){
-                $profile->type = "profile";
-                $suggestions[] = (array) $profile;
+        if(null === $type || "company" === $type){
+            $companies = \DB::table("companies")->whereNull('companies.deleted_at')
+                ->select("companies.id",'name','profiles.id as profile_id')
+                ->join("profiles",'companies.user_id','=','profiles.user_id')
+                ->where("name",'like',"%$term%")
+                ->take(5)
+                ->whereNull('profiles.deleted_at')
+                ->whereNull('companies.deleted_at')
+                ->get();
+    
+            if(count($companies)){
+                foreach($companies as $company){
+                    $company->type = "company";
+                    $suggestions[] = (array) $company;
+                }
             }
         }
         
-        if(count($companies)){
-            foreach($companies as $company){
-                $company->type = "company";
-                $suggestions[] = (array) $company;
-            }
-        }
         
         return $suggestions;
     }
@@ -242,34 +298,50 @@ class SearchController extends Controller
 
         $response = $client->search($params);
         $this->model = [];
+    
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        
         if($response['hits']['total'] > 0){
             $hits = collect($response['hits']['hits']);
             $hits = $hits->groupBy("_type");
-
-            $page = $request->input('page');
-            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
+            
             foreach($hits as $name => $hit){
-                $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
+                $this->model[$name] = [];
+                $ids = $hit->pluck('_id')->toArray();
+                $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+    
+                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                $suggested = collect([]);
+                if(!empty($suggestions)){
+                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                }
+                
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name')->toArray();
             }
 
             $profileId = $request->user()->profile->id;
 
             if(isset($this->model['profile'])){
-                $this->model['profile'] = $this->model['profile']->toArray();
+//                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                foreach($this->model['profile'] as &$profile){
+                $profiles = $this->model['profile'];
+                $this->model['profile'] = [];
+                foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                     }
+                    $this->model['profile'][] = $profile;
 
                 }
             }
 
             if(isset($this->model['company'])){
-                $this->model['company'] = $this->model['company']->toArray();
-                foreach($this->model['company'] as $company){
+//                $this->model['company'] = $this->model['company']->toArray();
+                $companies = $this->model['company'];
+                foreach($companies as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    $this->model['company'] = $company;
                 }
             }
 
@@ -297,20 +369,32 @@ class SearchController extends Controller
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
-                $data = [];
                 foreach($collaborates as $collaborate){
-                    $data[] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                    $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
-                $this->model['collaborate'] = $data;
 
             }
-
-            $this->model['suggestions'] = $this->autocomplete($query);
-
+            
             return $this->sendResponse();
 
         }
-        return $this->sendResponse("Nothing found.");
+    
+        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+    
+        if($suggestions && $suggestions->count()){
+//            if(!array_key_exists($type,$this->model)){
+//                $this->model[$type] = [];
+//            }
+            $this->model[$type] = $suggestions->toArray();
+        }
+        
+        if(!empty($this->model)){
+            return $this->sendResponse();
+        }
+        $this->model = [];
+        $this->messages = ['Nothing found.'];
+        return $this->sendResponse();
     }
 
 
