@@ -22,22 +22,40 @@ class FCMPush extends Model
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
 
-//        $message = $data['profile']['name'].$this->message($data['action']);
-
-//        $notificationBuilder = new PayloadNotificationBuilder();
-
+        //android
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
 
         $option = $optionBuilder->build();
-//        $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
-        $token = \DB::table('app_info')->where('profile_id',$profileId)->get()->pluck('fcm_token')->toArray();
+        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform',1)->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
         }
+
+        // android
+
+
+        //for ios
+//        $notificationBuilder = new PayloadNotificationBuilder('my title');
+//        $notificationBuilder->setBody('Hello world')
+//            ->setSound('default');
+
+//        $message = $data['profile']['name'].$this->message($data['action']);
+
+        $notificationBuilder = new PayloadNotificationBuilder();
+        $notification = $notificationBuilder->build();
+
+        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform',1)->get()->pluck('fcm_token')->toArray();
+        if(count($token))
+        {
+            $downstreamResponse = FCM::sendTo($token, $option, $notification, null);
+            $downstreamResponse->numberSuccess();
+        }
+        //for ios
+
 //        $downstreamResponse->numberFailure();
 //        $downstreamResponse->numberModification();
 
