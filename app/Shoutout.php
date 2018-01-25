@@ -170,16 +170,55 @@ class Shoutout extends Model implements Feedable
     public function getPreviewContent()
     {
         $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
+        $content = $this->getContent($this->content);
         $data = [];
         $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
-        $data['description'] = substr($this->content,0,155);
+        $data['description'] = substr($content,0,155);
         $data['ogTitle'] = 'Shared post on Tagtaste';
-        $data['ogDescription'] = substr($this->content,0,65);
+        $data['ogDescription'] = substr($content,0,65);
         $data['ogImage'] = null;
         $data['cardType'] = 'summary';
-        $data['ogUrl'] = env('WEBSITE_URL').'/feed/view/shoutout/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
 
         return $data;
 
+    }
+
+    public function getContent($text)
+    {
+        if(isset($text['text']))
+        {
+            $profiles = $this->getTaggedProfiles($text['text']);
+            $pattern = [];
+            $replacement = [];
+            foreach ($profiles as $index => $profile)
+            {
+                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
+                $replacement[] = $profile->name;
+            }
+            $replacement = array_reverse($replacement);
+            return preg_replace($pattern,$replacement,$text['text']);
+
+        }
+        elseif($text != '')
+        {
+            $profiles = $this->getTaggedProfiles($text);
+            $pattern = [];
+            $replacement = [];
+            if($profiles == false) {
+                return $text;
+            }
+            foreach ($profiles as $index => $profile)
+            {
+                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
+                $replacement[] = $profile->name;
+            }
+            $replacement = array_reverse($replacement);
+            return preg_replace($pattern,$replacement,$text);
+        }
+        else
+        {
+            return "";
+        }
     }
 }
