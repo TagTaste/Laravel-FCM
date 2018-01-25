@@ -31,7 +31,8 @@ class RecipeController extends Controller
             if(count($recipeModelIds) == 0){
                 return $this->sendResponse();
             }
-            
+            $this->model["data"]=[];
+
             $recipes = \App\Recipe::whereIn('id',$recipeModelIds)->get();
             foreach($recipes as $recipe){
                 $this->model['data'][] = ['recipe'=>$recipe,'meta'=>$recipe->getMetaFor($loggedInProfileId)];
