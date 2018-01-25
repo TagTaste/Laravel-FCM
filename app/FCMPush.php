@@ -28,7 +28,7 @@ class FCMPush extends Model
 
         $option = $optionBuilder->build();
         $data = $dataBuilder->build();
-        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform',1)->get()->pluck('fcm_token')->toArray();
+        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
@@ -48,7 +48,7 @@ class FCMPush extends Model
         $notificationBuilder = new PayloadNotificationBuilder();
         $notification = $notificationBuilder->build();
 
-        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform',1)->get()->pluck('fcm_token')->toArray();
+        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, null);

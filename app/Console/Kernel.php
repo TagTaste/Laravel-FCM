@@ -24,6 +24,7 @@ use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use App\Console\Commands\RemoveSpecialCharsHandle;
+use App\Console\Commands\SetPlatformAndroid;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -111,6 +112,9 @@ class Kernel extends ConsoleKernel
         // Backup
         BackupDatabase::class,
         \App\Console\Commands\SetInviteCode::class,
+
+        // Set platform as Android
+        SetPlatformAndroid::class,
 
     ];
 
