@@ -23,7 +23,7 @@ class FCMPush extends Model
         $optionBuilder->setTimeToLive(60*20);
         $iosData = $data;
 
-        //android
+        // For Android
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
 
@@ -36,11 +36,9 @@ class FCMPush extends Model
             $downstreamResponse->numberSuccess();
         }
 
-        // android
 
-
-        //for ios
-        unset($iosData['model']['content']);
+        // For iOS
+        unset($iosData['model']['content']);        // due to 4kb limit of notification payload in iOS
         $iosDataBuilder = new PayloadDataBuilder();
         $iosDataBuilder->addData(['data' => $iosData]);
         $data = $iosDataBuilder->build();
@@ -49,35 +47,15 @@ class FCMPush extends Model
         $notificationBuilder = new PayloadNotificationBuilder();
         $notificationBuilder->setBody($notificationBody)->setSound('default');
 //        $message = $data['profile']['name'].$this->message($data['action']);
-
-//        $notificationBuilder = new PayloadNotificationBuilder();
         $notification = $notificationBuilder->build();
 
-//        \Log::info(print_r($data, TRUE));
-//        \Log::info('it worked! profileId='.print_r($profileId,TRUE));
-
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
-//        \Log::info(print_r($token, TRUE));
         if(count($token))
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
-
-            $n = $downstreamResponse->numberSuccess();
-//            \Log::info("numberSuccess: ".print_r($n,TRUE));
+            $downstreamResponse->numberSuccess();
         }
-        //for ios
 
-//        \Log::info("numberFailure: ".print_r($downstreamResponse->numberFailure(),TRUE));
-//        \Log::info("numberModification: ".print_r($downstreamResponse->numberModification(),TRUE));
-
-//return Array - you must remove all this tokens in your database
-//        \Log::info("tokensToDelete: ".print_r($downstreamResponse->tokensToDelete(),TRUE));
-
-//return Array (key : oldToken, value : new token - you must change the token in your database )
-//        \Log::info("tokensToModify: ".print_r($downstreamResponse->tokensToModify(), TRUE));
-
-//return Array - you should try to resend the message to the tokens in the array
-//        \Log::info("tokensToRetry: ".print_r($downstreamResponse->tokensToRetry(), TRUE));
     }
 
     protected function message($type, $modelType = null)
