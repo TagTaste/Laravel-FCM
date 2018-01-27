@@ -79,7 +79,10 @@ class FCMPush extends Model
             return "has started following you." ;
         }
         if($type == "apply") {
-            return "has applied to your $modelType post.";
+            if($modelType == 'job')
+                return "has applied to your job post.";
+            if($modelType == 'collaborate')
+                return "has applied to your collaboration.";
         }
         return "Notification from TagTaste";
     }
