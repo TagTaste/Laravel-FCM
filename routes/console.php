@@ -143,3 +143,35 @@ Artisan::command('inspire', function () {
         });
     });
 });
+
+\Artisan::command("sendCollabTest",function(){
+    $when = \Carbon\Carbon::createFromTime(10,00,00);
+
+
+    \DB::table('users')->whereIn('email', ['arun@tagtaste.com','jaspal@tagtaste.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when)
+    {
+        $users->each(function($user) use($when) {
+            $email = $user->email;
+            \Log::info("Sending collab mail to " . $email . "\n");
+
+            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+            \Mail::to($email)->later($when,$mail);
+        });
+    });
+});
+
+\Artisan::command("sendCollab",function(){
+    $when = \Carbon\Carbon::createFromTime(10,00,00);
+
+
+    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when)
+    {
+        $users->each(function($user) use($when) {
+            $email = $user->email;
+            \Log::info("Sending collab mail to " . $email . "\n");
+
+            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+            \Mail::to($email)->later($when,$mail);
+        });
+    });
+});
