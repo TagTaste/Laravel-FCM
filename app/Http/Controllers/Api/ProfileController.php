@@ -628,6 +628,7 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
+        \Log::info("followerscount:" . count($data));
         foreach($data as &$profile){
             if(empty($profile)){
                 continue;
@@ -636,6 +637,7 @@ class ProfileController extends Controller
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
+        \Log::info($data);
         $this->model = array_filter($data);
         return $this->sendResponse();
     }
