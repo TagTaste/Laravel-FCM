@@ -21,6 +21,7 @@ class FCMPush extends Model
     {
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
+        $iosData = $data;
 
         //android
         $dataBuilder = new PayloadDataBuilder();
@@ -39,55 +40,69 @@ class FCMPush extends Model
 
 
         //for ios
-//        $notificationBuilder = new PayloadNotificationBuilder('my title');
-//        $notificationBuilder->setBody('Hello world')
-//            ->setSound('default');
+        unset($iosData['model']['content']);
+        $iosDataBuilder = new PayloadDataBuilder();
+        $iosDataBuilder->addData(['data' => $iosData]);
+        $data = $iosDataBuilder->build();
 
+        $notificationBody = isset($iosData['profile']['name']) ? $iosData['profile']['name'].' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
+        $notificationBuilder = new PayloadNotificationBuilder();
+        $notificationBuilder->setBody($notificationBody)->setSound('default');
 //        $message = $data['profile']['name'].$this->message($data['action']);
 
-        $notificationBuilder = new PayloadNotificationBuilder();
+//        $notificationBuilder = new PayloadNotificationBuilder();
         $notification = $notificationBuilder->build();
 
+//        \Log::info(print_r($data, TRUE));
+//        \Log::info('it worked! profileId='.print_r($profileId,TRUE));
+
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
+//        \Log::info(print_r($token, TRUE));
         if(count($token))
         {
-            $downstreamResponse = FCM::sendTo($token, $option, $notification, null);
-            $downstreamResponse->numberSuccess();
+            $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+
+            $n = $downstreamResponse->numberSuccess();
+//            \Log::info("numberSuccess: ".print_r($n,TRUE));
         }
         //for ios
 
-//        $downstreamResponse->numberFailure();
-//        $downstreamResponse->numberModification();
+//        \Log::info("numberFailure: ".print_r($downstreamResponse->numberFailure(),TRUE));
+//        \Log::info("numberModification: ".print_r($downstreamResponse->numberModification(),TRUE));
 
 //return Array - you must remove all this tokens in your database
-//        $downstreamResponse->tokensToDelete();
+//        \Log::info("tokensToDelete: ".print_r($downstreamResponse->tokensToDelete(),TRUE));
 
 //return Array (key : oldToken, value : new token - you must change the token in your database )
-//        $downstreamResponse->tokensToModify();
+//        \Log::info("tokensToModify: ".print_r($downstreamResponse->tokensToModify(), TRUE));
 
 //return Array - you should try to resend the message to the tokens in the array
-//        $downstreamResponse->tokensToRetry();
+//        \Log::info("tokensToRetry: ".print_r($downstreamResponse->tokensToRetry(), TRUE));
     }
 
-    protected function message($type)
+    protected function message($type, $modelType = null)
     {
         if($type == "comment"){
-            return " commented on a post";
+            return "commented on your post";
         }
         if($type == "like"){
-            return " liked a post";
+            return "liked your post";
             }
         if($type == "share"){
-            return " shared a post";
+            return "shared a post";
         }
         if($type == "tag"){
-            return " tagged you in a post";
+            return "tagged you in a post";
         }
         if($type == "message"){
-            return " sent you a message";
+            return "sent you a message";
         }
         if($type == "follow"){
-            return " has started following you." ;
+            return "has started following you." ;
         }
+        if($type == "apply") {
+            return "has applied to your $modelType post.";
+        }
+        return "Notification from TagTaste";
     }
 }
