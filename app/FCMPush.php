@@ -45,7 +45,7 @@ class FCMPush extends Model
 
         $notificationBody = isset($iosData['profile']['name']) ? $iosData['profile']['name'].' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
         $notificationBuilder = new PayloadNotificationBuilder();
-        $notificationBuilder->setBody($notificationBody)->setSound('default');
+        $notificationBuilder->setBody($notificationBody)->setSound('default')->setBadge('0');
 //        $message = $data['profile']['name'].$this->message($data['action']);
         $notification = $notificationBuilder->build();
 
