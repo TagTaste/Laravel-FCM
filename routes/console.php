@@ -146,7 +146,7 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollabTest",function(){
 
-    \DB::table('users')->whereIn('email', ['aman@tagtaste.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when)
+    \DB::table('users')->whereIn('email', ['aman@tagtaste.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
     {
         $users->each(function($user) {
             $email = $user->email;
@@ -160,7 +160,7 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollab",function(){
 
-    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when)
+    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
     {
         $users->each(function($user) {
             $email = $user->email;
