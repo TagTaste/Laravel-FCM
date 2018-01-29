@@ -148,7 +148,7 @@ Artisan::command('inspire', function () {
     $when = \Carbon\Carbon::createFromTime(10,00,00);
 
 
-    \DB::table('users')->whereIn('email', ['arun@tagtaste.com','jaspal@tagtaste.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when)
+    \DB::table('users')->whereIn('email', ['arun@tagtaste.com','jaspal@tagtaste.com', 'aman@tagtaste.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when)
     {
         $users->each(function($user) use($when) {
             $email = $user->email;
