@@ -29,9 +29,9 @@
                                 </tr>
                                 <tr>
                                     <td bgcolor="#FFFFFF">
-                                        <div style="padding: 20px 40px 20px 40px;">
+                                        <div style="padding: 16px 40px 10px 40px;">
                                             <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 0px 0px;">Login ID: <b>{{$email}}</b></p>
-                                            <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 0px 0px;">Password: <b>{{$password}}</b></p>
+                                            <p style="font-size: 16px;color: #181818;margin:0px;padding:10px 0px 0px 0px;">Password: <b>{{$password}}</b></p>
                                         </div>
                                     </td>
                                 </tr>
@@ -55,13 +55,6 @@
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
                                                     <a href="https://www.tagtaste.com" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">LOGIN TO YOUR ACCOUNT</a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                    <div style="font-size: 14px;color: #181818;font-weight:bold;padding:0px 0px 30px 0px;">
-                                                        Read more about us on our blogs: <a href = "https://blog.tagtaste.com" style="color: #4397E7;text-decoration:none">https://blog.tagtaste.com </a>.
-                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
