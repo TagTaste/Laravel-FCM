@@ -307,6 +307,7 @@ class SearchController extends Controller
             $hits = $hits->groupBy("_type");
             
             foreach($hits as $name => $hit){
+                $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
     
@@ -316,27 +317,31 @@ class SearchController extends Controller
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
                 
-                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-               
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name')->toArray();
             }
 
             $profileId = $request->user()->profile->id;
 
             if(isset($this->model['profile'])){
-                $this->model['profile'] = $this->model['profile']->toArray();
+//                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                foreach($this->model['profile'] as &$profile){
+                $profiles = $this->model['profile'];
+                $this->model['profile'] = [];
+                foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                     }
+                    $this->model['profile'][] = $profile;
 
                 }
             }
 
             if(isset($this->model['company'])){
-                $this->model['company'] = $this->model['company']->toArray();
-                foreach($this->model['company'] as $company){
+//                $this->model['company'] = $this->model['company']->toArray();
+                $companies = $this->model['company'];
+                foreach($companies as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    $this->model['company'] = $company;
                 }
             }
 
@@ -378,17 +383,18 @@ class SearchController extends Controller
         $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
     
         if($suggestions && $suggestions->count()){
-            if(!array_key_exists($type,$this->model)){
-                $this->model[$type] = [];
-            }
-            $this->model[$type][] = array_merge($this->model[$type],$suggestions->toArray());
+//            if(!array_key_exists($type,$this->model)){
+//                $this->model[$type] = [];
+//            }
+            $this->model[$type] = $suggestions->toArray();
         }
         
         if(!empty($this->model)){
             return $this->sendResponse();
         }
-        
-        return $this->sendResponse("Nothing found.");
+        $this->model = [];
+        $this->messages = ['Nothing found.'];
+        return $this->sendResponse();
     }
 
 
