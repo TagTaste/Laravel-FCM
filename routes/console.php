@@ -152,3 +152,32 @@ Artisan::command('inspire', function () {
         \Mail::to($email)->send($mail);
     }
 });
+
+\Artisan::command("sendCollabTest",function(){
+
+    \DB::table('users')->whereIn('email', ['aman1995k@gmail.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
+    {
+        $users->each(function($user) {
+            $email = $user->email;
+            \Log::info("Sending collab mail to " . $email . "\n");
+//            echo "Sending collab mail to " . $email . "\n";
+
+            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+            \Mail::to($email)->send($mail);
+        });
+    });
+});
+
+\Artisan::command("sendCollab",function(){
+
+    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
+    {
+        $users->each(function($user) {
+            $email = $user->email;
+            \Log::info("Sending collab mail to " . $email . "\n");
+
+            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+            \Mail::to($email)->send($mail);
+        });
+    });
+});
