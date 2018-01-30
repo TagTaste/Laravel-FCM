@@ -11,7 +11,7 @@
                                 <tr>
                                     <td align="center"  bgcolor="#FFFFFF" style="width:100%!important">
                                         <div style="font-size: 20px;font-weight: bold;padding:20px 70px;color: #181818;">
-                                            Welcome aboard, {{$name}}
+                                            Welcome aboard, <span style="color: #d9222a;">{{$name}}.</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -22,8 +22,8 @@
                                 <tr>
                                     <td bgcolor="#FFFFFF">
                                         <div style="padding: 20px 40px 0px 40px;">
-                                            <p style="font-size: 16px;color: #181818;margin:0px;">We are delighted to share with you that TagTaste is live in Beta Phase!
-                                                Please explore the platform using these credentials: </p>
+                                            <p style="font-size: 16px;color: #181818;margin:0px;">We are delighted to share with you that TagTaste is live in Beta Phase.
+                                                Please explore the platform using below mentioned credentials: </p>
                                         </div>
                                     </td>
                                 </tr>
@@ -31,7 +31,7 @@
                                     <td bgcolor="#FFFFFF">
                                         <div style="padding: 16px 40px 10px 40px;">
                                             <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 0px 0px;">Login ID: <b>{{$email}}</b></p>
-                                            <p style="font-size: 16px;color: #181818;margin:0px;padding:10px 0px 0px 0px;">Password: <b>{{$password}}</b></p>
+                                            <p style="font-size: 16px;color: #181818;margin:0px;padding:2px 0px 0px 0px;">Password: <b>{{$password}}</b></p>
                                         </div>
                                     </td>
                                 </tr>
