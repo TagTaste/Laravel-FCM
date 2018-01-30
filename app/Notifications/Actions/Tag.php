@@ -10,5 +10,15 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class Tag extends Action
 {
+    public $view;
+    public $sub;
+    public $notification;
 
+    public function __construct($event)
+    {
+        parent::__construct($event);
+        $this->view = 'emails.'.$this->data->action;
+        $this->sub = $this->data->who['name'] ." mentioned you in a post";
+        $this->notification = $this->data->who['name'] . " tagged you in a post.";
+    }
 }
