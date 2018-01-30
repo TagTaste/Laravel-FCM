@@ -769,6 +769,21 @@ class Profile extends Model
         return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
     }
 
+    public function getNotificationContent($action = null)
+    {
+        if($action && $action == 'follow') {
+            return [
+                'name' => strtolower(class_basename(self::class)),
+                'id' => $this->id,
+                'content' => $this->tagline,
+                'image' => $this->imageUrl,
+            ];
+        }
+
+        return [];
+
+    }
+
     public function getMessageCountAttribute()
     {
         return \DB::table('chat_members')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->count();

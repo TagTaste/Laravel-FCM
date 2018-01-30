@@ -14,4 +14,4 @@ app/storage/
 .DS_Store
 /nbproject
 newrelic_agent.log
-*.ser
+/storage
