@@ -775,7 +775,8 @@ class Profile extends Model
             return [
                 'name' => strtolower(class_basename(self::class)),
                 'id' => $this->id,
-                'content' => $this->tagline,
+//                'content' => $this->tagline,
+                'content' => null,
                 'image' => $this->imageUrl,
             ];
         }
