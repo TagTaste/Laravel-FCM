@@ -10,8 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class Test extends Mailable
 {
     use Queueable, SerializesModels;
-    private $view;
-    private $subject;
+    public $view;
+    public $subject;
     /**
      * Create a new message instance.
      *
