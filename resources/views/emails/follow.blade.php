@@ -40,8 +40,8 @@
                                                                     {{$data->who['name']}}
                                                                 </div>
                                                                 <div style="padding-top:8px;font-size:16px;color:#717171;word-wrap:break-word">
-                                                                    @if(isset($data->who['tagline']) && !empty($data->who['tagline']))
-                                                                        {{ $data->who['tagline'] }}
+                                                                    @if(isset($model['content']) && !empty($model['content']))
+                                                                        {{ $model['content'] }}
                                                                     @endif
                                                                 </div>
                                                             </td>
