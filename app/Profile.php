@@ -777,6 +777,7 @@ class Profile extends Model
                 'id' => $this->id,
                 'tagline' => $this->tagline,
                 'image' => $this->imageUrl,
+                'content' => null
             ];
         }
 
