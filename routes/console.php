@@ -143,3 +143,12 @@ Artisan::command('inspire', function () {
         });
     });
 });
+
+\Artisan::command("email:test {view} {emails}",function($view,$emails){
+    $subject = "TEST";
+    $emails = explode(",",$emails);
+    foreach($emails as $email){
+        $mail = (new \App\Mail\Test($view,$subject))->onQueue('emails');
+        \Mail::to($email)->send($mail);
+    }
+});
