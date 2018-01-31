@@ -36,7 +36,7 @@ class UserController extends Controller
         $inviteCode = $request->input("invite_code");
         if(isset($inviteCode) && !empty($inviteCode))
         {
-            $invitation = Invitation::where('invite_code', $inviteCode)->first();
+            $invitation = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
             if(!$invitation)
             {
                 return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];
@@ -149,7 +149,7 @@ class UserController extends Controller
         return $this->sendResponse();
     }
 
-    public function verifyInviteCode (Request $request)
+    public function verifyInviteCode(Request $request)
     {
         $this->model = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
         
