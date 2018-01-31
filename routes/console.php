@@ -155,7 +155,7 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollabTest",function(){
 
-    \DB::table('users')->whereIn('email', ['aman1995k@gmail.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
+    \DB::table('users')->whereIn('email', ['aman@tagtaste.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
     {
         $users->each(function($user) {
             $email = $user->email;
@@ -163,7 +163,7 @@ Artisan::command('inspire', function () {
 //            echo "Sending collab mail to " . $email . "\n";
 
             $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-            \Mail::to($email)->send($mail);
+            \Mail::to($email)->bcc('amitabh@tagtaste.com')->send($mail);
         });
     });
 });
