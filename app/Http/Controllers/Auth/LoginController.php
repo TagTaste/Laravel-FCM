@@ -167,7 +167,7 @@ class LoginController extends Controller
                 $alreadyVerified = false;
                 if(isset($inviteCode) && !empty($inviteCode))
                 {
-                    $invitation = \DB::select("profiles.id")
+                    $invitation = \DB::table("profiles")->select("profiles.id")
                         ->join("users",'users.id','=','profiles.user_id')
                         ->where('users.invite_code',$inviteCode)->first();
                     if(!$invitation)
