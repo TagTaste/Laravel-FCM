@@ -36,7 +36,7 @@ class UserController extends Controller
         $inviteCode = $request->input("invite_code");
         if(isset($inviteCode) && !empty($inviteCode))
         {
-            $invitation = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
+            $invitation = \DB::table("users")->where('invite_code',$inviteCode)->exists() ? true : false;
             if(!$invitation)
             {
                 return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];
