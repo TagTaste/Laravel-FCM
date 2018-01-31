@@ -780,9 +780,6 @@ class Profile extends Model
                 'content' => null
             ];
         }
-
-        return [];
-
     }
 
     public function getMessageCountAttribute()
