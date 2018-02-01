@@ -246,7 +246,7 @@ class Profile extends Model
             }
             
         }
-        return "Deleted User";
+        return "Inactive User";
     }
 
     public function setDobAttribute($value)
