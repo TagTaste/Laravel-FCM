@@ -225,7 +225,28 @@ class Profile extends Model
 
     public function getNameAttribute()
     {
-        return $this->user->name;
+        try {
+            return $this->user->name;
+        } catch (\Exception $e){
+            $message = "Accessing deleted profile " . $this->id;
+            \Log::warning($message);
+            $client =  new \GuzzleHttp\Client();
+            $hook = env('SLACK_HOOK');
+            if($hook){
+                $client->request('POST', $hook,
+                    [
+                        'json' =>
+                            [
+                                "channel" => env('SLACK_CHANNEL'),
+                                "username" => "ramukaka",
+                                "icon_emoji" => ":older_man::skin-tone-3:",
+                                "text" => $message]
+                    ]);
+                
+            }
+            
+        }
+        return "Deleted User";
     }
 
     public function setDobAttribute($value)
