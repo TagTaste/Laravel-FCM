@@ -169,15 +169,19 @@ Artisan::command('inspire', function () {
 });
 
 \Artisan::command("sendCollab",function(){
-
-    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
+    
+    $when = \Carbon\Carbon::createFromTime(10,00,00);
+    $count = 0;
+    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when,&$count)
     {
-        $users->each(function($user) {
+        $users->each(function($user) use ($when,&$count) {
+            $count++;
             $email = $user->email;
-            \Log::info("Sending collab mail to " . $email . "\n");
+            echo "Sending collab mail to " . $email . "\n";
 
             $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-            \Mail::to($email)->send($mail);
+            \Mail::to($email)->later($when,$mail);
         });
     });
+    echo "\nsent $count mails";
 });
