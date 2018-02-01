@@ -70,6 +70,7 @@ class ShareController extends Controller
     
         if($loggedInProfileId != $sharedModel->profile_id){
             $this->model->profile_id = $sharedModel->profile_id;
+            \Log::info($this->model);
             event(new Share($this->model,$request->user()->profile));
         }
         
