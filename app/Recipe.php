@@ -191,4 +191,29 @@ class Recipe extends Model implements Feedable, CommentNotification
     {
         return $this->belongsTo(Cuisine::class);
     }
+
+    public function getPreviewContent()
+    {
+        $showcaseImage = null;
+        foreach($this->images as $image)
+        {
+            if($image->show_case)
+            {
+                $showcaseImage = $image->imageUrl;
+                break;
+            }
+        }
+        $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
+        $data = [];
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($this->name,0,155);
+        $data['ogTitle'] = 'Shared recipe on Tagtaste';
+        $data['ogDescription'] = substr($this->description,0,65);
+        $data['ogImage'] = $showcaseImage;
+        $data['cardType'] = 'summary_large_image';
+        $data['ogUrl'] = env('APP_URL').'/recipes/'.$this->id;
+
+        return $data;
+
+    }
 }
