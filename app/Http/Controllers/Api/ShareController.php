@@ -64,13 +64,15 @@ class ShareController extends Controller
         
         //push to feed
         event(new NewFeedable($this->model, $request->user()->profile));
-    
-        if($loggedInProfileId != $sharedModel->profile_id){
-            event(new Share($sharedModel,$request->user()->profile));
-        }
-    
+        
         //add model subscriber
         event(new Create($this->model,$request->user()->profile));
+    
+        if($loggedInProfileId != $sharedModel->profile_id){
+            $this->model->profile_id = $sharedModel->profile_id;
+            event(new Share($this->model,$request->user()->profile));
+        }
+        
         return $this->sendResponse();
     }
     

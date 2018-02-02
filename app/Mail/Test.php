@@ -7,18 +7,20 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CollabSuggestions extends Mailable
+class Test extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $view;
+    public $subject;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($view,$subject)
     {
-        //
+        $this->view = $view;
+        $this->subject = $subject;
     }
 
     /**
@@ -28,8 +30,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('TagTaste Insights Report 2018')->view('emails.insights')->attach(storage_path('TagTaste_Insights_2018.pdf', [
-            'mime' => 'application/pdf',
-        ]));
+        return $this->subject($this->subject)->view($this->view);
     }
 }

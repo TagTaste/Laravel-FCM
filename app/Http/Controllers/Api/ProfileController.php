@@ -606,6 +606,7 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        \Log::info($profileIds);
         //$this->model['count'] = count($profileIds);
         $data = [];
         /*
