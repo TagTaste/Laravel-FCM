@@ -474,7 +474,7 @@ class ProfileController extends Controller
         }
         
         $profiles = \App\Filter\Profile::getModelIds($filters);
-
+        $this->model['data'] = [];
         $this->model = ['count' => count($profiles)];
         $profiles = Profile::whereNull('deleted_at')->whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
@@ -606,6 +606,7 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        \Log::info($profileIds);
         //$this->model['count'] = count($profileIds);
         $data = [];
         /*

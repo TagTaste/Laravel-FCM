@@ -227,7 +227,28 @@ class Profile extends Model
 
     public function getNameAttribute()
     {
-        return $this->user->name;
+        try {
+            return $this->user->name;
+        } catch (\Exception $e){
+            $message = "Accessing deleted profile " . $this->id;
+            \Log::warning($message);
+            $client =  new \GuzzleHttp\Client();
+            $hook = env('SLACK_HOOK');
+            if($hook){
+                $client->request('POST', $hook,
+                    [
+                        'json' =>
+                            [
+                                "channel" => env('SLACK_CHANNEL'),
+                                "username" => "ramukaka",
+                                "icon_emoji" => ":older_man::skin-tone-3:",
+                                "text" => $message]
+                    ]);
+                
+            }
+            
+        }
+        return "Inactive User";
     }
 
     public function setDobAttribute($value)
@@ -502,8 +523,7 @@ class Profile extends Model
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
         }
-    
-
+        
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
         } elseif ($count > 1000) {
@@ -769,6 +789,19 @@ class Profile extends Model
     public function getNotificationCountAttribute()
     {
         return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+    }
+
+    public function getNotificationContent($action = null)
+    {
+        if($action && $action == 'follow') {
+            return [
+                'name' => strtolower(class_basename(self::class)),
+                'id' => $this->id,
+                'tagline' => $this->tagline,
+                'image' => $this->imageUrl,
+                'content' => null
+            ];
+        }
     }
 
     public function getMessageCountAttribute()
