@@ -16,7 +16,7 @@
                     <table width= "620" align="center" border="0" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" border-collapse="collapse" style="padding:20px;margin-top: 50px;margin-bottom:0px;">
                         <tr>
                             <td valign="top" class="logo" align="center" style="padding: 0px 0px 30px 15px;">
-                                <img src="https://www.tagtaste.com/images/icons/logo-transparent.png" alt="tagTaste" width="115px" height="40px">
+                                <img src="https://www.tagtaste.com/images/icons/logo-transparent.png" alt="TagTaste" width="115px" height="40px">
                             </td>
                         </tr>
                         <tr>
