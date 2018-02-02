@@ -170,18 +170,36 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollab",function(){
     
-    $when = \Carbon\Carbon::createFromTime(10,00,00);
+    $when = \Carbon\Carbon::createFromTime(17,00,00);
     $count = 0;
-    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when,&$count)
-    {
-        $users->each(function($user) use ($when,&$count) {
-            $count++;
-            $email = $user->email;
-            echo "Sending collab mail to " . $email . "\n";
+    $users = \DB::table('users')->where('created_at','>=','2018-02-01 12:00:00')->whereNull('deleted_at')
+        ->orderBy('id')->get();
+    
+   
+    $users->each(function($user) use ($when,&$count) {
+        $count++;
+        $email = $user->email;
+        echo "Sending collab mail to " . $email . "\n";
 
-            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-            \Mail::to($email)->later($when,$mail);
-        });
+        $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+        \Mail::to($email)->later($when,$mail);
     });
+    
     echo "\nsent $count mails";
+});
+
+//WIP
+\Artisan::command("fixFollowers",function(){
+    \DB::table("profiles")->select('id')->whereNotNull('deleted_at')->orderBy('id')->chunk(25,function($deleted){
+        
+       
+        \DB::table("profiles")->select('id')->whereNull('deleted_at')->orderBy('id')->chunk(25,function($activeProfiles) use ($deleted){
+            
+            foreach($activeProfiles as $profile){
+               echo \Redis::srem("followers:profile:".$profile->id,$deleted->pluck('id')->toArray());
+            }
+            
+        });
+        
+    });
 });
