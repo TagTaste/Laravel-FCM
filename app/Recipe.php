@@ -211,7 +211,7 @@ class Recipe extends Model implements Feedable, CommentNotification
         $data['ogDescription'] = substr($this->description,0,65);
         $data['ogImage'] = $showcaseImage;
         $data['cardType'] = 'summary_large_image';
-        $data['ogUrl'] = env('WEBSITE_URL').'/recipes/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/recipes/'.$this->id;
 
         return $data;
 

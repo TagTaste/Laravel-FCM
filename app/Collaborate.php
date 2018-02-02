@@ -386,7 +386,7 @@ class Collaborate extends Model implements Feedable
         $images = $this->getImagesAttribute();
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0]:null;
-        $data['ogUrl'] = env('WEBSITE_URL').'/collaborate/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/collaborate/'.$this->id;
 
         return $data;
 

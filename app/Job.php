@@ -202,7 +202,7 @@ class Job extends Model implements Feedable
         $data['ogDescription'] = substr($this->description,0,65);
         $data['ogImage'] = null;
         $data['cardType'] = 'summary';
-        $data['ogUrl'] = env('WEBSITE_URL').'/jobs/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/jobs/'.$this->id;
 
         return $data;
 
