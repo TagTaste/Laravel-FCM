@@ -6,13 +6,14 @@ use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\GetTags;
+use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent;
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview'];
     
@@ -190,43 +191,5 @@ class Shoutout extends Model implements Feedable
 
         return $data;
 
-    }
-
-    public function getContent($text)
-    {
-        if(isset($text['text']))
-        {
-            $profiles = $this->getTaggedProfiles($text['text']);
-            $pattern = [];
-            $replacement = [];
-            foreach ($profiles as $index => $profile)
-            {
-                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
-                $replacement[] = $profile->name;
-            }
-            $replacement = array_reverse($replacement);
-            return preg_replace($pattern,$replacement,$text['text']);
-
-        }
-        elseif($text != '')
-        {
-            $profiles = $this->getTaggedProfiles($text);
-            $pattern = [];
-            $replacement = [];
-            if($profiles == false) {
-                return $text;
-            }
-            foreach ($profiles as $index => $profile)
-            {
-                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
-                $replacement[] = $profile->name;
-            }
-            $replacement = array_reverse($replacement);
-            return preg_replace($pattern,$replacement,$text);
-        }
-        else
-        {
-            return "";
-        }
     }
 }

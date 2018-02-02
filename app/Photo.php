@@ -8,6 +8,7 @@ use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
 use App\Traits\CachedPayload;
 use App\Traits\GetTags;
+use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model implements Feedable
 {
-    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags;
+    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent;
     
     use IdentifiesOwner, CachedPayload;
     
@@ -237,44 +238,6 @@ class Photo extends Model implements Feedable
 
         return $data;
 
-    }
-
-    public function getContent($text)
-    {
-        if(isset($text['text']))
-        {
-            $profiles = $this->getTaggedProfiles($text['text']);
-            $pattern = [];
-            $replacement = [];
-            foreach ($profiles as $index => $profile)
-            {
-                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
-                $replacement[] = $profile->name;
-            }
-            $replacement = array_reverse($replacement);
-            return preg_replace($pattern,$replacement,$text['text']);
-
-        }
-        elseif($text != '')
-        {
-            $profiles = $this->getTaggedProfiles($text);
-            $pattern = [];
-            $replacement = [];
-            if($profiles == false) {
-                return $text;
-            }
-            foreach ($profiles as $index => $profile)
-            {
-                $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
-                $replacement[] = $profile->name;
-            }
-            $replacement = array_reverse($replacement);
-            return preg_replace($pattern,$replacement,$text);
-        }
-        else
-        {
-            return "";
-        }
     }
    
 }
