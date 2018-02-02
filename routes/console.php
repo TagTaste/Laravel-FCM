@@ -143,3 +143,45 @@ Artisan::command('inspire', function () {
         });
     });
 });
+
+\Artisan::command("email:test {view} {emails}",function($view,$emails){
+    $subject = "TEST";
+    $emails = explode(",",$emails);
+    foreach($emails as $email){
+        $mail = (new \App\Mail\Test($view,$subject))->onQueue('emails');
+        \Mail::to($email)->send($mail);
+    }
+});
+
+\Artisan::command("sendCollabTest",function(){
+
+    \DB::table('users')->whereIn('email', ['aman1995k@gmail.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
+    {
+        $users->each(function($user) {
+            $email = $user->email;
+            \Log::info("Sending collab mail to " . $email . "\n");
+//            echo "Sending collab mail to " . $email . "\n";
+
+            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+            \Mail::to($email)->bcc('amitabh@tagtaste.com')->bcc('arun@tagtaste.com')->send($mail);
+        });
+    });
+});
+
+\Artisan::command("sendCollab",function(){
+    
+    $when = \Carbon\Carbon::createFromTime(10,00,00);
+    $count = 0;
+    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when,&$count)
+    {
+        $users->each(function($user) use ($when,&$count) {
+            $count++;
+            $email = $user->email;
+            echo "Sending collab mail to " . $email . "\n";
+
+            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+            \Mail::to($email)->later($when,$mail);
+        });
+    });
+    echo "\nsent $count mails";
+});
