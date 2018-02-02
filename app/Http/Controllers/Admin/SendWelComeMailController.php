@@ -41,13 +41,13 @@ class SendWelComeMailController extends Controller
     {
         $data = ["email" =>$request['email'],'password'=>$request['password'],'name'=>$request['name'],'to'=>$request['to']];
         $this->user = $data;
-        \Config::set('mail.driver', 'smtp');
-        (new \Illuminate\Mail\MailServiceProvider(app()))->register();
-        \Mail::send('email.invite', $data, function($message)
+
+        \Mail::send('emails.welcome', $data, function($message)
         {
             $emails = explode(",",$this->user['to']);
             foreach($emails as $email){
-                $message->bcc('tanvi@tagtaste.com','Tanvi')->bcc("core@tagtaste.com",'Core Team')->to($email, $this->user['name'])->subject("Welcome aboard, ".$this->user['name'].".");
+                $message->bcc("aman@tagtaste.com","Aman")->to($email, $this->user['name'])->subject("Welcome aboard, ".$this->user['name'].".");
+//                $message->bcc('tanvi@tagtaste.com','Tanvi')->bcc("core@tagtaste.com",'Core Team')->to($email, $this->user['name'])->subject("Welcome aboard, ".$this->user['name'].".");
             }
         });
 

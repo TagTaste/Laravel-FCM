@@ -7,7 +7,7 @@ use App\Filter;
 class Job extends Filter {
     protected $table = "job_filters";
 
-    protected $strings = ['location','expected_role','Joining In'=>'joining'];
+    protected $strings = ['location','expected_role','Joining'=>'joining','experience_min','experience_max'];
     
     protected $models = ['By Company'=>'company.name','Job Type' => 'jobType.name',
         'By Person'=> 'profile.name'];

@@ -36,12 +36,14 @@ class UserController extends Controller
         $inviteCode = $request->input("invite_code");
         if(isset($inviteCode) && !empty($inviteCode))
         {
-            $invitation = Invitation::where('invite_code', $inviteCode)->first();
+            $invitation = \DB::table("profiles")->select("profiles.id")
+                ->join("users",'users.id','=','profiles.user_id')
+                ->where('users.invite_code',$inviteCode)->first();
             if(!$invitation)
             {
                 return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];
             }
-            $profileId = $invitation->profile_id;
+            $profileId = $invitation->id;
         }
         else
         {
@@ -57,13 +59,13 @@ class UserController extends Controller
         \Log::info('Queueing Verified Email...');
 
         dispatch($mail);
-        if($alreadyVerified) {
-            $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
 
-            $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
-            $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
-            event(new JoinFriend($profile, $loginProfile));
-        }
+        $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
+
+        $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
+        $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
+        event(new JoinFriend($profile, $loginProfile));
+
 
         return response()->json($result);
     }
@@ -112,9 +114,11 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
+
+        $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         if($user)
         {
-            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token')]);
+            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform]);
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
@@ -149,9 +153,10 @@ class UserController extends Controller
         return $this->sendResponse();
     }
 
-    public function verifyInviteCode (Request $request)
+    public function verifyInviteCode(Request $request)
     {
-        $this->model = Invitation::where('invite_code',$request->input('invite_code'))->exists();
+        $this->model = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
+        
         return $this->sendResponse();
     }
 
@@ -165,11 +170,11 @@ class UserController extends Controller
             return $this->sendResponse();
         }
 
-        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exsits();
+        $userExist = \DB::table('social_accounts')->where('user_id',$request->user()->id)->where('provider','like',$provider)->where('provider_user_id','=',$socialiteUser['id'])->exists();
         if(!$userExist)
         {
             $user = \App\Profile\User::where('email',$request->user()->email)->first();
-            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null;
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
             $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
             return $this->sendResponse();
         }

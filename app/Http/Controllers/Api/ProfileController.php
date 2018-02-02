@@ -203,6 +203,8 @@ class ProfileController extends Controller
                 })->stream('jpg',70);
                 \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
                 $data['profile']['image'] = $path;
+            } else {
+                $data['profile'][$key] = $this->saveFile($path,$request,$key);
             }
         }
     }
@@ -472,7 +474,7 @@ class ProfileController extends Controller
         }
         
         $profiles = \App\Filter\Profile::getModelIds($filters);
-
+        $this->model['data'] = [];
         $this->model = ['count' => count($profiles)];
         $profiles = Profile::whereNull('deleted_at')->whereIn('id',$profiles)->skip($skip)->take($take)->get()->toArray();
         $loggedInProfileId = $request->user()->profile->id;
@@ -604,6 +606,7 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        \Log::info($profileIds);
         //$this->model['count'] = count($profileIds);
         $data = [];
         /*
@@ -640,6 +643,7 @@ class ProfileController extends Controller
 
     public function onboarding(Request $request)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $fixProfileIds = [1,2,10,44,32,165];
         $fixCompaniesIds = [111,137];
         $filters = [];
@@ -667,6 +671,15 @@ class ProfileController extends Controller
             ->get()->merge($profiles);
         $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
             ->get()->merge($companies);
+        foreach ($this->model['profile'] as &$profile)
+        {
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+
+        foreach ($this->model['company'] as &$company)
+        {
+            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+        }
         return $this->sendResponse();
 
     }

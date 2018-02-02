@@ -35,6 +35,10 @@ class Collaborate extends Model implements Feedable
     
     protected $appends = ['images','applicationCount'];
     
+    protected $casts = [
+        'privacy_id' => 'integer'
+    ];
+    
     public static function boot()
     {
         self::created(function($model){
@@ -281,7 +285,7 @@ class Collaborate extends Model implements Feedable
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
-        $meta['interestedCount'] = \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
+        $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 

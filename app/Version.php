@@ -14,7 +14,7 @@ class Version extends Model
     
     public function isCompatible($version)
     {
-        return $this->compatible_version === $version;
+        return $this->compatible_version > $version;
     }
     
     public static function getVersion()

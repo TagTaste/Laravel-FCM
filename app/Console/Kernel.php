@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Companies;
 use App\Console\Commands\Build\Cache\Followers;
@@ -12,17 +13,15 @@ use App\Console\Commands\Build\Cache\Profiles;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
-
-use App\Console\Commands\CountryCodeFix;
-
 use App\Console\Commands\CapitalizeExpertise;
-
+use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\fixKeywords;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use App\Console\Commands\RemoveSpecialCharsHandle;
+use App\Console\Commands\SetPlatformAndroid;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -106,6 +105,18 @@ class Kernel extends ConsoleKernel
 
         // Strip special chars and whitespaces in handle
         RemoveSpecialCharsHandle::class,
+
+        // Backup
+        BackupDatabase::class,
+
+        // Add onboarding_step column to profiles table
+        \App\Console\Commands\UpdateOnboardingStep::class,
+
+        \App\Console\Commands\SetInviteCode::class,
+
+        // Set platform as Android
+        SetPlatformAndroid::class,
+
     ];
 
     /**
@@ -118,6 +129,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
+        $schedule->command('backup:db')->dailyAt('00:00');
     }
 
     /**

@@ -34,7 +34,7 @@ class VersionCheck
         }
         
         //if the version is compatible;
-        if($api->isCompatible($version)){
+        if(!$api->isCompatible($version)){
             $response = $next($request);
         } else {
             $response = response()->json(['error'=>'incompatible_version',

@@ -54,7 +54,12 @@ class User extends Authenticatable
         parent::boot();
     
         self::updated(function($user){
-            \App\Documents\Profile::create($user->profile);
+            try {
+                \App\Documents\Profile::create($user->profile);
+            } catch (\Exception $e){
+                \Log::error("Could not update document for user id" . $user->id);
+                \Log::error($e->getMessage());
+            }
         });
     }
 

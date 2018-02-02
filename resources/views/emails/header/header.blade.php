@@ -4,7 +4,7 @@
             <tr>
                 <td align="center" style="padding:38px 0px 38px 0px">
                     <a href="https://www.tagtaste.com">
-                    <img src = "http://139.59.59.78:8081/images/emails/Logo.png" alt="tagTaste" width="166px" height="41px">
+                    <img src = "https://www.tagtaste.com/images/emails/Logo.png" alt="TagTaste" width="166px" height="41px">
                     </a>
                 </td>
             </tr>

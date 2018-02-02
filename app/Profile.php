@@ -6,12 +6,13 @@ use App\Channel\Payload;
 use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 
 class Profile extends Model
 {
-    use PushesToChannel,Notifiable;
+    use PushesToChannel,Notifiable, SoftDeletes;
 
     protected $fillable = [
         'tagline',
@@ -55,6 +56,7 @@ class Profile extends Model
         'style_hero_image',
         'otp',
         'verified_phone',
+        'onboarding_step',
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -135,6 +137,7 @@ class Profile extends Model
         'messageCount',
         'addPassword',
         'unreadNotificationCount',
+        'onboarding_step',
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
@@ -224,7 +227,28 @@ class Profile extends Model
 
     public function getNameAttribute()
     {
-        return $this->user->name;
+        try {
+            return $this->user->name;
+        } catch (\Exception $e){
+            $message = "Accessing deleted profile " . $this->id;
+            \Log::warning($message);
+            $client =  new \GuzzleHttp\Client();
+            $hook = env('SLACK_HOOK');
+            if($hook){
+                $client->request('POST', $hook,
+                    [
+                        'json' =>
+                            [
+                                "channel" => env('SLACK_CHANNEL'),
+                                "username" => "ramukaka",
+                                "icon_emoji" => ":older_man::skin-tone-3:",
+                                "text" => $message]
+                    ]);
+                
+            }
+            
+        }
+        return "Inactive User";
     }
 
     public function setDobAttribute($value)
@@ -499,8 +523,7 @@ class Profile extends Model
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
         }
-    
-
+        
         if ($count > 1000000) {
             $count = round($count / 1000000, 1) . "m";
         } elseif ($count > 1000) {
@@ -766,6 +789,19 @@ class Profile extends Model
     public function getNotificationCountAttribute()
     {
         return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+    }
+
+    public function getNotificationContent($action = null)
+    {
+        if($action && $action == 'follow') {
+            return [
+                'name' => strtolower(class_basename(self::class)),
+                'id' => $this->id,
+                'tagline' => $this->tagline,
+                'image' => $this->imageUrl,
+                'content' => null
+            ];
+        }
     }
 
     public function getMessageCountAttribute()

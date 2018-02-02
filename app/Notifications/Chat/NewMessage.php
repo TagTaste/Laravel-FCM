@@ -59,7 +59,30 @@ class NewMessage extends Notification
             ];
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
+        if(isset($chat->name)&&!empty($chat->name))
+        {
+            if(isset($this->data->message))
+            {
+                $notification = request()->user()->name ." messaged you '".$this->data->message."' on ".$chat->name." group";
+            }
+            else
+            {
+                $notification = request()->user()->name ." messaged you on ".$chat->name." group";
 
+            }
+        }
+        else{
+            if(isset($this->data->message))
+            {
+                $notification = request()->user()->name ." messaged you '".$this->data->message."'";
+            }
+            else
+            {
+                $notification = request()->user()->name ." messaged you.";
+
+            }
+        }
+        $data['notification'] = $notification;
         return $data;
     }
 }
