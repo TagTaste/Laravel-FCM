@@ -114,9 +114,11 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
+
+        $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         if($user)
         {
-            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token')]);
+            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform]);
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
