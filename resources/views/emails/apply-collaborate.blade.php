@@ -84,7 +84,7 @@
                                                                         </div>
                                                                         <div style="padding-top:8px;color: #181818;">
                                                                             <!-- message -->
-                                                                            {{--Co-founder &amp; COO @tagTaste--}}
+                                                                            {{--Co-founder &amp; COO @TagTaste--}}
                                                                         </div>
                                                                     </td>
                                                                 </tr>
