@@ -201,24 +201,4 @@ class LoginController extends Controller
         return $user;
 
     }
-
-    private function getModel(&$modelName, &$id)
-    {
-        $class = "\\App\\" . ucwords($modelName);
-        return $class::find($id);
-    }
-
-    public function getPreview(Request $request,$modelName,$modelId)
-    {
-        $sharedModel = $this->getModel($modelName, $modelId);
-
-        if (!$sharedModel) {
-            return $this->sendError("Nothing found for given Id.");
-        }
-
-        $this->model = $sharedModel->getPreviewContent();
-
-        return $this->sendResponse();
-
-    }
 }
