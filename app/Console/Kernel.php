@@ -108,6 +108,10 @@ class Kernel extends ConsoleKernel
 
         // Backup
         BackupDatabase::class,
+
+        // Add onboarding_step column to profiles table
+        \App\Console\Commands\UpdateOnboardingStep::class,
+
         \App\Console\Commands\SetInviteCode::class,
 
         // Set platform as Android
