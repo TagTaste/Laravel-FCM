@@ -526,4 +526,22 @@ class Company extends Model
         ];
     }
 
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['title'] = 'Check out '.$this->name.' on TagTaste';
+        $data['description'] = substr($this->about,0,155);
+        $data['ogTitle'] = 'Check out '.$this->name.' on TagTaste';
+        $data['ogDescription'] = substr($this->about,0,65);
+        $data['ogImage'] = $this->logo;
+        $data['cardType'] = 'summary_large_image';
+        $data['ogUrl'] = env('APP_URL').'/companies/'.$this->id;
+        if(empty($this->logo)) {
+            $data['cardType'] = 'summary';
+        }
+
+        return $data;
+
+    }
+
 }
