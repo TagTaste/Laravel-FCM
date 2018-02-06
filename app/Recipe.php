@@ -205,9 +205,9 @@ class Recipe extends Model implements Feedable, CommentNotification
         }
         $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
         $data = [];
-        $data['title'] = 'Check out this recipe by '.$profile->name. ' on TagTaste';
+        $data['title'] = $profile->name. ' has posted a recipe on TagTaste';
         $data['description'] = substr($this->name,0,155);
-        $data['ogTitle'] = 'Check out this recipe by '.$profile->name. ' on TagTaste';
+        $data['ogTitle'] = $profile->name. ' has posted a recipe on TagTaste';
         $data['ogDescription'] = substr($this->name,0,155);
         $data['ogImage'] = $showcaseImage;
         $data['cardType'] = 'summary_large_image';
