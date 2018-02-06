@@ -158,7 +158,7 @@ Artisan::command('inspire', function () {
     $when = \Carbon\Carbon::now();
 
     $count = 0;
-    $users = \DB::table('users')->whereNull('deleted_at')->where('email','ashok@tagtaste.com')->where('created_at' ,'>=','2018-02-01 10:00:00')->get();
+    $users = \DB::table('users')->whereNull('deleted_at')->where('email','ashok@tagtaste.com')->get();
     foreach ($users as $user)
     {
         $count++;
@@ -167,7 +167,7 @@ Artisan::command('inspire', function () {
         echo "Sending collab mail to " . $email . "\n";
 
         $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-        \Mail::to($email)->bcc('aman@tagtaste.com')->bcc('ashok@tagtaste.com')->send($mail);
+        \Mail::to($email)->bcc('aman@tagtaste.com')->bcc('amitabh@tagtaste.com')->send($mail);
     };
     echo "\nsent $count mails";
 
