@@ -155,33 +155,38 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollabTest",function(){
 
-    \DB::table('users')->whereIn('email', ['aman1995k@gmail.com'])->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users)
-    {
-        $users->each(function($user) {
-            $email = $user->email;
-            \Log::info("Sending collab mail to " . $email . "\n");
-//            echo "Sending collab mail to " . $email . "\n";
+    $when = \Carbon\Carbon::now();
 
-            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-            \Mail::to($email)->bcc('amitabh@tagtaste.com')->bcc('arun@tagtaste.com')->send($mail);
-        });
-    });
+    $count = 0;
+    $users = \DB::table('users')->whereNull('deleted_at')->where('email','ashok@tagtaste.com')->where('created_at' ,'>=','2018-02-01 10:00:00')->get();
+    foreach ($users as $user)
+    {
+        $count++;
+
+        $email = $user->email;
+        echo "Sending collab mail to " . $email . "\n";
+
+        $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+        \Mail::to($email)->bcc('aman@tagtaste.com')->bcc('ashok@tagtaste.com')->send($mail);
+    };
+    echo "\nsent $count mails";
+
 });
 
 \Artisan::command("sendCollab",function(){
     
-    $when = \Carbon\Carbon::createFromTime(10,00,00);
+    $when = \Carbon\Carbon::createFromTime(19,00,00);
     $count = 0;
-    \DB::table('users')->whereNull('deleted_at')->orderBy('id')->chunk(50,function ($users) use ($when,&$count)
+    $users = \DB::table('users')->whereNull('deleted_at')->where('created_at' ,'>=','2018-02-01 10:00:00')->get();
+    foreach ($users as $user)
     {
-        $users->each(function($user) use ($when,&$count) {
-            $count++;
-            $email = $user->email;
-            echo "Sending collab mail to " . $email . "\n";
+        $count++;
 
-            $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-            \Mail::to($email)->later($when,$mail);
-        });
-    });
+        $email = $user->email;
+        echo "Sending collab mail to " . $email . "\n";
+
+        $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+        \Mail::to($email)->later($when,$mail);
+    };
     echo "\nsent $count mails";
 });
