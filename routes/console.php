@@ -190,3 +190,19 @@ Artisan::command('inspire', function () {
     };
     echo "\nsent $count mails";
 });
+
+//WIP
+\Artisan::command("fixFollowers",function(){
+    \DB::table("profiles")->select('id')->whereNotNull('deleted_at')->orderBy('id')->chunk(25,function($deleted){
+        
+       
+        \DB::table("profiles")->select('id')->whereNull('deleted_at')->orderBy('id')->chunk(25,function($activeProfiles) use ($deleted){
+            
+            foreach($activeProfiles as $profile){
+               echo \Redis::srem("followers:profile:".$profile->id,$deleted->pluck('id')->toArray());
+            }
+            
+        });
+        
+    });
+});

@@ -96,6 +96,7 @@ class NotificationController extends Controller
         $userId = $request->user()->id;
         $profile = \App\Notify\Profile::where('user_id',$userId)->first();
         $this->model =  $profile->notifications()->where('notifiable_id',$profile->id)
+            ->whereNull('read_at')
             ->update(['read_at' => Carbon::now()]);
         return $this->sendResponse();
     }
