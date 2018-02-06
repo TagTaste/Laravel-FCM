@@ -196,10 +196,10 @@ class Job extends Model implements Feedable
     {
         $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
         $data = [];
-        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
-        $data['description'] = substr($this->title,0,155);
-        $data['ogTitle'] = 'Shared job on Tagtaste';
-        $data['ogDescription'] = substr($this->description,0,65);
+        $data['title'] = $profile->name. ' has opened a job opportunity for '.substr($this->title,0,65);
+        $data['description'] = substr($this->description,0,155);
+        $data['ogTitle'] = $profile->name. ' has opened a job opportunity for '.substr($this->title,0,65);
+        $data['ogDescription'] = substr($this->description,0,155);
         $data['ogImage'] = null;
         $data['cardType'] = 'summary';
         $data['ogUrl'] = env('APP_URL').'/jobs/'.$this->id;
