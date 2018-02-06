@@ -187,7 +187,8 @@ class Shoutout extends Model implements Feedable
         $data['ogDescription'] = substr($content,0,65);
         $data['ogImage'] = null;
         $data['cardType'] = 'summary';
-        $data['ogUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
 
         return $data;
 
