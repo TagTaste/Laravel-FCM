@@ -178,15 +178,8 @@ class Shoutout extends Model implements Feedable
 
     public function getPreviewContent()
     {
-//        $id = isset($this->company_id) ? $this->company_id : $this->profile_id;
-        if(isset($this->company_id)) {
-            $profile = \Redis::get('company:small:'.$this->company_id);
-            $profile = json_decode($profile);
-        } else {
-            $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
-        }
-
-
+        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
+        $profile = json_decode($profile);
         $content = $this->getContent($this->content);
         $data = [];
         $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
