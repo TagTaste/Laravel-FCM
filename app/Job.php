@@ -194,7 +194,8 @@ class Job extends Model implements Feedable
 
     public function getPreviewContent()
     {
-        $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
+        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
+        $profile = json_decode($profile);
         $data = [];
         $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
         $data['description'] = substr($this->title,0,155);
