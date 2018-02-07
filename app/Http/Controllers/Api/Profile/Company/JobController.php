@@ -197,7 +197,7 @@ class JobController extends Controller
     
     public function apply(Request $request, $profileId, $companyId, $id)
     {
-        $job = \App\Job::where('company_id',$companyId)->whereNull('deleted_at')->where('id',$id)->first();
+        $job = \App\Job::whereNull('deleted_at')->where('id',$id)->first();
     
         if (!$job) {
             return $this->sendError("Job not found.");
