@@ -23,7 +23,7 @@ class Job extends Share
 
     public function getMetaFor($profileId){
         $meta = [];
-
+        $meta = (object) $meta;
         return $meta;
     }
     
