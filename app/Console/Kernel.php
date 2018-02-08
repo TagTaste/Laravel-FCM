@@ -20,6 +20,7 @@ use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
+use App\Console\Commands\RemoveNullFcmTokens;
 use App\Console\Commands\RemoveSpecialCharsHandle;
 use App\Console\Commands\SetPlatformAndroid;
 use Illuminate\Console\Scheduling\Schedule;
@@ -116,6 +117,9 @@ class Kernel extends ConsoleKernel
 
         // Set platform as Android
         SetPlatformAndroid::class,
+
+        // Remove null fcm tokens
+        RemoveNullFcmTokens::class,
 
     ];
 

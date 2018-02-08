@@ -8,6 +8,7 @@ use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
 use App\Traits\CachedPayload;
 use App\Traits\GetTags;
+use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model implements Feedable
 {
-    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags;
+    use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent;
     
     use IdentifiesOwner, CachedPayload;
     
@@ -220,6 +221,24 @@ class Photo extends Model implements Feedable
             $value = ['text'=>$value,'profiles'=>$profiles];
         }
         return $value;
+    }
+
+    public function getPreviewContent()
+    {
+        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
+        $profile = json_decode($profile);
+        $data = [];
+        $content = $this->getContent($this->caption);
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($content,0,155);
+        $data['ogTitle'] = 'Shared photo on Tagtaste';
+        $data['ogDescription'] = substr($content,0,65);
+        $data['ogImage'] = $this->photoUrl;
+        $data['cardType'] = 'summary_large_image';
+        $data['ogUrl'] = env('APP_URL').'/feed/view/photo/'.$this->id;
+
+        return $data;
+
     }
    
 }

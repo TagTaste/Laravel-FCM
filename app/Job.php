@@ -202,5 +202,22 @@ class Job extends Model implements Feedable
     {
         return \Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
     }
+
+    public function getPreviewContent()
+    {
+        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
+        $profile = json_decode($profile);
+        $data = [];
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($this->title,0,155);
+        $data['ogTitle'] = 'Shared job on Tagtaste';
+        $data['ogDescription'] = substr($this->description,0,65);
+        $data['ogImage'] = null;
+        $data['cardType'] = 'summary';
+        $data['ogUrl'] = env('APP_URL').'/jobs/'.$this->id;
+
+        return $data;
+
+    }
     
 }
