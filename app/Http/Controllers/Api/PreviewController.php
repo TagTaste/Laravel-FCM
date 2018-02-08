@@ -52,11 +52,10 @@ class PreviewController extends Controller
                     '$twitter_image_url' => $data['ogImage'],
                     '$twitter_site' => '@tagtaste',
 
-                    '$custom_meta_tags' => json_encode([
-                        'typeID' => $modelId,
-                        'type' => ucwords($modelName),
-                        'profileID' => $data['owner'],
-                    ]),
+                    'typeID' => $modelId,
+                    'type' => ucwords($modelName),
+                    'profileID' => $data['owner'],
+
                 ],
             ],
         ]);
