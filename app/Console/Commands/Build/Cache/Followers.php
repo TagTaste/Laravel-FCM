@@ -38,8 +38,10 @@ class Followers extends Command
      */
     public function handle()
     {
-        Subscriber::whereNull('deleted_at')->chunk(200,function($subscribers){
-            
+        Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')->chunk(200,function($subscribers){
+            echo "Count " . $subscribers->count() . "\n";
             foreach($subscribers as $model){
                 $channel = explode(".",$model->channel_name);
                 $channelOwnerProfileId = last($channel);
@@ -49,6 +51,7 @@ class Followers extends Command
                 $key = "followers:";
                 $key .= $channel[0] === 'company' ? 'company:' : 'profile:';
                 $key .= $channelOwnerProfileId;
+                echo 'updating ' . $key . '\n';
                 \Redis::sAdd($key, $model->profile_id);
             }
         });
