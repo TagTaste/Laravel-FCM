@@ -93,7 +93,12 @@ class Job extends Model implements Feedable
     }
     public function getHasAppliedAttribute($profileId = null)
     {
-        return $this->applications()->where('profile_id', !is_null($profileId) ? $profileId : request()->user()->profile->id)->exists();
+        try {
+            return $this->applications()->where('profile_id', !is_null($profileId) ? $profileId : request()->user()->profile->id)->exists();
+        } catch (\Exception $e){
+            \Log::warning("User not logged in. " . $e->getFile() . " " . $e->getLine());
+            \Log::info($e->getMessage());
+        }
     }
     
     public function applications()
