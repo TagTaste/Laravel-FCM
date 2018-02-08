@@ -49,7 +49,7 @@ class Following extends Command
                     continue;
                 }
                 $key = "following:profile:" . $model->profile_id;
-                echo 'updating ' . $key . '\n';
+                echo 'updating ' . $key . "\n";
                 \Redis::sAdd($key, $channelOwnerProfileId);
             }
         });
@@ -71,7 +71,10 @@ class Following extends Command
                     //adding profile id check for company would not make sense.
                     //company.public.3 => company id 3
                     // company id != profile id
-                    \Redis::sAdd("following:profile:" . $model->profile_id, "company.".$channelOwnerProfileId);
+                    $key = "following:profile:" . $model->profile_id;
+                    echo 'updating ' . $key . "\n";
+    
+                    \Redis::sAdd($key, "company.".$channelOwnerProfileId);
                 }
             });
         });
