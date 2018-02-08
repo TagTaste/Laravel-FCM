@@ -38,9 +38,7 @@ class Following extends Command
      */
     public function handle()
     {
-        Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('subscribers.deleted_at')->where("channel_name","like","public.%")->chunk(200,function($subscribers){
+        Subscriber::where("channel_name","like","public.%")->chunk(200,function($subscribers){
             
             foreach($subscribers as $model){
                 $channelOwnerProfileId = explode(".",$model->channel_name);
@@ -50,7 +48,11 @@ class Following extends Command
                 }
                 $key = "following:profile:" . $model->profile_id;
                 echo 'updating ' . $key . "\n";
-                \Redis::sAdd($key, $channelOwnerProfileId);
+                if(!is_null($model->deleted_at)){
+                    \Redis::sAdd($key, $channelOwnerProfileId);
+                } else {
+                    \Redis::sRem($key,$channelOwnerProfileId);
+                }
             }
         });
     
@@ -73,8 +75,12 @@ class Following extends Command
                     // company id != profile id
                     $key = "following:profile:" . $model->profile_id;
                     echo 'updating ' . $key . "\n";
-    
-                    \Redis::sAdd($key, "company.".$channelOwnerProfileId);
+                    if(!is_null($model->deleted_at)){
+                        \Redis::sAdd($key, "company.".$channelOwnerProfileId);
+                    } else {
+                        \Redis::sRem($key, "company.".$channelOwnerProfileId);
+                    }
+                    
                 }
             });
         });
