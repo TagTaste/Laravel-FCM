@@ -34,6 +34,12 @@ class Job extends Model implements Feedable
     
     protected $appends = ['type','job_id','applicationCount','hasApplied'];
     
+    protected $casts = [
+        'type_id' => 'integer',
+        'salary_min' => 'integer',
+        'salary_max' => 'integer',
+        'privacy_id' => 'integer'
+    ];
     
     public static function boot()
     {
@@ -87,7 +93,12 @@ class Job extends Model implements Feedable
     }
     public function getHasAppliedAttribute($profileId = null)
     {
-        return $this->applications()->where('profile_id', !is_null($profileId) ? $profileId : request()->user()->profile->id)->exists();
+        try {
+            return $this->applications()->where('profile_id', !is_null($profileId) ? $profileId : request()->user()->profile->id)->exists();
+        } catch (\Exception $e){
+            \Log::warning("User not logged in. " . $e->getFile() . " " . $e->getLine());
+            \Log::info($e->getMessage());
+        }
     }
     
     public function applications()
