@@ -25,4 +25,22 @@ class PreviewController extends Controller
         return $this->sendResponse();
         
     }
+
+    private function getDeeplinkURL($data)
+    {
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('POST', 'https://api.branch.io/v1/url', [
+            'json' => [
+                "branch_key" => env('BRANCH_KEY'),
+
+                "data" => [
+                    '$canonical_identifier' => 'content/123',
+                    '$og_title' => $data['ogTitle'],
+                    '$og_description' => $data['ogDescription'],
+                    '$og_image_url' => $data[''],
+                    '$desktop_url' => 'https://play.google.com/store/apps/details?id=com.tagtaste.android',
+                ],
+            ],
+        ]);
+    }
 }
