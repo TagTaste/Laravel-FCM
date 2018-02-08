@@ -184,11 +184,12 @@ class Shoutout extends Model implements Feedable
         $data = [];
         $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
         $data['description'] = substr($content,0,155);
-        $data['ogTitle'] = 'Shared post on Tagtaste';
+        $data['ogTitle'] = 'Check out this post by '.$profile->name. ' on TagTaste';
         $data['ogDescription'] = substr($content,0,65);
         $data['ogImage'] = null;
         $data['cardType'] = 'summary';
-        $data['ogUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
 
         return $data;
 

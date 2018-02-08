@@ -384,14 +384,15 @@ class Collaborate extends Model implements Feedable
         $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
         $profile = json_decode($profile);
         $data = [];
-        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['title'] = $profile->name. ' is looking for '.substr($this->looking_for,0,65);
         $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = 'Shared collaboration on Tagtaste';
-        $data['ogDescription'] = substr($this->looking_for,0,65);
+        $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->looking_for,0,65);
+        $data['ogDescription'] = substr($this->description,0,155);
         $images = $this->getImagesAttribute();
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0]:null;
-        $data['ogUrl'] = env('APP_URL').'/collaborate/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/collaborate/'.$this->id;
 
         return $data;
 
