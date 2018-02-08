@@ -114,9 +114,17 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
+
+        $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
+        $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
+        if($tokenExists)
+        {
+            $this->model = 1;
+            return $this->sendResponse();
+        }
         if($user)
         {
-            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token')]);
+            $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform]);
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
@@ -147,7 +155,7 @@ class UserController extends Controller
     public function logout(Request $request)
     {
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
-            ->where('profile_id',$request->user()->profile->id)->update(['fcm_token'=>null]);
+            ->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
     }
 

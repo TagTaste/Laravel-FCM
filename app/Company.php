@@ -163,7 +163,12 @@ class Company extends Model
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
     }
-    
+
+    public static function getFromCache($id)
+    {
+        return \Redis::get('company:small:' . $id);
+    }
+
     public function removeFromCache()
     {
         \Redis::del("company:small:" . $this->id);

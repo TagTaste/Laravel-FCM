@@ -379,5 +379,23 @@ class Collaborate extends Model implements Feedable
         return !is_null($value) ? \Storage::url($value) : null;
     }
 
+    public function getPreviewContent()
+    {
+        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
+        $profile = json_decode($profile);
+        $data = [];
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($this->description,0,155);
+        $data['ogTitle'] = 'Shared collaboration on Tagtaste';
+        $data['ogDescription'] = substr($this->looking_for,0,65);
+        $images = $this->getImagesAttribute();
+        $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
+        $data['ogImage'] = isset($images[0]) ? $images[0]:null;
+        $data['ogUrl'] = env('APP_URL').'/collaborate/'.$this->id;
+
+        return $data;
+
+    }
+
 
 }

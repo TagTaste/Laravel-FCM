@@ -6,13 +6,14 @@ use App\Channel\Payload;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\GetTags;
+use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shoutout extends Model implements Feedable
 {
-    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags;
+    use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent;
     
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview'];
     
@@ -173,5 +174,23 @@ class Shoutout extends Model implements Feedable
             \Log::error($e->getMessage());    
         }
         return [];
+    }
+
+    public function getPreviewContent()
+    {
+        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
+        $profile = json_decode($profile);
+        $content = $this->getContent($this->content);
+        $data = [];
+        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
+        $data['description'] = substr($content,0,155);
+        $data['ogTitle'] = 'Shared post on Tagtaste';
+        $data['ogDescription'] = substr($content,0,65);
+        $data['ogImage'] = null;
+        $data['cardType'] = 'summary';
+        $data['ogUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
+
+        return $data;
+
     }
 }

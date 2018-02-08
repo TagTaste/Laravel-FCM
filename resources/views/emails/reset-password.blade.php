@@ -11,7 +11,7 @@
                                 <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse">
                                     <tr>
                                         <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%" style="width=100%!important">
-                                           <img src="http://139.59.59.78:8081/images/emails/lock.png" width="67px" height="67px"/>
+                                           <img src="https://www.tagtaste.com/images/emails/lock.png" width="67px" height="67px"/>
                                         </td>
                                     </tr>
                                     <tr>
