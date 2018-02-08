@@ -186,7 +186,7 @@ class Shoutout extends Model implements Feedable
         $data['owner'] = $profile->id;
         $data['title'] = $profile->name.' has posted on TagTaste';
         $data['description'] = substr($content,0,155);
-        $data['ogTitle'] = $profile->name. 'has posted on TagTaste';
+        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
         $data['ogDescription'] = substr($content,0,65);
         $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-big.png';
         $data['cardType'] = 'summary';
