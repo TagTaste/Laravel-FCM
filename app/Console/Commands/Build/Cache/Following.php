@@ -49,9 +49,11 @@ class Following extends Command
                 $key = "following:profile:" . $model->profile_id;
                 echo 'updating ' . $key . "\n";
                 if(!is_null($model->deleted_at)){
-                    \Redis::sAdd($key, $channelOwnerProfileId);
-                } else {
                     \Redis::sRem($key,$channelOwnerProfileId);
+    
+                } else {
+                    \Redis::sAdd($key, $channelOwnerProfileId);
+    
                 }
             }
         });
@@ -76,9 +78,9 @@ class Following extends Command
                     $key = "following:profile:" . $model->profile_id;
                     echo 'updating ' . $key . "\n";
                     if(!is_null($model->deleted_at)){
-                        \Redis::sAdd($key, "company.".$channelOwnerProfileId);
-                    } else {
                         \Redis::sRem($key, "company.".$channelOwnerProfileId);
+                    } else {
+                        \Redis::sAdd($key, "company.".$channelOwnerProfileId);
                     }
                     
                 }
