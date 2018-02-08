@@ -7,6 +7,25 @@ use App\Shareable\Share;
 
 class Job extends Share
 {
+    protected $with = ['job'];
+
+    public static function boot()
+    {
+        static::deleted(function($model){
+            $model->payload->delete();
+        });
+    }
+
+    public function job()
+    {
+        return $this->belongsTo(\App\Job::class,'job_id');
+    }
+
+    public function getMetaFor($profileId){
+        $meta = [];
+
+        return $meta;
+    }
     
     public function getNotificationContent()
     {
