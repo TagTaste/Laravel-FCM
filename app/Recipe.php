@@ -194,7 +194,7 @@ class Recipe extends Model implements Feedable, CommentNotification
 
     public function getPreviewContent()
     {
-        $showcaseImage = null;
+        $showcaseImage = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-recipe-big.png'; //fallback
         foreach($this->images as $image)
         {
             if($image->show_case)
@@ -205,6 +205,8 @@ class Recipe extends Model implements Feedable, CommentNotification
         }
         $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
         $data = [];
+        $data['modelId'] = $this->id;
+        $data['owner'] = $profile->id;
         $data['title'] = $profile->name. ' has posted a recipe on TagTaste';
         $data['description'] = substr($this->name,0,155);
         $data['ogTitle'] = $profile->name. ' has posted a recipe on TagTaste';
