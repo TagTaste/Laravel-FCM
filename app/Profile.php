@@ -839,7 +839,7 @@ class Profile extends Model
         $data['title'] = 'Check out '.$this->name.'\'s profile on TagTaste';
         $data['description'] = substr($this->tagline,0,155);
         $data['ogTitle'] = 'Check out '.$this->name.'\'s profile on TagTaste';
-        $data['ogDescription'] = substr($this->tagline,0,65);
+        $data['ogDescription'] = substr($this->tagline,0,155);
         $data['ogImage'] = $this->imageUrl;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;

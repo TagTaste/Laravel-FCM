@@ -232,9 +232,9 @@ class Photo extends Model implements Feedable
         $data['owner'] = $profile->id;
         $content = $this->getContent($this->caption);
         $data['title'] = $profile->name. ' has posted on TagTaste';
-        $data['description'] = substr($content,0,155);
+        $data['description'] = substr($content,0,150);
         $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
-        $data['ogDescription'] = substr($content,0,65);
+        $data['ogDescription'] = substr($content,0,150);
         $data['ogImage'] = $this->photoUrl;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/preview/photo/'.$this->id;
