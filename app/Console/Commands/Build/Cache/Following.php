@@ -41,16 +41,24 @@ class Following extends Command
         Subscriber::whereNull('deleted_at')->where("channel_name","like","public.%")->chunk(200,function($subscribers){
             
             foreach($subscribers as $model){
+                if(str_contains($model->channel_name,'company')){
+                    continue;
+                }
                 $channelOwnerProfileId = explode(".",$model->channel_name);
                 $channelOwnerProfileId = last($channelOwnerProfileId);
                 if($model->profile_id == $channelOwnerProfileId){
                     continue;
                 }
-                \Redis::sAdd("following:profile:" . $model->profile_id, $channelOwnerProfileId);
+                $key = "following:profile:" . $model->profile_id;
+                echo 'updating ' . $key . "\n";
+                \Redis::sAdd($key, $channelOwnerProfileId);
             }
         });
     
-        \DB::table("companies")->select("id")->whereNull("deleted_at")->orderBy('id')->chunk(200,function($companies){
+        \DB::table("companies")->join("users",'users.id','=','companies.user_id')
+            ->select("companies.id")
+            ->whereNull('users.deleted_at')
+            ->whereNull("companies.deleted_at")->orderBy('id')->chunk(200,function($companies){
             $channelNames = [];
             foreach($companies->pluck('id')->toArray() as $id){
                 $channelNames[] = "company.public." . $id;
@@ -64,7 +72,10 @@ class Following extends Command
                     //adding profile id check for company would not make sense.
                     //company.public.3 => company id 3
                     // company id != profile id
-                    \Redis::sAdd("following:profile:" . $model->profile_id, "company.".$channelOwnerProfileId);
+                    $key = "following:profile:" . $model->profile_id;
+                    echo 'updating ' . $key . "\n";
+    
+                    \Redis::sAdd($key, "company.".$channelOwnerProfileId);
                 }
             });
         });

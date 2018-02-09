@@ -191,18 +191,16 @@ Artisan::command('inspire', function () {
     echo "\nsent $count mails";
 });
 
-//WIP
 \Artisan::command("fixFollowers",function(){
-    \DB::table("profiles")->select('id')->whereNotNull('deleted_at')->orderBy('id')->chunk(25,function($deleted){
-        
-       
-        \DB::table("profiles")->select('id')->whereNull('deleted_at')->orderBy('id')->chunk(25,function($activeProfiles) use ($deleted){
-            
-            foreach($activeProfiles as $profile){
-               echo \Redis::srem("followers:profile:".$profile->id,$deleted->pluck('id')->toArray());
-            }
-            
-        });
-        
+    $now = \Carbon\Carbon::now()->toDateTimeString();
+    \DB::table("channels")->orderBy('channels.id')->join('profiles','profiles.id','=','channels.profile_id')
+        ->whereNotNull("profiles.deleted_at")
+        ->chunk(25,function($deletedProfileChannels) use (&$now) {
+            $deletedProfileChannels->each(function($channel) use (&$now) {
+                echo $channel->name . " ";
+                echo \DB::table("subscribers")->where("channel_name",'like',$channel->name)->update(['deleted_at'=>$now]) . " ";
+                echo \DB::table('subscribers')->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . " ";
+                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
+            });
     });
 });
