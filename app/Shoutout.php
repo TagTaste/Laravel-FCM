@@ -160,6 +160,7 @@ class Shoutout extends Model implements Feedable
 
     public function getPreviewAttribute($value)
     {
+        $preview = [];
         try {
             $preview = json_decode($value,true);
             if(isset($preview['image']))
@@ -173,7 +174,8 @@ class Shoutout extends Model implements Feedable
             \Log::error($e->getLine());
             \Log::error($e->getMessage());    
         }
-        return null;
+        $preview = (object)$preview;
+        return $preview;
     }
 
     public function getPreviewContent()
