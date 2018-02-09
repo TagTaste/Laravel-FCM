@@ -21,8 +21,10 @@ class PreviewController extends Controller
         }
 
         $data = $sharedModel->getPreviewContent();
+
+        $data['deeplink'] = $this->getDeeplinkURL($data, $modelName,$modelId);
         
-        $this->model = $this->getDeeplinkURL($data, $modelName,$modelId);
+        $this->model = $data;
         
         return $this->sendResponse();
         
