@@ -159,3 +159,7 @@ Route::group(['middleware'=>'auth'],function(){
 
 
 });
+
+Route::get("built",function(){
+    echo "Yo!";
+});
