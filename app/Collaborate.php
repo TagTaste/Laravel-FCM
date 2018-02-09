@@ -386,9 +386,9 @@ class Collaborate extends Model implements Feedable
         $data = [];
         $data['modelId'] = $this->id;
         $data['owner'] = $profile->id;
-        $data['title'] = $profile->name. ' is looking for '.substr($this->looking_for,0,65);
+        $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);
         $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->looking_for,0,65);
+        $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->title,0,65);
         $data['ogDescription'] = substr($this->description,0,155);
         $images = $this->getImagesAttribute();
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
