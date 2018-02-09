@@ -4,6 +4,7 @@
 namespace App\Notifications\Actions;
 
 use App\Notifications\Action;
+use App\FCMPush;
 
 class Like extends Action
 {
