@@ -228,14 +228,17 @@ class Photo extends Model implements Feedable
         $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
         $profile = json_decode($profile);
         $data = [];
+        $data['modelId'] = $this->id;
+        $data['owner'] = $profile->id;
         $content = $this->getContent($this->caption);
-        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
-        $data['description'] = substr($content,0,155);
-        $data['ogTitle'] = 'Shared photo on Tagtaste';
-        $data['ogDescription'] = substr($content,0,65);
+        $data['title'] = $profile->name. ' has posted on TagTaste';
+        $data['description'] = substr($content,0,150);
+        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
+        $data['ogDescription'] = substr($content,0,150);
         $data['ogImage'] = $this->photoUrl;
         $data['cardType'] = 'summary_large_image';
-        $data['ogUrl'] = env('APP_URL').'/feed/view/photo/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/preview/photo/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/feed/view/photo/'.$this->id;
 
         return $data;
 

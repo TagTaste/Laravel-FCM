@@ -208,13 +208,16 @@ class Job extends Model implements Feedable
         $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
         $profile = json_decode($profile);
         $data = [];
-        $data['title'] = 'Check out this post by '.$profile->name. ' on TagTaste';
-        $data['description'] = substr($this->title,0,155);
-        $data['ogTitle'] = 'Shared job on Tagtaste';
-        $data['ogDescription'] = substr($this->description,0,65);
-        $data['ogImage'] = null;
+        $data['modelId'] = $this->id;
+        $data['owner'] = $profile->id;
+        $data['title'] = $profile->name. ' has opened a job opportunity for '.substr($this->title,0,65);
+        $data['description'] = substr($this->description,0,155);
+        $data['ogTitle'] = $profile->name. ' has opened a job opportunity for '.substr($this->title,0,65);
+        $data['ogDescription'] = substr($this->description,0,155);
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-job-big.png';
         $data['cardType'] = 'summary';
-        $data['ogUrl'] = env('APP_URL').'/jobs/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/preview/jobs/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/jobs/'.$this->id;
 
         return $data;
 
