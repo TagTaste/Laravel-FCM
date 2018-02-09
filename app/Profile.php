@@ -831,4 +831,25 @@ class Profile extends Model
         return \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',request()->user()->profile->id)->count();
     }
 
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['owner'] = $this->id;
+        $data['title'] = 'Check out '.$this->name.'\'s profile on TagTaste';
+        $data['description'] = substr($this->tagline,0,155);
+        $data['ogTitle'] = 'Check out '.$this->name.'\'s profile on TagTaste';
+        $data['ogDescription'] = substr($this->tagline,0,155);
+        $data['ogImage'] = $this->imageUrl;
+        $data['cardType'] = 'summary_large_image';
+        $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;
+        $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;
+        if(empty($this->imageUrl)) {
+            $data['cardType'] = 'summary';
+        }
+
+        return $data;
+
+    }
+
 }

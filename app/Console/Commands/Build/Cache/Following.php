@@ -38,11 +38,12 @@ class Following extends Command
      */
     public function handle()
     {
-        Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('subscribers.deleted_at')->where("channel_name","like","public.%")->chunk(200,function($subscribers){
+        Subscriber::whereNull('deleted_at')->where("channel_name","like","public.%")->chunk(200,function($subscribers){
             
             foreach($subscribers as $model){
+                if(str_contains($model->channel_name,'company')){
+                    continue;
+                }
                 $channelOwnerProfileId = explode(".",$model->channel_name);
                 $channelOwnerProfileId = last($channelOwnerProfileId);
                 if($model->profile_id == $channelOwnerProfileId){
