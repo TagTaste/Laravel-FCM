@@ -13,12 +13,13 @@ class ChatLimit extends Model
     
     public static function checkLimit(&$profileId)
     {
+
         $currentLimit = ChatLimit::where('profile_id',$profileId)->first();
         
         if(!$currentLimit){
             $currentLimit = static::createLimit($profileId,self::$MAX,self::$REMAINING);
         }
-        
+
         //for admins, marketing people
         if($currentLimit->max == null){
             return true;
