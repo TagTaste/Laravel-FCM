@@ -21,10 +21,22 @@ class PreviewController extends Controller
         }
 
         $data = $sharedModel->getPreviewContent();
+        $deeplink = $this->getDeeplinkURL($data, $modelName,$modelId);
 
-        $data['deeplink'] = $this->getDeeplinkURL($data, $modelName,$modelId);
-        
-        $this->model = $data;
+        $res = [
+            'title' => $data['ogTitle'],
+            'image' => $data['ogImage'],
+            'description' => $data['ogDescription'],
+            'type' => 'article',
+            'url' => $data['redirectUrl'],
+            'site_name' => 'TagTaste',
+            'deeplink' => $deeplink->url,
+            'modelID' => $modelId,
+            'model' => ucwords($modelName),
+
+        ];
+
+        $this->model = $res;
         
         return $this->sendResponse();
         
