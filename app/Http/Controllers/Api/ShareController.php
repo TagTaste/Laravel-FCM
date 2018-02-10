@@ -102,8 +102,20 @@ class ShareController extends Controller
 
         $class = "\\App\\Shareable\\" . ucwords($modelName);
 
+        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
+
+        if (!$modelId) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+
         $share = new $class();
         $exists = $share->where('id', $id)->whereNull('deleted_at')->first();
+
+        $sharedModel = $this->getModel($modelName, $modelId);
+
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
 
         if (!$exists) {
             return $this->sendError("Nothing found for given shared model.");
@@ -111,11 +123,6 @@ class ShareController extends Controller
         $this->model['shared'] = $exists;
         $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $exists->profile_id));
         $this->model['type'] = $modelName;
-        $sharedModel = $this->getModel($modelName, $id);
-
-        if (!$sharedModel) {
-            return $this->sendError("Nothing found for given Id.");
-        }
         if($sharedModel->company_id){
             $this->model['company'] = json_decode(\Redis::get('company:small:' . $sharedModel->company_id));
         } elseif($sharedModel->profile_id){
