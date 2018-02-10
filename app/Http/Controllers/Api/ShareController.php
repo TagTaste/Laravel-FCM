@@ -21,12 +21,6 @@ class ShareController extends Controller
         $class = "\\App\\" . ucwords($modelName);
         return $class::find($id);
     }
-
-    private function getShareModel(&$modelName, &$id)
-    {
-        $class = "\\App\\Shareable\\" . ucwords($modelName);
-        return $class::find($id);
-    }
     
     public function store(Request $request, $modelName, $id)
     {
@@ -104,18 +98,12 @@ class ShareController extends Controller
         $this->setColumn($modelName);
 
 
-        $sharedModel = $this->getModel($modelName, $id);
-
-        if (!$sharedModel) {
-            return $this->sendError("Nothing found for given Id.");
-        }
-
         $loggedInProfileId = $request->user()->profile->id;
 
         $class = "\\App\\Shareable\\" . ucwords($modelName);
 
         $share = new $class();
-        $exists = $share->where('id', $sharedModel->id)->whereNull('deleted_at')->first();
+        $exists = $share->where('id', $id)->whereNull('deleted_at')->first();
 
         if (!$exists) {
             return $this->sendError("Nothing found for given shared model.");
@@ -123,6 +111,11 @@ class ShareController extends Controller
         $this->model['shared'] = $exists;
         $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $exists->profile_id));
         $this->model['type'] = $modelName;
+        $sharedModel = $this->getModel($modelName, $id);
+
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
         if($sharedModel->company_id){
             $this->model['company'] = json_decode(\Redis::get('company:small:' . $sharedModel->company_id));
         } elseif($sharedModel->profile_id){

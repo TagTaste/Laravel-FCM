@@ -10,6 +10,8 @@ class Photo extends Share
 
     protected $with = ['photo'];
 
+    protected $visible = ['photo_id'];
+
     public static function boot()
     {
         static::deleted(function($model){
