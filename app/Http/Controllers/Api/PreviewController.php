@@ -73,7 +73,7 @@ class PreviewController extends Controller
                 ],
             ],
         ]);
-        \Log::info('Deeplink: '.$res->getBody());
+//        \Log::info('Deeplink: '.$res->getBody());
         return json_decode((string)$res->getBody());
     }
 }

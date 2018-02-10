@@ -193,6 +193,16 @@ class Shoutout extends Model implements Feedable
         $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
 
+        // Fetching ogImage from redis for URLs in Shoutout
+        $urlRegex = '/(https?:\/\/[^\s]+)/';
+        preg_match($urlRegex,$content,$matches);
+        if(isset($matches[0])) {
+            $preview = \App\Preview::getCached($matches[0]);
+            if(!is_null($preview) && !empty($preview->image)) {
+                $data['ogImage'] = $preview->image;
+            }
+        }
+
         return $data;
 
     }

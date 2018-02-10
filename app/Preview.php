@@ -27,6 +27,14 @@ class Preview
         return json_decode(\Redis::get($key));
        
     }
+
+    public static function getCached($url) {
+        $key = "preview:" . sha1($url);
+        if(!\Redis::exists($key)){
+            return null;
+        }
+        return json_decode(\Redis::get($key));
+    }
     
     private function downloadHTMl(&$url)
     {
