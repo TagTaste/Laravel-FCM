@@ -115,7 +115,7 @@ class ShareController extends Controller
             return $this->sendError("Nothing found for given shared model.");
         }
         $this->model['shared'] = $exists;
-        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $loggedInProfileId));
+        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $exists->profile_id));
         $this->model['type'] = $modelName;
         if($sharedModel->company_id){
             $this->model['company'] = json_decode(\Redis::get('company:small:' . $sharedModel->company_id));
