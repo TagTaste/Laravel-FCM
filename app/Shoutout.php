@@ -187,11 +187,21 @@ class Shoutout extends Model implements Feedable
         $data['title'] = $profile->name.' has posted on TagTaste';
         $data['description'] = substr($content,0,155);
         $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
-        $data['ogDescription'] = substr($content,0,65);
-        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-big.png';
+        $data['ogDescription'] = substr($content,0,155);
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
         $data['cardType'] = 'summary';
         $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
+
+        // Fetching ogImage from redis for URLs in Shoutout
+        $urlRegex = '/(https?:\/\/[^\s]+)/';
+        preg_match($urlRegex,$content,$matches);
+        if(isset($matches[0])) {
+            $preview = \App\Preview::getCached($matches[0]);
+            if(!is_null($preview) && !empty($preview->image)) {
+                $data['ogImage'] = $preview->image;
+            }
+        }
 
         return $data;
 
