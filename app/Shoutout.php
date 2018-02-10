@@ -188,7 +188,7 @@ class Shoutout extends Model implements Feedable
         $data['description'] = substr($content,0,155);
         $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
         $data['ogDescription'] = substr($content,0,155);
-        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-big.png';
+        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
         $data['cardType'] = 'summary';
         $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
