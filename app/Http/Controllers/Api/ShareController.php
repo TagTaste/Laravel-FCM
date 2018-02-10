@@ -21,6 +21,12 @@ class ShareController extends Controller
         $class = "\\App\\" . ucwords($modelName);
         return $class::find($id);
     }
+
+    private function getShareModel(&$modelName, &$id)
+    {
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+        return $class::find($id);
+    }
     
     public function store(Request $request, $modelName, $id)
     {
