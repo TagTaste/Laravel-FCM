@@ -21,12 +21,6 @@ class ShareController extends Controller
         $class = "\\App\\" . ucwords($modelName);
         return $class::find($id);
     }
-
-    private function getShareModel(&$modelName, &$id)
-    {
-        $class = "\\App\\Shareable\\" . ucwords($modelName);
-        return $class::find($id);
-    }
     
     public function store(Request $request, $modelName, $id)
     {
@@ -104,18 +98,24 @@ class ShareController extends Controller
         $this->setColumn($modelName);
 
 
-        $sharedModel = $this->getModel($modelName, $id);
-
-        if (!$sharedModel) {
-            return $this->sendError("Nothing found for given Id.");
-        }
-
         $loggedInProfileId = $request->user()->profile->id;
 
         $class = "\\App\\Shareable\\" . ucwords($modelName);
 
+        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
+
+        if (!$modelId) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+
         $share = new $class();
-        $exists = $share->where('id', $sharedModel->id)->whereNull('deleted_at')->first();
+        $exists = $share->where('id', $id)->whereNull('deleted_at')->first();
+
+        $sharedModel = $this->getModel($modelName, $modelId);
+
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
 
         if (!$exists) {
             return $this->sendError("Nothing found for given shared model.");
