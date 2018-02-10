@@ -90,7 +90,7 @@ class ShareController extends Controller
         return $this->sendResponse();
     }
 
-    public function show(Request $request, $modelName, $id)
+    public function show(Request $request, $modelName, $id,$modelId)
     {
         //photo
         $this->model = [];
@@ -101,12 +101,6 @@ class ShareController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
 
         $class = "\\App\\Shareable\\" . ucwords($modelName);
-
-        $modelId = $request->has('model_id') ? $request->input('model_id') : null;
-
-        if (!$modelId) {
-            return $this->sendError("Nothing found for given Id.");
-        }
 
         $share = new $class();
         $exists = $share->where('id', $id)->whereNull('deleted_at')->first();
