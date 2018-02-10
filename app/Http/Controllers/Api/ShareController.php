@@ -115,7 +115,7 @@ class ShareController extends Controller
         $class = "\\App\\Shareable\\" . ucwords($modelName);
 
         $share = new $class();
-        $exists = $share->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
+        $exists = $share->where('id', $sharedModel->id)->whereNull('deleted_at')->first();
 
         if (!$exists) {
             return $this->sendError("Nothing found for given shared model.");
