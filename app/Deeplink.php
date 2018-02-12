@@ -21,13 +21,13 @@ class Deeplink
         if(!$this->model)
             \Log::error("Model: $modelName does not exists");
         $this->modelId = $modelId;
-        $this->modelName = ucwords($modelName);
+        $this->modelName = $modelName;
     }
 
 
     public static function getShortLink($modelName, $modelId)
     {
-        $key = 'deeplink:'.ucwords($modelName).':'.$modelId;
+        $key = 'deeplink:'.$modelName.':'.$modelId;
         if(!\Redis::exists($key)) {
             $self = new self($modelName, $modelId);
             $deeplink = $self->getDeeplinkUrl();
@@ -38,11 +38,11 @@ class Deeplink
 
     public static function getLongLink($modelName, $modelId)
     {
-        $key = 'deeplink:'.ucwords($modelName).':'.$modelId;
+        $key = 'deeplink:'.$modelName.':'.$modelId;
         if(\Redis::exists($key)) {
             return (json_decode(\Redis::get($key)))->url;
         }
-        $url = 'https://tagtaste.app.link/?modelName='.ucwords($modelName).'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId);
+        $url = 'https://tagtaste.app.link/?modelName='.$modelName.'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId);
         return $url;
     }
 
@@ -96,14 +96,14 @@ class Deeplink
 
     private static function getActualUrl($modelName, $modelId)
     {
-        switch (ucwords($modelName)) {
-            case 'Photo':       return env('APP_URL')."/feed/view/photo/$modelId";
-            case 'Shoutout':    return env('APP_URL')."/feed/view/shoutout/$modelId";
-            case 'Collaborate': return env('APP_URL')."/collaborate/$modelId";
-            case 'Job':         return env('APP_URL')."/jobs/$modelId";
-            case 'Recipe':      return env('APP_URL')."/recipe/$modelId";
-            case 'Profile':     return env('APP_URL')."/profile/$modelId";
-            case 'Company':     return env('APP_URL')."/company/$modelId";
+        switch ($modelName) {
+            case 'photo':       return env('APP_URL')."/feed/view/photo/$modelId";
+            case 'shoutout':    return env('APP_URL')."/feed/view/shoutout/$modelId";
+            case 'sollaborate': return env('APP_URL')."/collaborate/$modelId";
+            case 'job':         return env('APP_URL')."/jobs/$modelId";
+            case 'recipe':      return env('APP_URL')."/recipe/$modelId";
+            case 'profile':     return env('APP_URL')."/profile/$modelId";
+            case 'company':     return env('APP_URL')."/company/$modelId";
         }
     }
 }
