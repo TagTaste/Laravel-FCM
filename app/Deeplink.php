@@ -42,7 +42,7 @@ class Deeplink
         if(\Redis::exists($key)) {
             return (json_decode(\Redis::get($key)))->url;
         }
-        $url = 'https://tagtaste.app.link/?modelName='.$modelName.'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId);
+        $url = 'https://tagtaste.app.link/?modelName='.$modelName.'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId).'&shareTypeID=0&isShared=false';
         return $url;
     }
 
