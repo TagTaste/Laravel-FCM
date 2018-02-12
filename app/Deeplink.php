@@ -77,7 +77,7 @@ class Deeplink
 
                     'modelName' => $this->modelName,
                     'modelID' => $this->modelId,
-                    'shareTypeID' => '',
+                    'shareTypeID' => '-1',
                     'isShared' => 'false',
 
                     'profileID' => $data['owner'],
