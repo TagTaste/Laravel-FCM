@@ -132,7 +132,7 @@
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
                                                                 
-                                                                        <a href="{{ \App\Deeplink::getShortLink($model['name'], $model['id']) }}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">VIEW ON TAGTASTE</a>
+                                                                        <a href="{{ \App\Deeplink::getLongLink($model['name'], $model['id']) }}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">VIEW ON TAGTASTE</a>
                                                                 
                                                                 </td>
                                                             </tr>
