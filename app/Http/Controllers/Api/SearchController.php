@@ -317,7 +317,7 @@ class SearchController extends Controller
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
                 
-                $this->model[$name] = $searched->merge($suggested)->sortBy('name')->toArray();
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
 
             $profileId = $request->user()->profile->id;
@@ -325,7 +325,7 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile'];
+                $profiles = $this->model['profile']->toArray();
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
@@ -338,7 +338,7 @@ class SearchController extends Controller
 
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
-                $companies = $this->model['company'];
+                $companies = $this->model['company']->toArray();
                 $this->model['company'] = [];
                 foreach($companies as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
