@@ -37,6 +37,10 @@ class CompanyController extends Controller {
         }
         
         $companiesIds = \App\Filter\Company::getModelIds($filters,$skip,$take);
+        if(!is_array($companiesIds))
+        {
+            $companiesIds = $companiesIds->toArray();
+        }
         $profileId = $request->user()->profile->id;
         $companies = $this->model->whereIn('id',$companiesIds)->orderBy('id', 'desc')->skip($skip)->take($take)->get();
         $this->model = [];
