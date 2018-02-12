@@ -38,8 +38,8 @@ class CompanyController extends Controller {
         
         $companiesIds = \App\Filter\Company::getModelIds($filters,$skip,$take);
         $profileId = $request->user()->profile->id;
-        $this->model = [];
         $companies = $this->model->whereIn('id',$companiesIds)->orderBy('id', 'desc')->skip($skip)->take($take)->get();
+        $this->model = [];
 
         foreach($companies as &$company){
             $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
