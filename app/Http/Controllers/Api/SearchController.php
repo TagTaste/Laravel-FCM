@@ -370,6 +370,7 @@ class SearchController extends Controller
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
+                $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
