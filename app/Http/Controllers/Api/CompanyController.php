@@ -13,7 +13,7 @@ class CompanyController extends Controller {
 	public function index(Request $request)
 	{
         $this->model = Company::with('status','type');
-        
+
         $filters = $request->input('filters');
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -22,7 +22,7 @@ class CompanyController extends Controller {
             $totalCount = $this->model->count();
             //paginate
             $companies = $this->model->orderBy('id', 'desc')->skip($skip)->take($take)->get();
-    
+
             $profileId = $request->user()->profile->id;
             $this->model = [];
             $this->model['data'] = [];
@@ -36,9 +36,15 @@ class CompanyController extends Controller {
             return $this->sendResponse();
         }
         
-        $companies = \App\Filter\Company::getModels($filters,$skip,$take);
+        $companiesIds = \App\Filter\Company::getModelIds($filters,$skip,$take);
+        if(!is_array($companiesIds))
+        {
+            $companiesIds = $companiesIds->toArray();
+        }
         $profileId = $request->user()->profile->id;
+        $companies = $this->model->whereIn('id',$companiesIds)->orderBy('id', 'desc')->skip($skip)->take($take)->get();
         $this->model = [];
+
         foreach($companies as &$company){
             $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
         }
