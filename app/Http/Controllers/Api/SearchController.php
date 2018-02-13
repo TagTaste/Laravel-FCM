@@ -317,7 +317,7 @@ class SearchController extends Controller
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
                 
-                $this->model[$name] = $searched->merge($suggested)->sortBy('name')->toArray();
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
 
             $profileId = $request->user()->profile->id;
@@ -325,7 +325,7 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile'];
+                $profiles = $this->model['profile']->toArray();
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
@@ -338,10 +338,11 @@ class SearchController extends Controller
 
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
-                $companies = $this->model['company'];
+                $companies = $this->model['company']->toArray();
+                $this->model['company'] = [];
                 foreach($companies as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
-                    $this->model['company'] = $company;
+                    $this->model['company'][] = $company;
                 }
             }
 
@@ -355,20 +356,20 @@ class SearchController extends Controller
 //                $this->model['job'] = $data;
 //            }
 
-//            if(isset($this->model['recipe']))
-//            {
-//                $recipes = $this->model['recipe'];
-//                $data = [];
-//                foreach($recipes as $recipe){
-//                    $data[] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-//                }
-//                $this->model['recipe'] = $data;
-//
-//            }
+            if(isset($this->model['recipe']))
+            {
+                $recipes = $this->model['recipe'];
+                $this->model['recipe'] = [];
+                foreach($recipes as $recipe){
+                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
+                }
+
+            }
 
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
+                $this->model['collaborate'] = [];
                 foreach($collaborates as $collaborate){
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
