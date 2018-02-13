@@ -644,8 +644,8 @@ class ProfileController extends Controller
     public function onboarding(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $fixProfileIds = [1,2,10,44,32,165];
-        $fixCompaniesIds = [111,137];
+        $fixProfileIds = collect([1,2,10,44,32,165]);
+        $fixCompaniesIds = collect([111,137]);
         $filters = [];
         $companyFilter = [];
         $keywords = $request->user()->profile->keywords;
@@ -660,17 +660,22 @@ class ProfileController extends Controller
         $companiesIds = \App\Filter\Company::getModelIds($companyFilter,$skip,3);
         $this->model = [];
 
-        $profilesIds = $profilesIds->merge($fixProfileIds);
+        $profilesIds = $fixProfileIds->merge($profilesIds);
 
-        $companiesIds = $companiesIds->merge($fixCompaniesIds);
+        $companiesIds = $fixCompaniesIds->merge($companiesIds);
 
         $companies = Company::with([])->whereIn('id',$companiesIds)->get();
         $profiles = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereIn('id',$profilesIds)
             ->where('id','!=',$request->user()->profile->id)->get();
-        $this->model['profile'] = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereNotIn('id',$profilesIds)->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())
-            ->get()->merge($profiles);
-        $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())
-            ->get()->merge($companies);
+        $this->model['profile'] = \App\Recipe\Profile::whereNull('deleted_at')->with([])->whereNotIn('id',$profilesIds)
+            ->where('id','!=',$request->user()->profile->id)->take(15 - $profilesIds->count())->get();
+
+        $this->model['profile'] = $profiles->merge($this->model['profile']);
+
+        $this->model['company'] = Company::whereNull('deleted_at')->with([])->whereNotIn('id',$companiesIds)->take(5 - $companiesIds->count())->get();
+
+        $this->model['company'] = $companies->merge($this->model['company']);
+
         foreach ($this->model['profile'] as &$profile)
         {
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
@@ -680,6 +685,7 @@ class ProfileController extends Controller
         {
             $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
         }
+
         return $this->sendResponse();
 
     }
