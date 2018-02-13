@@ -843,7 +843,7 @@ class Profile extends Model
         $data['ogImage'] = $this->imageUrl;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;
-        $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/profile/'.$this->id;
         if(empty($this->imageUrl)) {
             $data['cardType'] = 'summary';
         }
