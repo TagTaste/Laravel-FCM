@@ -185,5 +185,17 @@ class ChatController extends Controller
             ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
         return $this->sendResponse();
 	}
+
+	public function chatGroup (Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
+            ->where('chat_members.is_single',0)->where('chat_members.profile_id','=',$profileId)
+            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->get();
+
+        return $this->sendResponse();
+
+    }
  
 }
