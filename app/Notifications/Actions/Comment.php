@@ -3,8 +3,10 @@
 
 namespace App\Notifications\Actions;
 
+use App\Deeplink;
 use App\FCMPush;
 use App\Notifications\Action;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class Comment extends Action
 {
@@ -23,9 +25,22 @@ class Comment extends Action
 
     public function toMail($notifiable)
     {
-        if($notifiable->id != $this->model->profile_id) {
-            $this->sub = $this->data->who['name'] ." commented on a post on which you have commented";
+        $langKey = $this->data->action.':'.$this->modelName;
+
+        // owner or subscriber
+        $notifiable->id == $this->model->profile_id ? $langKey = $langKey.':owner' : $langKey = $langKey.':subscriber';
+
+        if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
+            $this->allData['url'] = Deeplink::getLongLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
+            $langKey = $langKey.':shared';
+        } else {
+            $this->allData['url'] = Deeplink::getLongLink($this->modelName, $this->allData['id']);
+            $langKey = $langKey.':original';
         }
+
+        $langKey = $langKey.':title';
+        $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
+        $this->allData['title'] = $this->sub;
 
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(

@@ -11,7 +11,7 @@
                                 <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse">
                                     <tr>
                                         <td align="center"  bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px" width="100%" style="width=100%!important">
-                                            <div style="font-size: 20px;font-weight: bold;color: #181818;">{{$data->who['name']}} commented on your post</div>
+                                            <div style="font-size: 20px;font-weight: bold;color: #181818;">{{$model['title']}}</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -27,7 +27,7 @@
                                                             <tr>
                                                                 <td bgcolor="#FFFFFF">
                                                                     @if(strlen($content) > 140)
-                                                                    <div style="font-size: 16px;color: #181818;">{{substr($content, 0, 140)}}...<a href="{{ \App\Deeplink::getShortLink($model['name'], $model['id']) }}" style="color: #4397E7; text-decoration: none;">(more)</a></div>
+                                                                    <div style="font-size: 16px;color: #181818;">{{substr($content, 0, 140)}}...<a href="{{ $model['url'] }}" style="color: #4397E7; text-decoration: none;">(more)</a></div>
                                                                     @else
                                                                     <div style="font-size: 16px;color: #181818;">{{$content}}</div>
                                                                     @endif
@@ -132,7 +132,7 @@
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
                                                                 
-                                                                        <a href="{{ \App\Deeplink::getShortLink($model['name'], $model['id']) }}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">VIEW ON TAGTASTE</a>
+                                                                        <a href="{{ $model['url'] }}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">VIEW ON TAGTASTE</a>
                                                                 
                                                                 </td>
                                                             </tr>
