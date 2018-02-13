@@ -72,10 +72,13 @@ class ChatController extends Controller
                 $this->model = $existingChats;
                 return $this->sendResponse();
             }
-        }
-        
-        if(!\App\ChatLimit::checkLimit($loggedInProfileId)){
-            return $this->sendError("max_limit_reached");
+
+            if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
+            {
+                if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
+                    return $this->sendError("max_limit_reached");
+                }
+            }
         }
         
         $this->model = \App\Chat::create($inputs);
