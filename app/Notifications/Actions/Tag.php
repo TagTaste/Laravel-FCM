@@ -32,9 +32,9 @@ class Tag extends Action
 //        \Log::info("------------------------------\n\t".strtolower(class_basename($this->event->actionModel))."\t$langKey");
 
         if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
-            $this->allData['url'] = Deeplink::getLongLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
+            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
         } else {
-            $this->allData['url'] = Deeplink::getLongLink($this->modelName, $this->allData['id']);
+            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
         }
 
         $langKey = $langKey.':title';

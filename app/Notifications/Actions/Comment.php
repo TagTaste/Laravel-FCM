@@ -34,10 +34,10 @@ class Comment extends Action
         $langKey = $notifiable->id == $this->model->profile_id ? $langKey.':owner' : $langKey.':subscriber';
 
         if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
-            $this->allData['url'] = Deeplink::getLongLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
+            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
             $langKey = $langKey.':shared';
         } else {
-            $this->allData['url'] = Deeplink::getLongLink($this->modelName, $this->allData['id']);
+            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
             $langKey = $langKey.':original';
         }
 
