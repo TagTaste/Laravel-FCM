@@ -44,7 +44,7 @@
                                         <td bgcolor="#FFFFFF" align= "center">
                                             <div style="padding: 0px 40px;">
                                                 <div style="padding: 20px 0px;border-bottom: 1px solid rgba(0,0,0,0.2);">
-                                                    <img src="{{ $model['image']}}" width="350px"	height=230px"/>
+                                                    <img src="{{ $model['image']}}" width="350px"/>
                                                 </div>
                                             </div>
                                         </td>
@@ -59,7 +59,7 @@
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                                 <tr>
                                                                     <td>
-                                                                        <img src="{{ !empty($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="50px" width="50px" style="border-radius: 50%;"/>
+                                                                        <img src="{{ !empty($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" width="50px" style="border-radius: 50%;"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -73,7 +73,11 @@
                                                                         </div>
                                                                         <div style="padding-top:8px;color: #717171;">
                                                                             <!-- message -->
-                                                                            {{ $comment }} <a href="{{ $model['url'] }}" style="text-decoration: none; color: #4397E7;">(more)</a>
+                                                                            @if(strlen($comment) > 140)
+                                                                                {{ substr($comment, 0, 140) }}... <a href="{{ $model['url'] }}" style="text-decoration: none; color: #4397E7;">(more)</a>
+                                                                            @else
+                                                                                {{ $comment }}
+                                                                            @endif
                                                                         </div>
                                                                     </td>
                                                                 </tr>

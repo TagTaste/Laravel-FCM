@@ -27,7 +27,7 @@
                                                     <table border="0" cellpadding="0" cellspacing="0">
                                                         <tbody><tr>
                                                             <td>
-                                                                <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="71px" width="71px" class="CToWUd" style="border-radius: 4px;">
+                                                                <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}"  width="71px" class="CToWUd" style="border-radius: 4px;">
                                                             </td>
                                                         </tr>
                                                         </tbody></table>
