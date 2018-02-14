@@ -33,12 +33,15 @@ class Deeplink
     public static function getShortLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-        if(!\Redis::exists($key)) {
-            $self = new self($modelName, $modelId, $isShared, $share_id);
-            $deeplink = $self->getDeeplinkUrl();
-            \Redis::set($key,json_encode($deeplink));
-        }
-        return (json_decode(\Redis::get($key)))->url;
+//        if(!\Redis::exists($key)) {
+//            $self = new self($modelName, $modelId, $isShared, $share_id);
+//            $deeplink = $self->getDeeplinkUrl();
+//            \Redis::set($key,json_encode($deeplink));
+//        }
+//        return (json_decode(\Redis::get($key)))->url;
+
+        $self = new self($modelName, $modelId, $isShared, $share_id);
+        return $self->getDeeplinkUrl()->url;
     }
 
     public static function getLongLink($modelName, $modelId, $isShared = false, $share_id = 0)
