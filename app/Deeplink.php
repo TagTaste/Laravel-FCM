@@ -71,7 +71,7 @@ class Deeplink
 //                    '$og_image_height' =>     '526px',
                     '$og_type' =>               'article',
                     '$og_app_id' =>             env('FACEBOOK_ID'),
-                    '$desktop_url' =>           $data['redirectUrl'],
+                    '$desktop_url' =>           Deeplink::getActualUrl($this->modelName, $this->modelId, $this->shared, $this->share_id),
 
                     '$twitter_card' =>          $data['cardType'],
                     '$twitter_title' =>         $data['ogTitle'],
