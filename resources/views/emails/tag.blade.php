@@ -47,6 +47,45 @@
                                     </td>
                                 </tr>
                                 @endif
+                                @if(isset($comment) && !empty($comment))
+                                <tr>
+                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 40px 0px 40px;">
+                                        <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
+                                                <tr>
+                                                    <td align="center" width="50px" class="templateColumnContainer">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                            <tr>
+                                                                <td>
+                                                                    <img src="{{ !empty($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" width="50px" style="border-radius: 50%;"/>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td align="center" valign="top" width="373px" class="templateColumnContainer" style="padding:0 0 0 10px;">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FAFAFA" style="border-radius:12px;" >
+                                                            <tr>
+                                                                <td style="padding: 13px 14px;">
+                                                                    <div style="color: #181818;font-weight: bold;font-size: 16px;">
+                                                                        {{ $data->who['name'] }}
+                                                                    </div>
+                                                                    <div style="padding-top:8px;color: #717171;">
+                                                                        <!-- message -->
+                                                                        @if(strlen($comment) > 140)
+                                                                            {{ substr($comment, 0, 140) }}... <a href="{{ $model['url'] }}" style="text-decoration: none; color: #4397E7;">(more)</a>
+                                                                        @else
+                                                                            {{ $comment }}
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        </table>
+                                    </td>
+                                </tr>
+                                @endif
                             </table>
                         </td>
                     </tr>
