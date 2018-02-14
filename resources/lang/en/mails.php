@@ -22,11 +22,17 @@ return [
     'comment:collaborate:owner:shared:title' => ':name commented on your shared post',
     'comment:collaborate:subscriber:shared:title' => ':name also commented on a post',
 
-    // collaboration
+    // recipe
     'comment:recipe:owner:original:title' => ':name commented on your recipe',
     'comment:recipe:subscriber:original:title' => ':name commented on a recipe',
     'comment:recipe:owner:shared:title' => ':name commented on your shared post',
     'comment:recipe:subscriber:shared:title' => ':name also commented on a post',
+
+    // tag
+    'tag:shoutout:title' => ':name tagged you on a post',
+    'tag:photo:title' => ':name tagged you on a photo',
+    'tag:comment:title' => ':name tagged you in a comment',
+
 
 ];
 

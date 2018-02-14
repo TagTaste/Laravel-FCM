@@ -50,6 +50,40 @@
                                         </td>
                                     </tr>
                                     @endif
+                                    <tr>
+                                        <td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 40px 0px 40px;">
+                                            <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
+                                                @if(isset($comment))
+                                                    <tr>
+                                                        <td align="center" width="50px" class="templateColumnContainer">
+                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                <tr>
+                                                                    <td>
+                                                                        <img src="{{ !empty($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="50px" width="50px" style="border-radius: 50%;"/>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                        <td align="center" valign="top" width="373px" class="templateColumnContainer" style="padding:0px 0px 0px 10px;">
+                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FAFAFA" style="border-radius:12px;" >
+                                                                <tr>
+                                                                    <td style="padding: 13px 14px;">
+                                                                        <div style="color: #181818;font-weight: bold;font-size: 16px;">
+                                                                            {{ $data->who['name'] }}
+                                                                        </div>
+                                                                        <div style="padding-top:8px;color: #717171;">
+                                                                            <!-- message -->
+                                                                            {{ $comment }} <a href="{{ $model['url'] }}" style="text-decoration: none; color: #4397E7;">(more)</a>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            </table>
+                                        </td>
+                                    </tr>
 
                                     {{--<tr>--}}
                                         {{--<td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 40px 0px 40px;">--}}
@@ -106,18 +140,18 @@
                                             {{--</table>--}}
                                         {{--</td>--}}
                                     {{--</tr>--}}
-                                    {{--<tr>
-                                        <td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 0px 0px 0px;">
-                                            <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
-                                                <tr>
-                                                    <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                        <button style="padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px;">VIEW ON TAGTASTE</button>
-                                                    </td>
-                                                </tr>
-                                                
-                                            </table>
-                                        </td>
-                                    </tr> --}}
+                                    {{--<tr>--}}
+                                        {{--<td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 0px 0px 0px;">--}}
+                                            {{--<table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">--}}
+                                                {{--<tr>--}}
+                                                    {{--<td valign="top" align="center"  bgcolor="#FFFFFF">--}}
+                                                        {{--<button style="padding: 18px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px;">VIEW ON TAGTASTE</button>--}}
+                                                    {{--</td>--}}
+                                                {{--</tr>--}}
+                                                {{----}}
+                                            {{--</table>--}}
+                                        {{--</td>--}}
+                                    {{--</tr> --}}
                                     <tr>
                                         <td  style="width:100%!important;background-color:#FFFFFF!important;">
                                             <table width= "100%" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#FFFFFF">
