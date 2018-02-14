@@ -535,6 +535,7 @@ class Company extends Model
     {
         $data = [];
         $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
         $data['owner'] = $this->id;
         $data['title'] = 'Check out '.$this->name.' on TagTaste';
         $data['description'] = substr($this->about,0,155);

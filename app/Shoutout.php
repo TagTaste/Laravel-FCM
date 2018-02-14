@@ -183,6 +183,7 @@ class Shoutout extends Model implements Feedable
         $content = $this->getContent($this->content);
         $data = [];
         $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
         $data['title'] = $profile->name.' has posted on TagTaste';
         $data['description'] = substr($content,0,155);
