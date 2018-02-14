@@ -385,6 +385,7 @@ class Collaborate extends Model implements Feedable
         $profile = json_decode($profile);
         $data = [];
         $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
         $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);
         $data['description'] = substr($this->description,0,155);

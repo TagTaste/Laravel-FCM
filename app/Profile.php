@@ -835,6 +835,7 @@ class Profile extends Model
     {
         $data = [];
         $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
         $data['owner'] = $this->id;
         $data['title'] = 'Check out '.$this->name.'\'s profile on TagTaste';
         $data['description'] = substr($this->tagline,0,155);
