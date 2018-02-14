@@ -48,7 +48,7 @@
                                                     <table border="0" cellpadding="0" cellspacing="0">
                                                         <tbody><tr>
                                                             <td>
-                                                                <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" height="71px" width="71px" class="CToWUd" style="border-radius: 4px;">
+                                                                <img src="{{ isset($data->who['imageUrl']) ? $data->who['imageUrl'] : env('APP_URL').'/images/emails/profile-circle.png'}}" width="71px" class="CToWUd" style="border-radius: 4px;">
                                                             </td>
                                                         </tr>
                                                         </tbody></table>
@@ -69,7 +69,7 @@
                                                         <tbody>
                                                         <tr>
                                                             <td>
-                                                                <a href="{{env('APP_URL')}}/profile/{{ $data->who['id'] }}" style="display:inline-block;text-decoration:none;text-align: center;background-color:#d81f2e;padding: 8px 7px;color:#ffffff;font-size:13px;border:none;border-radius: 4px;font-weight: bold;text-align: center;">View Profile</a>
+                                                                <a href="{{ \App\Deeplink::getShortLink('profile', $data->who['id']) }}" style="display:inline-block;text-decoration:none;text-align: center;background-color:#d81f2e;padding: 8px 7px;color:#ffffff;font-size:13px;border:none;border-radius: 4px;font-weight: bold;text-align: center;">View Profile</a>
                                                             </td>
                                                         </tr>
                                                         </tbody>
