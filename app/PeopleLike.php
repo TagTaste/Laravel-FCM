@@ -13,7 +13,7 @@ class PeopleLike extends Model
 
         $count = count($profileIds);
         $data = [];
-
+        $hasLiked = false;
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,$length );
 
         foreach ($profileIds as $key => $value)
@@ -21,6 +21,7 @@ class PeopleLike extends Model
             if($loggedInProfileId == $value)
             {
                 unset($profileIds[$key]);
+                $hasLiked = true;
                 continue;
             }
             $profileIds[$key] = "profile:small:".$value ;
@@ -40,7 +41,7 @@ class PeopleLike extends Model
             $profile->self = false;
         }
         \Log::info($data);
-        return $length == 3 ? $data : ['count'=>$count ,'profile'=>$data];
+        return $length == 3 ? $data : ['count'=>$count,'hasLiked'=>$hasLiked ,'profile'=>$data];
     }
 
 }

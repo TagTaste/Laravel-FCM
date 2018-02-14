@@ -229,6 +229,7 @@ class Photo extends Model implements Feedable
         $profile = json_decode($profile);
         $data = [];
         $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
         $content = $this->getContent($this->caption);
         $data['title'] = $profile->name. ' has posted on TagTaste';

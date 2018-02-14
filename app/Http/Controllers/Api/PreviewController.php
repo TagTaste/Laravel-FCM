@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Deeplink;
 use Illuminate\Http\Request;
 
 class PreviewController extends Controller
@@ -21,7 +22,6 @@ class PreviewController extends Controller
         }
 
         $data = $sharedModel->getPreviewContent();
-        $deeplink = $this->getDeeplinkURL($data, $modelName,$modelId);
 
         $res = [
             'title' => $data['ogTitle'],
@@ -30,7 +30,7 @@ class PreviewController extends Controller
             'type' => 'article',
             'url' => $data['redirectUrl'],
             'site_name' => 'TagTaste',
-            'deeplink' => $deeplink->url,
+            'deeplink' => Deeplink::getShortLink($modelName, $modelId),
             'modelID' => $modelId,
             'model' => ucwords($modelName),
 
@@ -42,38 +42,4 @@ class PreviewController extends Controller
         
     }
 
-    private function getDeeplinkURL($data, $modelName,$modelId)
-    {
-        $client = new \GuzzleHttp\Client();
-        $res = $client->request('POST', 'https://api.branch.io/v1/url', [
-            'json' => [
-                "branch_key" => env('BRANCH_KEY'),
-
-                "data" => [
-                    '$canonical_identifier' => 'share_feed/'.$data['modelId'],
-                    '$og_title' => $data['ogTitle'],
-                    '$og_description' => $data['ogDescription'],
-                    '$og_image_url' => $data['ogImage'],
-//                    '$og_image_width' => '273px',
-//                    '$og_image_height' => '526px',
-                    '$og_type' => 'article',
-                    '$og_app_id' => env('FACEBOOK_ID'),
-                    '$desktop_url' => $data['redirectUrl'],
-
-                    '$twitter_card' => $data['cardType'],
-                    '$twitter_title' => $data['ogTitle'],
-                    '$twitter_description' => $data['ogDescription'],
-                    '$twitter_image_url' => $data['ogImage'],
-                    '$twitter_site' => '@tagtaste',
-
-                    'typeID' => $modelId,
-                    'type' => ucwords($modelName),
-                    'profileID' => $data['owner'],
-
-                ],
-            ],
-        ]);
-//        \Log::info('Deeplink: '.$res->getBody());
-        return json_decode((string)$res->getBody());
-    }
 }

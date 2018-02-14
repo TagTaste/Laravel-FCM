@@ -91,10 +91,10 @@ class CommentController extends Controller {
         
         $model->comments()->attach($comment->id);
         
-        event(new \App\Events\Actions\Comment($model,$request->user()->profile));
+        event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content));
         
         if($comment->has_tags){
-            event(new Tag($model,$request->user()->profile,$comment->content));
+            event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
         }
         $meta = $comment->getMetaFor($model);
         $this->model = ["comment"=>$comment,"meta"=>$meta];
