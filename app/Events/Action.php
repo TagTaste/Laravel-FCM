@@ -31,6 +31,7 @@ class Action
      */
     public function __construct(Model &$model, Profile $who = null, $content = null, $image = null, $action = null, $company = null, &$actionModel = null)
     {
+        \Log::info("content".$content);
         $this->model = $model;
         $this->who = isset($company) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->logo,'type'=>'company', 'tagline'=>$who->tagline] : isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl,'type'=>'profile', 'tagline'=>$who->tagline] : null;
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
