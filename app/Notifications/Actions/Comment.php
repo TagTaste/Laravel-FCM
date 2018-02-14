@@ -44,7 +44,7 @@ class Comment extends Action
         $langKey = $langKey.':title';
         $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
         $this->allData['title'] = $this->sub;
-
+        \Log::info("1content is here ".print_r($this->data->content,true));
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content'])]
