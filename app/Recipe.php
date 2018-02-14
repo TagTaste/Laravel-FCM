@@ -206,6 +206,7 @@ class Recipe extends Model implements Feedable, CommentNotification
         $profile = \App\Recipe\Profile::where('id',$this->profile_id)->first();
         $data = [];
         $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
         $data['title'] = $profile->name. ' has posted a recipe on TagTaste';
         $data['description'] = substr($this->name,0,155);
