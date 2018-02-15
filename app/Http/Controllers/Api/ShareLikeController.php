@@ -46,13 +46,15 @@ class ShareLikeController extends Controller
     		$sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
             $this->model['liked'] = false;
             $this->model['likeCount'] = \Redis::sCard($key);
+            $peopleLike = new PeopleLike();
+            $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "{$model}Share",request()->user()->profile->id);
     		return $this->sendResponse();
     	}
 
-    	$model = new $sharedLikeModel;
-    	$model->profile_id = $profileId;
-    	$model->$columnName = $modelId;
-    	$model->save();
+    	$models = new $sharedLikeModel;
+    	$models->profile_id = $profileId;
+    	$models->$columnName = $modelId;
+    	$models->save();
     	
     	\Redis::sAdd($key,$profileId);
     	

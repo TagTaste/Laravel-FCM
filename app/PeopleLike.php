@@ -40,7 +40,6 @@ class PeopleLike extends Model
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        \Log::info($data);
         return $length == 3 ? $data : ['count'=>$count,'hasLiked'=>$hasLiked ,'profile'=>$data];
     }
 
