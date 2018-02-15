@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\Action;
 use App\Events\Actions\Like;
 use App\ModelSubscriber;
+use App\PeopleLike;
 use App\Shoutout;
 use App\ShoutoutLike;
 use Illuminate\Http\Request;
@@ -50,6 +51,8 @@ class ShoutoutLikeController extends Controller
                 event(new Like($shoutout, $request->user()->profile, $shoutout->content));
             }
         }
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($id, "shoutout",request()->user()->profile->id);
         $this->model['likeCount'] = \Redis::sCard($key);
     
         return $this->sendResponse();
