@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile\Company\Photo;
 
+use App\PeopleLike;
 use App\PhotoLike;
 use App\Events\Update;
 use Illuminate\Http\Request;
@@ -75,6 +76,8 @@ class PhotoLikeController extends Controller
                     "like"));
             }
         }
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($photoId, 'photo' ,request()->user()->profile->id);
         return $this->sendResponse();
 	}
 
