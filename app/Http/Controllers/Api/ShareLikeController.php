@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\Actions\Like;
+use App\PeopleLike;
 use Illuminate\Http\Request;
 use App\Shareable\Sharelikable;
 
@@ -57,6 +58,8 @@ class ShareLikeController extends Controller
     	
         $this->model['liked'] = true;
         $this->model['likeCount'] = \Redis::sCard($key);
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "{$model}Share",request()->user()->profile->id);
         
     	event(new Like($shareModel,$request->user()->profile));
         return $this->sendResponse();

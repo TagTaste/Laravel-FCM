@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Profile\Photo;
 
 use App\Events\Actions\Like;
 use App\Http\Controllers\Api\Controller;
+use App\PeopleLike;
 use App\PhotoLike;
 use App\Profile\Photo;
 use Illuminate\Http\Request;
@@ -46,7 +47,8 @@ PhotoLikeController extends Controller
             $photo = Photo::find($photoId);
             event(new Like($photo, $request->user()->profile));
         }
-        
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($photoId, 'photo' ,request()->user()->profile->id);
         $this->model['likeCount'] = \Redis::sCard($key);
         return $this->sendResponse();
 	}
