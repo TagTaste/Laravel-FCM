@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;
+use App\PeopleLike;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -223,6 +224,10 @@ class CollaborateController extends Controller
             \Redis::sRem($key,$profileId);
             $this->model['likeCount'] = \Redis::sCard($key);
             $this->model['liked'] = false;
+
+            $peopleLike = new PeopleLike();
+            $this->model['peopleLiked'] = $peopleLike->peopleLike($id, "collaborate",request()->user()->profile->id);
+
             return $this->sendResponse();
         }
         
@@ -231,6 +236,10 @@ class CollaborateController extends Controller
         \Redis::sAdd($key,$profileId);
         $this->model['likeCount'] = \Redis::sCard($key);
         $this->model['liked'] = true;
+
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($id, "collaborate",request()->user()->profile->id);
+
         return $this->sendResponse();
         
     }
