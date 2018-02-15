@@ -6,6 +6,7 @@ use App\Cuisine;
 use App\Events\Actions\Like;
 use App\Events\DeleteFeedable;
 use App\Http\Controllers\Api\Controller;
+use App\PeopleLike;
 use App\Recipe;
 use App\RecipeLike;
 use App\RecipeRating;
@@ -346,7 +347,10 @@ class RecipeController extends Controller
             event(new Like($recipe, $request->user()->profile));
         }
         $this->model['likeCount'] = \Redis::sCard($key);
-    
+
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($id, "recipe",request()->user()->profile->id);
+
         return $this->sendResponse();
     }
 }
