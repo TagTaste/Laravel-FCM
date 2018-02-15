@@ -31,7 +31,7 @@ class NotifySubscribers
     {
         $modelId = $event->model->id;
         $model = $event->getModelName();
-        
+        $content = $event->content;
         $profiles = Profile::select('profiles.*')->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
                     ->where('model_subscribers.model','like',$model)
                     ->where('model_subscribers.model_id','=',$modelId)
