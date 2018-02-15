@@ -9,7 +9,6 @@ class PeopleLike extends Model
     public function peopleLike($modelId, $modelName, $loggedInProfileId, $page = 1 , $length = 3)
     {
         $key = "meta:{$modelName}:likes:$modelId";
-        \Log::info("key is".$key);
         $profileIds = \Redis::SMEMBERS($key);
 
         $count = count($profileIds);
@@ -41,7 +40,6 @@ class PeopleLike extends Model
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
-        \Log::info($data);
         return $length == 3 ? $data : ['count'=>$count,'hasLiked'=>$hasLiked ,'profile'=>$data];
     }
 
