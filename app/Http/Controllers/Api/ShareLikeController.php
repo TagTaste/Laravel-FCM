@@ -51,10 +51,10 @@ class ShareLikeController extends Controller
     		return $this->sendResponse();
     	}
 
-    	$model = new $sharedLikeModel;
-    	$model->profile_id = $profileId;
-    	$model->$columnName = $modelId;
-    	$model->save();
+    	$models = new $sharedLikeModel;
+    	$models->profile_id = $profileId;
+    	$models->$columnName = $modelId;
+    	$models->save();
     	
     	\Redis::sAdd($key,$profileId);
     	
