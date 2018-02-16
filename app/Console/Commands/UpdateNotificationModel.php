@@ -43,6 +43,8 @@ class UpdateNotificationModel extends Command
         foreach ($notifications as $notification) {
             $data = json_decode($notification->data);
             $profile = \App\Profile::find($data->profile->id);
+            if(!$profile)
+                continue;
             $data->model = $profile->getNotificationContent();
             \DB::table('notifications')->where('id', $notification->id)->update(['data' => json_encode($data)]);
             echo "Updated id: $notification->id\n";
