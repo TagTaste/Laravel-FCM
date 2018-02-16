@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api;
 
 use App\Comment;
+use App\CompanyUser;
 use App\Events\Actions\Tag;
 use App\Events\Update;
 use App\Traits\CheckTags;
@@ -111,8 +112,23 @@ class CommentController extends Controller {
     {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
+
         if($comment === null){
-            throw new \Exception('Comment does not belong to the user');
+            $model = $this->getModel($modelName,$modelId);
+            $modelInfo = $model::find($modelId);
+            if(isset($modelInfo->company_id)&&!empty($modelInfo->company_id))
+            {
+                $checkAdmin = CompanyUser::where("company_id",$modelInfo->company_id)->where('profile_id', $request->user()->profile->id)->exists();
+                if (!$checkAdmin) {
+                    return $this->sendError("Comment does not belong to the user.");
+                }
+            }
+            else if($request->user()->profile->id != $modelInfo->profile_id)
+            {
+                return $this->sendError("Comment does not belong to the user.");
+            }
+            $comment = Comment::find($id);
+//            throw new \Exception('Comment does not belong to the user');
         }
         $this->model = $comment->delete();
         
