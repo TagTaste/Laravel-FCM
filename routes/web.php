@@ -163,3 +163,7 @@ Route::group(['middleware'=>'auth'],function(){
 Route::get("built",function(){
     echo "Yo!";
 });
+
+Route::get('testmail', function(){
+    return view('emails.expire-collab');
+});
