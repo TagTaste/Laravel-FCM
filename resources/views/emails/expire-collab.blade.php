@@ -1,5 +1,5 @@
 @include("emails.header.definition")
-<body>
+<body style="margin: 0; padding: 0;">
 <center>
     <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family:Arial" bgcolor="#F8F6F9">
         @include("emails.header.header")
@@ -12,10 +12,9 @@
                             <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
                                    border-collapse="collapse">
                                 <tr>
-                                    <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;" width="100%"
-                                        style="width:100%!important">
-                                        <div style="font-size: 20px;font-weight: bold;color: #181818;margin: 0px 70px 0px 70px;">
-                                            Burger king’s collaboration is expiring today.
+                                    <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
+                                        <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
+                                            {{ $data['title'] }}
                                         </div>
                                     </td>
                                 </tr>
@@ -24,9 +23,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 0px 40px 0px 40px;border-bottom: 1px solid rgba(0,0,0,0.2);">
+                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 0px 40px 0px 40px;border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
                                         <table style="margin: 20px 0px 20px 0px;" width="100%" bgcolor="#FFFFFF"
-                                               style="border-bottom: 1px solid rgba(0,0,0,0.2);">
+                                               style="border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
                                             <tr>
                                                 <td align="center" valign="top" width="100%"
                                                     class="templateColumnContainer">
@@ -34,15 +33,13 @@
                                                            bgcolor="#FFFFFF">
                                                         <tr>
                                                             <td>
-                                                                <div style="padding:0px 10px 0px 10px;">
-                                                                    <div>
-                                                                        <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">
-                                                                            Hi Sonika,
-                                                                        </p>
-                                                                        <p style="font-size: 16px;color: #181818;margin:0px">
-                                                                            Burger King India Pvt. Ltd’s collaboration expires today.
-                                                                        </p>
-                                                                    </div>
+                                                                <div>
+                                                                    <p style="font-size: 16px;color: #181818;margin:0px;padding:0px 0px 20px 0px;font-weight:bold;">
+                                                                        Hi {{ $data['owner'] }},
+                                                                    </p>
+                                                                    <p style="font-size: 16px;color: #181818;margin:0px">
+                                                                        {{ $data['msg'] }}
+                                                                    </p>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -53,7 +50,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 40px 20px 40px;border-bottom: 1px solid rgba(0,0,0,0.2);">
+                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 20px 40px 20px 40px;border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
                                         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="0"
                                                border-collapse="collapse" bgcolor="#FFFFFF">
                                             <tr>
@@ -61,24 +58,39 @@
                                                     <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tr>
                                                             <td>
-                                                                <img src="https://www.tagtaste.com/images/emails/profile-circle.png"
-                                                                     height="50px" width="50px"
+                                                                <img src="{{ $data['collab']['imageUrl'] }}"
+                                                                     width="75px"
                                                                      style="border-radius: 50%;">
                                                             </td>
                                                         </tr>
                                                     </table>
                                                 </td>
-                                                <td align="center" width="317px" class="templateColumnContainer">
-                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%"
-                                                           style="border-radius:12px;padding-left:20px;">
+                                                <td align="center" width="317px" class="templateColumnContainer" style="padding: 0 20px 0 20px;">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tr>
                                                             <td>
-                                                                <div style="color: #181818;font-weight: bold;">
-                                                                    Aman Kumar
+                                                                <div style="color: #181818;font-weight: normal; font-size: 16px">
+                                                                    {{ $data['collab']['owner_name'] }}
                                                                 </div>
-                                                                <div style="padding-top:8px;color: #181818;">
-                                                                    <!-- message -->
-                                                                    {{--Co-founder &amp; COO @TagTaste--}}
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                                           style="padding-top: 8px;">
+                                                        <tr>
+                                                            <td>
+                                                                <div style="color: #181818;font-weight: bold; font-size: 16px">
+                                                                    {{ $data['collab']['title'] }}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                                           style="padding-top: 9px;">
+                                                        <tr>
+                                                            <td>
+                                                                <div style="color:#999999; font-weight: normal; font-size: 14px;">
+                                                                    {{ $data['collab']['location'] }}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -87,11 +99,13 @@
 
                                                 <td align="center" width="72px" class="templateColumnContainer">
                                                     <table border="0" cellpadding="0" cellspacing="0" width="100%"
-                                                           style="border-radius:12px;padding-left:20px;">
+                                                           style="text-align: center;">
                                                         <tr>
                                                             <td>
-                                                                <a href="{{env('APP_URL')}}/collaborate/100/applications"
-                                                                   style="text-decoration:none; display:inline-block;background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: bold;border: none;border-radius: 4px;">Reply</a>
+                                                                <a href="{{ $data['collab']['btn_url'] }}"
+                                                                   style="text-decoration:none; display:inline-block;background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: normal;border: none;border-radius: 4px;">
+                                                                    {{ $data['collab']['btn_text'] }}
+                                                                </a>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -100,14 +114,89 @@
                                         </table>
                                     </td>
                                 </tr>
+                                @if(isset($data['msg2']) || (isset($data['profiles']) && count($data['profiles']) > 0))
+                                <tr>
+                                    <td style="width:100%!important;background-color:#FFFFFF!important;padding: 0px 40px 0px 40px;border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+                                        <table style="margin: 20px 0px 20px 0px;" width="100%" bgcolor="#FFFFFF"
+                                               style="border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+                                            @if(isset($data['msg2']) && !empty($data['msg2']))
+                                            <tr>
+                                                <td align="center" valign="top" width="100%"
+                                                    class="templateColumnContainer">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                                           bgcolor="#FFFFFF">
+                                                        <tr>
+                                                            <td>
+                                                                <div>
+                                                                    <p style="font-size: 16px;color: #181818;margin:0">
+                                                                        {{ $data['msg2'] }}
+                                                                    </p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            @endif
+                                            @if(isset($data['profiles']) && count($data['profiles']) > 0)
+                                                @foreach($data['profiles'] as $profile)
+                                                <tr>
+                                                <td align="center" valign="top" width="100%"
+                                                    class="templateColumnContainer">
+                                                    <table width="100%" align="center" border="0" cellspacing="0" cellpadding="0"
+                                                           border-collapse="collapse" bgcolor="#FFFFFF" style="padding-top: 10px">
+                                                        <tr>
+                                                            <td align="center" width="50px" class="templateColumnContainer">
+                                                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <img src="{{ $profile['imageUrl'] }}"
+                                                                                 width="52px"
+                                                                                 style="border-radius: 50%;">
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td align="center" width="317px" class="templateColumnContainer" style="padding: 0 20px 0 20px;">
+                                                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div style="color: #181818;font-weight: bold; font-size: 16px">
+                                                                                {{ $profile['name'] }}
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                                <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                                                       style="padding-top: 7px;">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div style="color:#999999; font-weight: normal; font-size: 14px;">
+                                                                                {{ $profile['location'] }}
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                                @endforeach
+                                            @endif
+
+                                        </table>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td style="width:100%!important;background-color:#FFFFFF!important;">
                                         <table width="100%" align="center" border="0" cellspacing="0" cellpadding="0"
                                                border-collapse="collapse" bgcolor="#FFFFFF">
                                             <tr>
                                                 <td valign="top" align="center" bgcolor="#FFFFFF">
-                                                    <a href="{{env('APP_URL')}}/collaborate/100/applications"
-                                                       style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">EXTEND NOW</a>
+                                                    <a href="{{ $data['master_btn_url'] }}"
+                                                       style="display: inline-block; text-decoration: none; padding: 15px 30px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 31px 0px 31px 0px;border-radius: 30px; font-weight: normal;">{{ $data['master_btn_text'] }}</a>
                                                 </td>
                                             </tr>
 

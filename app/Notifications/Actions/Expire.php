@@ -15,6 +15,9 @@ class Expire extends Action
     public function __construct($event)
     {
         parent::__construct($event);
+
+        $expire_on = strtotime($event->model->expires_on);
+
         if($event->model->expires_on >= Carbon::now()->addDays(1)->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(1)->toDateTimeString())
         {
             $this->notification ="Your ".$this->modelName." ".$this->model->title." will expire in 2 days.";
@@ -31,5 +34,6 @@ class Expire extends Action
         {
             $this->notification ="Your ".$this->modelName." ".$this->model->title." will expire soon.";
         }
+        \Log::info($this->notification);
     }
 }

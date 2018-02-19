@@ -165,5 +165,50 @@ Route::get("built",function(){
 });
 
 Route::get('testmail', function(){
-    return view('emails.expire-collab');
+
+    $data = [
+        'subject' => 'Your collaboration is expiring today',
+        'title' => 'Burger king’s collaboration is expiring today.',
+        'owner' => 'Sonika',
+        'msg' => 'Burger King India Pvt. Ltd’s collaboration expires today.',
+
+        'collab' => [
+            'id' => 100,
+            'title' => 'A Government Approved Skill...',
+            'owner_id' => 25,
+            'owner_name' => 'Burger King India Pvt. Ltd.',
+            'location' => 'New Delhi, Delhi, India',
+            'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+            'btn_text' => 'View',
+            'btn_url' => env('APP_URL').'/collaborate/100/applications',
+        ],
+
+        'msg2' => 'Here are some interested parties:',
+        'profiles' => [
+            [
+                'id' => 2,
+                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+                'name' => 'Arun Tangri',
+                'location' => 'New Delhi, Delhi, India',
+            ],
+            [
+                'id' => 3,
+                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+                'name' => 'Jaspal Sabharwal',
+                'location' => 'Gurugram, India',
+            ],
+            [
+                'id' => 4,
+                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+                'name' => 'Varun Tangri',
+                'location' => 'New Delhi, Delhi, India',
+            ],
+        ],
+
+        'master_btn_text' => 'EXTEND NOW',
+        'master_btn_url' => env('APP_URL').'/collaborate/100/applications',
+
+    ];
+
+    return view('emails.expire-collab', compact('data'));
 });

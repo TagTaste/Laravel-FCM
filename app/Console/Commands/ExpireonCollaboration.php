@@ -37,12 +37,14 @@ class ExpireonCollaboration extends Command
      */
     public function handle()
     {
+        \Log::info('command started');
         //expire
         \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models){
                 foreach($models as $model){
     
                     //delete filters
+                    \Log::info('expire');
                     event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
                     
                     $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
@@ -63,6 +65,7 @@ class ExpireonCollaboration extends Command
         \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->addDays(1)->toDateTimeString())
             ->where('expires_on','<=',Carbon::now()->addDays(2)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
                 foreach($models as $model){
+                    \Log::info('2 days');
                     $companyId = $model->company_id;
                     if(isset($companyId))
                     {
@@ -85,7 +88,10 @@ class ExpireonCollaboration extends Command
         //notify 1 day before expiry
         \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
             ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+                \Log::info('1 day');
+
                 foreach($models as $model){
+                    \Log::info('1 day');
                     $companyId = $model->company_id;
                     if(isset($companyId))
                     {
@@ -110,6 +116,7 @@ class ExpireonCollaboration extends Command
         \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
             ->where('expires_on','<=',Carbon::now()->addDays(8)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
                 foreach($models as $model){
+                    \Log::info('7 days');
                     $companyId = $model->company_id;
                     if(isset($companyId))
                     {
