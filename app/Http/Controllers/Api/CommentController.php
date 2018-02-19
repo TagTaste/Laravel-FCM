@@ -108,7 +108,7 @@ class CommentController extends Controller {
      * @param  int  $id
      * @return Response
      */
-    public function destroy(Request $request, $id,$modelName,$modelId)
+    public function destroy(Request $request, $id, $modelName, $modelId)
     {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
@@ -132,6 +132,31 @@ class CommentController extends Controller {
         }
         $this->model = $comment->delete();
         
+        return $this->sendResponse();
+    }
+
+    public function update(Request $request, $id, $modelName, $modelId)
+    {
+        $userId = $request->user()->id;
+        $comment = Comment::where('user_id',$userId)->find($id);
+        if($comment === null){
+            return $this->sendError("Comment does not belong to the user.");
+        }
+        $model = $this->getModel($modelName,$modelId);
+
+        $content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
+        $comment->content = $content;
+        $comment->user_id = $request->user()->id;
+        $comment->has_tags = $this->hasTags($content);
+        $comment->save();
+
+        $model->comments()->attach($comment->id);
+
+        if($comment->has_tags){
+            event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
+        }
+        $meta = $comment->getMetaFor($model);
+        $this->model = ["comment"=>$comment,"meta"=>$meta];
         return $this->sendResponse();
     }
 
