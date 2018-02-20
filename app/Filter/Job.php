@@ -80,6 +80,9 @@ class Job extends Filter {
                     if(!array_key_exists($key,$filters)){
                         $filters[$key] = [];
                     }
+                    if(!array_key_exists($key,$filters)){
+                        $filters[$key] = [];
+                    }
 
                     $filters[$key][] = ['value' => $filter->value,'count'=>$filter->count];
                     $count++;
@@ -105,6 +108,45 @@ class Job extends Filter {
         }
 
         return $filters;
+    }
+
+
+    public static function getModelIds(&$filters,$skip = null,$take = null)
+    {
+        $models = null;
+        foreach($filters as $filter => $value){
+            if($filter == 'experience_max' || $filter == 'compensation_max')
+            {
+                $model = static::selectRaw('distinct ' . static::$relatedColumn)
+                    ->where('key',$filter)->where('value','<=',$value);
+            }
+            else if($filter == 'experience_min' || $filter == 'compensation_min')
+            {
+                $model = static::selectRaw('distinct ' . static::$relatedColumn)
+                    ->where('key',$filter)->where('value','>=',$value);
+            }
+            else
+            {
+                $model = static::selectRaw('distinct ' . static::$relatedColumn)
+                    ->where('key',$filter)->whereIn('value',$value);
+            }
+
+            if((null !== $skip) || (null !== $take)){
+                $model = $model->skip($skip)->take($take);
+            }
+
+            $model = $model->orderBy(static::$relatedColumn)
+                ->get()
+                ->pluck(static::$relatedColumn);
+
+            if(is_null($models)){
+                $models = $model;
+                continue;
+            }
+
+            $models = $model->intersect($models);
+        }
+        return $models;
     }
 
 }

@@ -176,9 +176,11 @@ class Filter extends Model
                 {
                     continue;
                 }
-                $isSingleKey = true;
                 foreach($singleFilter as &$filter)
                 {
+                    if(!array_key_exists($key,$filters)){
+                        $filters[$key] = [];
+                    }
                     if(!array_key_exists($key,$filters)){
                         $filters[$key] = [];
                     }
@@ -214,7 +216,6 @@ class Filter extends Model
     {
         $models = null;
         foreach($filters as $filter => $value){
-        
             $model = static::selectRaw('distinct ' . static::$relatedColumn)
                 ->where('key',$filter)->whereIn('value',$value);
             
