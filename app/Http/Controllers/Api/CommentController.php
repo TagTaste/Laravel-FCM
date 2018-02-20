@@ -115,15 +115,15 @@ class CommentController extends Controller {
 
         if($comment === null){
             $model = $this->getModel($modelName,$modelId);
-            $modelInfo = $model::find($modelId);
-            if(isset($modelInfo->company_id)&&!empty($modelInfo->company_id))
+            \Log::info($model);
+            if(isset($model->company_id)&&!empty($model->company_id))
             {
-                $checkAdmin = CompanyUser::where("company_id",$modelInfo->company_id)->where('profile_id', $request->user()->profile->id)->exists();
+                $checkAdmin = CompanyUser::where("company_id",$model->company_id)->where('profile_id', $request->user()->profile->id)->exists();
                 if (!$checkAdmin) {
                     return $this->sendError("Comment does not belong to the user.");
                 }
             }
-            else if($request->user()->profile->id != $modelInfo->profile_id)
+            else if($request->user()->profile->id != $model->profile_id)
             {
                 return $this->sendError("Comment does not belong to the user.");
             }
