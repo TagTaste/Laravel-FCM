@@ -166,6 +166,7 @@ class Filter extends Model
         $filters = [];
         //$allFilters = $allFilters->keyBy('key');
         $order = $filterClass::$filterOrder;
+
         if(count($order))
         {
             foreach($order as $key){
@@ -175,8 +176,9 @@ class Filter extends Model
                 {
                     continue;
                 }
-                foreach($singleFilter as &$filter){
-
+                $isSingleKey = true;
+                foreach($singleFilter as &$filter)
+                {
                     if(!array_key_exists($key,$filters)){
                         $filters[$key] = [];
                     }
