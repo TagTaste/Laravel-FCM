@@ -114,8 +114,15 @@ class Job extends Filter {
     public static function getModelIds(&$filters,$skip = null,$take = null)
     {
         $models = null;
+
         foreach($filters as $filter => $value){
-            if($filter == 'experience_max' || $filter == 'compensation_max')
+            if(array_key_exists('experience_max',$filters) && array_key_exists('experience_min',$filters))
+            {
+                $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
+                    ->where('j2.key','experience_min')->where('j2.value','>=',$filters['experience_min'])
+                    ->where('j1.key','experience_max')->where('j1.value','<=',$filters['experience_max']);
+            }
+            else if($filter == 'experience_max' || $filter == 'compensation_max')
             {
                 $model = static::selectRaw('distinct ' . static::$relatedColumn)
                     ->where('key',$filter)->where('value','<=',$value);
@@ -138,7 +145,6 @@ class Job extends Filter {
             $model = $model->orderBy(static::$relatedColumn)
                 ->get()
                 ->pluck(static::$relatedColumn);
-
             if(is_null($models)){
                 $models = $model;
                 continue;
