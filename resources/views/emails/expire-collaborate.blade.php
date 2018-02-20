@@ -58,9 +58,9 @@
                                                     <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tr>
                                                             <td>
-                                                                <img src="{{ $data['collab']['imageUrl'] }}"
+                                                                <img src="{{ $data['collaborate']['imageUrl'] }}"
                                                                      width="75px"
-                                                                     style="border-radius: 50%;">
+                                                                     style="border-radius: 8px;">
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -70,7 +70,7 @@
                                                         <tr>
                                                             <td>
                                                                 <div style="color: #181818;font-weight: normal; font-size: 16px">
-                                                                    {{ $data['collab']['owner_name'] }}
+                                                                    {{ $data['collaborate']['owner_name'] }}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -80,7 +80,7 @@
                                                         <tr>
                                                             <td>
                                                                 <div style="color: #181818;font-weight: bold; font-size: 16px">
-                                                                    {{ $data['collab']['title'] }}
+                                                                    {{ $data['collaborate']['title'] }}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -90,7 +90,7 @@
                                                         <tr>
                                                             <td>
                                                                 <div style="color:#999999; font-weight: normal; font-size: 14px;">
-                                                                    {{ $data['collab']['location'] }}
+                                                                    {{ $data['collaborate']['location'] }}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -102,9 +102,9 @@
                                                            style="text-align: center;">
                                                         <tr>
                                                             <td>
-                                                                <a href="{{ $data['collab']['btn_url'] }}"
+                                                                <a href="{{ $data['collaborate']['btn_url'] }}"
                                                                    style="text-decoration:none; display:inline-block;background-color: #D81F2E;padding:8px 20px;color:#FFFFFF;font-size: 13px;font-weight: normal;border: none;border-radius: 4px;">
-                                                                    {{ $data['collab']['btn_text'] }}
+                                                                    {{ $data['collaborate']['btn_text'] }}
                                                                 </a>
                                                             </td>
                                                         </tr>
@@ -152,7 +152,7 @@
                                                                         <td>
                                                                             <img src="{{ $profile['imageUrl'] }}"
                                                                                  width="52px"
-                                                                                 style="border-radius: 50%;">
+                                                                                 style="border-radius: 10px;">
                                                                         </td>
                                                                     </tr>
                                                                 </table>
@@ -172,7 +172,7 @@
                                                                     <tr>
                                                                         <td>
                                                                             <div style="color:#999999; font-weight: normal; font-size: 14px;">
-                                                                                {{ $profile['location'] }}
+                                                                                {{ $profile['tagline'] }}
                                                                             </div>
                                                                         </td>
                                                                     </tr>

@@ -53,6 +53,7 @@ class Action extends Notification implements ShouldQueue
             $via[] = 'mail';
 
         }
+        \Log::info(print_r($via, true));
         return $via;
     }
 
