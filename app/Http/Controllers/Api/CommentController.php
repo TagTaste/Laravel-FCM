@@ -115,7 +115,7 @@ class CommentController extends Controller {
 
         if($comment === null){
             $model = $this->getModel($modelName,$modelId);
-            \Log::info($model);
+//            \Log::info($model);
             if(isset($model->company_id)&&!empty($model->company_id))
             {
                 $checkAdmin = CompanyUser::where("company_id",$model->company_id)->where('profile_id', $request->user()->profile->id)->exists();
