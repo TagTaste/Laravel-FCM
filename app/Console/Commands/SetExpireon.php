@@ -44,30 +44,30 @@ class SetExpireon extends Command
     public function handle()
     {
         //this run only once after that remove from kernel.php this file
-        Job::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
-            foreach($models as $model){
-                $companyId = $model->company_id;
-                if(isset($companyId))
-                {
-                    $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-                    foreach ($profileIds as $profileId)
-                    {
-                        $model->profile_id = $profileId;
-                        event(new \App\Events\Actions\ExpireModel($model));
-                    }
-                }
-                else {
-                    event(new \App\Events\Actions\ExpireModel($model));
-                }
-//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
-                \App\Filter\Job::removeModel($model->id);
-                event(new DeleteFeedable($model));
-                $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
-
-                \Log::info("sending mail");
-
-            }
-        });
+//        Job::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+//            foreach($models as $model){
+//                $companyId = $model->company_id;
+//                if(isset($companyId))
+//                {
+//                    $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+//                    foreach ($profileIds as $profileId)
+//                    {
+//                        $model->profile_id = $profileId;
+//                        event(new \App\Events\Actions\ExpireModel($model));
+//                    }
+//                }
+//                else {
+//                    event(new \App\Events\Actions\ExpireModel($model));
+//                }
+////                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
+//                \App\Filter\Job::removeModel($model->id);
+//                event(new DeleteFeedable($model));
+//                $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
+//
+//                \Log::info("sending mail");
+//
+//            }
+//        });
 
 //        \DB::table("jobs")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
 //            foreach($models as $model){
@@ -75,7 +75,7 @@ class SetExpireon extends Command
 //            }
 //        });
 
-        Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+        Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->where('id',16)->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $companyId = $model->company_id;
                 if(isset($companyId))
