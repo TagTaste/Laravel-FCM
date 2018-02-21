@@ -24,6 +24,18 @@ class ExpireModel extends Action
 
     }
 
+    public function via($notifiable)
+    {
+        $via = [];
+
+        if($this->view && view()->exists($this->view)){
+            $via[] = 'mail';
+
+        }
+        return $via;
+    }
+
+
     /**
      * Get the mail representation of the notification.
      * Overrides mail method of action.php
