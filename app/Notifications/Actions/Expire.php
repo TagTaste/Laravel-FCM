@@ -24,19 +24,19 @@ class Expire extends Action
         // expire in 2 days
         if($event->model->expires_on >= Carbon::now()->addDays(1)->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(2)->toDateTimeString())
         {
-            $this->notification = __("mails.expire:$this->modelName:2days:notification", ['title' => $this->model->title]);
+            $this->notification = __("mails.expire:$this->modelName:2days:notification", ['title' => $this->elipsis($this->model->title, 15)]);
             $this->days = '2days';
         }
         // expires tomorrow
         else if($event->model->expires_on >= Carbon::now()->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(1)->toDateTimeString())
         {
-            $this->notification = __("mails.expire:$this->modelName:1day:notification", ['title' => $this->model->title]);
+            $this->notification = __("mails.expire:$this->modelName:1day:notification", ['title' => $this->elipsis($this->model->title, 15)]);
             $this->days = '1day';
         }
         // expires in 7 days
         else if($event->model->expires_on >= Carbon::now()->addDays(7)->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(8)->toDateTimeString())
         {
-            $this->notification = __("mails.expire:$this->modelName:7days:notification", ['title' => $this->model->title]);
+            $this->notification = __("mails.expire:$this->modelName:7days:notification", ['title' => $this->elipsis($this->model->title, 15)]);
             $this->days = '7days';
         }
         // fallback (will not be used)
@@ -68,21 +68,16 @@ class Expire extends Action
             $image = $company->logo != null ? $company->logo : 'http://www.tagtaste.com/images/default_company_avatar.jpg';
         }
 
-        $this->sub = __("mails.expire:$this->modelName:$this->days:title", ['name'=>$name]);
+        $this->sub = $this->notification;
 
         $this->mailData = [
-            'title' => $this->sub,
-            'owner' => $notifiable->name,
-            'msg' => __("mails.expire:$this->modelName:$this->days:msg", ['name'=>$name]),
+            'title' => __("mails.expire:$this->modelName:$this->days:title"),
 
             $this->modelName => [
                 'id' => $this->model->id,
                 'title' => $this->model->title,
                 'owner_name' => $isCompany ? $name : $notifiable->name,
-                'location' => $this->model->location,
                 'imageUrl' => $image,
-                'btn_text' => 'View',
-                'btn_url' => env('APP_URL').'/'.$this->modelName.'/'.$this->model->id,
             ],
 
             'master_btn_text' => 'EXTEND NOW',
@@ -113,8 +108,7 @@ class Expire extends Action
         if($interested['count'] <=  0) {
             return;
         }
-        $this->mailData['msg2'] = __('mails.expire:collaborate:msg2');
-        $this->mailData['profiles_count'] = $interested['count'];
+        $this->mailData['profiles_count'] = $interested['count']-3;
         $this->mailData['profiles'] =[];
 
         $count = 3;     // no. of interested profiles to send with email
@@ -125,7 +119,6 @@ class Expire extends Action
                 'imageUrl' => $profile->imageUrl != null ? $profile->imageUrl : 'https://www.tagtaste.com/images/emails/profile-circle.png',
                 'name' => $profile->name,
                 'tagline' => !empty($profile->tagline) ? $profile->tagline : '',
-                'location' => '',
             ];
             if(!$count--) break;
         }
@@ -142,5 +135,14 @@ class Expire extends Action
         $this->mailData['master_btn_url'] = env('APP_URL').'/jobs/'.$this->model->id.'/edit';
         $this->mailData['job']['btn_url'] = env('APP_URL').'/jobs/'.$this->model->id;
         $this->mailData['profile_count'] = $this->model->getApplicationCountAttribute();
+    }
+
+    private function elipsis($str, $len)
+    {
+        if(strlen($str) > $len) {
+            return '"'.substr($str, 0 ,$len).'..."';
+        } else {
+            return '"'.$str.'"';
+        }
     }
 }
