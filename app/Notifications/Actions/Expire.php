@@ -62,9 +62,9 @@ class Expire extends Action
 
         if($this->model->company_id != null) {
             $isCompany= true;
-            $company = $this->model->company();
+            $company = $this->model->company;
             $name = $company->name;
-            if($company->logo != null) $image = $company->logo;
+            $image = $company->logo != null ? $company->logo : 'http://www.tagtaste.com/images/default_company_avatar.jpg';
         }
 
         $this->sub = __("mails.expire:$this->modelName:$this->days:title", ['name'=>$name]);
