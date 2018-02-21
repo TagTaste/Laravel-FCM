@@ -44,7 +44,7 @@ class SetExpireon extends Command
     public function handle()
     {
         //this run only once after that remove from kernel.php this file
-        Job::where('expires_on','<=',Carbon::now()->toDateTimeString())->orderBy('id')->chunk(100,function($models){
+        Job::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $companyId = $model->company_id;
                 if(isset($companyId))
@@ -59,9 +59,11 @@ class SetExpireon extends Command
                 else {
                     event(new \App\Events\Actions\ExpireModel($model));
                 }
-                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
+//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
                 \App\Filter\Job::removeModel($model->id);
                 event(new DeleteFeedable($model));
+                $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
+
             }
         });
 
@@ -71,7 +73,7 @@ class SetExpireon extends Command
 //            }
 //        });
 
-        Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->orderBy('id')->chunk(100,function($models){
+        Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $companyId = $model->company_id;
                 if(isset($companyId))
@@ -88,7 +90,8 @@ class SetExpireon extends Command
                 }
                 event(new DeleteFeedable($model));
                 event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
-                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[2]]);
+                $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
+//                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[2]]);
             }
         });
 

@@ -63,7 +63,7 @@ return [
     'expire:job:2days:notification' => 'Your job :title expires in 2 days',
     'expire:job:7days:notification' => 'Your job :title expires in 7 days',
 
-    'expire:job:expired:msg' => ':name job post is expired today',
+    'expire:job:expired:msg' => ':name job post is expired.',
     'expire:job:1day:msg' => ':name job post will expire tomorrow',
     'expire:job:2days:msg' => ':name job post will expire in 2 days',
     'expire:job:7days:msg' => ':name job post will expire in 7 days',
