@@ -39,7 +39,7 @@ class ExpireonJob extends Command
     {
         // expire (applicant)
 //        \App\Job::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
-//            ->orderBy('id')->chunk(100,function($models) {
+//            ->orderBy('id')->chunk(100,function($models)= {
 //                foreach ($models as $model) {
 //                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
 //                    //send notificants to applicants for delete job
@@ -81,27 +81,7 @@ class ExpireonJob extends Command
 
             });
 
-        \App\Job::with([])->where('expires_on','>=',Carbon::now()->addDays(1)->toDateTimeString())
-            ->where('expires_on','<=',Carbon::now()->addDays(2)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
-            foreach($models as $model){
-               $companyId = $model->company_id;
-               if(isset($companyId))
-               {
-                   $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-                   foreach ($profileIds as $profileId)
-                   {
-                       $model->profile_id = $profileId;
-                       event(new \App\Events\Actions\Expire($model));
-
-                   }
-               }
-               else {
-                   event(new \App\Events\Actions\Expire($model));
-               }
-            }
-
-
-        });
+        //notify 1 days before expiry
 
         \App\Job::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
             ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
@@ -125,6 +105,32 @@ class ExpireonJob extends Command
 
 
             });
+
+        //notify 2 days before expiry
+
+        \App\Job::with([])->where('expires_on','>=',Carbon::now()->addDays(1)->toDateTimeString())
+            ->where('expires_on','<=',Carbon::now()->addDays(2)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+            foreach($models as $model){
+               $companyId = $model->company_id;
+               if(isset($companyId))
+               {
+                   $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+                   foreach ($profileIds as $profileId)
+                   {
+                       $model->profile_id = $profileId;
+                       event(new \App\Events\Actions\Expire($model));
+
+                   }
+               }
+               else {
+                   event(new \App\Events\Actions\Expire($model));
+               }
+            }
+
+
+        });
+
+        //notify 8 days before expiry
 
         \App\Job::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
             ->where('expires_on','<=',Carbon::now()->addDays(8)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
