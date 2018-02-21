@@ -19,7 +19,7 @@ class ExpireModel extends Action
 
         $this->view = 'emails.expire-'.$this->modelName;
 
-        $this->notification = __("mails.expire:$this->modelName:expired:notification", ['title' => $this->model->title]);
+        $this->notification = __("mails.expire:$this->modelName:expired:notification", ['title' => $this->elipsis($this->model->title, 15)]);
         $this->sub = $this->notification;
 
     }
@@ -56,21 +56,14 @@ class ExpireModel extends Action
             $image = $company->logo != null ? $company->logo : 'http://www.tagtaste.com/images/default_company_avatar.jpg';
         }
 
-        $this->sub = __("mails.expire:$this->modelName:expired:title", ['name'=>$name]);
-
         $this->mailData = [
-            'title' => $this->sub,
-            'owner' => $notifiable->name,
-            'msg' => __("mails.expire:$this->modelName:expired:msg", ['name'=>$name]),
+            'title' => __("mails.expire:$this->modelName:expired:title"),
 
             $this->modelName => [
                 'id' => $this->model->id,
                 'title' => $this->model->title,
                 'owner_name' => $isCompany ? $name : $notifiable->name,
-                'location' => $this->model->location,
                 'imageUrl' => $image,
-                'btn_text' => 'View',
-                'btn_url' => env('APP_URL').'/'.$this->modelName.'/'.$this->model->id,
             ],
 
             'master_btn_text' => 'RENEW NOW',
@@ -101,7 +94,7 @@ class ExpireModel extends Action
             return;
         }
         $this->mailData['msg2'] = __('mails.expire:collaborate:msg2');
-        $this->mailData['profiles_count'] = $interested['count'];
+        $this->mailData['profile_count'] = $interested['count']-3;
         $this->mailData['profiles'] =[];
 
         $count = 3;     // no. of interested profiles to send with email
@@ -112,9 +105,8 @@ class ExpireModel extends Action
                 'imageUrl' => $profile->imageUrl != null ? $profile->imageUrl : 'https://www.tagtaste.com/images/emails/profile-circle.png',
                 'name' => $profile->name,
                 'tagline' => !empty($profile->tagline) ? $profile->tagline : '',
-                'location' => '',
             ];
-            if($count--) break;
+            if(!$count--) break;
         }
     }
 
@@ -129,5 +121,14 @@ class ExpireModel extends Action
         $this->mailData['master_btn_url'] = env('APP_URL').'/jobs/'.$this->model->id.'/edit';
         $this->mailData['job']['btn_url'] = env('APP_URL').'/jobs/'.$this->model->id;
         $this->mailData['profile_count'] = $this->model->getApplicationCountAttribute();
+    }
+
+    private function elipsis($str, $len)
+    {
+        if(strlen($str) > $len) {
+            return '"'.substr($str, 0 ,$len).'..."';
+        } else {
+            return '"'.$str.'"';
+        }
     }
 }
