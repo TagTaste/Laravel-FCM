@@ -21,41 +21,42 @@ class Expire extends Action
 
         $this->view = 'emails.expire-'.$this->modelName;
 
+        // expire in 2 days
         if($event->model->expires_on >= Carbon::now()->addDays(1)->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(2)->toDateTimeString())
         {
-//            $this->notification ="Your ".$this->modelName." ".$this->model->title." will expire in 2 days.";
             $this->notification = __("mails.expire:$this->modelName:2days:notification", ['title' => $this->model->title]);
             $this->days = '2days';
         }
+        // expires tomorrow
         else if($event->model->expires_on >= Carbon::now()->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(1)->toDateTimeString())
         {
-//            $this->notification ="Your ".$this->modelName." ".$this->model->title." will expire in 1 days.";
             $this->notification = __("mails.expire:$this->modelName:1day:notification", ['title' => $this->model->title]);
             $this->days = '1day';
         }
+        // expires in 7 days
         else if($event->model->expires_on >= Carbon::now()->addDays(7)->toDateTimeString() && $event->model->expires_on <= Carbon::now()->addDays(8)->toDateTimeString())
         {
-//            $this->notification ="Your ".$this->modelName." ".$this->model->title." will expire in 8 days.";
             $this->notification = __("mails.expire:$this->modelName:7days:notification", ['title' => $this->model->title]);
             $this->days = '7days';
         }
+        // fallback (will not be used)
         else
         {
             $this->notification ="Your ".$this->modelName." ".$this->model->title." will expire soon.";
             $this->days = '1day';
         }
 
-
-
-        \Log::info($this->notification.' | '.$this->view);
     }
 
-
-
+    /**
+     * Get the mail representation of the notification.
+     * Overrides mail method of action.php
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
     public function toMail($notifiable)
     {
-//        \Log::info("toMail called\n");
-//        $name = $this->model->company_id != null ? ($company = $this->model->company())->name.'\'s' : 'Your';
         $image = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/emails/placeholders/'.$this->modelName.'.png';
         $name = 'Your';
         $isCompany = false;
@@ -99,6 +100,13 @@ class Expire extends Action
         }
     }
 
+
+    /**
+     * Sets mail meta data for collaborate
+     * expire mails.
+     * @author aman
+     * @return null
+     */
     private function collaborateData()
     {
         $interested = $this->model->getInterestedAttribute();
@@ -123,6 +131,12 @@ class Expire extends Action
         }
     }
 
+    /**
+     * Sets mail meta data for job expire
+     * mails.
+     * @author aman
+     * @return null
+     */
     private function jobData()
     {
         $this->mailData['master_btn_url'] = env('APP_URL').'/jobs/'.$this->model->id.'/edit';

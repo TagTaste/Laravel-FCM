@@ -19,19 +19,20 @@ class ExpireModel extends Action
 
         $this->view = 'emails.expire-'.$this->modelName;
 
-//        $this->notification ="Your ".$this->modelName." ".$this->model->title." has expired.";
         $this->notification = __("mails.expire:$this->modelName:expired:notification", ['title' => $this->model->title]);
         $this->sub = $this->notification;
 
-        \Log::info($this->notification.' | '.$this->view.' | expireModel');
-
-
     }
 
+    /**
+     * Get the mail representation of the notification.
+     * Overrides mail method of action.php
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
     public function toMail($notifiable)
     {
-        \Log::info("toMail called\n");
-//        $name = $this->model->company_id != null ? ($company = $this->model->company())->name.'\'s' : 'Your';
         $image = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/emails/placeholders/'.$this->modelName.'.png';
         $name = 'Your';
         $isCompany = false;
@@ -75,6 +76,12 @@ class ExpireModel extends Action
         }
     }
 
+    /**
+     * Sets mail meta data for collaborate
+     * expire mails.
+     * @author aman
+     * @return null
+     */
     private function collaborateData()
     {
         $interested = $this->model->getInterestedAttribute();
@@ -99,6 +106,12 @@ class ExpireModel extends Action
         }
     }
 
+    /**
+     * Sets mail meta data for job expire
+     * mails.
+     * @author aman
+     * @return null
+     */
     private function jobData()
     {
         $this->mailData['master_btn_url'] = env('APP_URL').'/jobs/'.$this->model->id.'/edit';
