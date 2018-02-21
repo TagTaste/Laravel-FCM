@@ -89,7 +89,7 @@ class ExpireModel extends Action
      */
     private function collaborateData()
     {
-        $interested = $this->model->getInterestedAttribute();
+        $interested = $this->model->getApprovedAttribute();
         if($interested['count'] <=  0) {
             return;
         }
