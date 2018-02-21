@@ -163,53 +163,53 @@ Route::group(['middleware'=>'auth'],function(){
 Route::get("built",function(){
     echo "Yo!";
 });
-
-Route::get('testmail', function(){
-
-    $data = [
-        'subject' => 'Following collaboration has expired',
-        'title' => 'Following collaboration has expired',
-        'owner' => 'Sonika',
-        'msg' => 'Burger King India Pvt. Ltd’s collaboration expires today.',
-
-        'job' => [
-            'id' => 100,
-            'title' => 'Event manager',
-            'owner_id' => 25,
-            'owner_name' => 'Dr\'s Organic citrus farm',
-            'location' => 'New Delhi, Delhi, India',
-            'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
-            'btn_text' => 'View',
-            'btn_url' => env('APP_URL').'/collaborate/100/applications',
-        ],
-
-        'msg2' => 'Here are some interested parties:',
-        'profile_count' => 5,
-        'profiles' => [
-            [
-                'id' => 2,
-                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
-                'name' => 'Arun Tangri',
-                'tagline' => 'New Delhi, Delhi, India',
-            ],
-            [
-                'id' => 3,
-                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
-                'name' => 'Jaspal Sabharwal',
-                'tagline' => 'Gurugram, India',
-            ],
-            [
-                'id' => 4,
-                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
-                'name' => 'Varun Tangri',
-                'tagline' => 'New Delhi, Delhi, India',
-            ],
-        ],
-
-        'master_btn_text' => 'RENEW NOW',
-        'master_btn_url' => env('APP_URL').'/collaborate/100/applications',
-
-    ];
-
-    return view('emails.expire-job', compact('data'));
-});
+//
+//Route::get('testmail', function(){
+//
+//    $data = [
+//        'subject' => 'Following collaboration has expired',
+//        'title' => 'Following collaboration has expired',
+//        'owner' => 'Sonika',
+//        'msg' => 'Burger King India Pvt. Ltd’s collaboration expires today.',
+//
+//        'job' => [
+//            'id' => 100,
+//            'title' => 'Event manager',
+//            'owner_id' => 25,
+//            'owner_name' => 'Dr\'s Organic citrus farm',
+//            'location' => 'New Delhi, Delhi, India',
+//            'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+//            'btn_text' => 'View',
+//            'btn_url' => env('APP_URL').'/collaborate/100/applications',
+//        ],
+//
+//        'msg2' => 'Here are some interested parties:',
+//        'profile_count' => 5,
+//        'profiles' => [
+//            [
+//                'id' => 2,
+//                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+//                'name' => 'Arun Tangri',
+//                'tagline' => 'New Delhi, Delhi, India',
+//            ],
+//            [
+//                'id' => 3,
+//                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+//                'name' => 'Jaspal Sabharwal',
+//                'tagline' => 'Gurugram, India',
+//            ],
+//            [
+//                'id' => 4,
+//                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
+//                'name' => 'Varun Tangri',
+//                'tagline' => 'New Delhi, Delhi, India',
+//            ],
+//        ],
+//
+//        'master_btn_text' => 'VIEW ON TAGTASTE',
+//        'master_btn_url' => env('APP_URL').'/collaborate/100/applications',
+//
+//    ];
+//
+//    return view('emails.expire-job', compact('data'));
+//});

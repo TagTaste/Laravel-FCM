@@ -80,7 +80,7 @@ class Expire extends Action
                 'imageUrl' => $image,
             ],
 
-            'master_btn_text' => 'EXTEND NOW',
+            'master_btn_text' => 'VIEW ON TAGTASTE',
             'master_btn_url' => env('APP_URL').'/'.$this->modelName.'/'.$this->model->id.'/edit',
 
         ];
