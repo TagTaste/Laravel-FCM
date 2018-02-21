@@ -69,11 +69,11 @@ class SetExpireon extends Command
             }
         });
 
-        \DB::table("jobs")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
-            foreach($models as $model){
-                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[1]]);
-            }
-        });
+//        \DB::table("jobs")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+//            foreach($models as $model){
+//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[1]]);
+//            }
+//        });
 
         Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->where('id',16)->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
