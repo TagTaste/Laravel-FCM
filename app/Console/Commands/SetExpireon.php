@@ -64,6 +64,8 @@ class SetExpireon extends Command
                 event(new DeleteFeedable($model));
                 $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
 
+                \Log::info("sending mail");
+
             }
         });
 
@@ -91,7 +93,7 @@ class SetExpireon extends Command
                 event(new DeleteFeedable($model));
                 event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
                 $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
-//                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[2]]);
+                \Log::info("sending mail");
             }
         });
 
