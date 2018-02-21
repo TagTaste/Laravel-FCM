@@ -73,7 +73,7 @@
                                         </table>
                                     </td>
                                 </tr>
-                                @if(isset($data['profile_count']))
+                                @if(isset($data['profile_count']) && $data['profile_count'] > 0)
                                     <tr>
                                         <td style="width:100%!important;background-color:#FFFFFF!important;padding: 0px 40px 0px 40px;border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
                                             <table style="margin: 20px 0px 20px 0px;" width="100%" bgcolor="#FFFFFF"
