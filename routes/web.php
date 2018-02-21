@@ -163,20 +163,20 @@ Route::group(['middleware'=>'auth'],function(){
 Route::get("built",function(){
     echo "Yo!";
 });
-
+//
 //Route::get('testmail', function(){
 //
 //    $data = [
-//        'subject' => 'Your collaboration is expiring today',
-//        'title' => 'Burger king’s collaboration is expiring today.',
+//        'subject' => 'Following collaboration has expired',
+//        'title' => 'Following collaboration has expired',
 //        'owner' => 'Sonika',
 //        'msg' => 'Burger King India Pvt. Ltd’s collaboration expires today.',
 //
-//        'collab' => [
+//        'job' => [
 //            'id' => 100,
-//            'title' => 'A Government Approved Skill...',
+//            'title' => 'Event manager',
 //            'owner_id' => 25,
-//            'owner_name' => 'Burger King India Pvt. Ltd.',
+//            'owner_name' => 'Dr\'s Organic citrus farm',
 //            'location' => 'New Delhi, Delhi, India',
 //            'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
 //            'btn_text' => 'View',
@@ -190,23 +190,23 @@ Route::get("built",function(){
 //                'id' => 2,
 //                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
 //                'name' => 'Arun Tangri',
-//                'location' => 'New Delhi, Delhi, India',
+//                'tagline' => 'New Delhi, Delhi, India',
 //            ],
 //            [
 //                'id' => 3,
 //                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
 //                'name' => 'Jaspal Sabharwal',
-//                'location' => 'Gurugram, India',
+//                'tagline' => 'Gurugram, India',
 //            ],
 //            [
 //                'id' => 4,
 //                'imageUrl' => 'https://www.tagtaste.com/images/emails/profile-circle.png',
 //                'name' => 'Varun Tangri',
-//                'location' => 'New Delhi, Delhi, India',
+//                'tagline' => 'New Delhi, Delhi, India',
 //            ],
 //        ],
 //
-//        'master_btn_text' => 'EXTEND NOW',
+//        'master_btn_text' => 'VIEW ON TAGTASTE',
 //        'master_btn_url' => env('APP_URL').'/collaborate/100/applications',
 //
 //    ];
