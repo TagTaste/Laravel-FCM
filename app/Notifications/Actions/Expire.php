@@ -127,7 +127,7 @@ class Expire extends Action
                 'tagline' => !empty($profile->tagline) ? $profile->tagline : '',
                 'location' => '',
             ];
-            if($count--) break;
+            if(!$count--) break;
         }
     }
 
