@@ -89,7 +89,7 @@ class ExpireModel extends Action
      */
     private function collaborateData()
     {
-        $interested = $this->model->getInterestedAttribute();
+        $interested = $this->model->getApprovedAttribute();
         if($interested['count'] <=  0) {
             return;
         }
@@ -97,7 +97,7 @@ class ExpireModel extends Action
         $this->mailData['profile_count'] = $interested['count']-3;
         $this->mailData['profiles'] =[];
 
-        $count = 3;     // no. of interested profiles to send with email
+        $count = 2;     // no. of interested profiles to send with email
 
         foreach ($interested['profiles'] as $profile) {
             $this->mailData['profiles'][] = [
