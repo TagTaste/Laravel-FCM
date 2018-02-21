@@ -401,5 +401,17 @@ class Collaborate extends Model implements Feedable
 
     }
 
+    public function getApprovedAttribute() : array
+    {
+        $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
+        $profileIds = \DB::table("collaborators")->select('profile_id')->whereNull('archived_at')->where("collaborate_id",$this->id)->get();
+        if($profileIds){
+            $profileIds = $profileIds->pluck('profile_id')->toArray();
+        }
+        $profiles = \App\Recipe\Profile::whereIn('id',$profileIds)->get();
+        return ['count'=>$count,'profiles'=>$profiles];
+    }
+
+
 
 }
