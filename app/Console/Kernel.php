@@ -22,6 +22,7 @@ use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use App\Console\Commands\RemoveNullFcmTokens;
 use App\Console\Commands\RemoveSpecialCharsHandle;
+use App\Console\Commands\ServiceInterruption;
 use App\Console\Commands\SetPlatformAndroid;
 use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
@@ -124,6 +125,8 @@ class Kernel extends ConsoleKernel
 
         // Update notification model
         UpdateNotificationModel::class,
+
+        ServiceInterruption::class
 
     ];
 
