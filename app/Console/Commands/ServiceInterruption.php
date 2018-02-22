@@ -41,12 +41,15 @@ class ServiceInterruption extends Command
     {
         User::with([])->whereNull('deleted_at')->where('id',1)
             ->orderBy('id')->chunk(100,function($models) {
+                $count = 0;
                 foreach ($models as $model)
                 {
+                    $count++;
                     \Log::info($model->name);
                     $mail = (new ServiceInterruptionJob($model->email,$model->name))->onQueue('ServiceInterruption');
                     \Log::info('Queueing send invitation...');
                     dispatch($mail);
+                    \Log::info("no is ".$count);
                 }
             });
     }
