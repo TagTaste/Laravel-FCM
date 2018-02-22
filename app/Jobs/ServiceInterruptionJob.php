@@ -37,7 +37,6 @@ class ServiceInterruptionJob
         \Mail::send('emails.serviceInterruption', ['userName'=>$this->username], function($message)
         {
             $message->to($this->useremail, $this->username)->subject('Interruption in the services');
-            $message->to('ashok@tagtaste.com', $this->username)->subject('Interruption in the services');
         });
     }
 }
