@@ -10,5 +10,5 @@
     <br>
     Regards,
     <br>
-    Team TagTaste
+    Arun & Jaspal
 </p>
