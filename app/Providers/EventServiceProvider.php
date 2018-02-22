@@ -36,6 +36,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\Share' => ['App\Listeners\Notifications\Share'],
         'App\Events\Chat\Invite' => ['App\Listeners\Chat\InviteNotification'],
         'App\Events\Chat\Message' => ['App\Listeners\Chat\NewMessage'],
+
+        'App\Events\Chat\ShareMessage' => ['App\Listeners\Chat\ShareMessages'],
+
         'App\Events\Model\Subscriber\Create' => [
                                                     'App\Listeners\Subscriber\Create'
             ],
@@ -55,6 +58,7 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Actions\ExpireModel' => ['App\Listeners\Notifications\ExpireModel'],
         'App\Events\DeleteFilters' => ['App\Listeners\DeleteFilters'],
+
 
 //        'App\Events\PhoneVerify' => ['App\Listeners\PhoneVerifyNotification'],
 
