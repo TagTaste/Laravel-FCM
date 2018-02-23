@@ -31,7 +31,7 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in'];
+        'applicationCount','file1','deliverables','start_in','state'];
     
     protected $appends = ['images','applicationCount'];
     
@@ -412,6 +412,14 @@ class Collaborate extends Model implements Feedable
         return ['count'=>$count,'profiles'=>$profiles];
     }
 
-
+    public function getStateAttribute($value)
+    {
+        if($value == 1)
+            return 'Active';
+        else if($value == 3)
+            return 'Expired';
+        else
+            return 'Delete';
+    }
 
 }

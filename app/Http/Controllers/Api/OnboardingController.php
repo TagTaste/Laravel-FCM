@@ -10,7 +10,7 @@ class OnboardingController extends Controller
 {
     public function skills()
     {
-        $this->model = \DB::table('onboarding')->select('value')->where('key', 'skills')->inRandomOrder()->take(25)->get();
+        $this->model = \DB::table('onboarding')->select('value')->where('key', 'skills')->inRandomOrder()->take(27)->get();
         return $this->sendResponse();
 
     }
