@@ -299,7 +299,8 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->select('collaborate_id','collaborates.*')
             ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
-            ->where("collaborators.profile_id",$profileId)->where("collaborates.state",Collaborate::$state[0])->whereNull('collaborators.company_id');
+            ->where("collaborators.profile_id",$profileId)->where("collaborates.state","!=",Collaborate::$state[1])
+            ->whereNull('collaborators.company_id')->orderBy('collaborators.applied_on', 'desc');;
 
         $data = [];
         $this->model = [];
