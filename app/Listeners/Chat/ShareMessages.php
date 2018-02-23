@@ -4,10 +4,14 @@ namespace App\Listeners\Chat;
 
 use App\Chat\Message;
 use App\Events\Chat\ShareMessage;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Http\File;
 
-class ShareMessages
+class ShareMessages implements ShouldQueue
 {
+    use Queueable;
+
     /**
      * Create the event listener.
      *
@@ -31,27 +35,31 @@ class ShareMessages
 
         $inputs = $event->inputs;
         $profileIds = $event->profileIds;
-        foreach ($chatIds as $chatId)
+        if(count($chatIds))
         {
-            $info = [];
-            if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                $s3 = \Storage::disk('s3');
-                $filePath = 'p/' . $loggedInProfileId . "/ci";
-                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                $inputs['preview']['image'] = $resp;
-            }
-            if(isset($inputs['preview']))
+            foreach ($chatIds as $chatId)
             {
-                $info['preview'] = json_encode($inputs['preview']);
+                $info = [];
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $loggedInProfileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = $resp;
+                }
+                if(isset($inputs['preview']))
+                {
+                    $info['preview'] = json_encode($inputs['preview']);
+                }
+
+                $info['chat_id'] = $chatId;
+                $info['profile_id'] = $loggedInProfileId;
+                $info['message'] = $inputs['message'];
+                $chat = Message::create($info);
+
+                event(new \App\Events\Chat\Message($chat,$event->user->profile));
             }
 
-            $info['chat_id'] = $chatId;
-            $info['profile_id'] = $loggedInProfileId;
-            $info['message'] = $inputs['message'];
-            $chat = Message::create($info);
-
-            event(new \App\Events\Chat\Message($chat,$event->user->profile));
         }
 
         $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as chat_id , c2.profile_id as profile_id"))
