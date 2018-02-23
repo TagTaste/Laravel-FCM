@@ -108,7 +108,7 @@ class CommentController extends Controller {
      * @param  int  $id
      * @return Response
      */
-    public function destroy(Request $request, $id, $modelName = null, $modelId = null)
+    public function destroy(Request $request, $id)
     {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
