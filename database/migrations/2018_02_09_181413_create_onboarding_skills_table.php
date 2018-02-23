@@ -18,7 +18,6 @@ class CreateOnboardingSkillsTable extends Migration
             $table->string('key');
             $table->string('value');
             $table->boolean('isActive')->default(true);
-            $table->unique(['key', 'value']);
             $table->timestamps();
         });
     }
