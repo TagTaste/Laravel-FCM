@@ -201,7 +201,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get('comments/{model}/{modelId}','CommentController@index');
                 Route::post('comments/{model}/{modelId}','CommentController@store');
                 Route::post('comments/{id}/{modelName}/{modelId}','CommentController@update');
-                Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@destroy');
+                Route::delete('comments/{id}','CommentController@destroy');
+                Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@commentDelete');
             
             //search
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');

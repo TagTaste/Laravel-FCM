@@ -108,30 +108,15 @@ class CommentController extends Controller {
      * @param  int  $id
      * @return Response
      */
-    public function destroy(Request $request, $id, $modelName, $modelId)
+    public function destroy(Request $request, $id, $modelName = null, $modelId = null)
     {
         $userId = $request->user()->id;
         $comment = Comment::where('user_id',$userId)->find($id);
-
         if($comment === null){
-            $model = $this->getModel($modelName,$modelId);
-//            \Log::info($model);
-            if(isset($model->company_id)&&!empty($model->company_id))
-            {
-                $checkAdmin = CompanyUser::where("company_id",$model->company_id)->where('profile_id', $request->user()->profile->id)->exists();
-                if (!$checkAdmin) {
-                    return $this->sendError("Comment does not belong to the user.");
-                }
-            }
-            else if($request->user()->profile->id != $model->profile_id)
-            {
-                return $this->sendError("Comment does not belong to the user.");
-            }
-            $comment = Comment::find($id);
-//            throw new \Exception('Comment does not belong to the user');
+            throw new \Exception('Comment does not belong to the user');
         }
         $this->model = $comment->delete();
-        
+
         return $this->sendResponse();
     }
 
@@ -159,5 +144,33 @@ class CommentController extends Controller {
         $this->model = ["comment"=>$comment,"meta"=>$meta];
         return $this->sendResponse();
     }
+
+    public function commentDelete(Request $request, $id, $modelName, $modelId)
+    {
+        $userId = $request->user()->id;
+        $comment = Comment::where('user_id',$userId)->find($id);
+
+        if($comment === null){
+            $model = $this->getModel($modelName,$modelId);
+//            \Log::info($model);
+            if(isset($model->company_id)&&!empty($model->company_id))
+            {
+                $checkAdmin = CompanyUser::where("company_id",$model->company_id)->where('profile_id', $request->user()->profile->id)->exists();
+                if (!$checkAdmin) {
+                    return $this->sendError("Comment does not belong to the user.");
+                }
+            }
+            else if($request->user()->profile->id != $model->profile_id)
+            {
+                return $this->sendError("Comment does not belong to the user.");
+            }
+            $comment = Comment::find($id);
+//            throw new \Exception('Comment does not belong to the user');
+        }
+        $this->model = $comment->delete();
+
+        return $this->sendResponse();
+    }
+
 
 }
