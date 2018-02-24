@@ -193,7 +193,7 @@ class ChatController extends Controller
 
         $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.is_single',0)->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
-            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->get();
+            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->groupBy('chats.id')->get();
 
         return $this->sendResponse();
 
