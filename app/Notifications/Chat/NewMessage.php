@@ -47,7 +47,7 @@ class NewMessage extends Notification
     {
         $data = [
             'action' => 'chat',
-            'profile' =>$this->data->profile
+            'profile' => request()->user()->profile
         ];
         $chat = \DB::table('chats')->where('id',$this->data->chatId)->first();
         $data['model'] = [
@@ -59,30 +59,30 @@ class NewMessage extends Notification
             ];
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-        if(isset($chat->name)&&!empty($chat->name))
-        {
-            if(isset($this->data->message))
-            {
-                $notification = request()->user()->name ." messaged you '".$this->data->message."' on ".$chat->name." group";
-            }
-            else
-            {
-                $notification = request()->user()->name ." messaged you on ".$chat->name." group";
-
-            }
-        }
-        else{
-            if(isset($this->data->message))
-            {
-                $notification = request()->user()->name ." messaged you '".$this->data->message."'";
-            }
-            else
-            {
-                $notification = request()->user()->name ." messaged you.";
-
-            }
-        }
-        $data['notification'] = $notification;
+//        if(isset($chat->name)&&!empty($chat->name))
+//        {
+//            if(isset($this->data->message))
+//            {
+//                $notification = request()->user()->name ." messaged you '".$this->data->message."' on ".$chat->name." group";
+//            }
+//            else
+//            {
+//                $notification = request()->user()->name ." messaged you on ".$chat->name." group";
+//
+//            }
+//        }
+//        else{
+//            if(isset($this->data->message))
+//            {
+//                $notification = request()->user()->name ." messaged you '".$this->data->message."'";
+//            }
+//            else
+//            {
+//                $notification = request()->user()->name ." messaged you.";
+//
+//            }
+//        }
+        $data['notification'] = null;
         return $data;
     }
 }
