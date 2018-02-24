@@ -74,8 +74,10 @@ class ShareMessages implements ShouldQueue
             ->orderBy('c1.chat_id')
             ->get();
         $chatProfileIds = $chatIds->pluck('profile_id');
+        \Log::info($chatProfileIds);
         $chatIds = $chatIds->pluck('chat_id');
-
+        \Log::info("here chat id");
+        \Log::info($chatIds);
         foreach ($chatIds as $chatId)
         {
             $info = [];
