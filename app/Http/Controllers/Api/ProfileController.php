@@ -118,8 +118,6 @@ class ProfileController extends Controller
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
-            $profile = new Profile();
-            $profile->addToCache();
             $request->user()->update(['name'=>trim($name)]);
         }
         
