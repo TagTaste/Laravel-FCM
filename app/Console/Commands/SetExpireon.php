@@ -44,7 +44,7 @@ class SetExpireon extends Command
     public function handle()
     {
         //this run only once after that remove from kernel.php this file
-        Job::where('expires_on','<=',Carbon::now()->toDateTimeString())->where('id',20)->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+        Job::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $companyId = $model->company_id;
                 if(isset($companyId))
@@ -75,7 +75,7 @@ class SetExpireon extends Command
 //            }
 //        });
 
-        Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->where('id',16)->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+        Collaborate::where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $companyId = $model->company_id;
                 if(isset($companyId))

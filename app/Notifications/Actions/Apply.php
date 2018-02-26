@@ -20,7 +20,8 @@ class Apply extends Action
         {
             $this->sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
             if(!is_null($this->data->content)) {
-                $this->allData['message'] = $this->data->content;
+                $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
+
             }
         }
         else
