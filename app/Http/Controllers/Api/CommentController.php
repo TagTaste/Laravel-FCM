@@ -36,7 +36,7 @@ class CommentController extends Controller {
     
     private function fetchModel($model, $modelId)
     {
-        $model = $model->find($modelId);
+        $model = $model->where('id',$modelId)->whereNull('deleted_at')->first();
     
         if(!$model){
             throw new ModelNotFoundException("Could not find model with provided id.");
@@ -165,6 +165,10 @@ class CommentController extends Controller {
                 return $this->sendError("Comment does not belong to the user.");
             }
             $comment = Comment::find($id);
+            if(!$comment)
+            {
+                return $this->sendError("Not found.");
+            }
 //            throw new \Exception('Comment does not belong to the user');
         }
         $this->model = $comment->delete();
