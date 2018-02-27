@@ -122,6 +122,12 @@ class Job extends Filter {
                     ->where('j2.key','experience_min')->where('j2.value','>=',$filters['experience_min'])
                     ->where('j1.key','experience_max')->where('j1.value','<=',$filters['experience_max']);
             }
+            else if(array_key_exists('compensation_max',$filters) && array_key_exists('compensation_min',$filters))
+            {
+                $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
+                    ->where('j2.key','compensation_min')->where('j2.value','>=',$filters['compensation_min'])
+                    ->where('j1.key','compensation_max')->where('j1.value','<=',$filters['compensation_max']);
+            }
             else if($filter == 'experience_max' || $filter == 'compensation_max')
             {
                 $model = static::selectRaw('distinct ' . static::$relatedColumn)
