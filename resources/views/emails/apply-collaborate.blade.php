@@ -54,7 +54,7 @@
                                                                 </tr>
                                                             </table>
                                                         </td>
-                                                        @if(isset($model['message']) && isset($model['message']['content']) && !empty($model['message']))
+                                                        @if(isset($model['message']) && isset($model['message']['content']) && !empty($model['message']['content']))
                                                         <td align="center" valign="top" width="70%" class="templateColumnContainer" style="padding-left: 15px;">
                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#FAFAFA" style="border-radius:12px;" >
                                                                 <tr>
