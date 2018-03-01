@@ -121,34 +121,26 @@ class ShoutoutController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-        try {
-            $this->verifyOwner($request);
-        } catch (\Exception $e){
-            //if there's an error, just throw it.
-            throw $e;
-        }
-        
 		$inputs = $request->all();
-        $this->model = $this->model->findOrFail($id);
+        $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
 
-        if(($this->model->company_id != $inputs['company_id']) && !empty($this->model->company_id))
+        if(isset($shoutout->company_id))
         {
-            return response()->json(['error' => "User does not belong to this post."],401);
-        }
-
-        if($request->has('company_id')&&!empty($inputs['company_id']))
-        {
+            $companyId = isset($inputs['company_id']) ? $inputs['company_id'] : null;
+            if($shoutout->company_id != $companyId)
+            {
+                return $this->sendError("User does not belong to this post.");
+            }
             $checkAdmin = CompanyUser::where("company_id",$inputs['company_id'])->where('profile_id', $request->user()->profile->id)->exists();
 
             if (!$checkAdmin) {
-                return response()->json(['error' => "User does not belong to this post."],401);
+                return $this->sendError("User does not belong to this post.");
             }
-
             unset($inputs['company_id']);
         }
-        else if(isset($this->model->profile_id) && $this->model->profile_id != $request->user()->profile->id)
+        else if(isset($shoutout->profile_id) && $shoutout->profile_id != $request->user()->profile->id)
         {
-            return response()->json(['error' => "User does not belong to this post."],401);
+            return $this->sendError("User does not belong to this post.");
         }
 
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
@@ -167,8 +159,14 @@ class ShoutoutController extends Controller
         {
             $inputs['preview'] = json_encode($inputs['preview']);
         }
+        else
+        {
+            $inputs['preview'] = null;
+        }
 
-		$this->model = $this->model->update($inputs);
+		$this->model = $shoutout->update($inputs);
+
+        $this->model = Shoutout::findOrFail($id);
 
         if($inputs['has_tags']){
             event(new Tag($this->model, $profile, $this->model->content));
