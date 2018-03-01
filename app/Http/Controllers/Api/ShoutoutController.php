@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\CompanyUser;
 use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
 use App\Http\Requests\API\Shoutout\StoreRequest;
@@ -128,9 +129,50 @@ class ShoutoutController extends Controller
         }
         
 		$inputs = $request->all();
+        $this->model = $this->model->findOrFail($id);
 
-		$this->model = $this->model->findOrFail($id);
+        if(($this->model->company_id != $inputs['company_id']) && !empty($this->model->company_id))
+        {
+            return response()->json(['error' => "User does not belong to this post."],401);
+        }
+
+        if($request->has('company_id')&&!empty($inputs['company_id']))
+        {
+            $checkAdmin = CompanyUser::where("company_id",$inputs['company_id'])->where('profile_id', $request->user()->profile->id)->exists();
+
+            if (!$checkAdmin) {
+                return response()->json(['error' => "User does not belong to this post."],401);
+            }
+
+            unset($inputs['company_id']);
+        }
+        else if(isset($this->model->profile_id) && $this->model->profile_id != $request->user()->profile->id)
+        {
+            return response()->json(['error' => "User does not belong to this post."],401);
+        }
+
+        $inputs['has_tags'] = $this->hasTags($inputs['content']);
+        $profile = $request->user()->profile;
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            if($resp){
+                \File::delete(storage_path($image));
+            }
+            $inputs['preview']['image'] = $resp;
+        }
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
+        }
+
 		$this->model = $this->model->update($inputs);
+
+        if($inputs['has_tags']){
+            event(new Tag($this->model, $profile, $this->model->content));
+        }
 
 		return $this->sendResponse();
 	}
