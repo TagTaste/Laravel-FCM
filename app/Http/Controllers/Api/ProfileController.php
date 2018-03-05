@@ -559,7 +559,7 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         $query = $request->input('term');
-        $this->model = \App\Recipe\Profile::join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")->whereIn('profiles.id',$profileIds)->get();
+        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")->whereIn('profiles.id',$profileIds)->get();
         return $this->sendResponse();
 
     }
