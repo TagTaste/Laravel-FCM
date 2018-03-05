@@ -175,7 +175,7 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollab",function(){
     
-    $when = \Carbon\Carbon::createFromTime(19,15,00);
+    $when = \Carbon\Carbon::createFromTime(19,25,00);
     $count = 0;
     $users = \DB::table('users')->whereNull('deleted_at')->where('created_at' ,'>=','2018-02-07 00:00:00')->get();
     foreach ($users as $user)
