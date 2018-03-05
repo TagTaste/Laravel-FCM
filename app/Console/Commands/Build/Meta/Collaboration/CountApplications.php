@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Build\Meta\Collaboration;
 
 use App\Collaboration\Collaborator;
+use App\Profile;
 use Illuminate\Console\Command;
 
 class CountApplications extends Command
@@ -45,7 +46,11 @@ class CountApplications extends Command
         });
         Collaborator::chunk(200,function($models){
             foreach($models as $model){
-                \Redis::hIncrBy("meta:collaborate:" . $model->collaborate_id,"applicationCount",1);
+                $exist = Profile::where('id',$model->profile_id)->whereNull('deleted_at')->exists();
+                if($exist)
+                {
+                    \Redis::hIncrBy("meta:collaborate:" . $model->collaborate_id,"applicationCount",1);
+                }
             }
         });
     }
