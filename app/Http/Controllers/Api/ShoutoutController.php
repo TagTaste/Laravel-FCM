@@ -166,10 +166,13 @@ class ShoutoutController extends Controller
 
 		$this->model = $shoutout->update($inputs);
 
-        $this->model = Shoutout::findOrFail($id);
+        $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
+        $profileId = $request->user()->profile->id;
+        $meta = $shoutout->getMetaFor($profileId);
+        $this->model = ['shoutout'=>$shoutout,'meta'=>$meta];
 
         if($inputs['has_tags']){
-            event(new Tag($this->model, $profile, $this->model->content));
+            event(new Tag($shoutout, $profile, $this->model->content));
         }
 
 		return $this->sendResponse();
