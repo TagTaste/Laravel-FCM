@@ -41,6 +41,12 @@ class CountApplications extends Command
     {
         Application::chunk(200,function($models){
             foreach($models as $model){
+                \Redis::hset("meta:job:" . $model->id,"applicationCount",0);
+            }
+        });
+
+        Application::chunk(200,function($models){
+            foreach($models as $model){
                 \Redis::hIncrBy("meta:job:" . $model->id,"applicationCount",1);
             }
         });
