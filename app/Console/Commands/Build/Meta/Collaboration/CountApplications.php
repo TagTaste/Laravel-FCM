@@ -40,6 +40,11 @@ class CountApplications extends Command
     {
         Collaborator::chunk(200,function($models){
             foreach($models as $model){
+                \Redis::hset("meta:collaborate:" . $model->collaborate_id,"applicationCount",0);
+            }
+        });
+        Collaborator::chunk(200,function($models){
+            foreach($models as $model){
                 \Redis::hIncrBy("meta:collaborate:" . $model->collaborate_id,"applicationCount",1);
             }
         });

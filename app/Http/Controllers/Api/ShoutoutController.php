@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\CompanyUser;
 use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
 use App\Http\Requests\API\Shoutout\StoreRequest;
@@ -120,17 +121,56 @@ class ShoutoutController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-        try {
-            $this->verifyOwner($request);
-        } catch (\Exception $e){
-            //if there's an error, just throw it.
-            throw $e;
-        }
-        
 		$inputs = $request->all();
+        $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
 
-		$this->model = $this->model->findOrFail($id);
-		$this->model = $this->model->update($inputs);
+        if(isset($shoutout->company_id))
+        {
+            $companyId = isset($inputs['company_id']) ? $inputs['company_id'] : null;
+            if($shoutout->company_id != $companyId)
+            {
+                return $this->sendError("User does not belong to this post.");
+            }
+            $checkAdmin = CompanyUser::where("company_id",$inputs['company_id'])->where('profile_id', $request->user()->profile->id)->exists();
+
+            if (!$checkAdmin) {
+                return $this->sendError("User does not belong to this post.");
+            }
+            unset($inputs['company_id']);
+        }
+        else if(isset($shoutout->profile_id) && $shoutout->profile_id != $request->user()->profile->id)
+        {
+            return $this->sendError("User does not belong to this post.");
+        }
+
+        $inputs['has_tags'] = $this->hasTags($inputs['content']);
+        $profile = $request->user()->profile;
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            if($resp){
+                \File::delete(storage_path($image));
+            }
+            $inputs['preview']['image'] = $resp;
+        }
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
+        }
+        else
+        {
+            $inputs['preview'] = null;
+        }
+
+		$this->model = $shoutout->update($inputs);
+
+        $this->model = Shoutout::findOrFail($id);
+
+        if($inputs['has_tags']){
+            event(new Tag($this->model, $profile, $this->model->content));
+        }
 
 		return $this->sendResponse();
 	}
