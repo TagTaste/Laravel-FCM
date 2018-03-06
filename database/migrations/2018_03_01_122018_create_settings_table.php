@@ -16,8 +16,18 @@ class CreateSettingsTable extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->string('subtitle');
-            $table->timestamps();
+            $table->string('bell_description')->nullable();
+            $table->string('email_description')->nullable();
+            $table->string('push_description')->nullable();
+            $table->boolean('bell_visibility')->nullable();
+            $table->boolean('email_visibility')->nullable();
+            $table->boolean('push_visibility')->nullable();
+            $table->boolean('bell_active')->nullable();
+            $table->boolean('email_active')->nullable();
+            $table->boolean('push_active')->nullable();
+            $table->boolean('bell_value')->nullable();
+            $table->boolean('email_value')->nullable();
+            $table->boolean('push_value')->nullable();
         });
     }
 

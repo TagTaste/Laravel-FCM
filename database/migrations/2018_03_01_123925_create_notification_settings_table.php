@@ -18,21 +18,23 @@ class CreateNotificationSettingsTable extends Migration
             $table->integer('setting_id')->unsigned();
             $table->integer('profile_id')->unsigned();
             $table->integer('company_id')->unsigned()->nullable();
-            $table->boolean('bell_notification');
-            $table->boolean('push_notification');
-            $table->boolean('email_notification');
-            $table->boolean('bell_visibility');
-            $table->boolean('push_visibility');
-            $table->boolean('email_visibility');
-            $table->string('action');
+            $table->boolean('bell_visibility')->nullable();
+            $table->boolean('email_visibility')->nullable();
+            $table->boolean('push_visibility')->nullable();
+            $table->boolean('bell_active')->nullable();
+            $table->boolean('email_active')->nullable();
+            $table->boolean('push_active')->nullable();
+            $table->boolean('bell_value')->nullable();
+            $table->boolean('email_value')->nullable();
+            $table->boolean('push_value')->nullable();
             $table->timestamps();
 
             $table->foreign('setting_id')->references('id')->on('settings');
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->foreign('company_id')->references('id')->on('companies');
 
-            $table->index(['profile_id','action']);
             $table->index(['profile_id','setting_id']);
+            $table->index(['company_id','setting_id']);
         });
     }
 
