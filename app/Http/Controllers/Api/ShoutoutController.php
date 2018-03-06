@@ -166,7 +166,7 @@ class ShoutoutController extends Controller
 
 		$this->model = $shoutout->update($inputs);
 
-        $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
+        $shoutout = Shoutout::where('id',$id)->whereNull('deleted_at')->first();
         $profileId = $request->user()->profile->id;
         $meta = $shoutout->getMetaFor($profileId);
         $this->model = ['shoutout'=>$shoutout,'meta'=>$meta];
