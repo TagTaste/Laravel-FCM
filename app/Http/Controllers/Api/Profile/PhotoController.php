@@ -152,6 +152,10 @@ class PhotoController extends Controller
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
+
+        $loggedInProfileId = $request->user()->profile->id;
+        $meta = $this->model->getMetaFor($loggedInProfileId);
+        $this->model = ['photo'=>$this->model,'meta'=>$meta];
         
         return $this->sendResponse();
     }

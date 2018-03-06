@@ -173,7 +173,7 @@ class Shoutout extends Model implements Feedable
             \Log::error($e->getLine());
             \Log::error($e->getMessage());    
         }
-        return [];
+        return null;
     }
 
     public function getPreviewContent()
