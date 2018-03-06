@@ -71,13 +71,21 @@ class ExpireReopen extends Command
             }
         });
 
-        Collaborate::where('state',3)->where('id',86)->orderBy('id')->chunk(100,function($models){
+        $collabIds = [];
+        \DB::table("collaborates")->where('state',Collaborate::$state[2])->whereIn('id',$collabIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
-                echo $model->id;
 
                 $profile = \App\Profile::find($model->profile_id);
-                event(new NewFeedable($model, $profile));
-                echo "yaha";
+                if($model->comapny_id != null)
+                {
+                    $company = Company::find($model->comapny_id);
+                    event(new NewFeedable($model, $company));
+                }
+                else
+                {
+                    $profile = \App\Profile::find($model->profile_id);
+                    event(new NewFeedable($model, $profile));
+                }
 
                 //push to feed
 
@@ -85,17 +93,10 @@ class ExpireReopen extends Command
                 //add subscriber
                 event(new \App\Events\Model\Subscriber\Create($model,$profile));
 
-                echo "yaha 1";
-
                 \App\Filter\Collaborate::addModel($model);
 
-                echo "yaha 2";
-
-                $st = \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
-
-                echo $st;
+                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
             }
         });
-
     }
 }
