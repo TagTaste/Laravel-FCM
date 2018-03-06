@@ -77,7 +77,7 @@ class ExpireReopen extends Command
 
                 $profile = \App\Profile::find($model->profile_id);
                 event(new NewFeedable($model, $profile));
-
+                echo "yaha";
 
                 //push to feed
 
@@ -85,9 +85,15 @@ class ExpireReopen extends Command
                 //add subscriber
                 event(new \App\Events\Model\Subscriber\Create($model,$profile));
 
+                echo "yaha 1";
+
                 \App\Filter\Collaborate::addModel($model);
 
-                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
+                echo "yaha 2";
+
+                $st = \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
+
+                echo $st;
             }
         });
 
