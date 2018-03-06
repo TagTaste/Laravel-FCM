@@ -71,8 +71,7 @@ class ExpireReopen extends Command
             }
         });
 
-        $collabIds = [86];
-        Collaborate::where('state',Collaborate::$state[2])->whereIn('id',$collabIds)->orderBy('id')->chunk(100,function($models){
+        Collaborate::where('state',3)->where('id',86)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
 
                 $profile = \App\Profile::find($model->profile_id);
