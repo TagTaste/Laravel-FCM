@@ -71,8 +71,9 @@ class ExpireReopen extends Command
             }
         });
 
-        Collaborate::where('state',3)->where('id',86)->orderBy('id')->chunk(100,function($models){
+        Collaborate::where('state',3)->where('id',7)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
+                echo $model->id;
 
                 $profile = \App\Profile::find($model->profile_id);
                 event(new NewFeedable($model, $profile));
