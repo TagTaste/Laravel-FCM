@@ -17,6 +17,9 @@ class CreateSettingsActionTable extends Migration
             $table->increments('id');
             $table->integer('setting_id')->unsigned();
             $table->string('action');
+            $table->string('sub_action')->nullable();
+            $table->boolean('shared')->nullable();
+            $table->string('model')->nullable();
 
             $table->foreign('setting_id')->references('id')->on('settings');
             $table->index('action');

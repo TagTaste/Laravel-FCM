@@ -229,6 +229,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //get all notification of particular profile
             Route::get('update','UpdateController@index');
 
+            // get settings for a specific type
+            Route::get('settings/{type}', 'SettingController@show');
+
 
             //profile routes
 
