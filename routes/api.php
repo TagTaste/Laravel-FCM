@@ -81,6 +81,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
             //chat
+                Route::post('chatShareMessage',"ChatController@chatShareMessage");
                 Route::get('chatGroup',"ChatController@chatGroup");
                 Route::get("chatrooms","ChatController@rooms");
                 Route::post("chats/{chatId}/members/addAdmin",'Chat\\MemberController@addAdmin');
@@ -199,7 +200,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //comments
                 Route::get('comments/{model}/{modelId}','CommentController@index');
                 Route::post('comments/{model}/{modelId}','CommentController@store');
+                Route::post('comments/{id}/{modelName}/{modelId}','CommentController@update');
                 Route::delete('comments/{id}','CommentController@destroy');
+                Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@commentDelete');
             
             //search
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
@@ -255,6 +258,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::post("profile/filters", "ProfileController@filtersData");
             Route::resource('profile','ProfileController');
 
+
+            // onboarding routes
+            Route::get('onboarding/skills', 'OnboardingController@skills');
+            Route::get('onboarding/autocomplete/skills', 'OnboardingController@autoCompleteSkills');
+
             //company filter
             Route::get("companies/filters", "CompanyController@filters");
             Route::resource('companies','CompanyController');
@@ -288,7 +296,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource('comments','CommentController');
                     Route::resource('like','PhotoLikeController');
                 });
-                
+
                 Route::post('companies/{id}/follow','CompanyController@follow');
                 Route::post('companies/{id}/unfollow','CompanyController@unfollow');
                 Route::get('companies/{id}/followers','CompanyController@followers');

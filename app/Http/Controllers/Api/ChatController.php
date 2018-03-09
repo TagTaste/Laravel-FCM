@@ -6,6 +6,7 @@ use App\Chat;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\File;
 
 class ChatController extends Controller
 {
@@ -191,8 +192,21 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
 
         $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chat_members.is_single',0)->where('chat_members.profile_id','=',$profileId)
-            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->get();
+            ->where('chat_members.is_single',0)->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
+            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->groupBy('chats.id')->get();
+
+        return $this->sendResponse();
+
+    }
+
+    public function chatShareMessage(Request $request)
+    {
+        $profileIds = $request->input('profile_id');
+        $chatIds = $request->input('chat_id');
+        $inputs = $request->all();
+        event(new \App\Events\Chat\ShareMessage($chatIds,$profileIds,$inputs,$request->user()));
+
+        $this->model = true;
 
         return $this->sendResponse();
 

@@ -1,4 +1,4 @@
-<body>
+<body style="margin: 0; padding: 0;">
 <center>
     <table width="100%" border ="0" cellspacing ="0" cellpadding = "0" style="font-family:Arial" bgcolor="#F8F6F9 ">
         @include("emails.header.header")
@@ -9,7 +9,7 @@
                         <td align="center">
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0" border-collapse="collapse" style="">
                                 <tr>
-                                    <td align="center" bgcolor="#FFFFFF " style="width:100%!important">
+                                    <td align="center" bgcolor="#FFFFFF " style="width:100%!important; border-radius: 10px 10px 0 0;">
                                         <div style="font-size: 20px;font-weight: bold;padding:20px 70px;color: #181818 ;">
                                             Invitation to join TagTaste
                                         </div>
@@ -33,6 +33,7 @@
                                             <img src="{{$senderImage}}" height="80px" width="80px" style="border-radius:50%"/>
                                         </div>
                                         <p style="font-size: 16px;color: #181818 ;margin:0px;font-weight:bold;">{{$senderName}} has invited you to join TagTaste </p>
+                                        <h1 style="font-size: 28px; margin-bottom: 10px">Your invite code is: <span style="color: #da332e;">{{ $inviteCode }}</span></h1>
                                     </td>
                                 </tr>
                                 <tr>
@@ -47,14 +48,6 @@
                                     <td bgcolor="#FFFFFF ">
                                         <div style="padding: 0px 60px 0px 60px;">
                                             <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">Join now and leverage the power of this community.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td bgcolor="#FFFFFF ">
-                                        <div style="padding: 0px 60px 0px 60px;">
-                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS: <span style="color: #b42128">{{$inviteCode}}</span> </p>
                                         </div>
                                     </td>
                                 </tr>

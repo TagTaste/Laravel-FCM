@@ -98,6 +98,5 @@ class ExpireReopen extends Command
                 \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
             }
         });
-
     }
 }

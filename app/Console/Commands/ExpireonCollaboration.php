@@ -37,27 +37,78 @@ class ExpireonCollaboration extends Command
      */
     public function handle()
     {
-        //expire
+        //expire (collaborators)
+//        \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+//            ->orderBy('id')->chunk(100,function($models){
+//                foreach($models as $model){
+//
+//                    //delete filters
+//                    \Log::info('expire');
+//                    event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
+//
+//                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
+//                    \App\Filter\Collaborate::removeModel($model->id);
+//                    $profileIds = \DB::table("collaborators")->where("collaborate_id",$model->id)->get()->pluck('profile_id');
+//                    $profileIds = $profileIds->unique();
+//                    foreach ($profileIds as $profileId)
+//                    {
+//                        $model->profile_id = $profileId;
+//                        event(new \App\Events\Actions\ExpireModel($model));
+//                    }
+//                    event(new DeleteFeedable($model));
+//
+//                }
+//            });
+
+
+        // expire (admins)
         \App\Collaborate::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models){
                 foreach($models as $model){
-    
-                    //delete filters
-                    event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
-                    
-                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
-                    \App\Filter\Collaborate::removeModel($model->id);
-                    $profileIds = \DB::table("collaborators")->where("collaborate_id",$model->id)->get()->pluck('profile_id');
-                    $profileIds = $profileIds->unique();
-                    foreach ($profileIds as $profileId)
+                    $companyId = $model->company_id;
+                    if(isset($companyId))
                     {
-                        $model->profile_id = $profileId;
+                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+                        foreach ($profileIds as $profileId)
+                        {
+                            $model->profile_id = $profileId;
+                            event(new \App\Events\Actions\ExpireModel($model));
+                        }
+                    }
+                    else {
                         event(new \App\Events\Actions\ExpireModel($model));
                     }
+                    event(new \App\Events\DeleteFilters(class_basename($model),$model->id));
+                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[2]]);
                     event(new DeleteFeedable($model));
-    
+
                 }
             });
+
+        //notify 1 day before expiry
+//        \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
+//            ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+//
+//                foreach($models as $model){
+//                    $companyId = $model->company_id;
+//                    if(isset($companyId))
+//                    {
+//
+//                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+//                        foreach ($profileIds as $profileId)
+//                        {
+//                            $model->profile_id = $profileId;
+//                            event(new \App\Events\Actions\Expire($model));
+//
+//                        }
+//                    }
+//                    else {
+//                        event(new \App\Events\Actions\Expire($model));
+//                    }
+//                }
+//
+//
+//            });
 
         //notify 2 days before expiry
         \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->addDays(1)->toDateTimeString())
@@ -76,55 +127,32 @@ class ExpireonCollaboration extends Command
                     else {
                         event(new \App\Events\Actions\Expire($model));
                     }
-    
+
                 }
 
 
             });
 
-        //notify 1 day before expiry
-        \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
-            ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
-                foreach($models as $model){
-                    $companyId = $model->company_id;
-                    if(isset($companyId))
-                    {
-
-                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-                        foreach ($profileIds as $profileId)
-                        {
-                            $model->profile_id = $profileId;
-                            event(new \App\Events\Actions\Expire($model));
-    
-                        }
-                    }
-                    else {
-                        event(new \App\Events\Actions\Expire($model));
-                    }
-                }
-
-
-            });
 
         //notify 8 days before
-        \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
-            ->where('expires_on','<=',Carbon::now()->addDays(8)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
-                foreach($models as $model){
-                    $companyId = $model->company_id;
-                    if(isset($companyId))
-                    {
-                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
-                        foreach ($profileIds as $profileId)
-                        {
-                            $model->profile_id = $profileId;
-                            event(new \App\Events\Actions\Expire($model));
-    
-                        }
-                    }
-                    else {
-                        event(new \App\Events\Actions\Expire($model));
-                    }
-                }
-            });
+//        \App\Collaborate::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
+//            ->where('expires_on','<=',Carbon::now()->addDays(8)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
+//                foreach($models as $model){
+//                    $companyId = $model->company_id;
+//                    if(isset($companyId))
+//                    {
+//                        $profileIds = CompanyUser::where('company_id',$companyId)->get()->pluck('profile_id');
+//                        foreach ($profileIds as $profileId)
+//                        {
+//                            $model->profile_id = $profileId;
+//                            event(new \App\Events\Actions\Expire($model));
+//
+//                        }
+//                    }
+//                    else {
+//                        event(new \App\Events\Actions\Expire($model));
+//                    }
+//                }
+//            });
     }
 }

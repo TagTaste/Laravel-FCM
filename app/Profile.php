@@ -793,15 +793,15 @@ class Profile extends Model
 
     public function getNotificationContent($action = null)
     {
-        if($action && $action == 'follow') {
+//        if($action && $action == 'follow') {
             return [
                 'name' => strtolower(class_basename(self::class)),
                 'id' => $this->id,
                 'tagline' => $this->tagline,
                 'image' => $this->imageUrl,
-                'content' => null
+                'content' => null,
             ];
-        }
+//        }
     }
 
     public function getMessageCountAttribute()
