@@ -170,7 +170,7 @@ class Shoutout extends Model implements Feedable
             }
             \Log::info("here");
             \Log::info($preview);
-//            return $preview;
+            return $preview;
 
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
