@@ -163,14 +163,14 @@ class Shoutout extends Model implements Feedable
 
         try {
             $preview = json_decode($value,true);
-            \Log::info("here");
-            \Log::info($preview);
+
             if(isset($preview['image']) && !is_null($preview['image']))
             {
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
-
-            return $preview;
+            \Log::info("here");
+            \Log::info($preview);
+//            return $preview;
 
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
