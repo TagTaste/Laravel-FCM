@@ -145,7 +145,7 @@ class PhotoController extends Controller
         $inputs = $data;
         unset($inputs['has_tags']);
         $this->model = $request->user()->profile->photos()->where('id',$id)->update($inputs);
-        $this->model = \App\Profile\Photo::find($id);
+        $this->model = \App\Photo::find($id);
         if($data['has_tags']){
             event(new Tag($this->model, $request->user()->profile, $this->model->caption));
         }

@@ -139,7 +139,7 @@ class PhotoController extends Controller
         unset($inputs['has_tags']);
         $this->model = $company->photos()->where('id',$id)->update($inputs);
         
-        $this->model = Company\Photo::find($id);
+        $this->model = Photo::find($id);
         if(isset($data['has_tags'])){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
