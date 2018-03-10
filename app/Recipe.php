@@ -24,7 +24,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
         'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id',
-        'tutorial_link','cuisine','is_vegetarian'];
+        'tutorial_link','cuisine','is_vegetarian','updated_at'];
     
     protected $with = ['profile','ingredients','equipments','images','cuisine'];
 

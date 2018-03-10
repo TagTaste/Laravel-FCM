@@ -18,7 +18,7 @@ class Shoutout extends Model implements Feedable
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview'];
     
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
-        'created_at','privacy_id','privacy','image','preview'
+        'created_at','privacy_id','privacy','image','preview','updated_at'
     ];
     
     protected $appends = ['owner','likeCount'];
