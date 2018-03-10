@@ -162,7 +162,7 @@ class Shoutout extends Model implements Feedable
     {
 
         $preview = json_decode($value,true);
-        if(isset($preview['image'])) {
+        if(isset($preview['image']) && !is_null($preview['image'])) {
             $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
         }
         return empty($preview) ? null : $preview;
