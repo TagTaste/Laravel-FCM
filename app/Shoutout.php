@@ -161,19 +161,22 @@ class Shoutout extends Model implements Feedable
     public function getPreviewAttribute($value)
     {
 
-        $preview = json_decode($value,true);
-        if(isset($preview['image']))
-        {
-            $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
-        }
+        try {
+            $preview = json_decode($value,true);
 
-        if(isset($preview) && !is_null($preview))
-        {
+            if(isset($preview['image']) && !is_null($preview['image']))
+            {
+                $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+            }
             return $preview;
 
+        } catch(\Exception $e){
+            \Log::error("Could not load preview image");
+            \Log::error($preview);
+            \Log::error($e->getLine());
+            \Log::error($e->getMessage());
         }
-
-        return null;
+        return empty($preview) ? null : $preview;
     }
 
     public function getPreviewContent()
