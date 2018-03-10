@@ -28,6 +28,10 @@ class CreateSettingsTable extends Migration
             $table->boolean('bell_value')->nullable();
             $table->boolean('email_value')->nullable();
             $table->boolean('push_value')->nullable();
+            $table->string('group_name')->nullable();
+            $table->string('belongs_to')->nullable();
+
+            $table->index('belongs_to');
         });
     }
 
