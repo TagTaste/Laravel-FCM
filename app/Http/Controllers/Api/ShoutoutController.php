@@ -172,7 +172,7 @@ class ShoutoutController extends Controller
         $this->model = ['shoutout'=>$shoutout,'meta'=>$meta];
 
         if($inputs['has_tags']){
-            event(new Tag($shoutout, $profile, $shoutout->content));
+            event(new Tag($shoutout, $profile, $this->model['shoutout']->content));
         }
 
 		return $this->sendResponse();
