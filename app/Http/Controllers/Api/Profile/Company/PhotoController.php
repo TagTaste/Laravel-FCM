@@ -131,14 +131,13 @@ class PhotoController extends Controller
         
         $data = $request->except(['_method','_token','company_id']);
         $data['has_tags'] = $this->hasTags($data['caption']);
-        if($request->hasFile('file')) {
-            $imageName = str_random(32) . ".jpg";
-            $data['file'] = $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
-        }
+
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
-        $this->model = $company->photos()->where('id',$id)->update($data);
+        $inputs = $data;
+        unset($inputs['has_tags']);
+        $this->model = $company->photos()->where('id',$id)->update($inputs);
         
         $this->model = Company\Photo::find($id);
         if(isset($data['has_tags'])){
