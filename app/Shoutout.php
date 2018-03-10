@@ -168,8 +168,6 @@ class Shoutout extends Model implements Feedable
             {
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
-            \Log::info("here");
-            \Log::info($preview);
             return $preview;
 
         } catch(\Exception $e){
@@ -178,7 +176,7 @@ class Shoutout extends Model implements Feedable
             \Log::error($e->getLine());
             \Log::error($e->getMessage());
         }
-        return $preview;
+        return empty($preview) ? null : $preview;
     }
 
     public function getPreviewContent()
