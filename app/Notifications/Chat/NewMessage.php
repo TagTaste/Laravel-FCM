@@ -47,7 +47,7 @@ class NewMessage extends Notification
     {
         $data = [
             'action' => 'chat',
-            'profile' => $this->data->profile
+            'profile' => request()->user()->profile
         ];
         $chat = \DB::table('chats')->where('id',$this->data->chatId)->first();
         $data['model'] = [
