@@ -278,6 +278,7 @@ class SearchController extends Controller
     public function filterSearch(Request $request, $type = null)
     {
         $query = $request->input('q');
+        $profileId = $request->user()->profile->id;
         $params = [
             'index' => "api",
             'body' => [
@@ -320,7 +321,6 @@ class SearchController extends Controller
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
 
-            $profileId = $request->user()->profile->id;
 
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
