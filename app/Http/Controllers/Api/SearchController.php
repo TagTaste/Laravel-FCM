@@ -394,7 +394,7 @@ class SearchController extends Controller
             if(isset($this->model['profile'])){
 //                $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
-                $profiles = $this->model['profile']->toArray();
+                $profiles = $this->model['profile'];
                 $this->model['profile'] = [];
                 foreach($profiles as $profile){
                     if($profile && isset($profile['id'])){
@@ -407,7 +407,7 @@ class SearchController extends Controller
 
             if(isset($this->model['company'])){
 //                $this->model['company'] = $this->model['company']->toArray();
-                $companies = $this->model['company']->toArray();
+                $companies = $this->model['company'];
                 $this->model['company'] = [];
                 foreach($companies as $company){
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);

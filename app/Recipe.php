@@ -65,6 +65,12 @@ class Recipe extends Model implements Feedable, CommentNotification
     {
         \Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
     }
+
+    public function deleteShares()
+    {
+        $now = \Carbon\Carbon::now();
+        \DB::table("recipe_shares")->where('recipe_id',$this->id)->update(['deleted_at'=>$now,'updated_at'=>$now]);
+    }
     
     public function removeFromCache()
     {
