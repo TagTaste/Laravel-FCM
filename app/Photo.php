@@ -35,21 +35,14 @@ class Photo extends Model implements Feedable
 
     public static function boot()
     {
-        parent::boot();
+//        parent::boot();
 
-        self::deleting(function($photo){
-//            \DB::transaction(function() use ($photo){
-                $photo->ideabooks()->detach();
-//            });
+        self::created(function($shoutout){
+            $shoutout->addToCache();
         });
-        
-        //do not fire self::created methods here.
-        //manage this in the controller.
-        //self::created doesn't fire after the relationship of profile/company has been established.
-        //so it can't be pushed to the feed since there won't be any "owner".
-        
-        self::created(function($photo){
-           //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
+
+        self::updated(function($shoutout){
+            $shoutout->addToCache();
         });
     }
     
