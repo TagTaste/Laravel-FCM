@@ -55,7 +55,7 @@ class Photo extends Model implements Feedable
     
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString()];
+        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),'updated_at'=>$this->updated_at->toDateTimeString()];
         \Redis::set("photo:" . $this->id,json_encode($data));
     }
     
