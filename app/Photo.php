@@ -42,20 +42,28 @@ class Photo extends Model implements Feedable
                 $photo->ideabooks()->detach();
 //            });
         });
-        
+
         //do not fire self::created methods here.
         //manage this in the controller.
         //self::created doesn't fire after the relationship of profile/company has been established.
         //so it can't be pushed to the feed since there won't be any "owner".
-        
+
         self::created(function($photo){
            //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
+
+//        self::created(function($photo){
+//            $photo->addToCache();
+//        });
+//
+//        self::updated(function($photo){
+//            $photo->addToCache();
+//        });
     }
     
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString()];
+        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),'updated_at'=>$this->updated_at->toDateTimeString()];
         \Redis::set("photo:" . $this->id,json_encode($data));
     }
     
