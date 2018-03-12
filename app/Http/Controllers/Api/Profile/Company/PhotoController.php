@@ -121,13 +121,7 @@ class PhotoController extends Controller
         }
         $profile = $request->user()->profile;
         $profileId = $profile->id;
-        //check if user belongs to the company
-        $userId = $request->user()->id;
-        $userBelongsToCompany = $company->checkCompanyUser($userId);
-    
-        if(!$userBelongsToCompany){
-            return $this->sendError("User does not belong to this company");
-        }
+
         
         $data = $request->except(['_method','_token','company_id']);
         $data['has_tags'] = $this->hasTags($data['caption']);
@@ -139,8 +133,8 @@ class PhotoController extends Controller
         unset($inputs['has_tags']);
         $this->model = $company->photos()->where('id',$id)->update($inputs);
         
-        $this->model = Company\Photo::find($id);
-        if(isset($data['has_tags'])){
+        $this->model = Photo::find($id);
+        if(isset($data['has_tags']) && $data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
