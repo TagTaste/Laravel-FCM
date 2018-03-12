@@ -59,7 +59,6 @@ class ShareMessages implements ShouldQueue
                 $chat = Message::create($info);
 
                 event(new \App\Events\Chat\Message($chat,$event->user->profile));
-                \Log::info("chat $chatId is here");
 
             }
 
