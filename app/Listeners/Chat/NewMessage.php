@@ -30,6 +30,7 @@ class NewMessage
      */
     public function handle(Message $event)
     {
+        \Log::info($event->profile);
         $profiles = Profile::select('profiles.*')->join('chat_members','profiles.id','=','chat_members.profile_id')
                     ->where('chat_id',$event->chatId)
                     ->where('profile_id','!=',$event->profile->id)->whereNull('chat_members.exited_on')->get();
