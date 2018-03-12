@@ -43,7 +43,7 @@ class FCMPush extends Model
         $iosDataBuilder->addData(['data' => $iosData]);
         $data = $iosDataBuilder->build();
         $notificationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',$profileId)->count();
-        \Log::info($iosData['profile']);
+        \Log::info($iosData['profile']->name);
         \Log::info("here");
         $notificationBody = isset($iosData['profile']['name']) ? $iosData['profile']['name'].' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
         $notificationBuilder = new PayloadNotificationBuilder();
