@@ -181,7 +181,7 @@ class SettingController extends Controller
                 'push_value' => $setting->push_value,
             ]);
         }
-        $this->model = 1;
-        $this->sendResponse();
+        $this->model = true;
+        return $this->sendResponse();
     }
 }
