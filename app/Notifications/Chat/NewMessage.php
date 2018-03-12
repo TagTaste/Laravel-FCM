@@ -45,9 +45,6 @@ class NewMessage extends Notification
      */
     public function toArray($notifiable)
     {
-        \Log::info($this->data->profile);
-        \Log::info(request()->user()->profile);
-
         $data = [
             'action' => 'chat',
             'profile' => $this->data->profile
