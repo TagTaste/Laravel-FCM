@@ -186,6 +186,8 @@ class UserController extends Controller
         }
         else
         {
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
+            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>$socialiteUserLink]);
             return $this->sendError("Already link ".$provider." with our plateform");
         }
 
