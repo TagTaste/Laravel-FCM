@@ -171,6 +171,7 @@ class CollaborateController extends Controller
                 }
             }
         }
+        \Log::info($inputs);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
