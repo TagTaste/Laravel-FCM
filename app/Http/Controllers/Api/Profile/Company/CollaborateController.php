@@ -161,6 +161,13 @@ class CollaborateController extends Controller
                     $relativePath = "images/p/$profileId/collaborate";
                     $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
                 }
+                else if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 1 && !empty($request->file("images.$i.image")))
+                {
+                    \Log::info($i);
+                    $imageName = str_random("32") . ".jpg";
+                    $relativePath = "images/p/$profileId/collaborate";
+                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                }
                 else if($request->input("images.$i.remove")==1)
                 {
                     $inputs["image".($i+1)] = null;
