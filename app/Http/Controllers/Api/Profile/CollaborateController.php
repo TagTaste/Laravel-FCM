@@ -157,12 +157,10 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-        \Log::info($inputs);
         if ($request->has("images"))
         {
             for ($i = 0; $i <= 4; $i++) {
                 if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0 && !empty($request->file("images.$i.image"))) {
-                    \Log::info("image".$i);
                     $imageName = str_random("32") . ".jpg";
                     $relativePath = "images/p/$profileId/collaborate";
                     $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
