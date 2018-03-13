@@ -159,7 +159,6 @@ class CollaborateController extends Controller
         }
         if ($request->has("images"))
         {
-            \Log::info($inputs);
             for ($i = 0; $i <= 4; $i++) {
                 if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0 && !empty($request->file("images.$i.image"))) {
                     $imageName = str_random("32") . ".jpg";
@@ -173,6 +172,7 @@ class CollaborateController extends Controller
                 }
             }
         }
+        \Log::info($inputs);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
