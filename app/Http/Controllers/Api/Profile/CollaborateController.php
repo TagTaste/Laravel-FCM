@@ -159,6 +159,7 @@ class CollaborateController extends Controller
         }
         if ($request->has("images"))
         {
+            \Log::info($inputs);
             for ($i = 0; $i <= 4; $i++) {
                 if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0 && !empty($request->file("images.$i.image"))) {
                     $imageName = str_random("32") . ".jpg";
@@ -167,6 +168,7 @@ class CollaborateController extends Controller
                 }
                 else if($request->input("images.$i.remove")==1)
                 {
+                    \Log::info("here");
                     $inputs["image".($i+1)] = null;
                 }
             }
