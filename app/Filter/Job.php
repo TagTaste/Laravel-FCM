@@ -81,10 +81,10 @@ class Job extends Filter {
                 }
             }
         }
-        $filters['experience'][0]['value'] = '0 - 3.5';
-        $filters['experience'][1]['value'] = '3.5 - 7';
-        $filters['experience'][2]['value'] = '7 - 15';
-        $filters['experience'][3]['value'] = '>15';
+        $filters['experience'][0]['value'] = '0 - 3.5 LPA';
+        $filters['experience'][1]['value'] = '3.5 - 7 LPA';
+        $filters['experience'][2]['value'] = '7 - 15 LPA';
+        $filters['experience'][3]['value'] = '>15 LPA';
         return $filters;
     }
 
