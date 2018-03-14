@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\FCMPush;
+use App\Setting;
 use App\Traits\GetTags;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -53,6 +54,24 @@ class Action extends Notification implements ShouldQueue
             $via[] = 'mail';
 
         }
+
+        $preference = Setting::getNotificationPreference($notifiable->id, null, $this->action);
+        if(is_null($preference)) {
+            return $via;
+        }
+
+        $via = [];
+        if($preference->bell_value) {
+            $via[] = 'broadcast';
+            $via[] = 'database';
+        }
+        if($preference->email_value && $this->view && view()->exists($this->view)) {
+            $via[] = 'mail';
+        }
+        if($preference->push_value) {
+            $via[] = FCMPush::class;
+        }
+
         return $via;
     }
 
