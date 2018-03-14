@@ -18,7 +18,7 @@ class CreateSettingsActionTable extends Migration
             $table->integer('setting_id')->unsigned();
             $table->string('action');
             $table->string('sub_action')->nullable();
-            $table->boolean('company')->nullable();
+            $table->boolean('shared')->nullable();
             $table->string('model')->nullable();
             $table->string('belongs_to')->nullable();
 
