@@ -103,25 +103,30 @@ class Job extends Filter {
         if(array_key_exists('Experience',$filters))
         {
             $experience = explode('years', $filters['Experience'][0]);
-            if($experience[0] == '>')
+            $experience = htmlspecialchars_decode($experience[0],ENT_QUOTES);
+            if($experience == '> 10 ')
             {
-                $experience = explode('> ', $experience[0]);
+                $experience = explode(' ', $experience);
                 $minExperience = null;
-                $maxExperience = $experience[0];
-                \Log::info($experience[0]);
+                $maxExperience = $experience[1];
+                $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
+                    ->where(function($query) use ($maxExperience){
+                        $query->where('j1.key','experience_max')->where('j1.value','<=',$maxExperience);
+                    });
             }
             else
             {
-                $experience = explode(' - ', $experience[0]);
+                $experience = explode(' - ', $experience);
                 $minExperience = $experience[0];
                 $maxExperience = $experience[1];
-            }
-            $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
+
+                $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
                     ->where(function($query) use ($minExperience){
-                $query->where('j2.key','experience_min')->where('j2.value','>=',$minExperience);;
-                })->where(function($query) use ($maxExperience){
-                    where('j1.key','experience_max')->where('j1.value','<=',$maxExperience);
-                });
+                        $query->where('j2.key','experience_min')->where('j2.value','>=',$minExperience);;
+                    })->where(function($query) use ($maxExperience){
+                        $query->where('j1.key','experience_max')->where('j1.value','<=',$maxExperience);
+                    });
+            }
             if((null !== $skip) || (null !== $take)){
                 $model = $model->skip($skip)->take($take);
             }
@@ -140,15 +145,30 @@ class Job extends Filter {
         else if(array_key_exists('Compensation',$filters))
         {
             $compensation = explode('LPA', $filters['Cxperience'][0]);
-            $compensation = explode(' - ', $compensation[0]);
-            $minCompensation = $compensation[0];
-            $maxCompensation = $compensation[1];
-            $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
-                ->where(function($query) use ($minCompensation){
-                    $query->where('j2.key','compensation_min')->where('j2.value','>=',$minCompensation);;
-                })->where(function($query) use ($maxCompensation){
-                    where('j1.key','compensation_max')->where('j1.value','<=',$maxCompensation);
-                });
+            $compensation = htmlspecialchars_decode($compensation[0],ENT_QUOTES);
+
+            if($compensation[0] == '> 15 ')
+            {
+                $compensation = explode(' ', $compensation[0]);
+                $minCompensation = null;
+                $maxCompensation = $compensation[0];
+                $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
+                    ->where(function($query) use ($maxCompensation){
+                        $query->where('j1.key','compensation_max')->where('j1.value','<=',$maxCompensation);
+                    });
+            }
+            else
+            {
+                $compensation = explode(' - ', $compensation[0]);
+                $minCompensation = $compensation[0];
+                $maxCompensation = $compensation[1];
+                $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
+                    ->where(function($query) use ($minCompensation){
+                        $query->where('j2.key','compensation_min')->where('j2.value','>=',$minCompensation);;
+                    })->where(function($query) use ($maxCompensation){
+                        $query->where('j1.key','compensation_max')->where('j1.value','<=',$maxCompensation);
+                    });
+            }
 
             if((null !== $skip) || (null !== $take)){
                 $model = $model->skip($skip)->take($take);
