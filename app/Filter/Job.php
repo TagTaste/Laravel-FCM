@@ -57,10 +57,10 @@ class Job extends Filter {
                 }
                 if($key == 'compensation_min' || $key == 'compensation_max')
                 {
-                    $filters['Experience'][0]['value'] = '0 - 3.5 LPA';
-                    $filters['Experience'][1]['value'] = '3.5 - 7 LPA';
-                    $filters['Experience'][2]['value'] = '7 - 15 LPA';
-                    $filters['Experience'][3]['value'] = '> 15 LPA';
+                    $filters['Compensation'][0]['value'] = '0 - 3.5 LPA';
+                    $filters['Compensation'][1]['value'] = '3.5 - 7 LPA';
+                    $filters['Compensation'][2]['value'] = '7 - 15 LPA';
+                    $filters['Compensation'][3]['value'] = '> 15 LPA';
                 }
                 foreach($singleFilter as &$filter)
                 {
