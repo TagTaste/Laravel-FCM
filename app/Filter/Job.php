@@ -9,7 +9,7 @@ class Job extends Filter {
 
     protected $table = "job_filters";
 
-    protected $strings = ['location','expected_role','Joining'=>'joining','experience_min','experience_max','compensation_min'=>'salary_min'
+    protected $strings = ['location','expected_role','Joining'=>'joining','experience','compensation_min'=>'salary_min'
         ,'compensation_max'=>'salary_max'];
     
     protected $models = ['By Company'=>'company.name','Job Type' => 'jobType.name',
@@ -19,7 +19,7 @@ class Job extends Filter {
     
     public static $relatedColumn = 'job_id';
 
-    public static $filterOrder = ['Job Type','location','experience_min','experience_max','compensation_min','compensation_max'
+    public static $filterOrder = ['Job Type','location','Experience (LPA)','compensation_min','compensation_max'
         ,'By Company','By Person','Joining In'];
 
     public function getprofile_nameattribute($model)
@@ -48,6 +48,10 @@ class Job extends Filter {
                 $singleFilter = $allFilters->get($key);
                 if(!$singleFilter || $key == 'experience_min' || $key == 'experience_max' || $key == 'compensation_min' || $key == 'compensation_max')
                 {
+                    $filters['Experience (LPA)'][0]['value'] = '0 - 3.5';
+                    $filters['Experience (LPA)'][1]['value'] = '3.5 - 7';
+                    $filters['Experience (LPA)'][2]['value'] = '7 - 15';
+                    $filters['Experience (LPA)'][3]['value'] = '>15';
                     continue;
                 }
                 foreach($singleFilter as &$filter)
@@ -81,10 +85,6 @@ class Job extends Filter {
                 }
             }
         }
-        $filters['experience'][0]['value'] = '0 - 3.5 LPA';
-        $filters['experience'][1]['value'] = '3.5 - 7 LPA';
-        $filters['experience'][2]['value'] = '7 - 15 LPA';
-        $filters['experience'][3]['value'] = '>15 LPA';
         return $filters;
     }
 
