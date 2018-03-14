@@ -46,21 +46,19 @@ class Job extends Filter {
             foreach($order as $key){
                 $count = 0;
                 $singleFilter = $allFilters->get($key);
-                if(!$singleFilter || $key == 'experience_min' || $key == 'experience_max')
+                \Log::info($key);
+                if(!$singleFilter || $key == 'Experience')
                 {
                     $filters['Experience'][0]['value'] = '0 - 2 years';
                     $filters['Experience'][1]['value'] = '2 - 5 years';
                     $filters['Experience'][2]['value'] = '5 - 8 years';
                     $filters['Experience'][3]['value'] = '8 - 10 years';
                     $filters['Experience'][4]['value'] = '> 10 years';
-                    continue;
-                }
-                if($key == 'compensation_min' || $key == 'compensation_max')
-                {
                     $filters['Compensation'][0]['value'] = '0 - 3.5 LPA';
                     $filters['Compensation'][1]['value'] = '3.5 - 7 LPA';
                     $filters['Compensation'][2]['value'] = '7 - 15 LPA';
                     $filters['Compensation'][3]['value'] = '> 15 LPA';
+                    continue;
                 }
                 foreach($singleFilter as &$filter)
                 {
