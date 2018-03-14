@@ -188,10 +188,14 @@ class SettingController extends Controller
 //        }
 
         $setting = Setting::getSetting($input['setting_id'],$profile_id,$company_id);
+        if(is_null($setting)) {
+            $this->addError('Setting does not exists');
+            return $this->sendResponse();
+        }
         $setting->{$input['type'].'_value'} = !!$input['value'];
         $setting->save();
 
-        $this->model = true;
+        $this->model = Setting::getAllSettings($profile_id, $company_id);
         return $this->sendResponse();
     }
 

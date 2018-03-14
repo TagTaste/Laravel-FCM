@@ -63,6 +63,9 @@ class Setting
                             WHERE s.belongs_to = \''.$belongsTo.'\' AND s.id = '.$settingId.';');
         $model = \DB::select($query);
         $model = $model[0];
+        if(is_null($model)) {
+            return null;
+        }
         $setting = new Setting();
         foreach ($setting->fillable as $var) {
             $setting->{$var} = isset($model->{$var}) ? $model->{$var} : null;
