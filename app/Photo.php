@@ -23,13 +23,13 @@ class Photo extends Model implements Feedable
     protected $fillable = ['caption','file','privacy_id','payload_id'];
 
     protected $visible = ['id','caption','photoUrl','likeCount',
-        'created_at','comments',
+        'created_at',
         'profile_id','company_id','privacy_id','updated_at',
-        'owner'];
+        'owner','nextPhotoId','previousPhotoId'];
 
     protected $with = ['like'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount'];
+    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
     
     protected $dates = ['deleted_at'];
 
@@ -251,6 +251,43 @@ class Photo extends Model implements Feedable
 
         return $data;
 
+    }
+
+    public function getNextPhotoIdAttribute()
+    {
+        if(isset($this->company_id) && !is_null($this->company_id))
+        {
+            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','>', $this->id)->where('company_id',$this->company_id)->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else if(isset($this->profile_id) && !is_null($this->profile_id))
+        {
+            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','>', $this->id)->where('profile_id',$this->profile_id)->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else
+        {
+            return null;
+        }
+
+    }
+
+    public function getPreviousPhotoIdAttribute()
+    {
+        if(isset($this->company_id) && !is_null($this->company_id))
+        {
+            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','<', $this->id)->where('company_id',$this->company_id)->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else if(isset($this->profile_id) && !is_null($this->profile_id))
+        {
+            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','<', $this->id)->where('profile_id',$this->profile_id)->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else
+        {
+            return null;
+        }
     }
    
 }
