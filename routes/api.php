@@ -232,7 +232,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             /// ------- Settings Routes -------
 
-            // get settings for a specific type
             Route::get('settings', 'SettingController@show');
             Route::get('settings/company/{id}', 'SettingController@showCompany');
             Route::get('settings/{type}', 'SettingController@profileSettings');

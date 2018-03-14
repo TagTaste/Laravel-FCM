@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Setting;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -10,18 +11,20 @@ class SettingController extends Controller
     {
         $profile_id = \request()->user()->profile->id;
 
-        $query = \DB::raw('SELECT s.id, s.title, s.email_description, s.push_description, s.bell_description,  
-                            s.email_visibility, s.push_visibility, s.bell_visibility,  
-                            COALESCE(n.email_active, s.email_active) AS email_active,
-                            COALESCE(n.push_active, s.push_active) AS push_active,
-                            COALESCE(n.bell_active, s.bell_active) AS bell_active,
-                            COALESCE(n.email_value, s.email_value) AS email_value, 
-                            COALESCE(n.push_value, s.push_value) AS push_value, 
-                            COALESCE(n.bell_value, s.bell_value) AS bell_value, 
-                            s.group_name
-                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.'
-                            WHERE s.belongs_to = \'profile\';');
-        $models = \DB::select($query);
+//        $query = \DB::raw('SELECT s.id, s.title, s.email_description, s.push_description, s.bell_description,
+//                            s.email_visibility, s.push_visibility, s.bell_visibility,
+//                            COALESCE(n.email_active, s.email_active) AS email_active,
+//                            COALESCE(n.push_active, s.push_active) AS push_active,
+//                            COALESCE(n.bell_active, s.bell_active) AS bell_active,
+//                            COALESCE(n.email_value, s.email_value) AS email_value,
+//                            COALESCE(n.push_value, s.push_value) AS push_value,
+//                            COALESCE(n.bell_value, s.bell_value) AS bell_value,
+//                            s.group_name
+//                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.'
+//                            WHERE s.belongs_to = \'profile\';');
+//        $models = \DB::select($query);
+
+        $models = Setting::getAllSettings($profile_id);
 
         $data = [];
         $types = ['email', 'bell', 'push'];
@@ -77,19 +80,21 @@ class SettingController extends Controller
     public function showCompany($id)
     {
         $profile_id = \request()->user()->profile->id;
+//
+//        $query = \DB::raw('SELECT s.id, s.title, s.email_description, s.push_description, s.bell_description,
+//                            s.email_visibility, s.push_visibility, s.bell_visibility,
+//                            COALESCE(n.email_active, s.email_active) AS email_active,
+//                            COALESCE(n.push_active, s.push_active) AS push_active,
+//                            COALESCE(n.bell_active, s.bell_active) AS bell_active,
+//                            COALESCE(n.email_value, s.email_value) AS email_value,
+//                            COALESCE(n.push_value, s.push_value) AS push_value,
+//                            COALESCE(n.bell_value, s.bell_value) AS bell_value,
+//                            s.group_name
+//                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.' AND n.company_id = '.$id.'
+//                            WHERE s.belongs_to = \'company\';');
+//        $models = \DB::select($query);
 
-        $query = \DB::raw('SELECT s.id, s.title, s.email_description, s.push_description, s.bell_description,  
-                            s.email_visibility, s.push_visibility, s.bell_visibility,  
-                            COALESCE(n.email_active, s.email_active) AS email_active,
-                            COALESCE(n.push_active, s.push_active) AS push_active,
-                            COALESCE(n.bell_active, s.bell_active) AS bell_active,
-                            COALESCE(n.email_value, s.email_value) AS email_value, 
-                            COALESCE(n.push_value, s.push_value) AS push_value, 
-                            COALESCE(n.bell_value, s.bell_value) AS bell_value, 
-                            s.group_name
-                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.' AND n.company_id = '.$id.'
-                            WHERE s.belongs_to = \'company\';');
-        $models = \DB::select($query);
+        $models = Setting::getAllSettings($profile_id, $id);
 
         $data = [];
         $types = ['email', 'bell', 'push'];
@@ -153,35 +158,53 @@ class SettingController extends Controller
 
         $company_id = isset($input['company_id']) ? $input['company_id'] : null;
 
-        $settingExists = \DB::table('notification_settings')->where('setting_id', $input['setting_id'])
-            ->where('profile_id', $profile_id)
-            ->where('company_id', $company_id)
-            ->exists();
+//        $settingExists = \DB::table('notification_settings')->where('setting_id', $input['setting_id'])
+//            ->where('profile_id', $profile_id)
+//            ->where('company_id', $company_id)
+//            ->exists();
+//
+//        if($settingExists) {
+//            \DB::table('notification_settings')->where('setting_id', $input['setting_id'])
+//                ->where('profile_id', $profile_id)
+//                ->where('company_id', $company_id)
+//                ->update([ $input['type'].'_value' => $input['value'] ]);
+//        } else {
+//            $setting = \DB::table('settings')->where('id', $input['setting_id'])->first();
+//            $setting->{$input['type'].'_value'} = $input['value'];
+//            \DB::table('notification_settings')->insert([
+//                'setting_id' => $input['setting_id'],
+//                'profile_id' => $profile_id,
+//                'company_id' => $company_id,
+//                'bell_visibility' => $setting->bell_visibility,
+//                'email_visibility' => $setting->email_visibility,
+//                'push_visibility' => $setting->push_visibility,
+//                'bell_active' => $setting->bell_active,
+//                'email_active' => $setting->email_active,
+//                'push_active' => $setting->push_active,
+//                'bell_value' => $setting->bell_value,
+//                'email_value' => $setting->email_value,
+//                'push_value' => $setting->push_value,
+//            ]);
+//        }
 
-        if($settingExists) {
-            \DB::table('notification_settings')->where('setting_id', $input['setting_id'])
-                ->where('profile_id', $profile_id)
-                ->where('company_id', $company_id)
-                ->update([ $input['type'].'_value' => $input['value'] ]);
-        } else {
-            $setting = \DB::table('settings')->where('id', $input['setting_id'])->first();
-            $setting->{$input['type'].'_value'} = $input['value'];
-            \DB::table('notification_settings')->insert([
-                'setting_id' => $input['setting_id'],
-                'profile_id' => $profile_id,
-                'company_id' => $company_id,
-                'bell_visibility' => $setting->bell_visibility,
-                'email_visibility' => $setting->email_visibility,
-                'push_visibility' => $setting->push_visibility,
-                'bell_active' => $setting->bell_active,
-                'email_active' => $setting->email_active,
-                'push_active' => $setting->push_active,
-                'bell_value' => $setting->bell_value,
-                'email_value' => $setting->email_value,
-                'push_value' => $setting->push_value,
-            ]);
-        }
+        $setting = Setting::getSetting($input['setting_id'],$profile_id,$company_id);
+        $setting->{$input['type'].'_value'} = !!$input['value'];
+        $setting->save();
+
         $this->model = true;
         return $this->sendResponse();
+    }
+
+    public function test($id) {
+
+        $profile_id = \request()->user()->profile->id;
+
+//        $res = Setting::getSetting($id, $profile_id, 21);
+        $res = Setting::getNotificationPreference($profile_id, null, 'apply',null,'collaborate');
+
+//        $res->email_value = !$res->email_value;
+//        $res->save();
+
+        return response()->json($res);
     }
 }
