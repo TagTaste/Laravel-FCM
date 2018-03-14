@@ -195,7 +195,27 @@ class SettingController extends Controller
         $setting->{$input['type'].'_value'} = !!$input['value'];
         $setting->save();
 
-        $this->model = Setting::getAllSettings($profile_id, $company_id);
+        $models = Setting::getAllSettings($profile_id);
+
+        $data = [];
+        $types = ['email', 'bell', 'push'];
+
+        foreach ($models as $m) {
+            foreach ($types as $type) {
+                if($m->{$type.'_visibility'} == 0) continue;
+                $data[$type][$m->group_name][] = [
+                    'id' => $m->id,
+                    'title' => $m->title,
+                    'description' => $m->{$type.'_description'},
+                    'active' => $m->{$type.'_active'} ? true : false,
+                    'value' => $m->{$type.'_value'} ? true : false,
+                ];
+
+            }
+        }
+
+        $this->model = $data;
+
         return $this->sendResponse();
     }
 
