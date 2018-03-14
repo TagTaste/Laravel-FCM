@@ -4,6 +4,8 @@
 namespace App\Notifications\Actions;
 
 use App\Notifications\Action;
+use App\FCMPush;
+use App\Setting;
 
 class Apply extends Action
 {
@@ -31,6 +33,35 @@ class Apply extends Action
         }
         $this->notification = $this->sub;
 
+    }
+
+    public function via($notifiable)
+    {
+        $via = ['database',FCMPush::class,'broadcast'];
+
+        if($this->view && view()->exists($this->view)){
+            $via[] = 'mail';
+
+        }
+
+        $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
+        if(is_null($preference)) {
+            return $via;
+        }
+
+        $via = [];
+        if($preference->bell_value) {
+            $via[] = 'broadcast';
+            $via[] = 'database';
+        }
+        if($preference->email_value && $this->view && view()->exists($this->view)) {
+            $via[] = 'mail';
+        }
+        if($preference->push_value) {
+            $via[] = FCMPush::class;
+        }
+
+        return $via;
     }
 
 }
