@@ -26,24 +26,25 @@ class SettingController extends Controller
 
         $models = Setting::getAllSettings($profile_id);
 
-        $data = [];
-        $types = ['email', 'bell', 'push'];
+//        $data = [];
+//        $types = ['email', 'bell', 'push'];
+//
+//        foreach ($models as $m) {
+//            foreach ($types as $type) {
+//                if($m->{$type.'_visibility'} == 0) continue;
+//                $data[$type][$m->group_name][] = [
+//                    'id' => $m->id,
+//                    'title' => $m->title,
+//                    'description' => $m->{$type.'_description'},
+//                    'active' => $m->{$type.'_active'} ? true : false,
+//                    'value' => $m->{$type.'_value'} ? true : false,
+//                ];
+//
+//            }
+//        }
 
-        foreach ($models as $m) {
-            foreach ($types as $type) {
-                if($m->{$type.'_visibility'} == 0) continue;
-                $data[$type][$m->group_name][] = [
-                    'id' => $m->id,
-                    'title' => $m->title,
-                    'description' => $m->{$type.'_description'},
-                    'active' => $m->{$type.'_active'} ? true : false,
-                    'value' => $m->{$type.'_value'} ? true : false,
-                ];
-
-            }
-        }
-
-        $this->model = $data;
+//        $this->model = $data;
+        $this->model = $this->formatData($models);
 
         return $this->sendResponse();
     }
@@ -96,24 +97,24 @@ class SettingController extends Controller
 
         $models = Setting::getAllSettings($profile_id, $id);
 
-        $data = [];
-        $types = ['email', 'bell', 'push'];
+//        $data = [];
+//        $types = ['email', 'bell', 'push'];
+//
+//        foreach ($models as $m) {
+//            foreach ($types as $type) {
+//                if($m->{$type.'_visibility'} == 0) continue;
+//                $data[$type][$m->group_name][] = [
+//                    'id' => $m->id,
+//                    'title' => $m->title,
+//                    'description' => $m->{$type.'_description'},
+//                    'active' => $m->{$type.'_active'} ? true : false,
+//                    'value' => $m->{$type.'_value'} ? true : false,
+//                ];
+//
+//            }
+//        }
 
-        foreach ($models as $m) {
-            foreach ($types as $type) {
-                if($m->{$type.'_visibility'} == 0) continue;
-                $data[$type][$m->group_name][] = [
-                    'id' => $m->id,
-                    'title' => $m->title,
-                    'description' => $m->{$type.'_description'},
-                    'active' => $m->{$type.'_active'} ? true : false,
-                    'value' => $m->{$type.'_value'} ? true : false,
-                ];
-
-            }
-        }
-
-        $this->model = $data;
+        $this->model = $this->formatData($models);
 
         return $this->sendResponse();
     }
@@ -197,6 +198,45 @@ class SettingController extends Controller
 
         $models = Setting::getAllSettings($profile_id);
 
+//        $data = [];
+//        $types = ['email', 'bell', 'push'];
+//
+//        foreach ($models as $m) {
+//            foreach ($types as $type) {
+//                if($m->{$type.'_visibility'} == 0) continue;
+//                $data[$type][$m->group_name][] = [
+//                    'id' => $m->id,
+//                    'title' => $m->title,
+//                    'description' => $m->{$type.'_description'},
+//                    'active' => $m->{$type.'_active'} ? true : false,
+//                    'value' => $m->{$type.'_value'} ? true : false,
+//                ];
+//
+//            }
+//        }
+
+        $this->model = $this->formatData($models);
+
+        return $this->sendResponse();
+    }
+
+    public function test($id) {
+
+        $profile_id = \request()->user()->profile->id;
+
+//        $res = Setting::getSetting($id, $profile_id, 21);
+        $res = Setting::getNotificationPreference($profile_id, null, 'apply',null,'collaborate');
+
+//        $res->email_value = !$res->email_value;
+//        $res->save();
+
+        return response()->json($res);
+    }
+
+    private function formatData($models) : array {
+
+        // TODO: simplify this function.
+
         $data = [];
         $types = ['email', 'bell', 'push'];
 
@@ -214,21 +254,16 @@ class SettingController extends Controller
             }
         }
 
-        $this->model = $data;
+        $data2 = [];
+        foreach ($types as $type) {
+            $groups = [];
+            foreach ($data[$type] as $key => $items) {
+                $groups[] = ['group_name' => $key, 'items' => $items];
+            }
+            $data2[$type] = $groups;
+        }
 
-        return $this->sendResponse();
-    }
+        return $data2;
 
-    public function test($id) {
-
-        $profile_id = \request()->user()->profile->id;
-
-//        $res = Setting::getSetting($id, $profile_id, 21);
-        $res = Setting::getNotificationPreference($profile_id, null, 'apply',null,'collaborate');
-
-//        $res->email_value = !$res->email_value;
-//        $res->save();
-
-        return response()->json($res);
     }
 }

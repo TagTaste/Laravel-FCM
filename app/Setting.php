@@ -37,7 +37,11 @@ class Setting
 
     public static function getNotificationPreference($profileId, $companyId = null, $action, $sub_action = null, $model = null) {
 
-        $setting = \DB::table('settings_action')->where('action', $action)->where('sub_action', $sub_action)->where('model', $model)->first();
+        $belongs_to = is_null($companyId) ? 'profile' : 'company';
+        $setting = \DB::table('settings_action')->where('belongs_to', $belongs_to)
+            ->where('action', $action)
+            ->where('sub_action', $sub_action)->where('model', $model)
+            ->first();
         if(is_null($setting)) {
             return null;
         }
@@ -102,7 +106,5 @@ class Setting
         }
         return $arr;
     }
-
-
 
 }
