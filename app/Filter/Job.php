@@ -46,37 +46,12 @@ class Job extends Filter {
             foreach($order as $key){
                 $count = 0;
                 $singleFilter = $allFilters->get($key);
-                if(!$singleFilter)
+                if(!$singleFilter || $key == 'experience_min' || $key == 'experience_max' || $key == 'compensation_min' || $key == 'compensation_max')
                 {
                     continue;
                 }
-                $isSingleKey = true;
                 foreach($singleFilter as &$filter)
                 {
-                    if(!$isSingleKey)
-                    {
-                        break;
-                    }
-                    if($key == 'experience_max' && $isSingleKey)
-                    {
-                        $isSingleKey = false;
-                        $filter = $singleFilter->where('value', $singleFilter->max('value'))->first();
-                    }
-                    else if($key == 'experience_min' && $isSingleKey)
-                    {
-                        $isSingleKey = false;
-                        $filter = $singleFilter->where('value', $singleFilter->min('value'))->first();
-                    }
-                    else if($key == 'compensation_max' && $isSingleKey)
-                    {
-                        $isSingleKey = false;
-                        $filter = $singleFilter->where('value', $singleFilter->max('value'))->first();
-                    }
-                    else if($key == 'compensation_min' && $isSingleKey)
-                    {
-                        $isSingleKey = false;
-                        $filter = $singleFilter->where('value', $singleFilter->min('value'))->first();
-                    }
                     if(!array_key_exists($key,$filters)){
                         $filters[$key] = [];
                     }
@@ -106,7 +81,10 @@ class Job extends Filter {
                 }
             }
         }
-
+        $filters['experience'][0]['value'] = '0 - 3.5';
+        $filters['experience'][1]['value'] = '3.5 - 7';
+        $filters['experience'][2]['value'] = '7 - 15';
+        $filters['experience'][3]['value'] = '>15';
         return $filters;
     }
 
