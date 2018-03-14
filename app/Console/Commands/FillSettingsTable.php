@@ -456,7 +456,7 @@ class FillSettingsTable extends Command
                 'belongs_to' => 'company',
             ],
             [
-                'setting_id' => 15,
+                'setting_id' => 16,
                 'action' => 'apply',
                 'model' => 'collaborate',
                 'belongs_to' => 'company',
