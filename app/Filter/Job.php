@@ -155,7 +155,7 @@ class Job extends Filter {
             }
             else
             {
-                $compensation = explode(' - ', $compensation[0]);
+                $compensation = explode(' - ', $compensation);
                 $minCompensation = $compensation[0];
                 $maxCompensation = $compensation[1];
                 $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
