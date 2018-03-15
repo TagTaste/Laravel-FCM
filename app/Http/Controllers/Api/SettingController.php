@@ -166,8 +166,8 @@ class SettingController extends Controller
 
     }
 
-    private function checkAdmin($profileId, $companayId) : bool {
+    private function checkAdmin($profileId, $companyId) : bool {
 
-        return CompanyUser::where("company_id",$companayId)->where('profile_id', $profileId)->exists();
+        return CompanyUser::where("company_id",$companyId)->where('profile_id', $profileId)->exists();
     }
 }
