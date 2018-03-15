@@ -540,7 +540,7 @@ class Profile extends Model
         {
             $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->id);
             $i = 0;
-            
+            \Log::info($profileIds);
             foreach ($profileIds as &$profileId)
             {
                 if($i == 5)
