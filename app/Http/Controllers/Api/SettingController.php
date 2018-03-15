@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\CompanyUser;
 use App\Setting;
 use Illuminate\Http\Request;
 
@@ -95,7 +96,15 @@ class SettingController extends Controller
         $input = $request->all();
         $profile_id = \request()->user()->profile->id;
 
-        $company_id = isset($input['company_id']) ? $input['company_id'] : null;
+        $company_id = null;
+
+        if(isset($input['company_id'])) {
+            $company_id = $input['company_id'];
+            $checkAdmin = $this->checkAdmin($profile_id, $company_id);
+            if(!$checkAdmin) {
+                return response()->json(['data' => null, 'errors' => ["User does not belong to this company."], 'messages' => null],401);
+            }
+        }
 
         $setting = Setting::getSetting($input['setting_id'],$profile_id,$company_id);
         if(is_null($setting)) {
@@ -105,9 +114,7 @@ class SettingController extends Controller
         $setting->{$input['type'].'_value'} = !!$input['value'];
         $setting->save();
 
-        $models = Setting::getAllSettings($profile_id);
-
-        $this->model = $this->formatData($models);
+        $this->model = true;
 
         return $this->sendResponse();
     }
@@ -157,5 +164,10 @@ class SettingController extends Controller
 
         return $data2;
 
+    }
+
+    private function checkAdmin($profileId, $companayId) : bool {
+
+        return CompanyUser::where("company_id",$companayId)->where('profile_id', $profileId)->exists();
     }
 }
