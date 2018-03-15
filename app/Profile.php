@@ -539,9 +539,6 @@ class Profile extends Model
         if($this->id != request()->user()->profile->id)
         {
             $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->id);
-            if(!count($profileIds)){
-                return ['count' => 0, 'profiles' => []];
-            }
             $i = 0;
             
             foreach ($profileIds as &$profileId)
