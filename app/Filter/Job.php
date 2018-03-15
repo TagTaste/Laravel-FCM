@@ -46,7 +46,6 @@ class Job extends Filter {
             foreach($order as $key){
                 $count = 0;
                 $singleFilter = $allFilters->get($key);
-                \Log::info($key);
                 if(!$singleFilter || $key == 'Experience')
                 {
                     $filters['Experience'][0]['value'] = '0 - 2 years';
@@ -117,7 +116,6 @@ class Job extends Filter {
                 $experience = explode(' - ', $experience);
                 $minExperience = $experience[0];
                 $maxExperience = $experience[1];
-
                 $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
                     ->where(function($query) use ($minExperience){
                         $query->where('j2.key','experience_min')->where('j2.value','>=',$minExperience);;
@@ -162,7 +160,7 @@ class Job extends Filter {
                 $maxCompensation = $compensation[1];
                 $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
                     ->where(function($query) use ($minCompensation){
-                        $query->where('j2.key','compensation_min')->where('j2.value','>=',$minCompensation);;
+                        $query->where('j2.key','compensation_min')->where('j2.value','>=',$minCompensation);
                     })->where(function($query) use ($maxCompensation){
                         $query->where('j1.key','compensation_max')->where('j1.value','<=',$maxCompensation);
                     });
@@ -184,6 +182,10 @@ class Job extends Filter {
             }
         }
         foreach($filters as $filter => $value){
+            if(array_key_exists('Experience',$filters)||array_key_exists('Compensation',$filters))
+            {
+                continue;
+            }
             $model = static::selectRaw('distinct ' . static::$relatedColumn)
                 ->where('key',$filter)->whereIn('value',$value);
 
