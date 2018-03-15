@@ -122,6 +122,15 @@ class Job extends Filter {
                     })->where(function($query) use ($maxExperience){
                         $query->where('j1.key','experience_max')->where('j1.value','<=',$maxExperience);
                     });
+//                $q = \DB::raw('select `j1`.`job_id` from `job_filters` as `j1`
+//                                inner join `job_filters` as `j2` on `j2`.`job_id` = `j1`.`job_id`
+//                                where (`j2`.`key` = \'experience_min\' and `j2`.`value` >= '.$minExperience.')
+//                                and (`j1`.`key` = \'experience_max\' and `j1`.`value` <= '.$maxExperience.');');
+//                $model = \DB::select($q);
+//                $model = collect($model);
+
+//                \Log::info(print_r($model, true));
+
             }
             if((null !== $skip) || (null !== $take)){
                 $model = $model->skip($skip)->take($take);
