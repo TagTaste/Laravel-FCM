@@ -19,21 +19,6 @@ class Setting
     public static function getAllSettings($profileId, $companyId = null) {
 
         $belongsTo = is_null($companyId) ? 'profile' : 'company';
-//        $companyWhere = is_null($companyId) ? 'n.company_id IS NULL' : "n.company_id = $companyId";
-
-
-//        $query = \DB::raw('SELECT s.id, s.title, s.email_description, s.push_description, s.bell_description,
-//                            s.email_visibility, s.push_visibility, s.bell_visibility,
-//                            COALESCE(n.email_active, s.email_active) AS email_active,
-//                            COALESCE(n.push_active, s.push_active) AS push_active,
-//                            COALESCE(n.bell_active, s.bell_active) AS bell_active,
-//                            COALESCE(n.email_value, s.email_value) AS email_value,
-//                            COALESCE(n.push_value, s.push_value) AS push_value,
-//                            COALESCE(n.bell_value, s.bell_value) AS bell_value,
-//                            s.group_name
-//                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profileId.' AND '.$companyWhere.'
-//                            WHERE s.belongs_to = \''.$belongsTo.'\';');
-//        return \DB::select($query);
 
         $models = \DB::table('settings')->leftJoin('notification_settings', function ($join) use ($profileId, $companyId) {
                 $join->on('settings.id', '=', 'notification_settings.setting_id')
@@ -70,21 +55,6 @@ class Setting
     public static function getSetting($settingId, $profileId, $companyId = null) {
 
         $belongsTo = is_null($companyId) ? 'profile' : 'company';
-//        $companyWhere = is_null($companyId) ? 'n.company_id IS NULL' : "n.company_id = $companyId";
-
-//        $query = \DB::raw('SELECT s.id, s.title, s.email_description, s.push_description, s.bell_description,
-//                            s.email_visibility, s.push_visibility, s.bell_visibility,
-//                            COALESCE(n.email_active, s.email_active) AS email_active,
-//                            COALESCE(n.push_active, s.push_active) AS push_active,
-//                            COALESCE(n.bell_active, s.bell_active) AS bell_active,
-//                            COALESCE(n.email_value, s.email_value) AS email_value,
-//                            COALESCE(n.push_value, s.push_value) AS push_value,
-//                            COALESCE(n.bell_value, s.bell_value) AS bell_value,
-//                            s.group_name
-//                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profileId.' AND '.$companyWhere.'
-//                            WHERE s.belongs_to = \''.$belongsTo.'\' AND s.id = '.$settingId.';');
-//        $model = \DB::select($query);
-//        $model = $model[0];
 
         $model = \DB::table('settings')->leftJoin('notification_settings', function ($join) use ($profileId, $companyId) {
             $join->on('settings.id', '=', 'notification_settings.setting_id')
