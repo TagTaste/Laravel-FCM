@@ -28,8 +28,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('TagTaste Insights Report 2018')->view('emails.insights')->attach(storage_path('TagTaste_Insights_2018.pdf', [
-            'mime' => 'application/pdf',
-        ]));
+        return $this->subject('Here is how TagTaste community is collaborating with Chris Zandee, a cheese maker from Kashmir…')->view('emails.tagtaste-blog');
     }
 }

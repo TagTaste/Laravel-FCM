@@ -167,7 +167,7 @@ Artisan::command('inspire', function () {
         echo "Sending collab mail to " . $email . "\n";
 
         $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-        \Mail::to($email)->bcc('aman@tagtaste.com')->bcc('amitabh@tagtaste.com')->send($mail);
+//        \Mail::to($email)->bcc('aman@tagtaste.com')->bcc('amitabh@tagtaste.com')->send($mail);
     };
     echo "\nsent $count mails";
 
@@ -175,18 +175,20 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("sendCollab",function(){
     
-    $when = \Carbon\Carbon::createFromTime(19,25,00);
     $count = 0;
     $users = \DB::table('users')->whereNull('deleted_at')->where('created_at' ,'>=','2018-02-07 00:00:00')->get();
+    $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+    \Mail::to('ashok@tagtaste.com')->bcc('amitabh@tagtaste.com')->bcc('aman@tagtaste.com')->send($mail);
     foreach ($users as $user)
     {
         $count++;
 
         $email = $user->email;
+        $email = 'ashok@tagtaste.com';
         echo "Sending collab mail to " . $email . "\n";
 
         $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-        \Mail::to($email)->later($when,$mail);
+        \Mail::to($email)->send($mail);
     };
     echo "\nsent $count mails";
 });
