@@ -124,6 +124,11 @@ class SettingController extends Controller
         return $this->sendResponse();
     }
 
+//    public function test($id) {
+//        $profile_id = request()->user()->profile->id;
+//        return response()->json(Setting::getSetting(1,$profile_id));
+//    }
+
 
     private function formatData($models) : array {
 
