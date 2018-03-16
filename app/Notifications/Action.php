@@ -55,7 +55,7 @@ class Action extends Notification implements ShouldQueue
 
         }
 
-        $preference = Setting::getNotificationPreference($notifiable->id, null, $this->action);
+        $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
         \Log::info("ACTION.PHP ".print_r($preference, true));
         if(is_null($preference)) {
             return $via;
