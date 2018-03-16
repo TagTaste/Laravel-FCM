@@ -46,11 +46,21 @@ class Message extends Model
 
     public function getPreviewAttribute($value)
     {
-        $preview = json_decode($value,true);
-        if(isset($preview['image']))
-        {
-            $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+        try {
+            $preview = json_decode($value,true);
+
+            if(isset($preview['image']) && !is_null($preview['image']))
+            {
+                $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+            }
+            return $preview;
+
+        } catch(\Exception $e){
+            \Log::error("Could not load preview image");
+            \Log::error($preview);
+            \Log::error($e->getLine());
+            \Log::error($e->getMessage());
         }
-        return $preview;
+        return empty($preview) ? null : $preview;
     }
 }

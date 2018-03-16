@@ -35,6 +35,7 @@ class ShareMessages implements ShouldQueue
 
         $inputs = $event->inputs;
         $profileIds = $event->profileIds;
+
         if(count($chatIds))
         {
             foreach ($chatIds as $chatId)
@@ -58,6 +59,7 @@ class ShareMessages implements ShouldQueue
                 $chat = Message::create($info);
 
                 event(new \App\Events\Chat\Message($chat,$event->user->profile));
+
             }
 
         }
@@ -74,10 +76,7 @@ class ShareMessages implements ShouldQueue
             ->orderBy('c1.chat_id')
             ->get();
         $chatProfileIds = $chatIds->pluck('profile_id');
-        \Log::info($chatProfileIds);
         $chatIds = $chatIds->pluck('chat_id');
-        \Log::info("here chat id");
-        \Log::info($chatIds);
         foreach ($chatIds as $chatId)
         {
             $info = [];

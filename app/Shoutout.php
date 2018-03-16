@@ -18,7 +18,7 @@ class Shoutout extends Model implements Feedable
     protected $fillable = ['content', 'profile_id', 'company_id', 'flag','privacy_id','payload_id','has_tags','preview'];
     
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
-        'created_at','privacy_id','privacy','image','preview'
+        'created_at','privacy_id','privacy','image','preview','updated_at'
     ];
     
     protected $appends = ['owner','likeCount'];
@@ -160,20 +160,23 @@ class Shoutout extends Model implements Feedable
 
     public function getPreviewAttribute($value)
     {
+
         try {
             $preview = json_decode($value,true);
-            if(isset($preview['image']))
+
+            if(isset($preview['image']) && !is_null($preview['image']))
             {
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
             return $preview;
+
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
             \Log::error($preview);
             \Log::error($e->getLine());
-            \Log::error($e->getMessage());    
+            \Log::error($e->getMessage());
         }
-        return [];
+        return empty($preview) ? null : $preview;
     }
 
     public function getPreviewContent()

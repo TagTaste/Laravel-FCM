@@ -24,7 +24,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
         'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id',
-        'tutorial_link','cuisine','is_vegetarian'];
+        'tutorial_link','cuisine','is_vegetarian','updated_at'];
     
     protected $with = ['profile','ingredients','equipments','images','cuisine'];
 
@@ -64,6 +64,12 @@ class Recipe extends Model implements Feedable, CommentNotification
     public function addToCache()
     {
         \Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
+    }
+
+    public function deleteShares()
+    {
+        $now = \Carbon\Carbon::now();
+        \DB::table("recipe_shares")->where('recipe_id',$this->id)->update(['deleted_at'=>$now,'updated_at'=>$now]);
     }
     
     public function removeFromCache()
