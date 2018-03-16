@@ -43,7 +43,26 @@ class Apply extends Action
             $via[] = 'mail';
         }
 
-        $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
+        $preference = null;
+
+        if(isset($this->model->company_id) && !is_null($this->model->company_id)) {
+
+            //getting list of company admins
+            $admins = CompanyUser::getCompanyAdminIds($this->model->company_id);
+
+            // user is admin of the company
+            if(in_array($notifiable->id, $admins)) {
+                $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action, null, $this->modelName);
+            }
+            // user is just a subscriber of model
+            else {
+                $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
+            }
+
+        } else {
+            $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
+        }
+
         \Log::info("ACTION.PHP ".print_r($preference, true));
         if(is_null($preference)) {
             return $via;
