@@ -45,6 +45,7 @@ class Apply extends Action
         }
 
         $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
+        \Log::info("ACTION.PHP ".print_r($preference, true));
         if(is_null($preference)) {
             return $via;
         }
