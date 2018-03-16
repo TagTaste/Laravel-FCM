@@ -74,7 +74,7 @@ class PhotoController extends Controller
         if($data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model,$company));
     
@@ -121,32 +121,29 @@ class PhotoController extends Controller
         }
         $profile = $request->user()->profile;
         $profileId = $profile->id;
-        //check if user belongs to the company
-        $userId = $request->user()->id;
-        $userBelongsToCompany = $company->checkCompanyUser($userId);
-    
-        if(!$userBelongsToCompany){
-            return $this->sendError("User does not belong to this company");
-        }
+
         
         $data = $request->except(['_method','_token','company_id']);
         $data['has_tags'] = $this->hasTags($data['caption']);
-        if($request->hasFile('file')) {
-            $imageName = str_random(32) . ".jpg";
-            $data['file'] = $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName);
-        }
+
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
-        $this->model = $company->photos()->where('id',$id)->update($data);
+        $inputs = $data;
+        unset($inputs['has_tags']);
+        $this->model = $company->photos()->where('id',$id)->update($inputs);
         
-        $this->model = Company\Photo::find($id);
-        if(isset($data['has_tags'])){
+        $this->model = Photo::find($id);
+        if(isset($data['has_tags']) && $data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString()];
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
+
+        $loggedInProfileId = $request->user()->profile->id;
+        $meta = $this->model->getMetaFor($loggedInProfileId);
+        $this->model = ['photo'=>$this->model,'meta'=>$meta];
     
         return $this->sendResponse();
     }

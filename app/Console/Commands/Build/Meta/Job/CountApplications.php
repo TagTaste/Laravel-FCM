@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\Meta\Job;
 
 use App\Application;
 use App\Collaboration\Collaborator;
+use App\Profile;
 use Illuminate\Console\Command;
 
 class CountApplications extends Command
@@ -41,8 +42,20 @@ class CountApplications extends Command
     {
         Application::chunk(200,function($models){
             foreach($models as $model){
-                \Redis::hIncrBy("meta:job:" . $model->id,"applicationCount",1);
+                \Redis::hset("meta:job:" . $model->id,"applicationCount",0);
             }
         });
+
+        Application::chunk(200,function($models){
+            foreach($models as $model){
+                $exist = Profile::where('id',$model->profile_id)->whereNull('deleted_at')->exists();
+
+                if($exist)
+                {
+                    \Redis::hIncrBy("meta:job:" . $model->id,"applicationCount",1);
+                }
+            }
+        });
+
     }
 }

@@ -23,13 +23,13 @@ class Photo extends Model implements Feedable
     protected $fillable = ['caption','file','privacy_id','payload_id'];
 
     protected $visible = ['id','caption','photoUrl','likeCount',
-        'created_at','comments',
-        'profile_id','company_id','privacy_id',
-        'owner'];
+        'created_at',
+        'profile_id','company_id','privacy_id','updated_at',
+        'owner','nextPhotoId','previousPhotoId'];
 
     protected $with = ['like'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount'];
+    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
     
     protected $dates = ['deleted_at'];
 
@@ -39,23 +39,35 @@ class Photo extends Model implements Feedable
 
         self::deleting(function($photo){
 //            \DB::transaction(function() use ($photo){
-                $photo->ideabooks()->detach();
+//                $photo->ideabooks()->detach();
+
+                $photo->profile()->detach();
+                $photo->company()->detach();
+
 //            });
         });
-        
+
         //do not fire self::created methods here.
         //manage this in the controller.
         //self::created doesn't fire after the relationship of profile/company has been established.
         //so it can't be pushed to the feed since there won't be any "owner".
-        
+
         self::created(function($photo){
            //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
+
+//        self::created(function($photo){
+//            $photo->addToCache();
+//        });
+//
+//        self::updated(function($photo){
+//            $photo->addToCache();
+//        });
     }
     
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString()];
+        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),'updated_at'=>$this->updated_at->toDateTimeString()];
         \Redis::set("photo:" . $this->id,json_encode($data));
     }
     
@@ -243,6 +255,43 @@ class Photo extends Model implements Feedable
 
         return $data;
 
+    }
+
+    public function getNextPhotoIdAttribute()
+    {
+        if(isset($this->company_id) && !is_null($this->company_id))
+        {
+            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','<', $this->id)->where('company_id',$this->company_id)->orderBy('photo_id','DESC')->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else if(isset($this->profile_id) && !is_null($this->profile_id))
+        {
+            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','<', $this->id)->where('profile_id',$this->profile_id)->orderBy('photo_id','DESC')->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else
+        {
+            return null;
+        }
+
+    }
+
+    public function getPreviousPhotoIdAttribute()
+    {
+        if(isset($this->company_id) && !is_null($this->company_id))
+        {
+            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','>', $this->id)->where('company_id',$this->company_id)->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else if(isset($this->profile_id) && !is_null($this->profile_id))
+        {
+            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','>', $this->id)->where('profile_id',$this->profile_id)->first();
+            return !is_null($photoId) ? $photoId->photo_id : null;
+        }
+        else
+        {
+            return null;
+        }
     }
    
 }
