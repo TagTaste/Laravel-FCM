@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
-    public function show()
+    public function showProfile()
     {
         $profile_id = \request()->user()->profile->id;
 
@@ -18,38 +18,43 @@ class SettingController extends Controller
         return $this->sendResponse();
     }
 
-    public function profileSettings($type)
-    {
-        $profile_id = \request()->user()->profile->id;
-
-        $query = \DB::raw('SELECT s.id, s.title, s.'.$type.'_description, COALESCE(n.'.$type.'_active, s.'.$type.'_active) AS '.$type.'_active,
-                             COALESCE(n.'.$type.'_value, s.'.$type.'_value) AS '.$type.'_value, s.group_name
-                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.'
-                            WHERE s.'.$type.'_visibility = 1 AND s.belongs_to = \'profile\';');
-        $models = \DB::select($query);
-
-        $data = [];
-
-        foreach ($models as $m) {
-            $data[$m->group_name][] = [
-                'id' => $m->id,
-                'title' => $m->title,
-                'description' => $m->{$type.'_description'},
-                'active' => $m->{$type.'_active'} ? true : false,
-                'value' => $m->{$type.'_value'} ? true : false,
-            ];
-        }
-
-        $this->model = $data;
-
-        return $this->sendResponse();
-
-
-    }
+//    public function profileSettings($type)
+//    {
+//        $profile_id = \request()->user()->profile->id;
+//
+//        $query = \DB::raw('SELECT s.id, s.title, s.'.$type.'_description, COALESCE(n.'.$type.'_active, s.'.$type.'_active) AS '.$type.'_active,
+//                             COALESCE(n.'.$type.'_value, s.'.$type.'_value) AS '.$type.'_value, s.group_name
+//                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.'
+//                            WHERE s.'.$type.'_visibility = 1 AND s.belongs_to = \'profile\';');
+//        $models = \DB::select($query);
+//
+//        $data = [];
+//
+//        foreach ($models as $m) {
+//            $data[$m->group_name][] = [
+//                'id' => $m->id,
+//                'title' => $m->title,
+//                'description' => $m->{$type.'_description'},
+//                'active' => $m->{$type.'_active'} ? true : false,
+//                'value' => $m->{$type.'_value'} ? true : false,
+//            ];
+//        }
+//
+//        $this->model = $data;
+//
+//        return $this->sendResponse();
+//
+//
+//    }
 
     public function showCompany($id)
     {
         $profile_id = \request()->user()->profile->id;
+
+        $checkAdmin = CompanyUser::checkAdmin($profile_id, $id);
+        if(!$checkAdmin) {
+            return response()->json(['data' => null, 'errors' => ["User does not belong to this company."], 'messages' => null],401);
+        }
 
         $models = Setting::getAllSettings($profile_id, $id);
 
@@ -58,32 +63,32 @@ class SettingController extends Controller
         return $this->sendResponse();
     }
 
-    public function companySettings($type, $id)
-    {
-        $profile_id = \request()->user()->profile->id;
-
-        $query = \DB::raw('SELECT s.id, s.title, s.'.$type.'_description, COALESCE(n.'.$type.'_active, s.'.$type.'_active) AS '.$type.'_active,
-                             COALESCE(n.'.$type.'_value, s.'.$type.'_value) AS '.$type.'_value, s.group_name
-                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.' AND n.company_id = '.$id.'
-                            WHERE s.'.$type.'_visibility = 1 AND s.belongs_to = \'company\';');
-        $models = \DB::select($query);
-
-        $data = [];
-
-        foreach ($models as $m) {
-            $data[$m->group_name][] = [
-                'id' => $m->id,
-                'title' => $m->title,
-                'description' => $m->{$type.'_description'},
-                'active' => $m->{$type.'_active'} ? true : false,
-                'value' => $m->{$type.'_value'} ? true : false,
-            ];
-        }
-
-        $this->model = $data;
-
-        return $this->sendResponse();
-    }
+//    public function companySettings($type, $id)
+//    {
+//        $profile_id = \request()->user()->profile->id;
+//
+//        $query = \DB::raw('SELECT s.id, s.title, s.'.$type.'_description, COALESCE(n.'.$type.'_active, s.'.$type.'_active) AS '.$type.'_active,
+//                             COALESCE(n.'.$type.'_value, s.'.$type.'_value) AS '.$type.'_value, s.group_name
+//                            FROM settings s LEFT JOIN notification_settings n ON s.id = n.setting_id AND n.profile_id = '.$profile_id.' AND n.company_id = '.$id.'
+//                            WHERE s.'.$type.'_visibility = 1 AND s.belongs_to = \'company\';');
+//        $models = \DB::select($query);
+//
+//        $data = [];
+//
+//        foreach ($models as $m) {
+//            $data[$m->group_name][] = [
+//                'id' => $m->id,
+//                'title' => $m->title,
+//                'description' => $m->{$type.'_description'},
+//                'active' => $m->{$type.'_active'} ? true : false,
+//                'value' => $m->{$type.'_value'} ? true : false,
+//            ];
+//        }
+//
+//        $this->model = $data;
+//
+//        return $this->sendResponse();
+//    }
 
     public function store(Request $request)
     {
@@ -100,7 +105,7 @@ class SettingController extends Controller
 
         if(isset($input['company_id'])) {
             $company_id = $input['company_id'];
-            $checkAdmin = $this->checkAdmin($profile_id, $company_id);
+            $checkAdmin = CompanyUser::checkAdmin($profile_id, $company_id);
             if(!$checkAdmin) {
                 return response()->json(['data' => null, 'errors' => ["User does not belong to this company."], 'messages' => null],401);
             }
@@ -119,18 +124,6 @@ class SettingController extends Controller
         return $this->sendResponse();
     }
 
-    public function test($id) {
-
-        $profile_id = \request()->user()->profile->id;
-
-//        $res = Setting::getSetting($id, $profile_id, 21);
-        $res = Setting::getNotificationPreference($profile_id, null, 'apply',null,'collaborate');
-
-//        $res->email_value = !$res->email_value;
-//        $res->save();
-
-        return response()->json($res);
-    }
 
     private function formatData($models) : array {
 
@@ -164,10 +157,5 @@ class SettingController extends Controller
 
         return $data2;
 
-    }
-
-    private function checkAdmin($profileId, $companyId) : bool {
-
-        return CompanyUser::where("company_id",$companyId)->where('profile_id', $profileId)->exists();
     }
 }

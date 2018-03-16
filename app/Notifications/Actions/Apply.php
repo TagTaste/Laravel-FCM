@@ -41,7 +41,6 @@ class Apply extends Action
 
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
-
         }
 
         $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);

@@ -232,10 +232,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             /// ------- Settings Routes -------
 
-            Route::get('settings', 'SettingController@show');
+            Route::get('settings', 'SettingController@showProfile');
             Route::get('settings/company/{id}', 'SettingController@showCompany');
-            Route::get('settings/{type}', 'SettingController@profileSettings');
-            Route::get('settings/{type}/company/{id}', 'SettingController@companySettings');
+//            Route::get('settings/{type}', 'SettingController@profileSettings');
+//            Route::get('settings/{type}/company/{id}', 'SettingController@companySettings');
 
             Route::post('settings', 'SettingController@store');
 

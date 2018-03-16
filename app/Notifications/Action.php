@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\CompanyUser;
 use App\FCMPush;
 use App\Setting;
 use App\Traits\GetTags;
@@ -55,7 +56,31 @@ class Action extends Notification implements ShouldQueue
 
         }
 
-        $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
+        $preference = null;
+
+        if(isset($this->model->company_id) && !is_null($this->model->company_id)) {
+
+            //getting list of company admins
+            $admins = CompanyUser::getCompanyAdminIds($this->model->company_id);
+
+            // company admin 'onlyme' case
+            if($this->model->profile_id == $notifiable->id) {
+                $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action, 'onlyme');
+            }
+            // user is admin of the company
+            elseif(in_array($notifiable->id, $admins)) {
+                $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action);
+            }
+            // user is just a subscriber of model
+            else {
+                $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
+            }
+
+        } else {
+            $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
+        }
+
+
         \Log::info("ACTION.PHP ".print_r($preference, true));
         if(is_null($preference)) {
             return $via;
