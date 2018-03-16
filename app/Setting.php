@@ -42,6 +42,7 @@ class Setting
             ->where('action', $action)
             ->where('sub_action', $sub_action)->where('model', $model)
             ->first();
+        \Log::info("SETTING.PHP profile_id=$profileId action=$action setting=".print_r($setting,true));
         if(is_null($setting)) {
             return null;
         }
