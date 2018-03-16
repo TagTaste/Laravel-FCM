@@ -46,7 +46,7 @@ class Job extends Filter {
             foreach($order as $key){
                 $count = 0;
                 $singleFilter = $allFilters->get($key);
-                if(!$singleFilter || $key == 'Experience')
+                if(!$singleFilter)
                 {
                     $filters['Experience'][0]['value'] = '0 - 2 years';
                     $filters['Experience'][1]['value'] = '2 - 5 years';
