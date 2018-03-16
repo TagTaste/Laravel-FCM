@@ -176,15 +176,12 @@ Artisan::command('inspire', function () {
 \Artisan::command("sendCollab",function(){
     
     $count = 0;
-    $users = \DB::table('users')->whereNull('deleted_at')->where('created_at' ,'>=','2018-02-07 00:00:00')->get();
-    $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
-    \Mail::to('ashok@tagtaste.com')->bcc('amitabh@tagtaste.com')->bcc('aman@tagtaste.com')->send($mail);
+    $users = \DB::table('users')->whereNull('deleted_at')->get();
     foreach ($users as $user)
     {
         $count++;
 
         $email = $user->email;
-        $email = 'ashok@tagtaste.com';
         echo "Sending collab mail to " . $email . "\n";
 
         $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
