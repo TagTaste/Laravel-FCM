@@ -10,7 +10,7 @@ class SettingController extends Controller
 {
     public function showProfile()
     {
-        $profile_id = \request()->user()->profile->id;
+        $profile_id = request()->user()->profile->id;
 
         $models = Setting::getAllSettings($profile_id);
         $this->model = $this->formatData($models);
@@ -49,7 +49,7 @@ class SettingController extends Controller
 
     public function showCompany($id)
     {
-        $profile_id = \request()->user()->profile->id;
+        $profile_id = request()->user()->profile->id;
 
         $checkAdmin = CompanyUser::checkAdmin($profile_id, $id);
         if(!$checkAdmin) {
@@ -99,7 +99,7 @@ class SettingController extends Controller
         /// value = {true, false} (required)
 
         $input = $request->all();
-        $profile_id = \request()->user()->profile->id;
+        $profile_id = request()->user()->profile->id;
 
         $company_id = null;
 
