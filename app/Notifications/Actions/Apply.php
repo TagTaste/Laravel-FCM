@@ -3,6 +3,7 @@
 
 namespace App\Notifications\Actions;
 
+use App\CompanyUser;
 use App\Notifications\Action;
 use App\FCMPush;
 use App\Setting;

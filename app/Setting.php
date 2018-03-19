@@ -11,9 +11,8 @@ class Setting
     public $setting_id, $profile_id, $company_id, $bell_visibility, $email_visibility, $push_visibility,
         $bell_active, $email_active, $push_active, $bell_value, $email_value, $push_value;
 
-    protected $fillable = ['setting_id', 'profile_id', 'company_id', 'bell_visibility', 'email_visibility','push_visibility',
-        'bell_active', 'email_active','push_active',
-        'bell_value', 'email_value','push_value',
+    protected $fillable = ['setting_id', 'profile_id', 'company_id', 'bell_visibility', 'email_visibility',
+        'push_visibility', 'bell_active', 'email_active','push_active', 'bell_value', 'email_value','push_value',
     ];
 
     public static function getAllSettings($profileId, $companyId = null) {
