@@ -33,7 +33,7 @@ class Setting
             \DB::raw("COALESCE(notification_settings.email_value, settings.email_value) AS email_value"),
             \DB::raw("COALESCE(notification_settings.push_value, settings.push_value) AS push_value"),
             \DB::raw("COALESCE(notification_settings.bell_value, settings.bell_value) AS bell_value"), 'settings.group_name')
-            ->where('settings.belongs_to', $belongsTo)->toSql();
+            ->where('settings.belongs_to', $belongsTo)->get();
 
         return $models;
     }

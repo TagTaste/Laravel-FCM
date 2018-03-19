@@ -15,7 +15,6 @@ class SettingController extends Controller
 
         $models = Setting::getAllSettings($profile_id);
         $this->model = $this->formatData($models);
-        $this->model = $models;
 
         return $this->sendResponse();
     }
