@@ -27,7 +27,7 @@ class Actions
             ->where('model_subscribers.model_id','=',$modelId)
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
-            ->whereNull('model_subscribers.deleted_at')->get()->pluck('profiles.id');
+            ->whereNull('model_subscribers.deleted_at')->get();
 
         \Log::info($profilesIds);
 
