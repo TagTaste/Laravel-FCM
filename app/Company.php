@@ -101,6 +101,7 @@ class Company extends Model
         'affiliations',
         'style_logo',
         'style_hero_image',
+        'company_id',
 
     ];
     
