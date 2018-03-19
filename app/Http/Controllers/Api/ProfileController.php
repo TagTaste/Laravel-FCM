@@ -561,7 +561,7 @@ class ProfileController extends Controller
         $query = $request->input('term');
 
         $this->model = \App\Recipe\Profile::join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")
-            ->whereIn('profiles.id',$profileIds)->orderBy('users.name')->take(10)->get();
+            ->whereIn('profiles.id',$profileIds)->take(15)->get();
         return $this->sendResponse();
 
     }
