@@ -27,12 +27,12 @@ class Actions
             ->where('model_subscribers.model_id','=',$modelId)
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
-            ->whereNull('model_subscribers.deleted_at')->get()->pluck('profiles.id')->toArray();
+            ->whereNull('model_subscribers.deleted_at')->get()->pluck('profiles.id');
 
         // Adding company admins
         if($event->model->company_id){
             $companyAdminIds = CompanyUser::where('company_id',$event->model->company_id)
-                ->whereNotIn('profile_id',$profilesIds)->get()->pluck('profile_id')->toArray();
+                ->whereNotIn('profile_id',$profilesIds)->get()->pluck('profile_id');
 
             if(count($companyAdminIds)){
                 $profilesIds = $profilesIds->merge($companyAdminIds);
