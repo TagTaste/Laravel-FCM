@@ -27,6 +27,17 @@ class Actions
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get();
+
+        // Adding company admins
+        if($event->model->company_id){
+            $companyUsers = CompanyUser::where('company_id',$event->model->company_id)->select("profile_id")->get();
+
+            if($companyUsers->count()){
+                $adminProfiles = Profile::whereIn('id',$companyUsers->pluck('profile_id'))->get();
+                $profiles->merge($adminProfiles);
+            }
+        }
+
         //send notification
         if($profiles->count() === 0) {
             \Log::info("No model subscribers. Not sending notification.");

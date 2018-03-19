@@ -21,10 +21,11 @@ class Setting
         $belongsTo = is_null($companyId) ? 'profile' : 'company';
 
         $models = \DB::table('settings')->leftJoin('notification_settings', function ($join) use ($profileId, $companyId) {
-                $join->on('settings.id', '=', 'notification_settings.setting_id')
+                $join->on('notification_settings.setting_id', '=', 'settings.id')
                     ->where('notification_settings.profile_id', $profileId)
                     ->where('notification_settings.company_id', $companyId);
-            })->select('settings.id', 'settings.title', 'settings.email_description', 'settings.push_description',
+            })
+            ->select('settings.id', 'settings.title', 'settings.email_description', 'settings.push_description',
             'settings.bell_description', 'settings.email_visibility', 'settings.push_visibility', 'settings.bell_visibility',
             \DB::raw("COALESCE(notification_settings.email_active, settings.email_active) AS email_active"),
             \DB::raw("COALESCE(notification_settings.push_active, settings.push_active) AS push_active"),
@@ -32,7 +33,7 @@ class Setting
             \DB::raw("COALESCE(notification_settings.email_value, settings.email_value) AS email_value"),
             \DB::raw("COALESCE(notification_settings.push_value, settings.push_value) AS push_value"),
             \DB::raw("COALESCE(notification_settings.bell_value, settings.bell_value) AS bell_value"), 'settings.group_name')
-            ->where('settings.belongs_to', $belongsTo)->get();
+            ->where('settings.belongs_to', $belongsTo)->toSql();
 
         return $models;
     }
@@ -60,7 +61,8 @@ class Setting
             $join->on('settings.id', '=', 'notification_settings.setting_id')
                 ->where('notification_settings.profile_id', $profileId)
                 ->where('notification_settings.company_id', $companyId);
-        })->select('settings.id', 'settings.title', 'settings.email_description', 'settings.push_description',
+        })
+            ->select('settings.id', 'settings.title', 'settings.email_description', 'settings.push_description',
             'settings.bell_description', 'settings.email_visibility', 'settings.push_visibility', 'settings.bell_visibility',
             \DB::raw("COALESCE(notification_settings.email_active, settings.email_active) AS email_active"),
             \DB::raw("COALESCE(notification_settings.push_active, settings.push_active) AS push_active"),

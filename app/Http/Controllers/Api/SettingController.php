@@ -15,6 +15,7 @@ class SettingController extends Controller
 
         $models = Setting::getAllSettings($profile_id);
         $this->model = $this->formatData($models);
+        $this->model = $models;
 
         return $this->sendResponse();
     }
@@ -92,16 +93,16 @@ class SettingController extends Controller
             }
         }
 
-        $data2 = [];
+        $settingModels = [];
         foreach ($types as $type) {
             $groups = [];
             foreach ($data[$type] as $key => $items) {
                 $groups[] = ['group_name' => $key, 'items' => $items];
             }
-            $data2[$type] = $groups;
+            $settingModels[$type] = $groups;
         }
 
-        return $data2;
+        return $settingModels;
 
     }
 }
