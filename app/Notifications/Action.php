@@ -63,13 +63,15 @@ class Action extends Notification implements ShouldQueue
             //getting list of company admins
             $admins = CompanyUser::getCompanyAdminIds($this->model->company_id);
 
-            // company admin 'onlyme' case
-            if($this->model->profile_id == $notifiable->id) {
-                $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action, 'onlyme');
-            }
             // user is admin of the company
-            elseif(in_array($notifiable->id, $admins)) {
-                $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action);
+            if(in_array($notifiable->id, $admins)) {
+
+                // company admin 'onlyme' case (user is owner)
+                if($this->model->profile_id == $notifiable->id) {
+                    $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action, 'onlyme');
+                } else {
+                    $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action);
+                }
             }
             // user is just a subscriber of model
             else {
@@ -81,7 +83,8 @@ class Action extends Notification implements ShouldQueue
         }
 
 
-        \Log::info("ACTION.PHP ".print_r($preference, true));
+        \Log::info("ACTION.PHP  preference".print_r($preference, true));
+        \Log::info("ACTION.PHP notifiable".print_r($notifiable, true));
         if(is_null($preference)) {
             return $via;
         }
