@@ -37,7 +37,8 @@ class Actions
                 $profiles->merge($adminProfiles);
             }
         }
-        \Log::info("addOrUpdate: ".print_r($profiles, true));
+        \Log::info("here: ");
+        \Log::info($profiles);
 
         //send notification
         if($profiles->count() === 0) {
