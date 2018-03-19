@@ -29,7 +29,6 @@ class Actions
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get()->pluck('id');
 
-        \Log::info($profilesIds);
 
         // Adding company admins
         if($event->model->company_id){
