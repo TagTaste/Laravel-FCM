@@ -33,12 +33,17 @@ class Actions
             $companyUsers = CompanyUser::where('company_id',$event->model->company_id)->select("profile_id")->get();
 
             if($companyUsers->count()){
-                $adminProfiles = Profile::whereIn('id',$companyUsers->pluck('profile_id'))->get();
+                $adminProfiles = \App\Recipe\Profile::whereIn('id',$companyUsers->pluck('profile_id'))->get();
+                \Log::info("here: ");
+                \Log::info($profiles);
+                \Log::info("here: ");
+                \Log::info($adminProfiles);
                 $profiles->merge($adminProfiles);
+                \Log::info("here: ");
+                \Log::info($profiles);
+                \Log::info("here: ");
             }
         }
-        \Log::info("here: ");
-        \Log::info($profiles);
 
         //send notification
         if($profiles->count() === 0) {
