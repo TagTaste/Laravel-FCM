@@ -36,12 +36,11 @@ class Actions
                 $adminProfiles = \App\Recipe\Profile::whereIn('id',$companyUsers->pluck('profile_id'))->get();
                 \Log::info("here: ");
                 \Log::info($profiles);
-                \Log::info("here: ");
+                \Log::info("here1: ");
                 \Log::info($adminProfiles);
                 $profiles->merge($adminProfiles);
-                \Log::info("here: ");
+                \Log::info("here2: ");
                 \Log::info($profiles);
-                \Log::info("here: ");
             }
         }
 
