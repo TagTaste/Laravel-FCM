@@ -202,4 +202,32 @@ Artisan::command('inspire', function () {
 //                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
             });
     });
+
+    \DB::table('profiles')->orderBy('id')->chunk(25,function($models){
+            foreach($models as $model){
+                echo $model->id. " main id ";
+                $profileIds = \Redis::SMEMBERS("followers:profile:".$model->id);
+
+                echo count($profileIds). " count ";
+
+                foreach ($profileIds as $key => $value)
+                {
+                    $exists = \DB::table('profiles')->whereNotNull('deleted_at')->where('id',$value)->exists();
+                    echo $value. " followers id ";
+
+                    if($exists)
+                    {
+                        \Redis::sRem("following:profile:" . $value, $model->id);
+
+                        //profiles that are following $channelOwner
+                        \Redis::sRem("followers:profile:" . $model->id, $value);
+                    }
+                }
+
+                $profileIds = \Redis::sMembers("following:profile:$id");
+
+
+            }
+        });
+
 });
