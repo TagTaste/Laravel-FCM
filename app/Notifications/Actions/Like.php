@@ -61,8 +61,6 @@ class Like extends Action
         }
 
 
-        \Log::info("ACTION.PHP  preference".print_r($preference, true));
-        \Log::info("ACTION.PHP notifiable".print_r($notifiable, true));
         if(is_null($preference)) {
             return $via;
         }
