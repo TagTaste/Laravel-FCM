@@ -191,32 +191,32 @@ Artisan::command('inspire', function () {
 });
 
 \Artisan::command("fixFollowers",function(){
-    $now = \Carbon\Carbon::now()->toDateTimeString();
-    \DB::table("channels")->orderBy('channels.id')->join('profiles','profiles.id','=','channels.profile_id')
-        ->whereNotNull("profiles.deleted_at")
-        ->chunk(25,function($deletedProfileChannels) use (&$now) {
-            $deletedProfileChannels->each(function($channel) use (&$now) {
-                echo $channel->name . " ";
-                echo \DB::table("subscribers")->where("channel_name",'like',$channel->name)->update(['deleted_at'=>$now]) . " ";
-                echo \DB::table('subscribers')->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . " ";
-//                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
-            });
-    });
+//    $now = \Carbon\Carbon::now()->toDateTimeString();
+//    \DB::table("channels")->orderBy('channels.id')->join('profiles','profiles.id','=','channels.profile_id')
+//        ->whereNotNull("profiles.deleted_at")
+//        ->chunk(25,function($deletedProfileChannels) use (&$now) {
+//            $deletedProfileChannels->each(function($channel) use (&$now) {
+//                echo $channel->name . " ";
+//                echo \DB::table("subscribers")->where("channel_name",'like',$channel->name)->update(['deleted_at'=>$now]) . " ";
+//                echo \DB::table('subscribers')->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . " ";
+////                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
+//            });
+//    });
 
-    \DB::table('profiles')->orderBy('id')->chunk(25,function($models){
+    \DB::table('profiles')->where('id',637)->orderBy('id')->chunk(25,function($models){
             foreach($models as $model){
-                echo $model->id. " main id ";
+                echo $model->id. " main id\n";
                 $profileIds = \Redis::SMEMBERS("followers:profile:".$model->id);
 
-                echo count($profileIds). " count ";
+                echo count($profileIds). " count\n";
 
                 foreach ($profileIds as $key => $value)
                 {
                     $exists = \DB::table('profiles')->whereNotNull('deleted_at')->where('id',$value)->exists();
-                    echo $value. " followers id ";
 
                     if($exists)
                     {
+                        echo $value. " followers id\n";
                         \Redis::sRem("following:profile:" . $value, $model->id);
 
                         //profiles that are following $channelOwner
@@ -224,7 +224,24 @@ Artisan::command('inspire', function () {
                     }
                 }
 
-                $profileIds = \Redis::sMembers("following:profile:$id");
+                $profileIds = \Redis::sMembers("following:profile:$model->id");
+
+
+                echo count($profileIds). " count\n";
+
+                foreach ($profileIds as $key => $value)
+                {
+                    $exists = \DB::table('profiles')->whereNotNull('deleted_at')->where('id',$value)->exists();
+
+                    if($exists)
+                    {
+                        echo $value. " followers id\n";
+                        \Redis::sRem("following:profile:" . $model->id, $value);
+
+                        //profiles that are following $channelOwner
+                        \Redis::sRem("followers:profile:" . $value, $model->id);
+                    }
+                }
 
 
             }
