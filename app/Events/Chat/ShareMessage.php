@@ -25,6 +25,8 @@ class ShareMessage
     public function __construct($chatIds,$profileIds,$inputs,$user)
     {
         //
+        \Log::info($chatIds);
+        \Log::info($profileIds);
         $this->chatIds=$chatIds;
         $this->profileIds=$profileIds;
         $this->inputs=$inputs;

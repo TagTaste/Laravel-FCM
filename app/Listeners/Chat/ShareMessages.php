@@ -35,12 +35,10 @@ class ShareMessages implements ShouldQueue
 
         $inputs = $event->inputs;
         $profileIds = $event->profileIds;
-        \Log::info("count of chatIds". $chatIds);
         if(count($chatIds))
         {
             foreach ($chatIds as $chatId)
             {
-                \Log::info("chatId". $chatId);
                 $info = [];
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
                     $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
@@ -57,10 +55,7 @@ class ShareMessages implements ShouldQueue
                 $info['chat_id'] = $chatId;
                 $info['profile_id'] = $loggedInProfileId;
                 $info['message'] = $inputs['message'];
-                \Log::info("info log");
-                \Log::info($info);
                 $chat = Message::create($info);
-                \Log::info($chat);
 
                 event(new \App\Events\Chat\Message($chat,$event->user->profile));
 
