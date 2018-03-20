@@ -203,7 +203,7 @@ Artisan::command('inspire', function () {
 //            });
 //    });
 
-    \DB::table('profiles')->where('id',637)->orderBy('id')->chunk(25,function($models){
+    \DB::table('profiles')->orderBy('id')->chunk(25,function($models){
             foreach($models as $model){
                 echo $model->id. " main id\n";
                 $profileIds = \Redis::SMEMBERS("followers:profile:".$model->id);
