@@ -63,73 +63,75 @@ class ShareMessages implements ShouldQueue
             }
 
         }
-
-        $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as chat_id , c2.profile_id as profile_id"))
-            ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
-            ->join("chats",'chats.id','=','c1.chat_id')
-            ->where(function($query) use ($loggedInProfileId){
-                $query->where('c1.profile_id','=',$loggedInProfileId)->where('c1.is_single','=',1);
-            })->where(function($query) use ($profileIds) {
-                $query->whereIn('c2.profile_id',$profileIds)->where('c2.is_single','=',1)
-                ;
-            })->whereNull('chats.deleted_at')
-            ->orderBy('c1.chat_id')
-            ->get();
-        $chatProfileIds = $chatIds->pluck('profile_id');
-        $chatIds = $chatIds->pluck('chat_id');
-        foreach ($chatIds as $chatId)
+        if(count($profileIds))
         {
-            $info = [];
-            if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                $s3 = \Storage::disk('s3');
-                $filePath = 'p/' . $loggedInProfileId . "/ci";
-                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                $inputs['preview']['image'] = $resp;
-            }
-            if(isset($inputs['preview']))
+            $chatIds = \DB::table("chat_members as c1")->selectRaw(\DB::raw("c1.chat_id as chat_id , c2.profile_id as profile_id"))
+                ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
+                ->join("chats",'chats.id','=','c1.chat_id')
+                ->where(function($query) use ($loggedInProfileId){
+                    $query->where('c1.profile_id','=',$loggedInProfileId)->where('c1.is_single','=',1);
+                })->where(function($query) use ($profileIds) {
+                    $query->whereIn('c2.profile_id',$profileIds)->where('c2.is_single','=',1)
+                    ;
+                })->whereNull('chats.deleted_at')
+                ->orderBy('c1.chat_id')
+                ->get();
+            $chatProfileIds = $chatIds->pluck('profile_id');
+            $chatIds = $chatIds->pluck('chat_id');
+            foreach ($chatIds as $chatId)
             {
-                $info['preview'] = json_encode($inputs['preview']);
-            }
+                $info = [];
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $loggedInProfileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = $resp;
+                }
+                if(isset($inputs['preview']))
+                {
+                    $info['preview'] = json_encode($inputs['preview']);
+                }
 
-            $info['chat_id'] = $chatId;
-            $info['profile_id'] = $loggedInProfileId;
-            $info['message'] = $inputs['message'];
-            $chat = Message::create($info);
+                $info['chat_id'] = $chatId;
+                $info['profile_id'] = $loggedInProfileId;
+                $info['message'] = $inputs['message'];
+                $chat = Message::create($info);
 
-            event(new \App\Events\Chat\Message($chat,$event->user->profile));
-        }
-        $profileIds = array_diff($profileIds,$chatProfileIds->toArray());
-        $now = \Carbon\Carbon::now()->toDateTimeString();
-        foreach ($profileIds as $profileId)
-        {
-            $info = [];
-            $info['profile_id'] = $loggedInProfileId;
-            $this->model = \App\Chat::create($info);
-            $data = [];
-            $chatId = $this->model->id;
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
-            $this->model->members()->insert($data);
-            $info = [];
-            if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                $image = $this->getExternalImage($inputs['preview']['image'],$profileId);
-                $s3 = \Storage::disk('s3');
-                $filePath = 'p/' . $profileId . "/ci";
-                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                $inputs['preview']['image'] = $resp;
+                event(new \App\Events\Chat\Message($chat,$event->user->profile));
             }
-            if(isset($inputs['preview']))
+            $profileIds = array_diff($profileIds,$chatProfileIds->toArray());
+            $now = \Carbon\Carbon::now()->toDateTimeString();
+            foreach ($profileIds as $profileId)
             {
-                $info['preview'] = json_encode($inputs['preview']);
+                $info = [];
+                $info['profile_id'] = $loggedInProfileId;
+                $this->model = \App\Chat::create($info);
+                $data = [];
+                $chatId = $this->model->id;
+                $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
+                $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
+                $this->model->members()->insert($data);
+                $info = [];
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                    $image = $this->getExternalImage($inputs['preview']['image'],$profileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $profileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = $resp;
+                }
+                if(isset($inputs['preview']))
+                {
+                    $info['preview'] = json_encode($inputs['preview']);
+                }
+
+                $info['chat_id'] = $chatId;
+                $info['profile_id'] = $loggedInProfileId;
+                $info['message'] = $inputs['message'];
+                $chat = Message::create($info);
+
+                event(new \App\Events\Chat\Message($chat,$event->user->profile));
             }
-
-            $info['chat_id'] = $chatId;
-            $info['profile_id'] = $loggedInProfileId;
-            $info['message'] = $inputs['message'];
-            $chat = Message::create($info);
-
-            event(new \App\Events\Chat\Message($chat,$event->user->profile));
         }
 
     }
