@@ -15,7 +15,6 @@ use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\CountryCodeFix;
-use App\Console\Commands\FillSettingsTable;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\fixKeywords;
 use App\Console\Commands\GenerateThumbnails;
@@ -130,9 +129,6 @@ class Kernel extends ConsoleKernel
 
         ServiceInterruption::class,
 
-        // Populate settings table (run only once)
-        FillSettingsTable::class,
-      
         DeletePhoto::class,
 
     ];
