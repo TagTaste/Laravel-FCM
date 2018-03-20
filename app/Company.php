@@ -129,8 +129,8 @@ class Company extends Model
         
         self::created(function(Company $company){
             $profile = $company->user->profile;
-//            $profile->subscribe("public",$company);
-//            $profile->subscribe("network",$company);
+            $profile->subscribe("public",$company);
+            $profile->subscribe("network",$company);
             
             //add creator as a user of his company
             $company->addUser($company->user);
