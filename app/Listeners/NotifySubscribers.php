@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\CompanyUser;
 use App\Events\Action;
 use App\ModelSubscriber;
 use App\Notify\Profile;
@@ -38,6 +39,18 @@ class NotifySubscribers
                     ->whereNull('muted_on')
                     ->whereNull('model_subscribers.deleted_at')->get();
         $class = "\App\Notifications\Actions\\" . ucwords($event->action);
+
+        // Adding other company admins
+        if(isset($model->company_id) && !is_null($model->company_id)) {
+            $adminProfilesIds = CompanyUser::where("company_id",$model->company_id)->get();
+            $ids = [];
+            foreach ($adminProfilesIds as $id) {
+                $ids[] = $id->profile_id;
+            }
+            $adminProfiles = Profile::whereIn('id', $ids)->get();
+            $profiles->merge($adminProfiles);
+        }
+
         Notification::send($profiles, new $class($model,$modelId,$event->action));
     }
 }

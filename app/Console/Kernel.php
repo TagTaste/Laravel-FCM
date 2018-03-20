@@ -129,7 +129,7 @@ class Kernel extends ConsoleKernel
 
         ServiceInterruption::class,
 
-        DeletePhoto::class
+        DeletePhoto::class,
 
     ];
 
