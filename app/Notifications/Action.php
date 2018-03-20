@@ -127,7 +127,7 @@ class Action extends Notification implements ShouldQueue
     {
         $data = [
             'action' => $this->data->action,
-            'profile' => request()->user()->profile,
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
             'notification' => $this->notification
         ];
 
