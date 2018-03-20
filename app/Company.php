@@ -433,17 +433,17 @@ class Company extends Model
         //if you use \App\Profile here, it would end up nesting a lot of things.
         $profiles = Company::getFollowers($this->id);
         $count = count($profiles);
-        if($count > 1000000)
-        {
-            $count = round($count/1000000, 1);
-            $count = $count."M";
-        }
-        elseif($count > 1000)
-        {
-        
-            $count = round($count/1000, 1);
-            $count = $count."K";
-        }
+//        if($count > 1000000)
+//        {
+//            $count = round($count/1000000, 1);
+//            $count = $count."M";
+//        }
+//        elseif($count > 1000)
+//        {
+//
+//            $count = round($count/1000, 1);
+//            $count = $count."K";
+//        }
     
         return ['count'=> $count, 'profiles' => $profiles];
     

@@ -524,11 +524,11 @@ class Profile extends Model
             return ['count' => 0, 'profiles' => null];
         }
         
-        if ($count > 1000000) {
-            $count = round($count / 1000000, 1) . "m";
-        } elseif ($count > 1000) {
-            $count = round($count / 1000, 1) . "k";
-        }
+//        if ($count > 1000000) {
+//            $count = round($count / 1000000, 1) . "m";
+//        } elseif ($count > 1000) {
+//            $count = round($count / 1000, 1) . "k";
+//        }
     
         return ['count' => $count];
 
