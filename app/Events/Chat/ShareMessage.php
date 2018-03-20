@@ -24,7 +24,6 @@ class ShareMessage
 
     public function __construct($chatIds,$profileIds,$inputs,$user)
     {
-        //
         $this->chatIds=$chatIds;
         $this->profileIds=$profileIds;
         $this->inputs=$inputs;
