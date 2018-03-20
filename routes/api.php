@@ -230,6 +230,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('update','UpdateController@index');
 
 
+            /// ------- Settings Routes -------
+
+            Route::get('settings', 'SettingController@showProfile');
+            Route::get('settings/company/{id}', 'SettingController@showCompany');
+
+            Route::post('settings', 'SettingController@store');
+
+            /// ---- End Settings Routes ------
+
+
             //profile routes
 
             //phone verify

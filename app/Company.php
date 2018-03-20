@@ -101,6 +101,7 @@ class Company extends Model
         'affiliations',
         'style_logo',
         'style_hero_image',
+        'company_id',
 
     ];
     
@@ -108,7 +109,7 @@ class Company extends Model
         'portfolio','productCatalogue','coreteam','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
-        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue'];
+        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue', 'company_id'];
 
     private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
 
@@ -150,6 +151,11 @@ class Company extends Model
             \App\Filter\Company::removeModel($company->id);
             $company->removeFromCache();
         });
+    }
+
+    public function getCompanyIdAttribute()
+    {
+        return $this->id;
     }
     
     public function addToCache()

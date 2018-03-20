@@ -23,4 +23,18 @@ class CompanyUser extends Model
     {
         return $this->belongsTo(\App\Company::class,'company_id');
     }
+
+    public static function getCompanyAdminIds($companyId) : array {
+        $ids = [];
+        $admins = CompanyUser::where("company_id",$companyId)->get();
+        foreach ($admins as $admin) {
+            $ids[] = $admin->profile_id;
+        }
+        return $ids;
+    }
+
+    public static function checkAdmin($profileId, $companyId) : bool {
+
+        return CompanyUser::where("company_id",$companyId)->where('profile_id', $profileId)->exists();
+    }
 }

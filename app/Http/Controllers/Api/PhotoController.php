@@ -20,11 +20,7 @@ class PhotoController extends Controller
             \Log::info($request->all());
             return $this->sendError("Invalid Profile.");
         }
-        $photo = Photo::where('id',$id)->with(['comments' => function($query){
-            $query->orderBy('created_at','desc');
-        }])->with(['like'=>function($query) use ($loggedInProfileId){
-                $query->where('profile_id',$loggedInProfileId);
-            }])->first();
+        $photo = Photo::where('id',$id)->first();
     
         if(!$photo){
             return $this->sendError("Could not find photo.");
