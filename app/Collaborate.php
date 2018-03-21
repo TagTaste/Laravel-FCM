@@ -19,7 +19,7 @@ class Collaborate extends Model implements Feedable
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
-        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at'];
+        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at','created_at','updated_at'];
     
     protected $with = ['profile','company','fields','categories'];
 
@@ -34,7 +34,7 @@ class Collaborate extends Model implements Feedable
         'applicationCount','file1','deliverables','start_in','state','updated_at'];
     
     protected $appends = ['images','applicationCount'];
-    
+
     protected $casts = [
         'privacy_id' => 'integer'
     ];
