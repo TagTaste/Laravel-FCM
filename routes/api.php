@@ -64,6 +64,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //newsletter
     Route::post('newsletters','NewsletterController@store');
 
+    Route::get('/user/verify/email/{token}', 'UserController@verify');
+
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
@@ -74,8 +76,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('/user/requestOtp','UserController@requestOtp');
 
             Route::get('social/link/{provider}','UserController@socialLink');
-
-            Route::get('/user/verify/email/{token}', 'UserController@verify');
 
             //change password
                 Route::post("change/password","UserController@changePassword");
