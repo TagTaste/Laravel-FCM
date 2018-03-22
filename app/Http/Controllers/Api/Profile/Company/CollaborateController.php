@@ -156,7 +156,13 @@ class CollaborateController extends Controller
         if ($request->has("images"))
         {
             for ($i = 0; $i <= 4; $i++) {
-                if ($request->hasFile("images.$i.image")&&$request->input("images.$i.remove")==0) {
+                if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove")==0) {
+                    $imageName = str_random("32") . ".jpg";
+                    $relativePath = "images/p/$profileId/collaborate";
+                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                }
+                else if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 1 && !empty($request->file("images.$i.image")))
+                {
                     $imageName = str_random("32") . ".jpg";
                     $relativePath = "images/p/$profileId/collaborate";
                     $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
@@ -174,10 +180,12 @@ class CollaborateController extends Controller
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
 
-        if($collaborate->state == 3)
+        if($collaborate->state == 'Expired')
         {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
+            $inputs['created_at'] = Carbon::now()->toDateTimeString();
+            $inputs['updated_at'] = Carbon::now()->toDateTimeString();
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
 
             $this->model = $collaborate->update($inputs);

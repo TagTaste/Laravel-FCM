@@ -21,12 +21,26 @@ class Actions
     {
         $modelId = $event->model->id;
         $model = get_class($event->model);
-        $profiles = Profile::select('profiles.*')->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
+        $profilesIds = Profile::select('profiles.*')
+            ->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
             ->where('model_subscribers.model','=',$model)
             ->where('model_subscribers.model_id','=',$modelId)
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
-            ->whereNull('model_subscribers.deleted_at')->get();
+            ->whereNull('model_subscribers.deleted_at')->get()->pluck('id');
+
+
+        // Adding company admins
+        if($event->model->company_id){
+            $companyAdminIds = CompanyUser::where('company_id',$event->model->company_id)
+                ->whereNotIn('profile_id',$profilesIds)->get()->pluck('profile_id');
+
+            if(count($companyAdminIds)){
+                $profilesIds = $profilesIds->merge($companyAdminIds);
+            }
+        }
+        $profiles = Profile::whereIn('id',$profilesIds)->get();
+
         //send notification
         if($profiles->count() === 0) {
             \Log::info("No model subscribers. Not sending notification.");

@@ -64,6 +64,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //newsletter
     Route::post('newsletters','NewsletterController@store');
 
+    Route::get('/user/verify/email/{token}', 'UserController@verify');
+
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
@@ -74,8 +76,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('/user/requestOtp','UserController@requestOtp');
 
             Route::get('social/link/{provider}','UserController@socialLink');
-
-            Route::get('/user/verify/email/{token}', 'UserController@verify');
 
             //change password
                 Route::post("change/password","UserController@changePassword");
@@ -228,6 +228,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('update/{modelName}/{id}','UpdateController@isRead');
             //get all notification of particular profile
             Route::get('update','UpdateController@index');
+
+
+            /// ------- Settings Routes -------
+
+            Route::get('settings', 'SettingController@showProfile');
+            Route::get('settings/company/{id}', 'SettingController@showCompany');
+
+            Route::post('settings', 'SettingController@store');
+
+            /// ---- End Settings Routes ------
 
 
             //profile routes
