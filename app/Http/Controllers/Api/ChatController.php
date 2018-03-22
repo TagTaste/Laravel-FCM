@@ -204,6 +204,7 @@ class ChatController extends Controller
         $profileIds = $request->input('profile_id');
         $chatIds = $request->input('chat_id');
         $inputs = $request->all();
+
         event(new \App\Events\Chat\ShareMessage($chatIds,$profileIds,$inputs,$request->user()));
 
         $this->model = true;

@@ -35,7 +35,6 @@ class ShareMessages implements ShouldQueue
 
         $inputs = $event->inputs;
         $profileIds = $event->profileIds;
-        \Log::info("chat ids count".count($chatIds));
         if(count($chatIds))
         {
             foreach ($chatIds as $chatId)

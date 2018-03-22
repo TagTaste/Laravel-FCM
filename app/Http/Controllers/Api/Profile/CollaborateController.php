@@ -185,10 +185,12 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-        if($collaborate->state == 3)
+        if($collaborate->state == 'Expired')
         {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
+            $inputs['created_at'] = Carbon::now()->toDateTimeString();
+            $inputs['updated_at'] = Carbon::now()->toDateTimeString();
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
 
             $this->model = $collaborate->update($inputs);

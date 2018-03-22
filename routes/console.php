@@ -199,7 +199,8 @@ Artisan::command('inspire', function () {
                 echo $channel->name . " ";
                 echo \DB::table("subscribers")->where("channel_name",'like',$channel->name)->update(['deleted_at'=>$now]) . " ";
                 echo \DB::table('subscribers')->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . " ";
-                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
+//                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
             });
     });
+
 });
