@@ -1,4 +1,4 @@
-<body>
+<body style="margin: 0; padding: 0;">
 <center>
     <table width="100%" border ="0" cellspacing ="0" cellpadding = "0"  style="font-family:Arial"  bgcolor="#F8F6F9">
         @include("emails.header.header")
@@ -9,7 +9,7 @@
                         <td align="center">
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" style="margin-top:10px">
                                 <tr>
-                                    <td align="center"  bgcolor="#FFFFFF" style="width:100%!important">
+                                    <td align="center"  bgcolor="#FFFFFF" style="width:100%!important;border-radius: 10px 10px 0 0;">
                                         <div style="font-size: 20px;font-weight: bold;padding:20px 70px;color: #181818;">
                                             Welcome aboard, <span style="color: #d9222a;">{{$name}}!</span>
                                         </div>
@@ -55,6 +55,11 @@
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
                                                     <a href="https://www.tagtaste.com" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">LOGIN TO YOUR ACCOUNT</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td valign="top" align="center"  bgcolor="#FFFFFF">
+                                                    <p style="color: #181818;font-size: 14px;text-align: center;padding: 0 20px 20px 20px;">If you wish to deactivate your TagTaste account, you can write to us at content@tagtaste.com with the subject line 'Deactivate'. </p>
                                                 </td>
                                             </tr>
                                             <tr>
