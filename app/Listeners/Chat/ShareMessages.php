@@ -39,6 +39,7 @@ class ShareMessages implements ShouldQueue
         {
             foreach ($chatIds as $chatId)
             {
+                \Log::info("chat id is here". $chatId);
                 $info = [];
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
                     $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
