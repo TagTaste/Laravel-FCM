@@ -30,6 +30,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('Interruption in the services')->view('emails.tagtaste-interruption-service');
+        return $this->subject('[Resolved] Interruption in the services')->view('emails.tagtaste-interruption-service');
     }
 }
