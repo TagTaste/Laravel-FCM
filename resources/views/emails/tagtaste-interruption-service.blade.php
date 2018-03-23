@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            Interruption in the services
+                                            [Resolved] Interruption in the services
                                         </div>
                                     </td>
                                 </tr>
@@ -35,14 +35,14 @@
                                                             <td>
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        Dear {{$name}}
+                                                                        Dear {{$name}},
 
                                                                         <br>
                                                                         <br>
-                                                                        We are pleased  to inform you that all our services have been restored to normal. We thank you for your patience and sincerely regret the inconvenience caused to you.
+                                                                        We are pleased to inform you that all our services have been restored back to normal. Thank you for your patience.
                                                                         <br>
                                                                         <br>
-                                                                        If you are still facing any issue, please do not hesitate to write to us at support@tagtaste.com, or call us at +91 - 9958657225.
+                                                                        If you are still facing any issue, please contact us at support@tagtaste.com, or call us at +91 - 9958657225.
                                                                         <br>
                                                                         <br>
                                                                         Regards,
