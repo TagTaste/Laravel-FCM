@@ -67,7 +67,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     Route::get('/user/verify/email/{token}', 'UserController@verify');
 
     //authenticated routes.
-        Route::middleware(['api.auth','optimizeImages'])->group(function(){
+//        Route::middleware(['api.auth','optimizeImages'])->group(function(){
     
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
             Route::post('/logout','UserController@logout');
@@ -408,6 +408,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 return response()->json($version);
             });
             
-        }); // end of authenticated routes. Add routes before this line to be able to
+//        }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
 });
