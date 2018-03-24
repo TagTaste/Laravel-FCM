@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Tagtaste\Api\SendsJsonResponse;
+use Illuminate\Support\Facades\Password;
 
 class ResetPasswordController extends Controller
 {
@@ -41,11 +42,12 @@ class ResetPasswordController extends Controller
     
     public function reset(Request $request)
     {
-        \Log::info('Before validation------------');
+        $validator = validator($request->all(), $this->rules(), $this->validationErrorMessages());
 
-        $this->validate($request, $this->rules(), $this->validationErrorMessages());
-
-        \Log::info('After validation------------');
+        if($validator->fails()) {
+            $response = Password::INVALID_PASSWORD;
+            return $this->sendResetFailedResponse($request, $response);
+        }
     
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
