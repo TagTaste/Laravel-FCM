@@ -52,7 +52,7 @@
                                                             <tr>
                                                                 <td valign="top" align="center"  bgcolor="#FFFFFF" >
                                                                 
-                                                                        <a href="https://www.tagtaste.com/user/verify/email/{{$email_token}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal;">VERIFY EMAIL</a>
+                                                                        <a href="{{ env('APP_URL') }}/user/verify/email/{{$email_token}}" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal;">VERIFY EMAIL</a>
                                                                 
                                                                 </td>
                                                             </tr>
@@ -78,7 +78,7 @@
                                     
                                     <tr>
                                         <td align="center" bgcolor="#FFFFFF" style="padding:0px 0px 30px 0px;">
-                                            <a href="#" style="text-decoration:none;font-size: 14px;color:#0D86E3">https://tagtaste.com/user/verify/email/{{$email_token}}</a>
+                                            <a href="{{ env('APP_URL') }}/user/verify/email/{{$email_token}}" style="text-decoration:none;font-size: 14px;color:#0D86E3">{{ env('APP_URL') }}/user/verify/email/{{$email_token}}</a>
                                         </td>
                                     </tr>
                                     <tr>
