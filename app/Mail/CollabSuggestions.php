@@ -16,9 +16,11 @@ class CollabSuggestions extends Mailable
      *
      * @return void
      */
-    public function __construct()
+    public $name;
+    public function __construct($name)
     {
         //
+        $this->name = $name;
     }
 
     /**
@@ -28,6 +30,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('Here is how TagTaste community is collaborating with Chris Zandee, a cheese maker from Kashmir…')->view('emails.tagtaste-blog');
+        return $this->subject('[Resolved] Interruption in the services')->view('emails.tagtaste-interruption-service');
     }
 }
