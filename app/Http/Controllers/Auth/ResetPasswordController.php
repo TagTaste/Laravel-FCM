@@ -41,6 +41,8 @@ class ResetPasswordController extends Controller
     
     public function reset(Request $request)
     {
+        \Log::info('Before validation------------');
+
         $this->validate($request, $this->rules(), $this->validationErrorMessages());
 
         \Log::info('After validation------------');
