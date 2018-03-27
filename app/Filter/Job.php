@@ -143,7 +143,7 @@ class Job extends Filter {
             $compensation = explode('LPA', $filters['Compensation'][0]);
             $compensation = htmlspecialchars_decode($compensation[0],ENT_QUOTES);
 
-            if($compensation[0] == '> 15 ')
+            if($compensation == '> 15 ')
             {
                 $compensation = explode(' ', $compensation);
                 $minCompensation = null;
