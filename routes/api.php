@@ -199,6 +199,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //comments
                 Route::get('comments/{model}/{modelId}','CommentController@index');
+                Route::get('comments/{id}/{modelName}/{modelId}','CommentController@notificationComment');
                 Route::post('comments/{model}/{modelId}','CommentController@store');
                 Route::post('comments/{id}/{modelName}/{modelId}','CommentController@update');
                 Route::delete('comments/{id}','CommentController@destroy');
