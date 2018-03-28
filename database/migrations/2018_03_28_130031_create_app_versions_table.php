@@ -14,10 +14,11 @@ class CreateAppVersionsTable extends Migration
     public function up()
     {
         Schema::create('app_versions', function (Blueprint $table) {
-            $table->increments('id');
             $table->string('compatible_version');
             $table->string('latest_version')->nullable();
             $table->string('platform');
+            $table->timestamps();
+            $table->primary('platform');
         });
     }
 

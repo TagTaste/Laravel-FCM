@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Version extends Model
 {
     protected $table = 'app_versions';
-//    protected $primaryKey = 'compatible_version';
+    protected $primaryKey = 'platform';
     public $incrementing = false;
 
     public static $APP_IOS = 'ios';
@@ -23,18 +23,17 @@ class Version extends Model
     
     public static function getVersion($platform)
     {
-        return static::select("compatible_version","latest_version")->where('platform', $platform)->first();
+        return Version::select("compatible_version","latest_version")->where('platform', $platform)->first();
     }
     
     public static function setVersion($compatibleVersion,$latestVersion = null, $platform)
     {
-        $version = static::getVersion($platform);
+        $version = Version::find($platform);
         $version->compatible_version = $compatibleVersion;
         if(!is_null($latestVersion)){
             $version->latest_version = $latestVersion;
         }
         $version->update();
-        
         return $version;
     }
     
