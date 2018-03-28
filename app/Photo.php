@@ -24,7 +24,7 @@ class Photo extends Model implements Feedable
 
     protected $visible = ['id','caption','photoUrl','likeCount',
         'created_at','comments',
-        'profile_id','company_id','privacy_id','updated_at',
+        'profile_id','company_id','privacy_id','updated_at','deleted_at',
         'owner','nextPhotoId','previousPhotoId'];
 
     protected $with = ['like'];
