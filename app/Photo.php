@@ -261,12 +261,14 @@ class Photo extends Model implements Feedable
     {
         if(isset($this->company_id) && !is_null($this->company_id))
         {
-            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','<', $this->id)->where('company_id',$this->company_id)->orderBy('photo_id','DESC')->first();
+            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','<', $this->id)
+                ->where('company_id',$this->company_id)->whereNull('deleted_at')->orderBy('photo_id','DESC')->first();
             return !is_null($photoId) ? $photoId->photo_id : null;
         }
         else if(isset($this->profile_id) && !is_null($this->profile_id))
         {
-            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','<', $this->id)->where('profile_id',$this->profile_id)->orderBy('photo_id','DESC')->first();
+            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','<', $this->id)
+                ->where('profile_id',$this->profile_id)->whereNull('deleted_at')->orderBy('photo_id','DESC')->first();
             return !is_null($photoId) ? $photoId->photo_id : null;
         }
         else
@@ -280,12 +282,14 @@ class Photo extends Model implements Feedable
     {
         if(isset($this->company_id) && !is_null($this->company_id))
         {
-            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','>', $this->id)->where('company_id',$this->company_id)->first();
+            $photoId = \DB::table('company_photos')->select('photo_id')->where('photo_id','>', $this->id)
+                ->where('company_id',$this->company_id)->whereNull('deleted_at')->first();
             return !is_null($photoId) ? $photoId->photo_id : null;
         }
         else if(isset($this->profile_id) && !is_null($this->profile_id))
         {
-            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','>', $this->id)->where('profile_id',$this->profile_id)->first();
+            $photoId = \DB::table('profile_photos')->select('photo_id')->where('photo_id','>', $this->id)
+                ->where('profile_id',$this->profile_id)->whereNull('deleted_at')->first();
             return !is_null($photoId) ? $photoId->photo_id : null;
         }
         else
