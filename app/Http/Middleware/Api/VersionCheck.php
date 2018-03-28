@@ -19,7 +19,7 @@ class VersionCheck
     public function handle($request, Closure $next)
     {
         //if version key not specified, we've got a badass. Let 'em through.
-        if(!$request->hasHeader($this->versionKey) && !$request->hasHeader($this->versionKeyIos)){
+        if(!$request->hasHeader($this->versionKey) || !$request->hasHeader($this->versionKeyIos)){
             return $next($request);
         }
 
