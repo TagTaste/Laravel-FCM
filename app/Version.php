@@ -13,7 +13,6 @@ class Version extends Model
     public static $APP_IOS = 'ios';
     public static $APP_ANDROID = 'android';
 
-
     protected $fillable = ['compatible_version', 'latest_version', 'platform'];
     
     public function isCompatible($version)
