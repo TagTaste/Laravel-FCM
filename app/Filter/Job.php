@@ -103,9 +103,9 @@ class Job extends Filter {
             $experience = htmlspecialchars_decode($experience[0],ENT_QUOTES);
             if($experience == '> 10 ')
             {
-                $experience = explode(' ', $experience);
-                $minExperience = null;
-                $maxExperience = $experience[1];
+//                $experience = explode(' ', $experience);
+//                $minExperience = null;
+                $maxExperience = 10;
                 $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
                     ->where(function($query) use ($maxExperience){
                         $query->where('j1.key','experience_min')->whereRaw('CAST(j1.value as DECIMAL(9,2)) >= '.(double)$maxExperience);
@@ -145,9 +145,9 @@ class Job extends Filter {
 
             if($compensation == '> 15 ')
             {
-                $compensation = explode(' ', $compensation);
-                $minCompensation = null;
-                $maxCompensation = $compensation[0];
+//                $compensation = explode(' ', $compensation);
+//                $minCompensation = null;
+                $maxCompensation = 15;
                 $model = \DB::table('job_filters as j1')->select('j1.job_id')->JOIN('job_filters as j2','j2.job_id','=', 'j1.job_id')
                     ->where(function($query) use ($maxCompensation){
                         $query->where('j1.key','compensation_min')->whereRaw('CAST(j1.value as UNSIGNED) <= '.(int)$maxCompensation);
