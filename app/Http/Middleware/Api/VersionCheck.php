@@ -8,6 +8,7 @@ use Closure;
 class VersionCheck
 {
     private $versionKey = 'X-VERSION';
+    private $versionKeyIos = 'X-VERSION-IOS';
     /**
      * Handle an incoming request.
      *
@@ -18,13 +19,17 @@ class VersionCheck
     public function handle($request, Closure $next)
     {
         //if version key not specified, we've got a badass. Let 'em through.
-        if(!$request->hasHeader($this->versionKey)){
+        if(!$request->hasHeader($this->versionKey) && !$request->hasHeader($this->versionKeyIos)){
             return $next($request);
         }
-    
-        $version = $request->header($this->versionKey);
-    
-        $api = Version::getVersion();
+
+        if($request->hasHeader($this->versionKey)) {
+            $version = $request->header($this->versionKey);
+            $api = Version::getVersion(Version::$APP_ANDROID);
+        } else {
+            $version = $request->header($this->versionKeyIos);
+            $api = Version::getVersion(Version::$APP_IOS);
+        }
         
         if(empty($version)){
             $response = response()->json(['error'=>'invalid_version',

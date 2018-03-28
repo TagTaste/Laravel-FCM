@@ -398,16 +398,21 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             Route::get('@{handle}','HandleController@show');
     
-            Route::get("apk_version",function(){
-                $version = \App\Version::getVersion();
-                return response()->json($version);
-            });
-    
-            Route::post("apk_version",function(Request $request){
-                $version = \App\Version::setVersion($request->input('compatible_version'),$request->input('latest_version'));
-                return response()->json($version);
-            });
-            
+//            Route::get("apk_version",function(){
+//                $version = \App\Version::getVersion();
+//                return response()->json($version);
+//            });
+//
+//            Route::post("apk_version",function(Request $request){
+//                $version = \App\Version::setVersion($request->input('compatible_version'),$request->input('latest_version'));
+//                return response()->json($version);
+//            });
+
+            Route::get('apk_version', 'Api\\VersionController@getAndroidVersion');
+            Route::post('apk_version', 'Api\\VersionController@setAndroidVersion');
+            Route::get('ios_version', 'Api\\VersionController@getIosVersion');
+            Route::post('ios_version', 'Api\\VersionController@setIosVersion');
+
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
 });
