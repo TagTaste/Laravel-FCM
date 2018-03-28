@@ -9,6 +9,7 @@ trait HasPayload
     public $additionalPayload = [];
     public function getPayload() : array
     {
-        return array_merge($this->getCacheKey(),$this->getRelatedKey(), $this->additionalPayload);
+//        $this->getCacheKey(), //becoz don't need data for share feed
+        return array_merge($this->getRelatedKey(), $this->additionalPayload);
     }
 }
