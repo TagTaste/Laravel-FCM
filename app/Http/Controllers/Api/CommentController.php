@@ -190,7 +190,7 @@ class CommentController extends Controller {
         $this->model['previous_page'] = $previousPage == 0 ? null : $previousPage;
         $this->model['data'] = $model->comments()->skip($skip - 10)->take(10)->get();
         $nextPage = intval($model->comments()->where('id','>',$id)->count()/10) +1;
-        $this->model['next_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $nextPage;
+        $this->model['next_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $previousPage + 2;
         return $this->sendResponse();
     }
 
