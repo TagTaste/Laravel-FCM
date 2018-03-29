@@ -21,5 +21,4 @@ class Follow extends Action
         }
         $this->notification = $this->data->who['name'] ." has started following you.";
     }
-
 }
