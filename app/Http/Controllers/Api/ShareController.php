@@ -52,8 +52,8 @@ class ShareController extends Controller
         $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
             'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         
-        $this->model->additionalPayload = [
-            $modelName => $modelName . ":" . $id
+        $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
+            $modelName => $modelName . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
         ];
         
         if($sharedModel->company_id){

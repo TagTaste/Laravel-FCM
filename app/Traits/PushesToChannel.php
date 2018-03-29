@@ -28,7 +28,7 @@ trait PushesToChannel
         }
         
         $payload = $model->getPayload();
-        $payload = $channel->addPayload(get_class($model),$model->id,$payload,class_basename($model));
+        $payload = $channel->addPayload(get_class($model),$model->id,$payload);
         //update model id
         
         //this simple thing will not fire any events of the model.

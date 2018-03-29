@@ -54,11 +54,9 @@ class Channel extends Model
         return $this->hasMany(Payload::class,'channel_name','name');
     }
     
-    public function addPayload($modelName, $modelId, &$data,$originalModel)
+    public function addPayload($modelName, $modelId, &$data)
     {
-        $originalModel = strtolower($originalModel);
-//        \Log::info($data);
-        return $this->payload()->create(['payload'=>$data,'model'=>$modelName,'model_id'=>$modelId,'original_model'=>$data[$originalModel]]);
+        return $this->payload()->create(['payload'=>$data,'model'=>$modelName,'model_id'=>$modelId]);
     }
     
     public static function names($id)
