@@ -12,7 +12,7 @@ class Payload extends Model
     
     protected $table = 'channel_payloads';
     
-    protected $fillable = ['channel_name', 'payload','model','model_id','original_model','original_model_id'];
+    protected $fillable = ['channel_name', 'payload','model','model_id','original_model'];
     
     public static function boot()
     {
