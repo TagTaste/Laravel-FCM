@@ -5,6 +5,7 @@ namespace App\Notifications\Actions;
 
 use App\Notifications\Action;
 use App\Profile;
+use Carbon\Carbon;
 
 class Follow extends Action
 {
