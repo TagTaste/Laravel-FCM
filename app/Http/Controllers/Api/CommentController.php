@@ -92,7 +92,7 @@ class CommentController extends Controller {
         
         $model->comments()->attach($comment->id);
         
-        event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content));
+        event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content, null, null, null, $comment));
         
         if($comment->has_tags){
             event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
