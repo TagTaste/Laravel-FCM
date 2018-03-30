@@ -14,6 +14,7 @@ class FCMPush extends Model
     public function send($notifiable,Notification $notification)
     {
         $data = $notification->toArray($notifiable);
+        \Log::info('FCM: '.json_encode($data));
         $this->fcmNotification($data,$notifiable->id);
     }
     
