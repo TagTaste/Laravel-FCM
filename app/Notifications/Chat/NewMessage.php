@@ -47,7 +47,7 @@ class NewMessage extends Notification
     {
         $data = [
             'action' => 'chat',
-            'profile' => \App\Recipe\Profile::find($this->data->profile->id)->toArray(),
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : \App\Recipe\Profile::find($this->data->profile->id)->toArray(),
         ];
         $chat = \DB::table('chats')->where('id',$this->data->chatId)->first();
         $data['model'] = [
