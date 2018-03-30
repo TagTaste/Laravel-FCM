@@ -83,7 +83,6 @@ class NewMessage extends Notification
 //            }
 //        }
         $data['notification'] = null;
-        \Log::info('ToARRAY: '.print_r($data, true));
         return $data;
     }
 }
