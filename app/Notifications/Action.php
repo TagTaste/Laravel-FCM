@@ -130,7 +130,6 @@ class Action extends Notification implements ShouldQueue
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
             'notification' => $this->notification
         ];
-        \Log::info('ToARRAY: '.print_r($data, true));
 
         if(method_exists($this->model,'getNotificationContent')){
             $data['model'] = $this->allData;
