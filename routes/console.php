@@ -207,10 +207,10 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("billFollow",function(){
 
-    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',1)->get()->pluck('id');
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',2)->get()->pluck('id');
     foreach ($profileIds as $profileId)
     {
-        $x = \Redis::sIsMember("followers:profile:".$profileId,1);
+        $x = \Redis::sIsMember("followers:profile:".$profileId,2);
         if($x)
         {
             continue;
@@ -221,7 +221,7 @@ Artisan::command('inspire', function () {
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
-        $user = \App\Profile::where('id',1)->first();
+        $user = \App\Profile::where('id',2)->first();
         $this->model = $user->subscribeNetworkOf($channelOwner);
         $id = $user->id;
 
