@@ -15,13 +15,13 @@ class PreviewController extends Controller
     
     public function show(Request $request,$modelName,$modelId)
     {
-        $sharedModel = $this->getModel($modelName, $modelId);
+        $model = $this->getModel($modelName, $modelId);
         
-        if (!$sharedModel) {
+        if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
 
-        $data = $sharedModel->getPreviewContent();
+        $data = $model->getPreviewContent();
 
         $res = [
             'title' => $data['ogTitle'],
@@ -33,6 +33,8 @@ class PreviewController extends Controller
             'deeplink' => Deeplink::getShortLink($modelName, $modelId),
             'modelID' => $modelId,
             'model' => ucwords($modelName),
+            'isShared' => false,
+            'shareTypeID' => 0,
 
         ];
 
@@ -42,4 +44,34 @@ class PreviewController extends Controller
         
     }
 
+    public function showShared(Request $request, $modelName,$modelId, $shareId)
+    {
+        $model = $this->getModel($modelName, $modelId);
+
+        if (!$model) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+        $data = $model->getPreviewContent();
+
+        $res = [
+            'title' => $data['ogTitle'],
+            'image' => $data['ogImage'],
+            'description' => $data['ogDescription'],
+            'type' => 'article',
+            'url' => $data['redirectUrl'],
+            'site_name' => 'TagTaste',
+            'deeplink' => Deeplink::getShortLink($modelName, $modelId, true, $shareId),
+            'modelID' => $modelId,
+            'model' => ucwords($modelName),
+            'isShared' => true,
+            'shareTypeID' => $shareId,
+
+        ];
+
+        $this->model = $res;
+
+        return $this->sendResponse();
+    }
+
 }
+
