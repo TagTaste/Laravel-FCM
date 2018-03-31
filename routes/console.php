@@ -204,3 +204,38 @@ Artisan::command('inspire', function () {
     });
 
 });
+
+\Artisan::command("billFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',1)->get()->pluck('id');
+    foreach ($profileIds as $profileId)
+    {
+        if(\Redis::sIsMember("followers:profile:".$profileId,1))
+        {
+            continue;
+        }
+        echo 'profile id is'.$profileId;
+
+        $channelOwner = App\Profile::find($profileId);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile\User::where('email','ashima@tagtaste.com')->first();
+        $this->model = $user->completeProfile->subscribeNetworkOf($channelOwner);
+        $profileId = $user->profile->id;
+
+        //profiles the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, $profileId);
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:profile:" . $profileId, $profileId);
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId;
+
+        event(new \App\Events\Actions\Follow($channelOwner, $user->profile));
+    }
+
+});
