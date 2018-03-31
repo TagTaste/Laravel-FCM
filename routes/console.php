@@ -211,6 +211,8 @@ Artisan::command('inspire', function () {
     foreach ($profileIds as $profileId)
     {
         $x = \Redis::sIsMember("followers:profile:".$profileId,1);
+        \Log::info($x);
+        break;
         if($x)
         {
             continue;
