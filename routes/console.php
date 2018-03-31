@@ -214,7 +214,7 @@ Artisan::command('inspire', function () {
         {
             continue;
         }
-        echo 'profile id is'.$profileId;
+        echo 'profile id is'.$profileId ."\n";
 
         $channelOwner = App\Profile::find($profileId);
         if(!$channelOwner){
@@ -233,7 +233,7 @@ Artisan::command('inspire', function () {
         if(!$this->model){
             continue;
         }
-        echo 'profile id is'.$profileId;
+        echo 'profile id is'.$profileId ."\n";
 
         event(new \App\Events\Actions\Follow($channelOwner, $user->profile));
     }
