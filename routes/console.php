@@ -210,7 +210,7 @@ Artisan::command('inspire', function () {
     $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',1)->get()->pluck('id');
     foreach ($profileIds as $profileId)
     {
-        $x = \Redis::sIsMember("following:profile:1",$profileId);
+        $x = \Redis::sIsMember("followers:profile:".$profileId,1);
         if($x)
         {
             continue;
@@ -221,15 +221,16 @@ Artisan::command('inspire', function () {
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
-        $user = \App\Profile\User::where('email','ashima@tagtaste.com')->first();
-        $this->model = $user->completeProfile->subscribeNetworkOf($channelOwner);
-        $profileId = $user->profile->id;
+        $user = \App\Profile::where('id',1)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
 
         //profiles the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, $profileId);
+        \Redis::sAdd("following:profile:" . $id, $profileId);
 
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:profile:" . $profileId, $profileId);
+        \Redis::sAdd("followers:profile:" . $profileId, $id);
+        echo 'profile id is'.$profileId ."\n";
 
         if(!$this->model){
             continue;
