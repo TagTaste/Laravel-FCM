@@ -210,9 +210,7 @@ Artisan::command('inspire', function () {
     $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',1)->get()->pluck('id');
     foreach ($profileIds as $profileId)
     {
-        $x = \Redis::sIsMember("followers:profile:".$profileId,1);
-        \Log::info($x);
-        break;
+        $x = \Redis::sIsMember("following:profile:1",$profileId);
         if($x)
         {
             continue;
