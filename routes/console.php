@@ -184,7 +184,7 @@ Artisan::command('inspire', function () {
         $email = $user->email;
         echo "Sending collab mail to " . $email . "\n";
 
-        $mail = (new \App\Mail\CollabSuggestions())->onQueue('emails');
+        $mail = (new \App\Mail\CollabSuggestions($user->name))->onQueue('emails');
         \Mail::to($email)->send($mail);
     };
     echo "\nsent $count mails";
@@ -202,5 +202,44 @@ Artisan::command('inspire', function () {
 //                echo \DB::table("channels")->where('profile_id','=',$channel->profile_id)->update(['deleted_at'=>$now]) . "\n";
             });
     });
+
+});
+
+\Artisan::command("billFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->where('id','!=',44)->get()->pluck('id');
+    foreach ($profileIds as $profileId)
+    {
+        echo 'profile id is'.$profileId ."\n";
+        $x = \Redis::sIsMember("followers:profile:".$profileId,44);
+        echo 'following is '.$x ."\n";
+        if($x)
+        {
+            continue;
+        }
+
+        $channelOwner = App\Profile::find($profileId);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile::where('id',44)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
+
+        //profiles the logged in user is following
+        \Redis::sAdd("following:profile:" . $id, $profileId);
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:profile:" . $profileId, $id);
+
+        echo 'profile id is'.$profileId ."\n";
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId ."\n";
+
+        event(new \App\Events\Actions\Follow($channelOwner, $user->profile));
+    }
 
 });

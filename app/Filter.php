@@ -166,6 +166,7 @@ class Filter extends Model
         $filters = [];
         //$allFilters = $allFilters->keyBy('key');
         $order = $filterClass::$filterOrder;
+
         if(count($order))
         {
             foreach($order as $key){
@@ -175,8 +176,11 @@ class Filter extends Model
                 {
                     continue;
                 }
-                foreach($singleFilter as &$filter){
-
+                foreach($singleFilter as &$filter)
+                {
+                    if(!array_key_exists($key,$filters)){
+                        $filters[$key] = [];
+                    }
                     if(!array_key_exists($key,$filters)){
                         $filters[$key] = [];
                     }
@@ -212,7 +216,6 @@ class Filter extends Model
     {
         $models = null;
         foreach($filters as $filter => $value){
-        
             $model = static::selectRaw('distinct ' . static::$relatedColumn)
                 ->where('key',$filter)->whereIn('value',$value);
             
