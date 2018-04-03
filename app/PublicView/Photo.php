@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\PublicView;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
@@ -23,6 +23,9 @@ class Photo extends Model
     protected $visible = ['id','caption','photoUrl','likeCount',
         'created_at', 'profile_id','company_id','privacy_id','updated_at','deleted_at',
         'owner'];
+
+    protected $appends = ['photoUrl','profile_id','company_id','owner'];
+
 
     public static function getProfileImagePath($profileId,$filename = null)
     {
@@ -75,7 +78,7 @@ class Photo extends Model
 
     public function company()
     {
-        return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
+        return $this->belongsToMany('App\PublicView\Company','company_photos','photo_id','company_id');
     }
 
     public function getCompany()
@@ -117,32 +120,13 @@ class Photo extends Model
         return $this->belongsTo(Privacy::class);
     }
 
-    public function getMetaFor($profileId)
+    public function getMetaFor()
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = $this->comments()->count();
-        $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photo' ,request()->user()->profile->id);
-        $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
-        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-        $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
-        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
+        $meta['commentCount'] = \DB::table('comments_photos')->where('photo_id')->count();
         return $meta;
-    }
-
-    public function getNotificationContent()
-    {
-        return [
-            'name' => strtolower(class_basename(self::class)),
-            'id' => $this->id,
-            'content' => $this->caption,
-            'image' => $this->photoUrl
-        ];
     }
 
     public function getCaptionAttribute($value)

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\PublicView;
 
 use App\Channel\Payload;
 use App\Collaboration\Collaborator;

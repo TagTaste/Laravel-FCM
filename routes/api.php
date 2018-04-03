@@ -79,6 +79,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get('social/link/{provider}','UserController@socialLink');
 
+            Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
+
             //change password
                 Route::post("change/password","UserController@changePassword");
 
