@@ -51,6 +51,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 // Preview routes
 Route::get('preview/{modelName}/{modelId}','Api\PreviewController@show');
 Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewController@showShared');
+Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
@@ -78,8 +79,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('/user/requestOtp','UserController@requestOtp');
 
             Route::get('social/link/{provider}','UserController@socialLink');
-
-            Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 
             //change password
                 Route::post("change/password","UserController@changePassword");
