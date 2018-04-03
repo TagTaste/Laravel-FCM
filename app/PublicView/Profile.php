@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Recipe;
+namespace App\PublicView;
 
-use App\Channel;
 use App\Job;
 use App\Profile as BaseProfile;
 use App\Shoutout;
@@ -17,7 +16,7 @@ class Profile extends BaseProfile
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise',
         'keywords','image','isFollowing'];
 
-    protected $appends = ['name','designation','imageUrl'];
+    protected $appends = ['name','imageUrl'];
 
     public function recipes()
     {

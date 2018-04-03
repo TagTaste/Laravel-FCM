@@ -14,6 +14,7 @@ class PublicViewController extends Controller
      */
     public function modelView(Request $request, $modelName , $id)
     {
+        \Log::info("here");
         $class = "\\App\\PublicView\\" . ucwords($modelName);
 
         $model = $class::find($id);

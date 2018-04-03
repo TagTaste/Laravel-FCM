@@ -19,76 +19,31 @@ class Collaborate extends Model
         'expires_on','video','location','categories',
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
-        'profile','company','created_at','deleted_at',
+        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','created_at','deleted_at',
         'file1','deliverables','start_in','state','updated_at'];
 
-    /**
-     * Which profile created the collaboration project.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+
+    protected $appends = ['owner'];
+
+    public function company()
+    {
+        return $this->belongsTo(\App\PublicView\Company::class);
+    }
+
     public function profile()
     {
-        return $this->belongsTo(\App\Recipe\Profile::class);
+        return $this->belongsTo(\App\PublicView\Profile::class);
     }
 
-    /**
-     * Which company created the collaboration project.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-
-    /**
-     * @param int $profileId
-     * @return array
-     */
-    public function getMetaFor(int $profileId) : array
+    public function getMetaFor()
     {
         $meta = [];
-
-        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
-
-        $key = "meta:collaborate:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+        $key = "meta:photo:likes:" . $this->id;
         $meta['likeCount'] = \Redis::sCard($key);
-
-        $meta['commentCount'] = $this->comments()->count();
-        $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
-        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
-        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
-        $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
-        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
+        $meta['commentCount'] = \DB::table('comments_collaborates')->where('collaborate_id')->count();
         return $meta;
     }
 
-    /**
-     * @param int $companyId
-     * @return array
-     */
-    public function getMetaForCompany(int $companyId) : array
-    {
-        $meta = [];
-        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
-        return $meta;
-    }
-
-    public function privacy()
-    {
-        return $this->belongsTo(Privacy::class);
-    }
-
-    public function getRelatedKey() : array
-    {
-        if(empty($this->relatedKey) && $this->company_id === null){
-            return ['profile'=>'profile:small:' . $this->profile_id];
-        }
-        return ['company'=>'company:small:' . $this->company_id];
-    }
 
     public function getImagesAttribute ()
     {
@@ -116,28 +71,6 @@ class Collaborate extends Model
         }
 
         return $images;
-    }
-
-    public function getPreviewContent()
-    {
-        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
-        $profile = json_decode($profile);
-        $data = [];
-        $data['modelId'] = $this->id;
-        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['owner'] = $profile->id;
-        $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);
-        $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->title,0,65);
-        $data['ogDescription'] = substr($this->description,0,155);
-        $images = $this->getImagesAttribute();
-        $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
-        $data['ogImage'] = isset($images[0]) ? $images[0]:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
-        $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/collaborate/'.$this->id;
-
-        return $data;
-
     }
 
     public function getStateAttribute($value)
