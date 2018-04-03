@@ -186,10 +186,8 @@ class CommentController extends Controller {
         $previousPage = intval($model->comments()->where('id','<',$id)->count()/10);
         //paginate
         $page = $previousPage + 1;
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model['previous_page'] = $previousPage == 0 ? null : $previousPage;
-        \Log::info("hare".$skip);
-        $this->model['data'] = $model->comments()->skip($skip - 10)->take(10)->get();
+        $this->model['data'] = $model->comments()->skip($previousPage*10)->take(10)->get();
         $nextPage = intval($model->comments()->where('id','>',$id)->count()/10) +1;
         $this->model['next_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $previousPage + 2;
         return $this->sendResponse();
