@@ -187,9 +187,9 @@ class CommentController extends Controller {
         //paginate
         $page = $previousPage + 1;
         $this->model['previous_page'] = $previousPage == 0 ? null : $previousPage;
-        $this->model['data'] = $model->comments()->skip($previousPage*10)->take(10)->orderBy('created_at','desc')->get();
         $nextPage = intval($model->comments()->where('id','<',$id)->count()/10) +1;
         $this->model['next_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $previousPage + 2;
+        $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip($previousPage*10)->take(10)->get();
         return $this->sendResponse();
     }
 
