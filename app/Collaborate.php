@@ -377,7 +377,7 @@ class Collaborate extends Model implements Feedable
     public function getFile1Attribute($value)
     {
         \Log::info("here id ".$this->id);
-        \Log::info($value);
+        \Log::info(isset($value));
         return !is_null($value) && (isset($value)) ? \Storage::url($value) : null;
     }
 
