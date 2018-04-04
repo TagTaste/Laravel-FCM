@@ -62,7 +62,8 @@ class CommentController extends Controller {
         $model = $this->getModel($model, $modelId);
         
         $this->checkRelationship($model);
-        $page = $request->input('page') ? intval($request->input('page')) : 0;
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
         $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
         $this->model['next_page'] = $page > 1 ? $page - 1 : null;
         $this->model['previous_page'] = count($this->model['data']) >= 10 ? $page + 1 : null;
