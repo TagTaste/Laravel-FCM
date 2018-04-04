@@ -40,7 +40,8 @@ class Job extends Model implements Feedable
         'salary_max' => 'integer',
         'privacy_id' => 'integer',
         'experience_min' => 'double',
-        'experience_max' => 'double'
+        'experience_max' => 'double',
+        'resume_required'=>'integer'
     ];
     
     public static function boot()
