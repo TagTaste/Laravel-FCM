@@ -54,9 +54,7 @@ class Job extends Model
     public function getMetaFor()
     {
         $meta = [];
-        $key = "meta:photo:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = \DB::table('comments_jobs')->where('job_id')->count();
+
         return $meta;
     }
 

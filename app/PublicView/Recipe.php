@@ -1,11 +1,7 @@
 <?php
 
-namespace App;
+namespace App\PublicView;
 
-use App\Channel\Payload;
-use App\Interfaces\CommentNotification;
-use App\Interfaces\Feedable;
-use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,19 +14,20 @@ class Recipe extends Model
 
     protected $visible = ['id','name','description','serving',
         'preparation_time','cooking_time','level','tags','likeCount','type',
-        'created_at','pivot','profile','ingredients','equipments','images','directions','rating','cuisine_id',
-        'tutorial_link','cuisine','is_vegetarian','updated_at'];
+        'created_at','pivot','ingredients','equipments','images','directions','rating','cuisine_id','profile_id',
+        'tutorial_link','cuisine','is_vegetarian','updated_at','owner'];
 
-    public function owner()
+    protected $appends = ['owner'];
+
+
+    public function getOwnerAttribute()
     {
-        return $this->profile;
+        return $this->owner();
     }
 
-    public function getMetaFor($profileId)
+    public function profile()
     {
-        $meta = [];
-
-        return $meta;
+        return $this->belongsTo(\App\PublicView\Profile::class);
     }
 
     public function ingredients()
@@ -69,5 +66,14 @@ class Recipe extends Model
     public function cuisine()
     {
         return $this->belongsTo(Cuisine::class);
+    }
+
+    public function getMetaFor()
+    {
+        $meta = [];
+        $key = "meta:recipe:likes:" . $this->id;
+        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['commentCount'] = \DB::table('comments_recipes')->where('recipe_id')->count();
+        return $meta;
     }
 }

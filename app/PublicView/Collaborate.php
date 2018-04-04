@@ -2,12 +2,7 @@
 
 namespace App\PublicView;
 
-use App\Channel\Payload;
-use App\Collaboration\Collaborator;
-use App\Interfaces\Feedable;
-use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,8 +14,8 @@ class Collaborate extends Model
         'expires_on','video','location','categories',
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id','created_at','deleted_at',
-        'file1','deliverables','start_in','state','updated_at'];
+        'profile_id', 'company_id','template_fields','template_id','notify','owner'
+        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at'];
 
 
     protected $appends = ['owner'];
@@ -33,6 +28,11 @@ class Collaborate extends Model
     public function profile()
     {
         return $this->belongsTo(\App\PublicView\Profile::class);
+    }
+
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
     }
 
     public function getMetaFor()
