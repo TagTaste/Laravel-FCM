@@ -378,7 +378,7 @@ class Collaborate extends Model implements Feedable
     {
         \Log::info("here id ".$this->id);
         \Log::info(empty($value));
-        return !is_null($value) && (empty($value)) ? \Storage::url($value) : null;
+        return !is_null($value) && !(empty($value)) ? \Storage::url($value) : null;
     }
 
     public function getPreviewContent()
