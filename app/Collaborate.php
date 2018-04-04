@@ -350,7 +350,7 @@ class Collaborate extends Model implements Feedable
             {
                 if($this->{"image".$i}!==null)
                 {
-                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
+                    $images[] = !is_null($this->{"image".$i})&& !(empty($value)) ? \Storage::url($this->{"image".$i}) : null;
 
                 }
             }
@@ -361,7 +361,7 @@ class Collaborate extends Model implements Feedable
             {
                 if($this->{"image".$i}!==null)
                 {
-                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
+                    $images[] = !is_null($this->{"image".$i})&& !(empty($value)) ? \Storage::url($this->{"image".$i}) : null;
                 }
             }
         }
@@ -376,8 +376,6 @@ class Collaborate extends Model implements Feedable
     
     public function getFile1Attribute($value)
     {
-        \Log::info("here id ".$this->id);
-        \Log::info(empty($value));
         return !is_null($value) && !(empty($value)) ? \Storage::url($value) : null;
     }
 
