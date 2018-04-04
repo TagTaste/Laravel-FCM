@@ -186,11 +186,11 @@ class CommentController extends Controller {
         $previousPage = intval($model->comments()->where('id','>',$id)->count()/10);
         //paginate
         $page = $previousPage + 1;
-        $this->model['previous_page'] = $previousPage == 0 ? null : $previousPage;
         $this->model['data'] = $model->comments()->orderBy('created_at','desc')->whereNull('deleted_at')
             ->skip($previousPage*10)->take(10)->get();
         $nextPage = intval($model->comments()->where('id','<',$id)->count()/10) +1;
-        $this->model['next_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $previousPage + 2;
+        $this->model['previous_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $previousPage + 2;
+        $this->model['next_page'] = $previousPage == 0 ? null : $previousPage;
         return $this->sendResponse();
     }
 
