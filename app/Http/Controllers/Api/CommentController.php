@@ -56,13 +56,16 @@ class CommentController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index($model, $modelId)
+	public function index(Request $request, $model, $modelId)
 	{
-	    $model = $this->getModel($model, $modelId);
+        $this->model = [];
+        $model = $this->getModel($model, $modelId);
         
         $this->checkRelationship($model);
-        
-        $this->model = $model->comments()->orderBy('created_at','desc')->paginate(10);
+        $page = $request->input('page') ? $request->input('page') : 0;
+        $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
+        $this->model['next_page'] = $page > 1 ? $page - 1 : null;
+        $this->model['previous_page'] = count($this->model['data']) >= 10 ? $page + 1 : null;
         return $this->sendResponse();
 	}
 
