@@ -42,10 +42,9 @@ class FCMPush extends Model
         $iosDataBuilder = new PayloadDataBuilder();
         $iosDataBuilder->addData(['data' => $iosData]);
         $data = $iosDataBuilder->build();
+        \Log::info($iosData);
         $notificationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',$profileId)->count();
-        \Log::info("here name");
-        \Log::info($iosData['profile']);
-        $notificationBody = isset($iosData['profile']->name) ? $iosData['profile']->name.' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
+        $notificationBody = isset($iosData['profile']['name']) ? $iosData['profile']['name'].' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
         \Log::info("notification comment is ".$notificationBody);
         $notificationBuilder = new PayloadNotificationBuilder();
         $notificationBuilder->setBody($notificationBody)->setSound('default')->setBadge($notificationCount);
