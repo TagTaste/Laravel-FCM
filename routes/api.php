@@ -93,6 +93,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("chats/{chatId}/messages/{id}/markRead",'Chat\\MessageController@markRead');
                 Route::resource("chats/{chatId}/members",'Chat\\MemberController');
                 Route::resource("chats/{chatId}/messages",'Chat\\MessageController');
+                Route::post('chatMessage','ChatController');
                 Route::resource("chats","ChatController");
     
             //product categories
