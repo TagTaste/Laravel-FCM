@@ -43,6 +43,7 @@ class FCMPush extends Model
         $iosDataBuilder->addData(['data' => $iosData]);
         $data = $iosDataBuilder->build();
         $notificationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',$profileId)->count();
+        \Log::info("name ".$iosData['profile']->name);
         $notificationBody = isset($iosData['profile']->name) ? $iosData['profile']->name.' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
         \Log::info("notification comment is ".$notificationBody);
         $notificationBuilder = new PayloadNotificationBuilder();
@@ -61,6 +62,7 @@ class FCMPush extends Model
 
     protected function message($type, $modelType = null)
     {
+        \Log::info("action ".$type);
         if($type == "comment"){
             return "commented on your post";
         }
