@@ -72,8 +72,7 @@ class CollaborateController extends Controller
 		    $meta = $collaboration->getMetaFor($profileId);
             $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
-
-		return $this->sendResponse();
+        return $this->sendResponse();
 	}
 
 	/**

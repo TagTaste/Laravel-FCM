@@ -20,7 +20,14 @@ class Shoutout extends Model implements Feedable
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
         'created_at','privacy_id','privacy','image','preview','updated_at'
     ];
-    
+
+    protected $casts = [
+        'privacy_id' => 'integer',
+        'profile_id' => 'integer',
+        'company_id' => 'integer',
+        'has_tags' => 'integer'
+    ];
+
     protected $appends = ['owner','likeCount'];
     
     protected $with = ['privacy'];

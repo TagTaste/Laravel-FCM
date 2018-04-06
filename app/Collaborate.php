@@ -36,7 +36,9 @@ class Collaborate extends Model implements Feedable
     protected $appends = ['images','applicationCount'];
 
     protected $casts = [
-        'privacy_id' => 'integer'
+        'privacy_id' => 'integer',
+        'profile_id' => 'integer',
+        'company_id' => 'integer'
     ];
     
     public static function boot()
@@ -350,7 +352,7 @@ class Collaborate extends Model implements Feedable
             {
                 if($this->{"image".$i}!==null)
                 {
-                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
+                    $images[] = !is_null($this->{"image".$i})&& !(empty($value)) ? \Storage::url($this->{"image".$i}) : null;
 
                 }
             }
@@ -361,7 +363,7 @@ class Collaborate extends Model implements Feedable
             {
                 if($this->{"image".$i}!==null)
                 {
-                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
+                    $images[] = !is_null($this->{"image".$i})&& !(empty($value)) ? \Storage::url($this->{"image".$i}) : null;
                 }
             }
         }
@@ -376,7 +378,7 @@ class Collaborate extends Model implements Feedable
     
     public function getFile1Attribute($value)
     {
-        return !is_null($value) ? \Storage::url($value) : null;
+        return !is_null($value) && !(empty($value)) ? \Storage::url($value) : null;
     }
 
     public function getPreviewContent()
