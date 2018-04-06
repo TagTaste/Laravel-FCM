@@ -27,6 +27,13 @@ class Photo extends Model implements Feedable
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
         'owner','nextPhotoId','previousPhotoId'];
 
+    protected $casts = [
+        'privacy_id' => 'integer',
+        'profile_id' => 'integer',
+        'company_id' => 'integer',
+        'has_tags' => 'integer'
+    ];
+
     protected $with = ['like'];
 
     protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];

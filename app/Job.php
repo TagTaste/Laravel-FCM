@@ -23,7 +23,7 @@ class Job extends Model implements Feedable
     ];
     protected $visible = ['title', 'description','why_us', 'type', 'location','key_skills',
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
-        'company_id', 'type_id', 'company', 'profile', 'profile_id','minimum_qualification',
+        'company_id', 'type_id', 'company', 'profile','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
         'applicationCount','hasApplied','start_month','start_year','end_month','end_year','deleted_at','updated_at'
     ];
@@ -41,7 +41,10 @@ class Job extends Model implements Feedable
         'privacy_id' => 'integer',
         'experience_min' => 'double',
         'experience_max' => 'double',
-        'resume_required'=>'integer'
+        'resume_required'=>'integer',
+        'job_id' => 'integer',
+        'profile_id' => 'integer',
+        'company_id' => 'integer'
     ];
     
     public static function boot()

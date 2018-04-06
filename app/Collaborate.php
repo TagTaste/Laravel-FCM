@@ -36,7 +36,9 @@ class Collaborate extends Model implements Feedable
     protected $appends = ['images','applicationCount'];
 
     protected $casts = [
-        'privacy_id' => 'integer'
+        'privacy_id' => 'integer',
+        'profile_id' => 'integer',
+        'company_id' => 'integer'
     ];
     
     public static function boot()
