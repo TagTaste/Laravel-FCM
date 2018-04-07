@@ -195,10 +195,8 @@ class UserController extends Controller
 
     public function feedIssue(Request $request)
     {
-        $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
-                            ->where('fcm_token',$request->input('fcm_token'))
-                            ->where('platform',$platform)->update(['is_active'=>0]);
+                            ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
         return $this->sendResponse();
     }
 
