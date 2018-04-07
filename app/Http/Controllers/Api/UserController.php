@@ -188,9 +188,19 @@ class UserController extends Controller
         {
             $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
             \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>$socialiteUserLink]);
-            return $this->sendError("Already link ".$provider." with our plateform");
+            return $this->sendError("Already link ".$provider." with our platform");
         }
 
     }
+
+    public function feedIssue(Request $request)
+    {
+        $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
+        $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
+                            ->where('fcm_token',$request->input('fcm_token'))
+                            ->where('platform',$platform)->update(['is_active'=>0]);
+        return $this->sendResponse();
+    }
+
 
 }
