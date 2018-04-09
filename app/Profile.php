@@ -543,17 +543,17 @@ class Profile extends Model
                 return ['count' => 0, 'profiles' => []];
             }
             $i = 0;
-
-            foreach ($profileIds as &$profileId)
+            $profileInfo = [];
+            foreach ($profileIds as $profileId)
             {
                 if($i == 5)
                     break;
-                $profileId = "profile:small:".$profileId;
+                $profileInfo[] = "profile:small:".$profileId;
                 $i++;
             }
             $data = [];
-            if(count($profileIds))
-            $data = \Redis::mget($profileIds);
+            if(count($profileInfo))
+            $data = \Redis::mget($profileInfo);
 
             foreach($data as &$profile){
                 $profile = json_decode($profile);
