@@ -80,31 +80,88 @@ class ChatController extends Controller
                     return $this->sendError("max_limit_reached");
                 }
             }
-        }
-        
-        $this->model = \App\Chat::create($inputs);
-		if($request->hasFile("image")){
-            $imageName = str_random("32") . ".jpg";
-            $path = Chat::getImagePath($this->model->id);
-            $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
-            if(!$response){
-                throw new \Exception("Could not save image " . $imageName . " at " . $path);
-            }
-            $this->model->update(['image'=>$response]);
-        }
 
-        //add members to the chat
-        $now = \Carbon\Carbon::now()->toDateTimeString();
-		$data = [];
-		$chatId = $this->model->id;
-		//for add login profile id in member model
-        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
-        foreach($profileIds as $profileId){
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
+            $this->model = \App\Chat::create($inputs);
+            if($request->hasFile("image")){
+                $imageName = str_random("32") . ".jpg";
+                $path = Chat::getImagePath($this->model->id);
+                $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
+                if(!$response){
+                    throw new \Exception("Could not save image " . $imageName . " at " . $path);
+                }
+                $this->model->update(['image'=>$response]);
+            }
+
+            //add members to the chat
+            $now = \Carbon\Carbon::now()->toDateTimeString();
+            $data = [];
+            $chatId = $this->model->id;
+            //for add login profile id in member model
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
+            foreach($profileIds as $profileId){
+                $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
+            }
+            $this->model->members()->insert($data);
+
+            if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
+            {
+                $chatId = $this->model->id;
+                if($request->hasFile("file"))
+                {
+                    $path = "profile/$loggedInProfileId/chat/$chatId/file";
+                    $filename = $request->file('file')->getClientOriginalName();
+
+                    $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+                }
+
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $loggedInProfileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = $resp;
+                }
+                if(isset($inputs['preview']))
+                {
+                    $inputs['preview'] = json_encode($inputs['preview']);
+                }
+
+                $inputs['chat_id'] = $chatId;
+                $inputs['profile_id'] = $loggedInProfileId;
+                $this->model = Chat\Message::create($inputs);
+//        $this->model = Chat\Message::where
+                event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
+
+                return $this->sendResponse();
+            }
+
         }
-        $this->model->members()->insert($data);
-        
-        return $this->sendResponse();
+        else
+        {
+            $this->model = \App\Chat::create($inputs);
+            if($request->hasFile("image")){
+                $imageName = str_random("32") . ".jpg";
+                $path = Chat::getImagePath($this->model->id);
+                $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
+                if(!$response){
+                    throw new \Exception("Could not save image " . $imageName . " at " . $path);
+                }
+                $this->model->update(['image'=>$response]);
+            }
+
+            //add members to the chat
+            $now = \Carbon\Carbon::now()->toDateTimeString();
+            $data = [];
+            $chatId = $this->model->id;
+            //for add login profile id in member model
+            $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
+            foreach($profileIds as $profileId){
+                $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
+            }
+            $this->model->members()->insert($data);
+
+            return $this->sendResponse();
+        }
 	}
 
 	/**
@@ -212,72 +269,4 @@ class ChatController extends Controller
         return $this->sendResponse();
 
     }
-
-    public function chatMessage(Request $request)
-    {
-        $inputs = $request->except(['_method','_token','isSingle']);
-
-        //set profile_id to logged in user automatically.
-        //all profileIds passed in request would be added to Chat\Member;
-
-        $user = $request->user();
-        $loggedInProfileId = $user->profile->id;
-        //check for existing chats only for single profileId.
-
-
-        //check chat limit
-        if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$inputs['profile_id']))
-        {
-            if(!\App\ChatLimit::checkLimit($loggedInProfileId,$inputs['profile_id'])){
-                return $this->sendError("max_limit_reached");
-            }
-        }
-
-        $now = \Carbon\Carbon::now()->toDateTimeString();
-        $existingChats = Chat::open($inputs['profile_id'],$loggedInProfileId);
-        if(!is_null($existingChats) && $existingChats->count() > 0){
-            $this->model = $existingChats;
-        }
-        else
-        {
-            $this->model = \App\Chat::create($inputs);
-            //add members to the chat
-            $data = [];
-            $chatId = $this->model->id;
-            //for add login profile id in member model
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>1];
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'], 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
-
-            $this->model->members()->insert($data);
-        }
-        $chatId = $this->model->id;
-        if($request->hasFile("file"))
-        {
-            $path = "profile/$loggedInProfileId/chat/$chatId/file";
-            $filename = $request->file('file')->getClientOriginalName();
-
-            $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
-        }
-
-        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-            $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-            $s3 = \Storage::disk('s3');
-            $filePath = 'p/' . $loggedInProfileId . "/ci";
-            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-            $inputs['preview']['image'] = $resp;
-        }
-        if(isset($inputs['preview']))
-        {
-            $inputs['preview'] = json_encode($inputs['preview']);
-        }
-
-        $inputs['chat_id'] = $chatId;
-        $inputs['profile_id'] = $loggedInProfileId;
-        $this->model = Chat\Message::create($inputs);
-//        $this->model = Chat\Message::where
-        event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
-
-        return $this->sendResponse();
-    }
- 
 }
