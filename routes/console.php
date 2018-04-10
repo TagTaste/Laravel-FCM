@@ -271,7 +271,7 @@ Artisan::command('inspire', function () {
         $params['type'] = $type;
     }
     $client = SearchClient::get();
-
+    \Log::info("here");
     $response = $client->search($params);
 
     if($response['hits']['total'] > 0) {
