@@ -426,7 +426,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         $this->model = [];
         $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
             ->join("users",'users.id','=','profiles.user_id')
-            ->where('profiles.city','like','%delhi%')
+            ->where('profiles.city','like','%chennai%')
             ->whereNull('users.deleted_at')
             ->where(function($q) use ($query) {
                 $q->where("users.name",'like',"%$query%")->orWhere("profiles.about",'like',"%$query%")
