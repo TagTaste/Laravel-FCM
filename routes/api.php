@@ -426,9 +426,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         $this->model = [];
         $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
             ->join("users",'users.id','=','profiles.user_id')
-            ->where("users.name",'like',"%$query%")
             ->where('profiles.city','like','%delhi%')
             ->whereNull('users.deleted_at')
+            ->where(function($query) use ($query) {
+                $query->where("users.name",'like',"%$query%")->orWhere("users.about",'like',"%$query%")
+                    ->orWhere("users.interests",'like',"%$query%")->orWhere("users.keywords",'like',"%$query%")
+                    ->orWhere("users.ingredients",'like',"%$query%")->orWhere("users.handle",'like',"%$query%")
+                    ->orWhere("users.expertise",'like',"%$query%");
+            })
             ->get();
         $headers = array(
             "Content-type" => "text/csv",
@@ -440,44 +445,44 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
         $columns = array('id', 'name', 'email','phone','city');
 
-        $params = [
-            'index' => "api",
-            'body' => [
-                'query' => [
-                    'query_string' => [
-                        'query' => $query
-                    ]
-                ]
-            ]
-        ];
-
-        $type = 'people';
-        if($type){
-            $params['type'] = $type;
-        }
-        $client = SearchClient::get();
-        $response = $client->search($params);
-
-        if($response['hits']['total'] > 0) {
-
-            $hits = collect($response['hits']['hits']);
-            $hits = $hits->groupBy("_type");
-
-            foreach ($hits as $name => $hit) {
-                $this->model[$name] = $this->getModels($name, $hit->pluck('_id')->toArray());
-            }
-
-            $profileId = 1;
-            $profileIds = $hit->pluck('_id')->toArray();
-            $profiles1 = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
-                ->join("users",'users.id','=','profiles.user_id')
-                ->whereIn("profiles.id",$profileIds)
-                ->where('profiles.city','like','%delhi%')
-                ->whereNull('users.deleted_at')
-                ->get();
-            $profiles = $profiles->merge($profiles1);
-
-        }
+//        $params = [
+//            'index' => "api",
+//            'body' => [
+//                'query' => [
+//                    'query_string' => [
+//                        'query' => $query
+//                    ]
+//                ]
+//            ]
+//        ];
+//
+//        $type = 'people';
+//        if($type){
+//            $params['type'] = $type;
+//        }
+//        $client = SearchClient::get();
+//        $response = $client->search($params);
+//
+//        if($response['hits']['total'] > 0) {
+//
+//            $hits = collect($response['hits']['hits']);
+//            $hits = $hits->groupBy("_type");
+//
+//            foreach ($hits as $name => $hit) {
+//                $this->model[$name] = $this->getModels($name, $hit->pluck('_id')->toArray());
+//            }
+//
+//            $profileId = 1;
+//            $profileIds = $hit->pluck('_id')->toArray();
+//            $profiles1 = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
+//                ->join("users",'users.id','=','profiles.user_id')
+//                ->whereIn("profiles.id",$profileIds)
+//                ->where('profiles.city','like','%delhi%')
+//                ->whereNull('users.deleted_at')
+//                ->get();
+//            $profiles = $profiles->merge($profiles1);
+//
+//        }
         \Log::info($profiles);
         $str = '';
         foreach ($columns as $c) {
