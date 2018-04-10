@@ -428,8 +428,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             ->join("users",'users.id','=','profiles.user_id')
             ->where('profiles.city','like','%delhi%')
             ->whereNull('users.deleted_at')
-            ->where(function($query) use ($query) {
-                $query->where("users.name",'like',"%$query%")->orWhere("users.about",'like',"%$query%")
+            ->where(function($q) use ($query) {
+                $q->where("users.name",'like',"%$query%")->orWhere("users.about",'like',"%$query%")
                     ->orWhere("users.interests",'like',"%$query%")->orWhere("users.keywords",'like',"%$query%")
                     ->orWhere("users.ingredients",'like',"%$query%")->orWhere("users.handle",'like',"%$query%")
                     ->orWhere("users.expertise",'like',"%$query%");
