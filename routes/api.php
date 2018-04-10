@@ -429,10 +429,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             ->where('profiles.city','like','%delhi%')
             ->whereNull('users.deleted_at')
             ->where(function($q) use ($query) {
-                $q->where("users.name",'like',"%$query%")->orWhere("users.about",'like',"%$query%")
-                    ->orWhere("users.interests",'like',"%$query%")->orWhere("users.keywords",'like',"%$query%")
-                    ->orWhere("users.ingredients",'like',"%$query%")->orWhere("users.handle",'like',"%$query%")
-                    ->orWhere("users.expertise",'like',"%$query%");
+                $q->where("users.name",'like',"%$query%")->orWhere("profiles.about",'like',"%$query%")
+                    ->orWhere("profiles.keywords",'like',"%$query%")
+                    ->orWhere("profiles.handle",'like',"%$query%")
+                    ->orWhere("profiles.expertise",'like',"%$query%");
             })
             ->get();
         $headers = array(
