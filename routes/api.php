@@ -484,7 +484,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             fputcsv($file, $columns);
 
             foreach($profiles as $review) {
-                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->location));
+                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
             }
             fclose($file);
         };
