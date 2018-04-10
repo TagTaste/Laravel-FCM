@@ -457,6 +457,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     $client = SearchClient::get();
     $response = $client->search($params);
 
+    if($response['hits']['total'] > 0) {
 
         $hits = collect($response['hits']['hits']);
         $hits = $hits->groupBy("_type");
@@ -475,6 +476,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             ->get();
         $profiles = $profiles->merge($profiles1);
 
+    }
     \Log::info($profiles);
         $callback = function() use ($profiles, $columns)
         {
