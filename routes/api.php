@@ -422,7 +422,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             // get current logged in user.
 
     Route::get("csv",function (){
-        $query = 'a';
+        $query = 'as';
         $this->model = [];
         $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
             ->join("users",'users.id','=','profiles.user_id')
