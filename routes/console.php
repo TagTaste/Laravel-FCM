@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Carbon\Carbon;
+use App\SearchClient;
 /*
 |--------------------------------------------------------------------------
 | Console Routes
@@ -243,3 +244,51 @@ Artisan::command('inspire', function () {
     }
 
 });
+
+\Artisan::command("chefData",function(){
+
+    $query = 'ask';
+    $this->model = [];
+    $this->model['suggestions'] = \DB::table("profiles")->select("profiles.id","users.name")
+        ->join("users",'users.id','=','profiles.user_id')
+        ->where("users.name",'like',"%$query%")
+        ->whereNull('users.deleted_at')
+        ->get();
+    \Log::info($this->model['suggestions']);
+    $params = [
+        'index' => "api",
+        'body' => [
+            'query' => [
+                'query_string' => [
+                    'query' => $query
+                ]
+            ]
+        ]
+    ];
+
+    $type = 'people';
+    if($type){
+        $params['type'] = $type;
+    }
+    $client = SearchClient::get();
+
+    $response = $client->search($params);
+
+    if($response['hits']['total'] > 0) {
+
+        $hits = collect($response['hits']['hits']);
+        $hits = $hits->groupBy("_type");
+
+        foreach ($hits as $name => $hit) {
+            $this->model[$name] = $this->getModels($name, $hit->pluck('_id')->toArray());
+        }
+
+        $profileId = 1;
+        $profileIds = $hit->pluck('_id')->toArray();
+        \Log::info($profileIds);
+    }
+
+
+});
+
+
