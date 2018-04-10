@@ -474,9 +474,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             ->where('profiles.city','like','%delhi%')
             ->whereNull('users.deleted_at')
             ->get();
+        $profiles = $profiles->merge($profiles1);
 
     }
-    $profiles = $profiles->merge($profiles1);
     \Log::info($profiles);
         $callback = function() use ($profiles, $columns)
         {
