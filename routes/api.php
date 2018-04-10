@@ -420,4 +420,93 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
+
+    Route::get("csv",function (){
+        $query = 'as';
+        $this->model = [];
+        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
+            ->join("users",'users.id','=','profiles.user_id')
+            ->where('profiles.city','like','%delhi%')
+            ->whereNull('users.deleted_at')
+            ->where(function($q) use ($query) {
+                $q->where("users.name",'like',"%$query%")->orWhere("profiles.about",'like',"%$query%")
+                    ->orWhere("profiles.keywords",'like',"%$query%")
+                    ->orWhere("profiles.handle",'like',"%$query%")
+                    ->orWhere("profiles.expertise",'like',"%$query%");
+            })
+            ->get();
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=file.csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $columns = array('id', 'name', 'email','phone','city');
+
+//        $params = [
+//            'index' => "api",
+//            'body' => [
+//                'query' => [
+//                    'query_string' => [
+//                        'query' => $query
+//                    ]
+//                ]
+//            ]
+//        ];
+//
+//        $type = 'people';
+//        if($type){
+//            $params['type'] = $type;
+//        }
+//        $client = SearchClient::get();
+//        $response = $client->search($params);
+//
+//        if($response['hits']['total'] > 0) {
+//
+//            $hits = collect($response['hits']['hits']);
+//            $hits = $hits->groupBy("_type");
+//
+//            foreach ($hits as $name => $hit) {
+//                $this->model[$name] = $this->getModels($name, $hit->pluck('_id')->toArray());
+//            }
+//
+//            $profileId = 1;
+//            $profileIds = $hit->pluck('_id')->toArray();
+//            $profiles1 = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
+//                ->join("users",'users.id','=','profiles.user_id')
+//                ->whereIn("profiles.id",$profileIds)
+//                ->where('profiles.city','like','%delhi%')
+//                ->whereNull('users.deleted_at')
+//                ->get();
+//            $profiles = $profiles->merge($profiles1);
+//
+//        }
+        \Log::info($profiles);
+        $str = '';
+        foreach ($columns as $c) {
+            $str = $str.$c.',';
+        }
+        $str = $str."\n";
+
+        foreach($profiles as $review) {
+            foreach ($columns as $c) {
+                $str = $str.$review->{$c}.',';
+            }
+            $str = $str."\n";
+        }
+//        $callback = function() use ($profiles, $columns)
+//        {
+//            $file = fopen(storage_path('chef1.csv'), 'w+');
+//            fputcsv($file, $columns);
+//
+//            foreach($profiles as $review) {
+//                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
+//            }
+//            fclose($file);
+//        };
+        return response($str, 200, $headers);
+
+    });
 });
