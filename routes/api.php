@@ -442,7 +442,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
         $callback = function() use ($profiles, $columns)
         {
-            $file = fopen('/home/vagrant/Code/webapp/chef.csv', 'w+');
+            $file = fopen(storage_path('chef.csv'), 'w+');
             fputcsv($file, $columns);
 
             foreach($profiles as $review) {
