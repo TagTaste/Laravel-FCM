@@ -243,3 +243,4 @@ Artisan::command('inspire', function () {
     }
 
 });
+
