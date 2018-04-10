@@ -421,7 +421,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
     Route::get('/csv',function (){
-        $query = 'ashok';
+        $query = 'chef';
         $this->model = [];
         $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
             ->join("users",'users.id','=','profiles.user_id')
@@ -429,7 +429,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             ->where('profiles.city','like','%delhi%')
             ->whereNull('users.deleted_at')
             ->get();
-        \Log::info($profiles);
         $headers = array(
             "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=file.csv",
@@ -439,17 +438,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         );
 
         $columns = array('id', 'name', 'email','phone','location');
-
-        $callback = function() use ($profiles, $columns)
-        {
-            $file = fopen(storage_path('chef.csv'), 'w+');
-            fputcsv($file, $columns);
-
-            foreach($profiles as $review) {
-                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
-            }
-            fclose($file);
-        };
 
     $params = [
         'index' => "api",
@@ -480,15 +468,19 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
         $profileId = 1;
         $profileIds = $hit->pluck('_id')->toArray();
-        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
+        $profiles1 = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone","profiles.city as city")
             ->join("users",'users.id','=','profiles.user_id')
             ->whereIn("profiles.id",$profileIds)
             ->where('profiles.city','like','%delhi%')
             ->whereNull('users.deleted_at')
             ->get();
+
+    }
+    $profiles = $profiles->merge($profiles1);
+    \Log::info($profiles);
         $callback = function() use ($profiles, $columns)
         {
-            $file = fopen('php://output', 'w');
+            $file = fopen(storage_path('chef1.csv'), 'w+');
             fputcsv($file, $columns);
 
             foreach($profiles as $review) {
@@ -496,7 +488,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             }
             fclose($file);
         };
-    }
         return response()->stream($callback, 200, $headers);
 
     });
