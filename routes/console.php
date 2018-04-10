@@ -285,6 +285,7 @@ Artisan::command('inspire', function () {
 
         $profileId = 1;
         $profileIds = $hit->pluck('_id')->toArray();
+        \Log::info("here");
         \Log::info($profileIds);
     }
 
