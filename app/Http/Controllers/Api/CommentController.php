@@ -66,7 +66,8 @@ class CommentController extends Controller {
         $page = $page == 0 ? 1 : $page;
         $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
         $this->model['next_page'] = $page > 1 ? $page - 1 : null;
-        $this->model['previous_page'] = count($this->model['data']) >= 10 ? $page + 1 : null;
+        $this->model['count'] = $model->comments()->count();
+        $this->model['previous_page'] = count($this->model['data']) >= 10 && $page*10 < $this->model['count']  ? $page + 1 : null;
         return $this->sendResponse();
 	}
 
