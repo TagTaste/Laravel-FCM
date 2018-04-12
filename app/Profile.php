@@ -259,6 +259,14 @@ class Profile extends Model
     public function getDobAttribute($value)
     {
         if (!empty($value)) {
+            if($this->dob_private == 3)
+            {
+                return null;
+            }
+            if(!\Redis::sIsMember("followers:profile:".equest()->user()->profile->id,$this->id) && $this->dob_private == 2)
+            {
+                unset($this->model['email']);
+            }
             return $this->dob_private != 1 && request()->user()->profile->id != $this->id ? null : date("d-m-Y", strtotime($value));
         }
     }
