@@ -23,6 +23,6 @@ class PublicViewController extends Controller
         }
         $meta = $model->getMetaFor();
         $this->model = [$modelName=>$model,'meta'=>$meta];
-        return $this->model;
+        return response()->json(['data'=>$this->model]);
     }
 }
