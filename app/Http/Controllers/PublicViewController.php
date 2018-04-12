@@ -14,7 +14,6 @@ class PublicViewController extends Controller
      */
     public function modelView(Request $request, $modelName , $id)
     {
-        \Log::info("here data");
         $class = "\\App\\PublicView\\" . ucwords($modelName);
 
         $model = $class::find($id);
@@ -24,6 +23,7 @@ class PublicViewController extends Controller
         }
         $meta = $model->getMetaFor();
         $this->model = [$modelName=>$model,'meta'=>$meta];
+        \Log::info($this->model);
         return response()->json(['data'=>$this->model]);
     }
 }
