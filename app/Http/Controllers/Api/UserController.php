@@ -114,7 +114,6 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
-        \Log::info("fcm token is here ".$request->input('fcm_token'));
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
         if($tokenExists)
@@ -154,7 +153,6 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        \Log::info("fcm token is here for logout ".$request->input('fcm_token'));
 
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
             ->where('profile_id',$request->user()->profile->id)->delete();
