@@ -259,6 +259,12 @@ class Profile extends Model
     public function getDobAttribute($value)
     {
         if (!empty($value)) {
+
+            if(request()->user()->profile->id == $this->id)
+            {
+                return date("d-m-Y", strtotime($value));
+            }
+
             if($this->dob_private == 3)
             {
                 return null;
@@ -785,6 +791,12 @@ class Profile extends Model
     public function getAddressAttribute($value)
     {
         if (!empty($value)) {
+
+            if(request()->user()->profile->id == $this->id)
+            {
+                return $value;
+            }
+
             if($this->address_private == 3)
             {
                 return null;
@@ -800,6 +812,12 @@ class Profile extends Model
     public function getPhoneAttribute($value)
     {
         if (!empty($value)) {
+
+            if(request()->user()->profile->id == $this->id)
+            {
+                return $value;
+            }
+
             if($this->phone_private == 3)
             {
                 return null;
