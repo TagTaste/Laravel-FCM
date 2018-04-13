@@ -904,7 +904,7 @@ class Profile extends Model
         if(request()->user()->profile->id == $this->id)
         {
             $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$this->id)->first();
-            return $remaining->remaining;
+            return isset($remaining->remaining) ? $remaining->remaining : null;
         }
     }
 
