@@ -50,13 +50,17 @@ class ProfileController extends Controller
         if ($profile === null) {
             return $this->sendError("Could not find profile.");
         }
+        $loggedInProfileId = $request->user()->profile->id;
 
         $this->model = $profile->toArray();
-        if($this->model['profile']['email_private']!=1)
+        if($this->model['profile']['email_private'] == 3)
         {
             unset($this->model['email']);
         }
-        $loggedInProfileId = $request->user()->profile->id;
+        if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$id) && $this->model['profile']['email_private'] == 2)
+        {
+            unset($this->model['email']);
+        }
         $self = $id == $loggedInProfileId;
         $this->model['profile']['self'] = $self;
         
