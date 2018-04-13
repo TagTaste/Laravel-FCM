@@ -83,7 +83,9 @@ class MessageController extends Controller
         if(!$memberOfChat) {
             return $this->sendError("You are not part of this chat.");
         }
-        
+
+        $chat = Chat\Member::where('chat_id',$chatId)->where('profile_id','!=',$profileId)->update(['last_seen'=>null]);
+
         if($memberOfChat->is_single){
             //undelete other members
             

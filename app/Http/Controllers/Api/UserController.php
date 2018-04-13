@@ -114,7 +114,6 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
-
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
         if($tokenExists)
@@ -154,6 +153,7 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
+
         $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
             ->where('profile_id',$request->user()->profile->id)->delete();
         return $this->sendResponse();
@@ -188,9 +188,17 @@ class UserController extends Controller
         {
             $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
             \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>$socialiteUserLink]);
-            return $this->sendError("Already link ".$provider." with our plateform");
+            return $this->sendError("Already link ".$provider." with our platform");
         }
 
     }
+
+    public function feedIssue(Request $request)
+    {
+        $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
+                            ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
+        return $this->sendResponse();
+    }
+
 
 }

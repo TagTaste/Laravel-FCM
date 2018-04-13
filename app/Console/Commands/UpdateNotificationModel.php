@@ -37,16 +37,15 @@ class UpdateNotificationModel extends Command
      */
     public function handle()
     {
-        $notifications = \DB::table('notifications')
-            ->whereRaw('json_extract(data, \'$.model\') = CAST(\'null\' as JSON) AND json_extract(data, \'$.action\') = \'joinfriend\'')
-            ->get();
+        $notifications = \DB::table('notifications')->get();
         foreach ($notifications as $notification) {
-            $data = json_decode($notification->data);
-            $profile = \App\Profile::find($data->profile->id);
-            if(!$profile)
+            $data = json_decode($notification->data,true);
+            $profile = isset($data['profile']) ? $data['profile'] : null;
+            if(!is_null($profile))
+            {
                 continue;
-            $data->model = $profile->getNotificationContent();
-            \DB::table('notifications')->where('id', $notification->id)->update(['data' => json_encode($data)]);
+            }
+            \DB::table('notifications')->where('id', $notification->id)->delete();
             echo "Updated id: $notification->id\n";
         }
     }
