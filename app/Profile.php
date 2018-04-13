@@ -263,11 +263,11 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".equest()->user()->profile->id,$this->id) && $this->dob_private == 2)
+            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
             {
-                unset($this->model['email']);
+                return null;
             }
-            return $this->dob_private != 1 && request()->user()->profile->id != $this->id ? null : date("d-m-Y", strtotime($value));
+            return date("d-m-Y", strtotime($value));
         }
     }
     
@@ -784,14 +784,32 @@ class Profile extends Model
 
     public function getAddressAttribute($value)
     {
-        if(!request()->user() || is_null($value)){ return; }
-        return $this->address_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+        if (!empty($value)) {
+            if($this->address_private == 3)
+            {
+                return null;
+            }
+            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+            {
+                return null;
+            }
+            return $value;
+        }
     }
 
     public function getPhoneAttribute($value)
     {
-        if(!request()->user() || is_null($value)){ return; }
-        return $this->phone_private != 1 && request()->user()->profile->id != $this->id ? null : $value;
+        if (!empty($value)) {
+            if($this->phone_private == 3)
+            {
+                return null;
+            }
+            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
+            {
+                return null;
+            }
+            return $value;
+        }
     }
 
     public function getNotificationCountAttribute()
