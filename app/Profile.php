@@ -138,10 +138,12 @@ class Profile extends Model
         'addPassword',
         'unreadNotificationCount',
         'onboarding_step',
+        'remainingMessages'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount'];
+        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
+            'remainingMessages'];
 
     public static function boot()
     {
@@ -895,6 +897,15 @@ class Profile extends Model
 
         return $data;
 
+    }
+
+    public function getremainingMessagesAttribute()
+    {
+        if(request()->user()->profile->id == $this->id)
+        {
+            $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$this->id)->first();
+            return $remaining->remaining;
+        }
     }
 
 }
