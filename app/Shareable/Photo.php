@@ -41,6 +41,17 @@ class Photo extends Share
 
         return $meta;
     }
+
+    public function getMetaForPublic(){
+        $meta = [];
+        $key = "meta:photoShare:likes:" . $this->id;
+
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $meta['commentCount'] = $this->comments()->count();
+
+        return $meta;
+    }
     
     public function getNotificationContent()
     {
