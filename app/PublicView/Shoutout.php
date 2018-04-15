@@ -2,6 +2,7 @@
 
 namespace App\PublicView;
 
+use App\Privacy;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
@@ -59,7 +60,7 @@ class Shoutout extends Model
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
         $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = \DB::table('comments_shoutouts')->where('shoutout_id')->count();
+        $meta['commentCount'] = \DB::table('comments_shoutouts')->where('shoutout_id', $this->id)->count();
         return $meta;
     }
 
