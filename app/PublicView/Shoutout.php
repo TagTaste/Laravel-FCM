@@ -58,8 +58,7 @@ class Shoutout extends Model
     public function getMetaFor()
     {
         $meta = [];
-        $key = "meta:photo:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
         $meta['commentCount'] = \DB::table('comments_shoutouts')->where('shoutout_id', $this->id)->count();
         return $meta;
     }

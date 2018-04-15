@@ -125,7 +125,7 @@ class Photo extends Model
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
         $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = \DB::table('comments_photos')->where('photo_id')->count();
+        $meta['commentCount'] = \DB::table('comments_photos')->where('photo_id', $this->id)->count();
         return $meta;
     }
 

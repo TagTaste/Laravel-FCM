@@ -38,9 +38,9 @@ class Collaborate extends Model
     public function getMetaFor()
     {
         $meta = [];
-        $key = "meta:photo:likes:" . $this->id;
+        $key = "meta:collaborate:likes:" . $this->id;
         $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = \DB::table('comments_collaborates')->where('collaborate_id')->count();
+        $meta['commentCount'] = \DB::table('comments_collaborates')->where('collaborate_id', $this->id)->count();
         return $meta;
     }
 
