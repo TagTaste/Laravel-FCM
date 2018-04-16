@@ -898,10 +898,4 @@ class Profile extends Model
 
     }
 
-    public function getOnboardingStepAttribute ($value)
-    {
-        return is_null($value) ? 1 : $value;
-    }
-
-
 }
