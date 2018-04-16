@@ -141,7 +141,8 @@ class Profile extends Model
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount'];
+        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword',
+        'unreadNotificationCount'];
 
     public static function boot()
     {
@@ -896,5 +897,11 @@ class Profile extends Model
         return $data;
 
     }
+
+    public function getOnboardingStepAttribute ($value)
+    {
+        return is_null($value) ? 1 : $value;
+    }
+
 
 }
