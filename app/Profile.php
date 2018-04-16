@@ -143,7 +143,7 @@ class Profile extends Model
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-            'remainingMessages'];
+            'remainingMessages','onboarding_step'];
 
     public static function boot()
     {
@@ -906,6 +906,11 @@ class Profile extends Model
             $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$this->id)->first();
             return isset($remaining->remaining) ? $remaining->remaining : null;
         }
+    }
+
+    public function getOnboardingStepAttribute($value)
+    {
+        return is_null($value) ? 1 : $value;
     }
 
 }
