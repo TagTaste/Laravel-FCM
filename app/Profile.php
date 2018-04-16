@@ -143,7 +143,7 @@ class Profile extends Model
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-            'remainingMessages','onboarding_step'];
+            'remainingMessages','onboardingStep'];
 
     public static function boot()
     {
