@@ -25,12 +25,17 @@ class NotificationController extends Controller
         }
         $notifications = $profile->notifications()->paginate();
         $this->model = [];
-        foreach ($notifications as $notification)
-        {
-            if(isset($notification->data['notification']))
+        $notifications = $profile->notifications()->paginate()->toArray();
+        foreach ($notifications['data'] as &$notification) {
+            if(!isset($notification->data['notification']))
             {
-                $this->model[] = $notification;
+                continue;
             }
+            if(!is_null($notification['data']['profile'])) {
+                $notification['isFollowing'] = \App\Profile::isFollowing($request->user()->profile->id,
+                    $notification['data']['profile']['id']);
+            }
+            $this->model[] = $notification;
         }
         return $this->sendResponse();
     }
