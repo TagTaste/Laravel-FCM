@@ -27,7 +27,7 @@ class NotificationController extends Controller
         $this->model = [];
         $notifications = $profile->notifications()->paginate()->toArray();
         foreach ($notifications['data'] as &$notification) {
-            if(!isset($notification->data['notification']))
+            if(!isset($notification['data']['notification']))
             {
                 continue;
             }
