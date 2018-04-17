@@ -6,9 +6,9 @@ use App\Privacy;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use App\Traits\IdentifiesOwner;
-use Illuminate\Database\Eloquent\Model;
+use App\Shoutout as BaseShoutout;
 
-class Shoutout extends Model
+class Shoutout extends BaseShoutout
 {
     use IdentifiesOwner, GetTags, HasPreviewContent;
 
@@ -55,7 +55,7 @@ class Shoutout extends Model
         return $this->belongsTo(Privacy::class);
     }
 
-    public function getMetaFor()
+    public function getMetaForPublic()
     {
         $meta = [];
         $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);

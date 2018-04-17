@@ -13,8 +13,9 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use App\Photo as BasePhoto;
 
-class Photo extends Model
+class Photo extends BasePhoto
 {
     use ScopeProfile, ScopeCompany, GetTags, HasPreviewContent;
 
@@ -120,7 +121,7 @@ class Photo extends Model
         return $this->belongsTo(Privacy::class);
     }
 
-    public function getMetaFor()
+    public function getMetaForPublic()
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;

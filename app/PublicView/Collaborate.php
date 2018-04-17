@@ -5,8 +5,9 @@ namespace App\PublicView;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Collaborate as BaseCollaborate;
 
-class Collaborate extends Model
+class Collaborate extends BaseCollaborate
 {
     use IdentifiesOwner, SoftDeletes;
 
@@ -35,7 +36,7 @@ class Collaborate extends Model
         return $this->owner();
     }
 
-    public function getMetaFor()
+    public function getMetaForPublic()
     {
         $meta = [];
         $key = "meta:collaborate:likes:" . $this->id;

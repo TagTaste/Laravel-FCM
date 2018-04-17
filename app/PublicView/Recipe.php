@@ -5,8 +5,9 @@ namespace App\PublicView;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Recipe as BaseRecipe;
 
-class Recipe extends Model
+class Recipe extends BaseRecipe
 {
     use SoftDeletes, IdentifiesOwner;
 
@@ -68,7 +69,7 @@ class Recipe extends Model
         return $this->belongsTo(Cuisine::class);
     }
 
-    public function getMetaFor()
+    public function getMetaForPublic()
     {
         $meta = [];
         $key = "meta:recipe:likes:" . $this->id;
