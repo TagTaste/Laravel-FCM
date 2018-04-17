@@ -71,7 +71,7 @@ class ExpireReopen extends Command
             }
         });
 
-        $collabIds = [];
+        $collabIds = [113];
         \DB::table("collaborates")->where('state',Collaborate::$state[2])->whereIn('id',$collabIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
 
@@ -95,7 +95,9 @@ class ExpireReopen extends Command
 
                 \App\Filter\Collaborate::addModel($model);
 
-                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
+                \DB::table('collaborates')->where('id',$model->id)->update(['state'=>Collaborate::$state[0],
+                    'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString(),
+                    'created_at'=>Carbon::now()->toDateTimeString(),'updated_at'=>Carbon::now()->toDateTimeString()]);
             }
         });
     }
