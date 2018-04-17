@@ -74,11 +74,10 @@ class ExpireReopen extends Command
         $collabIds = [113];
         \DB::table("collaborates")->where('state',Collaborate::$state[2])->whereIn('id',$collabIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
-                \Log::info($model->comapny_id);
                 $profile = \App\Profile::find($model->profile_id);
-                if($model->comapny_id != null)
+                if($model->company_id != null)
                 {
-                    $company = Company::find($model->comapny_id);
+                    $company = Company::find($model->company_id);
                     event(new NewFeedable($model, $company));
                 }
                 else
