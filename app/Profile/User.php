@@ -206,7 +206,7 @@ class User extends BaseUser
             $user = static::create([
                 'name' => $name,
                 'email' => $email,
-                'password' => bcrypt($password),
+                'password' => is_null($password) ? null : bcrypt($password),
                 'email_token' =>str_random(15),
                 'social_registration'=>$socialRegistration,
                 'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null
