@@ -50,7 +50,8 @@ trait HasPreviewContent
         {
             $pattern[] = '/\@\['.$profile->id.'\:'.$index.'\]/i';
 //            $replacement[] = "<a href=\"/profile/{$profile->id}\" class=\"tagged-profile\">$profile->name</a>";
-            $replacement[] = "<a href=\"#\" class=\"tagged-profile\">$profile->name</a>";
+//            $replacement[] = "<a href=\"#\" class=\"tagged-profile\">$profile->name</a>";
+            $replacement[] = $profile->name;
         }
         $replacement = array_reverse($replacement);
         return preg_replace($pattern,$replacement,$text);

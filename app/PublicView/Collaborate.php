@@ -19,7 +19,7 @@ class Collaborate extends BaseCollaborate
         ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at'];
 
 
-    protected $appends = ['owner'];
+    protected $appends = ['owner', 'images'];
 
     public function company()
     {
