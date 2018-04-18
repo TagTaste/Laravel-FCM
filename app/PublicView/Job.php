@@ -20,7 +20,7 @@ class Job extends BaseJob
         'start_month','start_year','end_month','end_year','deleted_at','updated_at','owner'
     ];
 
-    protected $appends = ['owner'];
+    protected $appends = ['owner', 'type'];
 
     public function getJobIdAttribute()
     {
