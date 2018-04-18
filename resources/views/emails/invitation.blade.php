@@ -33,7 +33,7 @@
                                             <img src="{{$senderImage}}" height="80px" width="80px" style="border-radius:50%"/>
                                         </div>
                                         <p style="font-size: 16px;color: #181818 ;margin:0px;font-weight:bold;">{{$senderName}} has invited you to join TagTaste </p>
-                                        <h1 style="font-size: 28px; margin-bottom: 10px">Your invite code is: <span style="color: #da332e;">{{ $inviteCode }}</span></h1>
+                                        {{--<h1 style="font-size: 28px; margin-bottom: 10px">Your invite code is: <span style="color: #da332e;">{{ $inviteCode }}</span></h1>--}}
                                     </td>
                                 </tr>
                                 <tr>
