@@ -34,7 +34,7 @@ class SendInvitation implements ShouldQueue
         if(isset($this->invitation['name']))
         {
             $data = ["senderName"=>$this->user->name,"senderImage"=>$this->user->profile->imageUrl,"receiverName"=>$this->invitation['name'],
-                "inviteCode" => $this->invitation['invite_code'],"mailCode"=>$this->invitation['mail_code'],'message'=>$this->invitation['message']];
+                "mailCode"=>$this->invitation['mail_code'],'message'=>$this->invitation['message']];
             \Mail::send('emails.invitation', $data, function($message)
             {
                 $message->to($this->invitation['email'], $this->user->name)->subject($this->user->name.' has invited you to join TagTaste');

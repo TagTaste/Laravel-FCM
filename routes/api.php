@@ -58,9 +58,7 @@ Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewControll
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
 
-    //verify invite code
-    Route::post('/verifyInviteCode','UserController@verifyInviteCode');
-
+        Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
@@ -420,4 +418,54 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
+
+    Route::get("csv",function (){
+        $this->model = [];
+        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
+            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
+            ->join("users",'users.id','=','profiles.user_id')
+            ->join("education",'profiles.id','=','education.profile_id')
+            ->where('education.end_date','like','2016')
+            ->orWhere('education.end_date','like','2017')
+            ->orWhere('education.end_date','like','2018')
+            ->orWhereNull('education.end_date')
+            ->orWhere('education.ongoing',1)
+            ->whereNull('users.deleted_at')
+            ->get();
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=file.csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $columns = array('id', 'name', 'email','phone','start_date','end_date','ongoing');
+
+        \Log::info($profiles);
+        $str = '';
+        foreach ($columns as $c) {
+            $str = $str.$c.',';
+        }
+        $str = $str."\n";
+
+        foreach($profiles as $review) {
+            foreach ($columns as $c) {
+                $str = $str.$review->{$c}.',';
+            }
+            $str = $str."\n";
+        }
+//        $callback = function() use ($profiles, $columns)
+//        {
+//            $file = fopen(storage_path('chef1.csv'), 'w+');
+//            fputcsv($file, $columns);
+//
+//            foreach($profiles as $review) {
+//                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
+//            }
+//            fclose($file);
+//        };
+        return response($str, 200, $headers);
+
+    });
 });
