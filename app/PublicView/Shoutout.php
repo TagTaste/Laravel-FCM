@@ -59,7 +59,7 @@ class Shoutout extends BaseShoutout
     {
         $meta = [];
         $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
-        $meta['commentCount'] = \DB::table('comments_shoutouts')->where('shoutout_id', $this->id)->count();
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
 

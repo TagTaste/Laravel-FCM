@@ -74,7 +74,7 @@ class Recipe extends BaseRecipe
         $meta = [];
         $key = "meta:recipe:likes:" . $this->id;
         $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = \DB::table('comments_recipes')->where('recipe_id')->count();
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
 }

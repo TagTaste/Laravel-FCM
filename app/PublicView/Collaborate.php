@@ -41,7 +41,7 @@ class Collaborate extends BaseCollaborate
         $meta = [];
         $key = "meta:collaborate:likes:" . $this->id;
         $meta['likeCount'] = \Redis::sCard($key);
-        $meta['commentCount'] = \DB::table('comments_collaborates')->where('collaborate_id', $this->id)->count();
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
 
