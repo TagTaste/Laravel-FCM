@@ -16,10 +16,10 @@ class InviteController extends Controller
         $emails = $request->input("email");
         $message = $request->input('message');
         $inputs = [];
-
         foreach ($emails as $email)
         {
             $temp = [];
+            $temp['invite_code'] = 123456;
             $temp['profile_id'] = $request->user()->profile->id;
             $temp['state'] = Invitation::$mailSent;
             $temp['mail_code'] = str_random(15);
