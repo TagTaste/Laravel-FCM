@@ -26,6 +26,12 @@ class Job extends Share
         $meta = (object) $meta;
         return $meta;
     }
+
+    public function getMetaForPublic(){
+        $meta = [];
+        $meta = (object) $meta;
+        return $meta;
+    }
     
     public function getNotificationContent()
     {
