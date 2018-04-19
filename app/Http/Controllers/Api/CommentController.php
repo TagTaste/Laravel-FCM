@@ -56,13 +56,18 @@ class CommentController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index($model, $modelId)
+	public function index(Request $request, $model, $modelId)
 	{
-	    $model = $this->getModel($model, $modelId);
+        $this->model = [];
+        $model = $this->getModel($model, $modelId);
         
         $this->checkRelationship($model);
-        
-        $this->model = $model->comments()->orderBy('created_at','desc')->paginate(10);
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
+        $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
+        $this->model['next_page'] = $page > 1 ? $page - 1 : null;
+        $this->model['count'] = $model->comments()->count();
+        $this->model['previous_page'] = count($this->model['data']) >= 10 && $page*10 < $this->model['count']  ? $page + 1 : null;
         return $this->sendResponse();
 	}
 
@@ -92,7 +97,7 @@ class CommentController extends Controller {
         
         $model->comments()->attach($comment->id);
         
-        event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content));
+        event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content, null, null, null, $comment));
         
         if($comment->has_tags){
             event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
@@ -176,5 +181,22 @@ class CommentController extends Controller {
         return $this->sendResponse();
     }
 
+    public function notificationComment(Request $request, $id, $modelName, $modelId)
+    {
+        $this->model = [];
+        $model = $this->getModel($modelName, $modelId);
+
+        $this->checkRelationship($model);
+
+        $previousPage = intval($model->comments()->where('id','>',$id)->count()/10);
+        //paginate
+        $page = $previousPage + 1;
+        $this->model['data'] = $model->comments()->orderBy('created_at','desc')->whereNull('deleted_at')
+            ->skip($previousPage*10)->take(10)->get();
+        $nextPage = intval($model->comments()->where('id','<',$id)->count()/10) +1;
+        $this->model['previous_page'] = $nextPage == $previousPage || count($this->model['data']) < 10 ? null : $previousPage + 2;
+        $this->model['next_page'] = $previousPage == 0 ? null : $previousPage;
+        return $this->sendResponse();
+    }
 
 }
