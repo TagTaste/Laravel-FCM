@@ -169,5 +169,12 @@ class UserController extends Controller
         return $this->sendResponse();
     }
 
+    public function verifyInviteCode(Request $request)
+    {
+        $this->model = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
+
+        return $this->sendResponse();
+    }
+
 
 }
