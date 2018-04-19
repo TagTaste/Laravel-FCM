@@ -8,6 +8,7 @@ use App\FCMPush;
 use App\Notifications\Action;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
+use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class Comment extends Action
@@ -49,5 +50,37 @@ class Comment extends Action
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content'])]
             );
         }
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    public function toArray($notifiable)
+    {
+        $data = [
+            'action' => $this->data->action,
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
+            'notification' => $this->notification,
+            'actionModel' => $this->data->actionModel,
+        ];
+
+        if(method_exists($this->model,'getNotificationContent')){
+            $data['model'] = $this->allData;
+        } else {
+            \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
+            $data['model'] = [
+                'name' => $this->modelName,
+                'id' => $this->data->model->id,
+                'content' => $this->data->content,
+                'image' => $this->data->image
+            ];
+        }
+
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
     }
 }

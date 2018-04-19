@@ -4,6 +4,7 @@ namespace App\Notifications\Actions;
 
 use App\Deeplink;
 use App\Notifications\Action;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,4 +47,31 @@ class Tag extends Action
             );
         }
     }
+
+    public function toArray($notifiable)
+    {
+        $data = [
+            'action' => $this->data->action,
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
+            'notification' => $this->notification,
+            'actionModel' => $this->data->actionModel,
+        ];
+
+        if(method_exists($this->model,'getNotificationContent')){
+            $data['model'] = $this->allData;
+        } else {
+            \Log::warning(class_basename($this->modelName) . " doesn't specify notification content.");
+            $data['model'] = [
+                'name' => $this->modelName,
+                'id' => $this->data->model->id,
+                'content' => $this->data->content,
+                'image' => $this->data->image
+            ];
+        }
+
+        $data['created_at'] = Carbon::now()->toDateTimeString();
+
+        return $data;
+    }
+
 }
