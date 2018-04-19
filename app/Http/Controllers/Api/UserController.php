@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
-use App\Invitation;
 use App\SocialAccount;
 use App\User;
 use Illuminate\Http\Request;
@@ -33,24 +32,8 @@ class UserController extends Controller
 
         $alreadyVerified = false;
         $result = ['status'=>'success','newRegistered' =>true];
-        $inviteCode = $request->input("invite_code");
-        if(isset($inviteCode) && !empty($inviteCode))
-        {
-            $invitation = \DB::table("profiles")->select("profiles.id")
-                ->join("users",'users.id','=','profiles.user_id')
-                ->where('users.invite_code',$inviteCode)->first();
-            if(!$invitation)
-            {
-                return ['status'=>'failed','errors'=>"please use correct invite code",'result'=>[],'newRegistered' =>false];
-            }
-            $profileId = $invitation->id;
-        }
-        else
-        {
-            return ['status'=>'failed','errors'=>"please use invite code",'result'=>[],'newRegistered' =>false];
-        }
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
-            false,null,null,null,$alreadyVerified,null,$inviteCode);
+            false,null,null,null,$alreadyVerified,null);
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
             ['email'=>$request->input('user.email')
                 ,'password'=>$request->input('user.password')])];
@@ -59,13 +42,6 @@ class UserController extends Controller
         \Log::info('Queueing Verified Email...');
 
         dispatch($mail);
-
-        $profiles = \App\Profile::with([])->where('id', $profileId)->orWhere('user_id', $user->id)->get();
-
-        $loginProfile = $profiles[0]->user_id == $user->id ? $profiles[0] : $profiles[1];
-        $profile = $profiles[0]->user_id != $user->id ? $profiles[0] : $profiles[1];
-        event(new JoinFriend($profile, $loginProfile));
-
 
         return response()->json($result);
     }
@@ -200,6 +176,7 @@ class UserController extends Controller
                             ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
         return $this->sendResponse();
     }
+
 
 
 }
