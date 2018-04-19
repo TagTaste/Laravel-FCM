@@ -28,7 +28,6 @@ class Auth extends GetUserFromToken
             return $next($request);
         }
 
-        \Log::info($_SERVER['REQUEST_URI']);
         if (! $token = $this->auth->setRequest($request)->getToken()) {
             return $this->respond('tymon.jwt.absent', 'token_not_provided', 400);
         }
