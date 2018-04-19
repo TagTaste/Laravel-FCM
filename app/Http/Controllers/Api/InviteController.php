@@ -16,6 +16,7 @@ class InviteController extends Controller
         $emails = $request->input("email");
         $message = $request->input('message');
         $inputs = [];
+        \Log::info("here");
         foreach ($emails as $email)
         {
             $temp = [];
