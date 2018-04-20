@@ -61,7 +61,7 @@ class ExpireReopen extends Command
                 }
 
                 //push to feed
-
+                echo "model id is ".$model->id;
 
                 //add subscriber
                 event(new \App\Events\Model\Subscriber\Create($model,$profile));
