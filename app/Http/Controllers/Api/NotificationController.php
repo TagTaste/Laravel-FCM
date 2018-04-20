@@ -29,9 +29,10 @@ class NotificationController extends Controller
             if(!isset($notification['data']['notification']))
             {
                 unset($notifications['data'][$index]);
+                continue;
             }
             if(!is_null($notification['data']['profile'])) {
-                $notification['isFollowing'] = \App\Profile::isFollowing($request->user()->profile->id,
+                $notifications['data'][$index]['isFollowing'] = \App\Profile::isFollowing($request->user()->profile->id,
                     $notification['data']['profile']['id']);
             }
         }
