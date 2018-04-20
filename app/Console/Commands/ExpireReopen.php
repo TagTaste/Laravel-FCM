@@ -43,7 +43,7 @@ class ExpireReopen extends Command
      */
     public function handle()
     {
-        $jobIds = [61,62,63,67,68];
+        $jobIds = [];
         //this run only once after that remove from kernel.php this file
         \DB::table("jobs")->where('state',Job::$state[2])->whereIn('id',$jobIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
@@ -61,7 +61,7 @@ class ExpireReopen extends Command
                 }
 
                 //push to feed
-                echo "model id is ".$model->id;
+                echo "model id is ".$model->id . "\n";
 
                 //add subscriber
                 event(new \App\Events\Model\Subscriber\Create($model,$profile));
@@ -91,6 +91,7 @@ class ExpireReopen extends Command
                 }
 
                 //push to feed
+                echo "model id is ".$model->id . "\n";
 
 
                 //add subscriber
