@@ -43,14 +43,15 @@ class ExpireReopen extends Command
      */
     public function handle()
     {
-        $jobIds = [];
+        $jobIds = [61,62,63,67,68];
         //this run only once after that remove from kernel.php this file
         \DB::table("jobs")->where('state',Job::$state[2])->whereIn('id',$jobIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $profile = \App\Profile::find($model->profile_id);
-                if($model->comapny_id != null)
+                $model = Job::find($model->id);
+                if($model->company_id != null)
                 {
-                    $company = Company::find($model->comapny_id);
+                    $company = Company::find($model->company_id);
                     event(new NewFeedable($model, $company));
                 }
                 else
@@ -67,7 +68,9 @@ class ExpireReopen extends Command
 
                 \App\Filter\Collaborate::addModel($model);
 
-                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
+                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[0],
+                    'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString(),
+                    'created_at'=>Carbon::now()->toDateTimeString(),'updated_at'=>Carbon::now()->toDateTimeString()]);
             }
         });
 
