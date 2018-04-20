@@ -102,7 +102,7 @@ class Deeplink
         return $class::find($id);
     }
 
-    private static function getActualUrl($modelName, $modelId, $shared = false, $share_id = 0)
+    public static function getActualUrl($modelName, $modelId, $shared = false, $share_id = 0)
     {
         if($shared) {
             return env('APP_URL')."/feed/view/share/$modelName/$share_id/$modelId";
