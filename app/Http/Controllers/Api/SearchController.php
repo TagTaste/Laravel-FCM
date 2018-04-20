@@ -213,6 +213,7 @@ class SearchController extends Controller
                 ->join("users",'users.id','=','profiles.user_id')
                 ->where("users.name",'like',"%$term%")
                 ->whereNull('users.deleted_at')
+                ->whereNull('profiles.deleted_at')
                 ->take(5)
                 ->get();
     
