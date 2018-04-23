@@ -49,7 +49,7 @@ class ProfileDelete extends Command
 //
 //        $this->info("deleting profile $profileId");
 //        $this->profileId = $profileId;
-//        $this->delete();
+        $this->delete();
     }
     
     private function delete()
