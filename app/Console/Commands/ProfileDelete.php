@@ -101,36 +101,40 @@ class ProfileDelete extends Command
 //
 //            $profile->delete();
 //        }
-        Profile::orderBy('id')->chunk(200,function($models){
-            Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
-                ->whereNull('profiles.deleted_at')
-                ->where('subscribers.profile_id',$models->id)
-                ->where('subscribers.channel_name','like','public.%')
-                ->whereNull('subscribers.deleted_at')->chunk(1000,function($subscribers){
-                    echo "************* Count " . $subscribers->count() . "\n\n\n\n\n";
-                    $count = 0;
-                    foreach($subscribers as $model){
 
-                        $channel = explode(".",$model->channel_name);
-                        $channelOwnerProfileId = last($channel);
-                        $profile_id = $channelOwnerProfileId;
-                        echo "profile id which is deleted .".$channelOwnerProfileId . "\n\n";
+        \DB::table('profiles')->orderBy('id')->chunk(100, function ($models) {
+            foreach ($models as $model) {
+                Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
+                    ->whereNull('profiles.deleted_at')
+                    ->where('subscribers.profile_id',$model->id)
+                    ->where('subscribers.channel_name','like','public.%')
+                    ->whereNull('subscribers.deleted_at')->chunk(1000,function($subscribers){
+                        echo "************* Count " . $subscribers->count() . "\n\n\n\n\n";
+                        $count = 0;
+                        foreach($subscribers as $model){
 
-                        $channelOwnerProfileId = "profile:small:".$channelOwnerProfileId;
-                        $profile = \Redis::mget($channelOwnerProfileId);
+                            $channel = explode(".",$model->channel_name);
+                            $channelOwnerProfileId = last($channel);
+                            $profile_id = $channelOwnerProfileId;
+                            echo "profile id which is deleted .".$channelOwnerProfileId . "\n\n";
 
-                        $profile = Profile::where('id',$profile_id)->whereNull('deleted_at')->first();
+                            $channelOwnerProfileId = "profile:small:".$channelOwnerProfileId;
+                            $profile = \Redis::mget($channelOwnerProfileId);
 
-                        if(!isset($profile))
-                        {
-                            $count ++;
-                            $model->delete();
-                            echo "ye delete nhi h sahi se .".$profile_id . "\n\n";
+                            $profile = Profile::where('id',$profile_id)->whereNull('deleted_at')->first();
+
+                            if(!isset($profile))
+                            {
+                                $count ++;
+                                $model->delete();
+                                echo "ye delete nhi h sahi se .".$profile_id . "\n\n";
+                            }
+
                         }
-
-                    }
-                    echo "total profile ".$count;
-                });
+                        echo "total profile ".$count;
+                    });
+            }
         });
+
     }
 }
