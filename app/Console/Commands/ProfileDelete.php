@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Recipe\Profile;
 use App\Subscriber;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class ProfileDelete extends Command
@@ -104,35 +105,11 @@ class ProfileDelete extends Command
 
         \DB::table('profiles')->orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
-                Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
-                    ->whereNull('profiles.deleted_at')
-                    ->where('subscribers.profile_id',$model->id)
-                    ->where('subscribers.channel_name','like','public.%')
-                    ->whereNull('subscribers.deleted_at')->chunk(1000,function($subscribers){
-                        echo "************* Count " . $subscribers->count() . "\n\n\n\n\n";
-                        $count = 0;
-                        foreach($subscribers as $model){
-
-                            $channel = explode(".",$model->channel_name);
-                            $channelOwnerProfileId = last($channel);
-                            $profile_id = $channelOwnerProfileId;
-                            echo "profile id which is deleted .".$channelOwnerProfileId . "\n\n";
-
-                            $channelOwnerProfileId = "profile:small:".$channelOwnerProfileId;
-                            $profile = \Redis::mget($channelOwnerProfileId);
-
-                            $profile = Profile::where('id',$profile_id)->whereNull('deleted_at')->first();
-
-                            if(!isset($profile))
-                            {
-                                $count ++;
-                                $model->delete();
-                                echo "ye delete nhi h sahi se .".$profile_id . "\n\n";
-                            }
-
-                        }
-                        echo "total profile ".$count;
-                    });
+                echo "profile id ".$model->id ." deleted at ".$model->deleted_at. "\n\n";
+                if($model->deleted_at)
+                {
+                    \DB::table('subscribers')->where('channel_name','public.'.$model->id)->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
+                }
             }
         });
 
