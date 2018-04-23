@@ -108,7 +108,15 @@ class ProfileDelete extends Command
                 echo "profile id ".$model->id ." deleted at ".$model->deleted_at. "\n\n";
                 if($model->deleted_at)
                 {
-                    \DB::table('subscribers')->where('channel_name','public.'.$model->id)->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
+                    $profileIds = \DB::table('subscribers')->where('channel_name','public.'.$model->id)->get();
+
+                    foreach ($profileIds as $profileId)
+                    {
+                        \Redis::sRem("following:profile:" . $model->id, $profileId);
+
+                        //profiles that are following $channelOwner
+                        \Redis::sRem("followers:profile:" . $profileId, $model->id);
+                    }
                 }
             }
         });
