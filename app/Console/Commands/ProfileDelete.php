@@ -104,10 +104,10 @@ class ProfileDelete extends Command
 
         Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
             ->whereNull('profiles.deleted_at')
-            ->where('subscribers.profile_id',1)
             ->where('subscribers.channel_name','like','public.%')
             ->whereNull('subscribers.deleted_at')->chunk(1000,function($subscribers){
                 echo "************* Count " . $subscribers->count() . "\n\n\n\n\n";
+                $count = 0;
                 foreach($subscribers as $model){
 
                     $channel = explode(".",$model->channel_name);
@@ -126,10 +126,12 @@ class ProfileDelete extends Command
 
                     if(!isset($profile))
                     {
+                        $count ++;
                         echo "ye delete nhi h sahi se .".$profile_id . "\n\n";
                     }
 
                 }
+                echo "total profile ".$count;
             });
     }
 }
