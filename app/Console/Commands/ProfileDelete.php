@@ -117,7 +117,7 @@ class ProfileDelete extends Command
 
                     if(is_null($profile))
                     {
-                        echo "profile id which is deleted .".last($channel) . "\n\n";
+                        echo "ye delete nhi h sahi se .".last($channel) . "\n\n";
                     }
 
                 }
