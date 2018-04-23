@@ -112,12 +112,12 @@ class ProfileDelete extends Command
 
                     foreach ($profileIds as $profileId)
                     {
-                        echo "remove profile id $model->id from profile ".$profileId;
+                        echo "remove profile id $model->id from profile ".$profileId->profile_id;
 
-                        \Redis::sRem("following:profile:" . $profileId, $model->id);
+                        \Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
 
                         //profiles that are following $channelOwner
-                        \Redis::sRem("followers:profile:" . $model->id, $profileId);
+                        \Redis::sRem("followers:profile:" . $model->id, $profileId->profile_id);
                     }
                 }
             }
