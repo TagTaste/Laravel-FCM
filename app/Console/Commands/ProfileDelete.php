@@ -119,10 +119,6 @@ class ProfileDelete extends Command
                         $channelOwnerProfileId = "profile:small:".$channelOwnerProfileId;
                         $profile = \Redis::mget($channelOwnerProfileId);
 
-                        if(is_null($profile))
-                        {
-                            echo "ye delete nhi h sahi se .".last($channel) . "\n\n";
-                        }
                         $profile = Profile::where('id',$profile_id)->whereNull('deleted_at')->first();
 
                         if(!isset($profile))
