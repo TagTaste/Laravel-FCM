@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Recipe\Profile;
 use App\Subscriber;
 use Illuminate\Console\Command;
 
@@ -111,6 +112,7 @@ class ProfileDelete extends Command
 
                     $channel = explode(".",$model->channel_name);
                     $channelOwnerProfileId = last($channel);
+                    $profile_id = $channelOwnerProfileId;
                     echo "profile id which is deleted .".$channelOwnerProfileId . "\n\n";
 
                     $channelOwnerProfileId = "profile:small:".$channelOwnerProfileId;
@@ -119,6 +121,12 @@ class ProfileDelete extends Command
                     if(is_null($profile))
                     {
                         echo "ye delete nhi h sahi se .".last($channel) . "\n\n";
+                    }
+                    $profile = Profile::where('id',$profile_id)->whereNull('deleted_at')->first();
+
+                    if(!isset($profile))
+                    {
+                        echo "ye delete nhi h sahi se .".$profile_id . "\n\n";
                     }
 
                 }
