@@ -104,7 +104,8 @@ class ProfileDelete extends Command
         Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
             ->whereNull('profiles.deleted_at')
             ->where('subscribers.profile_id',1)
-            ->whereNull('subscribers.deleted_at')->chunk(200,function($subscribers){
+            ->where('subscribers.channel_name','like','public.%')
+            ->whereNull('subscribers.deleted_at')->chunk(1000,function($subscribers){
                 echo "************* Count " . $subscribers->count() . "\n\n\n\n\n";
                 foreach($subscribers as $model){
 
