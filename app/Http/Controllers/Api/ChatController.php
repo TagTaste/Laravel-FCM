@@ -229,11 +229,9 @@ class ChatController extends Controller
         //check for existing chats only for single profileId.
         if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
-            \Log::info($existingChats);
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
-                \Log::info("ek bar");
                 return $this->sendmessage($request);
             }
 
@@ -265,7 +263,6 @@ class ChatController extends Controller
                 $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
             }
             $this->model->members()->insert($data);
-            \Log::info("2 bar");
             return $this->sendmessage($request);
 
         }
@@ -300,6 +297,7 @@ class ChatController extends Controller
 
     private function sendmessage($request)
     {
+        \Log::info("call 1");
         $loggedInProfileId = $request->user()->profile->id;
         if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
         {
@@ -331,7 +329,7 @@ class ChatController extends Controller
             $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
             $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
 //        $this->model = Chat\Message::where
-//            event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
+            event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
 
             return $this->sendResponse();
         }
