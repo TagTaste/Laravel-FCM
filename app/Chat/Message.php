@@ -23,7 +23,6 @@ class Message extends Model
     public static function boot()
     {
         self::created(function(Model $message){
-            \Log::info("call 2");
 
             //is there a better way?
             $message->load('profile');

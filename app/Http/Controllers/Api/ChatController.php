@@ -297,7 +297,6 @@ class ChatController extends Controller
 
     private function sendmessage($request)
     {
-        \Log::info("call 1");
         $loggedInProfileId = $request->user()->profile->id;
         if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
         {
