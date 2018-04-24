@@ -10,47 +10,47 @@ use Illuminate\Http\File;
 
 class ChatController extends Controller
 {
-	/**
-	 * Variable to model
-	 *
-	 * @var chat
-	 */
-	protected $model;
+    /**
+     * Variable to model
+     *
+     * @var chat
+     */
+    protected $model;
 
-	/**
-	 * Create instance of controller with Model
-	 *
-	 * @return void
-	 */
-	public function __construct(Chat $model)
-	{
-		$this->model = $model;
-	}
+    /**
+     * Create instance of controller with Model
+     *
+     * @return void
+     */
+    public function __construct(Chat $model)
+    {
+        $this->model = $model;
+    }
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index(Request $request)
-	{
-	    $profileId = $request->user()->profile->id;
-        
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
+    public function index(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-                        $query->where('profile_id',$profileId)->whereNull('deleted_at');
-                        })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
-        
-		return $this->sendResponse();
-	}
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param Request $request
-	 * @return Response
-	 */
+        return $this->sendResponse();
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function store(Request $request)
     {
         $inputs = $request->except(['_method','_token','isSingle']);
@@ -107,36 +107,36 @@ class ChatController extends Controller
         return $this->sendResponse();
     }
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show(Request $request ,$id)
-	{
-	    $profileId = $request->user()->profile->id;
-        
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function show(Request $request ,$id)
+    {
+        $profileId = $request->user()->profile->id;
+
         //current user should be part of the chat, is a sufficient condition.
         $this->model = Chat::where('id',$id)->whereHas('members',function($query) use ($profileId) {
-                        $query->where('profile_id',$profileId)->whereNull('deleted_at');
-                    })->get();
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->get();
         return $this->sendResponse();
-	}
+    }
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function update(Request $request, $id)
-	{
-		$inputs = $request->all();
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @param Request $request
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+        $inputs = $request->all();
 
-		$chat = $this->model->findOrFail($id);
-        
+        $chat = $this->model->findOrFail($id);
+
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($chat->id);
@@ -160,34 +160,34 @@ class ChatController extends Controller
             }
             $chat->members()->insert($data);
         }
-		return $this->sendResponse();
-	}
+        return $this->sendResponse();
+    }
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy(Request $request,$chadId)
-	{
-	    $loggedInProfileId = $request->user()->profile->id;
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function destroy(Request $request,$chadId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
         \App\ChatLimit::increaseLimit($loggedInProfileId);
         return $this->sendResponse();
-	}
-    
+    }
+
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
         $this->model = \DB::table('chats')->select('chats.id')
-                ->join('chat_members','chat_members.chat_id','=','chats.id')
+            ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
         return $this->sendResponse();
-	}
+    }
 
-	public function chatGroup (Request $request)
+    public function chatGroup (Request $request)
     {
         $profileId = $request->user()->profile->id;
 
@@ -233,6 +233,40 @@ class ChatController extends Controller
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
+                if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
+                {
+                    $chatId = $this->model->id;
+                    if($request->hasFile("file"))
+                    {
+                        $path = "profile/$loggedInProfileId/chat/$chatId/file";
+                        $filename = $request->file('file')->getClientOriginalName();
+
+                        $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+                    }
+
+                    if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                        $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                        $s3 = \Storage::disk('s3');
+                        $filePath = 'p/' . $loggedInProfileId . "/ci";
+                        $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                        $inputs['preview']['image'] = $resp;
+                    }
+                    if(isset($inputs['preview']))
+                    {
+                        $inputs['preview'] = json_encode($inputs['preview']);
+                    }
+
+                    $inputs['chat_id'] = $chatId;
+                    $inputs['profile_id'] = $loggedInProfileId;
+                    $this->model['data'] = Chat\Message::create($inputs);
+                    $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
+                    $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
+//        $this->model = Chat\Message::where
+                    event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
+
+                    return $this->sendResponse();
+                }
+
                 return $this->sendResponse();
             }
 
@@ -290,7 +324,9 @@ class ChatController extends Controller
 
                 $inputs['chat_id'] = $chatId;
                 $inputs['profile_id'] = $loggedInProfileId;
-                $this->model = Chat\Message::create($inputs);
+                $this->model['data'] = Chat\Message::create($inputs);
+                $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
+                $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
 //        $this->model = Chat\Message::where
                 event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 
@@ -327,3 +363,4 @@ class ChatController extends Controller
 
     }
 }
+

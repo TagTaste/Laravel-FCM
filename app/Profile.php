@@ -138,12 +138,13 @@ class Profile extends Model
         'addPassword',
         'unreadNotificationCount',
         'onboarding_step',
-        'remainingMessages'
+        'remainingMessages',
+        'isFollowingBy'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-            'remainingMessages'];
+        'remainingMessages','isFollowingBy'];
 
     public static function boot()
     {
@@ -177,11 +178,11 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
-    
+
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
         });
-        
+
         self::deleting(function($profile){
             \App\Filter\Profile::removeModel($profile->id);
             \App\Documents\Profile::delete($profile);
@@ -199,7 +200,7 @@ class Profile extends Model
     {
         return \Redis::get('profile:small:' . $id);
     }
-    
+
     public function removeFromCache()
     {
         return \Redis::del('profile:small:' . $this->id);
@@ -246,9 +247,9 @@ class Profile extends Model
                                 "icon_emoji" => ":older_man::skin-tone-3:",
                                 "text" => $message]
                     ]);
-                
+
             }
-            
+
         }
         return "Inactive User";
     }
@@ -278,7 +279,7 @@ class Profile extends Model
             return date("d-m-Y", strtotime($value));
         }
     }
-    
+
     public function getExperienceAttribute(){
         $experiences = $this->experience()->get();
         $dates = $experiences->toArray();
@@ -288,7 +289,7 @@ class Profile extends Model
         $endDates = [];
         foreach ($dates as $exp) {
             $id = $exp['id'];
-            
+
             if (is_null($exp['end_date']) || $exp['current_company'] === 1) {
                 $sortedExperience->push($experiences->get($id));
                 continue;
@@ -298,13 +299,13 @@ class Profile extends Model
             $tempdate = implode("-", array_merge($temp, $dateArray));
             $endDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
         }
-        
-        
+
+
         $currentCompanies = $sortedExperience->pluck('start_date','id')->toArray();
         $startDates = [];
 
         foreach($currentCompanies as $id=>$startDate){
-            
+
             $dateArray = explode("-", $startDate);
             $temp = array_fill(0, 3 - count($dateArray), '01');
             $tempdate = implode("-", array_merge($temp, $dateArray));
@@ -312,29 +313,29 @@ class Profile extends Model
         }
         $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
         $sortedExperience = collect([]);
-        
+
         foreach($startDates as $id=>$date){
-            
+
             $sortedExperience->push($experiences->get($id));
         }
-        
-        
+
+
         $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
         unset($endDates);
-        
+
         foreach($sorted as $id=>$date){
             $sortedExperience->push($experiences->get($id));
         }
-        
+
         unset($experiences);
         return $sortedExperience;
-        
+
     }
 
     public function getEducationAttribute(){
-        
+
         $educations = $this->education()->get();
-        
+
         $dates = $educations->toArray();
 
         $educations = $educations->keyBy('id');
@@ -495,9 +496,9 @@ class Profile extends Model
     {
         $count = \Redis::SCARD("following:profile:".$this->id);
         if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
-                $count = $count - 1;
+            $count = $count - 1;
         }
-        
+
 //        if ($count > 1000000) {
 //            $count = round($count / 1000000, 1) . "m";
 //        } elseif ($count > 1000) {
@@ -533,19 +534,19 @@ class Profile extends Model
     {
         $count = \Redis::SCARD("followers:profile:".$this->id);
         if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
-                $count = $count - 1;
+            $count = $count - 1;
         }
-    
+
         if($count === 0){
             return ['count' => 0, 'profiles' => null];
         }
-        
+
 //        if ($count > 1000000) {
 //            $count = round($count / 1000000, 1) . "m";
 //        } elseif ($count > 1000) {
 //            $count = round($count / 1000, 1) . "k";
 //        }
-    
+
         return ['count' => $count];
 
     }
@@ -569,7 +570,7 @@ class Profile extends Model
             }
             $data = [];
             if(count($profileInfo))
-            $data = \Redis::mget($profileInfo);
+                $data = \Redis::mget($profileInfo);
 
             foreach($data as &$profile){
                 $profile = json_decode($profile);
@@ -784,6 +785,11 @@ class Profile extends Model
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
+    public function getIsFollowingByAttribute()
+    {
+        return \Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+    }
+
     //specific to API
     public function getResumeUrlAttribute()
     {
@@ -840,13 +846,13 @@ class Profile extends Model
     public function getNotificationContent($action = null)
     {
 //        if($action && $action == 'follow') {
-            return [
-                'name' => strtolower(class_basename(self::class)),
-                'id' => $this->id,
-                'tagline' => $this->tagline,
-                'image' => $this->imageUrl,
-                'content' => null,
-            ];
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'tagline' => $this->tagline,
+            'image' => $this->imageUrl,
+            'content' => null,
+        ];
 //        }
     }
 
@@ -909,3 +915,4 @@ class Profile extends Model
     }
 
 }
+
