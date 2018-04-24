@@ -233,7 +233,7 @@ class ChatController extends Controller
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
-
+                \Log::info("ek bar");
                 return $this->sendmessage($request);
             }
 
@@ -265,7 +265,7 @@ class ChatController extends Controller
                 $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
             }
             $this->model->members()->insert($data);
-
+            \Log::info("2 bar");
             return $this->sendmessage($request);
 
         }
