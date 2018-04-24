@@ -327,8 +327,9 @@ class CollaborateController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $applications = \App\Collaboration\Collaborator::whereNull('archived_at')
-            ->where('collaborate_id',$id)->with('profile','collaborate','company');
+        $applications = \App\Collaboration\Collaborator::join('profiles','collaborators.profile_id','=','profiles.id')
+            ->whereNull('collaborators.archived_at')->whereNull('profiles.deleted_at')->where('collaborate_id',$id)
+            ->with('profile','collaborate','company');
         $this->model['count'] = $applications->count();
         $this->model['application'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
@@ -359,8 +360,9 @@ class CollaborateController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-	    $archived = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)
-            ->with('profile','collaborate','company');
+	    $archived = \App\Collaboration\Collaborator::join('profiles','collaborators.profile_id','=','profiles.id')
+            ->whereNotNull('collaborators.archived_at')->whereNull('profiles.deleted_at')
+            ->where('collaborate_id',$id)->with('profile','collaborate','company');
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
