@@ -233,42 +233,8 @@ class ChatController extends Controller
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
-                if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
-                {
-                    $chatId = $this->model->id;
-                    if($request->hasFile("file"))
-                    {
-                        $path = "profile/$loggedInProfileId/chat/$chatId/file";
-                        $filename = $request->file('file')->getClientOriginalName();
 
-                        $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
-                    }
-
-                    if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                        $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                        $s3 = \Storage::disk('s3');
-                        $filePath = 'p/' . $loggedInProfileId . "/ci";
-                        $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                        $inputs['preview']['image'] = $resp;
-                    }
-                    if(isset($inputs['preview']))
-                    {
-                        $inputs['preview'] = json_encode($inputs['preview']);
-                    }
-
-                    $inputs['chat_id'] = $chatId;
-                    $inputs['profile_id'] = $loggedInProfileId;
-                    $this->model = [];
-                    $this->model['data'] = Chat\Message::create($inputs);
-                    $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
-                    $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
-//        $this->model = Chat\Message::where
-                    event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
-
-                    return $this->sendResponse();
-                }
-
-                return $this->sendResponse();
+                return $this->sendmessage($request);
             }
 
             if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
@@ -300,40 +266,7 @@ class ChatController extends Controller
             }
             $this->model->members()->insert($data);
 
-            if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
-            {
-                $chatId = $this->model->id;
-                if($request->hasFile("file"))
-                {
-                    $path = "profile/$loggedInProfileId/chat/$chatId/file";
-                    $filename = $request->file('file')->getClientOriginalName();
-
-                    $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
-                }
-
-                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                    $s3 = \Storage::disk('s3');
-                    $filePath = 'p/' . $loggedInProfileId . "/ci";
-                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                    $inputs['preview']['image'] = $resp;
-                }
-                if(isset($inputs['preview']))
-                {
-                    $inputs['preview'] = json_encode($inputs['preview']);
-                }
-
-                $inputs['chat_id'] = $chatId;
-                $inputs['profile_id'] = $loggedInProfileId;
-                $this->model = [];
-                $this->model['data'] = Chat\Message::create($inputs);
-                $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
-                $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
-//        $this->model = Chat\Message::where
-                event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
-
-                return $this->sendResponse();
-            }
+            return $this->sendmessage($request);
 
         }
         else
@@ -359,6 +292,46 @@ class ChatController extends Controller
                 $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
             }
             $this->model->members()->insert($data);
+
+            return $this->sendResponse();
+        }
+
+    }
+
+    private function sendmessage($request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
+        {
+            $chatId = $this->model->id;
+            if($request->hasFile("file"))
+            {
+                $path = "profile/$loggedInProfileId/chat/$chatId/file";
+                $filename = $request->file('file')->getClientOriginalName();
+
+                $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+            }
+
+            if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                $s3 = \Storage::disk('s3');
+                $filePath = 'p/' . $loggedInProfileId . "/ci";
+                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                $inputs['preview']['image'] = $resp;
+            }
+            if(isset($inputs['preview']))
+            {
+                $inputs['preview'] = json_encode($inputs['preview']);
+            }
+
+            $inputs['chat_id'] = $chatId;
+            $inputs['profile_id'] = $loggedInProfileId;
+            $this->model = [];
+            $this->model['data'] = Chat\Message::create($inputs);
+            $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
+            $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
+//        $this->model = Chat\Message::where
+            event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
 
             return $this->sendResponse();
         }
