@@ -258,6 +258,7 @@ class ChatController extends Controller
 
                     $inputs['chat_id'] = $chatId;
                     $inputs['profile_id'] = $loggedInProfileId;
+                    $this->model = [];
                     $this->model['data'] = Chat\Message::create($inputs);
                     $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
                     $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
@@ -324,11 +325,12 @@ class ChatController extends Controller
 
                 $inputs['chat_id'] = $chatId;
                 $inputs['profile_id'] = $loggedInProfileId;
+                $this->model = [];
                 $this->model['data'] = Chat\Message::create($inputs);
                 $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
                 $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
 //        $this->model = Chat\Message::where
-                event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
+                event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
 
                 return $this->sendResponse();
             }
