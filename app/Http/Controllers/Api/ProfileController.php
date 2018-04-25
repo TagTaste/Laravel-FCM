@@ -177,6 +177,7 @@ class ProfileController extends Controller
             try {
                 $this->model = \App\Profile::where('user_id',$userId)->first();
                 $this->model->update($data['profile']);
+                $this->model->addToCache();
                 $this->model->refresh();
                 //update filters
                 \App\Filter\Profile::addModel($this->model);
@@ -187,7 +188,6 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-        
         \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
     
         return $this->sendResponse();
