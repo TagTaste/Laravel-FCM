@@ -258,6 +258,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //app all followers
             Route::get("profile/allFollowers",['uses'=>'ProfileController@allFollowers']);
 
+            // facebook friends
+            Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
+
             //check handle
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 

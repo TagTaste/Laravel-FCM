@@ -309,6 +309,45 @@ class ProfileController extends Controller
     
         return $this->sendResponse();
     }
+
+    public function fbFriends(Request $request) {
+
+        $loggedinProfileId = $request->user()->profile->id;
+        $loggedinUserId = $request->user()->id;
+
+        $fb = \DB::table('social_accounts')->where('user_id', $loggedinUserId)->where('provider', 'facebook')
+            ->whereNull('deleted_at')->first();
+        if($fb == null) {
+            $this->model = 0;
+            return $this->sendError('Social account does not exists');
+        }
+        $client = new \GuzzleHttp\Client();
+        try {
+            $res = $client->request('GET', 'https://graph.facebook.com/v2.12/'.$fb->provider_user_id.'/friends?access_token='.$fb->access_token);
+        } catch (\Exception $e) {
+            $res = null;
+            \Log::error('Token Expired');
+        }
+
+        if(!$res) {
+            $this->model = 0;
+            return $this->sendError('Facebook access token expired');
+        }
+
+        $graphResponse = json_decode($res->getBody(), true);
+        $friendsFbId = [];
+        foreach ($graphResponse['data']  as $f) {
+            $friendsFbId[] = $f['id'];
+        }
+
+        $friendsUserIds = \DB::table('social_accounts')->where('provider', 'facebook')->whereIn('provider_user_id', $friendsFbId)
+            ->pluck('user_id');
+        $profiles = \App\Recipe\Profile::whereIn('user_id', $friendsUserIds)->get();
+
+        $this->model = $profiles;
+        return $this->sendResponse();
+
+    }
     
     private function getFollowers($id, $loggedInProfileId)
     {
