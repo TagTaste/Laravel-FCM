@@ -335,6 +335,7 @@ class ProfileController extends Controller
         }
 
         $graphResponse = json_decode($res->getBody(), true);
+        \Log::info(json_encode($graphResponse));
         $friendsFbId = [];
         foreach ($graphResponse['data']  as $f) {
             $friendsFbId[] = $f['id'];
