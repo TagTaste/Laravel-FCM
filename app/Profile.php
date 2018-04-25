@@ -433,11 +433,15 @@ class Profile extends Model
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        try {
-            return !is_null($this->hero_image) ? \Storage::url($this->hero_image) : null;
-        } catch (\Exception $e){
-            \Log::warning("Could not get hero image for profile:" . $this->id);
+        if(is_null($this->hero_image))
+        {
+            return null;
         }
+        else
+        {
+            return \Storage::url($this->hero_image);
+        }
+
     }
 
     //$followsId is following $this profile
