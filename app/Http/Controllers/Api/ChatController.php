@@ -232,7 +232,7 @@ class ChatController extends Controller
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
-                return $this->sendmessage($request);
+                return $this->sendmessage($request,$inputs);
             }
 
             if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
@@ -263,7 +263,7 @@ class ChatController extends Controller
                 $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
             }
             $this->model->members()->insert($data);
-            return $this->sendmessage($request);
+            return $this->sendmessage($request,$inputs);
 
         }
         else
@@ -295,7 +295,7 @@ class ChatController extends Controller
 
     }
 
-    private function sendmessage($request)
+    private function sendmessage($request,$inputs)
     {
         $loggedInProfileId = $request->user()->profile->id;
         if(($request->has('message') && !empty($request->input('message'))) || $request->hasFile("file"))
