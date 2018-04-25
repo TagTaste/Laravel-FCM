@@ -147,6 +147,7 @@ class CollaborateController extends Controller
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
 		$inputs = $request->all();
+        $inputs['profile_id'] = $request->user()->profile->id;
         unset($inputs['expires_on']);
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 		if($collaborate === null){
@@ -187,7 +188,6 @@ class CollaborateController extends Controller
             $inputs['created_at'] = Carbon::now()->toDateTimeString();
             $inputs['updated_at'] = Carbon::now()->toDateTimeString();
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-
             $this->model = $collaborate->update($inputs);
 
             $company = Company::find($companyId);
