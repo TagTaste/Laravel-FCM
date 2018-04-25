@@ -194,6 +194,7 @@ class CollaborateController extends Controller
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
 
             $this->model = $collaborate->update($inputs);
+            $collaborate->addToCache();
 
             $profile = Profile::find($profileId);
             $this->model = Collaborate::find($id);
