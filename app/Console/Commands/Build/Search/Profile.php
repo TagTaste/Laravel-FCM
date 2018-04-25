@@ -39,6 +39,8 @@ class Profile extends Command
     {
         \App\Profile::whereNull('deleted_at')->chunk(100,function($models){
             foreach($models as $model){
+                if(!isset($model->id))
+                    continue;
                 $this->info("Building " . $model->id);
 
                 \App\Documents\Profile::create($model);
