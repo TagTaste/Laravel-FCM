@@ -192,8 +192,6 @@ class Profile extends Model
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
-        \Log::info("update profile");
-        \Log::info($smallProfile);
         \Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
     }
 
