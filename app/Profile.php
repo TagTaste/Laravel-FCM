@@ -794,19 +794,19 @@ class Profile extends Model
     {
         if (!empty($value)) {
 
-            if(request()->user()->profile->id == $this->id)
-            {
-                return $value;
-            }
-
-            if($this->address_private == 3)
-            {
-                return null;
-            }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
-            {
-                return null;
-            }
+//            if(request()->user()->profile->id == $this->id)
+//            {
+//                return $value;
+//            }
+//
+//            if($this->address_private == 3)
+//            {
+//                return null;
+//            }
+//            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+//            {
+//                return null;
+//            }
             return $value;
         }
     }
