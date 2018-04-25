@@ -190,6 +190,8 @@ class CollaborateController extends Controller
 
             $this->model = $collaborate->update($inputs);
 
+            $collaborate->addToCache();
+
             $company = Company::find($companyId);
             $this->model = Collaborate::find($id);
 

@@ -156,6 +156,7 @@ class JobController extends Controller
             return $this->sendResponse();
         }
         $this->model = $job->update($inputs);
+        $job->addToCache();
 
         \App\Filter\Job::addModel(Job::find($id));
     
