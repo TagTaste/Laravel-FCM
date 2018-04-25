@@ -435,7 +435,8 @@ class Profile extends Model
     {
         if(is_null($this->hero_image))
         {
-            return null;
+            $fileId = 14 - $this->id % 14;
+            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
         }
         else
         {
