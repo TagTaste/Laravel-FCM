@@ -139,12 +139,13 @@ class Profile extends Model
         'unreadNotificationCount',
         'onboarding_step',
         'remainingMessages',
-        'isFollowedBy'
+        'isFollowedBy',
+        'isMessageAble'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy'];
+        'remainingMessages','isFollowedBy','isMessageAble'];
 
     public static function boot()
     {
@@ -912,6 +913,12 @@ class Profile extends Model
             $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$this->id)->first();
             return isset($remaining->remaining) ? $remaining->remaining : null;
         }
+    }
+
+    public function getIsMessageAbleAttribute()
+    {
+        $chat = Chat::open($this->id,request()->user()->profile->id);
+        return is_null($chat) ? false : true;
     }
 
 }
