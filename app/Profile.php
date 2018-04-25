@@ -139,12 +139,12 @@ class Profile extends Model
         'unreadNotificationCount',
         'onboarding_step',
         'remainingMessages',
-        'isFollowingBy'
+        'isFollowedBy'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowingBy'];
+        'remainingMessages','isFollowedBy'];
 
     public static function boot()
     {
@@ -785,7 +785,7 @@ class Profile extends Model
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
-    public function getIsFollowingByAttribute()
+    public function getIsFollowedByAttribute()
     {
         return \Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
     }
