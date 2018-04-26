@@ -99,4 +99,18 @@ class PublicViewController extends Controller
 
     }
 
+    public function similarModelView(Request $request, $modelName , $id)
+    {
+        if($modelName == 'jobs') $modelName = 'job';
+
+        $class = "\\App\\PublicView\\" . ucwords($modelName);
+
+        $this->model = $class::whereNotIn('id',[$id])->whereNull('deleted_at')->skip(0)->take(10)->get();
+
+        if(!$this->model){
+            return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
+        }
+        return response()->json(['data'=>$this->model]);
+    }
+
 }
