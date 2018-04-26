@@ -287,14 +287,14 @@ Artisan::command('inspire', function () {
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
-        $x = \Redis::sIsMember("followers:company:59",$profileId);
+        $x = \Redis::sIsMember("followers:company:137",$profileId);
         echo 'following is '.$x ."\n";
         if($x)
         {
             continue;
         }
 
-        $channelOwner = App\Company::find(59);
+        $channelOwner = App\Company::find(137);
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
@@ -303,10 +303,10 @@ Artisan::command('inspire', function () {
         $id = $user->id;
 
         //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, "company.59");
+        \Redis::sAdd("following:profile:" . $profileId, "company.137");
 
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:59", $profileId);
+        \Redis::sAdd("followers:company:137", $profileId);
 
         echo 'profile id is'.$profileId ."\n";
 
