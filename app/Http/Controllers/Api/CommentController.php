@@ -199,4 +199,14 @@ class CommentController extends Controller {
         return $this->sendResponse();
     }
 
+    public function tagging(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $query = $request->input('term');
+
+        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
+            ->where('profiles.id','!=',$loggedInProfileId)->where('users.name','like',"%$query%")->take(15)->get();
+        return $this->sendResponse();
+    }
+
 }
