@@ -910,8 +910,8 @@ class Profile extends Model
     {
         if(request()->user()->profile->id == $this->id)
         {
-            $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$this->id)->first();
-            return isset($remaining->remaining) ? $remaining->remaining : null;
+            $remaining = \DB::table('chat_limits')->where('profile_id',$this->id)->first();
+            return isset($remaining) ? $remaining : null;
         }
     }
 
