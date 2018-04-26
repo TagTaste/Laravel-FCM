@@ -151,6 +151,19 @@ class Profile extends Model
 
         self::created(function (Profile $profile) {
 
+            //add default handle when profile is created
+
+            $name = $profile->name;
+            $name = str_replace(' ', '.', $name);
+            $name = rtrim($name,'.');
+            $hanleExist = Profile::where('handle',$name)->exists();
+            if($hanleExist)
+            {
+                $name = $name.'.'.mt_rand(100,999);
+            }
+            $profile->update(['handle'=>$name]);
+
+
             //create profile's feed channel
             //$feed = Channel::create(['name'=>"feed." . $profile->id,'profile_id'=>$profile->id]);
 
