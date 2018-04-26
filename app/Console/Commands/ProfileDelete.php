@@ -123,5 +123,27 @@ class ProfileDelete extends Command
             }
         });
 
+        \DB::table('profiles')->orderBy('id')->chunk(100, function ($models) {
+            foreach ($models as $model) {
+                echo "profile id ".$model->id ." deleted at ".$model->deleted_at. "\n\n";
+                if($model->deleted_at)
+                {
+
+                    $subscribers = \DB::table('subscribers')->where('profile_id',$model->id)
+                        ->where('channel_name','like','company.public.%')->get();
+
+                    foreach ($subscribers as $subscriber)
+                    {
+                        $channel = $subscriber->channel_name;
+                        $channel = explode('.',$channel);
+                        echo "comapny id ".$channel[2] ." deleted profile id ".$model->id. "\n\n";
+                        \Redis::sRem("following:profile:" . $model->id, "company.$channel[2]");
+                        \Redis::sRem("followers:company:" . $channel[2], $model->id);
+                    }
+
+                }
+            }
+        });
+
     }
 }
