@@ -244,3 +244,79 @@ Artisan::command('inspire', function () {
 
 });
 
+\Artisan::command("tagtasteFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    foreach ($profileIds as $profileId)
+    {
+        echo 'profile id is'.$profileId ."\n";
+        $x = \Redis::sIsMember("followers:company:111",$profileId);
+        echo 'following is '.$x ."\n";
+        if($x)
+        {
+            continue;
+        }
+
+        $channelOwner = App\Company::find(111);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile::where('id',$profileId)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
+
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.111");
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:111", $profileId);
+
+        echo 'profile id is'.$profileId ."\n";
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId ."\n";
+
+    }
+
+});
+\Artisan::command("tagtasteInsightFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    foreach ($profileIds as $profileId)
+    {
+        echo 'profile id is'.$profileId ."\n";
+        $x = \Redis::sIsMember("followers:company:137",$profileId);
+        echo 'following is '.$x ."\n";
+        if($x)
+        {
+            continue;
+        }
+
+        $channelOwner = App\Company::find(137);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile::where('id',$profileId)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
+
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.137");
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:137", $profileId);
+
+        echo 'profile id is'.$profileId ."\n";
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId ."\n";
+
+    }
+
+});
+
+
