@@ -44,13 +44,13 @@ class AddHandle extends Command
             {
                 $name = $model->name;
                 $name = str_replace(' ', '.', $name);
-                \Log::info($name);
+                echo "handle is $name for profile id $model->id \n\n";
                 $hanleExist = Profile::where('handle',$name)->exists();
                 if($hanleExist)
                 {
                     $name = $name.'.'.mt_rand(100,999);
                 }
-                \Log::info($name);
+                echo "new handle is $name for profile id $model->id \n\n";
                 Profile::where('id',$model->id)->update(['handle'=>$name]);
             }
         });
