@@ -39,7 +39,7 @@ class AddHandle extends Command
      */
     public function handle()
     {
-        Profile::whereNull('handle')->whereNull('deleted_at')->chunk(50,function($models){
+        Profile::whereNull('handle')->whereNull('deleted_at')->chunk(1000,function($models){
             foreach ($models as $model)
             {
                 $name = $model->name;
