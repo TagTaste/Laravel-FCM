@@ -39,19 +39,22 @@ class AddHandle extends Command
      */
     public function handle()
     {
-        Profile::whereNull('handle')->whereNull('deleted_at')->chunk(50,function($models){
+        Profile::whereNull('deleted_at')->chunk(50,function($models){
             foreach ($models as $model)
             {
                 $name = $model->name;
                 $name = str_replace(' ', '.', $name);
                 echo "handle is $name for profile id $model->id \n\n";
+                $name = rtrim($name,'.');
+                echo "comma handle is $name for profile id $model->id \n\n";
+
                 $hanleExist = Profile::where('handle',$name)->exists();
                 if($hanleExist)
                 {
                     $name = $name.'.'.mt_rand(100,999);
                 }
                 echo "new handle is $name for profile id $model->id \n\n";
-                Profile::where('id',$model->id)->update(['handle'=>$name]);
+//                Profile::where('id',$model->id)->update(['handle'=>$name]);
             }
         });
     }
