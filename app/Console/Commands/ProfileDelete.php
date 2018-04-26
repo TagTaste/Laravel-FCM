@@ -2,9 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Recipe\Profile;
-use App\Subscriber;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class ProfileDelete extends Command
@@ -14,8 +11,8 @@ class ProfileDelete extends Command
      *
      * @var string
      */
-    protected $signature = 'profile:delete';
-    
+    protected $signature = 'profile:delete {profileId}';
+
     private $profileId;
 
     /**
@@ -42,66 +39,78 @@ class ProfileDelete extends Command
      */
     public function handle()
     {
-//        $profileId = $this->argument('profileId');
-//
+        $profileId = $this->argument('profileId');
+
 //        if(!$this->confirm("Delete profile $profileId?")){
 //            $this->info("NOT deleting.");
 //            return;
 //        }
 //
 //        $this->info("deleting profile $profileId");
-//        $this->profileId = $profileId;
+        $this->profileId = $profileId;
         $this->delete();
     }
-    
+
     private function delete()
     {
         //add all delete methods here
-        
+
         //delete followers : db + redis
         //delete following : db + redis
-        
+
         //delete comments
         //delete shares - jobs, collaborates, photos, recipes, shoutouts
         //delete likes
-        
+
         //delete chat messages
         //delete chats
-        
+
         //delete collaborations
         //remove entry from collaborators - or show inactive profile
-        
+
         //delete jobs
         //delete applications
-        
+
         //delete photos
-        
+
         //delete recipes
-        
+
         //delete shoutouts
-        
-        
+
+
         //delete model
         $this->deleteModel();
     }
-    
+
     private function deleteModel()
     {
-//        $this->info("Deleting model " . $this->profileId);
-//        $profile = \App\Profile::where('id',$this->profileId)->first();
-//        if(!$profile){
-//            echo "Could not find profile.";
-//        }
-//
-//        if($this->confirm("Delete " . $profile->id . "?")){
-//            \DB::table("social_accounts")->where('user_id',$profile->user_id)->delete();
-//
-//            if($profile->user){
-//                $profile->user->delete();
-//            }
-//
-//            $profile->delete();
-//        }
+        $this->info("Deleting model " . $this->profileId);
+        $user = \DB::table("users")->select("users.*")
+            ->join('profiles','profiles.user_id','=','users.id')
+            ->where('profiles.id','like',$this->profileId)->first();
+        if(!$user){
+            echo "Could not find user";
+        }
+        $profile = \DB::table("profiles")->where('user_id',$user->id)->first();
+        if(!$profile){
+            echo "Could not find profile.";
+        }
+
+        //if($this->confirm("Delete " . $profile->id . " " . $user->name . "?")){
+        \App\Filter\Profile::removeModel($profile->id);
+        $profileModel = \App\Profile::where('user_id',$user->id)->first();
+        \App\Documents\Profile::delete($profileModel);
+        $profileModel->removeFromCache();
+
+        \DB::table("social_accounts")->where('user_id',$profile->user_id)->delete();
+
+        $now = \Carbon\Carbon::now();
+        \DB::table("profiles")->where('id',$profile->id)->update(['updated_at'=>$now->toDateTimeString()
+            ,'deleted_at'=>$now->toDateTimeString()]);
+
+        \DB::table("users")->where('email','like',$this->profileId)
+            ->update(['email'=>$user->email . str_random(4),'deleted_at'=>$now->toDateTimeString()]);
+
 
         \DB::table('profiles')->orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
@@ -123,5 +132,27 @@ class ProfileDelete extends Command
             }
         });
 
+        \DB::table('profiles')->orderBy('id')->chunk(100, function ($models) {
+            foreach ($models as $model) {
+                echo "profile id ".$model->id ." deleted at ".$model->deleted_at. "\n\n";
+                if($model->deleted_at)
+                {
+
+                    $subscribers = \DB::table('subscribers')->where('profile_id',$model->id)
+                        ->where('channel_name','like','company.public.%')->get();
+
+                    foreach ($subscribers as $subscriber)
+                    {
+                        $channel = $subscriber->channel_name;
+                        $channel = explode('.',$channel);
+                        echo "comapny id ".$channel[2] ." deleted profile id ".$model->id. "\n\n";
+                        \Redis::sRem("following:profile:" . $model->id, "company.$channel[2]");
+                        \Redis::sRem("followers:company:" . $channel[2], $model->id);
+                    }
+
+                }
+            }
+        });
+        //}
     }
 }
