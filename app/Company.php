@@ -412,14 +412,15 @@ class Company extends Model
     
     public function getHeroImageAttribute($value)
     {
-        try {
-            return !is_null($value) ? \Storage::url($value) : null;
-    
-        } catch (\Exception $e){
-        \Log::warning("Couldn't get hero image for company" . $this->id);
-        \Log::warning($e->getMessage());
+        if(is_null($value))
+        {
+            $fileId = 14 - $this->id % 14;
+            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
         }
-    
+        else
+        {
+            return \Storage::url($value);
+        }
     }
     
     public function getProfileIdAttribute()

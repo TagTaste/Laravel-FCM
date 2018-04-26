@@ -86,6 +86,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
             //chat
+                Route::post('chatMessage',"ChatController@chatMessage");
                 Route::post('chatShareMessage',"ChatController@chatShareMessage");
                 Route::get('chatGroup',"ChatController@chatGroup");
                 Route::get("chatrooms","ChatController@rooms");
@@ -209,7 +210,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('comments/{id}/{modelName}/{modelId}','CommentController@update');
                 Route::delete('comments/{id}','CommentController@destroy');
                 Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@commentDelete');
-            
+                Route::get('comment/tagging','CommentController@tagging');
+
+
             //search
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
