@@ -123,10 +123,15 @@ class ProfileDelete extends Command
                     {
                         echo "remove profile id $model->id from profile ".$profileId->profile_id ."\n\n";
 
-                        \Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
+                        \Redis::sRem("followers:profile:" . $profileId->profile_id, $model->id);
 
                         //profiles that are following $channelOwner
                         \Redis::sRem("followers:profile:" . $model->id, $profileId->profile_id);
+
+                        \Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
+
+                        //profiles that are following $channelOwner
+                        \Redis::sRem("following:profile:" . $model->id, $profileId->profile_id);
                     }
                 }
             }
