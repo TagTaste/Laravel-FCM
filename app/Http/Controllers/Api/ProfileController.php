@@ -538,7 +538,7 @@ class ProfileController extends Controller
     {
         $this->model = [];
         $loginProfileId = $request->user()->profile->id;
-        $profileIds = \Redis::SINTER("following:profile:".$id,"following:profile:".$loginProfileId);
+        $profileIds = \Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
         $data = [];
         $this->model['count'] = count($profileIds);
         $page = $request->has('page') ? $request->input('page') : 1;
