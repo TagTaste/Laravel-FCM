@@ -56,12 +56,13 @@ class Handler extends ExceptionHandler
             $message .= " ($user->name:$user->id)";
         }
         $message .= ": " .$e->getMessage() . " [" . $e->getFile() . ":" . $e->getLine(). "]";
+        \Log::info($message);
         $this->sendMessage($hook,$message);
     }
     
     private function sendMessage($hook,$message){
         $client =  new \GuzzleHttp\Client();
-        $client->request('POST', $hook,
+        $response = $client->request('POST', $hook,
             [
                 'json' =>
                     [
@@ -70,6 +71,9 @@ class Handler extends ExceptionHandler
                         "icon_emoji" => ":older_man::skin-tone-3:",
                         "text" => $message]
             ]);
+
+        \Log::info("error req response");
+        \Log::info($response);
     }
 
     /**
