@@ -17,10 +17,12 @@ class Job extends BaseJob
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'profile_id','minimum_qualification',
         'applications','created_at', 'expires_on','job_id','privacy_id','resume_required',
-        'start_month','start_year','end_month','end_year','deleted_at','updated_at','owner'
+        'start_month','start_year','end_month','end_year','deleted_at','updated_at','owner','profile'
     ];
 
     protected $appends = ['owner', 'type'];
+
+    protected $with = ['profile'];
 
     public function getJobIdAttribute()
     {
