@@ -56,7 +56,6 @@ class Handler extends ExceptionHandler
             $message .= " ($user->name:$user->id)";
         }
         $message .= ": " .$e->getMessage() . " [" . $e->getFile() . ":" . $e->getLine(). "]";
-        \Log::info($message);
         $this->sendMessage($hook,$message);
     }
     
@@ -71,9 +70,6 @@ class Handler extends ExceptionHandler
                         "icon_emoji" => ":older_man::skin-tone-3:",
                         "text" => $message]
             ]);
-
-        \Log::info("error req response");
-        \Log::info($response);
     }
 
     /**
