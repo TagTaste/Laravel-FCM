@@ -33,11 +33,11 @@ class PublicViewController extends Controller
         }
         $meta = $model->getMetaForPublic();
         $this->model = [$modelName=>$model,'meta'=>$meta];
-//        $socialPreview = $model->getPreviewContent();
-//        $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
-//        $this->model['social'] = [];
-//        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview);
-//        $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id);
+        $socialPreview = $model->getPreviewContent();
+        $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
+        $this->model['social'] = [];
+        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview);
+        $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id);
         return response()->json(['data'=>$this->model]);
     }
 
