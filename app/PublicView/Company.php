@@ -3,34 +3,21 @@
 namespace App\PublicView;
 
 use App\Company\Address;
-use App\Company\Advertisement;
-use App\Company\Affiliation;
-use App\Company\Book;
-use App\Company\Coreteam;
-use App\Company\Patent;
 use App\Company\Status;
 use App\Company\Type;
-use App\Traits\PushesToChannel;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\CompanyRating;
 use Storage;
 use App\Company as BaseCompany;
 
 class Company extends BaseCompany
 {
     protected $visible = [
-        'id',
-        'name',
-        'about',
-        'logo',
-        'hero_image',
-        'phone',
-        'registered_address',
-        'established_on',
-        'type',
-        'tagline'
-    ];
+        'id', 'name', 'about', 'logo', 'hero_image', 'phone', 'registered_address', 'established_on', 'type', 'tagline', 'gallery',
+        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount'];
+
+    protected $with = ['gallery','status','type'];
+
+    protected $appends = ['statuses','companyTypes','avg_rating','review_count','rating_count','followersCount'];
 
     private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
 
@@ -49,32 +36,6 @@ class Company extends BaseCompany
         return $this->belongsToMany('App\PublicView\Photos','company_photos','company_id','photo_id');
     }
 
-    public function awards()
-    {
-        return $this->belongsToMany('App\Company\Award','company_awards','company_id','award_id');
-    }
-
-    public function coreteam()
-    {
-        return $this->hasMany(Coreteam::class);
-    }
-
-    public function affiliation()
-    {
-        return $this->hasMany(Affiliation::class);
-    }
-
-    //company creater user
-    public function user()
-    {
-        return $this->belongsTo('App\User');
-    }
-
-    public function users()
-    {
-        return $this->belongsToMany('App\User','company_users','company_id','user_id');
-    }
-
     public function status()
     {
         return $this->belongsTo('App\Company\Status','status_id');
@@ -85,29 +46,9 @@ class Company extends BaseCompany
         return $this->belongsTo('App\Company\Type','type');
     }
 
-    public function websites()
-    {
-        return $this->hasMany('App\Company\Website','company_id','id');
-    }
-
     public function addresses()
     {
         return $this->hasMany(Address::class);
-    }
-
-    public function advertisements()
-    {
-        return $this->hasMany(Advertisement::class);
-    }
-
-    public function patents()
-    {
-        return $this->hasMany(Patent::class);
-    }
-
-    public function books()
-    {
-        return $this->hasMany(Book::class);
     }
 
     public function rating()
@@ -123,11 +64,6 @@ class Company extends BaseCompany
     public function getCompanyTypesAttribute($value = null)
     {
         return Type::all()->pluck('name','id');
-    }
-
-    public function portfolio()
-    {
-        return $this->hasMany(\App\Company\Portfolio::class);
     }
 
     //there should be a better way to write the paths.
@@ -153,45 +89,6 @@ class Company extends BaseCompany
         }
         return storage_path("app/" . $relativePath . "/" . $filename);
     }
-
-    public function jobs()
-    {
-        return $this->hasMany(\App\Job::class);
-    }
-
-    public function collaborate()
-    {
-        return $this->hasMany(\App\Collaborate::class);
-    }
-
-    public function shoutouts()
-    {
-        return $this->hasMany(Shoutout::class);
-    }
-
-    /**
-     * Get Company User Profiles
-     *
-     * @return \App\CompanyUser[]|null
-     */
-    public function getUsers()
-    {
-        return \App\CompanyUser::with('profile')->where("company_id",$this->id)->get();
-    }
-
-
-    /**
-     * Add User to Company
-     *
-     * @param $userId
-     * @return bool|void
-     */
-    /**
-     * Remove user from company;
-     *
-     * @param $userId
-     * @return bool
-     */
 
     public function getLogoAttribute($value)
     {
@@ -255,6 +152,18 @@ class Company extends BaseCompany
 
         return $data;
 
+    }
+
+    public function getMetaForPublic()
+    {
+        $meta = [];
+
+        return $meta;
+    }
+
+    public function getFollowersCountAttribute()
+    {
+        return \Redis::SCARD("followers:company:".$this->id);
     }
 
 }
