@@ -102,6 +102,7 @@ class ProfileController extends Controller
             {
                 return $this->sendError("This handle is already in use");
             }
+            $data['profile']['handle'] = strtolower($data['profile']['handle']);
         }
         else
         {

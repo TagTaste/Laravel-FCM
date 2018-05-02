@@ -163,6 +163,7 @@ class Profile extends Model
             {
                 $name = $name.'.'.mt_rand(100,999);
             }
+            $name = strtolower($name);
             $profile->update(['handle'=>$name]);
 
 
