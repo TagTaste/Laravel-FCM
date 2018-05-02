@@ -32,7 +32,7 @@ Route::post('login',function(Request $request){
     try {
         // attempt to verify the credentials and create a token for the user
         if (! $token = \JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'invalid_credentials','message'=>'The username or password is incorrect.'], 200);
+            return response()->json(['error' => 'invalid_credentials','message'=>'The username or password is incorrect.'], 401);
         }
     } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
         // something went wrong whilst attempting to encode the token
