@@ -62,6 +62,7 @@ class PhotoController extends Controller
         }
         $path = Photo::getProfileImagePath($profileId);
         $imageInfo = getimagesize($request->input('file'));
+        $data['image_info'] = null;
         if(isset($imageInfo))
         {
             $data['image_info'] = json_encode($imageInfo,true);
@@ -74,7 +75,8 @@ class PhotoController extends Controller
         }
         
         $res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
-        $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'created_at'=>$photo->created_at->toDateTimeString(),'updated_at'=>$photo->updated_at->toDateTimeString()];
+        $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'image_info'=>$data['image_info'],
+            'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString()];
         
         \Redis::set("photo:" . $photo->id,json_encode($data));
         

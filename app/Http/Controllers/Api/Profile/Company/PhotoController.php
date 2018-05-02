@@ -65,6 +65,7 @@ class PhotoController extends Controller
         $imageName = str_random(32) . ".jpg";
         $data['file'] = $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName,['visibility'=>'public']);;
         $imageInfo = getimagesize($request->input('file'));
+        $data['image_info'] = null;
         if(isset($imageInfo))
         {
             $data['image_info'] = json_encode($imageInfo,true);
@@ -78,7 +79,8 @@ class PhotoController extends Controller
         if($data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'image_info'=>$data['image_info'],
+            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model,$company));
     
