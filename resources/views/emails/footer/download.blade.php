@@ -9,9 +9,13 @@
             </tr>
             <tr>
                 <td valign="top" class="logo" align="center" style="padding:20px 0px 20px 0px;border-radius: 0px 0px 5px 5px;" bgcolor="#FFFFFF">
-                    <a href="https://play.google.com/store/apps/details?id=com.tagtaste.android&hl=en">
+                    <a style="display: inline-block; vertical-align: top; margin-right: 1em;" href="https://itunes.apple.com/us/app/tagtaste/id1347112212?mt=8">
+                        <img src="https://www.tagtaste.com/images/emails/ios-app-store.png" alt="download-app" width="141px" height="42px">
+                    </a>
+                    <a style="display: inline-block; vertical-align: top;" href="https://play.google.com/store/apps/details?id=com.tagtaste.android&hl=en">
                         <img src="https://www.tagtaste.com/images/emails/google%20play%20store.png" alt="download-app" width="141px" height="42px">
                     </a>
+
                 </td>
             </tr>
         </table>

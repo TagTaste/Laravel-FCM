@@ -11,7 +11,7 @@ class ProfileDelete extends Command
      *
      * @var string
      */
-    protected $signature = 'profile:delete {profileId}';
+    protected $signature = 'profile:delete';
 
     private $profileId;
 
@@ -39,15 +39,15 @@ class ProfileDelete extends Command
      */
     public function handle()
     {
-        $profileId = $this->argument('profileId');
-
-//        if(!$this->confirm("Delete profile $profileId?")){
-//            $this->info("NOT deleting.");
-//            return;
-//        }
+//        $profileId = $this->argument('profileId');
 //
-//        $this->info("deleting profile $profileId");
-        $this->profileId = $profileId;
+////        if(!$this->confirm("Delete profile $profileId?")){
+////            $this->info("NOT deleting.");
+////            return;
+////        }
+////
+////        $this->info("deleting profile $profileId");
+//        $this->profileId = $profileId;
         $this->delete();
     }
 
@@ -84,32 +84,32 @@ class ProfileDelete extends Command
 
     private function deleteModel()
     {
-        $this->info("Deleting model " . $this->profileId);
-        $user = \DB::table("users")->select("users.*")
-            ->join('profiles','profiles.user_id','=','users.id')
-            ->where('profiles.id','like',$this->profileId)->first();
-        if(!$user){
-            echo "Could not find user";
-        }
-        $profile = \DB::table("profiles")->where('user_id',$user->id)->first();
-        if(!$profile){
-            echo "Could not find profile.";
-        }
-
-        //if($this->confirm("Delete " . $profile->id . " " . $user->name . "?")){
-        \App\Filter\Profile::removeModel($profile->id);
-        $profileModel = \App\Profile::where('user_id',$user->id)->first();
-        \App\Documents\Profile::delete($profileModel);
-        $profileModel->removeFromCache();
-
-        \DB::table("social_accounts")->where('user_id',$profile->user_id)->delete();
-
-        $now = \Carbon\Carbon::now();
-        \DB::table("profiles")->where('id',$profile->id)->update(['updated_at'=>$now->toDateTimeString()
-            ,'deleted_at'=>$now->toDateTimeString()]);
-
-        \DB::table("users")->where('email','like',$this->profileId)
-            ->update(['email'=>$user->email . str_random(4),'deleted_at'=>$now->toDateTimeString()]);
+//        $this->info("Deleting model " . $this->profileId);
+//        $user = \DB::table("users")->select("users.*")
+//            ->join('profiles','profiles.user_id','=','users.id')
+//            ->where('profiles.id','like',$this->profileId)->first();
+//        if(!$user){
+//            echo "Could not find user";
+//        }
+//        $profile = \DB::table("profiles")->where('user_id',$user->id)->first();
+//        if(!$profile){
+//            echo "Could not find profile.";
+//        }
+//
+//        //if($this->confirm("Delete " . $profile->id . " " . $user->name . "?")){
+//        \App\Filter\Profile::removeModel($profile->id);
+//        $profileModel = \App\Profile::where('user_id',$user->id)->first();
+//        \App\Documents\Profile::delete($profileModel);
+//        $profileModel->removeFromCache();
+//
+//        \DB::table("social_accounts")->where('user_id',$profile->user_id)->delete();
+//
+//        $now = \Carbon\Carbon::now();
+//        \DB::table("profiles")->where('id',$profile->id)->update(['updated_at'=>$now->toDateTimeString()
+//            ,'deleted_at'=>$now->toDateTimeString()]);
+//
+//        \DB::table("users")->where('email','like',$this->profileId)
+//            ->update(['email'=>$user->email . str_random(4),'deleted_at'=>$now->toDateTimeString()]);
 
 
         \DB::table('profiles')->orderBy('id')->chunk(100, function ($models) {
@@ -123,10 +123,15 @@ class ProfileDelete extends Command
                     {
                         echo "remove profile id $model->id from profile ".$profileId->profile_id ."\n\n";
 
-                        \Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
+                        \Redis::sRem("followers:profile:" . $profileId->profile_id, $model->id);
 
                         //profiles that are following $channelOwner
                         \Redis::sRem("followers:profile:" . $model->id, $profileId->profile_id);
+
+                        \Redis::sRem("following:profile:" . $profileId->profile_id, $model->id);
+
+                        //profiles that are following $channelOwner
+                        \Redis::sRem("following:profile:" . $model->id, $profileId->profile_id);
                     }
                 }
             }

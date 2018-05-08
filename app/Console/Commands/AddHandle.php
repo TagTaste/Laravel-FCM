@@ -54,6 +54,7 @@ class AddHandle extends Command
                     $name = $name.'.'.mt_rand(100,999);
                 }
                 echo "new handle is $name for profile id $model->id \n\n";
+                $name = strtolower($name);
                 Profile::where('id',$model->id)->update(['handle'=>$name]);
             }
         });
