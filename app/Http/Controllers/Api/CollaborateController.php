@@ -327,9 +327,7 @@ class CollaborateController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $applications = \App\Collaboration\Collaborator::join('profiles','collaborators.profile_id','=','profiles.id')
-            ->whereNull('collaborators.archived_at')->whereNull('profiles.deleted_at')->where('collaborate_id',$id)
-            ->with('profile','collaborate','company');
+        $applications = \App\Collaboration\Collaborator::whereNull('collaborators.archived_at')->where('collaborate_id',$id);
         $this->model['count'] = $applications->count();
         $this->model['application'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
