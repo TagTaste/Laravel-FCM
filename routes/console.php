@@ -130,15 +130,20 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("inviteall",function(){
     $when = \Carbon\Carbon::createFromTime(10,00,00);
-
-    \DB::table('newsletters')->where('created_at','>','2018-01-18')->orderBy('id')->chunk(50,function ($users) use ($when)
+//last mail 8 may
+    \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users) use ($when)
     {
         $users->each(function($user) use($when) {
             $email = $user->email;
-            echo "Sending invite mail to " . $email . "\n";
+            $x = \App\User::where('email',$email)->exists();
+            if(!$x)
+            {
+                echo "Sending invite mail to " . $email . "\n";
 
-            $mail = (new \App\Mail\Launch())->onQueue('emails');
-            \Mail::to($email)->send($mail);
+                $mail = (new \App\Mail\Launch())->onQueue('emails');
+                \Mail::to($email)->send($mail);
+            }
+
         });
     });
 });
