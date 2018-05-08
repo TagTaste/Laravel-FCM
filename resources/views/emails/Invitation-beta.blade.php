@@ -58,13 +58,13 @@
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td bgcolor="#FFFFFF ">
-                                        <div style="padding: 5px 60px 0px 60px;">
-                                            <p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS: <span style="color: #b42128">542090</span> </p>
-                                        </div>
-                                    </td>
-                                </tr>
+                                {{--<tr>--}}
+                                    {{--<td bgcolor="#FFFFFF ">--}}
+                                        {{--<div style="padding: 5px 60px 0px 60px;">--}}
+                                            {{--<p style="font-size: 14px;color: #181818 ;margin:0px;font-weight:bold;text-transform:uppercase;">YOUR UNIQUE INVITE CODE IS: <span style="color: #b42128">542090</span> </p>--}}
+                                        {{--</div>--}}
+                                    {{--</td>--}}
+                                {{--</tr>--}}
                             </table>
 
                         </td>
@@ -89,7 +89,7 @@
                                                                     <tr>
                                                                         <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                                            <a href="{{ env('APP_URL') }}/register?invite_code=542090" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">ACCEPT INVITE</a>
+                                                                            <a href="{{ env('APP_URL') }}/register" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">Sign Up</a>
 
                                                                         </td>
                                                                     </tr>
