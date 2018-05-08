@@ -12,7 +12,7 @@ class Company extends BaseCompany
     protected $visible = ['id', 'name', 'about', 'logo', 'hero_image', 'tagline', 'created_at', 'speciality', 'profileId', 'handle', 'city',
         'isFollowing','style_logo', 'style_hero_image', 'company_id'];
 
-    protected $appends = ['profileId','is_admin','isFollowing','company_id'];
+    protected $appends = ['profileId','isAdmin','isFollowing','company_id'];
 
     public function getCompanyIdAttribute()
     {
