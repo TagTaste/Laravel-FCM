@@ -325,7 +325,7 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("iOS-App",function(){
 
-    \App\User::with([])->whereNull('deleted_at')->where('id','>',3211)
+    \App\User::with([])->whereNull('deleted_at')
         ->orderBy('id')->chunk(100,function($users) {
             $users->each(function($user){
                 $email = $user->email;
