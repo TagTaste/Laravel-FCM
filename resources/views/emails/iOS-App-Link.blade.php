@@ -34,11 +34,11 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
-                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        Dear {{$userName}}
+                                                                    <p style="font-size: 16px;color: #181818;margin:0px">
+                                                                        Dear <strong>{{$userName}}</strong>
                                                                         <br>
                                                                         <br>
-                                                                        iPhone (Apple) users can now use TagTaste on their phones via our new iOS app! Click the link to download
+                                                                        iPhone (Apple) users can now use TagTaste on their phones via our <strong>new iOS app!</strong> Click the link to download
                                                                         it from the App Store. Please use your TagTaste login email and password to activate the same.
                                                                     </p>
                                                                 </div>
@@ -52,12 +52,14 @@
                                                                     <tr>
                                                                         <td valign="top" align="center"  bgcolor="#FFFFFF" >
 
-                                                                            <a href="https://itunes.apple.com/us/app/tagtaste/id1347112212?mt=8" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">Download Application</a>
+                                                                            <a href="https://itunes.apple.com/us/app/tagtaste/id1347112212?mt=8" style="text-decoration:none;padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal; display: inline-block;margin-bottom: 10px;">Download Application</a>
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
-                                                                        <td valign="top" align="center"  bgcolor="#FFFFFF" >
-                                                                            Message us at support@tagtaste.com for any assistance.
+                                                                        <td valign="top" align="center" bgcolor="#FFFFFF ">
+                                                                            <div style="color:rgb(24,24,24);font-size:14px;text-align:center;padding:0px 20px 20px;display: block; width: 100%;">
+                                                                                Reach out to us at <a href="mailto:support@tagtaste.com">support@tagtaste.com</a> for any assistance.
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
 
