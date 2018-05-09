@@ -438,14 +438,15 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            ->orWhere('education.ongoing',1)
 //            ->whereNull('users.deleted_at')
 //            ->get();
-        $collaborates = \DB::table('collaborates')->select('collaborates.title as title','collaborates.looking_for as looking_for','collaborates.start_in'
-                        ,'collaborates.duration','collaborates.location','collaborates.description','collaborates.eligibility_criteria','collaborates.financials',
-                        'collaborates.profile_id','users.name')
-                        ->join("profiles",'collaborates.profile_id', '=','profiles.id')
+        $jobs = \DB::table('jobs')->select('jobs.title as title','jobs.Salary as Salary','jobs.Joining'
+                        ,'jobs.duration','jobs.location','jobs.description','job_types.name as type_name',
+                        'jobs.profile_id','users.name','jobs.company_id','companies.name as company_name')
+                        ->join("profiles",'jobs.profile_id', '=','profiles.id')
                         ->join('users','users.id' , '=', 'profiles.user_id')
-                        ->whereNull('collaborates.company_id')
+                        ->join('companies','jobs.company_id','=','companies.id')
+                        ->join('job_types','jobs.type_id','=','job_types.id')
                         ->get();
-        \Log::info($collaborates);
+        \Log::info($jobs);
         $headers = array(
             "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=file.csv",
@@ -454,7 +455,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('title', 'looking_for', 'start_in','duration','location','description','eligibility_criteria','financials','profile_id','name');
+        $columns = array('title', 'Salary', 'Joining','duration','location','description',
+            'profile_id','name','company_id','company_name');
 
         $str = '';
         foreach ($columns as $c) {
@@ -462,7 +464,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }
         $str = $str."\n";
 
-        foreach($collaborates as $review) {
+        foreach($jobs as $review) {
             foreach ($columns as $c) {
                 $str = $str.$review->{$c}.',';
             }
