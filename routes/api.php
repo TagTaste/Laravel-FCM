@@ -455,7 +455,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('title','salary_min', 'salary_max', 'Joining','location','description','type_name',
+        $columns = array('title','salary_min', 'salary_max', 'joining','location','description','type_name',
             'profile_id','name','company_id','company_name');
 
         $str = '';
