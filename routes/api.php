@@ -427,17 +427,25 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv",function (){
         $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
-            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
-            ->join("users",'users.id','=','profiles.user_id')
-            ->join("education",'profiles.id','=','education.profile_id')
-            ->where('education.end_date','like','2016')
-            ->orWhere('education.end_date','like','2017')
-            ->orWhere('education.end_date','like','2018')
-            ->orWhereNull('education.end_date')
-            ->orWhere('education.ongoing',1)
-            ->whereNull('users.deleted_at')
-            ->get();
+//        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
+//            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
+//            ->join("users",'users.id','=','profiles.user_id')
+//            ->join("education",'profiles.id','=','education.profile_id')
+//            ->where('education.end_date','like','2016')
+//            ->orWhere('education.end_date','like','2017')
+//            ->orWhere('education.end_date','like','2018')
+//            ->orWhereNull('education.end_date')
+//            ->orWhere('education.ongoing',1)
+//            ->whereNull('users.deleted_at')
+//            ->get();
+        $collaborates = \DB::table('collaborates')->select('collaborates.title as title','collaborates.looking_for as looking_for','collaborates.start_in'
+                        ,'collaborates.duration','collaborates.location','collaborates.description','collaborates.eligibility_criteria','collaborates.financials',
+                        'collaborates.profile_id','users.name','collaborates.company_id','companies.name as company_name')
+                        ->join("profiles",'collaborates.profile_id', '=','profiles.id')
+                        ->join('users','users.id' , '=', 'profiles.user_id')
+                        ->join('companies','collaborates.company_id', '=','companies.id')
+                        ->get();
+        \Log::info($collaborates);
         $headers = array(
             "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=file.csv",
@@ -446,16 +454,15 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('id', 'name', 'email','phone','start_date','end_date','ongoing');
+        $columns = array('title', 'looking_for', 'start_in','duration','location','description','eligibility_criteria','financials','profile_id','name','company_id','company_name');
 
-        \Log::info($profiles);
         $str = '';
         foreach ($columns as $c) {
             $str = $str.$c.',';
         }
         $str = $str."\n";
 
-        foreach($profiles as $review) {
+        foreach($collaborates as $review) {
             foreach ($columns as $c) {
                 $str = $str.$review->{$c}.',';
             }
