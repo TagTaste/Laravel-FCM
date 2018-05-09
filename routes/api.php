@@ -454,7 +454,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('title', 'looking_for', 'start_in','duration','location','description','eligibility_criteria','financials','profile_id','name','company_id','company_name');
+        $columns = array('title', 'looking_for', 'start_in','duration','location','description','eligibility_criteria','financials','profile_id','name');
 
         $str = '';
         foreach ($columns as $c) {
