@@ -438,7 +438,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            ->orWhere('education.ongoing',1)
 //            ->whereNull('users.deleted_at')
 //            ->get();
-        $jobs = \DB::table('jobs')->select('jobs.title as title','jobs.Salary as Salary','jobs.Joining'
+        $jobs = \DB::table('jobs')->select('jobs.title as title','jobs.salary as Salary','jobs.Joining'
                         ,'jobs.duration','jobs.location','jobs.description','job_types.name as type_name',
                         'jobs.profile_id','users.name','jobs.company_id','companies.name as company_name')
                         ->join("profiles",'jobs.profile_id', '=','profiles.id')
