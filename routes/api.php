@@ -440,10 +440,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            ->get();
         $collaborates = \DB::table('collaborates')->select('collaborates.title as title','collaborates.looking_for as looking_for','collaborates.start_in'
                         ,'collaborates.duration','collaborates.location','collaborates.description','collaborates.eligibility_criteria','collaborates.financials',
-                        'collaborates.profile_id','users.name','collaborates.company_id','companies.name as company_name')
+                        'collaborates.profile_id','users.name')
                         ->join("profiles",'collaborates.profile_id', '=','profiles.id')
                         ->join('users','users.id' , '=', 'profiles.user_id')
-                        ->join('companies','collaborates.company_id', '=','companies.id')
+                        ->whereNull('collaborates.company_id')
                         ->get();
         \Log::info($collaborates);
         $headers = array(
