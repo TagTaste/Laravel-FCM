@@ -13,11 +13,11 @@ class Company extends BaseCompany
 {
     protected $visible = [
         'id', 'name', 'about', 'logo', 'hero_image', 'phone', 'registered_address', 'established_on', 'type', 'tagline', 'gallery',
-        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality'];
+        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue'];
 
     protected $with = ['gallery','status','type'];
 
-    protected $appends = ['statuses','companyTypes','avg_rating','review_count','rating_count','followersCount'];
+    protected $appends = ['statuses','companyTypes','avg_rating','review_count','rating_count','followersCount','employeeCountArray','employeeCountValue'];
 
     private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
 
