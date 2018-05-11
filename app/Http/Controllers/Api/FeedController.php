@@ -85,7 +85,8 @@ class FeedController extends Controller
 //            $this->errors[] = 'No more feeds';
 //            return;
 //        }
-        
+        $followingCount = \Redis::sCard("following:profile:".request()->user()->profile->id);
+//        $data =
         foreach($payloads as $payload){
             $type = null;
             $data = [];
