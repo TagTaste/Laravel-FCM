@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Channel\Payload;
 use App\Strategies\Paginator;
+use App\SuggestionEngine;
 use Illuminate\Http\Request;
 
 class FeedController extends Controller
@@ -86,7 +87,11 @@ class FeedController extends Controller
 //            return;
 //        }
         $followingCount = \Redis::sCard("following:profile:".request()->user()->profile->id);
-//        $data =
+        $suggestion = new SuggestionEngine();
+        if($followingCount <= 200)
+        {
+            $data = $suggestion->noviceProfile();
+        }
         foreach($payloads as $payload){
             $type = null;
             $data = [];
