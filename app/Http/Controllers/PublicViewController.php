@@ -22,7 +22,12 @@ class PublicViewController extends Controller
 
         $class = "\\App\\PublicView\\" . ucwords($modelName);
 
-        $model = $class::find($id);
+        // Added to retrieve profile details from handle
+        if($modelName === 'profile' && starts_with($id, '@')) {
+            $model = $model = $class::where('handle', substr($id,1));
+        } else {
+            $model = $class::find($id);
+        }
 
         if(isset($model->content['text'])) {
             $model->content = $this->getContentForHTML($model->content);
