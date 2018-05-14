@@ -12,7 +12,7 @@ class Collaborator extends Model
 
     protected $visible = ['created_at', 'profile', 'company', 'message','collaborate_id','applied_on','approved_on','rejected_on'];
 
-    protected $with = ['profile','company'];
+    protected $with = ['profile','company','collaborate'];
     
     public $incrementing = false;
     public $timestamps = false;
