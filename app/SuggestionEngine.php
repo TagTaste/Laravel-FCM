@@ -5,13 +5,13 @@ namespace App;
 
 class SuggestionEngine
 {
-    private $suggestion = ['profile','company','collaborate','job'];
+    public $suggestion = ['profile','company','collaborate','job'];
 
     public $loggedInProfileData;
 
     public function __construct()
     {
-        $this->loggedInProfileData = \DB::table('profile_filters')->where('profile_id',request()->user()->profile->id)->get();
+
     }
 
     public function noviceProfile()
