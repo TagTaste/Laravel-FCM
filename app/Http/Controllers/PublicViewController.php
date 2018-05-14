@@ -25,7 +25,7 @@ class PublicViewController extends Controller
         // Added to retrieve profile details from handle
         if($modelName === 'profile' && starts_with($id, '@')) {
             $model = $model = $class::where('handle', substr($id,1))->first();
-            $id = $model->id;
+            $id = isset($model->id) ? $model->id : null;
         } else {
             $model = $class::find($id);
         }
