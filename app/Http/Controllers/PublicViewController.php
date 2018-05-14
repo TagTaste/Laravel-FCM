@@ -33,6 +33,9 @@ class PublicViewController extends Controller
         if(isset($model->content['text'])) {
             $model->content = $this->getContentForHTML($model->content);
         }
+        if(isset($model->caption) && isset($model->caption['text'])) {
+            $model->caption = $this->getContentForHTML($model->caption);
+        }
 
         if(!$model){
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
@@ -62,6 +65,10 @@ class PublicViewController extends Controller
 
         if(isset($model->content['text'])) {
             $model->content = $this->getContentForHTML($model->content);
+        }
+
+        if(isset($model->caption) && isset($model->caption['text'])) {
+            $model->caption = $this->getContentForHTML($model->caption);
         }
 
         if (!$model) {

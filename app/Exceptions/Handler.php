@@ -61,7 +61,7 @@ class Handler extends ExceptionHandler
     
     private function sendMessage($hook,$message){
         $client =  new \GuzzleHttp\Client();
-        $client->request('POST', $hook,
+        $response = $client->request('POST', $hook,
             [
                 'json' =>
                     [
