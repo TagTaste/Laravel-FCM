@@ -9,17 +9,6 @@ class SuggestionEngine
 
     public $loggedInProfileData;
 
-    public function __construct()
-    {
-
-    }
-
-    public function noviceProfile()
-    {
-        $rand = rand(1,2);
-        return $rand == 1 ? $this->profileFilterData() : $this->companyFilterData();
-    }
-
     public function profileFilterData()
     {
         $data = \DB::table('profile_filters')->select('profile_id')->where('profile_id','!=',request()->user()->profile->id);

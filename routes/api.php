@@ -82,6 +82,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get('social/link/{provider}','UserController@socialLink');
 
+            Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
+
             //change password
                 Route::post("change/password","UserController@changePassword");
 
