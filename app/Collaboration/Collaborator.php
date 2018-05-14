@@ -29,6 +29,6 @@ class Collaborator extends Model
 
     public function collaborate()
     {
-        return $this->belongsTo(\App\Collaborate::class);
+        return $this->belongsTo(\App\Recipe\Collaborate::class);
     }
 }
