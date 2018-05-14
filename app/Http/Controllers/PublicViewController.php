@@ -30,6 +30,10 @@ class PublicViewController extends Controller
             $model = $class::find($id);
         }
 
+        if(!$model){
+            return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
+        }
+
         if(isset($model->content['text'])) {
             $model->content = $this->getContentForHTML($model->content);
         }
@@ -37,9 +41,6 @@ class PublicViewController extends Controller
             $model->caption = $this->getContentForHTML($model->caption);
         }
 
-        if(!$model){
-            return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
-        }
         $meta = $model->getMetaForPublic();
         $this->model = [$modelName=>$model,'meta'=>$meta];
         $socialPreview = $model->getPreviewContent();
@@ -63,20 +64,20 @@ class PublicViewController extends Controller
 
         $model = $modelClass::find($id);
 
-        if(isset($model->content['text'])) {
-            $model->content = $this->getContentForHTML($model->content);
-        }
-
-        if(isset($model->caption) && isset($model->caption['text'])) {
-            $model->caption = $this->getContentForHTML($model->caption);
-        }
-
         if (!$model) {
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Nothing found for given Id."]]);
         }
 
         if (!$sharedModel) {
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Nothing found for given shared model."]]);
+        }
+
+        if(isset($model->content['text'])) {
+            $model->content = $this->getContentForHTML($model->content);
+        }
+
+        if(isset($model->caption) && isset($model->caption['text'])) {
+            $model->caption = $this->getContentForHTML($model->caption);
         }
 
         $this->model['shared'] = $sharedModel;
