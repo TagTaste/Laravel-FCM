@@ -114,13 +114,12 @@ class AddSuggestionData extends Command
                     if($index < 20)
                     {
                         $profileids = \Redis::sMembers('following:profile:'.$model->id);
-                        \Log::info($profileids);
-                        \Log::info("here");
+
                         $profileids = \DB::table('profiles')->select('id')->whereNotIn('id',$profileids)->whereNull('deleted_at')->inRandomOrder()->take(20 - $index)->get();
-                        \Log::info($profileids);
+
                         foreach ($profileids as $profileid)
                         {
-                            \Redis::sAdd('suggested:profile:'. $model->id,$profileid);
+                            \Redis::sAdd('suggested:profile:'. $model->id,$profileid->id);
                             $profileidsCsv = $profileid->id.','.$profileidsCsv;
                         }
                     }
