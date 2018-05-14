@@ -10,7 +10,7 @@ class Collaborator extends Model
     
     protected $primaryKey = 'collaborate_id';
 
-    protected $visible = ['created_at', 'profile', 'company', 'message','collaborate_id','applied_on','approved_on','rejected_on'];
+    protected $visible = ['created_at', 'profile', 'company', 'message','collaborate_id','applied_on','approved_on','rejected_on','collaborate'];
 
     protected $with = ['profile','company','collaborate'];
     
