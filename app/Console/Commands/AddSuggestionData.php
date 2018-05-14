@@ -111,6 +111,7 @@ class AddSuggestionData extends Command
                         $profileidsCsv = $profileid.','.$profileidsCsv;
                         $index++;
                     }
+                    echo "csv is ".$profileidsCsv;
                     if($index < 20)
                     {
                         $profileids = \Redis::sMembers('following:profile:'.$model->id);
