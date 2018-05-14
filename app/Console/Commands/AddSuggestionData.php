@@ -111,9 +111,9 @@ class AddSuggestionData extends Command
                         $profileidsCsv = $profileid.','.$profileidsCsv;
                         $index++;
                     }
-                    echo "csv is ".$profileidsCsv;
                     if($index < 20)
                     {
+                        echo "csv is ".$profileidsCsv ."\n";
                         $profileids = \Redis::sMembers('following:profile:'.$model->id);
                         $profileids = \DB::table('profiles')->select('id')->whereNotIn('id',$profileids)->whereNull('deleted_at')->inRandomOrder()->take(20 - $index)->get();
                         foreach ($profileids as $profileid)
