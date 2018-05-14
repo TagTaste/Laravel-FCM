@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Company;
 use App\CompanyUser;
 use App\Events\Actions\Follow;
+use App\Events\SuggestionEngineEvent;
 use App\Profile;
 use App\Subscriber;
+use App\SuggestionEngine;
 use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -188,8 +190,9 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-        \App\Filter\Profile::addModel(Profile::find($request->user()->profile->id));
-    
+        $profileData = Profile::find($request->user()->profile->id);
+        \App\Filter\Profile::addModel($profileData);
+        event(new SuggestionEngineEvent($profileData, 'profile'));
         return $this->sendResponse();
     }
     
@@ -280,7 +283,10 @@ class ProfileController extends Controller
         if(!$this->model){
             $this->sendError("You are already following this profile.");
         }
+
         event(new Follow($channelOwner, $request->user()->profile));
+
+        \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
 
         return $this->sendResponse();
     }

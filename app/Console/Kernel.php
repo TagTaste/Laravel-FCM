@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\AddHandle;
+use App\Console\Commands\AddSuggestionData;
 use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Companies;
@@ -132,7 +133,13 @@ class Kernel extends ConsoleKernel
 
         DeletePhoto::class,
 
-        AddHandle::class
+        AddHandle::class,
+
+        AddSuggestionData::class,
+
+        //for suggestion command store in redis
+        \App\Console\Commands\Build\Suggestion\Profile::class,
+
 
     ];
 
