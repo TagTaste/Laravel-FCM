@@ -40,5 +40,33 @@ class SuggestionEngineController extends Controller
             $this->model = $suggestedProfiles;
             return $this->sendResponse();
         }
+        elseif($modelName == 'company')
+        {
+            $profileIds = [];
+            foreach ($modelIds as $key=>$modelId)
+            {
+                if($modelId == '')
+                {
+                    unset($modelIds[$key]);
+                    continue;
+                }
+                $profileIds[$key] = "company:small:".$modelId ;
+            }
+
+            if(count($profileIds)> 0)
+            {
+                $suggestedProfiles = \Redis::mget($profileIds);
+            }
+            foreach($suggestedProfiles as &$profile){
+                if(is_null($profile)){
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $key = "following:profile:".$request->user()->profile->id;
+                $profile->isFollowing =  \Redis::sIsMember($key,"company.".$profile->id) === 1;
+            }
+            $this->model = $suggestedProfiles;
+            return $this->sendResponse();
+        }
     }
 }
