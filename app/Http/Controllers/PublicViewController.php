@@ -119,7 +119,7 @@ class PublicViewController extends Controller
 
         $class = "\\App\\PublicView\\" . ucwords($modelName);
 
-        $this->model = $class::whereNotIn('id',[$id])->whereNull('deleted_at')->skip(0)->take(10)->get();
+        $this->model = $class::whereNotIn('id',[$id])->where('state',1)->whereNull('deleted_at')->skip(0)->take(10)->get();
 
         if(!$this->model){
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
