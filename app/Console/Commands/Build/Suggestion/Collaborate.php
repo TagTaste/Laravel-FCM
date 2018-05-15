@@ -58,7 +58,7 @@ class Collaborate extends Command
                     $suggestedIds = explode(',',$suggestedIds);
                     foreach ($suggestedIds as $suggestedId)
                     {
-                        \Redis::sAdd('suggested:job:'.$owner->profile_id,$suggestedId);
+                        \Redis::sAdd('suggested:collaborate:'.$owner->profile_id,$suggestedId);
                     }
                 }
             });
