@@ -77,7 +77,7 @@ class Job extends Command
                     {
                         $companiesIds = \DB::table('company_users')->where('profile_id',$model->id)->get()->pluck('company_id');
                         $jobIds = \DB::table('jobs')->select('id')->whereNotIn('company_id',$companiesIds)->where('profile_id','!=',$model->id)
-                            ->whereNull('deleted_at')->inRandomOrder()->get();
+                            ->whereNull('deleted_at')->where('state',1)->inRandomOrder()->get();
                         foreach ($jobIds as $jobId)
                         {
                             $hasApplied = \DB::table('applications')->where('job_id',$jobId->id)->where('profile_id',$model->id)->exists();
@@ -125,7 +125,7 @@ class Job extends Command
                     {
                         $companiesIds = \DB::table('company_users')->where('profile_id',$model->id)->get()->pluck('company_id');
                         $jobIds = \DB::table('jobs')->select('id')->whereNotIn('company_id',$companiesIds)->where('profile_id','!=',$model->id)
-                            ->whereNull('deleted_at')->inRandomOrder()->get();
+                            ->whereNull('deleted_at')->where('state',1)->inRandomOrder()->get();
                         foreach ($jobIds as $jobId)
                         {
                             $hasApplied = \DB::table('applications')->where('job_id',$jobId->id)->where('profile_id',$model->id)->exists();
@@ -136,6 +136,7 @@ class Job extends Command
 
                         }
                     }
+
                     \DB::table('suggestion_engine')->insert(['profile_id'=>$model->id,'type'=>'job','suggested_id'=>$jobIdsCsc]);
                 }
             }

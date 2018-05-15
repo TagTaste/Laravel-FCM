@@ -90,13 +90,16 @@ class FeedController extends Controller
         $position2 = rand(15,20);
         $followingCount = \Redis::sCard("following:profile:".request()->user()->profile->id);
         $suggestion = new SuggestionEngine();
+        $rand1 = rand(1,4);
+        $rand2 = rand(1,4);
+        if($rand1 == $rand2)
+            $rand2 = $rand2 + 1;
         if($followingCount <= 200)
         {
             $position1 = rand(3,6);
-            $rand1 = rand(1,2);
-            $rand2 = rand(1,4);
+            $rand1 = rand(1,4);
             if($rand1 == $rand2)
-                $rand2 = $rand2 + 1;
+                $rand2 = ($rand1 + 1)% 5;
         }
 
         $index = 0;

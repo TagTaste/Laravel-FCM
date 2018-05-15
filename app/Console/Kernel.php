@@ -140,10 +140,14 @@ class Kernel extends ConsoleKernel
         //for suggestion command store in redis
         \App\Console\Commands\Build\Suggestion\Profile::class,
         \App\Console\Commands\Build\Suggestion\Company::class,
+        \App\Console\Commands\Build\Suggestion\Job::class,
+        \App\Console\Commands\Build\Suggestion\Collaborate::class,
 
         //for suggestion command store in database
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Profile::class,
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Company::class,
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Job::class,
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
 
 

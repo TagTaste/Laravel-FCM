@@ -67,6 +67,21 @@ class Collaborate extends Command
                         $collaborateIdsCsc = $collaborateIdsCsc.','.$collaborateId;
                         $index++;
                     }
+                    if($index < 20)
+                    {
+                        $companiesIds = \DB::table('company_users')->where('profile_id',$model->id)->get()->pluck('company_id');
+                        $jobIds = \DB::table('collaborates')->select('id')->whereNotIn('company_id',$companiesIds)->where('profile_id','!=',$model->id)
+                            ->whereNull('deleted_at')->where('state',1)->inRandomOrder()->get();
+                        foreach ($jobIds as $jobId)
+                        {
+                            $hasApplied = \DB::table('applications')->where('job_id',$jobId->id)->where('profile_id',$model->id)->exists();
+                            if(!$hasApplied)
+                            {
+                                $collaborateIdsCsc = $jobId->id.','.$collaborateIdsCsc;
+                            }
+
+                        }
+                    }
                     \DB::table('suggestion_engine')->where('profile_id',$model->id)->where('type','collaborate')->update(['suggested_id'=>$collaborateIdsCsc]);
                 }
                 else {
@@ -93,6 +108,21 @@ class Collaborate extends Command
                             break;
                         $collaborateIdsCsc = $collaborateIdsCsc.','.$collaborateId;
                         $index++;
+                    }
+                    if($index < 20)
+                    {
+                        $companiesIds = \DB::table('company_users')->where('profile_id',$model->id)->get()->pluck('company_id');
+                        $jobIds = \DB::table('collaborates')->select('id')->whereNotIn('company_id',$companiesIds)->where('profile_id','!=',$model->id)
+                            ->whereNull('deleted_at')->where('state',1)->inRandomOrder()->get();
+                        foreach ($jobIds as $jobId)
+                        {
+                            $hasApplied = \DB::table('applications')->where('job_id',$jobId->id)->where('profile_id',$model->id)->exists();
+                            if(!$hasApplied)
+                            {
+                                $collaborateIdsCsc = $jobId->id.','.$collaborateIdsCsc;
+                            }
+
+                        }
                     }
                     \DB::table('suggestion_engine')->insert(['profile_id'=>$model->id,'type'=>'collaborate','suggested_id'=>$collaborateIdsCsc]);
                 }
