@@ -5,14 +5,14 @@ namespace App\Console\Commands\Build\Suggestion;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class Company extends Command
+class Collaborate extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:suggestion:company';
+    protected $signature = 'build:suggestion:collaborate';
 
     /**
      * The console command description.
@@ -38,30 +38,27 @@ class Company extends Command
      */
     public function handle()
     {
-        \DB::table('companies')->whereNUll('deleted_at')
+        \DB::table('profiles')->whereNUll('deleted_at')
             ->orderBy('id')->chunk(100,function($owners){
                 foreach ($owners as $owner)
                 {
-                    $companyIds = \Redis::sMembers('suggested:company:'.$owner->id);
+                    $collaborateIds = \Redis::sMembers('suggested:collaborate:'.$owner->id);
 
-                    foreach ($companyIds as $companyId)
+                    foreach ($collaborateIds as $collaborateId)
                     {
-                        \Redis::sRem('suggested:company:'.$owner->id,$companyId);
+                        \Redis::sRem('suggested:collaborate:'.$owner->id,$collaborateId);
                     }
                 }
             });
 
-        \DB::table('suggestion_engine')->where('type','company')
+        \DB::table('suggestion_engine')->where('type','collaborate')
             ->orderBy('profile_id')->chunk(100,function($owners){
                 foreach($owners as $owner){
                     $suggestedIds = $owner->suggested_id;
                     $suggestedIds = explode(',',$suggestedIds);
                     foreach ($suggestedIds as $suggestedId)
                     {
-                        if(!\Redis::sIsMember('following:profile:'.$owner->profile_id, "company.".$suggestedId))
-                        {
-                            \Redis::sAdd('suggested:company:'.$owner->profile_id,$suggestedId);
-                        }
+                        \Redis::sAdd('suggested:job:'.$owner->profile_id,$suggestedId);
                     }
                 }
             });

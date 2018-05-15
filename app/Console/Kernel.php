@@ -141,6 +141,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\Profile::class,
         \App\Console\Commands\Build\Suggestion\Company::class,
 
+        //for suggestion command store in database
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Profile::class,
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Company::class,
+
 
 
     ];
