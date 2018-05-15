@@ -251,8 +251,8 @@ class CollaborateController extends Controller
             if(!$company){
                 return $this->sendError( "Company not found.");
             }
-            
-            return $collaborate->approveCompany($company);
+            $this->model = $collaborate->approveCompany($company);
+            return $this->sendResponse();
         }
         
         if($request->has('profile_id')){
@@ -261,8 +261,8 @@ class CollaborateController extends Controller
             if(!$profile){
                 return $this->sendError( "Profile not found.");
             }
-            
-            return $collaborate->approveProfile($profile);
+            $this->model = $collaborate->approveProfile($profile);
+            return $this->sendResponse();
         }
     }
     
@@ -280,8 +280,8 @@ class CollaborateController extends Controller
             if(!$company){
                 return $this->sendError( "Company not found.");
             }
-        
-            return $collaborate->rejectCompany($company);
+            $this->model = $collaborate->rejectCompany($company);
+            return $this->sendResponse();
         }
     
         if($request->has('profile_id')){
@@ -290,8 +290,8 @@ class CollaborateController extends Controller
             if(!$profile){
                 return $this->sendError( "Profile not found.");
             }
-        
-            return $collaborate->rejectProfile($profile);
+            $this->model = $collaborate->rejectProfile($profile);
+            return $this->sendResponse();
         }
     }
 
