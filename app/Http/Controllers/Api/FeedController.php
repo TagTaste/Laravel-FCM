@@ -99,7 +99,7 @@ class FeedController extends Controller
             $position1 = rand(3,6);
             $rand1 = rand(1,4);
             if($rand1 == $rand2)
-                $rand2 = $rand2 + 1 > 4 ? 1 : $rand2 + 1;
+                $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
         }
 
         $index = 0;
