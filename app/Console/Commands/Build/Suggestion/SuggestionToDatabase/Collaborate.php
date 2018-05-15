@@ -82,7 +82,10 @@ class Collaborate extends Command
 
                         }
                     }
-                    \DB::table('suggestion_engine')->where('profile_id',$model->id)->where('type','collaborate')->update(['suggested_id'=>$collaborateIdsCsc]);
+                    if($collaborateIdsCsc != '')
+                    {
+                        \DB::table('suggestion_engine')->where('profile_id',$model->id)->where('type','collaborate')->update(['suggested_id'=>$collaborateIdsCsc]);
+                    }
                 }
                 else {
                     $loggedInProfileKeys= \DB::table('profile_filters')->where('profile_id', $model->id)->get();
@@ -124,7 +127,10 @@ class Collaborate extends Command
 
                         }
                     }
-                    \DB::table('suggestion_engine')->insert(['profile_id'=>$model->id,'type'=>'collaborate','suggested_id'=>$collaborateIdsCsc]);
+                    if($collaborateIdsCsc != '')
+                    {
+                        \DB::table('suggestion_engine')->insert(['profile_id'=>$model->id,'type'=>'collaborate','suggested_id'=>$collaborateIdsCsc]);
+                    }
                 }
             }
         });

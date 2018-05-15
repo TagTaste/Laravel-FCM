@@ -88,7 +88,10 @@ class Job extends Command
 
                         }
                     }
-                    \DB::table('suggestion_engine')->where('profile_id', $model->id)->where('type','job')->update(['suggested_id'=>$jobIdsCsc]);
+                    if($jobIdsCsc != '')
+                    {
+                        \DB::table('suggestion_engine')->where('profile_id', $model->id)->where('type','job')->update(['suggested_id'=>$jobIdsCsc]);
+                    }
                 }
                 else {
                     $loggedInProfileKeys= \DB::table('profile_filters')->where('profile_id', $model->id)->get();
@@ -136,8 +139,10 @@ class Job extends Command
 
                         }
                     }
-
-                    \DB::table('suggestion_engine')->insert(['profile_id'=>$model->id,'type'=>'job','suggested_id'=>$jobIdsCsc]);
+                    if($jobIdsCsc != '')
+                    {
+                        \DB::table('suggestion_engine')->insert(['profile_id'=>$model->id,'type'=>'job','suggested_id'=>$jobIdsCsc]);
+                    }
                 }
             }
         });
