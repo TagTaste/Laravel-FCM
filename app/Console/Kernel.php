@@ -139,6 +139,8 @@ class Kernel extends ConsoleKernel
 
         //for suggestion command store in redis
         \App\Console\Commands\Build\Suggestion\Profile::class,
+        \App\Console\Commands\Build\Suggestion\Company::class,
+
 
 
     ];

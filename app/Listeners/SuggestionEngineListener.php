@@ -59,5 +59,36 @@ class SuggestionEngineListener
             }
              \DB::table('suggestion_engine')->where('profile_id',$event->modelData->id)->where('type',$event->type)->update(['suggested_id'=>$profileidsCsv]);
         }
+        elseif($event->type = 'company')
+        {
+            $loggedInProfileKeys= \DB::table('profile_filters')->where('profile_id',$event->modelData->id)->get();
+            $data = \DB::table('company_filters')->select('company_id');
+            $modelIds = [];
+            //get similar profile id's
+            foreach ($loggedInProfileKeys as $datum)
+            {
+                $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
+                foreach ($x as $y)
+                {
+                    if(!\Redis::sIsMember('following:profile:'.$event->modelData->id, "company".$y))
+                    {
+                        \Redis::sAdd('suggested:company:'.$event->modelData->id,$y);
+                        $modelIds[] = $y;
+                    }
+                }
+            }
+            //get existing similar profile ids
+            $profileids = \Redis::sMembers('suggested:company:'.$event->modelData->id);
+            $profileidsCsv = '';
+            $index = 0;
+            foreach ($profileids as $profileid)
+            {
+                if($index > 20)
+                    break;
+                $profileidsCsv = $profileidsCsv.','.$profileid;
+                $index++;
+            }
+            \DB::table('suggestion_engine')->where('profile_id',$event->modelData->id)->where('type',$event->type)->update(['suggested_id'=>$profileidsCsv]);
+        }
     }
 }

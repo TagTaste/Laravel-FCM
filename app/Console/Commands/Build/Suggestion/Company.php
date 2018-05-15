@@ -5,14 +5,14 @@ namespace App\Console\Commands\Build\Suggestion;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class Profile extends Command
+class Company extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:suggestion:profile';
+    protected $signature = 'build:suggestion:company';
 
     /**
      * The console command description.
@@ -38,29 +38,29 @@ class Profile extends Command
      */
     public function handle()
     {
-        \DB::table('profiles')->whereNUll('deleted_at')
+        \DB::table('companies')->whereNUll('deleted_at')
             ->orderBy('id')->chunk(100,function($owners){
                 foreach ($owners as $owner)
                 {
-                    $profileIds = \Redis::sMembers('suggested:profile:'.$owner->id);
+                    $profileIds = \Redis::sMembers('suggested:company:'.$owner->id);
 
                     foreach ($profileIds as $profileId)
                     {
-                        \Redis::sRem('suggested:profile:'.$owner->id,$profileId);
+                        \Redis::sRem('suggested:company:'.$owner->id,$profileId);
                     }
                 }
             });
 
-        \DB::table('suggestion_engine')->where('type','profile')
+        \DB::table('suggestion_engine')->where('type','company')
             ->orderBy('profile_id')->chunk(100,function($owners){
                 foreach($owners as $owner){
                     $suggestedIds = $owner->suggested_id;
                     $suggestedIds = explode(',',$suggestedIds);
                     foreach ($suggestedIds as $suggestedId)
                     {
-                        if(!\Redis::sIsMember('following:profile:'.$owner->profile_id, $suggestedId))
+                        if(!\Redis::sIsMember('following:profile:'.$owner->profile_id, "company.".$suggestedId))
                         {
-                            \Redis::sAdd('suggested:profile:'.$owner->profile_id,$suggestedId);
+                            \Redis::sAdd('suggested:company:'.$owner->profile_id,$suggestedId);
                         }
                     }
                 }
