@@ -132,7 +132,7 @@ class FeedController extends Controller
                 $data['item'] = $suggestion->suggestion[$rand1 - 1];
                 $data['type'] = 'suggestion';
                 $count = \Redis::sCard('suggested:'.$data['item'].':'.request()->user()->profile->id);
-                if($count > 5)
+                if($count)
                     $this->model[] = $data;
             }
             elseif ($index == $position2)
@@ -140,7 +140,7 @@ class FeedController extends Controller
                 $data['item'] = $suggestion->suggestion[$rand2 - 1];
                 $data['type'] = 'suggestion';
                 $count = \Redis::sCard('suggested:'.$data['item'].':'.request()->user()->profile->id);
-                if($count > 5)
+                if($count)
                     $this->model[] = $data;
             }
 
