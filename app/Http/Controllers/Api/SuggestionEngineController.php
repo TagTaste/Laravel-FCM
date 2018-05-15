@@ -111,7 +111,7 @@ class SuggestionEngineController extends Controller
                     unset($modelIds[$key]);
                     continue;
                 }
-                $collaborateIds[$key] = "company:small:".$modelId ;
+                $collaborateIds[$key] = $modelId;
                 $index++;
             }
             $this->model = Collaborate::whereIn('id',$collaborateIds)->where('state',1)->get();
