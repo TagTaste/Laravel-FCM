@@ -16,15 +16,19 @@ class SuggestionEngineController extends Controller
         $modelIds = \Redis::sMembers($key);
         if($modelName == 'profile')
         {
+            $index = 0;
             $profileIds = [];
             foreach ($modelIds as $key=>$modelId)
             {
+                if($index>5)
+                    break;
                 if($modelId == '')
                 {
                     unset($modelIds[$key]);
                     continue;
                 }
                 $profileIds[$key] = "profile:small:".$modelId ;
+                $index++;
             }
 
             if(count($profileIds)> 0)
@@ -45,14 +49,19 @@ class SuggestionEngineController extends Controller
         elseif($modelName == 'company')
         {
             $companyIds = [];
+            $index = 0;
             foreach ($modelIds as $key=>$modelId)
             {
+                if($index>5)
+                    break;
                 if($modelId == '')
                 {
                     unset($modelIds[$key]);
                     continue;
                 }
                 $companyIds[$key] = "company:small:".$modelId ;
+                $index++;
+
             }
 
             if(count($companyIds)> 0)
@@ -73,14 +82,18 @@ class SuggestionEngineController extends Controller
         elseif($modelName == 'job')
         {
             $jobIds = [];
+            $index = 0;
             foreach ($modelIds as $key=>$modelId)
             {
+                if($index>5)
+                    break;
                 if($modelId == '')
                 {
                     unset($modelIds[$key]);
                     continue;
                 }
                 $jobIds[$key] = $modelId ;
+                $index++;
             }
 
             $this->model = Job::whereIn('id',$jobIds)->where('state',1)->get();
@@ -88,14 +101,18 @@ class SuggestionEngineController extends Controller
         }
         else{
             $collaborateIds = [];
+            $index = 0;
             foreach ($modelIds as $key=>$modelId)
             {
+                if($index>5)
+                    break;
                 if($modelId == '')
                 {
                     unset($modelIds[$key]);
                     continue;
                 }
                 $collaborateIds[$key] = "company:small:".$modelId ;
+                $index++;
             }
             $this->model = Collaborate::whereIn('id',$collaborateIds)->where('state',1)->get();
             return $this->sendResponse();
