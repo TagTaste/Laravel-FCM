@@ -304,10 +304,5 @@ class Photo extends Model implements Feedable
             return null;
         }
     }
-
-    public function getImageInfoAttribute($value)
-    {
-        return isset($value) ? json_decode($value) : null;
-    }
    
 }
