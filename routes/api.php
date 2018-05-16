@@ -54,6 +54,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::get('preview/{modelName}/{modelId}','Api\PreviewController@show');
 Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewController@showShared');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
+Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
 
 //has prefix api/ - defined in RouteServiceProvider.php
@@ -429,17 +430,26 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv",function (){
         $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
-            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
-            ->join("users",'users.id','=','profiles.user_id')
-            ->join("education",'profiles.id','=','education.profile_id')
-            ->where('education.end_date','like','2016')
-            ->orWhere('education.end_date','like','2017')
-            ->orWhere('education.end_date','like','2018')
-            ->orWhereNull('education.end_date')
-            ->orWhere('education.ongoing',1)
-            ->whereNull('users.deleted_at')
-            ->get();
+//        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
+//            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
+//            ->join("users",'users.id','=','profiles.user_id')
+//            ->join("education",'profiles.id','=','education.profile_id')
+//            ->where('education.end_date','like','2016')
+//            ->orWhere('education.end_date','like','2017')
+//            ->orWhere('education.end_date','like','2018')
+//            ->orWhereNull('education.end_date')
+//            ->orWhere('education.ongoing',1)
+//            ->whereNull('users.deleted_at')
+//            ->get();
+        $jobs = \DB::table('jobs')->select('jobs.title as title','jobs.salary_min as salary_min','jobs.salary_max as salary_max','jobs.joining'
+                       ,'jobs.location','jobs.description','job_types.name as type_name',
+                        'jobs.profile_id','users.name','jobs.company_id','companies.name as company_name')
+                        ->join("profiles",'jobs.profile_id', '=','profiles.id')
+                        ->join('users','users.id' , '=', 'profiles.user_id')
+                        ->join('companies','jobs.company_id','=','companies.id')
+                        ->join('job_types','jobs.type_id','=','job_types.id')
+                        ->get();
+        \Log::info($jobs);
         $headers = array(
             "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=file.csv",
@@ -448,16 +458,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('id', 'name', 'email','phone','start_date','end_date','ongoing');
+        $columns = array('title','salary_min', 'salary_max', 'joining','location','description','type_name',
+            'profile_id','name','company_id','company_name');
 
-        \Log::info($profiles);
         $str = '';
         foreach ($columns as $c) {
             $str = $str.$c.',';
         }
         $str = $str."\n";
 
-        foreach($profiles as $review) {
+        foreach($jobs as $review) {
             foreach ($columns as $c) {
                 $str = $str.$review->{$c}.',';
             }

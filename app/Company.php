@@ -433,8 +433,8 @@ class Company extends Model
     {
     
         //if you use \App\Profile here, it would end up nesting a lot of things.
-        $profiles = Company::getFollowers($this->id);
-        $count = count($profiles);
+//        $profiles = Company::getFollowers($this->id);
+        $count = \Redis::sCard("followers:company:" . $this->id);
 //        if($count > 1000000)
 //        {
 //            $count = round($count/1000000, 1);
@@ -447,7 +447,7 @@ class Company extends Model
 //            $count = $count."K";
 //        }
     
-        return ['count'=> $count, 'profiles' => $profiles];
+        return ['count'=> $count];
     
     }
     

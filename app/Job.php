@@ -118,7 +118,7 @@ class Job extends Model implements Feedable
     
     public function company()
     {
-        return $this->belongsTo(\App\Company::class);
+        return $this->belongsTo(\App\Recipe\Company::class);
     }
     
     public function profile()

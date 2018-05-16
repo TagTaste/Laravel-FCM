@@ -9,6 +9,10 @@ class Collaborator extends Model
     protected $table = 'collaborators';
     
     protected $primaryKey = 'collaborate_id';
+
+    protected $visible = ['created_at', 'profile', 'company', 'message','collaborate_id','applied_on','approved_on','rejected_on','collaborate'];
+
+    protected $with = ['profile','company','collaborate'];
     
     public $incrementing = false;
     public $timestamps = false;
@@ -20,11 +24,11 @@ class Collaborator extends Model
     
     public function company()
     {
-        return $this->belongsTo(\App\Company::class);
+        return $this->belongsTo(\App\Recipe\Company::class);
     }
 
     public function collaborate()
     {
-        return $this->belongsTo(\App\Collaborate::class);
+        return $this->belongsTo(\App\Recipe\Collaborate::class);
     }
 }

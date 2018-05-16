@@ -130,16 +130,20 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("inviteall",function(){
     $when = \Carbon\Carbon::createFromTime(10,00,00);
-    
-   
+//last mail 8 may
     \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users) use ($when)
     {
         $users->each(function($user) use($when) {
             $email = $user->email;
-            \Log::info("Sending invite mail to " . $email . "\n");
-    
-            $mail = (new \App\Mail\Launch())->onQueue('emails');
-            \Mail::to($email)->later($when,$mail);
+            $x = \App\User::where('email',$email)->exists();
+            if(!$x)
+            {
+                echo "Sending invite mail to " . $email . "\n";
+
+                $mail = (new \App\Mail\Launch())->onQueue('emails');
+                \Mail::to($email)->send($mail);
+            }
+
         });
     });
 });
@@ -317,6 +321,21 @@ Artisan::command('inspire', function () {
 
     }
 
+});
+
+\Artisan::command("iOS-App",function(){
+
+    \App\User::with([])->whereNull('deleted_at')
+        ->orderBy('id')->chunk(100,function($users) {
+            $users->each(function($user){
+                $email = $user->email;
+                echo "Sending invite mail to " . $email . "\n";
+
+                $mail = (new \App\Jobs\iOSAppLink($email,$user->name))->onQueue('emails');
+                \Log::info('Queueing send invitation...');
+                dispatch($mail);
+            });
+        });
 });
 
 

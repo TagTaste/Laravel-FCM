@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Channel\Payload;
+use App\Events\SuggestionEngineEvent;
 use App\Traits\PushesToChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -163,6 +164,7 @@ class Profile extends Model
             {
                 $name = $name.'.'.mt_rand(100,999);
             }
+            $name = strtolower($name);
             $profile->update(['handle'=>$name]);
 
 
@@ -186,6 +188,7 @@ class Profile extends Model
             \App\Documents\Profile::create($profile);
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            event(new SuggestionEngineEvent($profile, 'create'));
 
         });
 
@@ -195,6 +198,8 @@ class Profile extends Model
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
+            event(new SuggestionEngineEvent($profile, 'update'));
+
         });
 
         self::deleting(function($profile){

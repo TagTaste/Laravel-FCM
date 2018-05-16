@@ -104,6 +104,7 @@ class ProfileController extends Controller
             {
                 return $this->sendError("This handle is already in use");
             }
+            $data['profile']['handle'] = strtolower($data['profile']['handle']);
         }
         else
         {
@@ -192,7 +193,6 @@ class ProfileController extends Controller
         }
         $profileData = Profile::find($request->user()->profile->id);
         \App\Filter\Profile::addModel($profileData);
-        event(new SuggestionEngineEvent($profileData, 'profile'));
         return $this->sendResponse();
     }
     
