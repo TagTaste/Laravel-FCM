@@ -92,8 +92,7 @@ class FeedController extends Controller
         $suggestion = new SuggestionEngine();
         $rand1 = rand(1,4);
         $rand2 = rand(1,4);
-        if($rand1 == $rand2)
-            $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
+
         if($followingCount <= 200)
         {
             $position1 = rand(3,6);
@@ -101,6 +100,9 @@ class FeedController extends Controller
             if($rand1 == $rand2)
                 $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
         }
+
+        if($rand1 == $rand2)
+            $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
 
         $index = 0;
         foreach($payloads as $payload){
