@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 class SuggestionEngineController extends Controller
 {
     private $relationships = [
-        'job' => \App\Job::class,
-        'collaborate' => \App\Collaborate::class
+        'job' => \App\Recipe\Job::class,
+        'collaborate' => \App\Recipe\Collaborate::class
     ];
     public function suggestion(Request $request,$modelName)
     {
@@ -93,5 +93,15 @@ class SuggestionEngineController extends Controller
                 return $this->sendResponse();
             }
         }
+    }
+
+    public function suggestionIgonre(Request $request,$modelName)
+    {
+        $key = 'suggested:'.$modelName.':'.$request->user()->profile->id;
+        $ignoredId = $request->input('id');
+
+        $this->model = \Redis::sRem($key,$ignoredId);
+
+        return $this->sendResponse();
     }
 }
