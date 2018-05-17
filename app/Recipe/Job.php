@@ -13,7 +13,7 @@ class Job extends BaseJob
         'profile_id','salary_min','salary_max','experience_min','experience_max','joining',
         'company_id', 'type_id', 'company', 'profile','minimum_qualification',
         'applications','created_at', 'expires_on','privacy_id','resume_required',
-        'start_month','start_year','end_month','end_year','deleted_at','updated_at'];
+        'start_month','start_year','end_month','end_year','deleted_at','updated_at','job_id'];
 
     protected $with = ['profile','company'];
 
