@@ -726,7 +726,7 @@ class ProfileController extends Controller
         }
         else
         {
-            $this->sendError("Already verified");
+            return $this->sendError("Already verified");
         }
     }
 
