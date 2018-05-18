@@ -86,6 +86,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
+            Route::group(['namespace'=>'v1','prefix'=>'v1/','as'=>'v1.'],function() {
+                Route::get("feed",'FeedController@feed');
+                });
+
             //change password
                 Route::post("change/password","UserController@changePassword");
 
