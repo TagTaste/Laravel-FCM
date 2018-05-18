@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Channel\Payload;
 use App\Strategies\Paginator;
-use App\SuggestionEngine;
 use Illuminate\Http\Request;
 
 class FeedController extends Controller
@@ -15,7 +14,7 @@ class FeedController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
-        
+
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
@@ -34,14 +33,14 @@ class FeedController extends Controller
         $this->getMeta($payloads,$profileId);
         return $this->sendResponse();
     }
-    
+
     //things that is displayed on my public feed
     public function public(Request $request, $profileId)
     {
         $page = $request->input('page',1);
         $take = 20;
         $skip = $page > 1 ? ($page - 1) * $take : 0;
-        
+
         $payloads = Payload::where('channel_name','public.' . $profileId)
             ->orderBy('created_at','desc')
             ->skip($skip)
@@ -49,10 +48,10 @@ class FeedController extends Controller
             ->get();
         $profileId = $request->user()->profile->id;
         $this->getMeta($payloads,$profileId);
-    
+
         return $this->sendResponse();
     }
-    
+
     //things that are posted by my network
     public function network(Request $request)
     {
@@ -66,7 +65,7 @@ class FeedController extends Controller
             ->where('subscribers.channel_name','not like','feed.' . $profileId)
             ->where('subscribers.channel_name','not like','public.' . $profileId)
             ->where('subscribers.channel_name','not like','network.' . $profileId)
-    
+
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
@@ -74,41 +73,23 @@ class FeedController extends Controller
             ->skip($skip)
             ->take($take)
             ->get();
-        
+
         $this->getMeta($payloads,$profileId);
-    
+
         return $this->sendResponse();
     }
-    
+
     private function getMeta(&$payloads, &$profileId)
     {
 //        if($payloads->count() === 0){
 //            $this->errors[] = 'No more feeds';
 //            return;
 //        }
-        $position1 = rand(5,8);
-        $position2 = rand(15,20);
-        $followingCount = \Redis::sCard("following:profile:".request()->user()->profile->id);
-        $suggestion = new SuggestionEngine();
-        $rand1 = rand(1,4);
-        $rand2 = rand(1,4);
 
-        if($followingCount <= 200)
-        {
-            $position1 = rand(3,6);
-            $rand1 = rand(1,4);
-            if($rand1 == $rand2)
-                $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
-        }
-
-        if($rand1 == $rand2)
-            $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
-
-        $index = 0;
         foreach($payloads as $payload){
             $type = null;
             $data = [];
-            $index++;
+
             $cached = json_decode($payload->payload, true);
 
             foreach($cached as $name => $key){
@@ -128,27 +109,9 @@ class FeedController extends Controller
             }
             $data['type'] = $type;
             $this->model[] = $data;
-            $data = [];
-            if($index == $position1)
-            {
-                $data['item'] = $suggestion->suggestion[$rand1 - 1];
-                $data['type'] = 'suggestion';
-                $count = \Redis::sCard('suggested:'.$data['item'].':'.request()->user()->profile->id);
-                if($count)
-                    $this->model[] = $data;
-            }
-            elseif ($index == $position2)
-            {
-                $data['item'] = $suggestion->suggestion[$rand2 - 1];
-                $data['type'] = 'suggestion';
-                $count = \Redis::sCard('suggested:'.$data['item'].':'.request()->user()->profile->id);
-                if($count)
-                    $this->model[] = $data;
-            }
-
         }
     }
-    
+
     private function getType($modelName)
     {
         $exploded = explode('\\',$modelName);
@@ -172,5 +135,5 @@ class FeedController extends Controller
 
         return $this->sendResponse();
     }
-  
+
 }
