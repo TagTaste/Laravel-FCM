@@ -76,7 +76,7 @@ class SuggestionEngineController extends Controller
                     $index++;
 
                 }
-
+                $suggestedCompanies = [];
                 if(count($companyIds)> 0)
                 {
                     $suggestedCompanies = \Redis::mget($companyIds);
