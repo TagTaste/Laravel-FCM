@@ -39,24 +39,12 @@ class AddHandle extends Command
      */
     public function handle()
     {
-        Profile::whereNull('handle')->whereNull('deleted_at')->chunk(1000,function($models){
-            foreach ($models as $model)
-            {
-                $name = $model->name;
-                $name = str_replace(' ', '.', $name);
-
-                echo "handle is $name for profile id $model->id \n\n";
-                $name = rtrim($name,'.');
-
-                $hanleExist = Profile::where('handle',$name)->exists();
-                if($hanleExist)
-                {
-                    $name = $name.'.'.mt_rand(100,999);
-                }
-                echo "new handle is $name for profile id $model->id \n\n";
-                $name = strtolower($name);
-                Profile::where('id',$model->id)->update(['handle'=>$name]);
-            }
-        });
+        $file_n = storage_path('import_file.csv');
+        $file = fopen($file_n, "r");
+        while ( ($data = fgetcsv($file, 200, ",")) !==FALSE) {
+            echo $data[0]." id and hanlde is ".$data[3] . "\n";
+            \DB::table('profiles')->where('id',$data[0])->update(['handle'=>$data[3]]);
+        }
+        fclose($file);
     }
 }

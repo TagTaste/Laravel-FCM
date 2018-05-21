@@ -156,14 +156,13 @@ class Profile extends Model
             //add default handle when profile is created
 
             $name = $profile->name;
-            $name = str_replace(' ', '.', $name);
-            $name = rtrim($name,'.');
+            $name = str_replace(' ', '_', $name);
+//            $name = rtrim($name,'.');
             $hanleExist = Profile::where('handle',$name)->exists();
             if($hanleExist)
             {
                 $name = $name.'.'.mt_rand(100,999);
             }
-            $name = strtolower($name);
             $profile->update(['handle'=>$name]);
 
 
