@@ -63,6 +63,8 @@ class EventServiceProvider extends ServiceProvider
 //        'App\Events\PhoneVerify' => ['App\Listeners\PhoneVerifyNotification'],
 
 
+        'App\Events\SuggestionEngineEvent' => ['App\Listeners\SuggestionEngineListener'],
+
 
 
     ];
