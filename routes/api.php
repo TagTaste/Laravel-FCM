@@ -470,19 +470,5 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     });
 
-    Route::post('postUploadCsvHandle',function (Request $request){
-        if($request->hasFile('import_file')){
-
-            $file_n = storage_path('import_file.csv');
-            $file = fopen($file_n, "r");
-            while ( ($data = fgetcsv($file, 200, ",")) !==FALSE) {
-                \Log::info($data[0]." id and hanlde is ".$data[3]);
-                \DB::table('profiles')->where('id',$data[0])->update(['handle'=>$data[3]]);
-            }
-            fclose($file);
-        }
-
-    });
-
 
 });
