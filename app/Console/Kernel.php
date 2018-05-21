@@ -172,7 +172,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("build:suggestion:profile")->dailyAt('00:01');
 
         //command for db store suggestion
-        $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->everyFiveMinutes();
+        $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->everyTenMinutes();
         $schedule->command("build:suggestion:suggestiontodatabase:job")->everyTenMinutes();
         $schedule->command("build:suggestion:suggestiontodatabase:company")->everyTenMinutes();
         $schedule->command("build:suggestion:suggestiontodatabase:profile")->everyTenMinutes();
