@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 
 /*
@@ -428,26 +430,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv",function (){
         $this->model = [];
-//        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
-//            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
-//            ->join("users",'users.id','=','profiles.user_id')
-//            ->join("education",'profiles.id','=','education.profile_id')
-//            ->where('education.end_date','like','2016')
-//            ->orWhere('education.end_date','like','2017')
-//            ->orWhere('education.end_date','like','2018')
-//            ->orWhereNull('education.end_date')
-//            ->orWhere('education.ongoing',1)
-//            ->whereNull('users.deleted_at')
-//            ->get();
-        $jobs = \DB::table('jobs')->select('jobs.title as title','jobs.salary_min as salary_min','jobs.salary_max as salary_max','jobs.joining'
-                       ,'jobs.location','jobs.description','job_types.name as type_name',
-                        'jobs.profile_id','users.name','jobs.company_id','companies.name as company_name')
-                        ->join("profiles",'jobs.profile_id', '=','profiles.id')
-                        ->join('users','users.id' , '=', 'profiles.user_id')
-                        ->join('companies','jobs.company_id','=','companies.id')
-                        ->join('job_types','jobs.type_id','=','job_types.id')
-                        ->get();
-        \Log::info($jobs);
+        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","profiles.handle as handle")
+            ->join("users",'users.id','=','profiles.user_id')->where('profile.id','>',3266)
+            ->whereNull('users.deleted_at')
+            ->get();
         $headers = array(
             "Content-type" => "text/csv",
             "Content-Disposition" => "attachment; filename=file.csv",
@@ -456,8 +442,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('title','salary_min', 'salary_max', 'joining','location','description','type_name',
-            'profile_id','name','company_id','company_name');
+        $columns = array('id','salary_min', 'name', 'handle');
 
         $str = '';
         foreach ($columns as $c) {
@@ -465,7 +450,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }
         $str = $str."\n";
 
-        foreach($jobs as $review) {
+        foreach($profiles as $review) {
             foreach ($columns as $c) {
                 $str = $str.$review->{$c}.',';
             }
@@ -484,4 +469,20 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         return response($str, 200, $headers);
 
     });
+
+    Route::post('postUploadCsvHandle',function (Request $request){
+        if($request->hasFile('import_file')){
+
+            $file_n = storage_path('import_file.csv');
+            $file = fopen($file_n, "r");
+            while ( ($data = fgetcsv($file, 200, ",")) !==FALSE) {
+                \Log::info($data[0]." id and hanlde is ".$data[3]);
+                \DB::table('profiles')->where('id',$data[0])->update(['handle'=>$data[3]]);
+            }
+            fclose($file);
+        }
+
+    });
+
+
 });
