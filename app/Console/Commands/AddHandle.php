@@ -42,7 +42,7 @@ class AddHandle extends Command
         $file_n = storage_path('import_file.csv');
         $file = fopen($file_n, "r");
         while ( ($data = fgetcsv($file, 200, ",")) !==FALSE) {
-            \Log::info($data[0]." id and hanlde is ".$data[3]);
+            echo $data[0]." id and hanlde is ".$data[3] . "\n";
             \DB::table('profiles')->where('id',$data[0])->update(['handle'=>$data[3]]);
         }
         fclose($file);
