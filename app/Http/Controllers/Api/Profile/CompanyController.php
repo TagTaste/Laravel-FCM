@@ -257,6 +257,8 @@ class CompanyController extends Controller
     
         //profiles that are following $channelOwner
         \Redis::sAdd("followers:company:" . $id, $profileId);
+
+        \Redis::sRem('suggested:company:'.$profileId,$id);
         
         return $this->sendResponse();
     }

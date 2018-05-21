@@ -123,7 +123,7 @@ class Job extends Model implements Feedable
     
     public function profile()
     {
-        return $this->belongsTo(Profile::class);
+        return $this->belongsTo(\App\Recipe\Profile::class);
     }
     
     public function getTypeAttribute()

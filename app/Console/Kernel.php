@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\AddHandle;
+use App\Console\Commands\AddSuggestionData;
 use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Companies;
@@ -132,7 +133,23 @@ class Kernel extends ConsoleKernel
 
         DeletePhoto::class,
 
-        AddHandle::class
+        AddHandle::class,
+
+        AddSuggestionData::class,
+
+        //for suggestion command store in redis
+        \App\Console\Commands\Build\Suggestion\Profile::class,
+        \App\Console\Commands\Build\Suggestion\Company::class,
+        \App\Console\Commands\Build\Suggestion\Job::class,
+        \App\Console\Commands\Build\Suggestion\Collaborate::class,
+
+        //for suggestion command store in database
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Profile::class,
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Company::class,
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Job::class,
+        \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
+
+
 
     ];
 
@@ -147,6 +164,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
         $schedule->command('backup:db')->dailyAt('00:00');
+
+        //command for redis store suggestion
+        $schedule->command("build:suggestion:collaborate")->dailyAt('00:01');
+        $schedule->command("build:suggestion:job")->dailyAt('00:01');
+        $schedule->command("build:suggestion:company")->dailyAt('00:01');
+        $schedule->command("build:suggestion:profile")->dailyAt('00:01');
+
+        //command for db store suggestion
+        $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->everyFiveMinutes();
+        $schedule->command("build:suggestion:suggestiontodatabase:job")->everyTenMinutes();
+        $schedule->command("build:suggestion:suggestiontodatabase:company")->everyTenMinutes();
+        $schedule->command("build:suggestion:suggestiontodatabase:profile")->everyTenMinutes();
     }
 
     /**
