@@ -23,7 +23,20 @@ class NotificationController extends Controller
         if(!$profile){
            return $this->sendError("Profile not found.");
         }
-        $this->model = $profile->notifications()->paginate();
+        $notifications = $profile->notifications()->paginate()->toArray();
+        foreach ($notifications['data'] as $index => $notification) {
+
+            if(!isset($notification['data']['notification']))
+            {
+                unset($notifications['data'][$index]);
+                continue;
+            }
+            if(!is_null($notification['data']['profile'])) {
+                $notifications['data'][$index]['isFollowing'] = \App\Profile::isFollowing($request->user()->profile->id,
+                    $notification['data']['profile']['id']);
+            }
+        }
+        $this->model = $notifications;
         return $this->sendResponse();
     }
 

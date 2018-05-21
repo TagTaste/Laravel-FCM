@@ -44,7 +44,11 @@ class Job extends Model implements Feedable
         'resume_required'=>'integer',
         'job_id' => 'integer',
         'profile_id' => 'integer',
-        'company_id' => 'integer'
+        'company_id' => 'integer',
+        'start_month' => 'integer',
+        'start_year' => 'integer',
+        'end_month' => 'integer',
+        'end_year' => 'integer'
     ];
     
     public static function boot()
@@ -114,7 +118,7 @@ class Job extends Model implements Feedable
     
     public function company()
     {
-        return $this->belongsTo(\App\Company::class);
+        return $this->belongsTo(\App\Recipe\Company::class);
     }
     
     public function profile()

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\AddHandle;
 use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\Build\Cache\Collaboration;
 use App\Console\Commands\Build\Cache\Companies;
@@ -130,6 +131,8 @@ class Kernel extends ConsoleKernel
         ServiceInterruption::class,
 
         DeletePhoto::class,
+
+        AddHandle::class
 
     ];
 

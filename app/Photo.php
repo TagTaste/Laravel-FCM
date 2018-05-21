@@ -20,12 +20,12 @@ class Photo extends Model implements Feedable
     
     use IdentifiesOwner, CachedPayload;
     
-    protected $fillable = ['caption','file','privacy_id','payload_id'];
+    protected $fillable = ['caption','file','privacy_id','payload_id','image_info'];
 
     protected $visible = ['id','caption','photoUrl','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId'];
+        'owner','nextPhotoId','previousPhotoId','image_info'];
 
     protected $casts = [
         'privacy_id' => 'integer',

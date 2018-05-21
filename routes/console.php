@@ -130,16 +130,20 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("inviteall",function(){
     $when = \Carbon\Carbon::createFromTime(10,00,00);
-    
-   
+//last mail 8 may
     \DB::table('newsletters')->orderBy('id')->chunk(50,function ($users) use ($when)
     {
         $users->each(function($user) use($when) {
             $email = $user->email;
-            \Log::info("Sending invite mail to " . $email . "\n");
-    
-            $mail = (new \App\Mail\Launch())->onQueue('emails');
-            \Mail::to($email)->later($when,$mail);
+            $x = \App\User::where('email',$email)->exists();
+            if(!$x)
+            {
+                echo "Sending invite mail to " . $email . "\n";
+
+                $mail = (new \App\Mail\Launch())->onQueue('emails');
+                \Mail::to($email)->send($mail);
+            }
+
         });
     });
 });
@@ -243,4 +247,95 @@ Artisan::command('inspire', function () {
     }
 
 });
+
+\Artisan::command("tagtasteFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    foreach ($profileIds as $profileId)
+    {
+        echo 'profile id is'.$profileId ."\n";
+        $x = \Redis::sIsMember("followers:company:111",$profileId);
+        echo 'following is '.$x ."\n";
+        if($x)
+        {
+            continue;
+        }
+
+        $channelOwner = App\Company::find(111);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile::where('id',$profileId)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
+
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.111");
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:111", $profileId);
+
+        echo 'profile id is'.$profileId ."\n";
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId ."\n";
+
+    }
+
+});
+\Artisan::command("tagtasteInsightFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    foreach ($profileIds as $profileId)
+    {
+        echo 'profile id is'.$profileId ."\n";
+        $x = \Redis::sIsMember("followers:company:137",$profileId);
+        echo 'following is '.$x ."\n";
+        if($x)
+        {
+            continue;
+        }
+
+        $channelOwner = App\Company::find(137);
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile::where('id',$profileId)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
+
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.137");
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:137", $profileId);
+
+        echo 'profile id is'.$profileId ."\n";
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId ."\n";
+
+    }
+
+});
+
+\Artisan::command("iOS-App",function(){
+
+    \App\User::with([])->whereNull('deleted_at')
+        ->orderBy('id')->chunk(100,function($users) {
+            $users->each(function($user){
+                $email = $user->email;
+                echo "Sending invite mail to " . $email . "\n";
+
+                $mail = (new \App\Jobs\iOSAppLink($email,$user->name))->onQueue('emails');
+                \Log::info('Queueing send invitation...');
+                dispatch($mail);
+            });
+        });
+});
+
 

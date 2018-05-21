@@ -48,9 +48,10 @@ class ExpireReopen extends Command
         \DB::table("jobs")->where('state',Job::$state[2])->whereIn('id',$jobIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $profile = \App\Profile::find($model->profile_id);
-                if($model->comapny_id != null)
+                $model = Job::find($model->id);
+                if($model->company_id != null)
                 {
-                    $company = Company::find($model->comapny_id);
+                    $company = Company::find($model->company_id);
                     event(new NewFeedable($model, $company));
                 }
                 else
@@ -60,14 +61,16 @@ class ExpireReopen extends Command
                 }
 
                 //push to feed
-
+                echo "model id is ".$model->id . "\n";
 
                 //add subscriber
                 event(new \App\Events\Model\Subscriber\Create($model,$profile));
 
                 \App\Filter\Collaborate::addModel($model);
 
-                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[0],'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString()]);
+                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[0],
+                    'deleted_at'=>null,'expires_on'=>Carbon::now()->addMonth()->toDateTimeString(),
+                    'created_at'=>Carbon::now()->toDateTimeString(),'updated_at'=>Carbon::now()->toDateTimeString()]);
             }
         });
 
@@ -88,6 +91,7 @@ class ExpireReopen extends Command
                 }
 
                 //push to feed
+                echo "model id is ".$model->id . "\n";
 
 
                 //add subscriber

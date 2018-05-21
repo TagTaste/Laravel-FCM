@@ -165,6 +165,7 @@ class ShoutoutController extends Controller
         }
 
 		$this->model = $shoutout->update($inputs);
+        $shoutout->addToCache();
 
         $shoutout = Shoutout::where('id',$id)->whereNull('deleted_at')->first();
         $profileId = $request->user()->profile->id;

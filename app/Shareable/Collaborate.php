@@ -42,7 +42,18 @@ class Collaborate extends Share
 
         return $meta;
     }
-    
+
+    public function getMetaForPublic(){
+        $meta = [];
+        $key = "meta:collaborateShare:likes:" . $this->id;
+
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $meta['commentCount'] = $this->comments()->count();
+
+        return $meta;
+    }
+
     public function getNotificationContent()
     {
         return [

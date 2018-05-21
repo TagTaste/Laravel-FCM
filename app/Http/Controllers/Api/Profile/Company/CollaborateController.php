@@ -147,6 +147,7 @@ class CollaborateController extends Controller
 	public function update(Request $request, $profileId, $companyId, $id)
 	{
 		$inputs = $request->all();
+        unset($inputs['profile_id']);
         unset($inputs['expires_on']);
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 		if($collaborate === null){
@@ -187,8 +188,9 @@ class CollaborateController extends Controller
             $inputs['created_at'] = Carbon::now()->toDateTimeString();
             $inputs['updated_at'] = Carbon::now()->toDateTimeString();
             $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-
             $this->model = $collaborate->update($inputs);
+
+            $collaborate->addToCache();
 
             $company = Company::find($companyId);
             $this->model = Collaborate::find($id);
@@ -249,8 +251,8 @@ class CollaborateController extends Controller
             if(!$company){
                 return $this->sendError( "Company not found.");
             }
-            
-            return $collaborate->approveCompany($company);
+            $this->model = $collaborate->approveCompany($company);
+            return $this->sendResponse();
         }
         
         if($request->has('profile_id')){
@@ -259,8 +261,8 @@ class CollaborateController extends Controller
             if(!$profile){
                 return $this->sendError( "Profile not found.");
             }
-            
-            return $collaborate->approveProfile($profile);
+            $this->model = $collaborate->approveProfile($profile);
+            return $this->sendResponse();
         }
     }
     
@@ -278,8 +280,8 @@ class CollaborateController extends Controller
             if(!$company){
                 return $this->sendError( "Company not found.");
             }
-        
-            return $collaborate->rejectCompany($company);
+            $this->model = $collaborate->rejectCompany($company);
+            return $this->sendResponse();
         }
     
         if($request->has('profile_id')){
@@ -288,8 +290,8 @@ class CollaborateController extends Controller
             if(!$profile){
                 return $this->sendError( "Profile not found.");
             }
-        
-            return $collaborate->rejectProfile($profile);
+            $this->model = $collaborate->rejectProfile($profile);
+            return $this->sendResponse();
         }
     }
 

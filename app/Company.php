@@ -412,14 +412,15 @@ class Company extends Model
     
     public function getHeroImageAttribute($value)
     {
-        try {
-            return !is_null($value) ? \Storage::url($value) : null;
-    
-        } catch (\Exception $e){
-        \Log::warning("Couldn't get hero image for company" . $this->id);
-        \Log::warning($e->getMessage());
+        if(is_null($value))
+        {
+            $fileId = 14 - $this->id % 14;
+            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
         }
-    
+        else
+        {
+            return \Storage::url($value);
+        }
     }
     
     public function getProfileIdAttribute()
@@ -431,8 +432,8 @@ class Company extends Model
     {
     
         //if you use \App\Profile here, it would end up nesting a lot of things.
-        $profiles = Company::getFollowers($this->id);
-        $count = count($profiles);
+//        $profiles = Company::getFollowers($this->id);
+        $count = \Redis::sCard("followers:company:" . $this->id);
 //        if($count > 1000000)
 //        {
 //            $count = round($count/1000000, 1);
@@ -445,7 +446,7 @@ class Company extends Model
 //            $count = $count."K";
 //        }
     
-        return ['count'=> $count, 'profiles' => $profiles];
+        return ['count'=> $count];
     
     }
     

@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 
 /*
@@ -53,14 +55,15 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 // Preview routes
 Route::get('preview/{modelName}/{modelId}','Api\PreviewController@show');
 Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewController@showShared');
+Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
+Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
+Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
 
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
 
-    //verify invite code
-    Route::post('/verifyInviteCode','UserController@verifyInviteCode');
-
+        Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
         Route::get("profile/images/{id}.jpg",['as'=>'profile.image','uses'=>'ProfileController@image']);
@@ -86,6 +89,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
             //chat
+                Route::post('chatMessage',"ChatController@chatMessage");
                 Route::post('chatShareMessage',"ChatController@chatShareMessage");
                 Route::get('chatGroup',"ChatController@chatGroup");
                 Route::get("chatrooms","ChatController@rooms");
@@ -204,11 +208,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //comments
                 Route::get('comments/{model}/{modelId}','CommentController@index');
+                Route::get('comments/{id}/{modelName}/{modelId}','CommentController@notificationComment');
                 Route::post('comments/{model}/{modelId}','CommentController@store');
                 Route::post('comments/{id}/{modelName}/{modelId}','CommentController@update');
                 Route::delete('comments/{id}','CommentController@destroy');
                 Route::delete('comments/{id}/{modelName}/{modelId}','CommentController@commentDelete');
-            
+                Route::get('comment/tagging','CommentController@tagging');
+
+
             //search
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
@@ -423,15 +430,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv",function (){
         $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","users.email as email","profiles.phone as phone",
-            "profiles.city as city" ,"education.start_date as start_date","education.end_date as end_date","education.ongoing as ongoing")
-            ->join("users",'users.id','=','profiles.user_id')
-            ->join("education",'profiles.id','=','education.profile_id')
-            ->where('education.end_date','like','2016')
-            ->orWhere('education.end_date','like','2017')
-            ->orWhere('education.end_date','like','2018')
-            ->orWhereNull('education.end_date')
-            ->orWhere('education.ongoing',1)
+        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","profiles.handle as handle")
+            ->join("users",'users.id','=','profiles.user_id')->where('profiles.id','>',3266)
             ->whereNull('users.deleted_at')
             ->get();
         $headers = array(
@@ -442,9 +442,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('id', 'name', 'email','phone','start_date','end_date','ongoing');
+        $columns = array('id', 'name', 'handle');
 
-        \Log::info($profiles);
         $str = '';
         foreach ($columns as $c) {
             $str = $str.$c.',';
@@ -470,4 +469,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         return response($str, 200, $headers);
 
     });
+
+
 });

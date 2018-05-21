@@ -19,7 +19,7 @@ class User extends BaseUser
 {
     protected $with = ['profile']; //'articles','ideabooks','companies'
 
-    protected $visible = ['name','email','profile','verified_at','invite_code']; //'articles','recommend','ideabooks',
+    protected $visible = ['name','email','profile','verified_at']; //'articles','recommend','ideabooks',
     
     public static function boot()
     {
@@ -27,7 +27,6 @@ class User extends BaseUser
 
         self::created(function(User $user){
             $profile=$user->profile()->create([]);
-            //update core team profile when using invite code registration
         });
 
         self::deleting(function($user){
@@ -193,7 +192,7 @@ class User extends BaseUser
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$inviteCode = null,$socialLink = null)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$socialLink = null)
     {
 
         $user = BaseUser::withTrashed()->where('email',$email)->first();
@@ -207,22 +206,15 @@ class User extends BaseUser
             $user = static::create([
                 'name' => $name,
                 'email' => $email,
-                'password' => bcrypt($password),
+                'password' => is_null($password) ? null : bcrypt($password),
                 'email_token' =>str_random(15),
                 'social_registration'=>$socialRegistration,
-                'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null,
-                'invite_code'=>mt_rand(100000, 999999),
-                'used_invite_code'=>$inviteCode
+                'verified_at'=> $alreadyVerified ? \Carbon\Carbon::now()->toDateTimeString() : null
             ]);
         }
 
         if(!$user){
             throw new \Exception("Could not create user.");
-        }
-        if(!is_null($inviteCode))
-        {
-            $accepted_at = \Carbon\Carbon::now()->toDateTimeString();
-            Invitation::where('invite_code', $inviteCode)->update(["accepted_at"=>$accepted_at,'state'=>Invitation::$registered]);
         }
 
         //attach default role
