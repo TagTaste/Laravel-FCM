@@ -142,7 +142,7 @@ class FeedController extends Controller
         list($skip,$take) = Paginator::paginate($page);
 
         $profileId = $request->user()->profile->id;
-        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+        $this->model = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
@@ -150,13 +150,13 @@ class FeedController extends Controller
 //            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
-            ->take(10)
+            ->take($take)
             ->get();
-        if($payloads->count() === 0){
-            $this->errors[] = 'No more feed';
-            return $this->sendResponse();
-        }
-        $this->getMeta1($payloads,$profileId);
+//        if($payloads->count() === 0){
+//            $this->errors[] = 'No more feed';
+//            return $this->sendResponse();
+//        }
+//        $this->getMeta1($payloads,$profileId);
         return $this->sendResponse();
     }
 
