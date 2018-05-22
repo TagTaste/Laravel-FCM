@@ -158,7 +158,7 @@ class Profile extends Model
 
             $name = $profile->name;
             $name = str_replace(' ', '_', $name);
-//            $name = rtrim($name,'.');
+            $name = rtrim($name,'_');
             $hanleExist = Profile::where('handle',$name)->exists();
             if($hanleExist)
             {
