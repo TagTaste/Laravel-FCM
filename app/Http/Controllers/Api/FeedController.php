@@ -150,7 +150,7 @@ class FeedController extends Controller
 //            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
-            ->take($take)
+            ->take(10)
             ->get();
         if($payloads->count() === 0){
             $this->errors[] = 'No more feed';
