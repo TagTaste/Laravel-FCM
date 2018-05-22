@@ -197,7 +197,7 @@ class Profile extends Model
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
-            event(new SuggestionEngineEvent($profile, 'update'));
+//            event(new SuggestionEngineEvent($profile, 'update'));
 
         });
 
