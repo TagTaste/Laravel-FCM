@@ -91,7 +91,6 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        \Log::info($request->all());
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
         //proper verified.
@@ -99,7 +98,7 @@ class ProfileController extends Controller
             $data['verified'] = empty($data['verified']) ? 0 : 1;
         }
         if(isset($data['profile']['handle']) && !empty($data['profile']['handle']) && ($data['profile']['handle'] != $request->user()->profile->handle)){
-            $handleExist = \DB::table('profiles')->where('handle',$data['profile']['handle'])->exists();
+            $handleExist = \DB::table('profiles')->where('handle',$data['profile']['handle'])->where('id','!=',$request->user()->profile->id)->exists();
             if($handleExist)
             {
                 return $this->sendError("This handle is already in use");
