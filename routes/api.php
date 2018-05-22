@@ -91,7 +91,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
                 Route::get("feed",'FeedController@feed');
                 });
-            Route::get('newfeed','FeedController@newfeed');
             //change password
                 Route::post("change/password","UserController@changePassword");
 
