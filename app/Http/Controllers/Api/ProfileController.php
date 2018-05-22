@@ -265,7 +265,7 @@ class ProfileController extends Controller
     {
         $channelOwnerProfileId = $request->input('id');
         //$request->user()->profile->follow($id);
-        $channelOwner = Profile::find($channelOwnerProfileId);
+        $channelOwner = \App\Recipe\Profile::find($channelOwnerProfileId);
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
