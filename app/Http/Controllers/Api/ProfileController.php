@@ -780,9 +780,8 @@ class ProfileController extends Controller
         $this->model = 0;
         $data = $request->input('handle');
         if(isset($data)) {
-            $this->model = !Profile::where('handle', $data['handle'])->exists();
+            $this->model = !Profile::where('handle', $data['handle'])->where('id','!=',$request->user()->profile->id)->exists();
         }
-
         return $this->sendResponse();
 
     }

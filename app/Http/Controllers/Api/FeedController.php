@@ -136,4 +136,70 @@ class FeedController extends Controller
         return $this->sendResponse();
     }
 
+    public function newfeed(Request $request)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+
+        $profileId = $request->user()->profile->id;
+        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+            ->where('subscribers.profile_id',$profileId)
+            //Query Builder's where clause doesn't work here for some reason.
+            //Don't remove this where query.
+            //Ofcourse, unless you know what you are doing.
+//            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
+            ->orderBy('channel_payloads.created_at','desc')
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        if($payloads->count() === 0){
+            $this->errors[] = 'No more feed';
+            return $this->sendResponse();
+        }
+        $this->getMeta1($payloads,$profileId);
+        return $this->sendResponse();
+    }
+
+    private function getMeta1(&$payloads, &$profileId)
+    {
+//        if($payloads->count() === 0){
+//            $this->errors[] = 'No more feeds';
+//            return;
+//        }
+
+        foreach($payloads as $payload){
+            $type = null;
+            $data = [];
+
+            $cached = json_decode($payload->payload, true);
+
+            foreach($cached as $name => $key){
+                $cachedData = \Redis::get($key);
+                if(!$cachedData){
+                    \Log::warning("could not get from $key");
+                }
+                $data[$name] = json_decode($cachedData,true);
+            }
+            if($payload->model !== null){
+                $model = $payload->model;
+                $type = $this->getType($payload->model);
+                if(strpos($model,'Shareable') != false)
+                {
+                    $model = $model::with([])->where('id',$payload->model_id)->first();
+                }
+                else
+                {
+                    $model = \DB::table($type.'s')->where('id',$payload->model_id)->first();
+
+                }
+                if($model !== null && method_exists($model, 'getMetaFor')){
+                    $data['meta'] = $model->getMetaFor($profileId);
+                }
+            }
+            $data['type'] = $type;
+            $this->model[] = $data;
+        }
+    }
+
+
 }
