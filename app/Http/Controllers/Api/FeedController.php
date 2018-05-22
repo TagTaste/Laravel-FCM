@@ -142,7 +142,7 @@ class FeedController extends Controller
         list($skip,$take) = Paginator::paginate($page);
 
         $profileId = $request->user()->profile->id;
-        $channelNames = \DB::table('subscribers')->where('profile_id',$profileId)->get()->pluck('channel_name');
+        $channelNames = \DB::table('subscribers')->where('profile_id',$profileId)->where('subscribers.channel_name','like','%public.%')->get()->pluck('channel_name');
         $payloads = Payload::whereIn('channel_name',$channelNames)->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
