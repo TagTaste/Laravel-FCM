@@ -24,6 +24,7 @@ class FeedController extends Controller
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
 //            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
+            ->where('subscribers.channel_name','like','%public.%' . $profileId)
             ->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
