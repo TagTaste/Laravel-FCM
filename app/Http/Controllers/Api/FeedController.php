@@ -142,14 +142,8 @@ class FeedController extends Controller
         list($skip,$take) = Paginator::paginate($page);
 
         $profileId = $request->user()->profile->id;
-        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
-            ->where('subscribers.profile_id',$profileId)
-            //Query Builder's where clause doesn't work here for some reason.
-            //Don't remove this where query.
-            //Ofcourse, unless you know what you are doing.
-//            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
-            ->where('subscribers.channel_name','like','%public.%')
-            ->orderBy('channel_payloads.created_at','desc')
+        $channelNames = \DB::table('subscribers')->where('profile_id',$profileId)->get()->pluck('channel_name');
+        $payloads = Payload::whereIn('channel_name',$channelNames)->orderBy('channel_payloads.created_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();
