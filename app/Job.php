@@ -210,7 +210,7 @@ class Job extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        return \Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
+        return (int)\Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
     }
 
     public function getPreviewContent()
