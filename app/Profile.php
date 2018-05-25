@@ -16,137 +16,39 @@ class Profile extends Model
     use PushesToChannel,Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'tagline',
-        'about',
-        'image',
-        'hero_image',
-        'phone', 'country_code',
-        'address',
-        'dob',
-        'interests',
-        'website_url',
-        'blog_url',
-        'facebook_url',
-        'linkedin_url',
-        'instagram_link',
-        'pinterest_url',
-        'twitter_url',
-        'google_url',
-        'other_links',
-        'ingredients',
-        'favourite_moments',
-        'verified',
-        'youtube_channel',
-        'followers',
-        'following',
-        'user_id',
-        'created_at',
-        'pincode',
-        'handle',
-        'expertise', //a.k.a spokenLanguages
-        'keywords',
-        'city',
-        'country',
-        'resume',
-        'email_private',
-        'address_private',
-        'phone_private',
-        'dob_private',
-        'affiliations',
-        'style_image',
-        'style_hero_image',
-        'otp',
-        'verified_phone',
-        'onboarding_step',
+        'tagline', 'about', 'image','hero_image','phone', 'country_code','address', 'dob', 'interests', 'website_url',
+        'blog_url','facebook_url','linkedin_url','instagram_link','pinterest_url','twitter_url', 'google_url', 'other_links',
+        'ingredients', 'favourite_moments', 'verified', 'youtube_channel', 'followers', 'following', 'user_id', 'created_at',
+        'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
+        'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
+        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step',
     ];
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-//        'experience',
-        'awards',
-        'certifications',
-        'tvshows',
-        'books',
-        //'albums',
-        'patents',
-        'projects',
-//        'education',
-        'professional',
-        'training'
+        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training'
     ];
 
-    protected $visible = [
-        'id',
-        'tagline',
-        'about',
-        'phone', 'country_code',
-        'address',
-        'dob',
-        'interests',
-        'imageUrl',
-        'heroImageUrl',
-        'website_url',
-        'blog_url',
-        'facebook_url',
-        'linkedin_url',
-        'google_url',
-        'instagram_link',
-        'pinterest_url',
-        'other_links',
-        'twitter_url',
-        'ingredients',
-        'favourite_moments',
-        'verified',
-        'youtube_channel',
-        'interested_in_opportunities',
-        'followers',
-        'following',
-        'experience',
-        'awards',
-        'certifications',
-        'tvshows',
-        'books',
-        'patents',
-        'followingProfiles',
-        'followerProfiles',
-        'mutualFollowers',
-        'name',
-        'photos',
-        'education',
-        'projects',
-        'professional',
-        'created_at',
-        'pincode',
-        'isTagged',
-        'handle',
-        'expertise',
-        'keywords',
-        'city',
-        'country',
-        'resumeUrl',
-        'email_private',
-        'address_private',
-        'phone_private',
-        'dob_private',
-        'training',
-        'affiliations',
-        'style_image',
-        'style_hero_image',
-        'verified_phone',
-        'notificationCount',
-        'messageCount',
-        'addPassword',
-        'unreadNotificationCount',
-        'onboarding_step',
-        'remainingMessages',
-        'isFollowedBy',
-        'isMessageAble'
+    protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
+        'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
+        'pinterest_url', 'other_links', 'twitter_url', 'ingredients', 'favourite_moments', 'verified', 'youtube_channel',
+        'interested_in_opportunities', 'followers', 'following', 'experience', 'awards', 'certifications', 'tvshows', 'books',
+        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education', 'projects', 'professional',
+        'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
+        'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
+        'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
+        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion'];
+
+    private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
+        'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
+    private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
+        'awards','training','projects','patents','publications'];
 
     public static function boot()
     {
@@ -941,6 +843,47 @@ class Profile extends Model
     {
         $chat = Chat::open($this->id,request()->user()->profile->id);
         return is_null($chat) ? false : true;
+    }
+
+    public function getProfileCompletionAttribute()
+    {
+        if(request()->user()->profile->id == $this->id)
+        {
+            $remaningMandatoryItem = [];
+            $remaningOptionalItem = [];
+            $index = 0;
+            if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
+            {
+                $index++;
+                $remaningMandatoryItem = ['verified_email'];
+            }
+
+            foreach ($this->profileCompletionMandatoryField as $item)
+            {
+                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0)
+                {
+                    $index++;
+                    $remaningMandatoryItem[] = $item;
+                }
+            }
+
+            foreach ($this->profileCompletionOptionalField as $item)
+            {
+                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0)
+                {
+                    $index++;
+                    $remaningOptionalItem[] = $item;
+                }
+            }
+
+            $profileCompletion = [
+                'compalete_percentage' => ((30 - $index) / 30 ) * 100,
+                'mandatory_remaining_field' => $remaningMandatoryItem,
+                'optional_remaining_field' => $remaningOptionalItem
+            ];
+
+            return $profileCompletion;
+        }
     }
 
 }
