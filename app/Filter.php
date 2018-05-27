@@ -163,6 +163,9 @@ class Filter extends Model
         }
         $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
             ->groupBy('key','value')->orderBy('count','desc')->get()->groupBy('key');
+
+        return $allFilters;
+
         $filters = [];
         //$allFilters = $allFilters->keyBy('key');
         $order = $filterClass::$filterOrder;
