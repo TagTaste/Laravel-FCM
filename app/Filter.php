@@ -162,7 +162,7 @@ class Filter extends Model
             $filterClass = "\\App\\Filter\\" . ucfirst($model);
         }
         $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'),\DB::raw('FLOOR(RAND(0)*2) as x'))
-            ->groupBy('key','value')->orderBy('count','desc')->get()->groupBy('key');
+            ->groupBy('key','value')->orderBy('count','desc')->toSql();
         return $allFilters;
         $filters = [];
         //$allFilters = $allFilters->keyBy('key');
