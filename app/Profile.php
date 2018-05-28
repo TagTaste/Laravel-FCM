@@ -877,7 +877,7 @@ class Profile extends Model
             }
             $percentage = ((30 - $index) / 30 ) * 100;
             $profileCompletion = [
-                'compalete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
+                'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
                 'mandatory_remaining_field' => $remaningMandatoryItem,
                 'optional_remaining_field' => $remaningOptionalItem
             ];
