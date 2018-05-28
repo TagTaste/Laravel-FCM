@@ -157,12 +157,15 @@ class Profile extends Model
             //add default handle when profile is created
 
             $name = $profile->name;
+            $name = iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $name);
+            $name = preg_replace("/[^ \w]+/", '', $name);
             $name = str_replace(' ', '_', $name);
+            $name = str_replace('__', '_', $name);
             $name = rtrim($name,'_');
             $hanleExist = Profile::where('handle',$name)->exists();
             if($hanleExist)
             {
-                $name = $name.'.'.mt_rand(100,999);
+                $name = $name.'_'.mt_rand(100,999);
             }
             $profile->update(['handle'=>$name]);
 
@@ -197,7 +200,7 @@ class Profile extends Model
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
-            event(new SuggestionEngineEvent($profile, 'update'));
+//            event(new SuggestionEngineEvent($profile, 'update'));
 
         });
 

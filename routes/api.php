@@ -90,7 +90,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
                 Route::get("feed",'FeedController@feed');
+                Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
+                    Route::resource("photos","PhotoController");
+
                 });
+            });
             //change password
                 Route::post("change/password","UserController@changePassword");
 
