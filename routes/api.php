@@ -94,7 +94,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("photos","PhotoController");
 
                 });
-
             });
             //change password
                 Route::post("change/password","UserController@changePassword");
