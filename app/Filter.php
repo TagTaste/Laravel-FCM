@@ -161,7 +161,7 @@ class Filter extends Model
         if($model){
             $filterClass = "\\App\\Filter\\" . ucfirst($model);
         }
-        $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'),\DB::raw('FLOOR(RAND(0)*2) as x'))
+        $allFilters = $filterClass::select('key','value',\DB::raw('count(`key`) as count'))
             ->groupBy('key','value')->orderBy('count','desc')->take(100)->get()->groupBy('key');
         $filters = [];
         //$allFilters = $allFilters->keyBy('key');
