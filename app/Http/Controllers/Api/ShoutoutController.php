@@ -6,8 +6,6 @@ use App\Company;
 use App\CompanyUser;
 use App\Events\Actions\Tag;
 use App\Events\Model\Subscriber\Create;
-use App\Http\Requests\API\Shoutout\StoreRequest;
-use App\Http\Requests\API\Shoutout\UpdateRequest;
 use App\Shoutout;
 use App\Traits\CheckTags;
 use Illuminate\Http\File;
@@ -84,6 +82,18 @@ class ShoutoutController extends Controller
         {
             $inputs['preview'] = json_encode($inputs['preview']);
         }
+
+        if($request->has('media_file'))
+        {
+            $path = Shoutout::getProfileMediaPath($profile->id);
+            $filename = $request->file('media_file')->getClientOriginalName();
+            $inputs['media_url'] = $request->file("media_file")->storeAs($path, $filename,['visibility'=>'public']);
+            $mediaJson =  $this->videoTranscoding($inputs['media_url']);
+            $mediaJson = json_decode($mediaJson,true);
+            $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
+            $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
+        }
+
 		$this->model = $this->model->create($inputs);
         event(new Create($this->model,$profile));
         
@@ -244,5 +254,35 @@ class ShoutoutController extends Controller
         fwrite($fp, $raw);
         fclose($fp);
         return "app/" . $path . $filename;
+    }
+
+    private function videoTranscoding($url)
+    {
+        $profileId = request()->user()->profile->id;
+        $curl = curl_init();
+        $data = [
+            'profile_id' => $profileId,
+            'file_path' => $url
+        ];
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('TRANSCODING_APIGATEWAY_URL'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30000,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => array(
+                // Set here requred headers
+                "accept: */*",
+                "accept-language: en-US,en;q=0.8",
+                "content-type: application/json",
+            ),
+        ));
+        $response = curl_exec($curl);
+        $response = json_decode($response);
+        $body = $response->body;
+        return json_encode($body,true);
     }
 }
