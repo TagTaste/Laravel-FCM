@@ -13,10 +13,10 @@ class Shoutout extends BaseShoutout
     use IdentifiesOwner, GetTags, HasPreviewContent;
 
     protected $visible = ['id','content','profile_id','company_id','owner','has_tags',
-        'created_at','privacy_id','privacy','image','preview','updated_at'
+        'created_at','privacy_id','privacy','image','preview','updated_at','thumbnail'
     ];
 
-    protected $appends = ['owner'];
+    protected $appends = ['owner','thumbnail'];
 
     public function profile()
     {
@@ -97,6 +97,12 @@ class Shoutout extends BaseShoutout
             \Log::error($e->getMessage());
         }
         return empty($preview) ? null : $preview;
+    }
+
+    public function getthumbnailAttribute()
+    {
+        return isset($this->media_json->thumbnail) ? $this->media_json->thumbnail :null;
+
     }
 
 }
