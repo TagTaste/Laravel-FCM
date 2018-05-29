@@ -325,15 +325,24 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("iOS-App",function(){
 
-    \App\User::with([])->whereNull('deleted_at')
+    \App\User::with(['profile'])->whereNull('deleted_at')->where('id','>=',579)
         ->orderBy('id')->chunk(100,function($users) {
             $users->each(function($user){
-                $email = $user->email;
-                echo "Sending invite mail to " . $email . "\n";
+                if(isset($user->profile->id))
+                {
+                    $profileId = $user->profile->id;
+                    $appExists = \DB::table('app_info')->where('profile_id',$profileId)->exists();
+                    if(!$appExists){
+                        $email = $user->email;
+                        echo "Sending invite mail to " . $email . "\n";
 
-                $mail = (new \App\Jobs\iOSAppLink($email,$user->name))->onQueue('emails');
-                \Log::info('Queueing send invitation...');
-                dispatch($mail);
+                        $mail = (new \App\Jobs\iOSAppLink($email,$user->name))->onQueue('emails');
+                        \Log::info('Queueing send invitation...');
+                        dispatch($mail);
+                    }
+                }
+
+
             });
         });
 });
