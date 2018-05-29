@@ -325,7 +325,7 @@ Artisan::command('inspire', function () {
 
 \Artisan::command("iOS-App",function(){
 
-    \App\User::with(['profile'])->whereNull('deleted_at')
+    \App\User::with(['profile'])->whereNull('deleted_at')->where('id','>=',579)
         ->orderBy('id')->chunk(100,function($users) {
             $users->each(function($user){
                 $profileId = $user->profile->id;
