@@ -38,7 +38,7 @@
                                                                         Dear <strong>{{$userName}}</strong>
                                                                         <br>
                                                                         <br>
-                                                                        TagTaste <strong>iOS applications</strong> and <strong>Android applications</strong> can make it super easy for you to discover,
+                                                                        TagTaste <strong>iOS </strong> and <strong>Android applications</strong> can make it super easy for you to discover,
                                                                         network and collaborate with F&B professionals around you. Click the links given below to download
                                                                         our apps now!
                                                                         <br>
