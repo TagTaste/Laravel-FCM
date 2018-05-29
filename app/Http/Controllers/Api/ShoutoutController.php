@@ -87,7 +87,7 @@ class ShoutoutController extends Controller
         {
             $path = Shoutout::getProfileMediaPath($profile->id);
             $filename = $request->file('media_file')->getClientOriginalName();
-            $filename = str_random(15).\File::extension($filename);
+            $filename = str_random(15).".".\File::extension($filename);
             $inputs['media_url'] = $request->file("media_file")->storeAs($path, $filename,['visibility'=>'public']);
             $mediaJson =  $this->videoTranscoding($inputs['media_url']);
             $mediaJson = json_decode($mediaJson,true);
