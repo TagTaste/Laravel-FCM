@@ -33,10 +33,9 @@ class iOSAppLink
      */
     public function handle()
     {
-        \Log::info("job");
         \Mail::send('emails.iOS-App-Link', ['userName'=>$this->username], function($message)
         {
-            $message->to($this->useremail, $this->username)->subject('TagTaste has an iOS application!');
+            $message->to($this->useremail, $this->username)->subject('TagTaste iOS & Android apps!');
         });
     }
 }
