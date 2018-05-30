@@ -8,7 +8,8 @@ use App\Events\Actions\Follow;
 use App\Events\SuggestionEngineEvent;
 use App\Profile;
 use App\Subscriber;
-use App\SuggestionEngine;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
 use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -748,7 +749,17 @@ class ProfileController extends Controller
                 {
                     $number = substr($number,3);
                 }
-                dispatch((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'));
+                $otp = \DB::table('profiles')->where('id',$request->user()->profile->id)->first();
+
+                $otp = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
+                $text = $otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
+                $client = new Client();
+                $response = $client->get("http://193.105.74.159/api/v3/sendsms/plain?user=".env('SMS_KAP_USERNAME')."&password=".env('SMS_KAP_PASSWORD')."&sender=".env('SMS_KAP_TEMPLATEID')."&SMSText=$text&type=longsms&GSM=91$number");
+
+                $this->model = $profile->update(['otp'=>$otp]);
+
+                $job = ((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
+                dispatch($job);
             }
         }
 
