@@ -366,5 +366,15 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
+
+
+    public function uploadImageCollaborate(Request $request,$id)
+    {
+        $profileId = $request->user()->profile->id;
+        $imageName = str_random("32") . ".jpg";
+        $relativePath = "images/p/$profileId/collaborate";
+        return $request->file("image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+
+    }
     
 }
