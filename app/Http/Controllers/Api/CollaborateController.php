@@ -367,7 +367,6 @@ class CollaborateController extends Controller
 
     }
 
-
     public function uploadImageCollaborate(Request $request)
     {
         $profileId = $request->user()->profile->id;
@@ -384,5 +383,5 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
-    
+
 }
