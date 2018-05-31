@@ -48,32 +48,19 @@ class Collaborate extends BaseCollaborate
     }
 
 
-    public function getImagesAttribute ()
+    public function getImagesAttribute ($value)
     {
 
-        $images=[];
-        if($this->company_id){
-            for($i=1;$i<=5;$i++)
-            {
-                if($this->{"image".$i}!==null)
-                {
-                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
-
-                }
+        if(isset($value)) {
+            $images = json_decode($value, true);
+            $imageArray = [];
+            $i = 1;
+            foreach ($images as $image) {
+                $imageArray[] = $image['image' . $i];
+                $i++;
             }
+            return $imageArray;
         }
-        else
-        {
-            for($i=1;$i<=5;$i++)
-            {
-                if($this->{"image".$i}!==null)
-                {
-                    $images[] = !is_null($this->{"image".$i}) ? \Storage::url($this->{"image".$i}) : null;
-                }
-            }
-        }
-
-        return $images;
     }
 
     public function getStateAttribute($value)
