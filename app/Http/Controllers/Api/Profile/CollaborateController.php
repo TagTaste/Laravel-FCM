@@ -177,19 +177,6 @@ class CollaborateController extends Controller
                 }
             }
         }
-        if($request->has('imagesArray'))
-        {
-            $imageArray = $request->input('imagesArray');
-            $i = 0;
-            foreach ($imageArray as $item)
-            {
-                $inputs["image".($i+1)] = $item;
-                $i++;
-            }
-            for (;$i <= 4; $i++) {
-                $inputs["image".($i+1)] = $imageArray["image".($i+1)];
-            }
-        }
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
