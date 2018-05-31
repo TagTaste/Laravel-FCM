@@ -368,12 +368,20 @@ class CollaborateController extends Controller
     }
 
 
-    public function uploadImageCollaborate(Request $request,$id)
+    public function uploadImageCollaborate(Request $request)
     {
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
         $relativePath = "images/p/$profileId/collaborate";
-        return $request->file("image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+        $this->model = \Storage::url($request->file("image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
+        return $this->sendResponse();
+
+    }
+
+    public function deleteImages(Request $request,$imageUrl)
+    {
+        $this->model = \Storage::delete($imageUrl);
+        return $this->sendResponse();
 
     }
     
