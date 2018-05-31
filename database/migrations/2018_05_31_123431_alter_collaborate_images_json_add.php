@@ -15,6 +15,8 @@ class AlterCollaborateImagesJsonAdd extends Migration
     {
         Schema::table('collaborates',function(Blueprint $table){
             $table->json('images')->nullable();
+            $table->dropColumn(['image1','image2','image3','image4','image5']);
+
         });
     }
 
@@ -27,6 +29,11 @@ class AlterCollaborateImagesJsonAdd extends Migration
     {
         Schema::table('collaborates',function(Blueprint $table){
             $table->dropColumn(['images']);
+            $table->string("image1")->nullable();
+            $table->string("image2")->nullable();
+            $table->string("image3")->nullable();
+            $table->string("image4")->nullable();
+            $table->string("image5")->nullable();
         });
     }
 }
