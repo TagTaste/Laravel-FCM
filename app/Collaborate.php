@@ -19,11 +19,12 @@ class Collaborate extends Model implements Feedable
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
-        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at','created_at','updated_at'];
+        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
+        'created_at','updated_at','category_id','step','financial_min','financial_max'];
     
     protected $with = ['profile','company','fields','categories'];
 
-    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+    static public $state = [1,2,3,4]; //active =1 , delete =2 expired =3 draft as saved=4
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -31,7 +32,8 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at'];
+        'applicationCount','file1','deliverables','start_in','state','updated_at',
+        'step','financial_min','financial_max'];
     
     protected $appends = ['images','applicationCount'];
 
@@ -322,7 +324,7 @@ class Collaborate extends Model implements Feedable
 
     public function categories()
     {
-        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
+        return $this->belongsTo(CollaborateCategory::class,'category_id');
     }
     
     public function getNotificationContent()

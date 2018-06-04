@@ -73,7 +73,10 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $inputs = $request->all();
         $inputs['profile_id'] = $profileId;
-        $inputs['state'] = Collaborate::$state[0];
+
+        //for saved as draft
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
+
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
@@ -149,6 +152,9 @@ class CollaborateController extends Controller
     {
         $inputs = $request->all();
         $profileId = $request->user()->profile->id;
+
+        //saved as draft
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
 
         unset($inputs['expires_on']);
         $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
