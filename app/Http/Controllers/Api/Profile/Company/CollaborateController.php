@@ -207,6 +207,19 @@ class CollaborateController extends Controller
 
             return $this->sendResponse();
         }
+
+        $addresses = $inputs['addresses'];
+
+        if(count($addresses))
+        {
+            Collaborate\Addresses::where('collaborate_id',$id)->delete();
+            foreach ($addresses as &$address)
+            {
+                $address = ['collaborate_id'=>$id,'city'=>$address['city'],'location'=>$address['location']];
+            }
+            $collaborate->addresses()->insert($addresses);
+        }
+
         $this->model = $collaborate->update($inputs);
         
         \App\Filter\Collaborate::addModel(Collaborate::find($id));

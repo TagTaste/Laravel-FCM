@@ -30,6 +30,7 @@ class AlterCollaborateAddColumn extends Migration
     public function down()
     {
         Schema::table('collaborates',function(Blueprint $table){
+            $table->dropForeign(['category_id']);
             $table->dropColumn(['category_id','step','financial_min','financial_max']);
         });
     }

@@ -20,9 +20,9 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
-        'created_at','updated_at','category_id','step','financial_min','financial_max'];
+        'created_at','updated_at','category_id','step','financial_min','financial_max','type_id'];
     
-    protected $with = ['profile','company','fields','categories'];
+    protected $with = ['profile','company','fields','categories','addresses'];
 
     static public $state = [1,2,3,4]; //active =1 , delete =2 expired =3 draft as saved=4
 
@@ -33,9 +33,9 @@ class Collaborate extends Model implements Feedable
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in','state','updated_at',
-        'step','financial_min','financial_max'];
+        'step','financial_min','financial_max','type','type_id','addresses'];
     
-    protected $appends = ['images','applicationCount'];
+    protected $appends = ['images','applicationCount','type'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -424,6 +424,16 @@ class Collaborate extends Model implements Feedable
             return 'Expired';
         else
             return 'Delete';
+    }
+
+    public function getTypeAttribute()
+    {
+        return isset($this->type_id) && !is_null($this->type_id) ? \DB::table('collaborate_types')->where('id',$this->type_id)->first() : null;
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Collaborate\addresses');
     }
 
 }
