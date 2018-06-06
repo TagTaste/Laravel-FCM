@@ -43,7 +43,7 @@ class SuggestionEngineController extends Controller
                     $profileIds[$key] = "profile:small:".$modelId ;
                     $index++;
                 }
-
+                $suggestedProfiles = [];
                 if(count($profileIds)> 0)
                 {
                     $suggestedProfiles = \Redis::mget($profileIds);
