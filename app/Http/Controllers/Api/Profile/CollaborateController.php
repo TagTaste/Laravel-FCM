@@ -210,7 +210,7 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
 
-        $addresses = $inputs['addresses'];
+        $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
 
         if(count($addresses))
         {

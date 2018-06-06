@@ -13,5 +13,4 @@ class Addresses extends Model {
 
     protected $visible = ['city','location','collaborate_id'];
 
-
 }
