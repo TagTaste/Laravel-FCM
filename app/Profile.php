@@ -860,7 +860,7 @@ class Profile extends Model
 
             foreach ($this->profileCompletionMandatoryField as $item)
             {
-                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || $this->count($this->{$item}))
+                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count($this->{$item}))
                 {
                     $index++;
                     $remaningMandatoryItem[] = $item;
@@ -869,7 +869,7 @@ class Profile extends Model
 
             foreach ($this->profileCompletionOptionalField as $item)
             {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || $this->count($this->{$item}))
+                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count($this->{$item}))
                 {
                     $index++;
                     $remaningOptionalItem[] = $item;
