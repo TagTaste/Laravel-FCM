@@ -419,7 +419,7 @@ class Collaborate extends Model implements Feedable
 
     public function addresses()
     {
-        return $this->hasMany('App\Collaborate\addresses');
+        return $this->hasMany('App\Collaborate\Addresses');
     }
 
 }
