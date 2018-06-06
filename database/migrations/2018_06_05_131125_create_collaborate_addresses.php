@@ -14,6 +14,7 @@ class CreateCollaborateAddresses extends Migration
     public function up()
     {
         Schema::create('collaborate_addresses',function(Blueprint $table){
+            $table->increments('id');
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->string('city');

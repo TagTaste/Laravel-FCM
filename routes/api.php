@@ -174,6 +174,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //collaborate
                 //collaborate categories
                 Route::resource("collaborate/categories","CollaborateCategoryController");
+                Route::get('collaborate/types',"CollaborateController@types");
                 
                 //collaborate templates
                  Route::resource("collaborate/templates","CollaborateTemplateController");

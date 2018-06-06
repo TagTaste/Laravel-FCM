@@ -215,8 +215,8 @@ class CollaborateController extends Controller
             Collaborate\Addresses::where('collaborate_id',$id)->delete();
             foreach ($addresses as &$address)
             {
-                $address = ['collaborate_id'=>$id,'city'=>$address['city'],'location'=>$address['location']];
-            }
+                $address = ['collaborate_id'=>$id,'city'=>$address['city'],
+                    'location'=>isset($address['location']) && !is_null($address['location']) ? $address['location'] : null];            }
             $collaborate->addresses()->insert($addresses);
         }
 

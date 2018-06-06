@@ -366,5 +366,12 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function types()
+    {
+        $this->model = \DB::table('collaborate_types')->get();
+
+        return $this->sendResponse();
+    }
     
 }
