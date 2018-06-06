@@ -347,16 +347,18 @@ class Collaborate extends Model implements Feedable
 
     public function getImagesAttribute ($value)
     {
+        $imageArray = [];
         if(isset($value)) {
             $images = json_decode($value, true);
-            $imageArray = [];
+
             $i = 1;
             foreach ($images as $image) {
                 $imageArray[] = $image['image' . $i];
                 $i++;
             }
-            return $imageArray;
         }
+        return $imageArray;
+
     }
     
     public function getApplicationCountAttribute()
