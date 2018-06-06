@@ -191,7 +191,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("collaborate/{id}/archived","CollaborateController@archived");
                     Route::post("collaborate/{id}/apply","CollaborateController@apply");
                     Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
-                    Route::resource("collaborate","CollaborateController");
+                    Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
+                    Route::delete("deleteImages","CollaborateController@deleteImages");
+
+            Route::resource("collaborate","CollaborateController");
     
                 //collaborate comments
                     Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){

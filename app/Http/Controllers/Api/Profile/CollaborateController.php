@@ -80,17 +80,18 @@ class CollaborateController extends Controller
         $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
+        $imagesArray = [];
         if ($request->has("images"))
         {
-            for ($i = 0; $i <= 4; $i++) {
-                if (!$request->hasFile("images.$i.image")) {
-                    break;
-                }
-                $imageName = str_random("32") . ".jpg";
-                $relativePath = "images/p/$profileId/collaborate";
-                $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+            $images = $request->input('images');
+            $i = 1;
+            foreach ($images as $image)
+            {
+                $imagesArray[]['image'.$i] = $image;
+                $i++;
             }
         }
+        $inputs['images'] = json_encode($imagesArray,true);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
@@ -163,26 +164,18 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
+        $imagesArray = [];
         if ($request->has("images"))
         {
-            for ($i = 0; $i <= 4; $i++) {
-                if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 0 && !empty($request->file("images.$i.image"))) {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
-                }
-                else if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 1 && !empty($request->file("images.$i.image")))
-                {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $inputs["image".($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
-                }
-                else if($request->input("images.$i.remove")==1)
-                {
-                    $inputs["image".($i+1)] = null;
-                }
+            $images = $request->input('images');
+            $i = 1;
+            foreach ($images as $image)
+            {
+                $imagesArray[]['image'.$i] = $image;
+                $i++;
             }
         }
+        $inputs['images'] = json_encode($imagesArray,true);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();

@@ -36,14 +36,8 @@ class PhoneVerify implements ShouldQueue
      */
     public function handle()
     {
-        \Log::debug("Sending otp");
+        \Log::info("Sending otp");
         $loggedInProfileId = $this->profile->id;
-        $otp = mt_rand(100000, 999999);
-        $text = $otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
-        $client = new Client();
-        $response = $client->get("http://193.105.74.159/api/v3/sendsms/plain?user=".env('SMS_KAP_USERNAME')."&password=".env('SMS_KAP_PASSWORD')."&sender=".env('SMS_KAP_TEMPLATEID')."&SMSText=$text&type=longsms&GSM=91$this->phone");
-
-        $this->model = Profile::where('id',$loggedInProfileId)->update(['otp'=>$otp]);
         $job = ((new ChangeOtp($loggedInProfileId))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
 
         dispatch($job);
