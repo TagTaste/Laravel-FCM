@@ -43,13 +43,14 @@ class SuggestionEngineController extends Controller
                     $profileIds[$key] = "profile:small:".$modelId ;
                     $index++;
                 }
-                $suggestedProfiles = [];
                 if(count($profileIds)> 0)
                 {
                     $suggestedProfiles = \Redis::mget($profileIds);
                 }
-                foreach($suggestedProfiles as &$profile){
+
+                foreach($suggestedProfiles as $key=> &$profile){
                     if(is_null($profile)){
+                        unset($suggestedProfiles[$key]);
                         continue;
                     }
                     $profile = json_decode($profile);
@@ -81,8 +82,9 @@ class SuggestionEngineController extends Controller
                 {
                     $suggestedCompanies = \Redis::mget($companyIds);
                 }
-                foreach($suggestedCompanies as &$company){
+                foreach($suggestedCompanies as $key=> &$company){
                     if(is_null($company)){
+                        unset($suggestedCompanies[$key]);
                         continue;
                     }
                     $company = json_decode($company);
