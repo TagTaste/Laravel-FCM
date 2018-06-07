@@ -40,19 +40,19 @@ class CountApplications extends Command
      */
     public function handle()
     {
-        Application::chunk(200,function($models){
+        \DB::table('applications')->orderBy('id')->chunk(200,function($models){
             foreach($models as $model){
-                \Redis::hset("meta:job:" . $model->id,"applicationCount",0);
+                \Redis::hset("meta:job:" . $model->job_id,"applicationCount",0);
             }
         });
 
-        Application::chunk(200,function($models){
+        \DB::table('applications')->orderBy('id')->chunk(200,function($models){
             foreach($models as $model){
                 $exist = Profile::where('id',$model->profile_id)->whereNull('deleted_at')->exists();
 
                 if($exist)
                 {
-                    \Redis::hIncrBy("meta:job:" . $model->id,"applicationCount",1);
+                    \Redis::hIncrBy("meta:job:" . $model->job_id,"applicationCount",1);
                 }
             }
         });
