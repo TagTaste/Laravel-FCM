@@ -84,6 +84,7 @@ class SuggestionEngineController extends Controller
                 {
                     $suggestedCompanies = \Redis::mget($companyIds);
                 }
+                $finalModel = [];
                 foreach($suggestedCompanies as $key=> &$company){
                     if(is_null($company)){
                         unset($suggestedCompanies[$key]);
@@ -92,8 +93,10 @@ class SuggestionEngineController extends Controller
                     $company = json_decode($company);
                     $key = "following:profile:".$request->user()->profile->id;
                     $company->isFollowing =  \Redis::sIsMember($key,"company.".$company->id) === 1;
+                    $finalModel[] = $company;
+
                 }
-                $this->model = $suggestedCompanies;
+                $this->model = $finalModel;
                 return $this->sendResponse();
             }
         }
