@@ -22,7 +22,7 @@ class SuggestionEngineController extends Controller
         if($modelName == 'job' || $modelName == 'collaborate')
         {
             $model = new $this->relationships[$modelName];
-            $this->model = $model->whereIn('id',$modelIds)->where('state',1)->take(5)->inRandomOrder()->get()->toArray();
+            $this->model = $model->whereIn('id',$modelIds)->where('state',1)->take(5)->inRandomOrder()->get();
 
             return $this->sendResponse();
         }
@@ -58,7 +58,7 @@ class SuggestionEngineController extends Controller
                     $key = "following:profile:".$request->user()->profile->id;
                     $profile->isFollowing =  \Redis::sIsMember($key,$profile->id) === 1;
                 }
-                $this->model = $suggestedProfiles->toArray();
+                $this->model = $suggestedProfiles;
                 return $this->sendResponse();
             }
             else
@@ -92,7 +92,7 @@ class SuggestionEngineController extends Controller
                     $key = "following:profile:".$request->user()->profile->id;
                     $company->isFollowing =  \Redis::sIsMember($key,"company.".$company->id) === 1;
                 }
-                $this->model = $suggestedCompanies->toArray();
+                $this->model = $suggestedCompanies;
                 return $this->sendResponse();
             }
         }
