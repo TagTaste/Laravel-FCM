@@ -133,4 +133,20 @@ class MemberController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function removeAdmin(Request $request,$chatId)
+    {
+        $profileId = $request->user()->profile->id;
+
+        //check ownership of chat.
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
+        if(!$chat){
+            return $this->sendError("Only chat admin can remove members");
+        }
+
+        $profileIds = $request->input('profile_id');
+        $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
+        return $this->sendResponse();
+
+    }
 }

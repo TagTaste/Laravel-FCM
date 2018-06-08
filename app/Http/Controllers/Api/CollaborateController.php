@@ -366,5 +366,5 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
-    
+
 }
