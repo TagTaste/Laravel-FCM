@@ -20,7 +20,7 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
-        'created_at','updated_at','category_id','step','financial_min','financial_max','type_id','images'];
+        'created_at','updated_at','category_id','step','financial_min','financial_max','type_id','images','collaborate_type'];
 
     protected $with = ['profile','company','fields','categories','addresses'];
 
@@ -33,7 +33,7 @@ class Collaborate extends Model implements Feedable
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in','state','updated_at',
-        'step','financial_min','financial_max','type','type_id','addresses'];
+        'step','financial_min','financial_max','type','type_id','addresses','collaborate_type'];
 
     protected $appends = ['applicationCount','type'];
 
