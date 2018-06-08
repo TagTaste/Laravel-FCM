@@ -77,8 +77,9 @@ class CollaborateController extends Controller
         //saved as draft
         $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
 
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-
+        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+            ? Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() :
+            Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -161,6 +162,18 @@ class CollaborateController extends Controller
 		if($collaborate === null){
 		    return $this->sendError("Collaboration not found.");
         }
+
+        if(isset($inputs['expires_on']) && !is_null($inputs['expires_on']))
+        {
+            $inputs['expires_on'] = Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() ;
+        }
+        else
+        {
+            unset($inputs['expires_on']);
+        }
+
+        if($collaborate->collaborate_type == 'collaborate')
+            unset($inputs['expires_on']);
 
         $imagesArray = [];
         if ($request->has("images"))
