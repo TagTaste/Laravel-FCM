@@ -175,7 +175,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //collaborate categories
                 Route::resource("collaborate/categories","CollaborateCategoryController");
                 Route::get('collaborate/types',"CollaborateController@types");
-                
+                Route::get('batchesColor',"CollaborateController@batchesColor");
+
                 //collaborate templates
                  Route::resource("collaborate/templates","CollaborateTemplateController");
         
@@ -198,6 +199,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
                 //collaborate comments
                     Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                        Route::resource('batches','BatchController');
                         Route::resource('comments','CommentController');
                     });
 
