@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Job;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Profile;
+use Illuminate\Support\Facades\DB;
+use App\Mail\JobResponse;
 
 class JobController extends Controller
 {
@@ -101,4 +105,14 @@ class JobController extends Controller
         
         return $this->sendResponse();
 	}
+    public function jobMailer(Request $request)
+    {
+        $ids = $request->profile_id;
+        foreach ($ids as $id) {
+            $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->value('email');
+            Mail::to($user_info)->send(new JobResponse());
+            return "Mailed users";
+        }
+
+    }
 }
