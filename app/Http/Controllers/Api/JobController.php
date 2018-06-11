@@ -110,8 +110,8 @@ class JobController extends Controller
         $ids = $request->profile_id;
         foreach ($ids as $id) {
             $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->value('email');
-            Mail::to($user_info)->send(new JobResponse());
-            return "Mailed users";
+            Mail::to($user_info)->cc($request->cc)->bcc($request->bcc)->send(new JobResponse());
+            return $this->sendResponse();
         }
 
     }
