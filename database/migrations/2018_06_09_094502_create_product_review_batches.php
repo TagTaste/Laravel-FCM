@@ -13,19 +13,19 @@ class CreateProductReviewBatches extends Migration
      */
     public function up()
     {
-        Schema::create('product_review_batches_color',function(Blueprint $table){
+        Schema::create('collaborate_batches_color',function(Blueprint $table){
             $table->increments('id');
             $table->string('name');
         });
 
-        Schema::create('product_review_batches',function(Blueprint $table){
+        Schema::create('collaborate_batches',function(Blueprint $table){
             $table->increments('id');
             $table->string('name');
             $table->text('notes')->nullable();
             $table->json('allergens')->nullable();
             $table->text('instruction')->nullable();
             $table->unsignedInteger('color_id');
-            $table->foreign("color_id")->references("id")->on("product_review_batches_color");
+            $table->foreign("color_id")->references("id")->on("collaborate_batches_color");
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->unique(['name', 'collaborate_id']);
@@ -42,8 +42,8 @@ class CreateProductReviewBatches extends Migration
      */
     public function down()
     {
-        Schema::drop('product_review_batches');
-        Schema::drop('product_review_batches_color');
+        Schema::drop('collaborate_batches');
+        Schema::drop('collaborate_batches_color');
 
     }
 }

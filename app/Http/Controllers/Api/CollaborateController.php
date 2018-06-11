@@ -393,7 +393,7 @@ class CollaborateController extends Controller
 
     public function batchesColor()
     {
-        $this->model = \DB::table('product_review_batches_color')->get();
+        $this->model = \DB::table('collaborate_batches_color')->get();
         return $this->sendResponse();
     }
 

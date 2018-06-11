@@ -11,7 +11,7 @@ class ProductReviewBatchesColorTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('product_review_batches_color')->insert([
+        DB::table('collaborate_batches_color')->insert([
 
             [
                 'name' => 'Black'
