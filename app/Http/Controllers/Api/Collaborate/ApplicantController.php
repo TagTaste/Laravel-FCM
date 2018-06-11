@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\CompanyUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -104,6 +105,70 @@ class ApplicantController extends Controller
     {
         $batches = $this->model->where('id',$id)->where('collaborate_id',$collaborateId)->first();
         $this->model = $batches->delete();
+        return $this->sendResponse();
+    }
+
+    public function assignBatch(Request $request, $id)
+    {
+        $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $applierProfileIds = $request->input('profile_id');
+        $batchId = $request->input('batch_id');
+        $inputs = [];
+        foreach ($applierProfileIds as $applierProfileId)
+        {
+            $inputs['profile_id'] = $applierProfileId;
+            $inputs['batch_id'] = $batchId;
+        }
+        $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
+
+        return $this->sendResponse();
+    }
+
+    public function assignPeople(Request $request, $id)
+    {
+        $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $applierProfileId = $request->input('profile_id');
+        $batchIds = $request->input('batch_id');
+        $inputs = [];
+        foreach ($batchIds as $batchId)
+        {
+            $inputs['profile_id'] = $applierProfileId;
+            $inputs['batch_id'] = $batchId;
+        }
+        $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
+
         return $this->sendResponse();
     }
 

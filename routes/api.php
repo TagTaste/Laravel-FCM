@@ -201,7 +201,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                         Route::resource('batches','BatchController');
                         Route::resource('comments','CommentController');
-                        Route::get('shortliested','ApplicantController')
+                        Route::post('assignBatch','ApplicantController@assignBatch');
+                        Route::post('assignPeople','ApplicantController@assignPeople');
+                        Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                         Route::resource('showInterested','ApplicantController');
                     });
 
