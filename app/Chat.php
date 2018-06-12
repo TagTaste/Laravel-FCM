@@ -110,7 +110,7 @@ class Chat extends Model
 
     public function getUnreadMessageCountAttribute()
     {
-        return $this->messages()->whereNull('read_on')->count();
+        return \DB::table('chat_messages')->where('chat_id',$this->id)->whereNull('read_on')->count();
     }
 
     public function getIsEnabledAttribute()
