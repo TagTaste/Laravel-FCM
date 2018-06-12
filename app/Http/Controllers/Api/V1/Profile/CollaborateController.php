@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Profile;
+namespace App\Http\Controllers\Api\V1\Profile;
 
 use App\Collaborate;
 use App\Company;
