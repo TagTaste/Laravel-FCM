@@ -51,7 +51,7 @@ class Auth extends GetUserFromToken
         $request->setUserResolver(function() use ($user){
             return $user;
         });
-
+        //return
         return $next($request);
     }
     
