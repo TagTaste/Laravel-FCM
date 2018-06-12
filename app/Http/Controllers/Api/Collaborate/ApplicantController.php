@@ -2,6 +2,7 @@
 
 use App\Collaborate;
 use App\CompanyUser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -168,6 +169,34 @@ class ApplicantController extends Controller
             $inputs['batch_id'] = $batchId;
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
+
+        return $this->sendResponse();
+    }
+
+    public function shortlistPeople(Request $request, $id)
+    {
+        $shortlistedProfiles = $request->input('profile_id');
+        if(!is_array($shortlistedProfiles)){
+            $shortlistedProfiles = [$shortlistedProfiles];
+        }
+        $now = Carbon::now()->toDateTimeString();
+
+        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+
+        return $this->sendResponse();
+    }
+
+    public function rejectPeople(Request $request, $id)
+    {
+        $shortlistedProfiles = $request->input('profile_id');
+        if(!is_array($shortlistedProfiles)){
+            $shortlistedProfiles = [$shortlistedProfiles];
+        }
+        $now = Carbon::now()->toDateTimeString();
+
+        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['rejected_at'=>$now,'shortlisted_at'=>null]);
 
         return $this->sendResponse();
     }

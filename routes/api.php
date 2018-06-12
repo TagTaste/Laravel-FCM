@@ -204,6 +204,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::post('assignBatch','ApplicantController@assignBatch');
                         Route::post('assignPeople','ApplicantController@assignPeople');
                         Route::post('shortlistPeople','ApplicantController@shortlistPeople');
+                        Route::post('rejectPeople','ApplicantController@rejectPeople');
                         Route::resource('showInterested','ApplicantController');
                     });
 
