@@ -18,6 +18,7 @@ use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
+use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\fixKeywords;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
@@ -149,6 +150,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Job::class,
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
+        FixCollaborateImage::class
 
 
     ];

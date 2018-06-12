@@ -31,9 +31,9 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at'];
+        'applicationCount','file1','deliverables','start_in','state','updated_at','images'];
     
-    protected $appends = ['images','applicationCount'];
+    protected $appends = ['applicationCount'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -345,30 +345,19 @@ class Collaborate extends Model implements Feedable
 
     public function getImagesAttribute ()
     {
+        $imageArray = [];
 
-        $images=[];
-        if($this->company_id){
-            for($i=1;$i<=5;$i++)
-            {
-                if($this->{"image".$i}!==null)
-                {
-                    $images[] = !is_null($this->{"image".$i})? \Storage::url($this->{"image".$i}) : null;
-
-                }
-            }
-        }
-        else
+        if(isset($value))
         {
-            for($i=1;$i<=5;$i++)
-            {
-                if($this->{"image".$i}!==null)
-                {
-                    $images[] = !is_null($this->{"image".$i})? \Storage::url($this->{"image".$i}) : null;
-                }
+            $images = json_decode($value, true);
+            $i = 1;
+            foreach ($images as $image) {
+                $imageArray[] = $image['image' . $i];
+                $i++;
             }
         }
+        return $imageArray;
 
-        return $images;
     }
     
     public function getApplicationCountAttribute()
