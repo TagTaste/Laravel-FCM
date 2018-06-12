@@ -51,7 +51,7 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $inputs = $request->input(['batch_id','is_invited']);
+        $inputs = $request->input(['batch_id','is_invited','applier_address']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $inputs['collaborate_id'] = $collaborateId;
 
@@ -203,15 +203,24 @@ class ApplicantController extends Controller
 
     public function inviteForReview(Request $request, $id)
     {
-        $batchId = $request->input('batch_id');
         $profileIds = $request->input('profile_id');
         $inputs = [];
         foreach ($profileIds as $profileId)
         {
-            $inputs[] = ['profile_id'=>$profileId,'batch_id'=>$batchId, 'collaborate_id'=>$id];
+            $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1];
         }
-        dd($inputs);
-        $this->model = $this->model->create($inputs);
+        $this->model = $this->model->insert($inputs);
+        return $this->sendResponse();
+
+    }
+
+    public function acceptInvitation(Request $request, $id)
+    {
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
+            ->where('profile_id',$request->user()->profile->id)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+
+        return $this->sendResponse();
     }
 
 }

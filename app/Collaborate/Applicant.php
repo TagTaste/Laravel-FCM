@@ -9,9 +9,9 @@ class Applicant extends Model {
 
     protected $table = 'collaborate_applicants';
 
-    protected $fillable = ['profile_id','collaborate_id','batch_id','is_invited','shortlisted_at','rejected_at'];
+    protected $fillable = ['profile_id','collaborate_id','batch_id','is_invited','shortlisted_at','rejected_at','applier_address'];
 
-    protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','batches'];
+    protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','batches','applier_address'];
 
     protected $with = ['profile','batches'];
 

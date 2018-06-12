@@ -206,7 +206,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                         Route::post('rejectPeople','ApplicantController@rejectPeople');
                         Route::post('inviteForReview','ApplicantController@inviteForReview');
-                        Route::resource('showInterested','ApplicantController');
+                        Route::post('acceptInvitation','ApplicantController@acceptInvitation');
+                        Route::resource('showIntereste','ApplicantController');
                     });
 
             //photos
