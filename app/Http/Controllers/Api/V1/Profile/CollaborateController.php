@@ -106,9 +106,8 @@ class CollaborateController extends Controller
 //        $this->model->categories()->sync($categories);
 //		$this->model->syncFields($fields);
 
-        $profile = Profile::find($profileId);
+        $profile = \App\Recipe\Profile::find($profileId);
         $this->model = $this->model->fresh();
-
         //push to feed
         event(new NewFeedable($this->model, $profile));
 

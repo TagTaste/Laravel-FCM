@@ -19,7 +19,7 @@ class Collaborate extends Model implements Feedable
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
-        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at','created_at','updated_at'];
+        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at','created_at','updated_at','images'];
     
     protected $with = ['profile','company','fields','categories'];
 
@@ -27,7 +27,7 @@ class Collaborate extends Model implements Feedable
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
-        'description','project_commences','images',
+        'description','project_commences',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
@@ -343,10 +343,9 @@ class Collaborate extends Model implements Feedable
         return ['company'=>'company:small:' . $this->company_id];
     }
 
-    public function getImagesAttribute ()
+    public function getImagesAttribute ($value)
     {
         $imageArray = [];
-
         if(isset($value))
         {
             $images = json_decode($value, true);
