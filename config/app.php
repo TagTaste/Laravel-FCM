@@ -197,8 +197,6 @@ return [
         LaravelFCM\FCMServiceProvider::class,
         Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        Jenssegers\Agent\AgentServiceProvider::class,
-        Stevebauman\Location\LocationServiceProvider::class,
 
     ],
 
@@ -261,8 +259,6 @@ return [
         'FCM'      => LaravelFCM\Facades\FCM::class,
         'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        'Agent' => Jenssegers\Agent\Facades\Agent::class,
-        'Location' => Stevebauman\Location\Facades\Location::class,
     ],
 
 ];
