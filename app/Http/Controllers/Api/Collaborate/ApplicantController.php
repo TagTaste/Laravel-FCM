@@ -201,4 +201,17 @@ class ApplicantController extends Controller
         return $this->sendResponse();
     }
 
+    public function inviteForReview(Request $request, $id)
+    {
+        $batchId = $request->input('batch_id');
+        $profileIds = $request->input('profile_id');
+        $inputs = [];
+        foreach ($profileIds as $profileId)
+        {
+            $inputs[] = ['profile_id'=>$profileId,'batch_id'=>$batchId, 'collaborate_id'=>$id];
+        }
+        dd($inputs);
+        $this->model = $this->model->create($inputs);
+    }
+
 }
