@@ -351,7 +351,7 @@ class Collaborate extends Model implements Feedable
             $images = json_decode($value, true);
             $i = 1;
             foreach ($images as $image) {
-                $imageArray[] = $image.$i;
+                $imageArray[] = $image['image'.$i];
                 $i++;
             }
         }

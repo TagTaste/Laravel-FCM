@@ -66,7 +66,7 @@ class FixCollaborateImage extends Command
                     $image['image'.$i] = \Storage::url($model->image5);
                 }
                 $images = json_encode($image,true);
-                \DB::table('collaborates')->where('id',$model->id)->update(['images'=>$images]);
+                \DB::table('collaborates')->where('id',$model->id)->update(['images'=>[$images]]);
             }
         });
     }
