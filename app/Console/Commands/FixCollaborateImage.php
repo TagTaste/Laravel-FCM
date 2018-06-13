@@ -43,30 +43,31 @@ class FixCollaborateImage extends Command
                 $i = 1;
                 if(isset($model->image1) && !is_null($model->image1))
                 {
-                    $image['image'.$i] = \Storage::url($model->image1);
+                    $image[]['image'.$i] = \Storage::url($model->image1);
                     $i++;
                 }
                 if(isset($model->image2) && !is_null($model->image2))
                 {
-                    $image['image'.$i] = \Storage::url($model->image2);
+                    $image[]['image'.$i] = \Storage::url($model->image2);
                     $i++;
                 }
                 if(isset($model->image3) && !is_null($model->image3))
                 {
-                    $image['image'.$i] = \Storage::url($model->image3);
+                    $image[]['image'.$i] = \Storage::url($model->image3);
                     $i++;
                 }
                 if(isset($model->image4) && !is_null($model->image4))
                 {
-                    $image['image'.$i] = \Storage::url($model->image4);
+                    $image[]['image'.$i] = \Storage::url($model->image4);
                     $i++;
                 }
                 if(isset($model->image5) && !is_null($model->image5))
                 {
-                    $image['image'.$i] = \Storage::url($model->image5);
+                    $image[]['image'.$i] = \Storage::url($model->image5);
                 }
                 $images = json_encode($image,true);
-                \DB::table('collaborates')->where('id',$model->id)->update(['images'=>[$images]]);
+                echo "images ". $images . "\n";
+                \DB::table('collaborates')->where('id',$model->id)->update(['images'=>$images]);
             }
         });
     }
