@@ -351,7 +351,7 @@ class Collaborate extends Model implements Feedable
             $images = json_decode($value, true);
             $i = 1;
             foreach ($images as $image) {
-                $imageArray[] = strpos($image['image' . $i],env('S3_BUCKET'))!== false ? $image['image' . $i] : \Storage::url($image['image' . $i]);
+                $imageArray[] = $image['image' . $i];
                 $i++;
             }
         }

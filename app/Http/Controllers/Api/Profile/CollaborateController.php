@@ -87,7 +87,7 @@ class CollaborateController extends Controller
                 }
                 $imageName = str_random("32") . ".jpg";
                 $relativePath = "images/p/$profileId/collaborate";
-                $imagesArray[]['image'.($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
@@ -170,13 +170,13 @@ class CollaborateController extends Controller
                 if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 0 && !empty($request->file("images.$i.image"))) {
                     $imageName = str_random("32") . ".jpg";
                     $relativePath = "images/p/$profileId/collaborate";
-                    $imagesArray[]['image'.($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                    $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
                 }
                 else if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 1 && !empty($request->file("images.$i.image")))
                 {
                     $imageName = str_random("32") . ".jpg";
                     $relativePath = "images/p/$profileId/collaborate";
-                    $imagesArray[]['image'.($i+1)] = $request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']);
+                    $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
                 }
             }
         }
