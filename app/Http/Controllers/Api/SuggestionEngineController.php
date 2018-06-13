@@ -43,11 +43,12 @@ class SuggestionEngineController extends Controller
                     $profileIds[$key] = "profile:small:".$modelId ;
                     $index++;
                 }
+                $suggestedProfiles = [];
                 if(count($profileIds)> 0)
                 {
                     $suggestedProfiles = \Redis::mget($profileIds);
                 }
-
+                $finalModel = [];
                 foreach($suggestedProfiles as $key=> &$profile){
                     if(is_null($profile)){
                         unset($suggestedProfiles[$key]);
@@ -56,8 +57,9 @@ class SuggestionEngineController extends Controller
                     $profile = json_decode($profile);
                     $key = "following:profile:".$request->user()->profile->id;
                     $profile->isFollowing =  \Redis::sIsMember($key,$profile->id) === 1;
+                    $finalModel[] = $profile;
                 }
-                $this->model = $suggestedProfiles;
+                $this->model = $finalModel;
                 return $this->sendResponse();
             }
             else
@@ -82,6 +84,7 @@ class SuggestionEngineController extends Controller
                 {
                     $suggestedCompanies = \Redis::mget($companyIds);
                 }
+                $finalModel = [];
                 foreach($suggestedCompanies as $key=> &$company){
                     if(is_null($company)){
                         unset($suggestedCompanies[$key]);
@@ -90,8 +93,10 @@ class SuggestionEngineController extends Controller
                     $company = json_decode($company);
                     $key = "following:profile:".$request->user()->profile->id;
                     $company->isFollowing =  \Redis::sIsMember($key,"company.".$company->id) === 1;
+                    $finalModel[] = $company;
+
                 }
-                $this->model = $suggestedCompanies;
+                $this->model = $finalModel;
                 return $this->sendResponse();
             }
         }

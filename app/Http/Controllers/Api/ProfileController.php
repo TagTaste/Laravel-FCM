@@ -454,7 +454,6 @@ class ProfileController extends Controller
         }
 
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
-        \Log::info($profileIds);
         foreach ($profileIds as $key => $value)
         {
             if(str_contains($value,"company")){

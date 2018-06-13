@@ -92,6 +92,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("feed",'FeedController@feed');
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");
+                    Route::resource("collaborate","CollaborateController");
+                    Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                        Route::resource("collaborate","CollaborateController");
+                    });
+
 
                 });
             });
@@ -191,6 +196,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("collaborate/{id}/archived","CollaborateController@archived");
                     Route::post("collaborate/{id}/apply","CollaborateController@apply");
                     Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
+                    Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
+                    Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
     
                 //collaborate comments

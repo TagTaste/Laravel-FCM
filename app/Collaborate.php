@@ -19,7 +19,7 @@ class Collaborate extends Model implements Feedable
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
-        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at','created_at','updated_at'];
+        'notify','privacy_id','file1','deliverables','start_in','state','deleted_at','created_at','updated_at','images'];
     
     protected $with = ['profile','company','fields','categories'];
 
@@ -27,13 +27,13 @@ class Collaborate extends Model implements Feedable
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
-        'description','project_commences','images',
+        'description','project_commences',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at'];
+        'applicationCount','file1','deliverables','start_in','state','updated_at','images'];
     
-    protected $appends = ['images','applicationCount'];
+    protected $appends = ['applicationCount'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -343,32 +343,20 @@ class Collaborate extends Model implements Feedable
         return ['company'=>'company:small:' . $this->company_id];
     }
 
-    public function getImagesAttribute ()
+    public function getImagesAttribute ($value)
     {
-
-        $images=[];
-        if($this->company_id){
-            for($i=1;$i<=5;$i++)
-            {
-                if($this->{"image".$i}!==null)
-                {
-                    $images[] = !is_null($this->{"image".$i})? \Storage::url($this->{"image".$i}) : null;
-
-                }
-            }
-        }
-        else
+        $imageArray = [];
+        if(isset($value))
         {
-            for($i=1;$i<=5;$i++)
-            {
-                if($this->{"image".$i}!==null)
-                {
-                    $images[] = !is_null($this->{"image".$i})? \Storage::url($this->{"image".$i}) : null;
-                }
+            $images = json_decode($value, true);
+            $i = 1;
+            foreach ($images as $image) {
+                $imageArray[] = $image['image'.$i];
+                $i++;
             }
         }
+        return $imageArray;
 
-        return $images;
     }
     
     public function getApplicationCountAttribute()
