@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 use App\Collaborate;
 use App\Company;
@@ -7,6 +8,7 @@ use App\Job;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
+
 class FixCollaborateImage extends Command
 {
     /**
@@ -15,12 +17,14 @@ class FixCollaborateImage extends Command
      * @var string
      */
     protected $signature = 'FixCollaborateImage';
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'fix collab images collaboration';
+
     /**
      * Create a new command instance.
      *
@@ -49,6 +53,7 @@ class FixCollaborateImage extends Command
                 if(isset($model->image2) && !is_null($model->image2))
                 {
                     $image[]['image'.$i] = \Storage::url($model->image2);
+
                     $i++;
                 }
                 if(isset($model->image3) && !is_null($model->image3))
@@ -66,9 +71,10 @@ class FixCollaborateImage extends Command
                     $image[]['image'.$i] = \Storage::url($model->image5);
                 }
                 $images = json_encode($image,true);
-                echo "images ". $images . "\n";
+   
                 \DB::table('collaborates')->where('id',$model->id)->update(['images'=>$images]);
             }
         });
     }
 }
+

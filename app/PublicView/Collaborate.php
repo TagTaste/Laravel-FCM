@@ -52,16 +52,16 @@ class Collaborate extends BaseCollaborate
     {
         $imageArray = [];
 
-        if(isset($value))
-        {
+        if(isset($value)) {
             $images = json_decode($value, true);
+            $imageArray = [];
             $i = 1;
             foreach ($images as $image) {
                 $imageArray[] = $image['image' . $i];
                 $i++;
             }
+            return $imageArray;
         }
-        return $imageArray;
     }
 
     public function getStateAttribute($value)
