@@ -431,9 +431,8 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
-        foreach($data as $key=> &$profile){
+        foreach($data as &$profile){
             if(is_null($profile)){
-                unset($data[$key]);
                 continue;
             }
             $profile = json_decode($profile);
@@ -474,9 +473,8 @@ class ProfileController extends Controller
         {
             $following = \Redis::mget($profileIds);
         }
-        foreach($following as $key=> &$profile){
+        foreach($following as &$profile){
             if(is_null($profile)){
-                unset($following[$key]);
                 continue;
             }
             $profile = json_decode($profile);
