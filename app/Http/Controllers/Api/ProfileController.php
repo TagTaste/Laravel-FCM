@@ -431,8 +431,9 @@ class ProfileController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
-        foreach($data as &$profile){
+        foreach($data as $key=> &$profile){
             if(is_null($profile)){
+                unset($data[$key]);
                 continue;
             }
             $profile = json_decode($profile);
@@ -454,7 +455,6 @@ class ProfileController extends Controller
         }
 
         $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
-        \Log::info($profileIds);
         foreach ($profileIds as $key => $value)
         {
             if(str_contains($value,"company")){
@@ -474,8 +474,9 @@ class ProfileController extends Controller
         {
             $following = \Redis::mget($profileIds);
         }
-        foreach($following as &$profile){
+        foreach($following as $key=> &$profile){
             if(is_null($profile)){
+                unset($following[$key]);
                 continue;
             }
             $profile = json_decode($profile);
