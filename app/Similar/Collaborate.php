@@ -18,6 +18,6 @@ class Collaborate extends BaseModel
         if($this->location){
             $collaborate = $collaborate->where("location",'like',$this->location);
         }
-        return $collaborate->whereNull('deleted_at')->get();
+        return $collaborate->whereNull('deleted_at')->where('id','!=',$this->id)->get();
     }
 }

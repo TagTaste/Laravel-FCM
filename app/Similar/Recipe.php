@@ -13,7 +13,7 @@ class Recipe extends BaseRecipe
         //level
         //type
         //is_vegetarian
-        return self::where('level','=',$this->level)->whereNull('deleted_at')
+        return self::where('level','=',$this->level)->where('id','!=',$this->id)->whereNull('deleted_at')
             ->skip($skip)
             ->take($take)
             ->get();
