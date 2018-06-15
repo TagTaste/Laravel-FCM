@@ -50,20 +50,8 @@ class Collaborate extends BaseCollaborate
 
     public function getImagesAttribute ($value)
     {
-        $imageArray = [];
-        \Log::info("images");
-        \Log::info($value);
 
-        if(isset($value))
-        {
-            $images = json_decode($value, true);
-            $i = 1;
-            foreach ($images as $image) {
-                $imageArray[] = $image['image'.$i];
-                $i++;
-            }
-        }
-        return $imageArray;
+        return $value;
     }
 
     public function getStateAttribute($value)
