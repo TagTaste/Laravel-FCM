@@ -55,8 +55,6 @@ class Collaborate extends BaseCollaborate
         {
             \Log::info("value is here");
             \Log::info($value);
-            \Log::info("ima ");
-                \Log::info($this->images);
             $images = json_decode($value, true);
             $i = 1;
             foreach ($images as $image) {
