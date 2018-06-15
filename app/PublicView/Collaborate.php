@@ -54,6 +54,7 @@ class Collaborate extends BaseCollaborate
 
         if(isset($value))
         {
+            dd($value);
             $images = json_decode($value, true);
             $i = 1;
             foreach ($images as $image) {
