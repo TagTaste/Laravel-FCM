@@ -45,7 +45,12 @@
         {
             "type": "vcs",
             "url":  "https://github.com/TagTaste/Laravel-FCM.git"
-        }
+        },
+        {
+            "type": "composer",
+            "url": "https://packagist.org"
+        },
+        { "packagist": false }
 
     ],
 
