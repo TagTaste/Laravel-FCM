@@ -53,14 +53,18 @@ class Collaborate extends BaseCollaborate
         $imageArray = [];
         if(isset($value))
         {
-            \Log::info("value is here");
-            \Log::info($value);
-            $images = json_decode($value, true);
-            $i = 1;
-            foreach ($images as $image) {
-                $imageArray[] = $image['image'.$i];
-                $i++;
+            if(!is_array($value))
+            {
+                $images = json_decode($value, true);
+                $i = 1;
+                foreach ($images as $image) {
+                    $imageArray[] = $image['image'.$i];
+                    $i++;
+                }
             }
+            else
+                return $value;
+
         }
         return $imageArray;
     }
