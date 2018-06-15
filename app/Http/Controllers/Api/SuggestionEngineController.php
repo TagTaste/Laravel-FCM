@@ -50,11 +50,16 @@ class SuggestionEngineController extends Controller
                 }
                 $finalModel = [];
                 foreach($suggestedProfiles as $key=> &$profile){
-                    if(is_null($profile) || $profile->id == $request->user()->profile->id){
+                    if(is_null($profile)){
                         unset($suggestedProfiles[$key]);
                         continue;
                     }
                     $profile = json_decode($profile);
+                    if($profile->id == $request->user()->profile->id)
+                    {
+                        unset($suggestedProfiles[$key]);
+                        continue;
+                    }
                     $key = "following:profile:".$request->user()->profile->id;
                     $profile->isFollowing =  \Redis::sIsMember($key,$profile->id) === 1;
                     $finalModel[] = $profile;
