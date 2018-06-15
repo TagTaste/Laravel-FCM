@@ -50,7 +50,7 @@ class SuggestionEngineController extends Controller
                 }
                 $finalModel = [];
                 foreach($suggestedProfiles as $key=> &$profile){
-                    if(is_null($profile)){
+                    if(is_null($profile) || $profile->id == $request->user()->profile->id){
                         unset($suggestedProfiles[$key]);
                         continue;
                     }
