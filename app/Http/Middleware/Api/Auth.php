@@ -7,6 +7,11 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Middleware\GetUserFromToken;
+use Torann\GeoIP\Facades\GeoIP;
+use Request;
+use App\Events\LogRecord;
+use App\Version;
+
 
 class Auth extends GetUserFromToken
 {
@@ -17,6 +22,10 @@ class Auth extends GetUserFromToken
      * @param  \Closure  $next
      * @return mixed
      */
+
+    private $versionKey = 'X-VERSION';
+    private $versionKeyIos = 'X-VERSION-IOS';
+
     public function handle($request, Closure $next)
     {
         if(env('APP_ENV') === 'testing'){
@@ -51,9 +60,36 @@ class Auth extends GetUserFromToken
         $request->setUserResolver(function() use ($user){
             return $user;
         });
-
-        return $next($request);
+        
+        $response = $next($request);
+        $this->recordData($request, $response);
+        return $response;
     }
+
+    public function recordData($request, $response)
+    {
+        $versionKey = $this->versionKey;
+        $versionKeyIos = $this->versionKeyIos;
+
+        //To platform info
+        if($request->hasHeader($versionKey)){$data["platform"] = "Android";$data["version"] = $request->header($versionKey);}
+        else if($request->hasHeader($versionKeyIos)){$data["platform"] = "IOS";$data["version"] = $request->header($versionKeyIos);}
+        else {$data["platform"] = "Web";/* $data["device"] = $request->header("User-Agent"); */}
+                
+        $data["method"] = $request->method();
+        $data["ip"] = $request->ip();           //Get ip address
+        $data["url"] = $request->fullUrl();
+        
+        //To get User info
+        $user = $request->user();
+        $data["user"]["id"] = $user["id"];
+        $data["user"]["name"] = $user["name"];
+
+        //To add response field
+        $data["response"]["status"] = $response->status();
+        //Firing the event
+        event(new LogRecord($data));
+     }
     
     
 }
