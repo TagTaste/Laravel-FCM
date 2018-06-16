@@ -28,6 +28,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UpdateFeedable' => ['App\Listeners\UpdateFeedable'],
         'App\Events\DeleteFeedable' => ['App\Listeners\DeleteFeedable'],
         'App\Events\Searchable' => ['App\Listeners\ElasticSearch\Document'],
+        'App\Events\LogRecord' => ['App\Listeners\ElasticSearch\Record'],
         'App\Events\Update' => ['App\Listeners\UpdateNotification'],
 
         'App\Events\Actions\Like' => [],
