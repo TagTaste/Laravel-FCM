@@ -31,7 +31,7 @@ class Auth extends GetUserFromToken
             $user = \App\User::find(1);
             $token = \JWTAuth::fromUser($user);
             $this->auth->authenticate($token);
-            
+
             return $next($request);
         }
 
@@ -75,8 +75,8 @@ class Auth extends GetUserFromToken
         else {$data["platform"] = "Web";/* $data["device"] = $request->header("User-Agent"); */}
                 
         $data["method"] = $request->method();
-        $data["ip"] = $request->ip();           //Get ip address
-        $data["url"] = $request->fullUrl();
+        $data["ip"] = Request::getClientIp();          //Get ip address
+        $data["url"] = $request->url();
         
         //To get User info
         $user = $request->user();
@@ -85,6 +85,7 @@ class Auth extends GetUserFromToken
 
         //To add response field
         $data["response"]["status"] = $response->status();
+
         //Firing the event
         event(new LogRecord($data));
      }
