@@ -36,7 +36,7 @@ class Record implements ShouldQueue
     
         //Add time stamp
         $now = Carbon::now();
-        $data["time"] = $now->format('H:i:s');
+        $data["time"] = $now->format('h:i:s a');
         $data["date"] = $now->format('Y-m-d');
         
         //parameters for elasticsearch
