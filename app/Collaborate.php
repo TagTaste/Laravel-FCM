@@ -20,11 +20,11 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
-        'created_at','updated_at','category_id','step','financial_min','financial_max','type_id','images','collaborate_type'];
+        'created_at','updated_at','images'];
 
-    protected $with = ['profile','company','fields','categories','addresses'];
+    protected $with = ['profile','company','fields','categories'];
 
-    static public $state = [1,2,3,4]; //active =1 , delete =2 expired =3 draft as saved=4
+    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -32,10 +32,9 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at','images',
-        'step','financial_min','financial_max','type','type_id','addresses','collaborate_type'];
+        'applicationCount','file1','deliverables','start_in','state','updated_at','images'];
 
-    protected $appends = ['applicationCount','type'];
+    protected $appends = ['applicationCount'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -324,7 +323,7 @@ class Collaborate extends Model implements Feedable
 
     public function categories()
     {
-        return $this->belongsTo(CollaborateCategory::class,'category_id');
+        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
     }
     
     public function getNotificationContent()
@@ -417,16 +416,6 @@ class Collaborate extends Model implements Feedable
             return 'Expired';
         else
             return 'Delete';
-    }
-
-    public function getTypeAttribute()
-    {
-        return isset($this->type_id) && !is_null($this->type_id) ? \DB::table('collaborate_types')->where('id',$this->type_id)->first() : null;
-    }
-
-    public function addresses()
-    {
-        return $this->hasMany('App\Collaborate\Addresses');
     }
 
 }

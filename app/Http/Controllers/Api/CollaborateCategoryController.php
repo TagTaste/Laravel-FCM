@@ -31,7 +31,7 @@ class CollaborateCategoryController extends Controller
 	 */
 	public function index()
 	{
-        $this->model = CollaborateCategory::get();
+        $this->model = CollaborateCategory::with('children')->paginate();
 
         return $this->sendResponse();
 	}
@@ -65,7 +65,7 @@ class CollaborateCategoryController extends Controller
 	 */
 	public function show($id)
 	{
-        $this->model = $this->model->where('id',$id)->with('children')->paginate();
+        $this->model = $this->model::where('id',$id)->with('children')->paginate();
 
         if(!$this->model){
             return $this->sendError("Collaborate Category not found.");
