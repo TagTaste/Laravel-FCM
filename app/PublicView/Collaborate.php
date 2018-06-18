@@ -19,7 +19,7 @@ class Collaborate extends BaseCollaborate
         ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile'];
 
 
-    protected $appends = ['owner', 'images'];
+    protected $appends = ['owner'];
 
     protected $with = ['profile'];
 
@@ -51,16 +51,19 @@ class Collaborate extends BaseCollaborate
     public function getImagesAttribute ($value)
     {
         $imageArray = [];
-
-        if(isset($value)) {
-            $images = json_decode($value, true);
-            $imageArray = [];
-            $i = 1;
-            foreach ($images as $image) {
-                $imageArray[] = $image['image' . $i];
-                $i++;
+        if(isset($value))
+        {
+            if(!is_array($value))
+            {
+                $images = json_decode($value, true);
+                $i = 1;
+                foreach ($images as $image) {
+                    $imageArray[] = $image['image'.$i];
+                    $i++;
+                }
             }
-            return $imageArray;
+            else
+                return $value;
         }
     }
 

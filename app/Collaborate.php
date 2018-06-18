@@ -350,12 +350,17 @@ class Collaborate extends Model implements Feedable
         $imageArray = [];
         if(isset($value))
         {
-            $images = json_decode($value, true);
-            $i = 1;
-            foreach ($images as $image) {
-                $imageArray[] = $image['image'.$i];
-                $i++;
+            if(!is_array($value))
+            {
+                $images = json_decode($value, true);
+                $i = 1;
+                foreach ($images as $image) {
+                    $imageArray[] = $image['image'.$i];
+                    $i++;
+                }
             }
+            else
+                return $value;
         }
         return $imageArray;
 
@@ -383,7 +388,7 @@ class Collaborate extends Model implements Feedable
         $data['description'] = substr($this->description,0,155);
         $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->title,0,65);
         $data['ogDescription'] = substr($this->description,0,155);
-        $images = $this->getImagesAttribute();
+        $images = $this->getImagesAttribute($this->images);
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0]:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
         $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
