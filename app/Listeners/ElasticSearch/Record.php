@@ -10,9 +10,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Elasticsearch\ClientBuilder;
 use Request;
 use App\Version;
+use Carbon\Carbon;
 
 class Record implements ShouldQueue
-{
+{ 
     /**
      * Create the event listener.
      *
@@ -32,12 +33,14 @@ class Record implements ShouldQueue
     public function handle(LogRecord $event)
     {
         $data = $event->data;
-
+    
         //Add time stamp
-        $data["time"]=date("h:i:s a", time());
-        $data["date"]=date("Y-m-d", time());
+        $now = Carbon::now();
+        $data["time"] = $now->format('H:i:s');
+        $data["date"] = $now->format('Y-m-d');
         
         //parameters for elasticsearch
+        //$month = date('F', strtotime($data["date"]));
         $params = [
             'body' => $data,
             'index' => 'laravellogtest3',
