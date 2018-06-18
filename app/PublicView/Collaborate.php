@@ -64,9 +64,7 @@ class Collaborate extends BaseCollaborate
             }
             else
                 return $value;
-
         }
-        return $imageArray;
     }
 
     public function getStateAttribute($value)

@@ -9,7 +9,20 @@ class CollaborateCategoryTableSeeder extends Seeder {
 
     public function run()
     {
-        // TestDummy::times(20)->create('App\CollaborateCategory');
+        \App\CollaborateCategory::insert([[
+            'name' => 'Solid',
+            'description' => 'Eg. Rusk, cookie, finger chips, etc.'
+        ],[
+            'name' => 'Semi - Solid',
+            'description' => 'Eg. Peanut butter, jam, pickkle, etc.'
+        ],[
+            'name' => 'Alcoholic Beverage',
+            'description' => 'Eg. Whiskey, beer, vodka, gin, etc.'
+        ],[
+            'name' => 'Non - Alcoholic Beverage',
+            'description' => 'Eg. Coffee, milk, tea, soft drinks, etc.'
+        ]]);
+
     }
 
 }

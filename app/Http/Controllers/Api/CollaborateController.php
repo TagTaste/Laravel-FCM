@@ -367,6 +367,13 @@ class CollaborateController extends Controller
 
     }
 
+    public function types()
+    {
+        $this->model = \DB::table('collaborate_types')->get();
+
+        return $this->sendResponse();
+    }
+    
     public function uploadImageCollaborate(Request $request)
     {
         $profileId = $request->user()->profile->id;
@@ -382,6 +389,12 @@ class CollaborateController extends Controller
         $this->model = \Storage::delete($imageUrl);
         return $this->sendResponse();
 
+    }
+
+    public function batchesColor()
+    {
+        $this->model = \DB::table('collaborate_batches_color')->get();
+        return $this->sendResponse();
     }
 
 }
