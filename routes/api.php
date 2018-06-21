@@ -83,6 +83,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::post('/user/requestOtp','UserController@requestOtp');
 
+            /**
+             * Route to update user invite code, this roiute will be mostly used by the admin dashboard
+             */
+            Route::post('/user/updateInviteToken','UserController@updateInviteToken');
+
             Route::get('social/link/{provider}','UserController@socialLink');
 
             Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
