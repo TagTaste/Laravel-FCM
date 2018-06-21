@@ -144,6 +144,21 @@ class UserController extends Controller
         return $this->sendResponse();
     }
 
+    /**
+     * updateInviteToken route clouser to update user invite code
+     */
+    public function updateInviteToken(Request $request)
+    {
+        $inviteToken = $request->input('invite_token');
+
+        $this->model = User::find($request->user()->id);
+        $this->model->used_invite_code = $inviteToken;
+        $this->model->save();
+        
+        return $this->sendResponse();
+    }
+
+
     public function socialLink(Request $request,$provider)
     {
         $socialiteUser = $request->all();
