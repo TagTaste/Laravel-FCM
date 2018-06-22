@@ -257,39 +257,8 @@ class ShoutoutController extends Controller
         return "app/" . $path . $filename;
     }
 
-    private function videoTranscoding($url)
-    {
-        $profileId = request()->user()->profile->id;
-        $curl = curl_init();
-        $data = [
-            'profile_id' => $profileId,
-            'file_path' => $url
-        ];
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => env('TRANSCODING_APIGATEWAY_URL'),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => array(
-                // Set here requred headers
-                "accept: */*",
-                "accept-language: en-US,en;q=0.8",
-                "content-type: application/json",
-            ),
-        ));
-        $response = curl_exec($curl);
-        $response = json_decode($response);
-        $body = $response->body;
-        return json_encode($body,true);
-    }
-
     /**
      * This function is execute our native video transcoder which direct to 
-     * VIDEO_TRANSCODING_NEW_URL = 13.127.56.175:8080/
      */
     private function videoTranscodingNew($url)
     {
