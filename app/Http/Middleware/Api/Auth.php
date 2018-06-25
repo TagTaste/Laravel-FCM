@@ -10,6 +10,8 @@ use Tymon\JWTAuth\Middleware\GetUserFromToken;
 use Request;
 use App\Events\LogRecord;
 use App\Version;
+use App\Events\ContentAnalysisEvent;
+use Illuminate\Support\Collection;
 
 class Auth extends GetUserFromToken
 {
@@ -23,6 +25,7 @@ class Auth extends GetUserFromToken
 
     private $versionKey = 'X-VERSION';
     private $versionKeyIos = 'X-VERSION-IOS';
+    private $request,$content_analysis_req_collection;
 
     public function handle($request, Closure $next)
     {
@@ -88,6 +91,58 @@ class Auth extends GetUserFromToken
 
         //Firing the event
         event(new LogRecord($data));
+     }
+
+     public function terminate($request,$response)
+     {
+        $this->request = $request;
+        \Log::info($this->request->all());
+        $request_data_collection = collect($this->request->all());
+        $this->content_analysis_req_collection = collect ();
+        $request_data_collection->each(function($val,$key){
+            
+            if ($this->request->hasFile($key)) {
+                //File
+                $extension = $this->request->$key->extension();
+                if ($extension == "jpeg" || 
+                    $extension == "jpg" || 
+                    $extension == "png") 
+                {
+                    $dump_path = $this->request->file($key."");
+                    $tempArray = [];
+                    $tempArray["type"] = "image";
+                    $tempArray["value"] = $dump_path;
+                    $this->content_analysis_req_collection->push($tempArray);
+                } 
+                else if($extension == "mp4") {
+                    $dump_path = $this->request->file($key."");
+                    $tempArray = [];
+                    $tempArray["type"] = "video";
+                    $tempArray["value"] = $dump_path;
+                    $this->content_analysis_req_collection->push($tempArray);
+                }
+                
+            } else {
+
+               //Text
+                    $tempArray = [];
+                    $tempArray["type"] = "text";
+                    $tempArray["value"] = $val;
+                    $this->content_analysis_req_collection->push($tempArray);
+            }
+        });
+
+        if($request_data_collection->count() > 0){
+            
+
+            $tempArray = [];
+            $tempArray["type"] = "meta";
+            $tempArray["value"] = "IP- ".$this->request->ip().
+            " UserID- ".$this->request->user()->id.
+            " EndPoint- ".$this->request->fullUrl();
+            $this->content_analysis_req_collection->push($tempArray);
+            event(new ContentAnalysisEvent($this->content_analysis_req_collection));
+        }
      }
     
 }
