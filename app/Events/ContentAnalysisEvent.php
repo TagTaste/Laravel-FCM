@@ -25,8 +25,7 @@ class ContentAnalysisEvent
      */
     public function __construct(Collection $data)
     {
-        //
-        $this->data = $data;
+        $this->data = $data;   
     }
 
     /**
@@ -36,6 +35,6 @@ class ContentAnalysisEvent
      */
     public function broadcastOn()
     {
-        //dd("In Event".$this->request);
+        
     }
 }

@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Collection;
 
-class ContentAnalysisListener 
+
+class ContentAnalysisListener implements ShouldQueue
 {
+   
     /**
      * Create the event listener.
      *
@@ -32,7 +34,10 @@ class ContentAnalysisListener
      */
     public function handle(ContentAnalysisEvent $event)
     {
-      
+        \Log::info("inside listener handler");
+        if (true) {
+            $this->release(30);
+        }
         $this->data = $event->data;
         $this->local_storage = \Storage::disk('s3ContentAnalysis');
         $this->paramsCollection = collect();
@@ -40,36 +45,17 @@ class ContentAnalysisListener
             $key = $valP["type"];
             $val = $valP["value"];
             switch ($key) {
-                case 'image':
-                    $dump_path = $this->local_storage->putFile('temp', $val,'public');
-                    $tempArray = [];
-                    $tempArray["type"] = $key."";
-                    $tempArray["value"] = $dump_path;
-                    $this->paramsCollection->push($tempArray);
-                    # code...
-                    break;
-                case 'video':
-                    $dump_path = $this->local_storage->putFile('temp', $val,'public');
-                    $tempArray = [];
-                    $tempArray["type"] = $key."";
-                    $tempArray["value"] = $dump_path;
-                    $this->paramsCollection->push($tempArray);
-                    # code...
-                    break;
-                case 'text':
-                    $tempArray = [];
-                    $tempArray["type"] = $key."";
-                    $tempArray["value"] = $val;
-                    $this->paramsCollection->push($tempArray);
-                    # code...
-                    break;
                 case 'meta' :
                     $this->meta_data = $val;
                     break;
                 default :
-                    \Log::info("No match!");
+                    $tempArray = [];
+                    $tempArray["type"] = $key."";
+                    $tempArray["value"] = $val;
+                    $this->paramsCollection->push($tempArray);
             }
         });
+       
         $this->contentAnalysisCurlRequest($this->paramsCollection->toArray(),$this->meta_data);
     }
 
@@ -80,11 +66,9 @@ class ContentAnalysisListener
         $post_body = [
             "meta_data" => $meta_data,
             "data" => $data,
-            "bucket_name" => "nonsafe.content.bucket"
+            "bucket_name" => env("S3_CONTENT_ANALYSIS_BUCKET")
         ];
 
-        
-        
 
         $http_header = [
             'Content-Type' => 'application/json'
@@ -109,6 +93,6 @@ class ContentAnalysisListener
         curl_exec($ch);
         
         curl_close($ch);
-        //dd($post_body);
+        
     }
 }

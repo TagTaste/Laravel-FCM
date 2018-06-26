@@ -95,8 +95,9 @@ class Auth extends GetUserFromToken
 
      public function terminate($request,$response)
      {
+
         $this->request = $request;
-        \Log::info($this->request->all());
+        \Log::info($this->request);
         $request_data_collection = collect($this->request->all());
         $this->content_analysis_req_collection = collect ();
         $request_data_collection->each(function($val,$key){
@@ -108,23 +109,25 @@ class Auth extends GetUserFromToken
                     $extension == "jpg" || 
                     $extension == "png") 
                 {
-                    $dump_path = $this->request->file($key."");
+                    //Image
+                    $local_storage = \Storage::disk('s3ContentAnalysis');
+                    $dump_path = $local_storage->putFile('temp', $this->request->file($key.""),'public');
                     $tempArray = [];
                     $tempArray["type"] = "image";
                     $tempArray["value"] = $dump_path;
                     $this->content_analysis_req_collection->push($tempArray);
                 } 
                 else if($extension == "mp4") {
-                    $dump_path = $this->request->file($key."");
+                    //Video
+                    $local_storage = \Storage::disk('s3ContentAnalysis');
+                    $dump_path = $local_storage->putFile('temp', $this->request->file($key.""),'public');
                     $tempArray = [];
                     $tempArray["type"] = "video";
                     $tempArray["value"] = $dump_path;
                     $this->content_analysis_req_collection->push($tempArray);
                 }
-                
             } else {
-
-               //Text
+                    //Text
                     $tempArray = [];
                     $tempArray["type"] = "text";
                     $tempArray["value"] = $val;
@@ -133,8 +136,6 @@ class Auth extends GetUserFromToken
         });
 
         if($request_data_collection->count() > 0){
-            
-
             $tempArray = [];
             $tempArray["type"] = "meta";
             $tempArray["value"] = "IP- ".$this->request->ip().
