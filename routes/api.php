@@ -185,6 +185,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //collaborate
                 //collaborate categories
                 Route::resource("collaborate/categories","CollaborateCategoryController");
+                Route::get('collaborate/types',"CollaborateController@types");
+                Route::get('batchesColor',"CollaborateController@batchesColor");
 
 
                 //collaborate templates
@@ -205,11 +207,19 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
-    
-                //collaborate comments
-                    Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
-                        Route::resource('comments','CommentController');
-                    });
+
+            //collaborate comments
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::resource('batches','BatchController');
+                Route::resource('comments','CommentController');
+                Route::post('assignBatch','ApplicantController@assignBatch');
+                Route::post('assignPeople','ApplicantController@assignPeople');
+                Route::post('shortlistPeople','ApplicantController@shortlistPeople');
+                Route::post('rejectPeople','ApplicantController@rejectPeople');
+                Route::post('inviteForReview','ApplicantController@inviteForReview');
+                Route::post('acceptInvitation','ApplicantController@acceptInvitation');
+                Route::resource('showIntereste','ApplicantController');
+            });
 
             //photos
                 Route::resource("photos","PhotoController");

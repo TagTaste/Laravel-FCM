@@ -50,22 +50,16 @@ class Collaborate extends BaseCollaborate
 
     public function getImagesAttribute ($value)
     {
-        $imageArray = [];
-        if(isset($value))
-        {
-            if(!is_array($value))
-            {
-                $images = json_decode($value, true);
-                $i = 1;
-                foreach ($images as $image) {
-                    $imageArray[] = $image['image'.$i];
-                    $i++;
-                }
+        if(isset($value)) {
+            $images = json_decode($value, true);
+            $imageArray = [];
+            $i = 1;
+            foreach ($images as $image) {
+                $imageArray[] = $image['image' . $i];
+                $i++;
             }
-            else
-                return $value;
+            return $imageArray;
         }
-        return $imageArray;
     }
 
     public function getStateAttribute($value)
