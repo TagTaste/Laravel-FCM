@@ -34,7 +34,7 @@ class ContentAnalysisListener implements ShouldQueue
      */
     public function handle(ContentAnalysisEvent $event)
     {
-        \Log::info("inside listener handler");
+        
         if (true) {
             $this->release(30);
         }

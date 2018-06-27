@@ -97,7 +97,6 @@ class Auth extends GetUserFromToken
      {
 
         $this->request = $request;
-        \Log::info($this->request);
         $request_data_collection = collect($this->request->all());
         $this->content_analysis_req_collection = collect ();
         $request_data_collection->each(function($val,$key){
