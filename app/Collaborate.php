@@ -352,11 +352,20 @@ class Collaborate extends Model implements Feedable
             if(!is_array($value))
             {
                 $images = json_decode($value, true);
-                $i = 1;
-                foreach ($images as $image) {
-                    $imageArray[] = isset($image['image'.$i]) ? $image['image'.$i] : $image;
-                    $i++;
+                $imageArray[] = isset($images['image1']) ? $images['image1'] : null;
+                $imageArray[] = isset($images['image2']) ? $images['image2'] : null;
+                $imageArray[] = isset($images['image3']) ? $images['image3'] : null;
+                $imageArray[] = isset($images['image4']) ? $images['image4'] : null;
+                $imageArray[] = isset($images['image5']) ? $images['image5'] : null;
+                $images = [];
+                foreach ($imageArray as $item)
+                {
+                    if(isset($item)&&is_null($item))
+                        $images[] = $imageArray;
+
                 }
+                return $images;
+
             }
             else
                 return $value;
