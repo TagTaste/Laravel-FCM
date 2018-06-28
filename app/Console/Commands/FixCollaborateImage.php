@@ -41,7 +41,7 @@ class FixCollaborateImage extends Command
      */
     public function handle()
     {
-        \DB::table("collaborates")->where('id',152)->orderBy('id')->chunk(100,function($models){
+        \DB::table("collaborates")->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $image = [];
                 $i = 1;
@@ -69,13 +69,6 @@ class FixCollaborateImage extends Command
                 if(isset($model->image5) && !is_null($model->image5))
                 {
                     $image[]['image'.$i] = \Storage::url($model->image5);
-                }
-                $imagesArray = $model->images;
-                $imagesArray = json_decode($imagesArray, true);
-                foreach ($imagesArray as $image) {
-                    $image[] = $image['image3'];
-                    $image[] = $image['image4'];
-                    break;
                 }
                 $images = json_encode($image,true);
    
