@@ -23,6 +23,7 @@ class CreateCollaborateTastingQuestions extends Migration
             $table->boolean("is_question_nested")->default(0); //default 0 = not nested question present
             $table->boolean("is_nested")->default(0);
             $table->unsignedInteger("parent_question_id")->nullable();
+            $table->json("questions")->nullable();
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->unsignedInteger('tasting_type_id');
