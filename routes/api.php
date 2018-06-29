@@ -195,8 +195,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //collaborates shortlist
                     Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
                     Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
-                    
-                //collaborate
+
+            //collaborate
                     Route::get("collaborate/all","CollaborateController@all");
                     Route::get("collaborate/filters","CollaborateController@filters");
                     Route::post("collaborate/{id}/like","CollaborateController@like");
@@ -219,6 +219,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('inviteForReview','ApplicantController@inviteForReview');
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
                 Route::resource('showIntereste','ApplicantController');
+                // api for product-review tasting
+                Route::get("headers","CollaborateReviewController@headers");
+                Route::get("tastingType/{id}","CollaborateReviewController@reviewQuestions");
             });
 
             //photos
