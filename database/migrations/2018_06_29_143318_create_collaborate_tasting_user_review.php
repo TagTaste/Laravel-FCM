@@ -15,7 +15,8 @@ class CreateCollaborateTastingUserReview extends Migration
     {
         Schema::create('collaborate_tasting_user_review',function(Blueprint $table){
             $table->increments('id');
-            $table->string("value");
+            $table->string("key");
+            $table->text("value");
             $table->unsignedInteger('question_id');
             $table->foreign("question_id")->references("id")->on("collaborate_tasting_questions");
             $table->unsignedInteger('tasting_header_id');
