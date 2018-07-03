@@ -290,7 +290,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             // facebook friends
             Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
-            Route::get("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
+            Route::post("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
 
 
             //check handle
