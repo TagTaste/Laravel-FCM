@@ -17,6 +17,7 @@ class CreateCollaborateTastingAromaticQuestion extends Migration
             $table->increments('id');
             $table->integer("parent_id");
             $table->string("value");
+            $table->unsignedInteger("question_id");
             $table->boolean("is_active")->default(1);
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");

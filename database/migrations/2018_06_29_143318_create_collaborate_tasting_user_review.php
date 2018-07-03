@@ -17,6 +17,8 @@ class CreateCollaborateTastingUserReview extends Migration
             $table->increments('id');
             $table->string("key");
             $table->text("value");
+            $table->unsignedInteger("aroma_id")->nullable();
+            $table->unsignedInteger("aromatic_id")->nullable();
             $table->unsignedInteger('question_id');
             $table->foreign("question_id")->references("id")->on("collaborate_tasting_questions");
             $table->unsignedInteger('tasting_header_id');
