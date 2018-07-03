@@ -15,7 +15,8 @@ class CreateCollaborateTastingHeader extends Migration
     {
         Schema::create('collaborate_tasting_header',function(Blueprint $table){
             $table->increments('id');
-            $table->string("tasting_type");
+            $table->string("header_type");
+            $table->boolean("is_active")->default(1);
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->timestamps();

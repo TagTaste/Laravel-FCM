@@ -17,17 +17,14 @@ class CreateCollaborateTastingQuestions extends Migration
             $table->increments('id');
             $table->string("title");
             $table->string("subtitle")->nullable();
-            $table->integer("select_type")->default(0); // default 0 = multiselect
-            $table->integer("intensity_type")->default(0); // default 0 = not intensity
-            $table->integer("intensity_type_value")->default(0); //default 0 = integer
-            $table->boolean("is_question_nested")->default(0); //default 0 = not nested question present
             $table->boolean("is_nested")->default(0);
             $table->unsignedInteger("parent_question_id")->nullable();
             $table->json("questions")->nullable();
+            $table->boolean("is_active")->default(1);
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
-            $table->unsignedInteger('tasting_type_id');
-            $table->foreign("tasting_type_id")->references("id")->on("collaborate_tasting_header");
+            $table->unsignedInteger('header_type_id');
+            $table->foreign("header_type_id")->references("id")->on("collaborate_tasting_header");
             $table->timestamps();
         });
     }
