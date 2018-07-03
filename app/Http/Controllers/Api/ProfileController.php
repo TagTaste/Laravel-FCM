@@ -834,4 +834,19 @@ class ProfileController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function followFbFriends(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $usersProviderIds = $request->input('provider_user_id');
+        $user_ids = \DB::table('social_accounts')->whereIn('provider_user_id',$usersProviderIds)->get()->pluck('user_id');
+        //dd($profile_ids);
+        $profiles = \App\Recipe\Profile::whereIn('id',$user_ids)->get();
+        foreach ($profiles as &$profile)
+        {
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+        $this->model = $profiles;
+        return $this->sendResponse();
+    }
 }
