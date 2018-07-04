@@ -104,7 +104,7 @@ class CollaborateReviewController extends Controller
         return $this->sendResponse();
     }
 
-    public function headers(Request $request,$id)
+    public function headers(Request $request, $id)
     {
         $this->model = \DB::table('collaborate_tasting_header')->where('collaborate_id',$id)->orderBy('id')->get();
         return $this->sendResponse();
