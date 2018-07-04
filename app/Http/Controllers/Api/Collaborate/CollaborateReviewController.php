@@ -99,14 +99,16 @@ class CollaborateReviewController extends Controller
 
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
-        $this->model = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)->where('tasting_type_id',$id)
-            ->orderBy('id')->get();
+        $this->model = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
+            ->where('header_type_id',$id)->orderBy('id')->get();
+
         return $this->sendResponse();
     }
 
     public function headers(Request $request, $id)
     {
         $this->model = \DB::table('collaborate_tasting_header')->where('collaborate_id',$id)->orderBy('id')->get();
+
         return $this->sendResponse();
     }
 }
