@@ -371,7 +371,7 @@ class User extends BaseUser
         $dob = $this->profile->dob;
         $dob = isset($dob)&&!is_null($dob) ? $dob : isset($socialiteUserInfo['birthday']) ? $socialiteUserInfo['birthday'] : null;
         $date = str_replace('/', '-', $dob);
-        $dob =  date('Y-m-d', strtotime($date));
+        $dob =  date('Y-d-m', strtotime($date));
         $location = $this->profile->address;
         $location = isset($location)&&!is_null($location) ? $location :
             isset($socialiteUserInfo['location']['name']) ? $socialiteUserInfo['location']['name'] : null;
