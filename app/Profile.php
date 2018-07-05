@@ -185,6 +185,7 @@ class Profile extends Model
     public function getDobAttribute($value)
     {
         if (!empty($value)) {
+            return date("d-m-Y", strtotime($value));
 
             if(request()->user()->profile->id == $this->id)
             {
