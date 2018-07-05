@@ -338,7 +338,7 @@ class ChatController extends Controller
 
     }
 
-    public function jobMessage(Request $request)
+    public function jobMessage(Request $request,$id)
     {
         $inputs = $request->except(['_method','_token','isSingle']);
         //set profile_id to logged in user automatically.
@@ -351,14 +351,13 @@ class ChatController extends Controller
         $user = $request->user();
         $loggedInProfileId = $user->profile->id;
         $inputs['profile_id'] = $loggedInProfileId;
-
         if($request->input('isMailable') == 1 && is_array($profileIds))
         {
                  $ids = $request->profile_id;
                  foreach ($ids as $id) 
                 {
-                    $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->value('email');
-                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->queue(new JobResponse());
+                    $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
+                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->send(new JobResponse());
                 }
                 //return $request->input('from');
         }   
@@ -403,10 +402,10 @@ class ChatController extends Controller
                     event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
                 return $this->sendResponse();}
                 else
-                return "message cannot be empty";
-                
+                return $this->sendError("Message field can't be empty");                
             }
         }
+        $inputs['is_single'] = $request->input('isSingle'); 
         $this->model = \App\Chat::create($inputs);
         if($request->hasFile("image"))
         {

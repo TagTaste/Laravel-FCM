@@ -18,9 +18,9 @@ class JobResponse extends Mailable
      */
     public $info;
     
-    public function __construct()
+    public function __construct($data)
     {
-    
+        $this->info = $data;
     }
 
     /**
