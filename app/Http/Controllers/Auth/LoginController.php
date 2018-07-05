@@ -134,7 +134,8 @@ class LoginController extends Controller
     {
         try {
             $this->newRegistered = false;
-            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id']);
+            $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
+            $user = \App\Profile\User::findSocialAccount($provider,$socialiteUser['id'],$socialiteUser,$socialiteUserLink);
 
         } catch (SocialAccountUserNotFound $e){
             //check if user exists,
@@ -149,13 +150,10 @@ class LoginController extends Controller
             if($user){
                 //create social account;
                 $this->newRegistered = false;
-                $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
                 $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
             } else {
 
                 $this->newRegistered = true;
-                $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
-
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
             }
