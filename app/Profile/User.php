@@ -192,7 +192,7 @@ class User extends BaseUser
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$socialLink = null)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$socialLink = null,$socialiteUserInfo)
     {
 
         $user = BaseUser::withTrashed()->where('email',$email)->first();
@@ -225,7 +225,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink,true);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink,true,$socialiteUserInfo);
         }
 
         $user->createDefaultIdeabook();
@@ -234,7 +234,7 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null,$newavatar = false)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null,$newavatar = false,$socialiteUserInfo)
     {
         //create social account
         $this->social()->create([
@@ -252,11 +252,15 @@ class User extends BaseUser
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
-
+        $dob = $this->profile->dob;
+        $dob = isset($dob)&&!is_null($dob) ? $dob : isset($socialiteUserInfo['birthday']) ? $socialiteUserInfo['birthday'] : null;
+        $location = $this->profile->address;
+        $location = isset($location)&&!is_null($location) ? $location :
+            isset($socialiteUserInfo['location']['name']) ? $socialiteUserInfo['location']['name'] : null;
 
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink,'dob'=>$dob,'address'=>$location]);
     }
 
     public function getSocial($typeId)

@@ -150,14 +150,14 @@ class LoginController extends Controller
                 //create social account;
                 $this->newRegistered = false;
                 $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
-                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
             } else {
 
                 $this->newRegistered = true;
                 $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
 
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
-                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
             }
 
         }
