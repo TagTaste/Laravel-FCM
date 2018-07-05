@@ -258,9 +258,12 @@ class User extends BaseUser
         $location = isset($location)&&!is_null($location) ? $location :
             isset($socialiteUserInfo['location']['name']) ? $socialiteUserInfo['location']['name'] : null;
 
+        $gender = isset($this->profile->gender) ? $this->profile->gender : isset($socialiteUserInfo['gender']) ? $socialiteUserInfo['gender'] : null;
+
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink,'dob'=>$dob,'address'=>$location]);
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink,'dob'=>$dob,'address'=>$location,
+            'gender'=>$gender]);
     }
 
     public function getSocial($typeId)
