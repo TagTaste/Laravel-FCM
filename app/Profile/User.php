@@ -368,20 +368,22 @@ class User extends BaseUser
 
     public function updateProfileInfo($provider, $socialiteUserInfo, $socailLink = null)
     {
-        $dob = $this->profile->dob;
-        $dob = isset($dob)&&!is_null($dob) ? $dob : isset($socialiteUserInfo['birthday']) ? $socialiteUserInfo['birthday'] : null;
-        $res = explode("/", $dob);
-        $dob = $res[2]."-".$res[0]."-".$res[1];
-        $location = $this->profile->address;
-        $location = isset($location)&&!is_null($location) ? $location :
-            isset($socialiteUserInfo['location']['name']) ? $socialiteUserInfo['location']['name'] : null;
-
-        $gender = isset($this->profile->gender) ? $this->profile->gender : isset($socialiteUserInfo['gender']) ? $socialiteUserInfo['gender'] : null;
+//        $dob = $this->profile->dob;
+//        $dob = isset($dob)&&!is_null($dob) ? $dob : isset($socialiteUserInfo['birthday']) ? $socialiteUserInfo['birthday'] : null;
+//        $res = explode("/", $dob);
+//        $dob = $res[2]."-".$res[0]."-".$res[1];
+//        $location = $this->profile->address;
+//        $location = isset($location)&&!is_null($location) ? $location :
+//            isset($socialiteUserInfo['location']['name']) ? $socialiteUserInfo['location']['name'] : null;
+//
+//        $gender = isset($this->profile->gender) ? $this->profile->gender : isset($socialiteUserInfo['gender']) ? $socialiteUserInfo['gender'] : null;
 
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socailLink,'dob'=>$dob,'address'=>$location,
-            'gender'=>$gender]);
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socailLink]);
+
+//        ,'dob'=>$dob,'address'=>$location,
+//            'gender'=>$gender
 
         return true;
     }
