@@ -459,7 +459,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv",function (){
         $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","profiles.handle as handle")
+        $profiles = \DB::table("profiles")->select("profiles.id as profileId","users.name as name","users.email as email")
             ->join("users",'users.id','=','profiles.user_id')->where('profiles.id','>',3266)
             ->whereNull('users.deleted_at')
             ->get();
@@ -471,7 +471,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('id', 'name', 'handle');
+        $columns = array('profileId', 'name', 'email');
 
         $str = '';
         foreach ($columns as $c) {
