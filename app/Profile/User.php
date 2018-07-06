@@ -254,7 +254,8 @@ class User extends BaseUser
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
-        $this->updateProfileInfo($provider, $socialiteUserInfo, $socialLink);
+        return $this->updateProfileInfo($provider, $socialiteUserInfo, $socialLink);
+
     }
 
     public function getSocial($typeId)
