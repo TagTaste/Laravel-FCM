@@ -150,7 +150,7 @@ class LoginController extends Controller
             if($user){
                 //create social account;
                 $this->newRegistered = false;
-                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
+                $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink,false,$socialiteUser['user']);
             } else {
 
                 $this->newRegistered = true;
