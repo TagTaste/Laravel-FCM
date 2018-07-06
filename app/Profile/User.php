@@ -189,7 +189,15 @@ class User extends BaseUser
         }
 
         $userInfo = User::where('email','like',$socialiteUser['email'])->first();
-        $userInfo->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
+        if($provider == 'google')
+        {
+            $userInfo->updateProfileInfo($provider,null, $socialiteUserLink);
+
+        }
+        else
+        {
+            $userInfo->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
+        }
         return $user;
     }
 
