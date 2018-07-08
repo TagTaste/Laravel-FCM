@@ -46,8 +46,8 @@ class ChangePassword extends Command
             ->chunk(100,function ($models) {
             foreach ($models as $model) {
                 $dumpUsers = \DB::table('dump_users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
-                echo $dumpUsers->updated_at." id is ".$dumpUsers->id." password is .".$dumpUsers->password ."\n";
-                echo $model->updated_at." id is ".$model->id." password is .".$model->password ."\n";
+                echo $dumpUsers->updated_at." name is ".$dumpUsers->name." password is .".$dumpUsers->password ."\n";
+                echo $model->updated_at." name is ".$model->name." password is .".$model->password ."\n";
             }
         });
     }
