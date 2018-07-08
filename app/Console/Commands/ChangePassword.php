@@ -48,10 +48,12 @@ class ChangePassword extends Command
                 $dumpUsers = \DB::table('dump_users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
                 echo $dumpUsers->updated_at." name is ".$dumpUsers->name." password is .".$dumpUsers->password ."\n";
                 echo $model->updated_at." name is ".$model->name." password is .".$model->password ."\n";
-                $data = \DB::table('dump_users')->where('id',$model->id)->update(['password'=>$dumpUsers->password]);
+                $data = \DB::table('users')->where('id',$model->id)->update(['password'=>$dumpUsers->password]);
                 echo "data is ".$data."\n";
+                $dumpUsers = \DB::table('dump_users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
+                $users = \DB::table('users')->where('id',$model->id)->first();
                 echo $dumpUsers->updated_at." name is ".$dumpUsers->name." password is .".$dumpUsers->password ."\n";
-                echo $model->updated_at." name is ".$model->name." password is .".$model->password ."\n";
+                echo $users->updated_at." name is ".$users->name." password is .".$users->password ."\n";
             }
         });
     }
