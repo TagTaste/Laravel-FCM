@@ -45,7 +45,7 @@ class ChangePassword extends Command
         \DB::table('users')->where('updated_at','<','2018-06-26')->whereNotIn('id',[1,2,7,10,44,685,521,570,27,530,334])->orderBy('id')
             ->chunk(100,function ($models) {
             foreach ($models as $model) {
-                $dumpUsers = \DB::table('users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
+                $dumpUsers = \DB::table('dump_users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
                 echo $dumpUsers->updated_at." id is ".$dumpUsers->id." password is .".$dumpUsers->password ."\n";
                 echo $model->updated_at." id is ".$model->id." password is .".$model->password ."\n";
             }
