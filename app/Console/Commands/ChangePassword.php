@@ -42,7 +42,8 @@ class ChangePassword extends Command
     public function handle()
     {
         $data =[];
-        \DB::table('users')->where('updated_at','<','2018-06-26')->orderBy('id')->chunk(100, function ($models) {
+        \DB::table('users')->where('updated_at','<','2018-06-26')->whereNotIn('id',[1,2,7,10,44,685,521,570,27,530,334])->orderBy('id')
+            ->chunk(100,function ($models) {
             foreach ($models as $model) {
                 echo $model->update_at." id is ".$model->id." password is .".$model->password;
             }
