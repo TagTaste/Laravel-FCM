@@ -42,19 +42,18 @@ class ChangePassword extends Command
     public function handle()
     {
         $data =[];
-        \DB::table('users')->where('updated_at','<','2018-06-26')->whereNotIn('id',[1,2,7,10,44,685,521,570,27,530,334])->orderBy('id')
-            ->chunk(100,function ($models) {
-            foreach ($models as $model) {
-                $dumpUsers = \DB::table('dump_users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
-                echo $dumpUsers->updated_at." name is ".$dumpUsers->name." password is .".$dumpUsers->password ."\n";
-                echo $model->updated_at." name is ".$model->name." password is .".$model->password ."\n";
-                $data = \DB::table('users')->where('id',$model->id)->update(['password'=>$dumpUsers->password]);
-                echo "data is ".$data."\n";
-                $dumpUsers = \DB::table('dump_users')->where('updated_at','<','2018-06-26')->where('id',$model->id)->first();
-                $users = \DB::table('users')->where('id',$model->id)->first();
-                echo $dumpUsers->updated_at." name is ".$dumpUsers->name." password is .".$dumpUsers->password ."\n";
-                echo $users->updated_at." name is ".$users->name." password is .".$users->password ."\n";
-            }
-        });
+        User::select('profiles.id','users.email')->join('profiles','profiles.user_id','=','users.id')
+            ->whereNotIn('users.id',[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,165,44,32,160,161,176,27,253,254,255])
+            ->chunk(100,function($users) use (&$data) {
+
+                foreach ($users as $user)
+                {
+                    $password = sprintf("%06d", random_int(1, 999999));
+                    User::where('email',$user->email)->update(['password'=>bcrypt($password)]);
+                    $data[] = $user->id .",". $user->email ."," . $password ."\n";
+
+                }
+            });
+        Storage::disk('local')->put('file.txt', $data);
     }
 }
