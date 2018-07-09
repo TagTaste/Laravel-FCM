@@ -35,11 +35,6 @@ class CollaborateReviewController extends Controller
         {
             foreach ($withoutNest as &$data)
             {
-                if(isset($data->questions)&&!is_null($data->questions))
-                {
-                    \Log::info($item->questions);
-                    $data->questions = json_decode($data->questions);
-                }
                 $i = 0;
                 if($item->parent_question_id == $data->id)
                 {
