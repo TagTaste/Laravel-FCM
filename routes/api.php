@@ -221,7 +221,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('showIntereste','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers","CollaborateReviewController@headers");
-                Route::get("header/{id}","CollaborateReviewController@reviewQuestions");
+                Route::get("headers/{id}","CollaborateReviewController@reviewQuestions");
                 Route::post("insertHeaders","CollaborateReviewController@insertHeaders");
                 Route::post("insertHeaders/{id}/insertQuestions","CollaborateReviewController@insertQuestions");
             });
