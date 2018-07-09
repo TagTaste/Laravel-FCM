@@ -132,6 +132,7 @@ class LoginController extends Controller
      */
     private function findOrCreateUser($socialiteUser, $provider)
     {
+        print_r($socialiteUser);
         try {
             $this->newRegistered = false;
             $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
