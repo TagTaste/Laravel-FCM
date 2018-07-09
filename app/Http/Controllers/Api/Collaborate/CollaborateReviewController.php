@@ -26,19 +26,23 @@ class CollaborateReviewController extends Controller
     {
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNull('parent_question_id')->where('header_type_id',$id)->orderBy('id')->get();
-
         $withNested = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNotNull('parent_question_id')->where('header_type_id',$id)->orderBy('id')->get();
 
-
+        foreach ($withoutNest as &$data)
+        {
+            if(isset($data->questions)&&!is_null($data->questions))
+            {
+                $data->questions = json_decode($data->questions);
+            }
+        }
+        $i = 0;
         foreach ($withNested as $item)
         {
             foreach ($withoutNest as &$data)
             {
-                $i = 0;
                 if($item->parent_question_id == $data->id)
                 {
-                    \Log::info($item->questions);
                     $item->questions = json_decode($item->questions);
                     $data->questions->question{$i} = $item;
                     $i++;
