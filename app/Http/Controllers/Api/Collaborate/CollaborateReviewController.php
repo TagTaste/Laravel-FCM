@@ -65,7 +65,7 @@ class CollaborateReviewController extends Controller
         $data = [];
         foreach ($inputs as $input)
         {
-            $data = ['header_type'=>$input,'is_active'=>1,'collaborate_id'=>$id];
+            $data[] = ['header_type'=>$input,'is_active'=>1,'collaborate_id'=>$id];
         }
         $this->model = ReviewHeader::insert($data);
 
