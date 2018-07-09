@@ -9,8 +9,8 @@ class Questions extends Model {
 
     protected $table = 'collaborate_tasting_questions';
 
-    protected $fillable = ['key','value','aroma_id','aromatic_id','question_id','tasting_header_id','collaborate_id'];
+    protected $fillable = ['title','subtitle','is_nested','parent_question_id','questions','header_type_id','collaborate_id','created_at','updated_at'];
 
-    protected $visible = ['id','key','value','aroma_id','aromatic_id','question_id','tasting_header_id','collaborate_id'];
+    protected $visible = ['id','title','subtitle','is_nested','parent_question_id','questions','header_type_id','collaborate_id','created_at','updated_at'];
 
 }

@@ -22,82 +22,6 @@ class CollaborateReviewController extends Controller
         $this->model = $model;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
@@ -146,5 +70,22 @@ class CollaborateReviewController extends Controller
         $this->model = ReviewHeader::insert($data);
 
         return $this->sendResponse();
+    }
+
+    public function insertQuestions(Request $request, $collaborateId, $headerId)
+    {
+        $title = $request->input('title');
+        $subTitle = $request->has('subtitle') ? !is_null($request->input('subtitle')) ? $request->input('subtitle') : null : null;
+        $isNested = $request->input('is_nested');
+        $parentQueId = $request->has('parent_question_id') ? !is_null($request->input('parent_question_id'))
+            ? $request->input('parent_question_id') : null : null ;
+
+        $questions = $request->input('questions');
+
+        $this->model = \DB::table('collaborate_tasting_questions')->insert(['title'=>$title,'subtitle'=>$subTitle,'is_nested'=>$isNested,
+            'parent_question_id'=>$parentQueId,'is_active'=>1,'questions'=>$questions,'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId]);
+        return $this->sendResponse();
+
+
     }
 }
