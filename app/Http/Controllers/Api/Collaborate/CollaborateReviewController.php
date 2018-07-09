@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate\Review;
+use App\Collaborate\ReviewHeader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -130,6 +131,19 @@ class CollaborateReviewController extends Controller
     public function headers(Request $request, $id)
     {
         $this->model = \DB::table('collaborate_tasting_header')->where('collaborate_id',$id)->orderBy('id')->get();
+
+        return $this->sendResponse();
+    }
+
+    public function insertHeaders(Request $request, $id)
+    {
+        $inputs = $request->input('header_type');
+        $data = [];
+        foreach ($inputs as $input)
+        {
+            $data = ['header_type'=>$input,'is_active'=>1,'collaborate_id'=>$id];
+        }
+        $this->model = ReviewHeader::insert($data);
 
         return $this->sendResponse();
     }
