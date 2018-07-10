@@ -59,15 +59,22 @@ class CollaborateReviewController extends Controller
         $model = [];
         foreach ($withoutNest as $data)
         {
-            $data->questions->id = $data->id;
-            $data->questions->is_nested = $data->is_nested;
-            $data->questions->is_mandatory = $data->is_mandatory;
-            $data->questions->is_active = $data->is_active;
-            $data->questions->parent_question_id = $data->parent_question_id;
-            $data->questions->header_type_id = $data->header_type_id;
-            $data->questions->collaborate_id = $data->collaborate_id;
+            if(isset($data->questions)&&!is_null($data->questions))
+            {
+                $data->questions->id = $data->id;
+                $data->questions->is_nested = $data->is_nested;
+                $data->questions->is_mandatory = $data->is_mandatory;
+                $data->questions->is_active = $data->is_active;
+                $data->questions->parent_question_id = $data->parent_question_id;
+                $data->questions->header_type_id = $data->header_type_id;
+                $data->questions->collaborate_id = $data->collaborate_id;
 
-            $model[] = $data->questions;
+                $model[] = $data->questions;
+            }
+            else
+            {
+                $model[] = $data;
+            }
         }
         $this->model = $model;
         return $this->sendResponse();
