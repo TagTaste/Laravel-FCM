@@ -52,6 +52,7 @@ class CollaborateReviewController extends Controller
         $model = [];
         foreach ($withoutNest as $data)
         {
+            $data->questions->id = $data->id;
             $data->questions->is_nested = $data->is_nested;
             $data->questions->is_mandatory = $data->is_mandatory;
             $data->questions->is_active = $data->is_active;
