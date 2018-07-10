@@ -113,7 +113,15 @@ class CollaborateReviewController extends Controller
         $this->model = \DB::table('collaborate_tasting_questions')->insert(['title'=>$title,'subtitle'=>$subTitle,'is_nested'=>$isNested,
             'parent_question_id'=>$parentQueId,'is_active'=>1,'is_mandatory'=>1,'questions'=>$questions,'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId]);
         return $this->sendResponse();
+    }
 
-
+    public function reviewanswers(Request $request, $collaborateId, $headerId , $questionsId)
+    {
+        $profileId = $request->user()->profile->id;
+        $key = $request->input('key');
+        $value = $request->input('value');
+        $this->model = \DB::table('collaborate_tasting_questions')->insert(['key'=>$key,'value'=>$value,'question_id'=>$questionsId,
+            'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'profile_id'=>$profileId]);
+        return $this->sendResponse();
     }
 }
