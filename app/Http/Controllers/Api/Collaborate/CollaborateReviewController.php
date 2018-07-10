@@ -36,15 +36,22 @@ class CollaborateReviewController extends Controller
                 $data->questions = json_decode($data->questions);
             }
         }
+        $i = 0;
         foreach ($withNested as $item)
         {
-            $i = 0;
             foreach ($withoutNest as &$data)
             {
                 if($item->parent_question_id == $data->id)
                 {
                     $item->questions = json_decode($item->questions);
-                    $data->questions->questions{$i} = $item;
+                    $item->questions->id = $item->id;
+                    $item->questions->is_nested = $item->is_nested;
+                    $item->questions->is_mandatory = $item->is_mandatory;
+                    $item->questions->is_active = $item->is_active;
+                    $item->questions->parent_question_id = $item->parent_question_id;
+                    $item->questions->header_type_id = $item->header_type_id;
+                    $item->questions->collaborate_id = $item->collaborate_id;
+                    $data->questions->questions{$i} = $item->questions;
                     $i++;
                 }
             }
