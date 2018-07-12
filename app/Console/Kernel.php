@@ -16,6 +16,7 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
+use App\Console\Commands\CollaborationQuestions;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
@@ -150,7 +151,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Job::class,
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
-        FixCollaborateImage::class
+        FixCollaborateImage::class,
+        CollaborationQuestions::class
 
 
     ];
