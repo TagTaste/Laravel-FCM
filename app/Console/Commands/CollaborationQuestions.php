@@ -26,30 +26,35 @@ class CollaborationQuestions extends Command
 		"select_type": 1,
 		"is_intensity": 0,
 		"is_nested": 0,
+		"is_mandatory" : 1,
 		"option": "Broken,Cracked,Uniform Shape"
 	}, {
 		"title": "Color of the mass and crust",
 		"select_type": 1,
 		"is_intensity": 0,
 		"is_nested": 0,
+		"is_mandatory": 1,
 		"option": "Pale,Medium,Deep"
 	}, {
 		"title": "Sponginess on touching",
 		"select_type": 1,
 		"is_intensity": 0,
 		"is_nested": 0,
+		"is_mandatory": 1,
 		"option": "Low,Medium,High"
 	}, {
 		"title": "Overall Preference (Appearance)",
 		"select_type": 1,
 		"is_intensity": 0,
 		"is_nested": 0,
+		"is_mandatory": 1,
 		"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 	}, {
 		"title": "Any comments?",
 		"select_type": 3,
 		"is_intensity": 0,
-		"is_nested": 0
+		"is_nested": 0,
+		"is_mandatory": 1
 	}],
 	"AROMA": [{
 			"title": "Please select the Aroma that you identified",
@@ -58,6 +63,7 @@ class CollaborationQuestions extends Command
 			"intensity_type": 2,
 			"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Milky,Buttery,Fruity,Sour,Chocolate,Caramelized,Cheesy,Nutty,Vanilla,Any Other"
 		},
 		{
@@ -65,6 +71,7 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Citrus,Blueberry,Strawberry,Banana,Almond,Walnut,Raisins,Dry Plums,Pine Apple,Mango"
 		},
 		{
@@ -72,13 +79,15 @@ class CollaborationQuestions extends Command
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 		},
 		{
 			"title": "Any comments?",
 			"select_type": 3,
 			"is_intensity": 0,
-			"is_nested": 0
+			"is_nested": 0,
+			"is_mandatory": 1
 		}
 	],
 	"TASTE": [{
@@ -88,6 +97,7 @@ class CollaborationQuestions extends Command
 			"intensity_type": 2,
 			"intensity_value": "Low,Medium,High",
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Sweet,Salt,Sour,Bitter,Umami"
 		},
 		{
@@ -95,6 +105,7 @@ class CollaborationQuestions extends Command
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Yes,No"
 		},
 		{
@@ -102,13 +113,15 @@ class CollaborationQuestions extends Command
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 		},
 		{
 			"title": "Any comments?",
 			"select_type": 3,
 			"is_intensity": 0,
-			"is_nested": 0
+			"is_nested": 0,
+			"is_mandatory": 1
 		}
 	],
 	"AROMATICS": [{
@@ -116,6 +129,7 @@ class CollaborationQuestions extends Command
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Yes,No"
 		},
 		{
@@ -125,6 +139,7 @@ class CollaborationQuestions extends Command
 			"intensity_type": 2,
 			"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Eggy,Raisin,Caramelized,Vanilla,Citrus,Blueberry,Strawberry,Banana,Almond,Walnut"
 		},
 		{
@@ -132,12 +147,14 @@ class CollaborationQuestions extends Command
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 		},
 		{
 			"title": "Any comments?",
 			"select_type": 3,
 			"is_intensity": 0,
+			"is_mandatory": 1,
 			"is_nested": 0
 		}
 	],
@@ -146,16 +163,19 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Rough,Smooth,Loose Particles,Oily Lips,Moist,Wet"
 		},
 		{
 			"title": "First Chew",
 			"is_nested": 1,
+			"is_mandatory": 0,
 			"question": [{
 					"title": "Uniformity",
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Low,Medium,High"
 				},
 				{
@@ -163,6 +183,7 @@ class CollaborationQuestions extends Command
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Airy,Dense"
 				},
 				{
@@ -170,6 +191,7 @@ class CollaborationQuestions extends Command
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Low,Medium,High"
 				}
 			]
@@ -178,11 +200,13 @@ class CollaborationQuestions extends Command
 
 			"title": "Chewdown experience",
 			"is_nested": 1,
+			"is_mandatory": 0,
 			"question": [{
 					"title": "Moisture absorption",
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Low,Medium,High"
 				},
 				{
@@ -190,6 +214,7 @@ class CollaborationQuestions extends Command
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Low,Medium,High"
 				}
 			]
@@ -197,11 +222,13 @@ class CollaborationQuestions extends Command
 		{
 			"title": "Residual/After-taste (Swallow)",
 			"is_nested": 1,
+			"is_mandatory": 0,
 			"question": [{
 					"title": "Loose Particles",
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Yes,No"
 				},
 				{
@@ -209,6 +236,7 @@ class CollaborationQuestions extends Command
 					"select_type": 1,
 					"is_intensity": 0,
 					"is_nested": 0,
+					"is_mandatory": 1,
 					"option": "Yes,No"
 				}
 			]
@@ -218,11 +246,13 @@ class CollaborationQuestions extends Command
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
+			"is_mandatory": 1,
 			"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 		}, {
 			"title": "Any comments?",
 			"select_type": 3,
 			"is_intensity": 0,
+			"is_mandatory": 1,
 			"is_nested": 0
 		}
 	],
@@ -231,11 +261,13 @@ class CollaborationQuestions extends Command
 		"select_type": 1,
 		"is_intensity": 0,
 		"is_nested": 0,
+		"is_mandatory": 1,
 		"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 	}, {
 		"title": "Any comments?",
 		"select_type": 3,
 		"is_intensity": 0,
+		"is_mandatory": 1,
 		"is_nested": 0
 	}]
 
@@ -267,7 +299,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 429;
+        $collaborateId = 1;
         foreach ($questions as $key=>$question)
         {
             $data = [];
@@ -279,9 +311,10 @@ class CollaborationQuestions extends Command
                 $subtitle = isset($item['subtitle']) ? $item['subtitle'] : null;
                 $subquestions = isset($item['question']) ? $item['question'] : [];
                 $isNested = isset($item['is_nested']) && $item['is_nested'] == 1 ? 1 : 0;
+                $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
                 unset($item['question']);
                 $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
-                        'header_type_id'=>$headerId,'is_mandatory'=>1,'is_active','collaborate_id'=>$collaborateId];
+                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
 
                 $x = Collaborate\Questions::create($data);
                 \Log::info($x->id);
@@ -289,9 +322,10 @@ class CollaborationQuestions extends Command
                 {
                     $subtitle = isset($subquestion['subtitle']) ? $subquestion['subtitle'] : null;
                     $isNested = isset($subquestion['is_nested']) && $subquestion['is_nested'] == 1 ? 1 : 0;
+                    $isMandatory = isset($subquestion['is_mandatory']) && $subquestion['is_mandatory'] == 1 ? 1 : 0;
                     unset($subquestion['question']);
                     $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
-                        'header_type_id'=>$headerId,'is_mandatory'=>1,'is_active','collaborate_id'=>$collaborateId];
+                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
                     $x = Collaborate\Questions::create($subData);
                     \Log::info($x->id);
 

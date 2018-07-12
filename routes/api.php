@@ -227,6 +227,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("headers/{id}","QuestionController@reviewQuestions");
                 Route::post("insertHeaders","QuestionController@insertHeaders");
                 Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
+                Route::post("insertQuestion/{id}/aroma","QuestionController@aromQuestions");
             });
 
             //photos
