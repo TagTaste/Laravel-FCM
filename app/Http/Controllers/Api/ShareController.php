@@ -19,7 +19,7 @@ class ShareController extends Controller
     private function getModel(&$modelName, &$id)
     {
         $class = "\\App\\" . ucwords($modelName);
-        return $class::find($id)->whereNull('deleted_at');
+        return $class::where('id',$id)->whereNull('deleted_at')->first();
     }
     
     public function store(Request $request, $modelName, $id)
