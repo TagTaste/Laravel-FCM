@@ -27,6 +27,7 @@ class ReviewController extends Controller
         $profileId = $request->user()->profile->id;
         $key = $request->input('key');
         $value = $request->input('value');
+        $batchId = $request->input('batch_id');
         $existReview = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('tasting_header_id',$headerId)
             ->where('question_id',$questionsId)->where('profile_id',$profileId)->where('key',$key)->exists();
 
