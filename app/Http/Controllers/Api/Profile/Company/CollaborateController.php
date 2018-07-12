@@ -74,9 +74,12 @@ class CollaborateController extends Controller
 		$inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
 
-        $inputs['state'] = Collaborate::$state[0];
+        //saved as draft
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
 
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
+        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+            ? Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() :
+            Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -86,13 +89,12 @@ class CollaborateController extends Controller
         $imagesArray = [];
         if ($request->has("images"))
         {
-            for ($i = 0; $i <= 4; $i++) {
-                if (!$request->hasFile("images.$i.image")) {
-                    break;
-                }
-                $imageName = str_random("32") . ".jpg";
-                $relativePath = "images/p/$profileId/collaborate";
-                $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
+            $images = $request->input('images');
+            $i = 1;
+            foreach ($images as $image)
+            {
+                $imagesArray[]['image'.$i] = $image;
+                $i++;
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
@@ -151,29 +153,35 @@ class CollaborateController extends Controller
 	{
 		$inputs = $request->all();
         unset($inputs['profile_id']);
-        unset($inputs['expires_on']);
 
+        //saved as draft
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 		  if($collaborate === null){
 		    return $this->sendError("Collaboration not found.");
         }
+        if(isset($inputs['expires_on']) && !is_null($inputs['expires_on']))
+        {
+            $inputs['expires_on'] = Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() ;
+        }
+        else
+        {
+            unset($inputs['expires_on']);
+        }
+
+        if($collaborate->collaborate_type == 'collaborate')
+            unset($inputs['expires_on']);
 
         $imagesArray = [];
         if ($request->has("images"))
         {
-            for ($i = 0; $i <= 4; $i++) {
-                if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 0 && !empty($request->file("images.$i.image"))) {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
-                }
-                else if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 1 && !empty($request->file("images.$i.image")))
-                {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
-                }
+            $images = $request->input('images');
+            $i = 1;
+            foreach ($images as $image)
+            {
+                $imagesArray[]['image'.$i] = $image;
+                $i++;
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
@@ -205,9 +213,24 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
 
+        $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
+
+        if(count($addresses))
+        {
+            Collaborate\Addresses::where('collaborate_id',$id)->delete();
+            foreach ($addresses as &$address)
+            {
+                $address = ['collaborate_id'=>$id,'city'=>$address['city'],
+                    'location'=>isset($address['location']) && !is_null($address['location']) ? json_encode($address['location']) : null];
+            }
+            $collaborate->addresses()->insert($addresses);
+        }
+
         $this->model = $collaborate->update($inputs);
+
+        $this->model = Collaborate::find($id);
         
-        \App\Filter\Collaborate::addModel(Collaborate::find($id));
+        \App\Filter\Collaborate::addModel($this->model);
         
         return $this->sendResponse();
     }

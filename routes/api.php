@@ -185,6 +185,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //collaborate
                 //collaborate categories
                 Route::resource("collaborate/categories","CollaborateCategoryController");
+                Route::get('collaborate/types',"CollaborateController@types");
+                Route::get('batchesColor',"CollaborateController@batchesColor");
 
 
                 //collaborate templates
@@ -193,8 +195,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //collaborates shortlist
                     Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
                     Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
-                    
-                //collaborate
+
+            //collaborate
                     Route::get("collaborate/all","CollaborateController@all");
                     Route::get("collaborate/filters","CollaborateController@filters");
                     Route::post("collaborate/{id}/like","CollaborateController@like");
@@ -205,11 +207,27 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
-    
-                //collaborate comments
-                    Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
-                        Route::resource('comments','CommentController');
-                    });
+
+            //collaborate comments
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::resource('batches','BatchController');
+                Route::resource('comments','CommentController');
+                Route::post('assignBatch','ApplicantController@assignBatch');
+                Route::post('assignPeople','ApplicantController@assignPeople');
+                Route::post('shortlistPeople','ApplicantController@shortlistPeople');
+                Route::post('rejectPeople','ApplicantController@rejectPeople');
+                Route::post('inviteForReview','ApplicantController@inviteForReview');
+                Route::post('acceptInvitation','ApplicantController@acceptInvitation');
+                Route::resource('showIntereste','ApplicantController');
+                // api for product-review tasting
+
+                Route::post("headers/{headerId}/question/{questionsId}","ReviewController@reviewanswers");
+
+                Route::get("headers","QuestionController@headers");
+                Route::get("headers/{id}","QuestionController@reviewQuestions");
+                Route::post("insertHeaders","QuestionController@insertHeaders");
+                Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
+            });
 
             //photos
                 Route::resource("photos","PhotoController");
