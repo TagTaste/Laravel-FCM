@@ -280,7 +280,7 @@ class CollaborationQuestions extends Command
                 $subquestions = isset($item['question']) ? $item['question'] : [];
                 $isNested = isset($item['nested_question']) && $item['nested_question'] == 1 ? 1 : 0;
                 unset($item['question']);
-                $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>0,
+                $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
                         'header_type_id'=>$headerId,'is_mandatory'=>1,'is_active','collaborate_id'=>$collaborateId];
 
                 $x = Collaborate\Questions::create($data);
