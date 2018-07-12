@@ -37,7 +37,6 @@ class QuestionController extends Controller
             }
         }
         $i = 0;
-        dd($withNested);
         foreach ($withNested as $item)
         {
             foreach ($withoutNest as &$data)
