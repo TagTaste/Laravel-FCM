@@ -132,7 +132,6 @@ class LoginController extends Controller
      */
     private function findOrCreateUser($socialiteUser, $provider)
     {
-        \Log::info($socialiteUser);
         try {
             $this->newRegistered = false;
             $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
@@ -155,8 +154,9 @@ class LoginController extends Controller
             } else {
 
                 $this->newRegistered = true;
+                $userInfo = isset($socialiteUser['user']) ? $socialiteUser['user'] : null;
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
-                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$userInfo);
             }
 
         }
