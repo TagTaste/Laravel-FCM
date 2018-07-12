@@ -26,18 +26,19 @@ class ReviewController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $key = $request->input('key');
+        $batchId = $request->input('batch_id');
         $value = $request->input('value');
         $existReview = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('tasting_header_id',$headerId)
-            ->where('question_id',$questionsId)->where('key',$key)->exists();
+            ->where('question_id',$questionsId)->where('batch_id',$batchId)->where('key',$key)->exists();
 
         if($existReview)
         {
             $this->model = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('tasting_header_id',$headerId)
-                ->where('question_id',$questionsId)->where('key',$key)->update(['value'=>$value]);
+                ->where('question_id',$questionsId)->where('batch_id',$batchId)->where('key',$key)->update(['value'=>$value]);
             return $this->sendResponse();
         }
         $this->model = \DB::table('collaborate_tasting_user_review')->insert(['key'=>$key,'value'=>$value,'question_id'=>$questionsId,
-            'collaborate_id'=>$collaborateId,'tasting_header_id'=>$headerId]);
+            'collaborate_id'=>$collaborateId,'tasting_header_id'=>$headerId,'batch_id'=>$batchId]);
         return $this->sendResponse();
     }
 }
