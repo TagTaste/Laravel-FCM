@@ -152,5 +152,15 @@ class QuestionController extends Controller
             }
         }
         $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
+
+        return $this->sendResponse();
     }
+
+    public function getNestedQuestions(Request $request, $collaborateId, $headerId, $questionId)
+    {
+        $value = $request->input('value');
+        $parentId = $request->has('parent_id') ? $request->input('parent_id') : null;
+        $x = "SELECT * FROM `collaborate_tasting_aroma_question` as a , collaborate_tasting_aroma_question as b WHERE a.id=b.parent_id";
+    }
+
 }

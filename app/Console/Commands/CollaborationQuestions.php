@@ -69,10 +69,11 @@ class CollaborationQuestions extends Command
 		{
 			"title": "If you felt fruity aroma, please tick",
 			"select_type": 2,
-			"is_intensity": 0,
-			"is_nested": 0,
+			"is_intensity": 1,
+			"intensity_type": 1,
+			"is_nested": 1,
 			"is_mandatory": 1,
-			"option": "Citrus,Blueberry,Strawberry,Banana,Almond,Walnut,Raisins,Dry Plums,Pine Apple,Mango"
+			"option": "Vegetal,Spices,Fruits,Nuts,Floral,Animal,Caramel,Earthy,Chemical,Putrid"
 		},
 		{
 			"title": "Overall Preference (Aroma)",
@@ -299,7 +300,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 1;
+        $collaborateId = 2;
         foreach ($questions as $key=>$question)
         {
             $data = [];
