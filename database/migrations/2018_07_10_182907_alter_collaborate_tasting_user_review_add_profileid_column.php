@@ -13,6 +13,26 @@ class AlterCollaborateTastingUserReviewAddProfileidColumn extends Migration
      */
     public function up()
     {
+        Schema::create('collaborate_batches_color',function(Blueprint $table){
+            $table->increments('id');
+            $table->string('name');
+        });
+
+        Schema::create('collaborate_batches',function(Blueprint $table){
+            $table->increments('id');
+            $table->string('name');
+            $table->text('notes')->nullable();
+            $table->json('allergens')->nullable();
+            $table->text('instruction')->nullable();
+            $table->unsignedInteger('color_id');
+            $table->foreign("color_id")->references("id")->on("collaborate_batches_color");
+            $table->unsignedInteger('collaborate_id');
+            $table->foreign("collaborate_id")->references("id")->on("collaborates");
+            $table->unique(['name', 'collaborate_id']);
+            $table->timestamps();
+
+
+        });
         Schema::table('collaborate_tasting_user_review',function(Blueprint $table){
             $table->unsignedInteger('batch_id');
             $table->foreign("batch_id")->references("id")->on("collaborate_batches");
