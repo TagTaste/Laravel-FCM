@@ -160,7 +160,20 @@ class QuestionController extends Controller
     {
         $value = $request->input('value');
         $parentId = $request->has('parent_id') ? $request->input('parent_id') : null;
-        $x = "SELECT * FROM `collaborate_tasting_aroma_question` as a , collaborate_tasting_aroma_question as b WHERE a.id=b.parent_id";
+//        $aromaQuestion = \DB::table('collaborate_tasting_aroma_question')->where('collaborate_id',$collaborateId)
+//                    ->where('question_id',$questionId)->where('value',$value)->where('parent_id',$parentId)->first();
+        if(is_null($parentId))
+        {
+            $this->model = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
+                                  AND A.value LIKE '$value' AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+        }
+        else
+        {
+            $this->model = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
+                                  AND A.value LIKE '$value' AND A.parent_id = $parentId AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+        }
+        return $this->sendResponse();
+
     }
 
 }
