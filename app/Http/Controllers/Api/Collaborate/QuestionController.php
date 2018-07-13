@@ -36,10 +36,10 @@ class QuestionController extends Controller
                 $data->questions = json_decode($data->questions);
             }
         }
-        foreach ($withNested as $item)
+        foreach ($withoutNest as &$data)
         {
             $i = 0;
-            foreach ($withoutNest as &$data)
+            foreach ($withNested as $item)
             {
                 if($item->parent_question_id == $data->id)
                 {
@@ -56,6 +56,7 @@ class QuestionController extends Controller
                 }
             }
         }
+
         $model = [];
         foreach ($withoutNest as $data)
         {

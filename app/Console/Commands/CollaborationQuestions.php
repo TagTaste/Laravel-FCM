@@ -300,7 +300,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 455;
+        $collaborateId = 3;
         foreach ($questions as $key=>$question)
         {
             $data = [];
@@ -318,7 +318,7 @@ class CollaborationQuestions extends Command
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
 
                 $x = Collaborate\Questions::create($data);
-                \Log::info($x->id);
+                \Log::info($subquestions);
                 foreach ($subquestions as $subquestion)
                 {
                     $subtitle = isset($subquestion['subtitle']) ? $subquestion['subtitle'] : null;
@@ -327,8 +327,7 @@ class CollaborationQuestions extends Command
                     unset($subquestion['question']);
                     $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
-                    $x = Collaborate\Questions::create($subData);
-                    \Log::info($x->id);
+                    Collaborate\Questions::create($subData);
 
                 }
             }
