@@ -188,15 +188,14 @@ class User extends BaseUser
             throw new SocialAccountUserNotFound($provider);
         }
 
-        $userInfo = User::where('email','like',$socialiteUser['email'])->first();
         if($provider == 'google')
         {
-            $userInfo->updateProfileInfo($provider,null, $socialiteUserLink);
+            $user->updateProfileInfo($provider,null, $socialiteUserLink);
 
         }
         else
         {
-            $userInfo->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
+            $user->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
         }
         return $user;
     }
