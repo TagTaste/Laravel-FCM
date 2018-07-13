@@ -36,9 +36,9 @@ class QuestionController extends Controller
                 $data->questions = json_decode($data->questions);
             }
         }
-        $i = 0;
         foreach ($withNested as $item)
         {
+            $i = 0;
             foreach ($withoutNest as &$data)
             {
                 if($item->parent_question_id == $data->id)
