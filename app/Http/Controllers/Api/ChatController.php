@@ -338,7 +338,7 @@ class ChatController extends Controller
 
     }
 
-    public function jobMessage(Request $request,$id)
+    public function jobMessage(Request $request)
     {
         $inputs = $request->except(['_method','_token','isSingle']);
         //set profile_id to logged in user automatically.
@@ -357,7 +357,7 @@ class ChatController extends Controller
                  foreach ($ids as $id) 
                 {
                     $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
-                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->send(new JobResponse());
+                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->queue(new JobResponse($ids));
                 }
                 //return $request->input('from');
         }   

@@ -30,6 +30,6 @@ class JobResponse extends Mailable
      */
     public function build()
     {
-        return $this->from('example@tagtaste.com')->view('emails.job-email');
+        return $this->from('example@tagtaste.com')->view('emails.job-email',["name"=>"Tushar","emai"=>"tushar@tagatste.com","job"=>"best job","description"=>"welcome to my job, bruh. "]);
     }
 }
