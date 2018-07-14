@@ -184,7 +184,7 @@ class QuestionController extends Controller
         else
         {
             $this->model = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
-                ->where('value','like',$value)->where('parent_id',$id)->get();
+                ->where('parent_id',$id)->get();
         }
         return $this->sendResponse();
 
