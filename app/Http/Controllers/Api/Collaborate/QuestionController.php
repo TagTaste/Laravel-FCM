@@ -118,41 +118,41 @@ class QuestionController extends Controller
 
     public function aromQuestions(Request $request, $collaborateId, $headerId, $questionId)
     {
-        $filename = str_random(32) . ".xlsx";
-        $path = "images/collaborate/$collaborateId/questions";
-        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
-        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
-        //$fullpath = \Storage::url($file);
-
-        //load the file
-        $data = [];
-        try {
-            $fullpath = $request->file->store('temp', 'local');
-            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
-                $data = $reader->toArray();
-            })->get();
-            if(empty($data)){
-                return $this->sendError("Empty file uploaded.");
-            }
-            \Storage::disk('local')->delete($file);
-        } catch (\Exception $e){
-            \Log::info($e->getMessage());
-            return $this->sendError($e->getMessage());
-
-        }
-        $questions = [];
-        foreach ($data as $item)
-        {
-            foreach ($item as $datum)
-            {
-                if(is_null($datum['parent_id'])||is_null($datum['categories']))
-                    break;
-                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
-                $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
-                    'collaborate_id'=>$collaborateId,'header_id'=>$headerId];
-            }
-        }
-        $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
+//        $filename = str_random(32) . ".xlsx";
+//        $path = "images/collaborate/$collaborateId/questions";
+//        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+//        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+//        //$fullpath = \Storage::url($file);
+//
+//        //load the file
+//        $data = [];
+//        try {
+//            $fullpath = $request->file->store('temp', 'local');
+//            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+//                $data = $reader->toArray();
+//            })->get();
+//            if(empty($data)){
+//                return $this->sendError("Empty file uploaded.");
+//            }
+//            \Storage::disk('local')->delete($file);
+//        } catch (\Exception $e){
+//            \Log::info($e->getMessage());
+//            return $this->sendError($e->getMessage());
+//
+//        }
+//        $questions = [];
+//        foreach ($data as $item)
+//        {
+//            foreach ($item as $datum)
+//            {
+//                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+//                    break;
+//                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
+//                $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
+//                    'collaborate_id'=>$collaborateId,'header_id'=>$headerId];
+//            }
+//        }
+//        $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
 
         $questions = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
 
