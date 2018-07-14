@@ -116,7 +116,7 @@ class QuestionController extends Controller
         return $this->sendResponse();
     }
 
-    public function aromQuestions(Request $request, $collaborateId, $questionId)
+    public function aromQuestions(Request $request, $collaborateId, $headerId, $questionId)
     {
         $filename = str_random(32) . ".xlsx";
         $path = "images/collaborate/$collaborateId/questions";
@@ -149,10 +149,24 @@ class QuestionController extends Controller
                     break;
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
                 $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
-                    'collaborate_id'=>$collaborateId];
+                    'collaborate_id'=>$collaborateId,'header_id'=>$headerId];
             }
         }
         $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
+
+        $questions = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
+
+        foreach ($questions as $question)
+        {
+            $checknested = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                            ->where('parent_id',$question->id)->exists();
+            if($checknested)
+            {
+                \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                    ->where('id',$question->id)->update(['nested_option'=>1]);
+            }
+
+        }
 
         return $this->sendResponse();
     }
@@ -160,18 +174,17 @@ class QuestionController extends Controller
     public function getNestedQuestions(Request $request, $collaborateId, $headerId, $questionId)
     {
         $value = $request->input('value');
-        $parentId = $request->has('parent_id') ? $request->input('parent_id') : null;
-//        $aromaQuestion = \DB::table('collaborate_tasting_aroma_question')->where('collaborate_id',$collaborateId)
-//                    ->where('question_id',$questionId)->where('value',$value)->where('parent_id',$parentId)->first();
-        if(is_null($parentId))
+        $id = $request->has('id') ? $request->input('id') : null;
+
+        if(is_null($id))
         {
-            $this->model = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
-                                  AND A.value LIKE '$value' AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+            $this->model = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                ->where('value','like',$value)->whereNull('parent_id')->get();
         }
         else
         {
-            $this->model = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
-                                  AND A.value LIKE '$value' AND A.parent_id = $parentId AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+            $this->model = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                ->where('value','like',$value)->where('id',$id)->get();
         }
         return $this->sendResponse();
 

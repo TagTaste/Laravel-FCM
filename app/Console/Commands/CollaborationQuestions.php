@@ -19,7 +19,8 @@ class CollaborationQuestions extends Command
     protected $questions = '{
 	"INSTRUCTION": [{
 		"title": "INSTRUCTION",
-		"subtitle": "Bitch, I don\'t need introduction Follow my simple instruction Wine to the left, sway to the right Drop it down low and take it back high "
+		"subtitle": "Bitch, I don\'t need introduction Follow my simple instruction Wine to the left, sway to the right Drop it down low and take it back high ",
+		"select_type": 4
 	}],
 	"APPEARANCE": [{
 		"title": "Visual Observation",
@@ -73,6 +74,8 @@ class CollaborationQuestions extends Command
 			"intensity_type": 1,
 			"is_nested": 1,
 			"is_mandatory": 1,
+			"intensity_value":"15",
+			"nested_option" : 1,
 			"option": "Vegetal,Spices,Fruits,Nuts,Floral,Animal,Caramel,Earthy,Chemical,Putrid"
 		},
 		{
@@ -259,7 +262,7 @@ class CollaborationQuestions extends Command
 	],
 	"OVERALL PREFERENCE": [{
 		"title": "Overall Product Preference",
-		"select_type": 1,
+		"select_type": 5,
 		"is_intensity": 0,
 		"is_nested": 0,
 		"is_mandatory": 1,
@@ -300,7 +303,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 454;
+        $collaborateId = 452;
         foreach ($questions as $key=>$question)
         {
             $data = [];
