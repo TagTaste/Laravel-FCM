@@ -26,11 +26,17 @@ class ReviewController extends Controller
     {
         $data = [];
         $answers = $request->input('answer');
-//        foreach ($answers as $answer)
-//        {
-////            $data[] = ['']
-//        }
-        $this->model = $answers;
+        $loggedInProfileId = $request->user()->profile->id ;
+        $batchId = $request->input('batch_id');
+        foreach ($answers as $answer)
+        {
+            $leafId = isset($answer) && $answer['leaf_id'] != 0 ? $answer['leaf_id'] : null;
+            $data[] = ['key'=>$answer['key'],'value'=>$answer['value'],'leaf_id'=>$leafId,
+                        'question_id'=>$answer['question_id'],'tasting_header_id'=>$headerId,
+                        'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
+                'collaborate_id'=>$collaborateId];
+        }
+        $this->model = Review::insert($data);
         return $this->sendResponse();
     }
 }
