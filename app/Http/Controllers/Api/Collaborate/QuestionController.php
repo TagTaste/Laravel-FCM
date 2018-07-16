@@ -108,8 +108,10 @@ class QuestionController extends Controller
         $answers = [];
         if(is_null($id))
         {
-            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
-                                  AND A.value LIKE '$value' AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , 
+                                      collaborate_tasting_aroma_question as B where A.id = B.parent_id AND A.value LIKE '$value' 
+                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+
         }
         else
         {
