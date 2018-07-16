@@ -14,9 +14,9 @@ class AlterCollaborateTastingUserReviewRenameColumn extends Migration
     public function up()
     {
         Schema::table('collaborate_tasting_user_review',function(Blueprint $table){
-            $table->string("key")->nullable()->change();
             $table->dropColumn(['aromatic_id']);
             $table->renameColumn("aroma_id","leaf_id");
+            $table->string("intensity")->nullable();
         });
     }
 
@@ -28,9 +28,9 @@ class AlterCollaborateTastingUserReviewRenameColumn extends Migration
     public function down()
     {
         Schema::table('collaborate_tasting_user_review',function(Blueprint $table){
-            $table->string("key")->change();
             $table->unsignedInteger("aromatic_id")->nullable();
             $table->renameColumn("leaf_id","aroma_id");
+            $table->dropColumn("intensity");
         });
     }
 }

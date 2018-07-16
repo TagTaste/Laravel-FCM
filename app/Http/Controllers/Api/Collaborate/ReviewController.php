@@ -30,12 +30,25 @@ class ReviewController extends Controller
         $batchId = $request->input('batch_id');
         foreach ($answers as $answer)
         {
-            $leafId = isset($answer) && $answer['leaf_id'] != 0 ? $answer['leaf_id'] : null;
-            $data[] = ['key'=>$answer['key'],'value'=>$answer['value'],'leaf_id'=>$leafId,
-                        'question_id'=>$answer['question_id'],'tasting_header_id'=>$headerId,
-                        'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
-                'collaborate_id'=>$collaborateId];
+            $options = isset($answer['option']) ? $answer['option'] : [];
+            $questionId = $answer['question_id'];
+            foreach ($options as $option)
+            {
+                $leafId = isset($option) && $option['id'] != 0 ? $option['id'] : null;
+                $data[] = ['key'=>null,'value'=>$option['value'],'id'=>$leafId,
+                    'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                    'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
+                    'collaborate_id'=>$collaborateId,'intensity'=>$option['intensity']];
+            }
+            if(isset($answer['comment']) && !is_null($answer['comment']))
+            {
+                $data[] = ['key'=>"comment",'value'=>$answer['comment'],'id'=>0,
+                    'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                    'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
+                    'collaborate_id'=>$collaborateId,'intensity'=>null];
+            }
         }
+
         $this->model = Review::insert($data);
         return $this->sendResponse();
     }
