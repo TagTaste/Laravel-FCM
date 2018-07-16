@@ -10,6 +10,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
 use App\Mail\JobResponse;
 use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendFeatureMessage as SendMessage;
 
 class ChatController extends Controller
 {
@@ -430,5 +431,50 @@ class ChatController extends Controller
         }
         $this->model->members()->insert($data);
         return $this->sendResponse();   
+    }
+
+    public function featureMessage(Request $request,$feature,$featureId)
+    {
+        $model = $this->getModel($feature,$featureId);
+        if(empty($model))
+        {
+            return $this->sendError("invalid model name or Id");
+        }
+
+        $inputs = $request->except(['_method','_token']);
+        $profileIds = $inputs['profile_id'];
+
+        if(!is_array($profileIds))
+        {
+            $profileIds = [$profileIds];
+        }
+        $user = $request->user();
+        $loggedInProfileId = $user->profile->id;
+        $inputs['profile_id'] = $loggedInProfileId;
+
+        if($loggedInProfileId != $model->profile_id)
+        {
+            return $this->sendError("This model doesn't belong to this user");
+        }
+        if($inputs['is_mailable'] == 1)
+        {
+            $ids = $request->profile_id;
+                 foreach ($ids as $id) 
+                {
+                    $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
+                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->send(new JobResponse($inputs['message']));
+                }
+        }
+        foreach ($request->profile_id as $profile_id) {
+            # code...
+            dispatch(new SendMessage($inputs,$profile_id,$loggedInProfileId));
+        }
+        return $this->sendResponse();
+
+    }
+    private function getModel($feature,$featureId)
+    {
+        $class = "\\App\\" . ucwords($feature);
+        return $class::find($featureId);
     }
 }
