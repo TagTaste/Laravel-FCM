@@ -86,7 +86,9 @@ class QuestionController extends Controller
                 $model[] = $data;
             }
         }
-        $this->model = $model;
+
+        $this->model = [];
+        $this->model['question'] = $model;
         return $this->sendResponse();
     }
 

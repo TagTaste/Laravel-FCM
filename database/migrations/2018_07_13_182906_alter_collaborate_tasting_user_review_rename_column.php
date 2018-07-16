@@ -17,6 +17,7 @@ class AlterCollaborateTastingUserReviewRenameColumn extends Migration
             $table->dropColumn(['aromatic_id']);
             $table->renameColumn("aroma_id","leaf_id");
             $table->string("intensity")->nullable();
+            $table->integer("current_status")->default(0); // 0 means begin 1 means in process 2 means completed
         });
     }
 
@@ -30,7 +31,7 @@ class AlterCollaborateTastingUserReviewRenameColumn extends Migration
         Schema::table('collaborate_tasting_user_review',function(Blueprint $table){
             $table->unsignedInteger("aromatic_id")->nullable();
             $table->renameColumn("leaf_id","aroma_id");
-            $table->dropColumn("intensity");
+            $table->dropColumn(["intensity","current_status"]);
         });
     }
 }

@@ -28,6 +28,14 @@ class ReviewController extends Controller
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id ;
         $batchId = $request->input('batch_id');
+        $answerExists = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+                        ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->exists();
+
+        if($answerExists)
+        {
+            Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+                ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
+        }
         foreach ($answers as $answer)
         {
             $options = isset($answer['option']) ? $answer['option'] : [];
