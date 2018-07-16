@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate\Questions;
+use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -33,6 +34,8 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
+        $loggedInProfileId = $request->user()->profile->id;
+        $batchId = $request->input('batch_id');
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNull('parent_question_id')->where('header_type_id',$id)->orderBy('id')->get();
         $withNested = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
@@ -87,28 +90,81 @@ class QuestionController extends Controller
             }
         }
 
+
+
         $this->model = [];
         $this->model['question'] = $model;
+        $this->model['answer'] = $this->userAnswer($loggedInProfileId,$collaborateId,$batchId,$id);
         return $this->sendResponse();
     }
 
     public function getNestedQuestions(Request $request, $collaborateId, $headerId, $questionId)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $value = $request->input('value');
+        $batchId = $request->input('batch_id');
         $id = $request->has('id') ? $request->input('id') : null;
-
+        $this->model = [];
+        $answers = [];
         if(is_null($id))
         {
-            $this->model = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
+            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
                                   AND A.value LIKE '$value' AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
         }
         else
         {
-            $this->model = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+            $this->model['question'] = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
                 ->where('parent_id',$id)->get();
+            $leafIds = $this->model['question']->pluck('id');
+            $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+                ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
+                ->where('question_id',$questionId)->get()->groupBy('question_id');
+            foreach ($answerModels as $answerModel)
+            {
+                $data = [];
+                $comment = null;
+                foreach ($answerModel as $item)
+                {
+                    if($item->key == 'comment')
+                    {
+                        $comment = $item->value;
+                        continue;
+                    }
+                    $questionId = $item->question_id;
+                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
+                }
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+            }
         }
+
+        $this->model['answer'] = $answers;
         return $this->sendResponse();
 
+    }
+
+    public function userAnswer($loggedInProfileId,$collaborateId,$batchId,$id)
+    {
+        $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+            ->where('batch_id',$batchId)->where('tasting_header_id',$id)->get()->groupBy('question_id');
+        $answers = [];
+        foreach ($answerModels as $answerModel)
+        {
+            $data = [];
+            $comment = null;
+            foreach ($answerModel as $item)
+            {
+                if($item->key == 'comment')
+                {
+                    $comment = $item->value;
+                    continue;
+                }
+                $questionId = $item->question_id;
+                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
+            }
+            $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+        }
+
+        return $answers;
     }
 
     public function insertHeaders(Request $request, $id)

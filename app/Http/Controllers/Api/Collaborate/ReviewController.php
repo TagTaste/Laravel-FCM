@@ -26,6 +26,7 @@ class ReviewController extends Controller
     {
         $data = [];
         $answers = $request->input('answer');
+        return $answers;
         $loggedInProfileId = $request->user()->profile->id ;
         $batchId = $request->input('batch_id');
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 1;
