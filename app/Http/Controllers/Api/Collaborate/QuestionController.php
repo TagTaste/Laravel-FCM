@@ -35,7 +35,17 @@ class QuestionController extends Controller
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        if(!$request->has('batch_id'))
+        {
+            return $this->sendError("No sample id found");
+        }
         $batchId = $request->input('batch_id');
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
+
+        if(!$checkAssign)
+        {
+            return $this->sendError("Wrong sample assigned");
+        }
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNull('parent_question_id')->where('header_type_id',$id)->orderBy('id')->get();
         $withNested = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
@@ -103,6 +113,17 @@ class QuestionController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $value = $request->input('value');
         $batchId = $request->input('batch_id');
+        if(!$request->has('batch_id'))
+        {
+            return $this->sendError("No sample id found");
+        }
+        $batchId = $request->input('batch_id');
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
+
+        if(!$checkAssign)
+        {
+            return $this->sendError("Wrong sample assigned");
+        }
         $id = $request->has('id') ? $request->input('id') : null;
         $this->model = [];
         $answers = [];
