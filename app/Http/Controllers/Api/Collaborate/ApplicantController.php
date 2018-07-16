@@ -133,8 +133,7 @@ class ApplicantController extends Controller
         $inputs = [];
         foreach ($applierProfileIds as $applierProfileId)
         {
-            $inputs['profile_id'] = $applierProfileId;
-            $inputs['batch_id'] = $batchId;
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
