@@ -357,7 +357,7 @@ class ChatController extends Controller
                  foreach ($ids as $id) 
                 {
                     $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
-                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->queue(new JobResponse($ids));
+                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->send(new JobResponse($inputs['message']));
                 }
                 //return $request->input('from');
         }   

@@ -7,7 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class JobResponse extends Mailable
+class JobResponse extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -30,6 +30,6 @@ class JobResponse extends Mailable
      */
     public function build()
     {
-        return $this->from('example@tagtaste.com')->view('emails.job-email',["name"=>"Tushar","emai"=>"tushar@tagatste.com","job"=>"best job","description"=>"welcome to my job, bruh. "]);
+        return $this->from('example@tagtaste.com')->view('emails.job-email',["name"=>"Tushar","email"=>"tushar@tagatste.com","job"=>"best job","description"=>$this->info]);
     }
 }
