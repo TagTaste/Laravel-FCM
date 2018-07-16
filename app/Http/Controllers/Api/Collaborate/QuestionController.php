@@ -215,7 +215,7 @@ class QuestionController extends Controller
                     break;
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
                 $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
-                    'collaborate_id'=>$collaborateId,'header_id'=>$headerId];
+                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
             }
         }
         $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
