@@ -12,10 +12,17 @@ class Batches extends Model {
 
     protected $fillable = ['name','notes','allergens','instruction','color_id','collaborate_id'];
 
-    protected $visible = ['id','name','notes','allergens','instruction','color_id','collaborate_id','collaborate','current_status','collaborate_title'];
+    protected $visible = ['id','name','notes','allergens','instruction','color_id','collaborate_id','collaborate',
+        'current_status','collaborate_title','color'];
 
     protected $appends = ['current_status','collaborate_title'];
 
+    protected $with = ['color'];
+
+    public function color()
+    {
+        return \DB::table('collaborate_batches_color')->where('id',$this->color_id)->first();
+    }
 
     public function getCollaborateTitleAttribute()
     {
