@@ -21,7 +21,7 @@ class Profile extends Model
         'ingredients', 'favourite_moments', 'verified', 'youtube_channel', 'followers', 'following', 'user_id', 'created_at',
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
-        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step',
+        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -38,7 +38,7 @@ class Profile extends Model
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
-        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount'
+        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender'
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
