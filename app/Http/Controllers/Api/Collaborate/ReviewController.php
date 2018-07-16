@@ -44,10 +44,11 @@ class ReviewController extends Controller
             foreach ($options as $option)
             {
                 $leafId = isset($option) && $option['id'] != 0 ? $option['id'] : null;
+                $intensity = isset($option['intensity']) && !is_null($option['intensity']) ? $option['intensity'] : null;
                 $data[] = ['key'=>null,'value'=>$option['value'],'id'=>$leafId,
                     'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                     'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
-                    'collaborate_id'=>$collaborateId,'intensity'=>$option['intensity'],'current_status'=>$currentStatus];
+                    'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus];
             }
             if(isset($answer['comment']) && !is_null($answer['comment']))
             {
