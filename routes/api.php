@@ -220,13 +220,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
                 Route::resource('showIntereste','ApplicantController');
                 // api for product-review tasting
-
-                Route::post("headers/{headerId}/question/{questionsId}","ReviewController@reviewanswers");
-
-                Route::get("headers","QuestionController@headers");
+                Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
+                Route::post("headers/{headerId}","ReviewController@reviewAnswers");
                 Route::get("headers/{id}","QuestionController@reviewQuestions");
+                Route::get("headers","QuestionController@headers");
                 Route::post("insertHeaders","QuestionController@insertHeaders");
                 Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
+                Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
             });
 
             //photos

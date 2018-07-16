@@ -22,6 +22,15 @@ class QuestionController extends Controller
         $this->model = $model;
     }
 
+
+
+    public function headers(Request $request, $id)
+    {
+        $this->model = \DB::table('collaborate_tasting_header')->where('collaborate_id',$id)->orderBy('id')->get();
+
+        return $this->sendResponse();
+    }
+
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
@@ -36,10 +45,10 @@ class QuestionController extends Controller
                 $data->questions = json_decode($data->questions);
             }
         }
-        $i = 0;
-        foreach ($withNested as $item)
+        foreach ($withoutNest as &$data)
         {
-            foreach ($withoutNest as &$data)
+            $i = 0;
+            foreach ($withNested as $item)
             {
                 if($item->parent_question_id == $data->id)
                 {
@@ -56,6 +65,7 @@ class QuestionController extends Controller
                 }
             }
         }
+
         $model = [];
         foreach ($withoutNest as $data)
         {
@@ -80,11 +90,23 @@ class QuestionController extends Controller
         return $this->sendResponse();
     }
 
-    public function headers(Request $request, $id)
+    public function getNestedQuestions(Request $request, $collaborateId, $headerId, $questionId)
     {
-        $this->model = \DB::table('collaborate_tasting_header')->where('collaborate_id',$id)->orderBy('id')->get();
+        $value = $request->input('value');
+        $id = $request->has('id') ? $request->input('id') : null;
 
+        if(is_null($id))
+        {
+            $this->model = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , collaborate_tasting_aroma_question as B where A.id = B.parent_id 
+                                  AND A.value LIKE '$value' AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+        }
+        else
+        {
+            $this->model = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                ->where('parent_id',$id)->get();
+        }
         return $this->sendResponse();
+
     }
 
     public function insertHeaders(Request $request, $id)
@@ -96,6 +118,61 @@ class QuestionController extends Controller
             $data[] = ['header_type'=>$input,'is_active'=>1,'collaborate_id'=>$id];
         }
         $this->model = ReviewHeader::insert($data);
+
+        return $this->sendResponse();
+    }
+
+    public function aromQuestions(Request $request, $collaborateId, $headerId, $questionId)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/collaborate/$collaborateId/questions";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $questions = [];
+        foreach ($data as $item)
+        {
+            foreach ($item as $datum)
+            {
+                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+                    break;
+                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
+                $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
+                    'collaborate_id'=>$collaborateId,'header_id'=>$headerId];
+            }
+        }
+        $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
+
+        $questions = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
+
+        foreach ($questions as $question)
+        {
+            $checknested = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                ->where('parent_id',$question->id)->exists();
+            if($checknested)
+            {
+                \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                    ->where('id',$question->id)->update(['nested_option'=>1]);
+            }
+
+        }
 
         return $this->sendResponse();
     }
@@ -114,4 +191,5 @@ class QuestionController extends Controller
             'parent_question_id'=>$parentQueId,'is_active'=>1,'is_mandatory'=>1,'questions'=>$questions,'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId]);
         return $this->sendResponse();
     }
+
 }
