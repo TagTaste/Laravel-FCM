@@ -207,7 +207,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
-
+            Route::get("userBatches","BatchController@userBatches");
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::resource('batches','BatchController');
