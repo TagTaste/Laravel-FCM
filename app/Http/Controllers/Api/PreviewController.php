@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Collaborate;
 use App\Deeplink;
 use Illuminate\Http\Request;
 
@@ -69,6 +70,24 @@ class PreviewController extends Controller
         ];
 
         $this->model = $res;
+
+        return $this->sendResponse();
+    }
+
+    public function seeall(Request $request, $modelName)
+    {
+        if ($modelName != 'collaborate') {
+            return $this->sendError("Model not found.");
+        }
+
+        $collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        $this->model = [];
+        $this->model["count"] = $collaborations->count();
+        $this->model["data"] = $collaborations->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
