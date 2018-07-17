@@ -177,12 +177,12 @@ class QuestionController extends Controller
             $questionId = null;
             foreach ($answerModel as $item)
             {
+                $questionId = $item->question_id;
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
                     continue;
                 }
-                $questionId = $item->question_id;
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
             }
             $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
