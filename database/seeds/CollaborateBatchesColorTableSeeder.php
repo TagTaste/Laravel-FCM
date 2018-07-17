@@ -14,22 +14,22 @@ class ProductReviewBatchesColorTableSeeder extends Seeder
         DB::table('collaborate_batches_color')->insert([
 
             [
-                'name' => 'Black'
+                'name' => '#2869B5'
             ],
             [
-                'name' => 'Grey'
+                'name' => '#F5A623'
             ],
             [
-                'name' => 'Yellow'
+                'name' => '#F8E71C'
             ],
             [
-                'name' => 'Red'
+                'name' => '#8B572A'
             ],
             [
-                'name' => 'Blue'
+                'name' => '#7ED321'
             ],
             [
-                'name' => 'Green'
+                'name' => '#417505'
             ]
 
         ]);

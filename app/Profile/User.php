@@ -188,15 +188,14 @@ class User extends BaseUser
             throw new SocialAccountUserNotFound($provider);
         }
 
-        $userInfo = User::where('email','like',$socialiteUser['email'])->first();
         if($provider == 'google')
         {
-            $userInfo->updateProfileInfo($provider,null, $socialiteUserLink);
+            $user->updateProfileInfo($provider,null, $socialiteUserLink);
 
         }
         else
         {
-            $userInfo->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
+            $user->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
         }
         return $user;
     }
@@ -262,8 +261,9 @@ class User extends BaseUser
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
-        return $this->updateProfileInfo($provider, $socialiteUserInfo, $socialLink);
+        \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)

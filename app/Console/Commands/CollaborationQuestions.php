@@ -45,7 +45,7 @@ class CollaborationQuestions extends Command
 		"option": "Low,Medium,High"
 	}, {
 		"title": "Overall Preference (Appearance)",
-		"select_type": 1,
+		"select_type": 5,
 		"is_intensity": 0,
 		"is_nested": 0,
 		"is_mandatory": 1,
@@ -80,7 +80,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Aroma)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -114,7 +114,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Taste)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -148,7 +148,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Aromatics)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -247,7 +247,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Appearance)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -303,7 +303,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 452;
+        $collaborateId = 457;
         foreach ($questions as $key=>$question)
         {
             $data = [];
