@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\Recipe\Profile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -54,8 +55,17 @@ class BatchController extends Controller
      */
     public function show($collaborateId,$id)
     {
-        $this->model = $collaborateId;
+        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
+        $profiles = Profile::whereIn('id',$profileIds)->get();
 
+        $profiles = $profiles->toArray();
+        foreach ($profiles as &$profile)
+        {
+            $review = \DB::table('collaborate_tasting_user_review')->where('batch_id',$id)
+                ->where('profile_id',$profile['id'])->orderBy('id','desc')->first();
+            $profile['current_status'] = isset($review->current_status) ? $review->current_status : 0;
+        }
+        $this->model = $profiles;
         return $this->sendResponse();
 
     }
