@@ -217,7 +217,7 @@ class ApplicantController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $this->model->where('collaborate_id',$collaborateId)->where('shortlisted_at')
+        $this->model = $this->model->where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
@@ -228,7 +228,7 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
-            ->where('rejected_at')->skip($skip)->take($take)->get();
+            ->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
