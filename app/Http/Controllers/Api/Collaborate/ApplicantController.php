@@ -129,11 +129,14 @@ class ApplicantController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
         $applierProfileIds = $request->input('profile_id');
-        $batchId = $request->input('batch_id');
+        $batchIds = $request->input('batch_id');
         $inputs = [];
-        foreach ($applierProfileIds as $applierProfileId)
+        foreach ($batchIds as $batchId)
         {
-            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
+            foreach ($applierProfileIds as $applierProfileId)
+            {
+                $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
+            }
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
