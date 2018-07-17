@@ -422,7 +422,7 @@ class Collaborate extends Model implements Feedable
 
     public function getTypeAttribute()
     {
-        return isset($this->type_id) && !is_null($this->type_id) ? \DB::table('collaborate_types')->where('id',$this->type_id)->first() : null;
+        return isset($this->type_id) && !is_null($this->type_id) ? \DB::table('x')->where('id',$this->type_id)->first() : null;
     }
 
     public function addresses()
