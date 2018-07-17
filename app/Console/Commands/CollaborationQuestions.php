@@ -173,7 +173,6 @@ class CollaborationQuestions extends Command
 		{
 			"title": "First Chew",
 			"is_nested": 1,
-			"is_mandatory": 0,
 			"question": [{
 					"title": "Uniformity",
 					"select_type": 1,
@@ -204,7 +203,6 @@ class CollaborationQuestions extends Command
 
 			"title": "Chewdown experience",
 			"is_nested": 1,
-			"is_mandatory": 0,
 			"question": [{
 					"title": "Moisture absorption",
 					"select_type": 1,
