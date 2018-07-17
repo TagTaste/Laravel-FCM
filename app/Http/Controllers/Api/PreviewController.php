@@ -74,23 +74,5 @@ class PreviewController extends Controller
         return $this->sendResponse();
     }
 
-    public function seeall(Request $request, $modelName)
-    {
-        if ($modelName != 'collaborate') {
-            return $this->sendError("Model not found.");
-        }
-
-        $collaborations = Collaborate::whereNull('deleted_at')->orderBy("created_at","desc");
-        //paginate
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
-        $this->model = [];
-        $this->model["count"] = $collaborations->count();
-        $this->model["data"] = $collaborations->skip($skip)->take($take)->get();
-
-        return $this->sendResponse();
-    }
-
 }
 
