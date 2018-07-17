@@ -55,7 +55,7 @@ class BatchController extends Controller
      */
     public function show($collaborateId,$id)
     {
-        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
+        $profileIds = \DB::table('collaborate_batches_assign')->where('begin_tasting',0)->where('batch_id',$id)->get()->pluck('profile_id');
         $profiles = Profile::whereIn('id',$profileIds)->get();
 
         $profiles = $profiles->toArray();
@@ -145,6 +145,17 @@ class BatchController extends Controller
         $profileIds = $request->input('profile_id');
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
+
+        return $this->sendResponse();
+
+    }
+
+    public function beginTasting(Request $request, $collaborateId, $batchId)
+    {
+        $profileIds = $request->input('profile_id');
+
+        $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
+            ->update(['begin_tasting'=>1]);
 
         return $this->sendResponse();
 
