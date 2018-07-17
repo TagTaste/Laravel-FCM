@@ -32,14 +32,12 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['applicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
-            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
-        $this->model['totalApplicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId);
+        $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
-        $this->model['shortlistedApplicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
-            ->whereNull('rejected_at')->count();
-        $this->model['rejectedApplicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
-            ->whereNull('rejected_at')->count();
+        $this->model['shortlistedApplicants'] = $applicants->whereNotNull('shortlisted_at')->whereNull('rejected_at')->count();
+        $this->model['rejectedApplicants'] = $applicants->whereNull('shortlisted_at')->whereNotNull('rejected_at')->count();
+        $this->model['applicants'] = $applicants->whereNull('shortlisted_at')->whereNull('rejected_at')->skip($skip)->take($take)->get() ;
         return $this->sendResponse();
 
     }
