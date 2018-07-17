@@ -65,7 +65,9 @@ class BatchController extends Controller
                 ->where('profile_id',$profile['id'])->orderBy('id','desc')->first();
             $profile['current_status'] = isset($review->current_status) ? $review->current_status : 0;
         }
-        $this->model = $profiles;
+        $this->model = [];
+        $this->model['applicants'] = $profiles;
+        $this->model['batch'] = Collaborate\Batches::where('id',$id)->first();
         return $this->sendResponse();
 
     }
