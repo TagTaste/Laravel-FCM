@@ -12,7 +12,7 @@ class Chat extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'profile_id','image'];
+    protected $fillable = ['name', 'profile_id','image','is_single'];
 
     //protected $with = ['members'];
 
