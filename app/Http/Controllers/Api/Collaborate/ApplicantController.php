@@ -28,6 +28,23 @@ class ApplicantController extends Controller
      */
     public function index(Request $request,$collaborateId)
     {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
@@ -41,6 +58,7 @@ class ApplicantController extends Controller
         $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
 
+        return $this->sendResponse();
     }
 
     /**
