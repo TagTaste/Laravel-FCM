@@ -11,9 +11,9 @@ class Applicant extends Model {
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address'];
 
-    protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address'];
+    protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address','batches'];
 
-    protected $with = ['profile'];
+    protected $with = ['profile','batches'];
 
     protected $casts = [
         'collaborate_id' => 'integer',
@@ -24,6 +24,11 @@ class Applicant extends Model {
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
+    }
+
+    public function batches()
+    {
+        return $this->belongsToMany("App\Collaborate\Batches",'collaborate_batches','batch_id');
     }
 
 }
