@@ -28,14 +28,37 @@ class ApplicantController extends Controller
      */
     public function index(Request $request,$collaborateId)
     {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $this->model->where('collaborate_id',$collaborateId)
-            ->skip($skip)->take($take)->get();
+        $this->model = [];
+        $this->model['applicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+        $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->count();
+        $this->model['shortlistedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->count();
+        $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->count();
 
         return $this->sendResponse();
-
     }
 
     /**
@@ -51,9 +74,8 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $inputs = $request->input(['batch_id','is_invited','applier_address']);
-        $inputs['profile_id'] = $request->user()->profile->id;
-        $inputs['collaborate_id'] = $collaborateId;
+        $isInvited = $request->input(['is_invited']);
+        $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->user()->profile->id,'collaborate_id'=>$collaborateId];
 
         $this->model = $this->model->create($inputs);
 
@@ -106,38 +128,6 @@ class ApplicantController extends Controller
     {
         $batches = $this->model->where('id',$id)->where('collaborate_id',$collaborateId)->first();
         $this->model = $batches->delete();
-        return $this->sendResponse();
-    }
-
-    public function assignBatch(Request $request, $id)
-    {
-        $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
-
-        if ($collaborate === null) {
-            return $this->sendError("Invalid Collaboration Project.");
-        }
-        $profileId = $request->user()->profile->id;
-
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-            if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
-            }
-        }
-        else if($collaborate->profile_id != $profileId){
-            return $this->sendError("Invalid Collaboration Project.");
-        }
-        $applierProfileIds = $request->input('profile_id');
-        $batchId = $request->input('batch_id');
-        $inputs = [];
-        foreach ($applierProfileIds as $applierProfileId)
-        {
-            $inputs['profile_id'] = $applierProfileId;
-            $inputs['batch_id'] = $batchId;
-        }
-        $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
-
         return $this->sendResponse();
     }
 
@@ -219,6 +209,26 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$request->user()->profile->id)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+
+        return $this->sendResponse();
+    }
+
+    public function getShortlistApplicants(Request $request, $collaborateId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $this->model->where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
+            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+    }
+
+    public function getRejectApplicants(Request $request, $collaborateId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }

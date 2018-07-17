@@ -89,7 +89,7 @@ class ShoutoutController extends Controller
             $filename = $request->file('media_file')->getClientOriginalName();
             $filename = str_random(15).".".\File::extension($filename);
             $inputs['media_url'] = $request->file("media_file")->storeAs($path, $filename,['visibility'=>'public']);
-            $mediaJson =  $this->videoTranscoding($inputs['media_url']);
+            $mediaJson =  $this->videoTranscodingNew($inputs['media_url']);
             $mediaJson = json_decode($mediaJson,true);
             $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
             $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
@@ -257,8 +257,12 @@ class ShoutoutController extends Controller
         return "app/" . $path . $filename;
     }
 
-    private function videoTranscoding($url)
+    /**
+     * This function is execute our native video transcoder which direct to 
+     */
+    private function videoTranscodingNew($url)
     {
+        
         $profileId = request()->user()->profile->id;
         $curl = curl_init();
         $data = [

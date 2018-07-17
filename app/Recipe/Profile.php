@@ -14,14 +14,26 @@ class Profile extends BaseProfile
 
     protected $with = [];
 
-    protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise',
-        'keywords','image','isFollowing'];
+    protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise','user_id',
+        'keywords','image','isFollowing','ageRange'];
 
-    protected $appends = ['name','designation','imageUrl'];
+    protected $appends = ['name','designation','imageUrl','ageRange'];
     
     public function getDesignationAttribute()
     {
        return $this->professional !== null ? $this->professional->designation : null;
+    }
+
+    public function getAgeRangeAttribute()
+    {
+        $age = $this->getDobAttribute($this->dob);
+        if(isset($age) && !is_null($age))
+        {
+            $to   = (int) $diff = (date('Y') - date('Y',strtotime($age)))/5;
+            $start = $to*5; $end = $start + 5;
+            return $start. " - ".$end;
+        }
+        return null;
     }
     
     public function experience()

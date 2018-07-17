@@ -35,7 +35,17 @@ class QuestionController extends Controller
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        if(!$request->has('batch_id'))
+        {
+            return $this->sendError("No sample id found");
+        }
         $batchId = $request->input('batch_id');
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
+
+        if(!$checkAssign)
+        {
+            return $this->sendError("Wrong sample assigned");
+        }
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNull('parent_question_id')->where('header_type_id',$id)->orderBy('id')->get();
         $withNested = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
@@ -103,6 +113,17 @@ class QuestionController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $value = $request->input('value');
         $batchId = $request->input('batch_id');
+        if(!$request->has('batch_id'))
+        {
+            return $this->sendError("No sample id found");
+        }
+        $batchId = $request->input('batch_id');
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
+
+        if(!$checkAssign)
+        {
+            return $this->sendError("Wrong sample assigned");
+        }
         $id = $request->has('id') ? $request->input('id') : null;
         $this->model = [];
         $answers = [];
@@ -153,14 +174,15 @@ class QuestionController extends Controller
         {
             $data = [];
             $comment = null;
+            $questionId = null;
             foreach ($answerModel as $item)
             {
+                $questionId = $item->question_id;
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
                     continue;
                 }
-                $questionId = $item->question_id;
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
             }
             $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
@@ -215,7 +237,7 @@ class QuestionController extends Controller
                     break;
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
                 $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
-                    'collaborate_id'=>$collaborateId,'header_id'=>$headerId];
+                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
             }
         }
         $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);

@@ -834,4 +834,28 @@ class ProfileController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function followFbFriends(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $loggedInUserProviderId = $request->input('loggedin_provider_user_id');
+        $userExist = \DB::table('social_accounts')->where('provider_user_id',$loggedInUserProviderId)
+            ->where('user_id',$request->user()->id)->first();
+
+        if(!isset($userExist))
+        {
+            return $this->sendError("The Facebook account you are trying to connect seems to be a different one, 
+            please make sure you are logged in with your own Facebook account.");
+        }
+        $usersProviderIds = $request->input('provider_user_id');
+        $user_ids = \DB::table('social_accounts')->whereIn('provider_user_id',$usersProviderIds)->get()->pluck('user_id');
+        //dd($profile_ids);
+        $profiles = \App\Recipe\Profile::whereIn('user_id',$user_ids)->get();
+        foreach ($profiles as &$profile)
+        {
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+        $this->model = $profiles;
+        return $this->sendResponse();
+    }
 }

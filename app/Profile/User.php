@@ -178,7 +178,7 @@ class User extends BaseUser
         return $this->hasMany('\App\SocialAccount');
     }
 
-    public static function findSocialAccount($provider,$providerId)
+    public static function findSocialAccount($provider,$providerId,$socialiteUser,$socialiteUserLink)
     {
         $user = static::whereHas('social',function($query) use ($provider,$providerId){
             $query->where('provider','like',$provider)->where('provider_user_id','=',$providerId);
@@ -188,11 +188,20 @@ class User extends BaseUser
             throw new SocialAccountUserNotFound($provider);
         }
 
+        if($provider == 'google')
+        {
+            $user->updateProfileInfo($provider,null, $socialiteUserLink);
+
+        }
+        else
+        {
+            $user->updateProfileInfo($provider,$socialiteUser['user'], $socialiteUserLink);
+        }
         return $user;
     }
 
     public static function addFoodie($name, $email = null, $password, $socialRegistration = false,
-                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$socialLink = null)
+                                     $provider = null, $providerUserId = null, $avatar = null,$alreadyVerified = 0,$accessToken = null,$socialLink = null,$socialiteUserInfo)
     {
 
         $user = BaseUser::withTrashed()->where('email',$email)->first();
@@ -225,7 +234,7 @@ class User extends BaseUser
 
         //check social registration
         if($socialRegistration){
-            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink,true);
+            $user->createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink,true,$socialiteUserInfo);
         }
 
         $user->createDefaultIdeabook();
@@ -234,7 +243,7 @@ class User extends BaseUser
         return $user;
     }
     
-    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null,$newavatar = false)
+    public function createSocialAccount($provider,$providerUserId,$avatar,$accessToken,$socialLink = null,$newavatar = false,$socialiteUserInfo)
     {
         //create social account
         $this->social()->create([
@@ -252,8 +261,6 @@ class User extends BaseUser
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
-
-
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
         \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
@@ -366,5 +373,27 @@ class User extends BaseUser
 //        $header['errmsg']  = $errmsg;
 //        $header['content'] = $content;
 //        return $header;
+    }
+
+    public function updateProfileInfo($provider, $socialiteUserInfo, $socailLink = null)
+    {
+//        $dob = $this->profile->dob;
+//        $dob = isset($dob)&&!is_null($dob) ? $dob : isset($socialiteUserInfo['birthday']) ? $socialiteUserInfo['birthday'] : null;
+//        $res = explode("/", $dob);
+//        $dob = $res[2]."-".$res[0]."-".$res[1];
+//        $location = $this->profile->address;
+//        $location = isset($location)&&!is_null($location) ? $location :
+//            isset($socialiteUserInfo['location']['name']) ? $socialiteUserInfo['location']['name'] : null;
+//
+//        $gender = isset($this->profile->gender) ? $this->profile->gender : isset($socialiteUserInfo['gender']) ? $socialiteUserInfo['gender'] : null;
+
+        \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+
+        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socailLink]);
+
+//        ,'dob'=>$dob,'address'=>$location,
+//            'gender'=>$gender
+
+        return true;
     }
 }

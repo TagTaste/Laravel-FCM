@@ -397,9 +397,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-
-
-    public function userBatches(Request $request,$collaborateId)
+    public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
         $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');

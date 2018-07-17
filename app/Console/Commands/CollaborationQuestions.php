@@ -45,7 +45,7 @@ class CollaborationQuestions extends Command
 		"option": "Low,Medium,High"
 	}, {
 		"title": "Overall Preference (Appearance)",
-		"select_type": 1,
+		"select_type": 5,
 		"is_intensity": 0,
 		"is_nested": 0,
 		"is_mandatory": 1,
@@ -62,7 +62,7 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 2,
-			"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+			"intensity_value": "15",
 			"is_nested": 0,
 			"is_mandatory": 1,
 			"option": "Milky,Buttery,Fruity,Sour,Chocolate,Caramelized,Cheesy,Nutty,Vanilla,Any Other"
@@ -72,7 +72,7 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 1,
-			"is_nested": 1,
+			"is_nested": 0,
 			"is_mandatory": 1,
 			"intensity_value":"15",
 			"nested_option" : 1,
@@ -80,7 +80,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Aroma)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -114,7 +114,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Taste)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -148,7 +148,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Aromatics)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -173,7 +173,6 @@ class CollaborationQuestions extends Command
 		{
 			"title": "First Chew",
 			"is_nested": 1,
-			"is_mandatory": 0,
 			"question": [{
 					"title": "Uniformity",
 					"select_type": 1,
@@ -204,7 +203,6 @@ class CollaborationQuestions extends Command
 
 			"title": "Chewdown experience",
 			"is_nested": 1,
-			"is_mandatory": 0,
 			"question": [{
 					"title": "Moisture absorption",
 					"select_type": 1,
@@ -247,7 +245,7 @@ class CollaborationQuestions extends Command
 		},
 		{
 			"title": "Overall Preference (Appearance)",
-			"select_type": 1,
+			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
 			"is_mandatory": 1,
@@ -303,7 +301,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 452;
+        $collaborateId = 457;
         foreach ($questions as $key=>$question)
         {
             $data = [];

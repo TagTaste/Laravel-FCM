@@ -207,18 +207,22 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
-            Route::get("userBatches","BatchController@userBatches");
+            Route::get("userBatches","CollaborateController@userBatches");
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::post("beginTasting",'BatchController@beginTasting');
+                Route::post('removeFromBatch','BatchController@removeFromBatch');
+                Route::post('assignBatch','BatchController@assignBatch');
                 Route::resource('batches','BatchController');
                 Route::resource('comments','CommentController');
-                Route::post('assignBatch','ApplicantController@assignBatch');
-                Route::post('assignPeople','ApplicantController@assignPeople');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview');
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
-                Route::resource('showIntereste','ApplicantController');
+                Route::post("showInterest","ApplicantController@store");
+                Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
+                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
+                Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
                 Route::post("headers/{headerId}","ReviewController@reviewAnswers");
@@ -308,6 +312,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             // facebook friends
             Route::get("profile/facebookFriends", ['uses'=> 'ProfileController@fbFriends']);
+            Route::post("profile/followFbFriends", ['uses'=> 'ProfileController@followFbFriends']);
+
 
             //check handle
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
@@ -475,8 +481,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv",function (){
         $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as id","users.name as name","profiles.handle as handle")
-            ->join("users",'users.id','=','profiles.user_id')->where('profiles.id','>',3266)
+        $profiles = \DB::table("profiles")->select("profiles.id as profileId","users.name as name","users.email as email")
+            ->join("users",'users.id','=','profiles.user_id')
             ->whereNull('users.deleted_at')
             ->get();
         $headers = array(
@@ -487,7 +493,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('id', 'name', 'handle');
+        $columns = array('profileId', 'name', 'email');
 
         $str = '';
         foreach ($columns as $c) {
