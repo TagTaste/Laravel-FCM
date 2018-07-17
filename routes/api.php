@@ -210,10 +210,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("userBatches","CollaborateController@userBatches");
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::post('removeFromBatch','BatchController@removeFromBatch');
+                Route::post('assignBatch','BatchController@assignBatch');
                 Route::resource('batches','BatchController');
                 Route::resource('comments','CommentController');
-                Route::post('assignBatch','ApplicantController@assignBatch');
-                Route::post('assignPeople','ApplicantController@assignPeople');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview');
