@@ -55,9 +55,8 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $inputs = $request->input(['is_invited']);
-        $inputs['profile_id'] = $request->user()->profile->id;
-        $inputs['collaborate_id'] = $collaborateId;
+        $isInvited = $request->input(['is_invited']);
+        $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->user()->profile->id,'collaborate_id'=>$collaborateId];
 
         $this->model = $this->model->create($inputs);
 
