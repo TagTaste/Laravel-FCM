@@ -46,7 +46,7 @@ class Batches extends Model {
 
     public function getAssignedCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('batch_id',$this->id)->count();
+        return \DB::table('collaborate_batches_assign')->where('batch_id',$this->id)->distinct('profile_id')->count();
     }
 
 }

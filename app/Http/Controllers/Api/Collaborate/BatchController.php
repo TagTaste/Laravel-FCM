@@ -54,7 +54,7 @@ class BatchController extends Controller
      */
     public function show($collaborateId,$id)
     {
-        $this->model = $this->model->find($id);
+        $this->model = $collaborateId;
 
         return $this->sendResponse();
 

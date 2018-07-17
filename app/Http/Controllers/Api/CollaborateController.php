@@ -397,8 +397,6 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-
-
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
