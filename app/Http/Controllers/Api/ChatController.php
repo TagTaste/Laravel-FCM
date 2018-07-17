@@ -434,13 +434,12 @@ class ChatController extends Controller
     }
 
     public function featureMessage(Request $request,$feature,$featureId)
-    {
+    {   
         $model = $this->getModel($feature,$featureId);
         if(empty($model))
         {
             return $this->sendError("invalid model name or Id");
         }
-
         $inputs = $request->except(['_method','_token']);
         $profileIds = $inputs['profile_id'];
 
