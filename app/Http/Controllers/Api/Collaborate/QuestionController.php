@@ -170,14 +170,13 @@ class QuestionController extends Controller
         $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->where('tasting_header_id',$id)->get()->groupBy('question_id');
         $answers = [];
-        \Log::info($answerModels);
         foreach ($answerModels as $answerModel)
         {
             $data = [];
             $comment = null;
-            \Log::info($answerModel);
             foreach ($answerModel as $item)
             {
+                \Log::info($item);
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
