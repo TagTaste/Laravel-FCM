@@ -62,7 +62,7 @@ class ReviewController extends Controller
             }
             if(isset($answer['comment']) && !is_null($answer['comment']))
             {
-                $data[] = ['key'=>"comment",'value'=>$answer['comment'],'id'=>0,
+                $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
                     'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                     'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
                     'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus];
