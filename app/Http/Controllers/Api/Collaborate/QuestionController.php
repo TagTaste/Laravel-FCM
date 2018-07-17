@@ -174,9 +174,9 @@ class QuestionController extends Controller
         {
             $data = [];
             $comment = null;
+            $questionId = null;
             foreach ($answerModel as $item)
             {
-                \Log::info($item);
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
