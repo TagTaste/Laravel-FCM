@@ -31,9 +31,15 @@ class ApplicantController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $this->model->where('collaborate_id',$collaborateId)
-            ->skip($skip)->take($take)->get();
-
+        $this->model = [];
+        $this->model['applicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+        $this->model['totalApplicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->count();
+        $this->model['shortlistedApplicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->count();
+        $this->model['rejectedApplicants'] = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNull('rejected_at')->count();
         return $this->sendResponse();
 
     }
@@ -51,7 +57,7 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $inputs = $request->input(['batch_id','is_invited','applier_address']);
+        $inputs = $request->input(['is_invited']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $inputs['collaborate_id'] = $collaborateId;
 
@@ -187,6 +193,26 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$request->user()->profile->id)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+
+        return $this->sendResponse();
+    }
+
+    public function getShortlistApplicants(Request $request, $collaborateId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $this->model->where('collaborate_id',$collaborateId)->where('shortlisted_at')
+            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+    }
+
+    public function getRejectApplicants(Request $request, $collaborateId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->where('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }

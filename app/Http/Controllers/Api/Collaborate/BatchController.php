@@ -27,7 +27,7 @@ class BatchController extends Controller
      */
     public function index($collaborateId)
     {
-        $this->model = $this->model->where('collaborate_id',$collaborateId)->get();
+        $this->model = $this->model->where('collaborate_id',$collaborateId)->orderBy("created_at","desc")->get();
 
         return $this->sendResponse();
 

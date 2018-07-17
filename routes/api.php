@@ -218,7 +218,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview');
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
-                Route::resource('showIntereste','ApplicantController');
+                Route::post("showInterest","ApplicantController@store");
+                Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
+                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
+                Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
                 Route::post("headers/{headerId}","ReviewController@reviewAnswers");
