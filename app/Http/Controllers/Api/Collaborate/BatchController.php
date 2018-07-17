@@ -165,9 +165,37 @@ class BatchController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->get()->pluck('profile_id');
-        $this->model = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
-            ->whereNull('rejected_at')->whereNotIn('profile_id',$profileIds)->skip($skip)->take($take)->get();
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+            ->whereNotNull('shortlisted_at')->skip($skip)->take($take)->get()->toArray();
+
+        foreach ($applicants as &$applicant)
+        {
+            $batches = Collaborate\BatchAssign::where('profile_id',$applicant['profile']['id'])->get()->pluck('batches');
+            $applicant['batches'] = $batches;
+        }
+        $this->model = $applicants;
+        return $this->sendResponse();
+
+    }
+
+    public function getShortlistedSearchPeople(Request $request, $collaborateId, $batchId)
+    {
+        $query = $request->input('term');
+
+        $profileIds = \App\Recipe\Profile::select('profiles.id')
+            ->join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")
+            ->get()->pluck('id');
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)
+            ->whereNotNull('shortlisted_at')->get()->toArray();
+
+        foreach ($applicants as &$applicant)
+        {
+            $batches = Collaborate\BatchAssign::where('profile_id',$applicant['profile']['id'])->get()->pluck('batches');
+            $applicant['batches'] = $batches;
+        }
+        $this->model = $applicants;
+        return $this->sendResponse();
+
     }
 
 }

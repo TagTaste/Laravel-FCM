@@ -213,6 +213,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("beginTasting",'BatchController@beginTasting');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');
                 Route::post('assignBatch','BatchController@assignBatch');
+                Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
+                Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
                 Route::resource('batches','BatchController');
                 Route::resource('comments','CommentController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');

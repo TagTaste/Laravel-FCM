@@ -13,7 +13,7 @@ class Applicant extends Model {
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address'];
 
-    protected $with = ['profile','batches'];
+    protected $with = ['profile'];
 
     protected $casts = [
         'collaborate_id' => 'integer',
