@@ -102,6 +102,7 @@ class Company extends Model
         'style_logo',
         'style_hero_image',
         'company_id',
+        'is_premium',
 
     ];
     

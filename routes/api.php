@@ -170,6 +170,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //is the network feed required?
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
+
+            //get premium companies
+
+            Route::get("profile/premium","ProfileController@getPremium");
             
             //jobs
                 Route::get("jobs/all","JobController@all");
