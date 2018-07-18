@@ -89,12 +89,13 @@ class CollaborateController extends Controller
         $imagesArray = [];
         if ($request->has("images"))
         {
-            $images = $request->input('images');
-            $i = 1;
-            foreach ($images as $image)
-            {
-                $imagesArray[]['image'.$i] = $image;
-                $i++;
+            for ($i = 0; $i <= 4; $i++) {
+                if (!$request->hasFile("images.$i.image")) {
+                    break;
+                }
+                $imageName = str_random("32") . ".jpg";
+                $relativePath = "images/p/$profileId/collaborate";
+                $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
