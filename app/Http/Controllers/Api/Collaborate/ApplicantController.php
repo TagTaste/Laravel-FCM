@@ -87,7 +87,11 @@ class ApplicantController extends Controller
                 return $this->sendError("Please select user for invitation");
             }
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$request->user()->profile->id)->exists();
-            if($checkUser){
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+            if($request->user()->profile->id == $request->input('profile_id'))
+            {
                 return $this->sendError("You can not invite admins of company");
             }
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId];
