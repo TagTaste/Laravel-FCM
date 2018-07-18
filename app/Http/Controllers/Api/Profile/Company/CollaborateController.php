@@ -156,7 +156,7 @@ class CollaborateController extends Controller
         unset($inputs['profile_id']);
 
         //saved as draft
-        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) && $inputs['step'] != 3  ? Collaborate::$state[3] :Collaborate::$state[0];
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 		  if($collaborate === null){
