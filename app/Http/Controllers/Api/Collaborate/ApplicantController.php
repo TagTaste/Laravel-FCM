@@ -88,7 +88,7 @@ class ApplicantController extends Controller
             }
             $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$request->user()->profile->id)->exists();
             if(!$checkUser){
-                return $this->sendError("Invalid Collaboration Project.");
+                return $this->sendError("You are not admin.");
             }
             if($request->user()->profile->id == $request->input('profile_id'))
             {
