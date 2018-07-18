@@ -63,7 +63,7 @@ Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
-
+       
         Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
@@ -76,7 +76,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
-    
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
             Route::post('/user/feedIssue',['uses'=>'UserController@feedIssue']);
             Route::post('/logout','UserController@logout');
@@ -458,47 +457,94 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
 
-    Route::get("csv",function (){
-        $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as profileId","users.name as name","users.email as email")
-            ->join("users",'users.id','=','profiles.user_id')
-            ->whereNull('users.deleted_at')
-            ->get();
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=file.csv",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        );
+   Route::get("csv",function (){
+                $this->model = [];
+                $profiles = \DB::table("users")
+                ->select("profiles.id as id","profiles.phone as phone","users.name as name","users.email as email")
+                    ->join("profiles",'profiles.user_id','=','users.id')
+                    ->whereNull('users.deleted_at')
+                    ->where('users.name','like','%chef%')
+                    ->orWhere('profiles.about','like','%chef%')
+                    ->orWhere('profiles.tagline','like','%chef%')
+                    ->get();
+                   
+                
+                $headers = array(
+                    "Content-type" => "text/csv",
+                    "Content-Disposition" => "attachment; filename=file.csv",
+                    "Pragma" => "no-cache",
+                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+                    "Expires" => "0"
+                );
+        
+                $columns = array('id','phone','name','email');
+        
+                $str = '';
+                foreach ($columns as $c) {
+                    $str = $str.$c.',';
+                }
+                $str = $str."\n";
+        
+                foreach($profiles as $review) {
+                    foreach ($columns as $c) {
+                        $str = $str.$review->{$c}.',';
+                    }
+                    $str = $str."\n";
+                }
+        //        $callback = function() use ($profiles, $columns)
+        //        {
+        //            $file = fopen(storage_path('chef1.csv'), 'w+');
+        //            fputcsv($file, $columns);
+        //
+        //            foreach($profiles as $review) {
+        //                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
+        //            }
+        //            fclose($file);
+        //        };
+                return response($str, 200, $headers);
+        
+            });
+//     Route::get("csv",function (){
+//         $this->model = [];
+//         $profiles = \DB::table("profiles")->select("profiles.id as profileId","users.name as name","users.email as email")
+//             ->join("users",'users.id','=','profiles.user_id')
+//             ->whereNull('users.deleted_at')
+//             ->get();
+//         $headers = array(
+//             "Content-type" => "text/csv",
+//             "Content-Disposition" => "attachment; filename=file.csv",
+//             "Pragma" => "no-cache",
+//             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+//             "Expires" => "0"
+//         );
 
-        $columns = array('profileId', 'name', 'email');
+//         $columns = array('profileId', 'name', 'email');
 
-        $str = '';
-        foreach ($columns as $c) {
-            $str = $str.$c.',';
-        }
-        $str = $str."\n";
+//         $str = '';
+//         foreach ($columns as $c) {
+//             $str = $str.$c.',';
+//         }
+//         $str = $str."\n";
 
-        foreach($profiles as $review) {
-            foreach ($columns as $c) {
-                $str = $str.$review->{$c}.',';
-            }
-            $str = $str."\n";
-        }
-//        $callback = function() use ($profiles, $columns)
-//        {
-//            $file = fopen(storage_path('chef1.csv'), 'w+');
-//            fputcsv($file, $columns);
-//
-//            foreach($profiles as $review) {
-//                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
-//            }
-//            fclose($file);
-//        };
-        return response($str, 200, $headers);
+//         foreach($profiles as $review) {
+//             foreach ($columns as $c) {
+//                 $str = $str.$review->{$c}.',';
+//             }
+//             $str = $str."\n";
+//         }
+// //        $callback = function() use ($profiles, $columns)
+// //        {
+// //            $file = fopen(storage_path('chef1.csv'), 'w+');
+// //            fputcsv($file, $columns);
+// //
+// //            foreach($profiles as $review) {
+// //                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
+// //            }
+// //            fclose($file);
+// //        };
+//         return response($str, 200, $headers);
 
-    });
+//     });
 
 
 });
