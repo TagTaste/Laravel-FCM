@@ -153,9 +153,10 @@ class BatchController extends Controller
 
     }
 
-    public function beginTasting(Request $request, $collaborateId, $batchId)
+    public function beginTasting(Request $request, $collaborateId)
     {
         $profileIds = $request->input('profile_id');
+        $batchId = $request->input('batch_id');
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
             ->update(['begin_tasting'=>1]);
