@@ -15,7 +15,6 @@ class AlterCollaborateBatchesAssignAddTimestamp extends Migration
     {
         //
         Schema::table('collaborate_batches_assign',function(Blueprint $table){
-            $table->timestamp('deleted_at');
             $table->timestamps();
         });
     }
@@ -28,7 +27,7 @@ class AlterCollaborateBatchesAssignAddTimestamp extends Migration
     public function down()
     {
         Schema::table('collaborate_batches_assign',function(Blueprint $table){
-            $table->dropColumn(["deleted_at","created_at","updated_at"]);
+            $table->dropColumn(["created_at","updated_at"]);
         });
     }
 }

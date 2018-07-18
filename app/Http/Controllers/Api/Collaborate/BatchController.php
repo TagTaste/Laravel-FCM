@@ -28,8 +28,17 @@ class BatchController extends Controller
      */
     public function index($collaborateId)
     {
-        $this->model = $this->model->where('collaborate_id',$collaborateId)->orderBy("created_at","desc")->get();
+        $batches = $this->model->where('collaborate_id',$collaborateId)
+            ->orderBy("created_at","desc")->get()->toArray();
 
+        foreach ($batches as &$batch)
+        {
+            $batch['reviewedCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status',2)->where('collaborate_id',$batch['collaborate_id'])
+                ->where('batch_id',$batch['id'])->distinct('profile_id')->count();
+
+            $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id',$batch['id'])->distinct('profile_id')->count();
+        }
+        $this->model = $batches;
         return $this->sendResponse();
 
     }
@@ -56,7 +65,7 @@ class BatchController extends Controller
      */
     public function show($collaborateId,$id)
     {
-        $profileIds = \DB::table('collaborate_batches_assign')->where('begin_tasting',0)->where('batch_id',$id)->get()->pluck('profile_id');
+        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
         $profiles = Profile::whereIn('id',$profileIds)->get();
 
         $profiles = $profiles->toArray();

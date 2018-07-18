@@ -40,7 +40,8 @@ class QuestionController extends Controller
             return $this->sendError("No sample id found");
         }
         $batchId = $request->input('batch_id');
-        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)
+            ->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)->exists();
 
         if(!$checkAssign)
         {
@@ -118,7 +119,8 @@ class QuestionController extends Controller
             return $this->sendError("No sample id found");
         }
         $batchId = $request->input('batch_id');
-        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)
+            ->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)->exists();
 
         if(!$checkAssign)
         {

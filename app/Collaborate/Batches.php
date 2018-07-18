@@ -13,9 +13,9 @@ class Batches extends Model {
     protected $fillable = ['name','notes','allergens','instruction','color_id','collaborate_id','created_at','updated_at'];
 
     protected $visible = ['id','name','notes','allergens','instruction','color_id','collaborate_id','collaborate',
-        'color','assignedCount','reviewedCount','created_at','updated_at'];
+        'color','created_at','updated_at','current_status'];
 
-    protected $appends = ['color','reviewedCount','assignedCount'];
+    protected $appends = ['color','current_status'];
 
 //    protected $with = ['color'];
 
@@ -24,15 +24,13 @@ class Batches extends Model {
         return \DB::table('collaborate_batches_color')->where('id',$this->color_id)->first();
     }
 
-    public function getReviewedCountAttribute()
-    {
-        return \DB::table('collaborate_tasting_user_review')->where('current_status',2)->where('collaborate_id',$this->collaborate_id)
-            ->where('batch_id',$this->id)->distinct('profile_id')->count();
-    }
 
-    public function getAssignedCountAttribute()
+
+    public function getCurrentStatusAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('batch_id',$this->id)->distinct('profile_id')->count();
+        $currentStatus =  \DB::table('collaborate_tasting_user_review')->select('current_status')->where('collaborate_id',$this->collaborate_id)
+            ->where('batch_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        return isset($currentStatus) ? $currentStatus->current_status : 0;
     }
 
 }
