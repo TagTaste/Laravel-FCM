@@ -55,6 +55,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 // Preview routes
 Route::get('preview/{modelName}/{modelId}','Api\PreviewController@show');
 Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewController@showShared');
+Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
@@ -509,6 +510,47 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 return response($str, 200, $headers);
         
             });
+//     Route::get("csv",function (){
+//         $this->model = [];
+//         $profiles = \DB::table("profiles")->select("profiles.id as profileId","users.name as name","users.email as email")
+//             ->join("users",'users.id','=','profiles.user_id')
+//             ->whereNull('users.deleted_at')
+//             ->get();
+//         $headers = array(
+//             "Content-type" => "text/csv",
+//             "Content-Disposition" => "attachment; filename=file.csv",
+//             "Pragma" => "no-cache",
+//             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+//             "Expires" => "0"
+//         );
+
+//         $columns = array('profileId', 'name', 'email');
+
+//         $str = '';
+//         foreach ($columns as $c) {
+//             $str = $str.$c.',';
+//         }
+//         $str = $str."\n";
+
+//         foreach($profiles as $review) {
+//             foreach ($columns as $c) {
+//                 $str = $str.$review->{$c}.',';
+//             }
+//             $str = $str."\n";
+//         }
+// //        $callback = function() use ($profiles, $columns)
+// //        {
+// //            $file = fopen(storage_path('chef1.csv'), 'w+');
+// //            fputcsv($file, $columns);
+// //
+// //            foreach($profiles as $review) {
+// //                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
+// //            }
+// //            fclose($file);
+// //        };
+//         return response($str, 200, $headers);
+
+//     });
 
 
 });

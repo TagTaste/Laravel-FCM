@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Collaborate;
 use App\Deeplink;
 use Illuminate\Http\Request;
 
