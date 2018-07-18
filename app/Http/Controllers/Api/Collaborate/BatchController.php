@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\CompanyUser;
 use App\Recipe\Profile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -27,8 +28,17 @@ class BatchController extends Controller
      */
     public function index($collaborateId)
     {
-        $this->model = $this->model->where('collaborate_id',$collaborateId)->get();
+        $batches = $this->model->where('collaborate_id',$collaborateId)
+            ->orderBy("created_at","desc")->get()->toArray();
 
+        foreach ($batches as &$batch)
+        {
+            $batch['reviewedCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status',2)->where('collaborate_id',$batch['collaborate_id'])
+                ->where('batch_id',$batch['id'])->distinct('profile_id')->count();
+
+            $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id',$batch['id'])->distinct('profile_id')->count();
+        }
+        $this->model = $batches;
         return $this->sendResponse();
 
     }
@@ -65,7 +75,9 @@ class BatchController extends Controller
                 ->where('profile_id',$profile['id'])->orderBy('id','desc')->first();
             $profile['current_status'] = isset($review->current_status) ? $review->current_status : 0;
         }
-        $this->model = $profiles;
+        $this->model = [];
+        $this->model['applicants'] = $profiles;
+        $this->model['batch'] = Collaborate\Batches::where('id',$id)->first();
         return $this->sendResponse();
 
     }
@@ -124,26 +136,77 @@ class BatchController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
         $applierProfileIds = $request->input('profile_id');
-        $batchIds = $request->input('batch_id');
-        $inputs = [];
-        foreach ($batchIds as $batchId)
+        $batchId = $request->input('batch_id');
+        $checkBatch = \DB::table('collaborate_batches')->where('collaborate_id',$id)->where('id',$batchId)->exists();
+        if(!$checkBatch)
         {
-            foreach ($applierProfileIds as $applierProfileId)
-            {
-                $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
-            }
+            return $this->sendError("wrong batch for this collaboration.");
+        }
+        $inputs = [];
+        foreach ($applierProfileIds as $applierProfileId)
+        {
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
         return $this->sendResponse();
     }
 
-    public function removeFromBatch(Request $request, $collaborateId, $batchId)
+    public function removeFromBatch(Request $request, $collaborateId)
     {
         $profileIds = $request->input('profile_id');
-
+        $batchId = $request->input('batch_id');
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
 
+        return $this->sendResponse();
+
+    }
+
+    public function beginTasting(Request $request, $collaborateId)
+    {
+        $profileIds = $request->input('profile_id');
+        $batchId = $request->input('batch_id');
+
+        $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
+            ->update(['begin_tasting'=>1]);
+
+        return $this->sendResponse();
+
+    }
+
+    public function getShortlistedPeople(Request $request, $collaborateId, $batchId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+            ->whereNotNull('shortlisted_at')->skip($skip)->take($take)->get()->toArray();
+
+        foreach ($applicants as &$applicant)
+        {
+            $batches = Collaborate\BatchAssign::where('profile_id',$applicant['profile']['id'])->get()->pluck('batches');
+            $applicant['batches'] = $batches;
+        }
+        $this->model = $applicants;
+        return $this->sendResponse();
+
+    }
+
+    public function getShortlistedSearchPeople(Request $request, $collaborateId, $batchId)
+    {
+        $query = $request->input('term');
+
+        $profileIds = \App\Recipe\Profile::select('profiles.id')
+            ->join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")
+            ->get()->pluck('id');
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)
+            ->whereNotNull('shortlisted_at')->get()->toArray();
+
+        foreach ($applicants as &$applicant)
+        {
+            $batches = Collaborate\BatchAssign::where('profile_id',$applicant['profile']['id'])->get()->pluck('batches');
+            $applicant['batches'] = $batches;
+        }
+        $this->model = $applicants;
         return $this->sendResponse();
 
     }

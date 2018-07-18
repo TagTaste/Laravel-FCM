@@ -62,7 +62,7 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 2,
-			"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+			"intensity_value": "15",
 			"is_nested": 0,
 			"is_mandatory": 1,
 			"option": "Milky,Buttery,Fruity,Sour,Chocolate,Caramelized,Cheesy,Nutty,Vanilla,Any Other"
@@ -72,7 +72,7 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 1,
-			"is_nested": 1,
+			"is_nested": 0,
 			"is_mandatory": 1,
 			"intensity_value":"15",
 			"nested_option" : 1,
@@ -173,7 +173,6 @@ class CollaborationQuestions extends Command
 		{
 			"title": "First Chew",
 			"is_nested": 1,
-			"is_mandatory": 0,
 			"question": [{
 					"title": "Uniformity",
 					"select_type": 1,
@@ -204,7 +203,6 @@ class CollaborationQuestions extends Command
 
 			"title": "Chewdown experience",
 			"is_nested": 1,
-			"is_mandatory": 0,
 			"question": [{
 					"title": "Moisture absorption",
 					"select_type": 1,
@@ -303,7 +301,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 457;
+        $collaborateId = 465;
         foreach ($questions as $key=>$question)
         {
             $data = [];

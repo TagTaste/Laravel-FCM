@@ -170,6 +170,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //is the network feed required?
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
+
+            //get premium companies
+
+            Route::get("profile/premium","ProfileController@getPremium");
             
             //jobs
                 Route::get("jobs/all","JobController@all");
@@ -210,15 +214,20 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("userBatches","CollaborateController@userBatches");
             //collaborate comments
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::post("beginTasting",'BatchController@beginTasting');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');
                 Route::post('assignBatch','BatchController@assignBatch');
+                Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
+                Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
                 Route::resource('batches','BatchController');
-                Route::resource('comments','CommentController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
-                Route::post('inviteForReview','ApplicantController@inviteForReview');
+                Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
-                Route::resource('showIntereste','ApplicantController');
+                Route::post("showInterest","ApplicantController@store");
+                Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
+                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
+                Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
                 Route::post("headers/{headerId}","ReviewController@reviewAnswers");
@@ -227,6 +236,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("insertHeaders","QuestionController@insertHeaders");
                 Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
                 Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
+
+                Route::resource('comments','CommentController');
+
             });
 
             //photos

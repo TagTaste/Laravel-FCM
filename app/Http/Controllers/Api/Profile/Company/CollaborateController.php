@@ -89,12 +89,13 @@ class CollaborateController extends Controller
         $imagesArray = [];
         if ($request->has("images"))
         {
-            $images = $request->input('images');
-            $i = 1;
-            foreach ($images as $image)
-            {
-                $imagesArray[]['image'.$i] = $image;
-                $i++;
+            for ($i = 0; $i <= 4; $i++) {
+                if (!$request->hasFile("images.$i.image")) {
+                    break;
+                }
+                $imageName = str_random("32") . ".jpg";
+                $relativePath = "images/p/$profileId/collaborate";
+                $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
@@ -155,7 +156,7 @@ class CollaborateController extends Controller
         unset($inputs['profile_id']);
 
         //saved as draft
-        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) && $inputs['step'] != 3  ? Collaborate::$state[3] :Collaborate::$state[0];
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
 		  if($collaborate === null){
