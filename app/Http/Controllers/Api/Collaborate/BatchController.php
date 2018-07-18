@@ -136,7 +136,7 @@ class BatchController extends Controller
         $inputs = [];
         foreach ($applierProfileIds as $applierProfileId)
         {
-            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
