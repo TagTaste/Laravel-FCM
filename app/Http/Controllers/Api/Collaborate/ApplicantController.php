@@ -53,10 +53,10 @@ class ApplicantController extends Controller
             ->whereNull('rejected_at')->skip($skip)->take($take)->get();
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
-        $this->model['shortlistedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $this->model['shortlistedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
             ->whereNull('rejected_at')->count();
         $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
-            ->whereNull('rejected_at')->count();
+            ->whereNotNull('rejected_at')->count();
 
         return $this->sendResponse();
     }
