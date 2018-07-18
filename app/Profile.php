@@ -186,19 +186,19 @@ class Profile extends Model
     {
         if (!empty($value)) {
 
-            if(request()->user()->profile->id == $this->id)
-            {
-                return date("d-m-Y", strtotime($value));
-            }
-
-            if($this->dob_private == 3)
-            {
-                return null;
-            }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
-            {
-                return null;
-            }
+//            if(request()->user()->profile->id == $this->id)
+//            {
+//                return date("d-m-Y", strtotime($value));
+//            }
+//
+//            if($this->dob_private == 3)
+//            {
+//                return null;
+//            }
+//            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
+//            {
+//                return null;
+//            }
             return date("d-m-Y", strtotime($value));
         }
     }
@@ -728,19 +728,19 @@ class Profile extends Model
     {
         if (!empty($value)) {
 
-            if(request()->user()->profile->id == $this->id)
-            {
-                return $value;
-            }
-
-            if($this->address_private == 3)
-            {
-                return null;
-            }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
-            {
-                return null;
-            }
+//            if(request()->user()->profile->id == $this->id)
+//            {
+//                return $value;
+//            }
+//
+//            if($this->address_private == 3)
+//            {
+//                return null;
+//            }
+//            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+//            {
+//                return null;
+//            }
             return $value;
         }
     }
@@ -749,19 +749,19 @@ class Profile extends Model
     {
         if (!empty($value)) {
 
-            if(request()->user()->profile->id == $this->id)
-            {
-                return $value;
-            }
-
-            if($this->phone_private == 3)
-            {
-                return null;
-            }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
-            {
-                return null;
-            }
+//            if(request()->user()->profile->id == $this->id)
+//            {
+//                return $value;
+//            }
+//
+//            if($this->phone_private == 3)
+//            {
+//                return null;
+//            }
+//            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
+//            {
+//                return null;
+//            }
             return $value;
         }
     }
