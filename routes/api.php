@@ -462,9 +462,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 ->select("profiles.id as id","profiles.phone as phone","users.name as name","users.email as email")
                     ->join("profiles",'profiles.user_id','=','users.id')
                     ->whereNull('users.deleted_at')
-                    ->where('users.name','like','%arun%')
-                    ->orWhere('profiles.about','like','%arun%')
-                    ->orWhere('profiles.tagline','like','%arun%')
+                    ->where('users.name','like','%chef%')
+                    ->orWhere('profiles.about','like','%chef%')
+                    ->orWhere('profiles.tagline','like','%chef%')
                     ->get();
                    
                 
