@@ -216,10 +216,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
                 Route::resource('batches','BatchController');
-                Route::resource('comments','CommentController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
-                Route::post('inviteForReview','ApplicantController@inviteForReview');
+                Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
                 Route::post("showInterest","ApplicantController@store");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
@@ -233,6 +232,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("insertHeaders","QuestionController@insertHeaders");
                 Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
                 Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
+
+                Route::resource('comments','CommentController');
+
             });
 
             //photos
