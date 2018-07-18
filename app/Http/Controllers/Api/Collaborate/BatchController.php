@@ -128,7 +128,7 @@ class BatchController extends Controller
         }
         $applierProfileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
-        $checkBatch = \DB::table('collaborate_batches')->where('collaborate_id',$id)->where('id',$batchId)->exist();
+        $checkBatch = \DB::table('collaborate_batches')->where('collaborate_id',$id)->where('id',$batchId)->exists();
         if(!$checkBatch)
         {
             return $this->sendError("wrong batch for this collaboration.");
