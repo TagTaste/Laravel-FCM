@@ -26,8 +26,8 @@ class Batches extends Model {
 
     public function getCollaborateTitleAttribute()
     {
+        dd($this->collaborate_id);
         $collaborate = \DB::table('collaborates')->where('id',$this->collaborate_id)->first();
-        dd($collaborate);
         return $collaborate;
     }
 
