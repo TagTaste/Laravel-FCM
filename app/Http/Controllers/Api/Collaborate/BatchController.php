@@ -143,7 +143,7 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
-    public function removeFromBatch(Request $request, $collaborateId, $batchId)
+    public function removeFromBatch(Request $request, $collaborateId)
     {
         $profileIds = $request->input('profile_id');
 
