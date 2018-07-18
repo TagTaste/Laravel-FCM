@@ -146,7 +146,7 @@ class BatchController extends Controller
     public function removeFromBatch(Request $request, $collaborateId)
     {
         $profileIds = $request->input('profile_id');
-
+        $batchId = $request->input('batch_id');
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
 
         return $this->sendResponse();
