@@ -49,11 +49,9 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['applicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $this->model['applicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->skip($skip)->take($take)->get();
-        $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
-            ->whereNull('rejected_at')->count();
-        $this->model['shortlistedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
+        $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->count();
         $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at')->count();
@@ -75,9 +73,10 @@ class ApplicantController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
         $isInvited = $request->input(['is_invited']);
+        $now = Carbon::now()->toDateTimeString();
         if($isInvited == 0)
         {
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->user()->profile->id,'collaborate_id'=>$collaborateId];
+            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->user()->profile->id,'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
 
         }
         else
@@ -94,9 +93,18 @@ class ApplicantController extends Controller
             {
                 return $this->sendError("You can not invite admins of company");
             }
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId];
+            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
         }
         $this->model = $this->model->create($inputs);
+
+        if(isset($this->model))
+        {
+            $this->model = true;
+        }
+        else
+        {
+            $this->model = false;
+        }
 
         return $this->sendResponse();
 
