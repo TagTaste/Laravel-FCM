@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
+use App\CompanyUser;
 use App\Recipe\Profile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
