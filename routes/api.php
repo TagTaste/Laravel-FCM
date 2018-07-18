@@ -456,7 +456,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
 
-   Route::get("csv",function (Request $request){
+   Route::get("csv",function (){
                 $this->model = [];
                 $profiles = \DB::table("users")
                 ->select("profiles.id as id","profiles.phone as phone","users.name as name","users.email as email")
