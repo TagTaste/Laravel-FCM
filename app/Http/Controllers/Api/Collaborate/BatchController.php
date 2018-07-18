@@ -126,14 +126,16 @@ class BatchController extends Controller
             return $this->sendError("Invalid Collaboration Project.");
         }
         $applierProfileIds = $request->input('profile_id');
-        $batchIds = $request->input('batch_id');
-        $inputs = [];
-        foreach ($batchIds as $batchId)
+        $batchId = $request->input('batch_id');
+        $checkBatch = \DB::table('collaborate_batches')->where('collaborate_id',$id)->where('id',$batchId)->exist();
+        if(!$checkBatch)
         {
-            foreach ($applierProfileIds as $applierProfileId)
-            {
-                $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
-            }
+            return $this->sendError("wrong batch for this collaboration.");
+        }
+        $inputs = [];
+        foreach ($applierProfileIds as $applierProfileId)
+        {
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
