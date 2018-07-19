@@ -458,15 +458,21 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             // get current logged in user.
 
    Route::get("csv",function (){
-                $this->model = [];
-                $profiles = \DB::table("users")
-                ->select("profiles.id as id","profiles.phone as phone","users.name as name","users.email as email")
-                    ->join("profiles",'profiles.user_id','=','users.id')
-                    ->whereNull('users.deleted_at')
-                    ->where('users.name','like','%chef%')
+    $this->model = [];
+    $profiles = \DB::table("users")
+    ->select("profiles.id as id","profiles.phone as phone","users.name as name","users.email as email")
+        ->join("profiles",'profiles.user_id','=','users.id')
+        ->whereNull('users.deleted_at')
+        ->where(function ($query) {
+            $query->where('profiles.address','like','%mumbai%')
+            ->orWhere('profiles.city','like','%mumbai%');
+        })
+        ->where(function ($query) {
+            $query->where('users.name','like','%chef%')
                     ->orWhere('profiles.about','like','%chef%')
-                    ->orWhere('profiles.tagline','like','%chef%')
-                    ->get();
+                    ->orWhere('profiles.tagline','like','%chef%');
+        })
+        ->get();
                    
                 
                 $headers = array(
