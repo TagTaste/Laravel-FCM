@@ -20,6 +20,8 @@ class CreateCollaborateTastingNestedQuestion extends Migration
             $table->string("value");
             $table->unsignedInteger("question_id");
             $table->boolean("is_active")->default(1);
+            $table->unsignedInteger('tasting_header_id');
+            $table->foreign("tasting_header_id")->references("id")->on("collaborate_tasting_header");
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->timestamps();
