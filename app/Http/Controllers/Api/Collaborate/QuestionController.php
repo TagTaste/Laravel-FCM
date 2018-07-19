@@ -131,15 +131,17 @@ class QuestionController extends Controller
         $answers = [];
         if(is_null($id))
         {
-            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_aroma_question as A , 
-                                      collaborate_tasting_aroma_question as B where A.id = B.parent_id AND A.value LIKE '$value' 
+            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_nested_question as A , 
+                                      collaborate_tasting_nested_question as B where A.id = B.parent_id AND A.value LIKE '$value' 
                                       AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
 
         }
         else
         {
-            $this->model['question'] = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
-                ->where('parent_id',$id)->get();
+            $squence = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
+                ->where('collaborate_id',$collaborateId)->where('parent_id',$id)->first();
+            $this->model['question'] = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
+                ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
             $leafIds = $this->model['question']->pluck('id');
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
@@ -238,21 +240,21 @@ class QuestionController extends Controller
                 if(is_null($datum['parent_id'])||is_null($datum['categories']))
                     break;
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
-                $questions[] = ['parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
+                $questions[] = ["sequence_id"=>$datum['no'],'parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
                     'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
             }
         }
-        $this->model = \DB::table('collaborate_tasting_aroma_question')->insert($questions);
+        $this->model = \DB::table('collaborate_tasting_nested_question')->insert($questions);
 
-        $questions = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
+        $questions = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
 
         foreach ($questions as $question)
         {
-            $checknested = \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+            $checknested = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
                 ->where('parent_id',$question->id)->exists();
             if($checknested)
             {
-                \DB::table('collaborate_tasting_aroma_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
                     ->where('id',$question->id)->update(['nested_option'=>1]);
             }
 
