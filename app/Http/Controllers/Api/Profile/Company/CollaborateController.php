@@ -184,9 +184,9 @@ class CollaborateController extends Controller
                 $imagesArray[]['image'.$i] = $image;
                 $i++;
             }
+            $inputs['images'] = json_encode($imagesArray,true);
         }
-        $inputs['images'] = json_encode($imagesArray,true);
-    
+
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
