@@ -30,6 +30,6 @@ class JobResponse extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->from('example@tagtaste.com')->view('emails.job-email',["name"=>"Tushar","emai"=>"tushar@tagatste.com","job"=>"best job","description"=>$this->info]);
+        return $this->view('emails.collab-message',["name"=>$this->info['name'],"username"=>$this->info['username'],"message"=>$this->info['message']]);
     }
 }
