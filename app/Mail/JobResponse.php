@@ -30,6 +30,6 @@ class JobResponse extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.collab-message',["name"=>$this->info['name'],"username"=>$this->info['username'],"message1"=>$this->info['message']]);
+        return $this->subject('Tagtaste Notification')->view('emails.collab-message',["name"=>$this->info['name'],"username"=>$this->info['username'],"message1"=>$this->info['message']]);
     }
 }
