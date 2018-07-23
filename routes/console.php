@@ -171,6 +171,7 @@ Artisan::command('inspire', function () {
         echo "Sending collab mail to " . $email . "\n";
 
         $mail = (new \App\Mail\CollabSuggestions($user->name))->onQueue('emails');
+        \Mail::to($email)->send($mail);
 //        \Mail::to($email)->bcc('aman@tagtaste.com')->bcc('amitabh@tagtaste.com')->send($mail);
     };
     echo "\nsent $count mails";
