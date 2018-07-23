@@ -162,7 +162,7 @@ Artisan::command('inspire', function () {
     $when = \Carbon\Carbon::now();
 
     $count = 0;
-    $users = \DB::table('users')->whereNull('deleted_at')->whereIn('email',['ashok@tagtaste.com', 'harsh@tagtaste.com', 'arun@tagtaste.com'])->get();
+    $users = \DB::table('users')->whereNull('deleted_at')->whereIn('email',['ashok@tagtaste.com', 'harsh@tagtaste.com', 'arun@tagtaste.com', 'megha@tagtaste.com', 'tanvi@tagtaste.com'])->get();
     foreach ($users as $user)
     {
         $count++;
