@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class SendFeatureMessage implements ShouldQueue
+class SendFeatureMessage 
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
