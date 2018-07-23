@@ -466,7 +466,7 @@ class ChatController extends Controller
                     $data['username'] = $model->profile->name;
                     //return $data;
                     $data['sender_info'] = $request->user();
-                    Mail::to($user_info)->->send(new JobResponse($data));
+                    Mail::to($user_info)->cc($data['sender_info'])->send(new JobResponse($data));
                 }
         }
         foreach ($request->profile_id as $profile_id) {
