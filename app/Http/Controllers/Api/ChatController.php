@@ -455,6 +455,10 @@ class ChatController extends Controller
         {
             return $this->sendError("This model doesn't belong to this user");
         }
+        if(!isset($inputs['is_mailable']))
+        {
+            $inputs['is_mailable'] = 0;
+        }
         if($inputs['is_mailable'] == 1)
         {
             $ids = $request->profile_id;
