@@ -11,7 +11,7 @@ class Addresses extends Model {
 
     protected $fillable = ['city','location','collaborate_id'];
 
-    protected $visible = ['city','location','collaborate_id','locationJson'];
+    protected $visible = ['city','collaborate_id','locationJson'];
 
     protected $appends = ['locationJson'];
 
@@ -27,7 +27,7 @@ class Addresses extends Model {
                 $object['start_date'] = $locations[0][$i];
                 $object['location'] = $locations[1][$i];
                 $object['end_date'] = $locations[2][$i];
-                array_push($data,json_encode($object));
+                array_push($data,$object);
                 unset($object);
             }
             return $data;
