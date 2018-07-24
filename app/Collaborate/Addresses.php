@@ -19,7 +19,18 @@ class Addresses extends Model {
     {
         if(isset($this->location))
         {
-            return json_decode($this->location,true);
+            $data = [];
+            $location = json_decode($this->location,true);
+            $locations = array_chunk($location, count($location)/3);
+            for($i = 0; $i<count($location)/3; $i++)
+            {
+                $object['start_date'] = $locations[0][$i];
+                $object['location'] = $locations[1][$i];
+                $object['end_date'] = $locations[2][$i];
+                array_push($data,json_encode($object));
+                unset($object);
+            }
+            return $data;
         }
     }
 
