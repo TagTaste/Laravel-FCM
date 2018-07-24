@@ -144,7 +144,7 @@ class ShoutoutController extends Controller
 	{
 
 		$inputs = $request->all();
-        dd($id);
+        
 
         $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
 
