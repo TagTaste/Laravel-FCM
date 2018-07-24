@@ -15,6 +15,7 @@ class Preview
     
         $this->tags = $html->getElementsByTagName('meta');
     }
+
     public static function get($url)
     {
         $key = "preview:" . sha1($url);
