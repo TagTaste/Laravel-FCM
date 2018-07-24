@@ -339,106 +339,12 @@ class ChatController extends Controller
 
     }
 
-    public function jobMessage(Request $request)
-    {
-        $inputs = $request->except(['_method','_token','isSingle']);
-        //set profile_id to logged in user automatically.
-        //all profileIds passed in request would be added to Chat\Member;
-        $profileIds = $inputs['profile_id'];
-        if(!is_array($profileIds))
-        {
-            $profileIds = [$profileIds];
-        }
-        $user = $request->user();
-        $loggedInProfileId = $user->profile->id;
-        $inputs['profile_id'] = $loggedInProfileId;
-        if($request->input('isMailable') == 1 && is_array($profileIds))
-        {
-                 $ids = $request->profile_id;
-                 foreach ($ids as $id) 
-                {
-                    $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
-                    Mail::to($user_info)->cc($request->input('cc'))->bcc($request->input('bcc'))->send(new JobResponse($inputs['message']));
-                }
-                //return $request->input('from');
-        }   
-        //check for existing chats only for single profileId.
-        if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1)
-        {
-
-            $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
-            \Log::info($existingChats);
-            if(!is_null($existingChats) && $existingChats->count() > 0)
-            {
-                $this->messages[] = "chat_open";
-                $this->model = $existingChats;
-                 $chatId = $this->model->id;
-                if($request->hasFile("file"))
-                {
-                    $path = "profile/$loggedInProfileId/chat/$chatId/file";
-                    $filename = $request->file('file')->getClientOriginalName();
-                    $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
-                }
-                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image']))
-                {
-                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                    $s3 = \Storage::disk('s3');
-                    $filePath = 'p/' . $loggedInProfileId . "/ci";
-                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                    $inputs['preview']['image'] = $resp;
-                }
-                if(isset($inputs['preview']))
-                {
-                    $inputs['preview'] = json_encode($inputs['preview']);
-                }
-                if($request->has('message'))
-                {
-                    $inputs['chat_id'] = $chatId;
-                    $inputs['profile_id'] = $loggedInProfileId;
-                    $this->model = [];
-                    $this->model['data'] = Chat\Message::create($inputs);
-                    $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
-                    $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
-                //        $this->model = Chat\Message::where
-                    event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
-                return $this->sendResponse();}
-                else
-                return $this->sendError("Message field can't be empty");                
-            }
-        }
-        $inputs['is_single'] = $request->input('isSingle'); 
-        $this->model = \App\Chat::create($inputs);
-        if($request->hasFile("image"))
-        {
-            $imageName = str_random("32") . ".jpg";
-            $path = Chat::getImagePath($this->model->id);
-            $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
-            if(!$response)
-            {
-                throw new \Exception("Could not save image " . $imageName . " at " . $path);
-            }
-            $this->model->update(['image'=>$response]);
-        }
-        //add members to the chat
-        $now = \Carbon\Carbon::now()->toDateTimeString();
-        $data = [];
-        $chatId = $this->model->id;
-        //for add login profile id in member model
-        $data[] = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>$request->input('isSingle')];
-        foreach($profileIds as $profileId)
-        {
-            $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
-        }
-        $this->model->members()->insert($data);
-        return $this->sendResponse();   
-    }
-
     public function featureMessage(Request $request,$feature,$featureId)
     {   
         $model = $this->getModel($feature,$featureId);
         if(empty($model))
         {
-            return $this->sendError("invalid model name or Id");
+            return $this->sendError("Invalid model name or Id");
         }
         $inputs = $request->except(['_method','_token']);
         $profileIds = $inputs['profile_id'];
@@ -455,15 +361,14 @@ class ChatController extends Controller
         {
             return $this->sendError("This model doesn't belong to this user");
         }
+        $id = $request->profile_id;
         if(!isset($inputs['is_mailable']))
         {
             $inputs['is_mailable'] = 0;
         }
         if($inputs['is_mailable'] == 1)
         {
-            $ids = $request->profile_id;
-                 foreach ($ids as $id) 
-                {
+            
                     $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
                     $data['message'] = $inputs['message'];
                     $data['name'] = $user_info[0]->name;
@@ -471,12 +376,9 @@ class ChatController extends Controller
                     //return $data;
                     $data['sender_info'] = $request->user();
                     Mail::to($user_info)->cc($data['sender_info'])->send(new JobResponse($data));
-                }
+                
         }
-        foreach ($request->profile_id as $profile_id) {
-            # code...
-            dispatch(new SendMessage($inputs,$profile_id,$loggedInProfileId));
-        }
+        dispatch(new SendMessage($inputs,$id,$loggedInProfileId));
         return $this->sendResponse();
 
     }
