@@ -151,8 +151,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Job::class,
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
-        FixCollaborateImage::class,
-        \App\Console\Commands\SendCollabSuggestion::class
+        FixCollaborateImage::class
 
 
     ];
