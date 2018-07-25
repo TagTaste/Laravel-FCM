@@ -38,6 +38,8 @@ class Addresses extends Model {
                 "location" => isset($locationArray[$location]) ? $locationArray[$location] : ""
             );
             array_push($this->retArray,$temp_array);
+
+        $this->getLocationJsonAttribute($locationArray);
         }else{
             return true;
         }
