@@ -464,6 +464,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     ->join('profiles','profiles.id','=','education.profile_id')
                     ->join('users','users.id','=','profiles.user_id')
                     ->where('education.ongoing','=',1)
+                    ->orWhere('education.end_date','like','%2018%')
                     ->whereNull('profiles.deleted_at')
                     ->groupBy('profiles.id')
                     ->get();
