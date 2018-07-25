@@ -357,29 +357,38 @@ class ChatController extends Controller
         $loggedInProfileId = $user->profile->id;
         $inputs['profile_id'] = $loggedInProfileId;
 
-        if($loggedInProfileId != $model->profile_id)
+        if($model->company->is_admin || $model->profile_id == $loggedInProfileId)
         {
-            return $this->sendError("This model doesn't belong to this user");
-        }
-        $id = $request->profile_id;
-        if(!isset($inputs['is_mailable']))
-        {
-            $inputs['is_mailable'] = 0;
-        }
-        if($inputs['is_mailable'] == 1)
-        {
+                $ids = $request->profile_id;
+            if(!isset($inputs['is_mailable']))
+            {
+                $inputs['is_mailable'] = 0;
+            }
+            if($inputs['is_mailable'] == 1)
+            {
+                        $prof = \App\Profile::where('id',$loggedInProfileId)->first();
+                        $users_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$ids)->get();
+                        $data['message'] = $inputs['message'];
+                        $data['name'] = $users_info[0]->name;
+                        $data['username'] = $prof->name;
+                        //return $data;
+                        $data['sender_info'] = $request->user();
+                        event(new \App\Events\FeatureMailEvent($data,$ids));
+                        //Mail::to($users_info)->cc($data['sender_info'])->send(new JobResponse($data));
+                    
+            }
+            foreach ($ids as $id) {
+                # code...
+                dispatch(new SendMessage($inputs,$id,$loggedInProfileId));
+            }
             
-                    $user_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->where('profiles.id',$id)->get();
-                    $data['message'] = $inputs['message'];
-                    $data['name'] = $user_info[0]->name;
-                    $data['username'] = $model->profile->name;
-                    //return $data;
-                    $data['sender_info'] = $request->user();
-                    Mail::to($user_info)->cc($data['sender_info'])->send(new JobResponse($data));
-                
+            return $this->sendResponse();
         }
-        dispatch(new SendMessage($inputs,$id,$loggedInProfileId));
-        return $this->sendResponse();
+        else
+        {
+             return $this->sendError("This model doesn't belong to this user");
+        }
+        
 
     }
     private function getModel($feature,$featureId)
