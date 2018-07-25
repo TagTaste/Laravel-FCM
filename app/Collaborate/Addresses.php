@@ -15,22 +15,32 @@ class Addresses extends Model {
 
     protected $appends = ['locationJson'];
 
+    private $recursive_count = 0, $retArray = array();
     public function getLocationJsonAttribute()
     {
         if(isset($this->location))
         {
-            $data = [];
-            $location = json_decode($this->location,true);
-            $locations = array_chunk($location, count($location)/3);
-            for($i = 0; $i<count($location)/3; $i++)
-            {
-                $object['start_date'] = $locations[0][$i];
-                $object['location'] = $locations[1][$i];
-                $object['end_date'] = $locations[2][$i];
-                array_push($data,$object);
-                unset($object);
-            }
-            return $data;
+            $locationArray = json_decode($this->location,true);
+            $recurciveReturn = $this->getLocationJSONRecursiveFunction($locationArray);
+            return $this->retArray;
+        }
+    }
+    public function getLocationJSONRecursiveFunction($locationArray)
+    {
+        $tempCount = ++$this->recursive_count;
+        $start_date = "start_date_" . (string)$tempCount;
+        $location = "location_" . (string)$tempCount;
+        $end_date = "end_date_" . (string)$tempCount;
+        if(array_key_exists($start_date,$locationArray)){
+            $temp_array = array(
+                "start_date" => $locationArray[$start_date], 
+                "end_date" => isset($locationArray[$end_date]) ? $locationArray[$end_date] : "",
+                "location" => isset($locationArray[$location]) ? $locationArray[$location] : ""
+        );
+        array_push($this->retArray,$temp_array);
+        $this->getLocationJsonAttribute($locationArray);
+        }else{
+            return true;
         }
     }
 
