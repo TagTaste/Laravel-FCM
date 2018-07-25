@@ -270,7 +270,7 @@ class ShoutoutController extends Controller
             'file_path' => $url
         ];
         curl_setopt_array($curl, array(
-            CURLOPT_URL => env('VIDEO_TRANSCODING_NEW_URL'),
+            CURLOPT_URL => env('TRANSCODING_APIGATEWAY_URL'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,

@@ -33,7 +33,7 @@ class UserController extends Controller
         $alreadyVerified = false;
         $result = ['status'=>'success','newRegistered' =>true];
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
-            false,null,null,null,$alreadyVerified,null);
+            false,null,null,null,$alreadyVerified,null,null,null);
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
             ['email'=>$request->input('user.email')
                 ,'password'=>$request->input('user.password')])];

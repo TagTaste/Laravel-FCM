@@ -154,8 +154,9 @@ class LoginController extends Controller
             } else {
 
                 $this->newRegistered = true;
+                $userInfo = isset($socialiteUser['user']) ? $socialiteUser['user'] : null;
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
-                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$socialiteUser['user']);
+                    true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$userInfo);
             }
 
         }
