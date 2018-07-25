@@ -26,7 +26,6 @@ class ReviewController extends Controller
     {
         $data = [];
         $answers = $request->input('answer');
-        \Log::info($answers);
         $loggedInProfileId = $request->user()->profile->id ;
         $batchId = $request->input('batch_id');
         if(!$request->has('batch_id'))
