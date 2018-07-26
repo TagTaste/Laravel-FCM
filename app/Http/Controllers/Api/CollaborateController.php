@@ -50,7 +50,7 @@ class CollaborateController extends Controller
         if(!empty($filters)){
             $this->model = [];
             $collaborations = \App\Filter\Collaborate::getModelIds($filters,$skip,$take);
-            $collaborations = \App\Recipe\Collaborate::whereIn('id',$collaborations)->get();
+            $collaborations = \App\Collaborate::whereIn('id',$collaborations)->get();
             $profileId = $request->user()->profile->id;
             $this->model["data"]=[];
             foreach($collaborations as $collaboration){
