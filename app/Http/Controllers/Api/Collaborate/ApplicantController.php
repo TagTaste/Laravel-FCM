@@ -49,8 +49,18 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['applicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+
+        $applicants = $applicants->toArray();
+        foreach ($applicants as &$applicant)
+        {
+            $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$applicant['profile_id'])
+                ->get()->pluck('batch_id');
+
+            $applicant['batches'] = Collaborate\Batches::whereIn('id',$batchIds)->get();
+        }
+        $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->count();
         $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
