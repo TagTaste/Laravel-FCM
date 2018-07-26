@@ -286,6 +286,15 @@ class ApplicantController extends Controller
         return $this->sendResponse();
     }
 
+    public function rejectInvitation(Request $request, $id)
+    {
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
+            ->where('profile_id',$request->user()->profile->id)->delete();
+
+        return $this->sendResponse();
+    }
+
     public function getShortlistApplicants(Request $request, $collaborateId)
     {
         $page = $request->input('page');
