@@ -147,7 +147,7 @@ class BatchController extends Controller
         $now = Carbon::now()->toDateTimeString();
         foreach ($applierProfileIds as $applierProfileId)
         {
-            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now];
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
