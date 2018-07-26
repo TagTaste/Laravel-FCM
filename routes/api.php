@@ -213,12 +213,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("collaborate","CollaborateController");
             Route::get("userBatches","CollaborateController@userBatches");
             //collaborate comments
+            Route::post("seenBatchesList","BatchController@seenBatchesList");
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');
                 Route::post('assignBatch','BatchController@assignBatch');
-                Route::post("seenBatchesList","BatchController@seenBatchesList");
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
                 Route::resource('batches','BatchController');
