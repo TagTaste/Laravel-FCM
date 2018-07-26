@@ -10,8 +10,8 @@ class CollaborateCategory extends Model
 {
     protected $table = 'collaborate_categories';
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description','category_image','category_desc_image'];
 
-    protected $visible = ['id', 'name','description'];
+    protected $visible = ['id', 'name','description','category_image','category_desc_image'];
 
 }
