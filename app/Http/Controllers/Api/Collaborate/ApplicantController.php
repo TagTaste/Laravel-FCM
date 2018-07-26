@@ -55,8 +55,8 @@ class ApplicantController extends Controller
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
-            $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$applicant['profile_id'])
-                ->get()->pluck('batch_id');
+            $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)
+                ->where('profile_id',$applicant['profile_id'])->get()->pluck('batch_id');
 
             $applicant['batches'] = Collaborate\Batches::whereIn('id',$batchIds)->get();
         }
@@ -288,7 +288,6 @@ class ApplicantController extends Controller
 
     public function rejectInvitation(Request $request, $id)
     {
-        $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$request->user()->profile->id)->delete();
 
