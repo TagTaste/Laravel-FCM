@@ -38,13 +38,13 @@ class Profile extends Model
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
-        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id'
+        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','is_visible_in_feed'
 
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','is_visible_in_feed'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
@@ -895,6 +895,11 @@ class Profile extends Model
         return \DB::table('collaborate_batches_assign')
             ->join('collaborate_tasting_user_review','collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
             ->where('collaborate_tasting_user_review.current_status','!=',1)->where('collaborate_batches_assign.profile_id',$this->id)->count();
+    }
+
+    public function getIsVisibleInFeedAttribute()
+    {
+        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile_id)->where('created_at','>=','last_seen')->count();
     }
 
 }

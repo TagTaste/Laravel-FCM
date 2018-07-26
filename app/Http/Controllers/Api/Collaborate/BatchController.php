@@ -3,6 +3,7 @@
 use App\Collaborate;
 use App\CompanyUser;
 use App\Recipe\Profile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -143,9 +144,10 @@ class BatchController extends Controller
             return $this->sendError("wrong batch for this collaboration.");
         }
         $inputs = [];
+        $now = Carbon::now()->toDateTimeString();
         foreach ($applierProfileIds as $applierProfileId)
         {
-            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0];
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
@@ -217,6 +219,15 @@ class BatchController extends Controller
         $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
         $this->model = Collaborate\Batches::where('collaborate_id',$collaborateId)->whereIn('id',$batchIds)->get();;
         return $this->sendResponse();
+    }
+
+    public function seenBatchesList(Request $request, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->update(['last_seen'=>$now]);
+        return $this->sendResponse();
+
     }
 
 }

@@ -15,6 +15,7 @@ class AlterCollaborateBatchesAssignAddCollaborateId extends Migration
     {
         //
         Schema::table('collaborate_batches_assign',function(Blueprint $table){
+            $table->timestamp('last_seen')->nullable();
             $table->unsignedInteger('collaborate_id')->nullable();
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
         });
@@ -29,7 +30,7 @@ class AlterCollaborateBatchesAssignAddCollaborateId extends Migration
     {
         Schema::table('collaborate_batches_assign',function(Blueprint $table){
             $table->dropForeign('collaborate_batches_assign_collaborate_id_foreign');
-            $table->dropColumn("collaborate_id");
+            $table->dropColumn(["last_seen","collaborate_id"]);
         });
     }
 }
