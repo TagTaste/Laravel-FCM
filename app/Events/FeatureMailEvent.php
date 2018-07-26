@@ -21,11 +21,12 @@ class FeatureMailEvent
      */
     public $data;
     public $userIds;
-    public function __construct($data,$userIds)
+    public function __construct($data,$userIds,$inputs)
     {
         //
         $this->data = $data;
         $this->userIds = $userIds;
+        $this->inputs = $inputs;
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Events\FeatureMailEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
+use App\Jobs\SendFeatureMessage as SendMessage;
 
 class FeatureMailListener
 {
@@ -28,6 +29,9 @@ class FeatureMailListener
     public function handle(FeatureMailEvent $event)
     {
         //
+        foreach ($event->userIds as $id) {
+            dispatch(new SendMessage($event->inputs,$id,$event->data['sender_info']->profile->id));
+        }
         $profiles = \App\Profile::whereIn('id',$event->userIds)->get();
         Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
     }

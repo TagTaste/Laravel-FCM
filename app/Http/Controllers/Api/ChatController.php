@@ -373,14 +373,14 @@ class ChatController extends Controller
                         $data['username'] = $prof->name;
                         //return $data;
                         $data['sender_info'] = $request->user();
-                        event(new \App\Events\FeatureMailEvent($data,$ids));
+                        event(new \App\Events\FeatureMailEvent($data,$ids,$inputs));
                         //Mail::to($users_info)->cc($data['sender_info'])->send(new JobResponse($data));
                     
             }
-            foreach ($ids as $id) {
-                # code...
-                dispatch(new SendMessage($inputs,$id,$loggedInProfileId));
-            }
+            // foreach ($ids as $id) {
+            //     # code...
+            //     dispatch(new SendMessage($inputs,$id,$loggedInProfileId));
+            // }
             
             return $this->sendResponse();
         }
