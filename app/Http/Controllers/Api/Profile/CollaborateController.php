@@ -163,7 +163,7 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-
+        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -180,9 +180,9 @@ class CollaborateController extends Controller
                     $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
                 }
             }
+            $inputs['images'] = json_encode($imagesArray,true);
         }
-        $inputs['images'] = json_encode($imagesArray,true);
-      
+
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
