@@ -466,7 +466,7 @@ class Collaborate extends Model implements Feedable
                 ->where('collaborate_id',$this->id)->where('current_status',1)->get()->pluck('batch_id')->toArray();
             $batchIds = sort($batchIds);
             $completedBatchIds = sort($completedBatchIds);
-            $meta['is_completed_product_review'] = ($batchIds == $completedBatchIds) && count($completedBatchIds);
+            $meta['is_completed_product_review'] = count($completedBatchIds) ? ($batchIds == $completedBatchIds) : false;
             $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->where('is_invited',0)->whereNull('shortlisted_at')->whereNull('rejected_at')->exists();
             $meta['is_invitation_accepted'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
