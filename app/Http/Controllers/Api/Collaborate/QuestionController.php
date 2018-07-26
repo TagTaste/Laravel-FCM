@@ -140,6 +140,7 @@ class QuestionController extends Controller
         {
             $squence = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
+            \Log::info($squence);
             $this->model['question'] = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
             $leafIds = $this->model['question']->pluck('id');
