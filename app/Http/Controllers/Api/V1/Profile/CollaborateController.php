@@ -157,6 +157,7 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
+        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {

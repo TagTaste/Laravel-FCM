@@ -174,6 +174,7 @@ class CollaborateController extends Controller
         if($collaborate->collaborate_type == 'collaborate')
             unset($inputs['expires_on']);
 
+        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {

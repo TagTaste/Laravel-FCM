@@ -32,6 +32,7 @@ use App\Console\Commands\SetPlatformAndroid;
 use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\SettingChanges as SettingChanges;
 
 class Kernel extends ConsoleKernel
 {
@@ -55,7 +56,7 @@ class Kernel extends ConsoleKernel
         Collaboration::class,
         Job::class,
         Share::class,
-        
+        SettingChanges::class,
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
         \App\Console\Commands\Build\Search\Company::class,
