@@ -225,8 +225,8 @@ class BatchController extends Controller
     public function userBatches(Request $request, $collaborateId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
-        $this->model = Collaborate\Batches::where('collaborate_id',$collaborateId)->whereIn('id',$batchIds)->get();;
+        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
+        $this->model = Collaborate\Batches::where('collaborate_id',$collaborateId)->whereIn('id',$batchIds)->get();
         return $this->sendResponse();
     }
 

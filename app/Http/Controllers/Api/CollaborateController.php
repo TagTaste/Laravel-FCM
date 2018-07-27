@@ -400,8 +400,7 @@ class CollaborateController extends Controller
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
-        $collaborateIds = Collaborate\Batches::whereIn('id',$batchIds)->get()->pluck('collaborate_id');
+        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('collaborate_id');
         $collaborates = \DB::table('collaborates')->select('id','title')->whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
