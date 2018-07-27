@@ -471,8 +471,10 @@ class Collaborate extends Model implements Feedable
                 ->where('is_invited',0)->whereNull('shortlisted_at')->whereNull('rejected_at')->exists();
             $meta['is_invitation_accepted'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->where('is_invited',1)->whereNotNull('shortlisted_at')->whereNull('rejected_at')->exists();
+            return $meta;
         }
-        return $meta;
+        return null;
+
     }
 
 }
