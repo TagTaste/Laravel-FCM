@@ -86,7 +86,13 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
         if($isInvited == 0)
         {
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->user()->profile->id,'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
+            $loggedInprofileId = $request->user()->profile->id;
+            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->exists();
+            if($checkApplicant)
+            {
+                return $this->sendError("Already Applied");
+            }
+            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
 
         }
         else
@@ -102,6 +108,12 @@ class ApplicantController extends Controller
             if($request->user()->profile->id == $request->input('profile_id'))
             {
                 return $this->sendError("You can not invite admins of company");
+            }
+            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$request->input('profile_id'))
+                ->whereNotNull('shortlisted_at')->exists();
+            if($checkApplicant)
+            {
+                return $this->sendError("Already Invited");
             }
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
         }
