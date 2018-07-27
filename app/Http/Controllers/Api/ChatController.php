@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Chat;
+use App\CompanyUser;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\File;
-use Illuminate\Support\Facades\DB;
 use App\Mail\JobResponse;
-use Illuminate\Support\Facades\Mail;
-use App\Jobs\SendFeatureMessage as SendMessage;
 
 class ChatController extends Controller
 {
@@ -353,34 +351,27 @@ class ChatController extends Controller
         {
             $profileIds = [$profileIds];
         }
-        $user = $request->user();
-        $loggedInProfileId = $user->profile->id;
-        $inputs['profile_id'] = $loggedInProfileId;
+        $LoggedInUser = $request->user();
+        $loggedInProfileId = $LoggedInUser->profile->id;
+        $data = [];
 
-        if($model->company->is_admin || $model->profile_id == $loggedInProfileId)
+        if(isset($model->company_id)&& (!is_null($model->company_id)))
         {
-                $ids = $request->profile_id;
-            if(!isset($inputs['is_mailable']))
-            {
-                $inputs['is_mailable'] = 0;
+            $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$loggedInProfileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
             }
-            if($inputs['is_mailable'] == 1)
-            {
-                        $prof = \App\Profile::where('id',$loggedInProfileId)->first();
-                        $users_info= DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$ids)->get();
-                        $data['message'] = $inputs['message'];
-                        $data['name'] = $users_info[0]->name;
-                        $data['username'] = $prof->name;
-                        //return $data;
-                        $data['sender_info'] = $request->user();
-                        event(new \App\Events\FeatureMailEvent($data,$ids,$inputs));
-            }
-            return $this->sendResponse();
         }
-        else
-        {
-             return $this->sendError("This model doesn't belong to this user");
+        else if($model->profile_id != $loggedInProfileId){
+            return $this->sendError("Invalid Collaboration Project.");
         }
+
+        $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
+        $data['message'] = $inputs['message'];
+        $data['username'] = $LoggedInUser->name;
+        $data['sender_info'] = $request->user();
+        event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
+        return $this->sendResponse();
         
 
     }

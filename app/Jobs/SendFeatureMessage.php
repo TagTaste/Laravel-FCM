@@ -20,12 +20,14 @@ class SendFeatureMessage
     public $id;
     public $data;
     public $loggedInProfileId;
-    public function __construct($data,$id,$loggedInProfileId)
+    public $loggedInProfile;
+    public function __construct($data,$id,$loggedInProfile)
     {
         //
         $this->data = $data;
         $this->id = $id;
-        $this->loggedInProfileId = $loggedInProfileId;
+        $this->loggedInProfileId = $loggedInProfile->id;
+        $this->loggedInProfile = $loggedInProfile;
     }
 
     /**
@@ -37,35 +39,29 @@ class SendFeatureMessage
     {
         //
         $existingChats = \App\Chat::open($this->id,$this->loggedInProfileId);
-            \Log::info($existingChats);
-            if(!is_null($existingChats) && $existingChats->count() > 0)
-            {
-                $this->messages[] = "chat_open";
-                $this->model = $existingChats;
-                 $chatId = $this->model->id;
-            }
-            else
-               {
-                         $this->data['is_single'] = 1; 
-                $this->model = \App\Chat::create($this->data);
-                $now = \Carbon\Carbon::now()->toDateTimeString();
-                $member = [];
-                $chatId = $this->model->id;
-                //for add login profile id in member model
-                $member[] = ['chat_id'=>$chatId,'profile_id'=>$this->loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>1];
-                $member[] = ['chat_id'=>$chatId,'profile_id'=>$this->id, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
-                
-                $this->model->members()->insert($member);
-                }
-               
-                    $this->data['chat_id'] = $chatId;
-                    $this->data['profile_id'] = $this->loggedInProfileId;
-                    $this->model = [];
-                    $this->model['data'] = \App\Chat\Message::create($this->data);
-                //        $this->model = Chat\Message::where
-                    $loggedInProfile = \App\profile::find($this->loggedInProfileId);
-                    event(new \App\Events\Chat\Message($this->model['data'],$loggedInProfile));
-                
+        if(!is_null($existingChats) && $existingChats->count() > 0)
+        {
+            $this->model = $existingChats;
+            $chatId = $this->model->id;
+        }
+        else
+        {
+            $chatInfo = ['name'=>null,'profile_id'=>$this->loggedInProfileId,'image'=>null];
+            $this->model = \App\Chat::create($chatInfo);
+            $now = \Carbon\Carbon::now()->toDateTimeString();
+            $member = [];
+            $chatId = $this->model->id;
+            //for add login profile id in member model
+            $member[] = ['chat_id'=>$chatId,'profile_id'=>$this->loggedInProfileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>1,'is_single'=>1];
+            $member[] = ['chat_id'=>$chatId,'profile_id'=>$this->id, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>1];
+
+            $this->model->members()->insert($member);
+        }
+
+        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$this->loggedInProfileId,'message'=>$this->data['message']];
+        $this->model = \App\Chat\Message::create($messageInfo);
+
+        event(new \App\Events\Chat\Message($this->model,$this->loggedInProfile));
                  
     }
 }

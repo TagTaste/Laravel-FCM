@@ -5,10 +5,8 @@ namespace App\Events;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class FeatureMailEvent
 {
@@ -20,12 +18,12 @@ class FeatureMailEvent
      * @return void
      */
     public $data;
-    public $userIds;
-    public function __construct($data,$userIds,$inputs)
+    public $profileIds;
+    public function __construct($data,$profileIds,$inputs)
     {
         //
         $this->data = $data;
-        $this->userIds = $userIds;
+        $this->profileIds = $profileIds;
         $this->inputs = $inputs;
     }
 
