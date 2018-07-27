@@ -45,7 +45,7 @@ class FeatureMessage extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage())
-                    ->subject("Tagtaste Notification")
+                    ->subject($this->info['sender_info']->name." sent you a new message on TagTaste!")
                     ->cc($this->info['sender_info']->email)
                     ->view('emails.collab-message', ["name"=>$this->profiles[0]->name,"username"=>$this->info['username'],"message1"=>$this->info['message']]);
     }
