@@ -217,7 +217,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("collaborate","CollaborateController");
             Route::get("userBatches","CollaborateController@userBatches");
             //collaborate comments
-            Route::post("seenBatchesList","BatchController@seenBatchesList");
+            Route::post("seenBatchesList","CollaborateController@seenBatchesList");
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');
