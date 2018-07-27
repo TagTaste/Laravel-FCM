@@ -17,7 +17,7 @@ class AlterCollaborateTastingUserReviewRenameColumn extends Migration
             $table->dropColumn(['aromatic_id']);
             $table->renameColumn("aroma_id","leaf_id");
             $table->string("intensity")->nullable();
-            $table->integer("current_status")->default(0); // 0 means begin 1 means in process 2 means completed
+            $table->integer("current_status")->default(0); // 0 0 - yet to start 1 - begin tasting 2-resume 3-done
         });
     }
 

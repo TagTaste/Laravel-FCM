@@ -463,7 +463,7 @@ class Collaborate extends Model implements Feedable
             $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
                 ->where('profile_id',request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
             $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id',request()->user()->profile->id)
-                ->where('collaborate_id',$this->id)->where('current_status',1)->get()->pluck('batch_id')->toArray();
+                ->where('collaborate_id',$this->id)->where('current_status',3)->get()->pluck('batch_id')->toArray();
             sort($batchIds);
             sort($completedBatchIds);
             $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;

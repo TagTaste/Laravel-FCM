@@ -92,7 +92,7 @@ class ApplicantController extends Controller
             {
                 return $this->sendError("Already Applied");
             }
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
+            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,'message'=>$request->input('message')];
 
         }
         else

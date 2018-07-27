@@ -894,7 +894,7 @@ class Profile extends Model
     {
         return \DB::table('collaborate_batches_assign')
             ->join('collaborate_tasting_user_review','collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
-            ->where('collaborate_tasting_user_review.current_status','!=',1)->where('collaborate_batches_assign.profile_id',$this->id)->count();
+            ->where('collaborate_tasting_user_review.current_status','!=',3)->where('collaborate_batches_assign.profile_id',$this->id)->count();
     }
 
     public function getIsVisibleInFeedAttribute()
