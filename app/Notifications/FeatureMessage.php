@@ -46,6 +46,7 @@ class FeatureMessage extends Notification
     {
         return (new MailMessage())
                     ->subject("Tagtaste Notification")
+                    ->cc($this->info['sender_info']->email)
                     ->view('emails.collab-message', ["name"=>$this->profiles[0]->name,"username"=>$this->info['username'],"message1"=>$this->info['message']]);
     }
 

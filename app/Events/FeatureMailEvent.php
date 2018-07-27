@@ -19,6 +19,7 @@ class FeatureMailEvent
      */
     public $data;
     public $profileIds;
+    public $inputs;
     public function __construct($data,$profileIds,$inputs)
     {
         //
