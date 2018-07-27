@@ -248,7 +248,8 @@ class CollaborateController extends Controller
             {
                 $collaborate->addToCache();
                 $company = Company::find($companyId);
-                event(new NewFeedable($this->model, $company));
+                if(!isset($collaborate->payload_id))
+                    event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
             }
             return $this->sendResponse();
