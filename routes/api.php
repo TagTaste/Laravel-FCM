@@ -175,6 +175,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("jobs/all","JobController@all");
                 Route::get("jobs/filters", "JobController@filters");
                 Route::resource("jobs","JobController");
+                //Route::post("jobs/message","ChatController@jobMessage"); 
+
+            //send mail to applicants of job or collaborate
+                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");    
             
             //similar
                 Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
