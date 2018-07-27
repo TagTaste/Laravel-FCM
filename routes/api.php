@@ -55,6 +55,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 // Preview routes
 Route::get('preview/{modelName}/{modelId}','Api\PreviewController@show');
 Route::get('preview/{modelName}/{modelId}/shared/{shareId}','Api\PreviewController@showShared');
+Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
@@ -62,7 +63,7 @@ Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     ],function(){
-
+       
         Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     //unauthenticated routes.
         Route::post('/user/register',['uses'=>'UserController@register']);
@@ -75,7 +76,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
-    
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
             Route::post('/user/feedIssue',['uses'=>'UserController@feedIssue']);
             Route::post('/logout','UserController@logout');
@@ -179,6 +179,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("jobs/all","JobController@all");
                 Route::get("jobs/filters", "JobController@filters");
                 Route::resource("jobs","JobController");
+                //Route::post("jobs/message","ChatController@jobMessage"); 
+
+            //send mail to applicants of job or collaborate
+                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");    
             
             //similar
                 Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
@@ -213,7 +217,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("collaborate","CollaborateController");
             Route::get("userBatches","CollaborateController@userBatches");
             //collaborate comments
+            Route::post("seenBatchesList","CollaborateController@seenBatchesList");
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');
                 Route::post('assignBatch','BatchController@assignBatch');
@@ -224,6 +230,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
+                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show intereted
                 Route::post("showInterest","ApplicantController@store");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
@@ -487,47 +494,44 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
 
-    Route::get("csv",function (){
-        $this->model = [];
-        $profiles = \DB::table("profiles")->select("profiles.id as profileId","users.name as name","users.email as email")
-            ->join("users",'users.id','=','profiles.user_id')
-            ->whereNull('users.deleted_at')
-            ->get();
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=file.csv",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        );
-
-        $columns = array('profileId', 'name', 'email');
-
-        $str = '';
-        foreach ($columns as $c) {
-            $str = $str.$c.',';
-        }
-        $str = $str."\n";
-
-        foreach($profiles as $review) {
-            foreach ($columns as $c) {
-                $str = $str.$review->{$c}.',';
-            }
-            $str = $str."\n";
-        }
-//        $callback = function() use ($profiles, $columns)
-//        {
-//            $file = fopen(storage_path('chef1.csv'), 'w+');
-//            fputcsv($file, $columns);
-//
-//            foreach($profiles as $review) {
-//                fputcsv($file, array($review->id, $review->name,$review->email,$review->phone,$review->city));
-//            }
-//            fclose($file);
-//        };
-        return response($str, 200, $headers);
-
-    });
+            Route::get("csv",function (Request $request){
+                $this->model = [];
+                $studentDetail = \DB::table("education")
+                ->select("education.profile_id as profile_id", "users.name as name","users.email as email","profiles.phone as phoneNo")
+                    ->join('profiles','profiles.id','=','education.profile_id')
+                    ->join('users','users.id','=','profiles.user_id')
+                    ->where('education.ongoing','=',1)
+                    ->orWhere('education.end_date','like','%2018%')
+                    ->whereNull('profiles.deleted_at')
+                    ->groupBy('profiles.id')
+                    ->get();
+                   
+                $headers = array(
+                    "Content-type" => "text/csv",
+                    "Content-Disposition" => "attachment; filename=file.csv",
+                    "Pragma" => "no-cache",
+                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+                    "Expires" => "0"
+                );
+        
+                $columns = array('profile_id','name','email','phoneNo');
+        
+                $str = '';
+                foreach ($columns as $c) {
+                    $str = $str.$c.',';
+                }
+                $str = $str."\n";
+        
+                foreach($studentDetail as $review) {
+                    foreach ($columns as $c) {
+                        $str = $str.$review->{$c}.',';
+                    }
+                    $str = $str."\n";
+                }
+       
+                return response($str, 200, $headers);
+        
+            });
 
 
 });

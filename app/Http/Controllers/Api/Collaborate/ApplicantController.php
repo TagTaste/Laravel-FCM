@@ -49,8 +49,18 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        $this->model['applicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+
+        $applicants = $applicants->toArray();
+        foreach ($applicants as &$applicant)
+        {
+            $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)
+                ->where('profile_id',$applicant['profile_id'])->get()->pluck('batch_id');
+
+            $applicant['batches'] = Collaborate\Batches::whereIn('id',$batchIds)->get();
+        }
+        $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->count();
         $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
@@ -76,7 +86,13 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
         if($isInvited == 0)
         {
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->user()->profile->id,'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
+            $loggedInprofileId = $request->user()->profile->id;
+            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$loggedInprofileId)->exists();
+            if($checkApplicant)
+            {
+                return $this->sendError("Already Applied");
+            }
+            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,'message'=>$request->input('message')];
 
         }
         else
@@ -92,6 +108,12 @@ class ApplicantController extends Controller
             if($request->user()->profile->id == $request->input('profile_id'))
             {
                 return $this->sendError("You can not invite admins of company");
+            }
+            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$request->input('profile_id'))
+                ->whereNotNull('shortlisted_at')->exists();
+            if($checkApplicant)
+            {
+                return $this->sendError("Already Invited");
             }
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
         }
@@ -272,6 +294,14 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$request->user()->profile->id)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+
+        return $this->sendResponse();
+    }
+
+    public function rejectInvitation(Request $request, $id)
+    {
+        $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
+            ->where('profile_id',$request->user()->profile->id)->delete();
 
         return $this->sendResponse();
     }

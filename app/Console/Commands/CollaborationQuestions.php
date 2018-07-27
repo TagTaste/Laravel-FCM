@@ -62,7 +62,7 @@ class CollaborationQuestions extends Command
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 2,
-			"intensity_value": "15",
+			"intensity_value": "Low,Medium,High",
 			"is_nested": 0,
 			"is_mandatory": 1,
 			"option": "Milky,Buttery,Fruity,Sour,Chocolate,Caramelized,Cheesy,Nutty,Vanilla,Any Other"
@@ -301,7 +301,7 @@ class CollaborationQuestions extends Command
     {
         $questions = $this->questions;
         $questions = json_decode($questions,true);
-        $collaborateId = 467;
+        $collaborateId = 499;
         foreach ($questions as $key=>$question)
         {
             $data = [];

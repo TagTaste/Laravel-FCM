@@ -3,6 +3,7 @@
 use App\Collaborate;
 use App\CompanyUser;
 use App\Recipe\Profile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -33,7 +34,7 @@ class BatchController extends Controller
 
         foreach ($batches as &$batch)
         {
-            $batch['reviewedCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status',2)->where('collaborate_id',$batch['collaborate_id'])
+            $batch['reviewedCount'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$batch['collaborate_id'])
                 ->where('batch_id',$batch['id'])->distinct('profile_id')->count();
 
             $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id',$batch['id'])->distinct('profile_id')->count();
@@ -143,9 +144,11 @@ class BatchController extends Controller
             return $this->sendError("wrong batch for this collaboration.");
         }
         $inputs = [];
+        $now = Carbon::now()->toDateTimeString();
+        \DB::table('collaborate_batches_assign')->where('collaborate_id',$id)->where('batch_id',$batchId)->whereIn('profile_id',$applierProfileIds)->delete();
         foreach ($applierProfileIds as $applierProfileId)
         {
-            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0];
+            $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
 
@@ -164,8 +167,16 @@ class BatchController extends Controller
 
     public function beginTasting(Request $request, $collaborateId)
     {
-        $profileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
+        if($request->has("begin_all"))
+        {
+            if($request->input("begin_all") == 1)
+            {
+                $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->update(['begin_tasting'=>1]);
+                return $this->sendResponse();
+            }
+        }
+        $profileIds = $request->input('profile_id');
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
             ->update(['begin_tasting'=>1]);
@@ -209,6 +220,14 @@ class BatchController extends Controller
         $this->model = $applicants;
         return $this->sendResponse();
 
+    }
+
+    public function userBatches(Request $request, $collaborateId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
+        $this->model = Collaborate\Batches::where('collaborate_id',$collaborateId)->whereIn('id',$batchIds)->get();
+        return $this->sendResponse();
     }
 
 }

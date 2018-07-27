@@ -10,9 +10,9 @@ class BatchAssign extends Model {
 
     protected $table = 'collaborate_batches_assign';
 
-    protected $fillable = ['batch_id','profile_id','begin_tasting'];
+    protected $fillable = ['batch_id','profile_id','begin_tasting','collaborate_id','last_seen'];
 
-    protected $visible = ['batch_id','profile_id','begin_tasting','batches'];
+    protected $visible = ['batch_id','profile_id','begin_tasting','batches','collaborate_id','last_seen'];
 
     protected $appends = ['current_status'];
 

@@ -41,7 +41,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
+		$collaborations = $this->model->where('state',1)->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
@@ -400,8 +400,7 @@ class CollaborateController extends Controller
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
-        $collaborateIds = Collaborate\Batches::whereIn('id',$batchIds)->get()->pluck('collaborate_id');
+        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('collaborate_id');
         $collaborates = \DB::table('collaborates')->select('id','title')->whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
@@ -409,5 +408,16 @@ class CollaborateController extends Controller
         }
         $this->model = $collaborates;
         return $this->sendResponse();
+    }
+
+
+
+    public function seenBatchesList(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->update(['last_seen'=>$now]);
+        return $this->sendResponse();
+
     }
 }

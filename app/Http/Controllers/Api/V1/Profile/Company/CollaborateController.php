@@ -73,9 +73,9 @@ class CollaborateController extends Controller
         $inputs = $request->all();
         $inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
-        $inputs['state'] = Collaborate::$state[0];
-        $inputs['expires_on'] = Carbon::now()->addMonth()->toDateTimeString();
-
+        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
+        $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
+                    ? Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() : Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -108,14 +108,17 @@ class CollaborateController extends Controller
         $company = Company::find($companyId);
         $this->model = $this->model->fresh();
 
-        //push to feed
-        event(new NewFeedable($this->model,$company));
+        if($this->model->collaborate_type != 'product-review')
+        {
+            //push to feed
+            event(new NewFeedable($this->model,$company));
 
-        //add to filters
-        \App\Filter\Collaborate::addModel($this->model);
+            //add to filters
+            \App\Filter\Collaborate::addModel($this->model);
 
-        //add subscriber
-        event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+            //add subscriber
+            event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+        }
 
         return $this->sendResponse();
     }
@@ -149,12 +152,39 @@ class CollaborateController extends Controller
     {
         $inputs = $request->all();
         unset($inputs['profile_id']);
+        if(isset($inputs['step']))
+        {
+            if($inputs['step'] == 3)
+            {
+                $inputs['state'] = Collaborate::$state[0];
+            }
+            else
+            {
+                $inputs['state'] = Collaborate::$state[3];
+            }
+        }
+        else
+        {
+            $inputs['state'] = Collaborate::$state[0];
+        }
         unset($inputs['expires_on']);
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
+        if(isset($inputs['expires_on']) && !is_null($inputs['expires_on']))
+        {
+            $inputs['expires_on'] = Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() ;
+        }
+        else
+        {
+            unset($inputs['expires_on']);
+        }
 
+        if($collaborate->collaborate_type == 'collaborate')
+            unset($inputs['expires_on']);
+
+        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -165,13 +195,28 @@ class CollaborateController extends Controller
                 $imagesArray[]['image'.$i] = $image;
                 $i++;
             }
-            $inputs['images'] = json_encode($imagesArray,true);
+            if(count($imagesArray) > 0)
+            {
+                $inputs['images'] = json_encode($imagesArray,true);
+            }
         }
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+
+        $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
+        if(count($addresses))
+        {
+            Collaborate\Addresses::where('collaborate_id',$id)->delete();
+            foreach ($addresses as &$address)
+            {
+                $address = ['collaborate_id'=>$id,'city'=>$address['city'],
+                    'location'=>isset($address['location']) && !is_null($address['location']) ? json_encode($address['location']) : null];
+            }
+            $collaborate->addresses()->insert($addresses);
         }
 
         if($collaborate->state == 'Expired')
@@ -193,8 +238,23 @@ class CollaborateController extends Controller
 
             return $this->sendResponse();
         }
+        $inputs['privacy_id'] = 1;
         $this->model = $collaborate->update($inputs);
+        $this->model = Collaborate::find($id);
 
+        if(isset($inputs['step']) && !is_null($inputs['step']))
+        {
+            if($inputs['step'] == 3)
+            {
+                $collaborate->addToCache();
+                $company = Company::find($companyId);
+                if(!isset($collaborate->payload_id))
+                    event(new NewFeedable($this->model, $company));
+                \App\Filter\Collaborate::addModel($this->model);
+            }
+            return $this->sendResponse();
+
+        }
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();

@@ -132,14 +132,14 @@ class QuestionController extends Controller
         if(is_null($id))
         {
             $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_nested_question as A , 
-                                      collaborate_tasting_nested_question as B where A.id = B.parent_id AND A.value LIKE '$value' 
-                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+                                      collaborate_tasting_nested_question as B where A.sequence_id = B.parent_id AND A.value LIKE '$value' 
+                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND B.question_id = $questionId");
 
         }
         else
         {
             $squence = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
-                ->where('collaborate_id',$collaborateId)->where('parent_id',$id)->first();
+                ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
             $this->model['question'] = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
             $leafIds = $this->model['question']->pluck('id');
@@ -210,48 +210,48 @@ class QuestionController extends Controller
 
     public function aromQuestions(Request $request, $collaborateId, $headerId, $questionId)
     {
-        $filename = str_random(32) . ".xlsx";
-        $path = "images/collaborate/$collaborateId/questions";
-        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
-        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
-        //$fullpath = \Storage::url($file);
-
-        //load the file
-        $data = [];
-        try {
-            $fullpath = $request->file->store('temp', 'local');
-            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
-                $data = $reader->toArray();
-            })->get();
-            if(empty($data)){
-                return $this->sendError("Empty file uploaded.");
-            }
-            \Storage::disk('local')->delete($file);
-        } catch (\Exception $e){
-            \Log::info($e->getMessage());
-            return $this->sendError($e->getMessage());
-
-        }
-        $questions = [];
-        foreach ($data as $item)
-        {
-            foreach ($item as $datum)
-            {
-                if(is_null($datum['parent_id'])||is_null($datum['categories']))
-                    break;
-                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
-                $questions[] = ["sequence_id"=>$datum['no'],'parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
-                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
-            }
-        }
-        $this->model = \DB::table('collaborate_tasting_nested_question')->insert($questions);
+//        $filename = str_random(32) . ".xlsx";
+//        $path = "images/collaborate/$collaborateId/questions";
+//        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+//        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+//        //$fullpath = \Storage::url($file);
+//
+//        //load the file
+//        $data = [];
+//        try {
+//            $fullpath = $request->file->store('temp', 'local');
+//            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+//                $data = $reader->toArray();
+//            })->get();
+//            if(empty($data)){
+//                return $this->sendError("Empty file uploaded.");
+//            }
+//            \Storage::disk('local')->delete($file);
+//        } catch (\Exception $e){
+//            \Log::info($e->getMessage());
+//            return $this->sendError($e->getMessage());
+//
+//        }
+//        $questions = [];
+//        foreach ($data as $item)
+//        {
+//            foreach ($item as $datum)
+//            {
+//                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+//                    break;
+//                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
+//                $questions[] = ["sequence_id"=>$datum['no'],'parent_id'=>$parentId,'value'=>$datum['categories'],'question_id'=>$questionId,'is_active'=>1,
+//                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
+//            }
+//        }
+//        $this->model = \DB::table('collaborate_tasting_nested_question')->insert($questions);
 
         $questions = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
 
         foreach ($questions as $question)
         {
             $checknested = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
-                ->where('parent_id',$question->id)->exists();
+                ->where('parent_id',$question->sequence_id)->exists();
             if($checknested)
             {
                 \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)

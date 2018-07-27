@@ -65,7 +65,7 @@ class EventServiceProvider extends ServiceProvider
 
 
         'App\Events\SuggestionEngineEvent' => ['App\Listeners\SuggestionEngineListener'],
-
+        'App\Events\FeatureMailEvent' => ['App\Listeners\FeatureMailListener'],
 
 
     ];
