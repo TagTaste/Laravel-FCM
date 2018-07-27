@@ -432,12 +432,19 @@ class Collaborate extends Model implements Feedable
 
     public function getStateAttribute($value)
     {
-        if($value == 1)
-            return 'Active';
-        else if($value == 3)
-            return 'Expired';
-        else
-            return 'Delete';
+        switch ($value) {
+            case 1:
+                return 'Active';
+                break;
+            case 2:
+                return 'Delete';
+                break;
+            case 3:
+                return 'Expired';
+                break;
+            default:
+                return 'Save';
+        }
     }
 
 
