@@ -409,4 +409,15 @@ class CollaborateController extends Controller
         $this->model = $collaborates;
         return $this->sendResponse();
     }
+
+
+
+    public function seenBatchesList(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->update(['last_seen'=>$now]);
+        return $this->sendResponse();
+
+    }
 }
