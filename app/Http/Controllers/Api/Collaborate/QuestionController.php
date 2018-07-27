@@ -133,14 +133,13 @@ class QuestionController extends Controller
         {
             $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_nested_question as A , 
                                       collaborate_tasting_nested_question as B where A.sequence_id = B.parent_id AND A.value LIKE '$value' 
-                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND A.question_id = $questionId");
+                                      AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND B.question_id = $questionId");
 
         }
         else
         {
             $squence = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
-            \Log::info($squence);
             $this->model['question'] = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
             $leafIds = $this->model['question']->pluck('id');
