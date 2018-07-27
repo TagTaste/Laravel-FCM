@@ -176,7 +176,10 @@ class CollaborateController extends Controller
                     $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
                 }
             }
-            $inputs['images'] = json_encode($imagesArray,true);
+            if(count($imagesArray) > 0)
+            {
+                $inputs['images'] = json_encode($imagesArray,true);
+            }
         }
 
         if($request->hasFile('file1')){
