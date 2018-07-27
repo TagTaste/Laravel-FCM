@@ -371,6 +371,7 @@ class ChatController extends Controller
         $data['username'] = $LoggedInUser->name;
         $data['sender_info'] = $request->user();
         event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
+        $this->model = true;
         return $this->sendResponse();
         
 
