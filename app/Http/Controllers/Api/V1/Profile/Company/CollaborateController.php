@@ -152,8 +152,22 @@ class CollaborateController extends Controller
     {
         $inputs = $request->all();
         unset($inputs['profile_id']);
-        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
-                unset($inputs['expires_on']);
+        if(isset($inputs['step']))
+        {
+            if($inputs['step'] == 3)
+            {
+                $inputs['state'] = Collaborate::$state[0];
+            }
+            else
+            {
+                $inputs['state'] = Collaborate::$state[3];
+            }
+        }
+        else
+        {
+            $inputs['state'] = Collaborate::$state[0];
+        }
+        unset($inputs['expires_on']);
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
@@ -224,15 +238,16 @@ class CollaborateController extends Controller
 
             return $this->sendResponse();
         }
+        $inputs['privacy_id'] = 1;
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
 
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
-            $collaborate->addToCache();
-            $company = Company::find($companyId);
             if($inputs['step'] == 3)
             {
+                $collaborate->addToCache();
+                $company = Company::find($companyId);
                 event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
             }
