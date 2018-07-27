@@ -145,6 +145,7 @@ class BatchController extends Controller
         }
         $inputs = [];
         $now = Carbon::now()->toDateTimeString();
+        \DB::table('collaborate_batches_assign')->where('collaborate_id',$id)->where('batch_id',$batchId)->whereIn('profile_id',$applierProfileIds)->delete();
         foreach ($applierProfileIds as $applierProfileId)
         {
             $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
