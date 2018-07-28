@@ -401,10 +401,10 @@ class CollaborateController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('collaborate_id');
-        $collaborates = \DB::table('collaborates')->select('id','title')->whereIn('id',$collaborateIds)->get()->toArray();
+        $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
-            $collaborate->batches = Collaborate\Batches::where('collaborate_id',$collaborate->id)->get();
+            $collaborate['batches'] = Collaborate\Batches::where('collaborate_id',$collaborate['id'])->get();
         }
         $this->model = $collaborates;
         return $this->sendResponse();
