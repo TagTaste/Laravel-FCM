@@ -226,7 +226,7 @@ class BatchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = \App\Recipe\Collaborate::where('id',$collaborateId)->get()->toArray();
-        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
+        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->first()->pluck('batch_id');
         $collaborate['batches'] = Collaborate\Batches::where('collaborate_id',$collaborateId)->whereIn('id',$batchIds)->get();
         $this->model = $collaborate;
         return $this->sendResponse();
