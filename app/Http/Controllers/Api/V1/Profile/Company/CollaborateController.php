@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class CollaborateController extends Controller
 {
@@ -251,6 +252,9 @@ class CollaborateController extends Controller
                 if(!isset($collaborate->payload_id))
                     event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
+                //remove when going live
+                Artisan::call("Collaboration:Question", ['id'=>$this->model->id]);
+
             }
             return $this->sendResponse();
 
