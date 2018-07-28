@@ -20,6 +20,7 @@ class CreateAddressesTable extends Migration
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->integer('pincode')->nullable();
             $table->longtext('address1')->nullable();
+            $table->longtext('address2')->nullable();
             $table->text('city')->nullable();
             $table->text('state')->nullable();
             $table->text('country')->nullable();

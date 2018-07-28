@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
-use App\Address;
+use App\Profile\Address;
 
 class AddressController extends Controller
 {
     //
     public function index($profileId)
     {
-    	return \App\Profile::where('id',1)->get();
     	$this->model = Address::where('profile_id',$profileId)->get();
     	return $this->sendResponse();
     }
@@ -20,8 +19,8 @@ class AddressController extends Controller
     {
     	$inputs = $request->except(['_method','_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
-        $checkExisting = Address::where('label',$inputs['label'])->first();
-        if(!is_null($checkExisting) || !empty($checkExisting))
+        $checkExisting = Address::where('label',$inputs['label'])->exists();
+        if($checkExisting)
         {
         	return $this->sendError("Same label already exists");
         }
@@ -38,9 +37,8 @@ class AddressController extends Controller
     public function update(Request $request, $profileId, $id)
 	{
         $input = $request->except(['_method','_token']);
-        \Log::info($input);
-        $checkExisting = Address::where('label',$input['label'])->first();
-    	if(!is_null($checkExisting) || !empty($checkExisting))
+        $checkExisting = Address::where('label',$input['label'])->where('id','!=',$id)->exists();
+    	if($checkExisting)
     	{
     		return $this->sendError("Same label already exists");
     	}
