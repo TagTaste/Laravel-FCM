@@ -340,7 +340,10 @@ class ApplicantController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = $this->model->where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+        $this->model = [];
+        $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
+            ->whereNotNull('rejected_at')->count();
+        $this->model['applicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
             ->whereNotNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
