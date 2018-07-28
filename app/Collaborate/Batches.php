@@ -30,7 +30,17 @@ class Batches extends Model {
     {
         $currentStatus =  \DB::table('collaborate_tasting_user_review')->select('current_status')->where('collaborate_id',$this->collaborate_id)
             ->where('batch_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
-        return isset($currentStatus) ? $currentStatus->current_status : 0;
+
+        if(isset($currentStatus))
+        {
+            return $currentStatus->current_status;
+        }
+        else
+        {
+            $batchAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+            return isset($batchAssign) ? $batchAssign->begin_tasting : 0;
+        }
+
     }
 
 }
