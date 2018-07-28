@@ -295,6 +295,11 @@ class ApplicantController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $inputs = [];
+        $checkExist = \DB::table('collaborate_applicants')->whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->exists();
+        if($checkExist)
+        {
+            return $this->sendError("Already Invited");
+        }
         foreach ($profileIds as $profileId)
         {
             $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1];
