@@ -45,7 +45,7 @@ class Collaborate extends Model implements Feedable
         'company_id' => 'integer'
     ];
 
-    private $interestedCount = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
+    private $interestedCount = 0;
     
     public static function boot()
     {
@@ -313,7 +313,7 @@ class Collaborate extends Model implements Feedable
         $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
-        $meta['interestedCount'] = $this->interestedCount;
+        $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
@@ -392,6 +392,10 @@ class Collaborate extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
+        if($this->collaborate_type != 'product-review')
+        {
+            $this->interestedCount = (int)\Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+        }
         return $this->interestedCount;
     }
     
