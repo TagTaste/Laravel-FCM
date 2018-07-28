@@ -892,14 +892,13 @@ class Profile extends Model
 
     public function getBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')
-            ->join('collaborate_tasting_user_review','collaborate_tasting_user_review.batch_id','=','collaborate_batches_assign.batch_id')
-            ->where('collaborate_tasting_user_review.current_status','!=',3)->where('collaborate_batches_assign.profile_id',$this->id)->count();
+        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile_id)->count();
     }
 
     public function getNewBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile_id)->where('created_at','>=','last_seen')->count();
+        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile_id)
+            ->where('created_at','>=','last_seen')->orWhereNull('last_seen')->count();
     }
 
 }
