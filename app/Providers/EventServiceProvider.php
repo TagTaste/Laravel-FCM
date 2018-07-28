@@ -48,6 +48,8 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\Actions\Follow' => ['App\Listeners\Notifications\Follow'],
         'App\Events\Actions\Apply' => ['App\Listeners\Notifications\Apply'],
+        'App\Events\Actions\BeginTasting' => ['App\Listeners\Notifications\BeginTasting'],
+        'App\Events\Actions\CompleteTasting' => ['App\Listeners\Notifications\CompleteTasting'],
 
 
         'App\Events\Actions\Admin' => ['App\Listeners\Notifications\Admin'],
@@ -65,8 +67,7 @@ class EventServiceProvider extends ServiceProvider
 
 
         'App\Events\SuggestionEngineEvent' => ['App\Listeners\SuggestionEngineListener'],
-        'App\Events\FeatureMailEvent' => ['App\Listeners\FeatureMailListener'],
-
+        'App\Events\FeatureMailEvent' => ['App\Listeners\FeatureMailListener']
 
     ];
 
