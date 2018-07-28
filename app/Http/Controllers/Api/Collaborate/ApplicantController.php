@@ -60,7 +60,7 @@ class ApplicantController extends Controller
 
             $applicant['batches'] = Collaborate\Batches::whereIn('id',$batchIds)->get();
         }
-        $this->model['application'] = $applicants;
+        $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)
             ->whereNull('rejected_at')->count();
         $this->model['rejectedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNull('shortlisted_at')
