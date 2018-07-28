@@ -18,12 +18,12 @@ class CreateAddressesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('profile_id');
             $table->foreign('profile_id')->references('id')->on('profiles');
-            $table->integer('pincode');
-            $table->longtext('address1');
-            $table->text('city');
-            $table->text('state');
-            $table->text('country');
-            $table->text('label');
+            $table->integer('pincode')->nullable();
+            $table->longtext('address1')->nullable();
+            $table->text('city')->nullable();
+            $table->text('state')->nullable();
+            $table->text('country')->nullable();
+            $table->text('label')->nullable();
             $table->timestamps();
         });
     }
