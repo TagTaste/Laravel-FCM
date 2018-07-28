@@ -108,6 +108,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //change password
                 Route::post("change/password","UserController@changePassword");
 
+
+
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
                 Route::post('chatShareMessage',"ChatController@chatShareMessage");
@@ -141,6 +143,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //company rating
             Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
+
+            //search api without admin
+            Route::get("companies/{companyId}/getUserWithoutAdmin","CompanyController@getUserWithoutAdmin");
             
             //channel names for socket.io
                 Route::get('channels/companies/{id}/public',function($id){
@@ -282,7 +287,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
-                
+
             //history
                 Route::get("history/{type}","HistoryController@history");
             //Route::post('like/{model}/{modelId}','LikeController@store');
