@@ -33,8 +33,6 @@ class Batches extends Model {
 
         if(isset($currentStatus))
         {
-            \Log::info("current_status".$currentStatus->current_status);
-
             return $currentStatus->current_status;
         }
         else
