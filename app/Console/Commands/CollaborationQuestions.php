@@ -20,7 +20,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
     protected $questions = '{
 	"INSTRUCTION": [{
 		"title": "INSTRUCTION",
-		"subtitle": "Bitch, I don\'t need introduction Follow my simple instruction Wine to the left, sway to the right Drop it down low and take it back high ",
+		"subtitle": "I don\'t need introduction Follow my simple instruction Wine to the left, sway to the right Drop it down low and take it back high ",
 		"select_type": 4
 	}],
 	"APPEARANCE": [{
