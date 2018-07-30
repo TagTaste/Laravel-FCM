@@ -28,8 +28,11 @@ class Batches extends Model {
 
     public function getCurrentStatusAttribute()
     {
+        \Log::info(\DB::table('collaborate_tasting_user_review')->select('current_status')->where('collaborate_id',$this->collaborate_id)
+            ->where('batch_id',$this->id)->where('profile_id',request()->user()->profile->id)->toSql());
         $currentStatus =  \DB::table('collaborate_tasting_user_review')->select('current_status')->where('collaborate_id',$this->collaborate_id)
             ->where('batch_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        \Log::info($currentStatus);
 
         if(isset($currentStatus))
         {

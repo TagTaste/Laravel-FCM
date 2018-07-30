@@ -167,16 +167,28 @@ class BatchController extends Controller
 
     public function beginTasting(Request $request, $collaborateId)
     {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         $batchId = $request->input('batch_id');
+        $profileIds = $request->input('profile_id');
         if($request->has("begin_all"))
         {
             if($request->input("begin_all") == 1)
             {
-                $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->update(['begin_tasting'=>1]);
-                return $this->sendResponse();
+                $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id');
             }
         }
-        $profileIds = $request->input('profile_id');
+//        foreach ($profileIds as $profileId)
+//        {
+//            $profile = \Redis::get("profile:small:".$profileId );
+//            $profile = json_decode($profile);
+//            $company = \Redis::get('company:small:' . $collaborate->company_id);
+//            $company = json_decode($company);
+//            event(new \App\Events\Actions\BeginTasting($collaborate,$profile,null,null,null,$company));
+//        }
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
             ->update(['begin_tasting'=>1]);
