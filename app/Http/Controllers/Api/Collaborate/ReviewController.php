@@ -68,7 +68,7 @@ class ReviewController extends Controller
                     'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus];
             }
         }
-
+        \Log::info($data);
         $this->model = Review::insert($data);
         return $this->sendResponse();
     }
