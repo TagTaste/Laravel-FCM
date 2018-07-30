@@ -448,6 +448,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('tagboards','TagBoardController');
                 Route::post("tagboards/{id}/like","TagBoardController@like");
 
+                Route::resource("address","AddressController");
                 Route::resource("experiences","ExperienceController");
                 Route::resource("books","BookController");
                 Route::resource("shows","ShowController");

@@ -34,7 +34,7 @@ class Profile extends Model
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
         'pinterest_url', 'other_links', 'twitter_url', 'ingredients', 'favourite_moments', 'verified', 'youtube_channel',
         'interested_in_opportunities', 'followers', 'following', 'experience', 'awards', 'certifications', 'tvshows', 'books',
-        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education', 'projects', 'professional',
+        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education','address', 'projects', 'professional',
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
@@ -43,7 +43,7 @@ class Profile extends Model
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
+        'resumeUrl','experience','education','address','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
@@ -899,6 +899,11 @@ class Profile extends Model
     {
         return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)
             ->where('created_at','>=','last_seen')->count();
+    }
+
+    public function address()
+    {
+        return $this->hasMany('App\Profile\Address');
     }
 
 }
