@@ -291,8 +291,7 @@ class Collaborate extends Model implements Feedable
             $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
             $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
 
-            $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)
-                ->whereNull('rejected_at')->distinct('profile_id')->count();
+            $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct('profile_id')->count();
             $meta['interestedCount'] = $this->interestedCount;
             $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
