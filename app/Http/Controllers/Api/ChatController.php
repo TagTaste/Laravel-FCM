@@ -346,7 +346,7 @@ class ChatController extends Controller
         }
         $inputs = $request->except(['_method','_token']);
         $profileIds = $inputs['profile_id'];
-
+        dd($profileIds);
         if(!is_array($profileIds))
         {
             $profileIds = [$profileIds];
