@@ -181,14 +181,14 @@ class BatchController extends Controller
                 $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id');
             }
         }
-//        foreach ($profileIds as $profileId)
-//        {
-//            $profile = \Redis::get("profile:small:".$profileId );
-//            $profile = json_decode($profile);
-//            $company = \Redis::get('company:small:' . $collaborate->company_id);
-//            $company = json_decode($company);
-//            event(new \App\Events\Actions\BeginTasting($collaborate,$profile,null,null,null,$company));
-//        }
+        foreach ($profileIds as $profileId)
+        {
+            $profile = \Redis::get("profile:small:".$profileId );
+            $profile = json_decode($profile);
+            $company = \Redis::get('company:small:' . $collaborate->company_id);
+            $company = json_decode($company);
+            event(new \App\Events\Actions\BeginTasting($collaborate,$profile,null,null,null,$company));
+        }
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
             ->update(['begin_tasting'=>1]);

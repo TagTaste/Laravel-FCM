@@ -29,6 +29,6 @@ class BeginTasting
     {
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
-        Notification::send($profile, new \App\Notifications\Actions\Apply($event));
+        Notification::send($profile, new \App\Notifications\Actions\BeginTasting($event));
     }
 }

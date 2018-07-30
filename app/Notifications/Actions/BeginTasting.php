@@ -17,22 +17,13 @@ class BeginTasting extends Action
     public function __construct($event)
     {
         parent::__construct($event);
-        $this->view = 'emails.'.$this->data->action.'-'.$this->modelName;
+        $this->view = 'emails.begintasting';
 
-        if($this->modelName == 'collaborate')
-        {
-            $this->sub = $this->data->who['name'] ." wants to collaborate with you on ".$this->model->title;
-            if(!is_null($this->data->content)) {
-                $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
-
-            }
-        }
-        else
-        {
-            $this->sub = $this->data->who['name'] ." applied to your job : ".$this->model->title;
+        $this->sub = $this->data->who['name'] ." has assigned a new sample for you to taste";
+        if(!is_null($this->data->content)) {
+            $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 
         }
-        $this->notification = $this->sub;
 
     }
 
