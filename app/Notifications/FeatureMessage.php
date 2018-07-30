@@ -44,6 +44,7 @@ class FeatureMessage extends Notification
      */
     public function toMail($notifiable)
     {
+        \Log::info("model name ".$this->info['model_name']);
         $button_link = env('APP_URL').'/'.$this->info['model_name'].'/'.$this->info['model_id'];
         return (new MailMessage())
                     ->subject($this->info['sender_info']->name." sent you a new message on TagTaste!")

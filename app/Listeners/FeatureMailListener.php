@@ -30,6 +30,7 @@ class FeatureMailListener implements ShouldQueue
     {
         //
         foreach ($event->profileIds as $id) {
+            \Log::info("here is ids ".$id);
             dispatch(new SendMessage($event->inputs,$id,$event->data['sender_info']->profile));
         }
         if($event->inputs['is_mailable'])
