@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            Collaboration: Inviting Taste-Panel enthusiasts to participate in a Cold Brew Coffee tasting
+                                            Collaboration: Inviting {{$model['title']}} tasting
                                         </div>
                                     </td>
                                 </tr>
@@ -36,10 +36,10 @@
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
 
-                                                                        Harsh Arora,
+                                                                        {{$senderInfo->name}},
                                                                         <br>
                                                                         <br>
-                                                                        <b>Sleepy Owl</b> has assigned a new sample <b>(</b><b>CF-001</b><b>)</b> to you for tasting. Click on the link below to begin tasting and feedback process.
+                                                                        <b>{{$data->who['name']}}</b> has assigned a new sample <b>(</b><b>{{$data->batchInfo->name}}</b><b>)</b> to you for tasting. Click on the link below to begin tasting and feedback process.
                                                                         <br>
                                                                         <br>
 
@@ -53,7 +53,7 @@
                                                                 <div>
                                                                     <br>
 
-                                                                    <a href="https://www.tagtaste.com/collaborate/180" style="text-decoration:none;padding: 15px 36px;border-radius: 1px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">Begin Tasting</a>
+                                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}" style="text-decoration:none;padding: 15px 36px;border-radius: 1px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">Begin Tasting</a>
                                                                 </div>
                                                             </td>
 

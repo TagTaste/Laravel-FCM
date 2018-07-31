@@ -2,6 +2,7 @@
 
 namespace App\Events\Actions;
 
+use App\Collaborate\Batches;
 use App\Events\Action;
 use App\Company;
 use App\ModelSubscriber;
@@ -26,12 +27,13 @@ class BeginTasting extends Action
     public $content;
     public $image;
     public $actionModel;
+    public $batchInfo;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null, &$actionModel = null)
+    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null,$batchId)
     {
         parent::__construct($model,$who = null);
         $this->model = $model;
@@ -46,7 +48,8 @@ class BeginTasting extends Action
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
-        $this->actionModel = $actionModel;
+        $this->actionModel = null;
+        $this->batchInfo = Batches::where('id',$batchId)->first();
     }
 
 }

@@ -4,15 +4,18 @@
 namespace App\Notifications\Actions;
 
 use App\Notifications\Action;
+
 use App\FCMPush;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class BeginTasting extends Action
 {
     public $view;
     public $sub;
     public $notification ;
+    public $senderProfile;
 
-    public function __construct($event)
+    public function __construct($event,$profile)
     {
         parent::__construct($event);
         $this->view = 'emails.begintasting';
@@ -23,7 +26,7 @@ class BeginTasting extends Action
 
         }
         $this->notification = $this->sub;
-
+        $this->senderProfile = $profile;
     }
 
     public function via($notifiable)
@@ -34,6 +37,16 @@ class BeginTasting extends Action
             $via[] = 'mail';
         }
         return $via;
+    }
+
+    public function toMail($notifiable)
+    {
+        if(view()->exists($this->view)){
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
+                    'content'=>$this->getContent($this->allData['content']),'senderInfo'=>$this->senderProfile]
+            );
+        }
     }
 
 }

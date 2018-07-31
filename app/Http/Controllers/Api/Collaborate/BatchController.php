@@ -191,7 +191,7 @@ class BatchController extends Controller
             foreach ($profileIds as $profileId)
             {
                 $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company));
+                event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
             }
         }
         return $this->sendResponse();
