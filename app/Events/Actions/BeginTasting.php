@@ -50,7 +50,7 @@ class BeginTasting extends Action
         $this->content = $content;
         $this->actionModel = null;
         if(!is_null($batchId))
-            $this->batchInfo = Batches::where('id',$batchId)->first();
+            $this->batchInfo = \DB::table('collaborate_batches')->where('id',$batchId)->first();
         else
             $this->batchInfo = null;
 

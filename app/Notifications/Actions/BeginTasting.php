@@ -28,9 +28,6 @@ class BeginTasting extends Action
 
         }
         $this->notification = $this->sub;
-        \Log::info("notitication");
-
-        \Log::info($event->batchInfo);
 
     }
 
@@ -59,9 +56,6 @@ class BeginTasting extends Action
 
     public function toArray($notifiable)
     {
-        \Log::info("toarray");
-
-        \Log::info($this->batchInfo);
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
