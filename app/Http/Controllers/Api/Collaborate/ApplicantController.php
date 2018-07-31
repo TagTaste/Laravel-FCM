@@ -293,6 +293,11 @@ class ApplicantController extends Controller
 
     public function inviteForReview(Request $request, $id)
     {
+        $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         $profileIds = $request->input('profile_id');
         $inputs = [];
         $checkExist = \DB::table('collaborate_applicants')->whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->exists();
@@ -300,11 +305,15 @@ class ApplicantController extends Controller
         {
             return $this->sendError("Already Invited");
         }
+        $company = \Redis::get('company:small:' . $collaborate->company_id);
+        $company = json_decode($company);
         foreach ($profileIds as $profileId)
         {
+            $collaborate->profile_id = $profileId;
+            event(new \App\Events\Actions\InviteForReview($collaborate,null,null,null,null,$company));
             $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1];
         }
-        $this->model = $this->model->insert($inputs);
+//        $this->model = $this->model->insert($inputs);
         return $this->sendResponse();
 
     }
