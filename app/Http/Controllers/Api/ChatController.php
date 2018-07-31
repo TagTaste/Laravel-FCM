@@ -346,7 +346,6 @@ class ChatController extends Controller
         }
         $inputs = $request->except(['_method','_token']);
         $profileIds = $inputs['profile_id'];
-
         if(!is_array($profileIds))
         {
             $profileIds = [$profileIds];
@@ -365,7 +364,6 @@ class ChatController extends Controller
         else if($model->profile_id != $loggedInProfileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
-
         $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
         $data['message'] = $inputs['message'];
         $data['username'] = $LoggedInUser->name;
