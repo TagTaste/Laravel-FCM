@@ -69,6 +69,7 @@ class ShoutoutController extends Controller
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
         if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
+
             $key = "preview:" . sha1($inputs['preview']['url']);
             if(!\Redis::exists($key)){
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -81,7 +82,10 @@ class ShoutoutController extends Controller
                     }
                     $inputs['preview']['image'] = $resp;
                     $inputs['preview'] = json_encode($inputs['preview']);
-                }   
+                }
+                else{
+                    $inputs['preview'] = null; 
+                }  
             }
             else{
                 /***
@@ -89,8 +93,9 @@ class ShoutoutController extends Controller
                  */
                             
                 $inputs['preview'] = \Redis::get($key);
-         
             }
+        }else{
+            $inputs['preview'] = null;
         }
 
         if($request->has('media_file'))
@@ -167,7 +172,8 @@ class ShoutoutController extends Controller
 
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-        if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
+    if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
+        
         $key = "preview:" . sha1($inputs['preview']['url']);
         if(!\Redis::exists($key)){
             if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -181,14 +187,15 @@ class ShoutoutController extends Controller
                 $inputs['preview']['image'] = $resp;
                 $inputs['preview'] = json_encode($inputs['preview']);
             }   
+            else{
+                $input['preview'] = null;
+            }
         }
         else{
             /***
              * This url is already present in Redis
              */
-        
             $inputs['preview'] = \Redis::get($key);
-        
         }
     }
     else{

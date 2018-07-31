@@ -21,7 +21,7 @@ class Preview
         $key = "preview:" . sha1($url);
         if(!\Redis::exists($key)){
             $self = new self($url);
-            $tags = $self->parseFacebookTags($url);
+            $tags = $self->parseMetaTags($url);
             \Redis::set($key,json_encode($tags));
         }
     
@@ -55,12 +55,15 @@ class Preview
         return $response;
     }
     
-    protected function parseFacebookTags($url)
+    protected function parseMetaTags($url)
     {
         $meta = ["description"=>"","image"=>"","url" => $url,"title" => ""];
        
         foreach($this->tags as $tag) {
             
+            /**
+             * Twitter Meta Tag Parsing
+             */
             if(str_contains($tag->getAttribute('name'),'twitter')){
                 $name = $tag->getAttribute('name');
                 $name = substr($name,8);
@@ -68,6 +71,9 @@ class Preview
                 $meta[$name] = $value;
             }
 
+            /**
+             * Property Meta Tag Parsing
+             */
             if(str_contains($tag->getAttribute('property'),'og'))
             {
                 $property = $tag->getAttribute('property');
