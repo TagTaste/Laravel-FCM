@@ -301,10 +301,10 @@ class ApplicantController extends Controller
         $profileIds = $request->input('profile_id');
         $inputs = [];
         $checkExist = \DB::table('collaborate_applicants')->whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->exists();
-        if($checkExist)
-        {
-            return $this->sendError("Already Invited");
-        }
+//        if($checkExist)
+//        {
+//            return $this->sendError("Already Invited");
+//        }
         $company = \Redis::get('company:small:' . $collaborate->company_id);
         $company = json_decode($company);
         foreach ($profileIds as $profileId)
