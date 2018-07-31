@@ -14,9 +14,8 @@ class BeginTasting extends Action
     public $view;
     public $sub;
     public $notification ;
-    public $batchInfo;
 
-    public function __construct($event,$profile)
+    public function __construct($event)
     {
         parent::__construct($event);
         $this->view = 'emails.begintasting';
@@ -27,7 +26,6 @@ class BeginTasting extends Action
 
         }
         $this->notification = $this->sub;
-        $this->batchInfo = $this->data->batchInfo;
     }
 
     public function via($notifiable)
@@ -42,7 +40,7 @@ class BeginTasting extends Action
 
     public function toMail($notifiable)
     {
-        print_r($this->data);
+        print_r($this->data,true);
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
@@ -57,7 +55,7 @@ class BeginTasting extends Action
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
             'notification' => $this->notification,
-            'batchInfo' => $this->batchInfo
+            'batchInfo' => $this->data->batchInfo
         ];
 
         if(method_exists($this->model,'getNotificationContent')){
