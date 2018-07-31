@@ -49,7 +49,8 @@ class FeatureMessage extends Notification
         return (new MailMessage())
                     ->subject($this->info['sender_info']->name." sent you a new message on TagTaste!")
                     ->cc($this->info['sender_info']->email)
-                    ->view('emails.collab-message', ["name"=>$this->profiles[0]->name,"username"=>$this->info['username'],"message1"=>$this->info['message'], "model_name"=>$this->info['model_name'], "model_title"=>$this->info['model_title'], "button_link"=>$button_link]);
+                    ->view('emails.collab-message', ["name"=>$this->profiles[0]->name,"username"=>$this->info['username'],"message1"=>$this->info['message'],
+                        "model_name"=>$this->info['model_name'], "model_title"=>$this->info['model_title'], "button_link"=>$button_link]);
     }
 
     /**
