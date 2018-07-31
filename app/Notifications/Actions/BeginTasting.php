@@ -41,6 +41,12 @@ class BeginTasting extends Action
 
     public function toMail($notifiable)
     {
+        \Log::info("data ");
+        print_r($this->data,true);
+        \Log::info("model");
+        print_r($this->allData,true);
+        \Log::info("senderInfo");
+        print_r($this->senderProfile,true);
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
