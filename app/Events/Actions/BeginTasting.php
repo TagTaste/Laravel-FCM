@@ -54,6 +54,7 @@ class BeginTasting extends Action
         else
             $this->batchInfo = null;
 
+        dd($this->batchInfo);
     }
 
 }
