@@ -6,6 +6,7 @@ namespace App\Notifications\Actions;
 use App\Notifications\Action;
 
 use App\FCMPush;
+use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class BeginTasting extends Action
@@ -44,7 +45,7 @@ class BeginTasting extends Action
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
-                    'content'=>$this->getContent($this->allData['content'])]
+                    'content'=>$this->getContent($this->allData['content']),'batchInfo'=>$this->batchInfo]
             );
         }
     }
