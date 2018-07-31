@@ -21,9 +21,11 @@
                                             {{$model_name}}
                                             @endif
                                             : {{$model_title}}
+
                                         </div>
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <td style="background-color: #FAFAFA;height: 10px;">
                                     </td>
