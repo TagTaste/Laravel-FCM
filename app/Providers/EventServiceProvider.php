@@ -50,6 +50,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\Apply' => ['App\Listeners\Notifications\Apply'],
         'App\Events\Actions\BeginTasting' => ['App\Listeners\Notifications\BeginTasting'],
         'App\Events\Actions\InviteForReview' => ['App\Listeners\Notifications\InviteForReview'],
+        'App\Events\Actions\InvitationAcceptForReview' => ['App\Listeners\Notifications\InvitationAcceptForReview'],
+        'App\Events\Actions\InvitationRejectForReview' => ['App\Listeners\Notifications\InvitationRejectForReview'],
+
 
         'App\Events\Actions\CompleteTasting' => ['App\Listeners\Notifications\CompleteTasting'],
 

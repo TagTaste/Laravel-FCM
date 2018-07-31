@@ -16,7 +16,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class InviteForReview extends Action
+class InvitationRejectForReview extends Action
 {
 
     use Dispatchable, InteractsWithSockets, SerializesModels;

@@ -301,10 +301,10 @@ class ApplicantController extends Controller
         $profileIds = $request->input('profile_id');
         $inputs = [];
         $checkExist = \DB::table('collaborate_applicants')->whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->exists();
-//        if($checkExist)
-//        {
-//            return $this->sendError("Already Invited");
-//        }
+        if($checkExist)
+        {
+            return $this->sendError("Already Invited");
+        }
         $company = \Redis::get('company:small:' . $collaborate->company_id);
         $company = json_decode($company);
         foreach ($profileIds as $profileId)
@@ -313,24 +313,53 @@ class ApplicantController extends Controller
             event(new \App\Events\Actions\InviteForReview($collaborate,null,null,null,null,$company));
             $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1];
         }
-//        $this->model = $this->model->insert($inputs);
+        $this->model = $this->model->insert($inputs);
         return $this->sendResponse();
 
     }
 
     public function acceptInvitation(Request $request, $id)
     {
+        $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $loggedInProfileId = $request->user()->profile->id;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
-            ->where('profile_id',$request->user()->profile->id)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+            ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+
+//        if($this->model)
+//        {
+//            $company = \Redis::get('company:small:' . $collaborate->company_id);
+//            $company = json_decode($company);
+//            $collaborate->profile_id = $loggedInProfileId;
+//            event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,null,null,null,null,$company));
+//        }
 
         return $this->sendResponse();
     }
 
     public function rejectInvitation(Request $request, $id)
     {
+        $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$request->user()->profile->id)->delete();
+
+//        if($this->model)
+//        {
+//            $company = \Redis::get('company:small:' . $collaborate->company_id);
+//            $company = json_decode($company);
+//            $collaborate->profile_id = $loggedInProfileId;
+//            event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,null,null,null,null,$company));
+//        }
 
         return $this->sendResponse();
     }
