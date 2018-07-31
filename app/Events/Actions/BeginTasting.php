@@ -51,6 +51,8 @@ class BeginTasting extends Action
         $this->actionModel = null;
         if(!is_null($batchId))
             $this->batchInfo = Batches::where('id',$batchId)->first();
+        else
+            $this->batchInfo = null;
 
     }
 
