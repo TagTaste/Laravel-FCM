@@ -898,7 +898,7 @@ class Profile extends Model
     public function getNewBatchesCountAttribute()
     {
         return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)
-            ->where('created_at','>=','last_seen')->count();
+            ->where('begin_tasting',1)->whereNull('last_seen')->count();
     }
 
     public function address()
