@@ -33,7 +33,7 @@ class BeginTasting extends Action
      *
      * @return void
      */
-    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null,$batchId)
+    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null,$batchId = null)
     {
         parent::__construct($model,$who = null);
         $this->model = $model;
@@ -49,7 +49,9 @@ class BeginTasting extends Action
         $this->image = $image;
         $this->content = $content;
         $this->actionModel = null;
-        $this->batchInfo = Batches::where('id',$batchId)->first();
+        if(!is_null($batchId))
+            $this->batchInfo = Batches::where('id',$batchId)->first();
+
     }
 
 }
