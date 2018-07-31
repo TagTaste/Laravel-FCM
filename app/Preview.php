@@ -60,35 +60,35 @@ class Preview
         $meta = ["description"=>"","image"=>"","url" => $url,"title" => ""];
        
         foreach($this->tags as $tag) {
-            
-            /**
-             * Twitter Meta Tag Parsing
-             */
-            if(str_contains($tag->getAttribute('name'),'twitter')){
-                $name = $tag->getAttribute('name');
-                $name = substr($name,8);
-                $value = $tag->getAttribute('content');
-                $meta[$name] = $value;
-            }
 
-            /**
-             * Property Meta Tag Parsing
-             */
-            if(str_contains($tag->getAttribute('property'),'og'))
-            {
-                $property = $tag->getAttribute('property');
-                $property = substr($property,3);
-                $value = $tag->getAttribute('content');
-                if(array_key_exists($property,$meta)){
-                    if($meta[$property] == ""){
-                        $meta[$property] = $value;
-                    }
-                }
-                else{
+           /**
+                 * Property parser
+                 */
+                if(str_contains($tag->getAttribute('property'),'og'))
+                {
+                    $property = $tag->getAttribute('property');
+                    $property = substr($property,3);
+                    $value = $tag->getAttribute('content');
                     $meta[$property] = $value;
                 }
-                
-            }
+
+                /**
+                 *Parse Twitter
+                 */
+                if(str_contains($tag->getAttribute('name'),'twitter'))
+                {
+                    $name = $tag->getAttribute('name');
+                    $name = substr($name,8);
+                    $value = $tag->getAttribute('content');
+                    if(array_key_exists($name,$meta)){
+                        if($meta[$name] == ""){
+                            $meta[$name] = $value;
+                        }
+                    }
+                    else{
+                        $meta[$name] = $value;
+                    }
+                }
 
         }
         return $meta;
