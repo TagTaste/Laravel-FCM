@@ -45,7 +45,7 @@ class BeginTasting extends Action
     {
         \Log::info("tomail");
 
-        \Log::info($this->batchInfo);
+        \Log::info($this->batchInfo->name);
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
