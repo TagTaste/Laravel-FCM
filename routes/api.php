@@ -130,6 +130,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
+            //send mail to applicants of job or collaborate
+            Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
+
             //shoutouts
                 Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
@@ -175,10 +178,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("jobs/all","JobController@all");
                 Route::get("jobs/filters", "JobController@filters");
                 Route::resource("jobs","JobController");
-                //Route::post("jobs/message","ChatController@jobMessage"); 
-
-            //send mail to applicants of job or collaborate
-                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");    
+                //Route::post("jobs/message","ChatController@jobMessage");
             
             //similar
                 Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
