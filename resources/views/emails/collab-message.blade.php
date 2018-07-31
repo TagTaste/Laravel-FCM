@@ -44,8 +44,7 @@
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
                                                                         <br>
                                                                         {{$message1}}
-                                                                        <br>
-                                                                        <br>                                                 
+                                                                        <br><br>
                                                                     </p>
                                                                 </div>
                                                             </td>
