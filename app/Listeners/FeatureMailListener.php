@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use App\Jobs\SendFeatureMessage as SendMessage;
 
-class FeatureMailListener implements ShouldQueue
+class FeatureMailListener
 {
     /**
      * Create the event listener.
@@ -35,8 +35,6 @@ class FeatureMailListener implements ShouldQueue
         if($event->inputs['is_mailable'])
         {
             foreach ($event->profileIds as $id) {
-                \Log::info("here is ids ".$id);
-
                 $profiles = \App\Profile::where('id',$id)->get();
                 Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
             }

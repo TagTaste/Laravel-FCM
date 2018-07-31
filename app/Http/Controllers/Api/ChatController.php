@@ -370,6 +370,7 @@ class ChatController extends Controller
         $data['sender_info'] = $LoggedInUser;
         $data['model_title'] = $model->title;
         $data['model_name'] = $feature;
+        \Log::info($data['model_name']);
         $data['model_id'] = $model->id;
         event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
         $this->model = true;
