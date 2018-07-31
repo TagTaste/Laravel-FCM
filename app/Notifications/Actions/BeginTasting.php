@@ -3,10 +3,8 @@
 
 namespace App\Notifications\Actions;
 
-use App\CompanyUser;
 use App\Notifications\Action;
 use App\FCMPush;
-use App\Setting;
 
 class BeginTasting extends Action
 {
@@ -24,6 +22,7 @@ class BeginTasting extends Action
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 
         }
+        $this->notification = $this->sub;
 
     }
 
@@ -34,43 +33,6 @@ class BeginTasting extends Action
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
         }
-
-        $preference = null;
-
-        if(isset($this->model->company_id) && !is_null($this->model->company_id)) {
-
-            //getting list of company admins
-            $admins = CompanyUser::getCompanyAdminIds($this->model->company_id);
-
-            // user is admin of the company
-            if(in_array($notifiable->id, $admins)) {
-                $preference = Setting::getNotificationPreference($notifiable->id, $this->model->company_id, $this->data->action, null, $this->modelName);
-            }
-            // user is just a subscriber of model
-            else {
-                $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
-            }
-
-        } else {
-            $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
-        }
-
-        if(is_null($preference)) {
-            return $via;
-        }
-
-        $via = [];
-        if($preference->bell_value) {
-            $via[] = 'broadcast';
-            $via[] = 'database';
-        }
-        if($preference->email_value && $this->view && view()->exists($this->view)) {
-            $via[] = 'mail';
-        }
-        if($preference->push_value) {
-            $via[] = FCMPush::class;
-        }
-
         return $via;
     }
 

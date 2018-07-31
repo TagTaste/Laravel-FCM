@@ -3,7 +3,7 @@
 namespace App\Listeners\Notifications;
 
 use App\CompanyUser;
-use App\Events\Actions\Apply as ApplyEvent;
+use App\Events\Actions\BeginTasting as BeginTastingEvent;
 use App\Notify\Profile;
 use Illuminate\Support\Facades\Notification;
 
@@ -25,7 +25,7 @@ class BeginTasting
      * @param  Share  $event
      * @return void
      */
-    public function handle(ApplyEvent $event)
+    public function handle(BeginTastingEvent $event)
     {
         $profileId = $event->model->profile_id;
         $profile = Profile::find($profileId);
