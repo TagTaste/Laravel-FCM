@@ -14,10 +14,12 @@ class BeginTasting extends Action
     public $view;
     public $sub;
     public $notification ;
+    public $batchInfo;
 
     public function __construct($event)
     {
         parent::__construct($event);
+        $this->batchInfo = $event->batchInfo;
         $this->view = 'emails.begintasting';
 
         $this->sub = $this->data->who['name'] ." has assigned a new sample for you to taste";
@@ -44,7 +46,7 @@ class BeginTasting extends Action
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
-                    'content'=>$this->getContent($this->allData['content'])]
+                    'content'=>$this->getContent($this->allData['content']),'batchInfo'=>$this->batchInfo]
             );
         }
     }
@@ -55,7 +57,7 @@ class BeginTasting extends Action
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
             'notification' => $this->notification,
-            'batchInfo' => $this->data->batchInfo
+            'batchInfo'=>$this->batchInfo
         ];
 
         if(method_exists($this->model,'getNotificationContent')){

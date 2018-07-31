@@ -54,7 +54,6 @@ class BeginTasting extends Action
         else
             $this->batchInfo = null;
 
-        \Log::info($this->batchInfo);
     }
 
 }
