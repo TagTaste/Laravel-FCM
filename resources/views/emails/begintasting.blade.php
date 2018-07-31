@@ -36,7 +36,7 @@
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
 
-                                                                        {{$senderInfo->name}},
+                                                                        {{$notifiable->name}},
                                                                         <br>
                                                                         <br>
                                                                         <b>{{$data->who['name']}}</b> has assigned a new sample <b>(</b><b>{{$data->batchInfo->name}}</b><b>)</b> to you for tasting. Click on the link below to begin tasting and feedback process.
