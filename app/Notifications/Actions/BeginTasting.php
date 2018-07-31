@@ -45,7 +45,7 @@ class BeginTasting extends Action
         if(view()->exists($this->view)){
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,
-                    'content'=>$this->getContent($this->allData['content']),'batchInfo'=>$this->batchInfo]
+                    'content'=>$this->getContent($this->allData['content'])]
             );
         }
     }
@@ -55,7 +55,8 @@ class BeginTasting extends Action
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
-            'notification' => $this->notification
+            'notification' => $this->notification,
+            'batchInfo' => $this->batchInfo
         ];
 
         if(method_exists($this->model,'getNotificationContent')){
@@ -69,7 +70,6 @@ class BeginTasting extends Action
                 'image' => $this->data->image
             ];
         }
-
         $data['created_at'] = Carbon::now()->toDateTimeString();
 
         return $data;
