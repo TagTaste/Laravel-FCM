@@ -235,7 +235,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
-                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show intereted
+                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
                 Route::post("showInterest","ApplicantController@store");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
