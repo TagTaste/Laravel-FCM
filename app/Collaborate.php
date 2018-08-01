@@ -357,7 +357,7 @@ class Collaborate extends Model implements Feedable
             'id' => $this->id,
             'content' => $this->title,
             'image' => null,
-            'collabotate_type' => $this->collaborate_type
+            'collaborate_type' => $this->collaborate_type
         ];
     }
     
