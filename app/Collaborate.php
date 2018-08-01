@@ -471,7 +471,7 @@ class Collaborate extends Model implements Feedable
         if($this->collaborate_type == 'product-review')
         {
             $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
-                ->where('is_invited',1)->whereNull('shortlisted_at')->whereNull('rejected_at')->exists();
+                ->where('is_invited',1)->whereNull('rejected_at')->exists();
             $meta['has_batch_assign'] = \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
                 ->where('profile_id',request()->user()->profile->id)->exists();
             $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
