@@ -401,22 +401,11 @@ class CollaborateController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)
-            ->get()->pluck('collaborate_id')->unique();
-        $collaborates = [];
-        if(count($collaborateIds))
-        {
-            foreach ($collaborateIds as &$collaborateId)
-            {
-                $collaborates[] = "collaborate:".$collaborateId;
-            }
-            $collaborates = \Redis::mGet($collaborates);
-        }
+            ->get()->pluck('collaborate_id');
+        $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
-            if(is_null($collaborate))
-                continue;
-            $collaborate = json_decode($collaborate, true);
-            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:".$loggedInProfileId.":");
+            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
             $count = count($batchIds);
             if($count)
             {
@@ -435,6 +424,7 @@ class CollaborateController extends Controller
             $collaborate['batches'] = $count > 0 ? $batchInfos : null;
         }
         $this->model = $collaborates;
+
         return $this->sendResponse();
     }
 
