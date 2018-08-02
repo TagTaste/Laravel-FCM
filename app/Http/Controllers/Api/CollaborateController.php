@@ -405,8 +405,7 @@ class CollaborateController extends Controller
         $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
-            \Log::info("collaborate:".$collaborate['id'].":profile:".$collaborate['profile_id'].":");
-            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:".$collaborate['profile_id'].":");
+            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
             $count = count($batchIds);
             if($count)
             {
@@ -418,10 +417,9 @@ class CollaborateController extends Controller
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$collaborate['profile_id']);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
-                \Log::info($batchInfos);
             }
             $collaborate['batches'] = $count > 0 ? $batchInfos : null;
         }
