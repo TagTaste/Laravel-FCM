@@ -12,7 +12,7 @@ class CurrentStatusReview extends Command
      *
      * @var string
      */
-    protected $signature = 'build:cache:current_status';
+    protected $signature = 'build:productreview:currentStatus';
 
     /**
      * The console command description.

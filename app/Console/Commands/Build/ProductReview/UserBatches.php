@@ -12,7 +12,7 @@ class UserBatches extends Command
      *
      * @var string
      */
-    protected $signature = 'build:cache:user:batches';
+    protected $signature = 'build:productreview:userbatches';
 
     /**
      * The console command description.
