@@ -401,7 +401,8 @@ class CollaborateController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)
-            ->get()->pluck('collaborate_id')->unique();;
+            ->get()->pluck('collaborate_id')->unique();
+        \Log::info($collaborateIds);
         if(count($collaborateIds))
         {
             $collaborates = [];
