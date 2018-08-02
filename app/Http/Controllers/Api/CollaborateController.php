@@ -401,14 +401,14 @@ class CollaborateController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get();
+        $collaborates = [];
         if(count($collaborateIds))
         {
-
             foreach ($collaborateIds as &$collaborateId)
             {
-                $collaborateId = "collaborate:".$collaborateId;
+                $collaborates[] = "collaborate:".$collaborateId;
             }
-            $collaborates = \Redis::mGet($collaborateIds);
+            $collaborates = \Redis::mGet($collaborates);
         }
         foreach ($collaborates as &$collaborate)
         {
