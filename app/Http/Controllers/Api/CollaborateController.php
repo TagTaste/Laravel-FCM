@@ -420,9 +420,9 @@ class CollaborateController extends Controller
                     $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$collaborate['profile_id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
+                \Log::info($batchInfos);
             }
             $collaborate['batches'] = $count > 0 ? $batchInfos : null;
-            \Log::info($batchInfos);
         }
         $this->model = $collaborates;
         return $this->sendResponse();
