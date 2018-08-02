@@ -55,10 +55,23 @@ class ApplicantController extends Controller
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
-            $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)
-                ->where('profile_id',$applicant['profile_id'])->get()->pluck('batch_id');
-
-            $applicant['batches'] = Collaborate\Batches::whereIn('id',$batchIds)->get();
+            $batchIds = \Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
+            $count = count($batchIds);
+            if($count)
+            {
+                foreach ($batchIds as &$batchId)
+                {
+                    $batchId = "batch:".$batchId;
+                }
+                $batchInfos = \Redis::mGet($batchIds);
+                foreach ($batchInfos as &$batchInfo)
+                {
+                    $batchInfo = json_decode($batchInfo);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
+                    $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                }
+            }
+            $applicant['batches'] = $count > 0 ? $batchInfos : null;
         }
         $this->model['applicants'] = $applicants;
         $this->model['totalApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)

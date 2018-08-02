@@ -15,7 +15,7 @@ class Batches extends Model {
     protected $visible = ['id','name','notes','allergens','instruction','color_id','collaborate_id',
         'color','created_at','updated_at','current_status'];
 
-    protected $appends = ['color','current_status'];
+    protected $appends = ['color'];
 
 //    protected $with = ['color'];
 
@@ -36,7 +36,8 @@ class Batches extends Model {
     public function addToCache()
     {
         $data = ['id'=>$this->id,'name'=>$this->name,'notes'=>$this->notes,'allergens'=>$this->allergens,'instruction'=>$this->instruction,
-            'color_id'=>$this->color_id,'collaborate_id'=>$this->collaborate_id,'color'=>$this->color,'created_at'=>$this->created_at->toDateTimeString(),'updated_at'=>$this->updated_at->toDateTimeString()];
+            'color_id'=>$this->color_id,'collaborate_id'=>$this->collaborate_id,'color'=>$this->color,
+            'created_at'=>isset($this->created_at) ? $this->created_at->toDateTimeString() : null ,'updated_at'=>isset($this->updated_at) ? $this->updated_at->toDateTimeString() : null];
         \Redis::set("batch:" . $this->id,json_encode($data));
 
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Build\Cache;
+namespace App\Console\Commands\Build\ProductReview;
 
 use App\Collaborate;
 use Illuminate\Console\Command;
@@ -38,7 +38,7 @@ class UserBatches extends Command
      */
     public function handle()
     {
-        \DB::table('collaborate_batches_assign')->chunk(100, function ($models) {
+        \DB::table('collaborate_batches_assign')->orderBy('batch_id')->chunk(100, function ($models) {
             foreach ($models as $model) {
                 \Redis::sAdd("collaborate:$model->collaborate_id:profile:$model->profile_id:" ,$model->batch_id);
             }

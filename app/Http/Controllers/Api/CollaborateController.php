@@ -400,11 +400,37 @@ class CollaborateController extends Controller
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->get()->pluck('collaborate_id');
-        $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
+        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)
+            ->get()->pluck('collaborate_id')->unique();;
+        if(count($collaborateIds))
+        {
+            $collaborates = [];
+            foreach ($collaborateIds as &$collaborateId)
+            {
+                $collaborates[] = "collaborate:".$collaborateId;
+            }
+            $collaborates = \Redis::mGet($collaborates);
+        }
         foreach ($collaborates as &$collaborate)
         {
-            $collaborate['batches'] = Collaborate\Batches::where('collaborate_id',$collaborate['id'])->get();
+            $collaborate = json_decode($collaborate, true);
+            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:".$collaborate['profile_id'].":");
+            $count = count($batchIds);
+            if($count)
+            {
+                foreach ($batchIds as &$batchId)
+                {
+                    $batchId = "batch:".$batchId;
+                }
+                $batchInfos = \Redis::mGet($batchIds);
+                foreach ($batchInfos as &$batchInfo)
+                {
+                    $batchInfo = json_decode($batchInfo);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$collaborate['profile_id']);
+                    $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                }
+            }
+            $collaborate['batches'] = $count > 0 ? $batchInfos : null;
         }
         $this->model = $collaborates;
         return $this->sendResponse();

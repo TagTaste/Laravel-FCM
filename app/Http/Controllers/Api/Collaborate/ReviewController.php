@@ -40,13 +40,7 @@ class ReviewController extends Controller
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
 
-        \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId:" ,$currentStatus);
-
-        if($currentStatus == 3)
-        {
-            \Redis::sAdd("review:batch$batchId:profile:",$loggedInProfileId);
-        }
-
+        \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
         Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
