@@ -148,6 +148,8 @@ class BatchController extends Controller
         \DB::table('collaborate_batches_assign')->where('collaborate_id',$id)->where('batch_id',$batchId)->whereIn('profile_id',$applierProfileIds)->delete();
         foreach ($applierProfileIds as $applierProfileId)
         {
+            \Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
+            \Redis::set("current_status:batch:$batchId:profile:$applierProfileId:" ,1);
             $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
@@ -159,6 +161,10 @@ class BatchController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
+        foreach ($profileIds as $profileId)
+        {
+            \Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
+        }
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
 
         return $this->sendResponse();

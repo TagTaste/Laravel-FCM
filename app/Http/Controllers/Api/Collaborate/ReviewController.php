@@ -38,15 +38,18 @@ class ReviewController extends Controller
         {
             return $this->sendError("Wrong sample assigned");
         }
-        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 1;
-        $answerExists = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-                        ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->exists();
+        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
 
-        if($answerExists)
+        \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId:" ,$currentStatus);
+
+        if($currentStatus == 3)
         {
-            Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-                ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
+            \Redis::sAdd("review:batch$batchId:profile:",$loggedInProfileId);
         }
+
+        Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+            ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
+
         foreach ($answers as $answer)
         {
             $options = isset($answer['option']) ? $answer['option'] : [];
