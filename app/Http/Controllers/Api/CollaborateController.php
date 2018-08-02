@@ -405,7 +405,6 @@ class CollaborateController extends Controller
         $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
-            $collaborate = json_decode($collaborate, true);
             $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:".$collaborate['profile_id'].":");
             $count = count($batchIds);
             if($count)
