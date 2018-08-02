@@ -40,6 +40,8 @@ class UserBatches extends Command
     {
         \DB::table('collaborate_batches_assign')->orderBy('batch_id')->chunk(100, function ($models) {
             foreach ($models as $model) {
+                echo "key is. "."collaborate:$model->collaborate_id:profile:$model->profile_id:". "\n";
+                echo "batch_id:".$model->batch_id."\n";
                 \Redis::sAdd("collaborate:$model->collaborate_id:profile:$model->profile_id:" ,$model->batch_id);
             }
         });;
