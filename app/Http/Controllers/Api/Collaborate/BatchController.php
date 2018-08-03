@@ -72,9 +72,8 @@ class BatchController extends Controller
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            $review = \DB::table('collaborate_tasting_user_review')->where('batch_id',$id)
-                ->where('profile_id',$profile['id'])->orderBy('id','desc')->first();
-            $profile['current_status'] = isset($review->current_status) ? $review->current_status : 0;
+            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['id']);
+            $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
         $this->model = [];
         $this->model['applicants'] = $profiles;
