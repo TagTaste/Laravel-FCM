@@ -262,4 +262,13 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
+    public function getCurrentStatus(Request $request, $collaborateId, $batchId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $currentStatus = \Redis::get("current_status:batch:$batchId:profile:" . $loggedInProfileId);
+        $this->model = !is_null($currentStatus) ? (int)$currentStatus : 0;
+        return $this->sendResponse();
+
+    }
+
 }
