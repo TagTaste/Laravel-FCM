@@ -54,7 +54,7 @@
                                         <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse">
                                             <tr>
                                                 <td valign="top" align="center"  bgcolor="#FFFFFF">
-                                                    <a href="https://www.tagtaste.com" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">LOGIN TO YOUR ACCOUNT</a>
+                                                    <a href="https://www.tagtaste.com/login" style="display:inline-block; text-decoration:none; padding: 15px 36px;border-radius: 4px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;margin: 30px 0px 30px 0px;border-radius: 30px;font-weight:bold;">LOGIN TO YOUR ACCOUNT</a>
                                                 </td>
                                             </tr>
                                             <tr>
