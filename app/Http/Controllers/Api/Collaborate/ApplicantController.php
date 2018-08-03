@@ -412,4 +412,55 @@ class ApplicantController extends Controller
         return $this->sendResponse();
     }
 
+    public function getUnassignedApplicants(Request $request, $collaborateId)
+    {
+        $batchId = (int)$request->input("batch_id");
+        $this->model = [];
+        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id')->unique();
+        $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id','!=',$batchId)
+            ->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id')->unique();
+        $profileIds = $profileIds->toArray();
+        $this->model['count'] = count($profileIds);
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20);
+        $data = [];
+        foreach ($profileIds as &$profileId)
+        {
+            $profileId = "profile:small:".$profileId ;
+        }
+        if(count($profileIds))
+        {
+            $data = \Redis::mget($profileIds);
+        }
+        foreach($data as &$profile){
+            if(is_null($profile))
+                continue;
+            $profile = json_decode($profile);
+        }
+        $applicants = [];
+        foreach ($data as &$applicant)
+        {
+            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant->id.":");
+            $count = count($batchIds);
+            if($count)
+            {
+                foreach ($batchIds as &$batchId)
+                {
+                    $batchId = "batch:".$batchId;
+                }
+                $batchInfos = \Redis::mGet($batchIds);
+                foreach ($batchInfos as &$batchInfo)
+                {
+                    $batchInfo = json_decode($batchInfo);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant->id);
+                    $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                }
+            }
+            $applicant->batches = $count > 0 ? $batchInfos : null;
+            $applicants[] = $applicant;
+        }
+        $this->model['applicants'] = $applicants;
+        return $this->sendResponse();
+    }
+
 }
