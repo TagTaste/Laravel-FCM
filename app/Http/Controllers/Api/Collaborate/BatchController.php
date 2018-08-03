@@ -148,7 +148,7 @@ class BatchController extends Controller
         foreach ($applierProfileIds as $applierProfileId)
         {
             \Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
-            \Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,1);
+            \Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,0);
             $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
