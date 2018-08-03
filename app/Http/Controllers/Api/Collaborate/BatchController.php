@@ -195,6 +195,11 @@ class BatchController extends Controller
             $company = json_decode($company);
             foreach ($profileIds as $profileId)
             {
+                $currentStatus = \Redis::get("current_status:batch:$batchId:profile:$profileId");
+                if($currentStatus ==0)
+                {
+                    \Redis::set("current_status:batch:$batchId:profile:$profileId" ,1);
+                }
                 $collaborate->profile_id = $profileId;
                 event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
             }
