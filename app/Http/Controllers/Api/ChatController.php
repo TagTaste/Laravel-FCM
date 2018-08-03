@@ -371,6 +371,21 @@ class ChatController extends Controller
         $data['model_title'] = $model->title;
         $data['model_name'] = $feature;
         $data['model_id'] = $model->id;
+        if($request->has('batch_id'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$request->input('batch_id'))
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_shortlisted'))
+        {
+            $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$featureId)->whereNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_rejected'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$featureId)->whereNotNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
         event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
         $this->model = true;
         return $this->sendResponse();
