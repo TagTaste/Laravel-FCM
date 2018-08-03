@@ -172,11 +172,6 @@ class CollaborateController extends Controller
             {
                 $inputs['images'] = json_encode($imagesArray,true);
             }
-
-            if(count($imagesArray) > 0)
-            {
-                $inputs['images'] = json_encode($imagesArray,true);
-            }
         }
 
         if($request->hasFile('file1')){
