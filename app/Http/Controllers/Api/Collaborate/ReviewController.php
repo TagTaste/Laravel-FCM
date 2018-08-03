@@ -39,7 +39,8 @@ class ReviewController extends Controller
             return $this->sendError("Wrong sample assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
-
+        \Log::info("current_status:batch:$batchId:profile:$loggedInProfileId");
+        \Log::info($currentStatus);
         \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
         Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
