@@ -55,6 +55,7 @@ class CurrentStatusReview extends Command
                     }
                     \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,2);
                 }
+                echo "batch_id ".$model->batch_id."profile_id ".$model->profile_id ."current status".\Redis::get("current_status:batch:$model->batch_id:profile:$model->profile_id")."\n";
             }
         });;
     }
