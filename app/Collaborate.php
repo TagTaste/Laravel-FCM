@@ -67,7 +67,7 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields','categories','addresses'])->toJson());
+        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
     
     }
     
@@ -470,27 +470,27 @@ class Collaborate extends Model implements Feedable
     public function getProductReviewMetaAttribute()
     {
         $meta = [];
-        if($this->collaborate_type == 'product-review')
-        {
-            $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
-                ->where('is_invited',1)->whereNull('rejected_at')->exists();
-            $meta['has_batch_assign'] = \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
-                ->where('profile_id',request()->user()->profile->id)->exists();
-            $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
-                ->where('profile_id',request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
-            $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id',request()->user()->profile->id)
-                ->where('collaborate_id',$this->id)->where('current_status',3)->get()->pluck('batch_id')->toArray();
-            sort($batchIds);
-            sort($completedBatchIds);
-            $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
-            $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
-                ->where('is_invited',0)->whereNull('shortlisted_at')->whereNull('rejected_at')->exists();
-            $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
-                ->where('is_invited',1)->first();
-            $meta['is_actioned'] = isset($applicants) ? isset($applicants->shortlisted_at) || isset($applicants->rejected_at) ? true : false : false;
-            $meta['is_invitation_accepted'] = isset($applicants) ? isset($applicants->shortlisted_at) && !is_null($applicants->shortlisted_at) ? true : false : false;
-            return $meta;
-        }
+//        if($this->collaborate_type == 'product-review')
+//        {
+//            $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+//                ->where('is_invited',1)->whereNull('rejected_at')->exists();
+//            $meta['has_batch_assign'] = \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
+//                ->where('profile_id',request()->user()->profile->id)->exists();
+//            $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
+//                ->where('profile_id',request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
+//            $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id',request()->user()->profile->id)
+//                ->where('collaborate_id',$this->id)->where('current_status',3)->get()->pluck('batch_id')->toArray();
+//            sort($batchIds);
+//            sort($completedBatchIds);
+//            $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
+//            $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+//                ->where('is_invited',0)->whereNull('shortlisted_at')->whereNull('rejected_at')->exists();
+//            $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+//                ->where('is_invited',1)->first();
+//            $meta['is_actioned'] = isset($applicants) ? isset($applicants->shortlisted_at) || isset($applicants->rejected_at) ? true : false : false;
+//            $meta['is_invitation_accepted'] = isset($applicants) ? isset($applicants->shortlisted_at) && !is_null($applicants->shortlisted_at) ? true : false : false;
+//            return $meta;
+//        }
         return null;
 
     }
