@@ -244,8 +244,7 @@ class BatchController extends Controller
     public function userBatches(Request $request, $collaborateId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $collaborate = \Redis::get("collaborate:".$collaborateId);
-        $collaborate = json_decode($collaborate,true);
+        $collaborate = \App\Recipe\Collaborate::where('id',$collaborateId)->first()->toArray();
         $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$loggedInProfileId.":");
         $count = count($batchIds);
         if($count) {
