@@ -132,24 +132,24 @@ class ApplicantController extends Controller
         }
         $this->model = $this->model->create($inputs);
 
-        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-        {
-            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
-            foreach ($profileIds as $profileId)
-            {
-                $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
-
-            }
-        }
-        else
-        {
-            event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
-        }
-
         if(isset($this->model))
         {
             $this->model = true;
+
+            if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+            {
+                $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+                foreach ($profileIds as $profileId)
+                {
+                    $collaborate->profile_id = $profileId;
+                    event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
+
+                }
+            }
+            else
+            {
+                event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
+            }
         }
         else
         {
