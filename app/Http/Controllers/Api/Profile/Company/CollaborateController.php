@@ -163,8 +163,11 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
+            dd($images);
             foreach ($images as $image)
             {
+                if(is_null($image))
+                    continue;
                 $imagesArray[]['image'.$i] = $image;
                 $i++;
             }
