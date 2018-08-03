@@ -130,6 +130,7 @@ class ApplicantController extends Controller
             }
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
         }
+        \Log::info($inputs);
         $this->model = $this->model->create($inputs);
 
         if(isset($this->model))
