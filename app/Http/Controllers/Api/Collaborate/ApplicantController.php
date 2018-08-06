@@ -339,6 +339,7 @@ class ApplicantController extends Controller
             $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1];
         }
         $this->model = $this->model->insert($inputs);
+        $this->model = Collaborate\Applicant::whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->get();
         return $this->sendResponse();
 
     }
