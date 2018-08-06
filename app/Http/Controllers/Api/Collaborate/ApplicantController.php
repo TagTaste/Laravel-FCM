@@ -50,7 +50,7 @@ class ApplicantController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
         $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)
-            ->whereNull('rejected_at')->skip($skip)->take($take)->get();
+            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
 
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
@@ -332,11 +332,12 @@ class ApplicantController extends Controller
         }
         $company = \Redis::get('company:small:' . $collaborate->company_id);
         $company = json_decode($company);
+        $now = Carbon::now()->toDateTimeString();
         foreach ($profileIds as $profileId)
         {
             $collaborate->profile_id = $profileId;
             event(new \App\Events\Actions\InviteForReview($collaborate,null,null,null,null,$company));
-            $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1];
+            $inputs[] = ['profile_id'=>$profileId, 'collaborate_id'=>$id,'is_invited'=>1,'created_at'=>$now,'updated_at'=>$now];
         }
         $this->model = $this->model->insert($inputs);
         $this->model = Collaborate\Applicant::whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->get();
