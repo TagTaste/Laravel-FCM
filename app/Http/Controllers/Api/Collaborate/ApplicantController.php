@@ -419,8 +419,7 @@ class ApplicantController extends Controller
         $batchId = (int)$request->input("batch_id");
         $this->model = [];
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id')->unique();
-        $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id','!=',$batchId)
-            ->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id')->unique();
+        $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->get()->pluck('profile_id')->unique();
         $profileIds = $profileIds->toArray();
         $this->model['count'] = count($profileIds);
         $page = $request->has('page') ? $request->input('page') : 1;
