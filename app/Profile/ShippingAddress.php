@@ -4,7 +4,7 @@ namespace App\Profile;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Address extends Model
+class ShippingAddress extends Model
 {
     //
     protected $fillable = ['pincode','city','state','address1','country','label','profile_id','landmark','locality','house_no'];
