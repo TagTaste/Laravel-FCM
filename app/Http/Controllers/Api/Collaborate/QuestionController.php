@@ -39,6 +39,7 @@ class QuestionController extends Controller
         {
             return $this->sendError("No sample id found");
         }
+        $headerId = $id;
         $batchId = $request->input('batch_id');
         $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)
             ->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)->exists();
@@ -92,7 +93,9 @@ class QuestionController extends Controller
                 $data->questions->parent_question_id = $data->parent_question_id;
                 $data->questions->header_type_id = $data->header_type_id;
                 $data->questions->collaborate_id = $data->collaborate_id;
-
+                if(isset($data->questions->nested_option))
+                    $data->questions->option = \DB::table('collaborate_tasting_nested_question')->where('header_type_id',$headerId)
+                        ->where('question_id',$data->id)->whereNull('parent_id')->get();
                 $model[] = $data->questions;
             }
             else
@@ -113,13 +116,12 @@ class QuestionController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $value = $request->input('value');
-        $batchId = $request->input('batch_id');
         if(!$request->has('batch_id'))
         {
             return $this->sendError("No sample id found");
         }
         $batchId = $request->input('batch_id');
-        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)
+        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)
             ->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)->exists();
 
         if(!$checkAssign)

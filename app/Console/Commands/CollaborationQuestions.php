@@ -1898,6 +1898,21 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 $subquestions = isset($item['question']) ? $item['question'] : [];
                 $isNested = isset($item['is_nested']) && $item['is_nested'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
+                $option = isset($item['option']) ? $item['option'] : null;
+                $value = explode(',',$option);
+                $option = [];
+                $i = 1;
+                foreach($value as $v){
+                    if(is_null($v) || empty($v))
+                        continue;
+                    $option[] = [
+                        'id' => $i,
+                        'value' => $v
+                    ];
+                    $i++;
+                }
+                if(count($option))
+                    $item['option'] = $option;
                 unset($item['question']);
                 $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
@@ -1942,6 +1957,22 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     $subtitle = isset($subquestion['subtitle']) ? $subquestion['subtitle'] : null;
                     $isNested = isset($subquestion['is_nested']) && $subquestion['is_nested'] == 1 ? 1 : 0;
                     $isMandatory = isset($subquestion['is_mandatory']) && $subquestion['is_mandatory'] == 1 ? 1 : 0;
+                    // for sub questions
+                    $option = isset($subquestion['option']) ? $subquestion['option'] : null;
+                    $value = explode(',',$option);
+                    $option = [];
+                    $i = 1;
+                    foreach($value as $v){
+                        if(is_null($v) || empty($v))
+                            continue;
+                        $option[] = [
+                            'id' => $i,
+                            'value' => $v
+                        ];
+                        $i++;
+                    }
+                    if(count($option))
+                        $subquestion['option'] = $option;
                     unset($subquestion['question']);
                     $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
