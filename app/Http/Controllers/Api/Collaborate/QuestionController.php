@@ -179,7 +179,7 @@ class QuestionController extends Controller
         {
             return $this->sendError("No sample id found");
         }
-        $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
+        $this->model['options'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
             ->where('collaborate_id',$collaborateId)->where('value','like',"%$term%")->get();
         return $this->sendResponse();
     }
