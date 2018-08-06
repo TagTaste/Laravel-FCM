@@ -27,7 +27,7 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','address'
+        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddresss'
     ];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
@@ -901,7 +901,7 @@ class Profile extends Model
             ->where('begin_tasting',1)->whereNull('last_seen')->count();
     }
 
-    public function address()
+    public function shippingaddresss()
     {
         return $this->hasMany('App\Profile\Address');
     }
