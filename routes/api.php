@@ -108,6 +108,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //change password
                 Route::post("change/password","UserController@changePassword");
 
+
+
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
                 Route::post('chatShareMessage',"ChatController@chatShareMessage");
@@ -130,6 +132,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
+            //send mail to applicants of job or collaborate
+            Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
+
             //shoutouts
                 Route::resource("shoutout",'ShoutoutController');
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
@@ -141,6 +146,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //company rating
             Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
+
+            //search api without admin
+            Route::get("companies/{companyId}/getUserWithoutAdmin","CompanyController@getUserWithoutAdmin");
             
             //channel names for socket.io
                 Route::get('channels/companies/{id}/public',function($id){
@@ -179,10 +187,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("jobs/all","JobController@all");
                 Route::get("jobs/filters", "JobController@filters");
                 Route::resource("jobs","JobController");
-                //Route::post("jobs/message","ChatController@jobMessage"); 
-
-            //send mail to applicants of job or collaborate
-                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");    
+                //Route::post("jobs/message","ChatController@jobMessage");
             
             //similar
                 Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
@@ -221,6 +226,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');
+                Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
                 Route::post('removeFromBatch','BatchController@removeFromBatch');
                 Route::post('assignBatch','BatchController@assignBatch');
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
@@ -230,10 +236,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
                 Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
                 Route::post('acceptInvitation','ApplicantController@acceptInvitation');
-                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show intereted
+                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
                 Route::post("showInterest","ApplicantController@store");
                 Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
+                Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
                 Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
@@ -282,7 +289,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
-                
+
             //history
                 Route::get("history/{type}","HistoryController@history");
             //Route::post('like/{model}/{modelId}','LikeController@store');

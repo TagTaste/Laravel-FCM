@@ -346,7 +346,6 @@ class ChatController extends Controller
         }
         $inputs = $request->except(['_method','_token']);
         $profileIds = $inputs['profile_id'];
-
         if(!is_array($profileIds))
         {
             $profileIds = [$profileIds];
@@ -365,11 +364,28 @@ class ChatController extends Controller
         else if($model->profile_id != $loggedInProfileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
-
         $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
         $data['message'] = $inputs['message'];
         $data['username'] = $LoggedInUser->name;
-        $data['sender_info'] = $request->user();
+        $data['sender_info'] = $LoggedInUser;
+        $data['model_title'] = $model->title;
+        $data['model_name'] = $feature;
+        $data['model_id'] = $model->id;
+        if($request->has('batch_id'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$request->input('batch_id'))
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_shortlisted'))
+        {
+            $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$featureId)->whereNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_rejected'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$featureId)->whereNotNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
         event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
         $this->model = true;
         return $this->sendResponse();

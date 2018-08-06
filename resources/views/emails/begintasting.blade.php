@@ -14,18 +14,10 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            For
-                                            @if($model_name == 'collaborate') 
-                                            collaboration
-                                            @else
-                                            {{$model_name}}
-                                            @endif
-                                            : {{$model_title}}
-
+                                            Collaboration: Inviting {{$model['content']}} tasting
                                         </div>
                                     </td>
                                 </tr>
-
                                 <tr>
                                     <td style="background-color: #FAFAFA;height: 10px;">
                                     </td>
@@ -43,28 +35,49 @@
                                                             <td>
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        Hi <b>{{$name}}</b>
+
+                                                                        {{$notifiable->name}},
                                                                         <br>
                                                                         <br>
-                                                                        {{$message1}}
+                                                                        <b>{{$data->who['name']}}</b> has assigned a new sample <b>(</b><b>{{$batchInfo->name}}</b><b>)</b> to you for tasting. Click on the link below to begin tasting and feedback process.
                                                                         <br>
-                                                                        <br>                                                 
+                                                                        <br>
+
                                                                     </p>
                                                                 </div>
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                <td valign="top" align="center" bgcolor="#FFFFFF">
-                                                    <a href="{{$button_link}}"
-                                                       style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
-                                                       @if($model_name == 'collaborate')
-                                                   visit the collaboration
-                                                   @else
-                                                   visit the job
-                                                   @endif
-                                               </a>
-                                                </td>
-                                            </tr>
+
+                                                            <td valign="top" align="center"  bgcolor="#FFFFFF" >
+                                                                <div>
+                                                                    <br>
+
+                                                                    <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}" style="text-decoration:none;padding: 15px 36px;border-radius: 1px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 18px;border-radius: 30px; font-weight: normal">Begin Tasting</a>
+                                                                </div>
+                                                            </td>
+
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div>
+                                                                    <br>
+                                                                    <br>
+                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
+                                                                        Bests
+                                                                    </p>
+                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
+                                                                        Team TagTaste
+                                                                    </p>
+
+                                                                </div>
+
+                                                            </td>
+                                                        </tr>
+
+
+
+
                                                     </table>
                                                 </td>
                                             </tr>

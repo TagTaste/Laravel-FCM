@@ -81,18 +81,19 @@ class CollaborateController extends Controller
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         $imagesArray = [];
-
         if ($request->has("images"))
         {
-            for ($i = 0; $i <= 4; $i++) {
-                if (!$request->hasFile("images.$i.image")) {
-                    break;
-                }
-                $imageName = str_random("32") . ".jpg";
-                $relativePath = "images/p/$profileId/collaborate";
-                $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
+            $images = $request->input('images');
+            $i = 1;
+            foreach ($images as $image)
+            {
+                if(is_null($image))
+                    continue;
+                $imagesArray[]['image'.$i] = $image;
+                $i++;
             }
         }
+
         $inputs['images'] = json_encode($imagesArray,true);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
@@ -167,25 +168,17 @@ class CollaborateController extends Controller
         $imagesArray = [];
         if ($request->has("images"))
         {
-            for ($i = 0; $i <= 4; $i++) {
-                if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 0 && !empty($request->file("images.$i.image"))) {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
-                }
-                else if ($request->hasFile("images.$i.image") && $request->input("images.$i.remove") == 1 && !empty($request->file("images.$i.image")))
-                {
-                    $imageName = str_random("32") . ".jpg";
-                    $relativePath = "images/p/$profileId/collaborate";
-                    $imagesArray[]['image'.($i+1)] = \Storage::url($request->file("images.$i.image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
-                }
-            }
-            if(count($imagesArray) > 0)
+            $images = $request->input('images');
+            $i = 1;
+            foreach ($images as $image)
             {
-                $inputs['images'] = json_encode($imagesArray,true);
+                if(is_null($image))
+                    continue;
+                $imagesArray[]['image'.$i] = $image;
+                $i++;
             }
         }
-
+        $inputs['images'] = json_encode($imagesArray,true);
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
