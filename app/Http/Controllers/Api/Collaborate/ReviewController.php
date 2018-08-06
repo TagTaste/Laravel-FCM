@@ -38,15 +38,11 @@ class ReviewController extends Controller
         {
             return $this->sendError("Wrong sample assigned");
         }
-        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 1;
-        $answerExists = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-                        ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->exists();
+        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
+        \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
+        Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+            ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
-        if($answerExists)
-        {
-            Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-                ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
-        }
         foreach ($answers as $answer)
         {
             $options = isset($answer['option']) ? $answer['option'] : [];
@@ -68,7 +64,6 @@ class ReviewController extends Controller
                     'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus];
             }
         }
-
         $this->model = Review::insert($data);
         return $this->sendResponse();
     }

@@ -72,9 +72,8 @@ class BatchController extends Controller
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            $review = \DB::table('collaborate_tasting_user_review')->where('batch_id',$id)
-                ->where('profile_id',$profile['id'])->orderBy('id','desc')->first();
-            $profile['current_status'] = isset($review->current_status) ? $review->current_status : 0;
+            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['id']);
+            $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
         $this->model = [];
         $this->model['applicants'] = $profiles;
@@ -148,6 +147,8 @@ class BatchController extends Controller
         \DB::table('collaborate_batches_assign')->where('collaborate_id',$id)->where('batch_id',$batchId)->whereIn('profile_id',$applierProfileIds)->delete();
         foreach ($applierProfileIds as $applierProfileId)
         {
+            \Redis::sAdd("collaborate:$id:profile:$applierProfileId:" ,$batchId);
+            \Redis::set("current_status:batch:$batchId:profile:$applierProfileId" ,0);
             $inputs[] = ['profile_id' => $applierProfileId,'batch_id'=>$batchId,'begin_tasting'=>0,'created_at'=>$now, 'collaborate_id'=>$id];
         }
         $this->model = \DB::table('collaborate_batches_assign')->insert($inputs);
@@ -159,6 +160,10 @@ class BatchController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
+        foreach ($profileIds as $profileId)
+        {
+            \Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
+        }
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->delete();
 
         return $this->sendResponse();
@@ -167,20 +172,38 @@ class BatchController extends Controller
 
     public function beginTasting(Request $request, $collaborateId)
     {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         $batchId = $request->input('batch_id');
+        $profileIds = $request->input('profile_id');
         if($request->has("begin_all"))
         {
             if($request->input("begin_all") == 1)
             {
-                $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->update(['begin_tasting'=>1]);
-                return $this->sendResponse();
+                $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id');
             }
         }
-        $profileIds = $request->input('profile_id');
 
         $this->model = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)
             ->update(['begin_tasting'=>1]);
-
+        if($this->model)
+        {
+            $company = \Redis::get('company:small:' . $collaborate->company_id);
+            $company = json_decode($company);
+            foreach ($profileIds as $profileId)
+            {
+                $currentStatus = \Redis::get("current_status:batch:$batchId:profile:$profileId");
+                if($currentStatus ==0)
+                {
+                    \Redis::set("current_status:batch:$batchId:profile:$profileId" ,1);
+                }
+                $collaborate->profile_id = $profileId;
+                event(new \App\Events\Actions\BeginTasting($collaborate,null,null,null,null,$company,$batchId));
+            }
+        }
         return $this->sendResponse();
 
     }
@@ -225,9 +248,32 @@ class BatchController extends Controller
     public function userBatches(Request $request, $collaborateId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->get()->pluck('batch_id');
-        $this->model = Collaborate\Batches::where('collaborate_id',$collaborateId)->whereIn('id',$batchIds)->get();
+        $collaborate = \App\Recipe\Collaborate::where('id',$collaborateId)->first()->toArray();
+        $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$loggedInProfileId.":");
+        $count = count($batchIds);
+        if($count) {
+            foreach ($batchIds as &$batchId) {
+                $batchId = "batch:" . $batchId;
+            }
+            $batchInfos = \Redis::mGet($batchIds);
+            foreach ($batchInfos as &$batchInfo) {
+                $batchInfo = json_decode($batchInfo);
+                $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
+                $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+            }
+        }
+        $collaborate['batches'] = $count > 0 ? $batchInfos : null;
+        $this->model = $collaborate;
         return $this->sendResponse();
+    }
+
+    public function getCurrentStatus(Request $request, $collaborateId, $batchId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $currentStatus = \Redis::get("current_status:batch:$batchId:profile:" . $loggedInProfileId);
+        $this->model = !is_null($currentStatus) ? (int)$currentStatus : 0;
+        return $this->sendResponse();
+
     }
 
 }

@@ -153,7 +153,12 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
         FixCollaborateImage::class,
-        CollaborationQuestions::class
+        CollaborationQuestions::class,
+
+        //for product review commands
+        \App\Console\Commands\Build\ProductReview\Batches::class,
+        \App\Console\Commands\Build\ProductReview\CurrentStatusReview::class,
+        \App\Console\Commands\Build\ProductReview\UserBatches::class,
 
 
     ];
@@ -168,7 +173,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
-        $schedule->command('backup:db')->dailyAt('00:00');
+        $schedule->command('backup:db')->withoutOverlapping(10)->dailyAt('00:00');
 
         //command for redis store suggestion
         $schedule->command("build:suggestion:collaborate")->dailyAt('00:05');

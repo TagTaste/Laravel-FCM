@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\Actions;
 
+use App\Collaborate\Batches;
+use App\Events\Action;
 use App\Company;
 use App\ModelSubscriber;
 use App\Profile;
@@ -14,10 +16,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Action
+class InvitationRejectForReview extends Action
 {
+
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    
+
     public $model;
     public $who;
     public $action;
@@ -29,27 +32,22 @@ class Action
      *
      * @return void
      */
-    public function __construct(Model &$model, Profile $who = null, $content = null, $image = null, $action = null, $company = null, &$actionModel = null)
+    public function __construct(Model &$model, $who = null, $content = null, $image = null, $action = null, $company = null)
     {
+        parent::__construct($model,$who = null);
         $this->model = $model;
-        $this->who = isset($company) ? ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline]
-            : isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl,'type'=>'profile', 'tagline'=>$who->tagline] : null;
+        if(isset($company))
+        {
+            $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline];
+        }
+        else
+        {
+            $this->who = null;
+        }
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
-        $this->actionModel = $actionModel;
+        $this->actionModel = null;
     }
 
-    public function getModelName(){
-        return strtolower(class_basename($this->model));
-    }
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
 }
