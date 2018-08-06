@@ -1934,17 +1934,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             $extraQuestion[] = ["sequence_id"=>$nested['no'],'parent_id'=>$parentId,'value'=>$nested['categories'],'question_id'=>$x->id,'is_active'=>1,
                                 'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
                         }
-                        $this->model = \DB::table('collaborate_tasting_nested_question')->insert($extraQuestion);
+                        $this->model = \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
-                        $questions = \DB::table('collaborate_tasting_nested_question')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->get();
+                        $questions = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->get();
 
                         foreach ($questions as $question)
                         {
-                            $checknested = \DB::table('collaborate_tasting_nested_question')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                            $checknested = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->where('parent_id',$question->sequence_id)->exists();
                             if($checknested)
                             {
-                                \DB::table('collaborate_tasting_nested_question')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                     ->where('id',$question->id)->update(['nested_option'=>1]);
                             }
 

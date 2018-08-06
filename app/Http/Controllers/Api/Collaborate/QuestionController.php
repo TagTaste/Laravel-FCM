@@ -94,7 +94,7 @@ class QuestionController extends Controller
                 $data->questions->header_type_id = $data->header_type_id;
                 $data->questions->collaborate_id = $data->collaborate_id;
                 if(isset($data->questions->nested_option))
-                    $data->questions->option = \DB::table('collaborate_tasting_nested_question')->where('header_type_id',$headerId)
+                    $data->questions->option = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                         ->where('question_id',$data->id)->whereNull('parent_id')->get();
                 $model[] = $data->questions;
             }
@@ -133,16 +133,16 @@ class QuestionController extends Controller
         $answers = [];
         if(is_null($id))
         {
-            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_nested_question as A , 
-                                      collaborate_tasting_nested_question as B where A.sequence_id = B.parent_id AND A.value LIKE '$value' 
+            $this->model['question'] = \DB::select("SELECT B.* FROM collaborate_tasting_nested_options as A , 
+                                      collaborate_tasting_nested_options as B where A.sequence_id = B.parent_id AND A.value LIKE '$value' 
                                       AND A.parent_id IS NULL AND A.collaborate_id = $collaborateId AND B.question_id = $questionId");
 
         }
         else
         {
-            $squence = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
+            $squence = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('id',$id)->first();
-            $this->model['question'] = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)
+            $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
                 ->where('collaborate_id',$collaborateId)->where('parent_id',$squence->sequence_id)->get();
             $leafIds = $this->model['question']->pluck('id');
             $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
@@ -249,17 +249,17 @@ class QuestionController extends Controller
                     'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
             }
         }
-        $this->model = \DB::table('collaborate_tasting_nested_question')->insert($questions);
+        $this->model = \DB::table('collaborate_tasting_nested_options')->insert($questions);
 
-        $questions = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
+        $questions = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)->get();
 
         foreach ($questions as $question)
         {
-            $checknested = \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+            $checknested = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
                 ->where('parent_id',$question->sequence_id)->exists();
             if($checknested)
             {
-                \DB::table('collaborate_tasting_nested_question')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
+                \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
                     ->where('id',$question->id)->update(['nested_option'=>1]);
             }
 
