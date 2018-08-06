@@ -19,11 +19,6 @@ class AddressController extends Controller
     {
     	$inputs = $request->except(['_method','_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
-        $checkExisting = Address::where('label',$inputs['label'])->where('profile_id',$inputs['profile_id'])->exists();
-        if($checkExisting)
-        {
-        	return $this->sendError("Same label already exists for this user");
-        }
         $this->model = Address::create($inputs);
         return $this->sendResponse();
     }
@@ -37,11 +32,16 @@ class AddressController extends Controller
     public function update(Request $request, $profileId, $id)
 	{
         $input = $request->except(['_method','_token']);
-        $checkExisting = Address::where('label',$input['label'])->where('profile_id',$request->user()->profile->id)->where('id','!=',$id)->exists();
-    	if($checkExisting)
-    	{
-    		return $this->sendError("Same label already exists");
-    	}
+        $address = Address::where('id',$id)->exists();
+        if(!$address)
+        {
+            return $this->sendError("Id doesnt exist");
+        }
+        $checkExisting = Address::where('id',$id)->where('profile_id',$request->user()->profile->id)->exists();
+        if(!$checkExisting)
+        {
+            return $this->sendError("This address doesnt bleong to this user");
+        }
         $this->model = Address::where('id',$id)->where("profile_id",$request->user()->profile->id)->update($input);
         return $this->sendResponse();
 	}

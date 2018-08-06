@@ -906,5 +906,10 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Address');
     }
 
+    public function address()
+    {
+        return $this->hasMany('App\Profile\Address');
+    }
+
 }
 
