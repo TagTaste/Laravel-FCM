@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\Request;
-use App\Profile\Address;
+use App\Profile\ShippingAddress as Address;
 
-class AddressController extends Controller
+class ShippingAddressController extends Controller
 {
     //
     public function index($profileId)

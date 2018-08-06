@@ -903,7 +903,7 @@ class Profile extends Model
 
     public function shippingaddress()
     {
-        return $this->hasMany('App\Profile\Address');
+        return $this->hasMany('App\Profile\ShippingAddress');
     }
 
 }
