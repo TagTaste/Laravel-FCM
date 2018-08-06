@@ -15,6 +15,7 @@ class AlterCollaborateApplicantsApplierAddressChange extends Migration
     {
         //
         Schema::table('collaborate_applicants',function(Blueprint $table){
+            $table->boolean("hut")->default(0);
             $table->json("applier_address")->nullable()->change();
         });
     }
@@ -28,6 +29,7 @@ class AlterCollaborateApplicantsApplierAddressChange extends Migration
     {
         Schema::table('collaborate_applicants',function(Blueprint $table){
             $table->string("applier_address")->nullable()->change();
+            $table->dropColumn("hut");
         });
     }
 }
