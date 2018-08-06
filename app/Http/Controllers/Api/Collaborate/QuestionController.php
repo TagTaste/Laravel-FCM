@@ -179,33 +179,8 @@ class QuestionController extends Controller
         {
             return $this->sendError("No sample id found");
         }
-        $batchId = $request->input('batch_id');
-        $loggedInProfileId = $request->user()->profile->id;
         $this->model['question'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
             ->where('collaborate_id',$collaborateId)->where('value','like',"%$term%")->get();
-        $leafIds = $this->model['question']->pluck('id');
-        $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-            ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->whereIn('leaf_id',$leafIds)
-            ->where('question_id',$questionId)->get()->groupBy('question_id');
-        $answers = [];
-        foreach ($answerModels as $answerModel)
-        {
-            $data = [];
-            $comment = null;
-            foreach ($answerModel as $item)
-            {
-                if($item->key == 'comment')
-                {
-                    $comment = $item->value;
-                    continue;
-                }
-                $questionId = $item->question_id;
-                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
-            }
-            $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
-        }
-
-        $this->model['answer'] = $answers;
         return $this->sendResponse();
     }
 
