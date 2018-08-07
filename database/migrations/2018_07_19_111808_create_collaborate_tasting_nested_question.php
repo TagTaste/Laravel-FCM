@@ -21,6 +21,7 @@ class CreateCollaborateTastingNestedQuestion extends Migration
             $table->unsignedInteger("question_id");
             $table->boolean("is_active")->default(1);
             $table->boolean("nested_option")->default(0);
+            $table->string("path")->nullable();
             $table->unsignedInteger('header_type_id');
             $table->foreign("header_type_id")->references("id")->on("collaborate_tasting_header");
             $table->unsignedInteger('collaborate_id');
