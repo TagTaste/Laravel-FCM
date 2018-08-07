@@ -1960,6 +1960,13 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->whereIn('id',$getPath)->update(['path'=>$pathname->path]);
                         }
+                        $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
+
+                        foreach ($paths as $path)
+                        {
+                            \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                ->where('id',$path->id)->update(['path'=>null]);
+                        }
                     }
                 }
 
