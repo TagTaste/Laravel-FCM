@@ -23,7 +23,6 @@ class CreateCollaborateBatchesAssign extends Migration
             $table->unsignedInteger('collaborate_id')->nullable();
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->timestamps();
-            $table->timestamp('deleted_at');
         });
     }
 
