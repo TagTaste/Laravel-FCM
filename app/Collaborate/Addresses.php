@@ -9,9 +9,9 @@ class Addresses extends Model {
 
     protected $table = 'collaborate_addresses';
 
-    protected $fillable = ['city','location','collaborate_id','created_at','updated_at','deleted_at'];
+    protected $fillable = ['city','location','collaborate_id','created_at','updated_at'];
 
-    protected $visible = ['city','collaborate_id','locationJson','created_at','updated_at','deleted_at'];
+    protected $visible = ['city','collaborate_id','locationJson','created_at','updated_at'];
 
     protected $appends = ['locationJson'];
 
