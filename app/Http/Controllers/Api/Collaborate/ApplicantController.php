@@ -110,7 +110,7 @@ class ApplicantController extends Controller
                 return $this->sendError("Already Applied");
             }
             $hut = $request->has('hut') ? $request->input('hut') : 0 ;
-            $applierAddress = json_encode($request->input('applier_address'),true);
+            $applierAddress = $request->input('applier_address');
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut];
 
@@ -364,7 +364,7 @@ class ApplicantController extends Controller
             return $this->sendError("Please select address.");
         }
         $hut = $request->has('hut') ? $request->input('hut') : 0 ;
-        $applierAddress = json_encode($request->input('applier_address'),true);
+        $applierAddress = $request->input('applier_address');
         $loggedInProfileId = $request->user()->profile->id;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
