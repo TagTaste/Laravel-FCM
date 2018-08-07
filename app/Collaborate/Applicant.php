@@ -11,9 +11,9 @@ class Applicant extends Model {
 
     protected $fillable = ['profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','applier_address','message','hut','created_at','updated_at'];
 
-    protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','ApplierAddress','message','hut','created_at','updated_at'];
+    protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address','message','hut','created_at','updated_at'];
 
-    protected $appends = ['ApplierAddress'];
+    protected $appends = ['applier_address'];
 
     protected $with = ['profile'];
 
@@ -30,7 +30,7 @@ class Applicant extends Model {
 
     public function getApplierAddressAttribute($value)
     {
-        return json_decode($value,true);
+        return $value;
     }
 
 }
