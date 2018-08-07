@@ -1940,6 +1940,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         {
                             $checknested = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->where('parent_id',$question->sequence_id)->exists();
+
                             if($checknested)
                             {
                                 \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
