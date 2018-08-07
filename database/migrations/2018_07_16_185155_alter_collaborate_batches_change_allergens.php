@@ -13,9 +13,9 @@ class AlterCollaborateBatchesChangeAllergens extends Migration
      */
     public function up()
     {
-//        Schema::table('collaborate_batches',function(Blueprint $table){
-//            $table->text("allergens")->nullable()->change();
-//        });
+        Schema::table('collaborate_batches',function(Blueprint $table){
+            $table->text("allergens")->nullable()->change();
+        });
     }
 
     /**
@@ -25,8 +25,8 @@ class AlterCollaborateBatchesChangeAllergens extends Migration
      */
     public function down()
     {
-//        Schema::table('collaborate_batches',function(Blueprint $table){
-//            $table->json('allergens')->nullable()->change();
-//        });
+        Schema::table('collaborate_batches',function(Blueprint $table){
+            $table->json('allergens')->nullable()->change();
+        });
     }
 }
