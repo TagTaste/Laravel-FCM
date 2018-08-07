@@ -10,10 +10,10 @@ class Batches extends Model {
 
     protected $table = 'collaborate_batches';
 
-    protected $fillable = ['name','notes','allergens','instruction','color_id','collaborate_id','created_at','updated_at'];
+    protected $fillable = ['name','notes','allergens','instruction','color_id','collaborate_id','created_at','updated_at','deleted_at'];
 
     protected $visible = ['id','name','notes','allergens','instruction','color_id','collaborate_id',
-        'color','created_at','updated_at','current_status'];
+        'color','created_at','updated_at','current_status','deleted_at'];
 
     protected $appends = ['color'];
 

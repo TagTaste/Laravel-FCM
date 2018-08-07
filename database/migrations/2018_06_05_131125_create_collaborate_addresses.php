@@ -19,6 +19,8 @@ class CreateCollaborateAddresses extends Migration
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->string('city');
             $table->json('location')->nullable();
+            $table->timestamp('deleted_at');
+            $table->timestamps();
         });
     }
 

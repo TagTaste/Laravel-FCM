@@ -28,7 +28,7 @@ class CreateCollaborateApplicants extends Migration
             $table->boolean("hut")->default(0);
             $table->text("message")->nullable();
             $table->timestamps();
-
+            $table->timestamp('deleted_at');
 
         });
     }

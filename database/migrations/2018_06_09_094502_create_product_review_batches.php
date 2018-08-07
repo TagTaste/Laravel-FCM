@@ -31,7 +31,7 @@ class CreateProductReviewBatches extends Migration
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
             $table->unique(['name', 'collaborate_id']);
             $table->timestamps();
-
+            $table->timestamp('deleted_at');
 
         });
     }
