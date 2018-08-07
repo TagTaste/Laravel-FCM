@@ -33,6 +33,6 @@ class AlterAddressesAddColumn extends Migration
             $table->dropColumn('house_no');
             $table->dropColumn('landmark');
             $table->dropColumn('locality');    
-        })
+        });
     }
 }
