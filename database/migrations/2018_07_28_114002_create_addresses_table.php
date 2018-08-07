@@ -24,7 +24,7 @@ class CreateAddressesTable extends Migration
             $table->text('city')->nullable();
             $table->text('state')->nullable();
             $table->text('country')->nullable();
-            $table->integer('pincode')->nullable();
+            $table->string('pincode')->nullable();
             $table->unsignedInteger('profile_id');
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->timestamps();

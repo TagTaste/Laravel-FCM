@@ -30,10 +30,7 @@ class Applicant extends Model {
 
     public function getApplierAddressAttribute($value)
     {
-        if(isset($value))
-            return json_decode($value,true);
-
-        return null;
+        return json_decode($value,true);
     }
 
 }
