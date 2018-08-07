@@ -13,7 +13,7 @@ class CreateCollaborateTastingNestedQuestion extends Migration
      */
     public function up()
     {
-        Schema::create('collaborate_tasting_nested_question',function(Blueprint $table){
+        Schema::create('collaborate_tasting_nested_options',function(Blueprint $table){
             $table->increments('id');
             $table->integer("sequence_id");
             $table->integer("parent_id")->nullable();
@@ -36,6 +36,6 @@ class CreateCollaborateTastingNestedQuestion extends Migration
      */
     public function down()
     {
-        Schema::drop('collaborate_tasting_nested_question');
+        Schema::drop('collaborate_tasting_nested_options');
     }
 }

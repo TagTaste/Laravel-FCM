@@ -24,7 +24,9 @@ class CreateCollaborateApplicants extends Migration
             $table->boolean('is_invited')->default(0);
             $table->dateTime('shortlisted_at')->nullable();
             $table->dateTime('rejected_at')->nullable();
-            $table->string('applier_address')->nullable();
+            $table->json('applier_address')->nullable();
+            $table->boolean("hut")->default(0);
+            $table->text("message")->nullable();
             $table->timestamps();
 
 

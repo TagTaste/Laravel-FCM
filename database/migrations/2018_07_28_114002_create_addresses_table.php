@@ -14,17 +14,19 @@ class CreateAddressesTable extends Migration
     public function up()
     {
         //
-        Schema::create('addresses',function(Blueprint $table){
+        Schema::create('profile_addresses',function(Blueprint $table){
             $table->increments('id');
-            $table->unsignedInteger('profile_id');
-            $table->foreign('profile_id')->references('id')->on('profiles');
-            $table->integer('pincode')->nullable();
+            $table->text('label')->nullable();
+            $table->text('house_no')->nullable();
+            $table->text('landmark')->nullable();
+            $table->longtext('locality')->nullable();
             $table->longtext('address1')->nullable();
-            $table->longtext('address2')->nullable();
             $table->text('city')->nullable();
             $table->text('state')->nullable();
             $table->text('country')->nullable();
-            $table->text('label')->nullable();
+            $table->integer('pincode')->nullable();
+            $table->unsignedInteger('profile_id');
+            $table->foreign('profile_id')->references('id')->on('profiles');
             $table->timestamps();
         });
     }

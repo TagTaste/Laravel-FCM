@@ -16,6 +16,7 @@ class CreateCollaborateType extends Migration
         Schema::create('collaborate_types',function(Blueprint $table){
             $table->increments('id');
             $table->string('name');
+            $table->string("type_image")->nullable();
         });
     }
 

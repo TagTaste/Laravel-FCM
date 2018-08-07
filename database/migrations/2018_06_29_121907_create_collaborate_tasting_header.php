@@ -19,6 +19,7 @@ class CreateCollaborateTastingHeader extends Migration
             $table->boolean("is_active")->default(1);
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
+            $table->text('header_info')->nullable();
             $table->timestamps();
         });
     }

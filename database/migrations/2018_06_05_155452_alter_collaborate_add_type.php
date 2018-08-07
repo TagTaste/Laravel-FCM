@@ -18,6 +18,7 @@ class AlterCollaborateAddType extends Migration
             $table->foreign('type_id')->references('id')->on('collaborate_types');
             $table->boolean('is_taster_residence')->default(0);
             $table->string('collaborate_type')->default('collaborate')->nullable();
+            $table->text('allergens')->nullable();
         });
     }
 
@@ -30,7 +31,7 @@ class AlterCollaborateAddType extends Migration
     {
         Schema::table('collaborates',function(Blueprint $table){
             $table->dropForeign(['type_id']);
-            $table->dropColumn(['type_id','is_taster_residence','collaborate_type']);
+            $table->dropColumn(['type_id','is_taster_residence','collaborate_type','allergens']);
         });
     }
 }

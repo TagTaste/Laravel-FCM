@@ -18,6 +18,11 @@ class CreateCollaborateBatchesAssign extends Migration
             $table->foreign("batch_id")->references("id")->on("collaborate_batches");
             $table->unsignedInteger('profile_id');
             $table->foreign("profile_id")->references("id")->on("profiles");
+            $table->boolean("begin_tasting")->defaul(0);
+            $table->timestamp('last_seen')->nullable();
+            $table->unsignedInteger('collaborate_id')->nullable();
+            $table->foreign("collaborate_id")->references("id")->on("collaborates");
+            $table->timestamps();
         });
     }
 

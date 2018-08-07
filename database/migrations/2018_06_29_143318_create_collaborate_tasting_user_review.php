@@ -15,16 +15,22 @@ class CreateCollaborateTastingUserReview extends Migration
     {
         Schema::create('collaborate_tasting_user_review',function(Blueprint $table){
             $table->increments('id');
-            $table->string("key");
+            $table->string("key")->nullable();
             $table->text("value");
-            $table->unsignedInteger("aroma_id")->nullable();
-            $table->unsignedInteger("aromatic_id")->nullable();
+            $table->unsignedInteger('value_id')->nullable();
+            $table->unsignedInteger("leaf_id")->nullable();
+            $table->string("intensity")->nullable();
+            $table->integer("current_status")->default(0);
             $table->unsignedInteger('question_id');
             $table->foreign("question_id")->references("id")->on("collaborate_tasting_questions");
             $table->unsignedInteger('tasting_header_id');
             $table->foreign("tasting_header_id")->references("id")->on("collaborate_tasting_header");
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
+            $table->unsignedInteger('batch_id');
+            $table->foreign("batch_id")->references("id")->on("collaborate_batches");
+            $table->unsignedInteger('profile_id');
+            $table->foreign("profile_id")->references("id")->on("profiles");
             $table->timestamps();
         });
     }
