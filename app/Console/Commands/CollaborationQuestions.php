@@ -1918,8 +1918,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
 
                 $x = Collaborate\Questions::create($data);
-                \Log::info("here x");
-                \Log::info($x);
+
                 $nestedOption = json_decode($x->questions);
                 $extraQuestion = [];
                 if(isset($nestedOption->nested_option))
@@ -1934,6 +1933,14 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         }
                         $this->model = \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
+
+                        $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
+
+                        foreach ($paths as $path)
+                        {
+                            \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                ->where('id',$path->id)->update(['path'=>$path->value]);
+                        }
                         $questions = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->get();
 
                         foreach ($questions as $question)
@@ -1946,7 +1953,12 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                     ->where('id',$question->id)->update(['nested_option'=>1]);
                             }
-
+                            $getPath = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                ->where('parent_id',$question->sequence_id)->get()->pluck('id');
+                            $pathname =  \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                ->where('sequence_id',$question->sequence_id)->first();
+                            \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                ->whereIn('id',$getPath)->update(['path'=>$pathname->path]);
                         }
                     }
                 }
