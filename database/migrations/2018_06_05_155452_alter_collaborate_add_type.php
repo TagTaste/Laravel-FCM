@@ -33,7 +33,5 @@ class AlterCollaborateAddType extends Migration
             $table->dropForeign(['type_id']);
             $table->dropColumn(['type_id','is_taster_residence','collaborate_type','allergens']);
         });
-        Schema::drop('collaborate_batches_color');
-
     }
 }
