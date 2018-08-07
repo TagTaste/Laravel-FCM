@@ -97,6 +97,10 @@ class ApplicantController extends Controller
         }
         $isInvited = $request->input(['is_invited']);
         $now = Carbon::now()->toDateTimeString();
+        if(!$request->has('applier_address'))
+        {
+            return $this->sendError("Please select address.");
+        }
         if($isInvited == 0)
         {
             $loggedInprofileId = $request->user()->profile->id;
@@ -105,7 +109,10 @@ class ApplicantController extends Controller
             {
                 return $this->sendError("Already Applied");
             }
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,'message'=>$request->input('message')];
+            $hut = $request->has('hut') ? $request->input('hut') : 0 ;
+            $applierAddress = json_encode($request->input('applier_address'),true);
+            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
+                'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut];
 
         }
         else
@@ -352,11 +359,17 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-
+        if(!$request->has('applier_address'))
+        {
+            return $this->sendError("Please select address.");
+        }
+        $hut = $request->has('hut') ? $request->input('hut') : 0 ;
+        $applierAddress = json_encode($request->input('applier_address'),true);
         $loggedInProfileId = $request->user()->profile->id;
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
-            ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+            ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
+                'applier_address'=>$applierAddress,'hut'=>$hut]);
 
 //        if($this->model)
 //        {

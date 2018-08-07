@@ -13,6 +13,8 @@ class Applicant extends Model {
 
     protected $visible = ['id','profile_id','collaborate_id','is_invited','shortlisted_at','rejected_at','profile','applier_address','message','hut','created_at','updated_at'];
 
+    protected $appends = ['applier_address'];
+
     protected $with = ['profile'];
 
     protected $casts = [
@@ -24,6 +26,14 @@ class Applicant extends Model {
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
+    }
+
+    public function getApplierAddressAttribute($value)
+    {
+        if(isset($value))
+            return json_decode($value,true);
+
+        return null;
     }
 
 }
