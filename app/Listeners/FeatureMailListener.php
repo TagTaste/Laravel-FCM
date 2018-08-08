@@ -3,12 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\FeatureMailEvent;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use App\Jobs\SendFeatureMessage as SendMessage;
 
-class FeatureMailListener implements ShouldQueue
+class FeatureMailListener
 {
     /**
      * Create the event listener.
