@@ -345,6 +345,7 @@ class ChatController extends Controller
             return $this->sendError("Invalid model name or Id");
         }
         $inputs = $request->except(['_method','_token']);
+        $inputs['is_mailable'] = $request->has('is_mailable') ? $request->input('is_mailable') : 0;
         $profileIds = isset($inputs['profile_id']) ? $inputs['profile_id'] : [];
         if(!is_array($profileIds))
         {
