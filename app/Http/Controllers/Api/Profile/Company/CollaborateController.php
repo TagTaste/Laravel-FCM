@@ -165,12 +165,15 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
-            foreach ($images as $image)
+            if(count($images))
             {
-                if(is_null($image))
-                    continue;
-                $imagesArray[]['image'.$i] = $image;
-                $i++;
+                foreach ($images as $image)
+                {
+                    if(is_null($image))
+                        continue;
+                    $imagesArray[]['image'.$i] = $image;
+                    $i++;
+                }
             }
             $inputs['images'] = json_encode($imagesArray,true);
         }
