@@ -19,7 +19,7 @@ class InvitationAcceptForReview extends Action
     public function __construct($event)
     {
         parent::__construct($event);
-        $this->view = 'emails.invite-product-review';
+        $this->view = 'emails.product-review-invitation-accept';
 
         $this->sub = $this->data->who['name'] ." has accepted your invitation for product tasting.";
         if(!is_null($this->data->content)) {

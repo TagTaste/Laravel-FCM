@@ -19,7 +19,7 @@ class InvitationRejectForReview extends Action
     public function __construct($event)
     {
         parent::__construct($event);
-        $this->view = 'emails.invite-product-review';
+        $this->view = 'emails.product-review-invitation-reject';
 
         $this->sub = $this->data->who['name'] ." has rejected your invitation for product tasting.";
         if(!is_null($this->data->content)) {
