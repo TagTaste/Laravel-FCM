@@ -45,8 +45,6 @@ class FeatureMessage extends Notification
     public function toMail($notifiable)
     {
         $button_link = env('APP_URL').'/'.$this->info['model_name'].'/'.$this->info['model_id'];
-        \Log::info($button_link);
-        \Log::info("button link ");
         return (new MailMessage())
                     ->subject($this->info['sender_info']->name." sent you a new message on TagTaste!")
                     ->view('emails.collab-message', ["name"=>$this->profiles->name,"username"=>$this->info['username'],"message1"=>$this->info['message'],

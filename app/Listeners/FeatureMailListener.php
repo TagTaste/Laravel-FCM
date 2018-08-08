@@ -35,9 +35,7 @@ class FeatureMailListener
         {
             foreach ($event->profileIds as $profileId)
             {
-                \Log::info("profile id ".$profileId);
                 $profiles = Profile::where('id',$profileId)->first();
-                \Log::info("profile id ".$profileId);
                 Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
             }
 
