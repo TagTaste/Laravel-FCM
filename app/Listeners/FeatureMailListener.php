@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Collaborate\Profile;
 use App\Events\FeatureMailEvent;
 use Illuminate\Support\Facades\Notification;
 use App\Jobs\SendFeatureMessage as SendMessage;
@@ -32,7 +33,7 @@ class FeatureMailListener
         }
         if(isset($event->inputs['is_mailable']) && $event->inputs['is_mailable'])
         {
-            $profiles = \DB::table('profiles')->whereIn('id',$event->profileIds)->get();
+            $profiles = Profile::whereIn('id',$event->profileIds)->get();
             Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
 
         }
