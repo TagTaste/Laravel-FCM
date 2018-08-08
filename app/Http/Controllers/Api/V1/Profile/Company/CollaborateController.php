@@ -89,7 +89,7 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
-            if(count($images))
+            if(count($images) && is_array($images))
             {
                 foreach ($images as $image)
                 {
