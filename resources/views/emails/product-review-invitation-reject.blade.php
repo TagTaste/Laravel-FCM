@@ -16,7 +16,7 @@
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
                                             For
                                             collaboration
-                                            : {{$model_title}}
+                                            : {{$model['content']}}
                                         </div>
                                     </td>
                                 </tr>
@@ -37,10 +37,10 @@
                                                             <td>
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        <b>{{$name}}</b>
+                                                                        <b>{{$notifiable->name}},</b>
                                                                         <br>
                                                                         <br>
-                                                                        Unfortunately, {{$model_owner}} has rejected your invitation to review your products on TagTaste.
+                                                                        Unfortunately, {{$data->who['name']}} has rejected your invitation to review your products on TagTaste.
                                                                         <br>
                                                                         <br>
                                                                     </p>
@@ -49,7 +49,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td valign="top" align="center" bgcolor="#FFFFFF">
-                                                                <a href="{{$button_link}}"
+                                                                <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}"
                                                                    style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
                                                                     visit the collaboration
                                                                 </a>
