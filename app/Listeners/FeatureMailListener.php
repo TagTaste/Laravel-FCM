@@ -32,11 +32,8 @@ class FeatureMailListener
         }
         if(isset($event->inputs['is_mailable']) && $event->inputs['is_mailable'])
         {
-            foreach ($event->profileIds as $profileId)
-            {
-                $profiles = \App\Profile::whereIn('id',[$profileId])->get();
-                Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
-            }
+            $profiles = \DB::table('profiles')->whereIn('id',$event->profileIds)->get();
+            Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
 
         }
 
