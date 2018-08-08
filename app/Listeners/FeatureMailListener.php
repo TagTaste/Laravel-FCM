@@ -36,7 +36,7 @@ class FeatureMailListener implements ShouldQueue
         {
             foreach ($event->profileIds as $profileId)
             {
-                $profiles = \App\Profile::where('id',$profileId)->get();
+                $profiles = \App\Profile::whereIn('id',[$profileId])->get();
                 Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
             }
 
