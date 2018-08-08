@@ -31,7 +31,7 @@ class FeatureMailListener
         foreach ($event->profileIds as $id) {
             dispatch(new SendMessage($event->inputs,$id,$event->data['sender_info']->profile));
         }
-        if(isset($event->inputs['is_mailable']) && $event->inputs['is_mailable'])
+        if($event->inputs['is_mailable'])
         {
             foreach ($event->profileIds as $profileId)
             {
