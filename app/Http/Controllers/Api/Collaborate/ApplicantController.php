@@ -371,13 +371,17 @@ class ApplicantController extends Controller
             ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
                 'applier_address'=>$applierAddress,'hut'=>$hut]);
 
-//        if($this->model)
-//        {
-//            $company = \Redis::get('company:small:' . $collaborate->company_id);
-//            $company = json_decode($company);
-//            $collaborate->profile_id = $loggedInProfileId;
-//            event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,null,null,null,null,$company));
-//        }
+        if($this->model)
+        {
+            $company = \Redis::get('company:small:' . $collaborate->company_id);
+            $company = json_decode($company);
+            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+            foreach ($profileIds as $profileId)
+            {
+                $collaborate->profile_id = $profileId;
+                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,$request->user()->profile,$request->input("message",""),null,null,$company));
+            }
+        }
 
         return $this->sendResponse();
     }
@@ -393,13 +397,17 @@ class ApplicantController extends Controller
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$request->user()->profile->id)->delete();
 
-//        if($this->model)
-//        {
-//            $company = \Redis::get('company:small:' . $collaborate->company_id);
-//            $company = json_decode($company);
-//            $collaborate->profile_id = $loggedInProfileId;
-//            event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,null,null,null,null,$company));
-//        }
+        if($this->model)
+        {
+            $company = \Redis::get('company:small:' . $collaborate->company_id);
+            $company = json_decode($company);
+            $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
+            foreach ($profileIds as $profileId)
+            {
+                $collaborate->profile_id = $profileId;
+                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,$request->user()->profile,null,null,null,$company));
+            }
+        }
 
         return $this->sendResponse();
     }

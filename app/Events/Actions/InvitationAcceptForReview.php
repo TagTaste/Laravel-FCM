@@ -36,14 +36,8 @@ class InvitationAcceptForReview extends Action
     {
         parent::__construct($model,$who = null);
         $this->model = $model;
-        if(isset($company))
-        {
-            $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline];
-        }
-        else
-        {
-            $this->who = null;
-        }
+        $this->who = isset($company) ? ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline]
+            : isset($who) ? ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl,'type'=>'profile', 'tagline'=>$who->tagline] : null;
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
