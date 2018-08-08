@@ -27,23 +27,24 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training'
+        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress'
     ];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
         'pinterest_url', 'other_links', 'twitter_url', 'ingredients', 'favourite_moments', 'verified', 'youtube_channel',
         'interested_in_opportunities', 'followers', 'following', 'experience', 'awards', 'certifications', 'tvshows', 'books',
-        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education', 'projects', 'professional',
+        'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education','address', 'projects', 'professional',
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
-        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','gender','user_id'
+        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress'
+
     ];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion'];
+        'resumeUrl','experience','education','address','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
@@ -887,6 +888,22 @@ class Profile extends Model
 
             return $profileCompletion;
         }
+    }
+
+    public function getBatchesCountAttribute()
+    {
+        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)->count();
+    }
+
+    public function getNewBatchesCountAttribute()
+    {
+        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)
+            ->where('begin_tasting',1)->whereNull('last_seen')->count();
+    }
+
+    public function shippingaddress()
+    {
+        return $this->hasMany('App\Profile\ShippingAddress');
     }
 
 }

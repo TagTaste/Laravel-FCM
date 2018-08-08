@@ -41,7 +41,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->whereNull('deleted_at')->orderBy("created_at","desc");
+		$collaborations = $this->model->where('state',1)->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
@@ -366,7 +366,14 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
-    
+
+    public function types()
+    {
+        $this->model = \DB::table('collaborate_types')->get();
+
+        return $this->sendResponse();
+    }
+
     public function uploadImageCollaborate(Request $request)
     {
         $profileId = $request->user()->profile->id;
@@ -384,4 +391,51 @@ class CollaborateController extends Controller
 
     }
 
+    public function batchesColor()
+    {
+        $this->model = \DB::table('collaborate_batches_color')->get();
+        return $this->sendResponse();
+    }
+
+    public function userBatches(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)
+            ->get()->pluck('collaborate_id');
+        $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
+        foreach ($collaborates as &$collaborate)
+        {
+            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
+            $count = count($batchIds);
+            if($count)
+            {
+                foreach ($batchIds as &$batchId)
+                {
+                    $batchId = "batch:".$batchId;
+                }
+                $batchInfos = \Redis::mGet($batchIds);
+                foreach ($batchInfos as &$batchInfo)
+                {
+                    $batchInfo = json_decode($batchInfo);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
+                    $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                }
+            }
+            $collaborate['batches'] = $count > 0 ? $batchInfos : null;
+        }
+        $this->model = $collaborates;
+
+        return $this->sendResponse();
+    }
+
+
+
+    public function seenBatchesList(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->update(['last_seen'=>$now]);
+        return $this->sendResponse();
+
+    }
 }

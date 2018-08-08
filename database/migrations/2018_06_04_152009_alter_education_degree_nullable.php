@@ -25,7 +25,7 @@ class AlterEducationDegreeNullable extends Migration
      */
     public function down()
     {
-        Schema::table("photos",function(Blueprint $table){
+        Schema::table("education",function(Blueprint $table){
             $table->string('degree')->change();
         });
     }

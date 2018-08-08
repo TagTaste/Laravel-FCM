@@ -345,7 +345,7 @@ class ChatController extends Controller
             return $this->sendError("Invalid model name or Id");
         }
         $inputs = $request->except(['_method','_token']);
-        $profileIds = $inputs['profile_id'];
+        $profileIds = isset($inputs['profile_id']) ? $inputs['profile_id'] : [];
         if(!is_array($profileIds))
         {
             $profileIds = [$profileIds];
@@ -363,6 +363,21 @@ class ChatController extends Controller
         }
         else if($model->profile_id != $loggedInProfileId){
             return $this->sendError("Invalid Collaboration Project.");
+        }
+        if($request->has('batch_id'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$request->input('batch_id'))
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_shortlisted'))
+        {
+            $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$featureId)->whereNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_rejected'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$featureId)->whereNotNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
         }
         $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
         $data['message'] = $inputs['message'];

@@ -14,17 +14,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Collaborate extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
-    
+
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
-        'created_at','updated_at','images'];
+        'created_at','updated_at','category_id','step','financial_min','financial_max',
+        'type_id','images','collaborate_type','is_taster_residence','allergens','product_review_meta'];
 
-    protected $with = ['profile','company','fields','categories'];
+    protected $with = ['profile','company','fields','categories','addresses'];
 
-    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+    static public $state = [1,2,3,4]; //active =1 , delete =2 expired =3 draft as saved=4
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -32,15 +33,21 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at','images'];
+        'applicationCount','file1','deliverables','start_in','state','updated_at','images',
+        'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
+        'is_taster_residence','allergens','product_review_meta'];
 
-    protected $appends = ['applicationCount'];
+    protected $appends = ['applicationCount','type','product_review_meta'];
 
     protected $casts = [
         'privacy_id' => 'integer',
         'profile_id' => 'integer',
-        'company_id' => 'integer'
+        'company_id' => 'integer',
+        'financial_min' => 'integer',
+        'financial_max' => 'integer'
     ];
+
+    private $interestedCount = 0;
     
     public static function boot()
     {
@@ -60,7 +67,7 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount'])->toJson());
+        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
     
     }
     
@@ -274,14 +281,33 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
 
+        if($this->collaborate_type == 'product-review')
+        {
+            $key = "meta:collaborate:likes:" . $this->id;
+            $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+            $meta['likeCount'] = \Redis::sCard($key);
+
+            $meta['commentCount'] = $this->comments()->count();
+            $peopleLike = new PeopleLike();
+            $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
+            $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+            $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+
+            $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct('profile_id')->count();
+            $meta['interestedCount'] = $this->interestedCount;
+            $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            return $meta;
+        }
+
         $this->setInterestedAsProfiles($meta,$profileId);
-        
+
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
-    
+
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
@@ -323,7 +349,7 @@ class Collaborate extends Model implements Feedable
 
     public function categories()
     {
-        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
+        return $this->belongsTo(CollaborateCategory::class,'category_id');
     }
     
     public function getNotificationContent()
@@ -332,7 +358,8 @@ class Collaborate extends Model implements Feedable
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,
-            'image' => null
+            'image' => null,
+            'collaborate_type' => $this->collaborate_type
         ];
     }
     
@@ -367,7 +394,11 @@ class Collaborate extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        return (int)\Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+        if($this->collaborate_type != 'product-review')
+        {
+            $this->interestedCount = (int)\Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+        }
+        return $this->interestedCount;
     }
     
     public function getFile1Attribute($value)
@@ -410,12 +441,58 @@ class Collaborate extends Model implements Feedable
 
     public function getStateAttribute($value)
     {
-        if($value == 1)
-            return 'Active';
-        else if($value == 3)
-            return 'Expired';
-        else
-            return 'Delete';
+        switch ($value) {
+            case 1:
+                return 'Active';
+                break;
+            case 2:
+                return 'Delete';
+                break;
+            case 3:
+                return 'Expired';
+                break;
+            default:
+                return 'Save';
+        }
+    }
+
+
+    public function getTypeAttribute()
+    {
+        return isset($this->type_id) && !is_null($this->type_id) ? \DB::table('collaborate_types')->where('id',$this->type_id)->first() : null;
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Collaborate\Addresses');
+    }
+
+    public function getProductReviewMetaAttribute()
+    {
+        $meta = [];
+        if($this->collaborate_type == 'product-review')
+        {
+            $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->where('is_invited',1)->whereNull('rejected_at')->exists();
+            $meta['has_batch_assign'] = \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
+                ->where('profile_id',request()->user()->profile->id)->exists();
+            $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
+                ->where('profile_id',request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
+            $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id',request()->user()->profile->id)
+                ->where('collaborate_id',$this->id)->where('current_status',3)->get()->pluck('batch_id')->toArray();
+            sort($batchIds);
+            sort($completedBatchIds);
+            $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
+            $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->where('is_invited',0)->whereNull('shortlisted_at')->whereNull('rejected_at')->exists();
+            $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->where('is_invited',1)->first();
+            $meta['is_actioned'] = isset($applicants) ? isset($applicants->shortlisted_at) || isset($applicants->rejected_at) ? true : false : false;
+            $meta['is_invitation_accepted'] = isset($applicants) ? isset($applicants->shortlisted_at) && !is_null($applicants->shortlisted_at) ? true : false : false;
+            return $meta;
+        }
+        return null;
+
     }
 
 }

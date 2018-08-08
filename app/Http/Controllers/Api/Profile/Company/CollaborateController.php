@@ -13,30 +13,30 @@ use Illuminate\Http\Request;
 
 class CollaborateController extends Controller
 {
-	/**
-	 * Variable to model
-	 *
-	 * @var collaborate
-	 */
-	protected $model;
+    /**
+     * Variable to model
+     *
+     * @var collaborate
+     */
+    protected $model;
 
-	/**
-	 * Create instance of controller with Model
-	 *
-	 * @return void
-	 */
-	public function __construct(Collaborate $model)
-	{
-		$this->model = $model;
-	}
+    /**
+     * Create instance of controller with Model
+     *
+     * @return void
+     */
+    public function __construct(Collaborate $model)
+    {
+        $this->model = $model;
+    }
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index(Request $request, $profileId,$companyId)
-	{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
+    public function index(Request $request, $profileId,$companyId)
+    {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')
@@ -58,20 +58,20 @@ class CollaborateController extends Controller
 //            });
 //        }
         return $this->sendResponse();
-	}
+    }
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function store(Request $request, $profileId, $companyId)
-	{
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request, $profileId, $companyId)
+    {
         $profile = $request->user()->profile;
         $profileId = $profile->id ;
-		$inputs = $request->all();
-		$inputs['company_id'] = $companyId;
+        $inputs = $request->all();
+        $inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
 
         $inputs['state'] = Collaborate::$state[0];
@@ -120,16 +120,16 @@ class CollaborateController extends Controller
         event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
 
         return $this->sendResponse();
-	}
+    }
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show(Request $request,$profileId, $companyId, $id)
-	{
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function show(Request $request,$profileId, $companyId, $id)
+    {
         $collaboration = $this->model->where('id',$id)->where('company_id',$companyId)->where('state','!=',Collaborate::$state[1])->first();
         if ($collaboration === null) {
             return $this->sendError("Invalid Collaboration Project.");
@@ -137,26 +137,26 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $meta = $collaboration->getMetaFor($profileId);
         $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
-		return $this->sendResponse();
-	}
+        return $this->sendResponse();
+    }
 
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @param Request $request
-	 * @return Response
-	 */
-	public function update(Request $request, $profileId, $companyId, $id)
-	{
-		$inputs = $request->all();
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @param Request $request
+     * @return Response
+     */
+    public function update(Request $request, $profileId, $companyId, $id)
+    {
+        $inputs = $request->all();
         unset($inputs['profile_id']);
         unset($inputs['expires_on']);
 
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
-		  if($collaborate === null){
-		    return $this->sendError("Collaboration not found.");
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
         }
 
         unset($inputs['images']);
@@ -165,15 +165,18 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
-            foreach ($images as $image)
+            if(count($images) && is_array($images))
             {
-                if(is_null($image))
-                    continue;
-                $imagesArray[]['image'.$i] = $image;
-                $i++;
+                foreach ($images as $image)
+                {
+                    if(is_null($image))
+                        continue;
+                    $imagesArray[]['image'.$i] = $image;
+                    $i++;
+                }
             }
+            $inputs['images'] = json_encode($imagesArray,true);
         }
-        $inputs['images'] = json_encode($imagesArray,true);
 
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
@@ -203,22 +206,22 @@ class CollaborateController extends Controller
         }
 
         $this->model = $collaborate->update($inputs);
-        
+
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
-        
+
         return $this->sendResponse();
     }
 
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function destroy(Request $request, $profileId, $companyId, $id)
-	{
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function destroy(Request $request, $profileId, $companyId, $id)
+    {
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
-        
+
         if($collaborate === null){
             return $this->sendError( "Collaboration not found.");
         }
@@ -237,16 +240,16 @@ class CollaborateController extends Controller
 
         $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);
         return $this->sendResponse();
-	}
-    
+    }
+
     public function approve(Request $request, $profileId, $companyId, $id)
     {
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
-        
+
         if($collaborate === null){
             return $this->sendError( "Collaboration not found.");
         }
-        
+
         if($request->has('company_id')){
             $companyId = $request->input('company_id');
             $company =  Company::find($companyId);
@@ -256,7 +259,7 @@ class CollaborateController extends Controller
             $this->model = $collaborate->approveCompany($company);
             return $this->sendResponse();
         }
-        
+
         if($request->has('profile_id')){
             $inputProfileId = $request->input('profile_id');
             $profile =  Profile::find($inputProfileId);
@@ -267,15 +270,15 @@ class CollaborateController extends Controller
             return $this->sendResponse();
         }
     }
-    
+
     public function reject(Request $request, $profileId, $companyId, $id)
     {
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
-    
+
         if($collaborate === null){
             return $this->sendError( "Collaboration not found.");
         }
-    
+
         if($request->has('company_id')){
             $companyId = $request->input('company_id');
             $company =  Company::find($companyId);
@@ -285,7 +288,7 @@ class CollaborateController extends Controller
             $this->model = $collaborate->rejectCompany($company);
             return $this->sendResponse();
         }
-    
+
         if($request->has('profile_id')){
             $inputProfileId = $request->input('profile_id');
             $profile =  Profile::find($inputProfileId);

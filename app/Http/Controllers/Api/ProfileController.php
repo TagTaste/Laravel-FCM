@@ -857,4 +857,29 @@ class ProfileController extends Controller
         $this->model = $profiles;
         return $this->sendResponse();
     }
+
+    public function getPremium(Request $request)
+    {
+        $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')->where('is_premium',1)->get()->pluck('id');
+        $companyIds = \DB::table('company_users')->select('company_id')
+            ->where('user_id',$request->user()->id)
+            ->whereIn('company_id',$companyIds)->get()->pluck('company_id');
+
+        if(count($companyIds) === 0){
+            $this->model = [];
+            return $this->sendResponse();
+        }
+        $premiumnCompanies = [];
+        foreach($companyIds as &$companyId)
+        {
+            $premiumnCompanies[] = "company:small:" . $companyId;
+        }
+        $data = \Redis::mget($premiumnCompanies);
+        foreach($data as &$company){
+            $company = json_decode($company);
+        }
+        $this->model = $data;
+
+        return $this->sendResponse();
+    }
 }

@@ -170,16 +170,18 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
-            foreach ($images as $image)
+            if(count($images) && is_array($images))
             {
-                if(is_null($image))
-                    continue;
-                $imagesArray[]['image'.$i] = $image;
-                $i++;
+                foreach ($images as $image)
+                {
+                    if(is_null($image))
+                        continue;
+                    $imagesArray[]['image'.$i] = $image;
+                    $i++;
+                }
             }
+            $inputs['images'] = json_encode($imagesArray,true);
         }
-        $inputs['images'] = json_encode($imagesArray,true);
-
 
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
@@ -209,7 +211,7 @@ class CollaborateController extends Controller
         }
 
         $this->model = $collaborate->update($inputs);
-    
+
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
@@ -243,7 +245,7 @@ class CollaborateController extends Controller
 
         //remove filters
         \App\Filter\Collaborate::removeModel($id);
-        
+
         $this->model = $collaborate->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Collaborate::$state[1]]);;
         return $this->sendResponse();
     }

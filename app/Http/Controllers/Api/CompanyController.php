@@ -83,4 +83,16 @@ class CompanyController extends Controller {
         return $this->sendResponse();
     }
 
+    public function getUserWithoutAdmin(Request $request ,$id)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $query = $request->input('term');
+
+        $profileIds = \DB::table('company_users')->where('company_id',$id)->get()->pluck('profile_id')->toArray();
+
+        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
+            ->where('profiles.id','!=',$loggedInProfileId)->whereNotIn('profiles.id',$profileIds)->where('users.name','like',"%$query%")->take(15)->get();
+        return $this->sendResponse();
+    }
+
 }
