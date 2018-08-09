@@ -22,10 +22,9 @@ class CreateProductReviewBatches extends Migration
             $table->increments('id');
             $table->string('name');
             $table->text('notes')->nullable();
-            $table->json('allergens')->nullable();
+            $table->text('allergens')->nullable();
             $table->text('instruction')->nullable();
             $table->unsignedInteger('color_id');
-            $table->text("allergens")->nullable();
             $table->foreign("color_id")->references("id")->on("collaborate_batches_color");
             $table->unsignedInteger('collaborate_id');
             $table->foreign("collaborate_id")->references("id")->on("collaborates");
