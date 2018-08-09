@@ -508,7 +508,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("csv/designation",function (Request $request){
                 $this->model = [];
                 $studentDetail = \DB::table("experiences")
-                ->select(\DB::raw('COUNT(*) as count, designation'))
+                ->select(\DB::raw('COUNT(*) as count, designation, GROUP_CONCAT(company) as companies'))
+                ->orderBy("designation","desc")
                 ->groupBy("designation")
                 ->get();
                    
@@ -520,7 +521,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     "Expires" => "0"
                 );
         
-                $columns = array('count','designation');
+                $columns = array('count','designation','companies');
         
                 $str = '';
                 foreach ($columns as $c) {
