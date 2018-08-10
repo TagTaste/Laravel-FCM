@@ -135,7 +135,13 @@ class BatchController extends Controller
         else if($collaborate->profile_id != $profileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
+
         $applierProfileIds = $request->input('profile_id');
+        $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->whereNotNull('shortlisted_at')->exists();
+        if($checkUserShortlist)
+        {
+            return $this->sendError("User is not accepted invitations.");
+        }
         $batchId = $request->input('batch_id');
         $checkBatch = \DB::table('collaborate_batches')->where('collaborate_id',$id)->where('id',$batchId)->exists();
         if(!$checkBatch)
