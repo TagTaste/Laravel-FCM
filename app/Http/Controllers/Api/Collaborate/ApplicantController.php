@@ -305,6 +305,12 @@ class ApplicantController extends Controller
         if(!is_array($shortlistedProfiles)){
             $shortlistedProfiles = [$shortlistedProfiles];
         }
+        $checkAssignUser = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->whereIn('profile_id',$shortlistedProfiles)
+            ->where('begin_tasting',1)->exists();
+        if($checkAssignUser)
+        {
+            return $this->sendError("You can not remove from batch.");
+        }
         $now = Carbon::now()->toDateTimeString();
 
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
