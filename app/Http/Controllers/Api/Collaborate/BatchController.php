@@ -137,9 +137,8 @@ class BatchController extends Controller
         }
 
         $applierProfileIds = $request->input('profile_id');
-        \Log::info($applierProfileIds);
-        $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->whereNotNull('shortlisted_at')->exists();
-        if($checkUserShortlist)
+        $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->whereNotNull('shortlisted_at')->get();
+        if(isset($checkUserShortlist) && is_null($checkUserShortlist))
         {
             return $this->sendError("User is not accepted invitations.");
         }
