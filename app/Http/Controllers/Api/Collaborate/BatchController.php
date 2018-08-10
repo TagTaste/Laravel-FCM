@@ -118,8 +118,6 @@ class BatchController extends Controller
 
     public function assignBatch(Request $request, $id)
     {
-        \Log::info($id);
-        dd($id);
         $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
@@ -139,7 +137,7 @@ class BatchController extends Controller
         }
 
         $applierProfileIds = $request->input('profile_id');
-        $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->where('is_invited',1)->whereNull('shortlisted_at')->get();
+        $checkUserShortlist = Collaborate\Applicant::where('collaborate_id',$id)->whereIn('profile_id',$applierProfileIds)->where('is_invited',1)->whereNull('shortlisted_at')->get();
         if($checkUserShortlist)
         {
             return $this->sendError("User is not accepted invitations.");
