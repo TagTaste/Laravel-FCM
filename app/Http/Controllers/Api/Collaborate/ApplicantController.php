@@ -306,8 +306,8 @@ class ApplicantController extends Controller
             $shortlistedProfiles = [$shortlistedProfiles];
         }
         $checkAssignUser = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->whereIn('profile_id',$shortlistedProfiles)
-            ->where('begin_tasting',1)->exists();
-        if($checkAssignUser)
+            ->where('begin_tasting',1)->get();
+        if($checkAssignUser->count())
         {
             return $this->sendError("You can not remove from batch.");
         }

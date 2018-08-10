@@ -138,7 +138,7 @@ class BatchController extends Controller
 
         $applierProfileIds = $request->input('profile_id');
         $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->whereNotNull('shortlisted_at')->get();
-        if(isset($checkUserShortlist) && is_null($checkUserShortlist))
+        if($checkUserShortlist->count())
         {
             return $this->sendError("User is not accepted invitations.");
         }
@@ -166,8 +166,8 @@ class BatchController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
-        $checkUserReview = \DB::table('collaborate_tasting_user_review')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->exists();
-        if($checkUserReview)
+        $checkUserReview = \DB::table('collaborate_tasting_user_review')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->get();
+        if($checkUserReview->count())
         {
             return $this->sendError("You can not remove from batch.");
         }
