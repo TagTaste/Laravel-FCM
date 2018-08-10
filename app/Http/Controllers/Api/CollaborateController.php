@@ -421,7 +421,7 @@ class CollaborateController extends Controller
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
-            $collaborate['batches'] = $count > 0 ? $batchInfos : null;
+            $collaborate['batches'] = $count > 0 ? $batchInfos : [];
         }
         $this->model = $collaborates;
 
