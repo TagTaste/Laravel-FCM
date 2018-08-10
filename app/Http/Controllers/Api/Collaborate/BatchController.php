@@ -135,7 +135,13 @@ class BatchController extends Controller
         else if($collaborate->profile_id != $profileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
+
         $applierProfileIds = $request->input('profile_id');
+        $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->whereNotNull('shortlisted_at')->exists();
+        if($checkUserShortlist)
+        {
+            return $this->sendError("User is not accepted invitations.");
+        }
         $batchId = $request->input('batch_id');
         $checkBatch = \DB::table('collaborate_batches')->where('collaborate_id',$id)->where('id',$batchId)->exists();
         if(!$checkBatch)
@@ -160,6 +166,11 @@ class BatchController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
+        $checkUserReview = \DB::table('collaborate_tasting_user_review')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->exists();
+        if($checkUserReview)
+        {
+            return $this->sendError("You can not remove from batch.");
+        }
         foreach ($profileIds as $profileId)
         {
             \Redis::sRem("collaborate:$collaborateId:profile:$profileId:" ,$batchId);
@@ -249,20 +260,22 @@ class BatchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = \App\Recipe\Collaborate::where('id',$collaborateId)->first()->toArray();
-        $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$loggedInProfileId.":");
+        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
+            ->get()->pluck('batch_id');
         $count = count($batchIds);
+        $batchIdArray = [];
         if($count) {
             foreach ($batchIds as &$batchId) {
-                $batchId = "batch:" . $batchId;
+                $batchIdArray[] = "batch:" . $batchId;
             }
-            $batchInfos = \Redis::mGet($batchIds);
+            $batchInfos = \Redis::mGet($batchIdArray);
             foreach ($batchInfos as &$batchInfo) {
                 $batchInfo = json_decode($batchInfo);
                 $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
                 $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
             }
         }
-        $collaborate['batches'] = $count > 0 ? $batchInfos : null;
+        $collaborate['batches'] = $count > 0 ? $batchInfos : [];
         $this->model = $collaborate;
         return $this->sendResponse();
     }
