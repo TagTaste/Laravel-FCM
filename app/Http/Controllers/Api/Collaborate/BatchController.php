@@ -118,6 +118,7 @@ class BatchController extends Controller
 
     public function assignBatch(Request $request, $id)
     {
+        \Log::info($id);
         dd($id);
         $collaborate = Collaborate::where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
 
