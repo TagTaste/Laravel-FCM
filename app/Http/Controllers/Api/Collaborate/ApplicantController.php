@@ -145,11 +145,13 @@ class ApplicantController extends Controller
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
             {
+                $company = \Redis::get('company:small:' . $collaborate->company_id);
+                $company = json_decode($company);
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
                 foreach ($profileIds as $profileId)
                 {
                     $collaborate->profile_id = $profileId;
-                    event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
+                    event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message",""),null,null, $company));
 
                 }
             }
@@ -405,7 +407,7 @@ class ApplicantController extends Controller
             foreach ($profileIds as $profileId)
             {
                 $collaborate->profile_id = $profileId;
-                event(new \App\Events\Actions\InvitationAcceptForReview($collaborate,$request->user()->profile,null,null,null,$company));
+                event(new \App\Events\Actions\InvitationRejectForReview($collaborate,$request->user()->profile,null,null,null,$company));
             }
         }
 
