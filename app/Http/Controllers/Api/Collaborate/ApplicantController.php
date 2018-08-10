@@ -112,7 +112,7 @@ class ApplicantController extends Controller
             $hut = $request->has('hut') ? $request->input('hut') : 0 ;
             $applierAddress = $request->input('applier_address');
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
-                'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut];
+                'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,'shortlisted_at'=>$now];
 
         }
         else

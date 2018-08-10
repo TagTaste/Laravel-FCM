@@ -137,6 +137,7 @@ class BatchController extends Controller
         }
 
         $applierProfileIds = $request->input('profile_id');
+        \Log::info($applierProfileIds);
         $checkUserShortlist = Collaborate\Applicant::whereIn('profile_id',$applierProfileIds)->whereNotNull('shortlisted_at')->exists();
         if($checkUserShortlist)
         {
