@@ -236,7 +236,7 @@ class CollaborateController extends Controller
         event(new DeleteFeedable($collaborate));
 
         //send notificants to collaboraters for delete collab
-        $profileIds = \DB::table("collaborators")->where("collaborate_id",$id)->get()->pluck('profile_id');
+        $profileIds = \DB::table("collaborate_applicants")->where("collaborate_id",$id)->get()->pluck('profile_id');
         foreach ($profileIds as $profileId)
         {
             $collaborate->profile_id = $profileId;
@@ -292,7 +292,6 @@ class CollaborateController extends Controller
             if (!$company) {
                 return $this->sendError( "Company not found.");
             }
-
             $this->model = $collaborate->rejectCompany($company);
         } elseif ($request->has('profile_id')) {
             $inputProfileId = $request->input('profile_id');
@@ -313,9 +312,9 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->select('collaborate_id','collaborates.*')
-            ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
-            ->where("collaborators.profile_id",$profileId)->where("collaborates.state","!=",Collaborate::$state[1])
-            ->whereNull('collaborators.company_id')->orderBy('collaborators.applied_on', 'desc');;
+            ->join('collaborate_applicants','collaborate_applicants.collaborate_id','=','collaborates.id')
+            ->where("collaborate_applicants.profile_id",$profileId)->where("collaborates.state","!=",Collaborate::$state[1])
+            ->whereNull('collaborate_applicants.company_id')->orderBy('collaborate_applicants.created_at', 'desc');;
 
         $data = [];
         $this->model = [];
