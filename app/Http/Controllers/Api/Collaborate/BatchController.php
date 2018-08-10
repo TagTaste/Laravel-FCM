@@ -260,7 +260,7 @@ class BatchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborate = \App\Recipe\Collaborate::where('id',$collaborateId)->first()->toArray();
-        $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
+        $batchIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
             ->get()->pluck('batch_id');
         $count = count($batchIds);
         $batchIdArray = [];
