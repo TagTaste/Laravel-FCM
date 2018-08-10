@@ -263,11 +263,12 @@ class BatchController extends Controller
         $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
             ->get()->pluck('batch_id');
         $count = count($batchIds);
+        $batchIdArray = [];
         if($count) {
             foreach ($batchIds as &$batchId) {
-                $batchId = "batch:" . $batchId;
+                $batchIdArray[] = "batch:" . $batchId;
             }
-            $batchInfos = \Redis::mGet($batchIds);
+            $batchInfos = \Redis::mGet($batchIdArray);
             foreach ($batchInfos as &$batchInfo) {
                 $batchInfo = json_decode($batchInfo);
                 $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
