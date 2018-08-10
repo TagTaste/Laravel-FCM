@@ -340,8 +340,8 @@ class ApplicantController extends Controller
         }
         $profileIds = $request->input('profile_id');
         $inputs = [];
-        $checkExist = \DB::table('collaborate_applicants')->whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->exists();
-        if($checkExist)
+        $checkExist = \DB::table('collaborate_applicants')->whereIn('profile_id',$profileIds)->where('collaborate_id',$id)->get();
+        if($checkExist->count())
         {
             return $this->sendError("Already Invited");
         }
