@@ -22,7 +22,7 @@ class BeginTasting extends Action
         $this->batchInfo = $event->batchInfo;
         $this->view = 'emails.begintasting';
 
-        $this->sub = $this->data->who['name'] ." has assigned a new sample for you to taste";
+        $this->sub = $this->data->who['name'] ." has assigned a new sample (".$event->batchInfo->name.") for you to taste";
         if(!is_null($this->data->content)) {
             $this->allData['message'] = ['id' => null,'image'=>null,'content'=>$this->data->content];
 

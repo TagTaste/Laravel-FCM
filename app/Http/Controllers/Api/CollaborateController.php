@@ -400,7 +400,7 @@ class CollaborateController extends Controller
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)
+        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
             ->get()->pluck('collaborate_id');
         $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
         foreach ($collaborates as &$collaborate)
@@ -421,7 +421,7 @@ class CollaborateController extends Controller
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
-            $collaborate['batches'] = $count > 0 ? $batchInfos : null;
+            $collaborate['batches'] = $count > 0 ? $batchInfos : [];
         }
         $this->model = $collaborates;
 

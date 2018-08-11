@@ -28,7 +28,7 @@ class Auth extends GetUserFromToken
     {
         if(env('APP_ENV') === 'testing'){
             \Log::warning("Auto-generating token for " . env('APP_ENV') . " environment.");
-            $user = \App\User::find(1);
+            $user = \App\User::find(6);
             $token = \JWTAuth::fromUser($user);
             $this->auth->authenticate($token);
 

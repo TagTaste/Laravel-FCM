@@ -96,6 +96,13 @@ class QuestionController extends Controller
                 if(isset($data->questions->nested_option))
                     $data->questions->option = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                         ->where('question_id',$data->id)->whereNull('parent_id')->get();
+                if($data->questions->title == 'INSTRUCTION')
+                {
+                    $batchInfo = \DB::table('collaborate_batches')->where('id',$batchId)->first();
+                    if(isset($batchInfo->instruction))
+                        $data->questions->subtitle = $batchInfo->instruction;
+
+                }
                 $model[] = $data->questions;
             }
             else
