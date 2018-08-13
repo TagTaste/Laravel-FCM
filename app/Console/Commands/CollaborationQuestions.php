@@ -1874,6 +1874,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
         $id = $this->argument('id');
         $questions = $this->questions;
         $questions = json_decode($questions,true);
+//        $questions = \DB::table('global_questions')->where('id',1)->get();
+//        $questions = $questions->question_json;
         $data = [];
         $data[] = ['header_type'=>'INSTRUCTION','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
         $data[] = ['header_type'=>'APPEARANCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
