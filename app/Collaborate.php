@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Channel\Payload;
-use App\Collaboration\Collaborator;
+use App\Collaborate\Applicant;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
@@ -95,9 +95,9 @@ class Collaborate extends Model implements Feedable
         return $this->belongsTo(\App\Recipe\Company::class);
     }
     
-    public function collaborators()
+    public function collaborateapplicants()
     {
-        return \DB::table("collaborators")->where("collaborate_id",$this->id)->get();
+        return \DB::table("collaborate_applicants")->where("collaborate_id",$this->id)->get();
     }
     
     /**
@@ -105,8 +105,8 @@ class Collaborate extends Model implements Feedable
      */
     public function profiles()
     {
-        return $this->belongsToMany(\App\Collaborate\Profile::class,'collaborators',
-            'collaborate_id','profile_id')->withPivot('applied_on','approved_on','rejected_on','template_values');
+        return $this->belongsToMany(\App\Collaborate\Profile::class,'collaborate_applicants',
+            'collaborate_id','profile_id')->withPivot('created_at','shortlisted_at','rejected_at');
     }
     
     /**
@@ -114,8 +114,8 @@ class Collaborate extends Model implements Feedable
      */
     public function companies()
     {
-        return $this->belongsToMany(\App\Collaborate\Company::class,'collaborators',
-            'collaborate_id','company_id')->withPivot('applied_on','approved_on','rejected_on','template_values');
+        return $this->belongsToMany(\App\Collaborate\Company::class,'collaborate_applicants',
+            'collaborate_id','company_id')->withPivot('created_at','shortlisted_at','rejected_at');
     }
     
     public function applications()
@@ -131,15 +131,15 @@ class Collaborate extends Model implements Feedable
     public function approveProfile(Profile $profile)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
-            ->whereNull('company_id')->update(['approved_on'=>$approvedOn,'archived_at'=>null]);
+        return Applicant::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
+            ->whereNull('company_id')->update(['shortlisted_at'=>$approvedOn,'rejected_at'=>null]);
     }
     
     public function approveCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('company_id',$company->id)
-            ->update(['approved_on'=>$approvedOn,'archived_at'=>null]);
+        return Applicant::where('collaborate_id',$this->id)->where('company_id',$company->id)
+            ->update(['shortlisted_at'=>$approvedOn,'rejected_at'=>null]);
     }
     
     public function rejected()
@@ -151,15 +151,15 @@ class Collaborate extends Model implements Feedable
     public function rejectProfile(Profile $profile)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
-            ->whereNull('company_id')->update(['rejected_on'=>$approvedOn,'archived_at'=>$approvedOn]);
+        return Applicant::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
+            ->whereNull('company_id')->update(['rejected_at'=>$approvedOn]);
     }
     
     public function rejectCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('company_id',$company->id)
-            ->update(['rejected_on'=>$approvedOn,'archived_at'=>$approvedOn]);
+        return Applicant::where('collaborate_id',$this->id)->where('company_id',$company->id)
+            ->update(['rejected_at'=>$approvedOn]);
         }
     
     public function comments()
@@ -225,8 +225,8 @@ class Collaborate extends Model implements Feedable
     
     public function getInterestedAttribute() : array
     {
-        $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
-        $profileIds = \DB::table("collaborators")->select('profile_id')->where("collaborate_id",$this->id)->get();
+        $count = \DB::table("collaborate_applicants")->where("collaborate_id",$this->id)->count();
+        $profileIds = \DB::table("collaborate_applicants")->select('profile_id')->where("collaborate_id",$this->id)->get();
         if($profileIds){
             $profileIds = $profileIds->pluck('profile_id')->toArray();
         }
@@ -248,7 +248,7 @@ class Collaborate extends Model implements Feedable
     
     private function setInterestedAsProfiles(&$meta,&$profileId)
     {
-        $interested = \DB::table('collaborators')->where('collaborate_id',$this->id);
+        $interested = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id);
     
         $companyIds = \DB::table("company_users")->select('company_id')->where('profile_id',$profileId)->get();
         
@@ -328,7 +328,7 @@ class Collaborate extends Model implements Feedable
     public function getMetaForCompany(int $companyId) : array
     {
         $meta = [];
-        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
+        $meta['interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
     }
     
@@ -430,8 +430,8 @@ class Collaborate extends Model implements Feedable
 
     public function getApprovedAttribute() : array
     {
-        $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
-        $profileIds = \DB::table("collaborators")->select('profile_id')->whereNull('archived_at')->where("collaborate_id",$this->id)->get();
+        $count = \DB::table("collaborate_applicants")->where("collaborate_id",$this->id)->count();
+        $profileIds = \DB::table("collaborate_applicants")->select('profile_id')->whereNull('rejected_at')->where("collaborate_id",$this->id)->get();
         if($profileIds){
             $profileIds = $profileIds->pluck('profile_id')->toArray();
         }

@@ -228,7 +228,7 @@ class CollaborateController extends Controller
         event(new DeleteFeedable($collaborate));
 
         //send notificants to collaboraters for delete collab
-        $profileIds = \DB::table("collaborators")->where("collaborate_id",$id)->get()->pluck('profile_id');
+        $profileIds = \DB::table("collaborate_applicants")->where("collaborate_id",$id)->get()->pluck('profile_id');
         foreach ($profileIds as $profileId)
         {
             $collaborate->profile_id = $profileId;
@@ -324,8 +324,8 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $collaborations = $this->model->select('collaborate_id','collaborates.*')
-            ->join('collaborators','collaborators.collaborate_id','=','collaborates.id')
-            ->where("collaborators.company_id",$companyId)->where("collaborates.state",Collaborate::$state[0]);
+            ->join('collaborate_applicants','collaborate_applicants.collaborate_id','=','collaborates.id')
+            ->where("collaborate_applicants.company_id",$companyId)->where("collaborates.state",Collaborate::$state[0]);
 
         $this->model = [];
         $data = [];
