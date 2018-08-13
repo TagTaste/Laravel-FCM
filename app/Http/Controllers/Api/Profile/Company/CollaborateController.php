@@ -326,11 +326,11 @@ class CollaborateController extends Controller
         $collaborations = $this->model->select('collaborate_id','collaborates.*')
             ->join('collaborate_applicants','collaborate_applicants.collaborate_id','=','collaborates.id')
             ->where("collaborate_applicants.company_id",$companyId)->where("collaborates.state",Collaborate::$state[0]);
-        dd($collaborations);
         $this->model = [];
         $data = [];
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
+        dd($collaborations);
         foreach ($collaborations as $collaboration) {
             $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
