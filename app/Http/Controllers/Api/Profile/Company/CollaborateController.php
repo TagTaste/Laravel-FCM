@@ -330,7 +330,6 @@ class CollaborateController extends Controller
         $data = [];
         $this->model['count'] = $collaborations->count();
         $collaborations = $collaborations->skip($skip)->take($take)->get();
-        dd($collaborations);
         foreach ($collaborations as $collaboration) {
             $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
         }
