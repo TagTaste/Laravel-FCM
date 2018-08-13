@@ -159,6 +159,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\ProductReview\Batches::class,
         \App\Console\Commands\Build\ProductReview\CurrentStatusReview::class,
         \App\Console\Commands\Build\ProductReview\UserBatches::class,
+
+
         \App\Console\Commands\MergeCollaborators::class
 
 
