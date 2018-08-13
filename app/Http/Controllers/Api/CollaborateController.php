@@ -90,8 +90,7 @@ class CollaborateController extends Controller
         }
 
         $profileId = $request->user()->profile->id;
-
-        if(is_null($collaboration->deleted_at)){
+        if($collaboration->state == 'Active'){
             $meta = $collaboration->getMetaFor($profileId);
             $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
             return $this->sendResponse();
@@ -116,7 +115,7 @@ class CollaborateController extends Controller
     
     public function apply(Request $request, $id)
     {
-        $collaborate = $this->model->where('id',$id)->whereNull('deleted_at')->first();
+        $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }

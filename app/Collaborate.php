@@ -25,7 +25,7 @@ class Collaborate extends Model implements Feedable
 
     protected $with = ['profile','company','fields','categories','addresses'];
 
-    static public $state = [1,2,3,4]; //active =1 , delete =2 expired =3 draft as saved=4
+    static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved=4 5 = close
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -451,8 +451,11 @@ class Collaborate extends Model implements Feedable
             case 3:
                 return 'Expired';
                 break;
-            default:
+            case 3:
                 return 'Save';
+                break;
+            default:
+                return 'Close';
         }
     }
 

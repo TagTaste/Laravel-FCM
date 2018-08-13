@@ -185,7 +185,7 @@ class CollaborateController extends Controller
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
 
-        if($collaborate->state == 'Expired')
+        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
         {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
@@ -304,7 +304,7 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[2])->orderBy('deleted_at','desc');
+        $collaborations = $this->model->where('company_id',$companyId)->whereIn('state',[3,5])->orderBy('deleted_at','desc');
         $this->model = [];
         $data = [];
         $this->model['count'] = $collaborations->count();
