@@ -26,6 +26,10 @@ class ReviewController extends Controller
     {
         $data = [];
         $answers = $request->input('answer');
+        if(count($answers) == 0)
+        {
+            return $this->sendError("Please select valid option.");
+        }
         $loggedInProfileId = $request->user()->profile->id ;
         $batchId = $request->input('batch_id');
         if(!$request->has('batch_id'))
