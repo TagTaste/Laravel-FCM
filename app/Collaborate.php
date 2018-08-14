@@ -323,7 +323,7 @@ class Collaborate extends Model implements Feedable
 
     public function categories()
     {
-        return null;
+        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
     }
     
     public function getNotificationContent()
