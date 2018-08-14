@@ -45,7 +45,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
     public function handle()
     {
         $id = $this->argument('id');
-        $questions = \DB::table('global_questions')->where('id',1)->first();
+        $questions = \DB::table('global_questions')->where('id',2)->first();
         $questions = $questions->question_json;
         $questions = json_decode($questions,true);
         $data = [];
