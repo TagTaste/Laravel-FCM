@@ -276,7 +276,7 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
 
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>null,'rejected_at'=>null]);
 
         return $this->sendResponse();
     }
