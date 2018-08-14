@@ -542,9 +542,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/language",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("profiles")
-                ->select(\DB::raw('COUNT(*) as count, expertise as language'))
-                ->groupBy("expertise")
+                $studentDetail = \DB::table("profile_filters")
+                ->select(\DB::raw('COUNT(*) as count, value as language'))
+                ->where('key','=','language')
+                ->groupBy("value")
                 ->get();
                    
                 $headers = array(
@@ -576,9 +577,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/skill",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("profiles")
-                ->select(\DB::raw('COUNT(*) as count, keywords as skill'))
-                ->groupBy("keywords")
+                $studentDetail = \DB::table("profile_filters")
+                ->select(\DB::raw('COUNT(*) as count, value as skill'))
+                ->where('key','=','skills')
+                ->groupBy("value")
                 ->get();
                    
                 $headers = array(
