@@ -10,15 +10,15 @@ class SearchController extends Controller
 {
     //aliases added for frontend
     private $models = [
-        'collaborate'=> \App\Collaborate::class,
+        'collaborate'=> \App\Recipe\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'recipes' => \App\Recipe::class,
-        'profile' => \App\Profile::class,
-        'people' => \App\Profile::class,
-        'company' => \App\Company::class,
-        'companies' => \App\Company::class,
-        'job' => \App\Job::class,
-        'jobs' => \App\Job::class
+        'profile' => \App\Recipe\Profile::class,
+        'people' => \App\Recipe\Profile::class,
+        'company' => \App\Recipe\Company::class,
+        'companies' => \App\Recipe\Company::class,
+        'job' => \App\Recipe\Job::class,
+        'jobs' => \App\Recipe\Job::class
     ];
     
     private $filters = [
