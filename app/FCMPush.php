@@ -43,7 +43,7 @@ class FCMPush extends Model
         $iosDataBuilder->addData(['data' => $iosData]);
         $data = $iosDataBuilder->build();
         $notificationCount = \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',$profileId)->count();
-        $notificationBody = isset($iosData['profile']['name']) ? $iosData['profile']['name'].' '.$this->message($iosData['action'], $iosData['model']['name']) : $this->message('null');
+        $notificationBody = isset($iosData['profile']['name']) ? $this->message($iosData['action'],$iosData['notification']) : $this->message('null');
         $notificationBuilder = new PayloadNotificationBuilder();
         $notificationBuilder->setBody($notificationBody)->setSound('default')->setBadge($notificationCount);
 //        $message = $data['profile']['name'].$this->message($data['action']);
@@ -58,32 +58,10 @@ class FCMPush extends Model
 
     }
 
-    protected function message($type, $modelType = null)
+    protected function message($type,$notifications = null)
     {
-        if($type == "comment"){
-            return "commented on your post";
-        }
-        if($type == "like"){
-            return "liked your post";
-            }
-        if($type == "share"){
-            return "shared a post";
-        }
-        if($type == "tag"){
-            return "tagged you in a post";
-        }
-        if($type == "message"||$type == "chat"){
-            return "sent you a message";
-        }
-        if($type == "follow"){
-            return "has started following you." ;
-        }
-        if($type == "apply") {
-            if($modelType == 'job')
-                return "has applied to your job post.";
-            if($modelType == 'collaborate')
-                return "has applied to your collaboration.";
-        }
-        return "Notification from TagTaste";
+        if($notifications == null)
+            return "Notification from TagTaste";
+        return $notifications;
     }
 }

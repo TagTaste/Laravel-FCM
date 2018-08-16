@@ -96,7 +96,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 			"intensity_type": 2,
 			"intensity_value": "Low,Medium,High",
 			"is_nested": 0,
-			"is_mandatory": 1,
+			"is_mandatory": 0,
 			"option": "Sweet,Salt,Sour,Bitter,Umami"
 		},
 		{
@@ -104,7 +104,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested": 0,
-			"is_mandatory": 1,
+			"is_mandatory": 0,
 			"option": "Yes,No"
 		},
 		{
@@ -112,7 +112,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested": 0,
-			"is_mandatory": 1,
+			"is_mandatory": 0,
 			"option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
 		},
 		{
@@ -120,7 +120,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 			"select_type": 3,
 			"is_intensity": 0,
 			"is_nested": 0,
-			"is_mandatory": 1
+			"is_mandatory": 0
 		}
 	],
 	"AROMATICS": [{

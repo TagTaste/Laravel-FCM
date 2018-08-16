@@ -161,6 +161,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\ProductReview\UserBatches::class,
 
 
+        \App\Console\Commands\MergeCollaborators::class
+
+
     ];
 
     /**

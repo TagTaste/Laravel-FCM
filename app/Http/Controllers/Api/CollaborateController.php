@@ -90,8 +90,7 @@ class CollaborateController extends Controller
         }
 
         $profileId = $request->user()->profile->id;
-
-        if(is_null($collaboration->deleted_at)){
+        if($collaboration->state == 'Active'){
             $meta = $collaboration->getMetaFor($profileId);
             $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
             return $this->sendResponse();
@@ -116,7 +115,7 @@ class CollaborateController extends Controller
     
     public function apply(Request $request, $id)
     {
-        $collaborate = $this->model->where('id',$id)->whereNull('deleted_at')->first();
+        $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
         if($collaborate === null){
             throw new \Exception("Invalid Collaboration project.");
         }
@@ -142,8 +141,8 @@ class CollaborateController extends Controller
             $this->model = $collaborate->companies()
                 ->updateExistingPivot($companyId,
                     [
-                        'applied_on'=>Carbon::now()->toDateTimeString(),
-                        'template_values' => json_encode($request->input('fields')),
+                        'created_at'=>Carbon::now()->toDateTimeString(),
+                        //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
                         'profile_id' => $request->input('profile_id')
                     ]);
@@ -181,8 +180,8 @@ class CollaborateController extends Controller
             $this->model = $collaborate->profiles()
                 ->updateExistingPivot($profileId,
                     [
-                        'applied_on'=>Carbon::now()->toDateTimeString(),
-                        'template_values' => json_encode($request->input('fields')),
+                        'created_at'=>Carbon::now()->toDateTimeString(),
+                        //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message")
                     ]);
 
@@ -297,8 +296,8 @@ class CollaborateController extends Controller
     {
         $this->model = [];
 
-        $this->model['archived'] = \App\Collaboration\Collaborator::whereNotNull('archived_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
-        $this->model['applications'] = \App\Collaboration\Collaborator::whereNull('archived_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
+        $this->model['archived'] = \App\Collaborate\Applicant::whereNotNull('rejected_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
+        $this->model['applications'] = \App\Collaborate\Applicant::whereNotNull('shortlisted_at')->where('collaborate_id',$id)->with('profile','company','collaborate')->get();
         return $this->sendResponse();
     }
 
@@ -327,7 +326,7 @@ class CollaborateController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $applications = \App\Collaboration\Collaborator::whereNull('collaborators.archived_at')->where('collaborate_id',$id);
+        $applications = \App\Collaborate\Applicant::whereNotNull('collaborate_applicants.shortlisted_at')->where('collaborate_id',$id);
         $this->model['count'] = $applications->count();
         $this->model['application'] = $applications->skip($skip)->take($take)->get();
         return $this->sendResponse();
@@ -358,8 +357,8 @@ class CollaborateController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-	    $archived = \App\Collaboration\Collaborator::join('profiles','collaborators.profile_id','=','profiles.id')
-            ->whereNotNull('collaborators.archived_at')->whereNull('profiles.deleted_at')
+	    $archived = \App\Collaborate\Applicant::join('profiles','collaborate_applicants.profile_id','=','profiles.id')
+            ->whereNotNull('collaborate_applicants.archived_at')->whereNull('profiles.deleted_at')
             ->where('collaborate_id',$id)->with('profile','collaborate','company');
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();

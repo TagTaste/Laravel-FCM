@@ -233,5 +233,13 @@ class Job extends Model implements Feedable
         return $data;
 
     }
+
+    public function getRelatedKey() : array
+    {
+        if(empty($this->relatedKey) && $this->company_id === null){
+            return ['profile'=>'profile:small:' . $this->profile_id];
+        }
+        return ['company'=>'company:small:' . $this->company_id];
+    }
     
 }
