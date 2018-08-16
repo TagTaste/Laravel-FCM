@@ -231,6 +231,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post('assignBatch','BatchController@assignBatch');
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
+                //reports
+                Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
+
                 Route::resource('batches','BatchController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
