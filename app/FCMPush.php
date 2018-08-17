@@ -44,6 +44,7 @@ class FCMPush extends Model
                 $option = $optionBuilder->build();
                 $data = $dataBuilder->build();
             }
+            \Log::info("send fcm");
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
         }
