@@ -507,11 +507,11 @@ class SearchController extends Controller
                     $profiles = $this->model['profile']->toArray();
                     $this->model['profile'] = [];
                     $following = \Redis::sMembers("following:profile:" . $profileId);
-                    foreach($profiles as &$profile){
+                    foreach($profiles as $profile){
                         if($profile && isset($profile['id'])){
                             $profile['isFollowing'] = in_array($profile['id'],$following);
-                            $this->model['profile'][] = $profile;
                         }
+                        $this->model['profile'][] = $profile;
 
                     }
                 }
