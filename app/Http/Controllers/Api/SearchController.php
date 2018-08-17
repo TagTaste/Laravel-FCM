@@ -453,5 +453,76 @@ class SearchController extends Controller
         return $this->sendResponse();
     }
 
+    public function searchForApp(Request $request, $type = null)
+    {
+        $query = $request->input('q');
+        $this->model = [];
+        $params = [
+            'index' => "api",
+            'body' => [
+                'query' => [
+                    'query_string' => [
+                        'query' => $query
+                    ]
+                ]
+            ]
+        ];
+
+        $this->setType($type);
+
+        if($type){
+            $params['type'] = $type;
+        }
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        if($response['hits']['total'] > 0){
+
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            foreach($hits as $name => $hit){
+                $this->model[$name] = [];
+                $ids = $hit->pluck('_id')->toArray();
+                $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+
+                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                $suggested = collect([]);
+                if(!empty($suggestions)){
+                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                }
+
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+            }
+            $profileId = $request->user()->profile->id;
+
+            if(isset($this->model['profile'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
+                $following = \Redis::sMembers("following:profile:" . $profileId);
+                foreach($this->model['profile'] as &$profile){
+                    if($profile && isset($profile['id'])){
+                        $profile['isFollowing'] = in_array($profile['id'],$following);
+                    }
+
+                }
+            }
+
+            if(isset($this->model['company'])){
+                $this->model['company'] = $this->model['company']->toArray();
+                foreach($this->model['company'] as $company){
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                }
+            }
+        }
+
+
+        return $this->sendResponse();
+    }
+
 
 }
