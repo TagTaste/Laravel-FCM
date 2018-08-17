@@ -11,6 +11,7 @@ class SearchController extends Controller
     //aliases added for frontend
     private $models = [
         'collaborate'=> \App\Recipe\Collaborate::class,
+        'collaborates'=> \App\Recipe\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'recipes' => \App\Recipe::class,
         'profile' => \App\Recipe\Profile::class,
@@ -503,20 +504,24 @@ class SearchController extends Controller
                 $profileId = $request->user()->profile->id;
 
                 if(isset($this->model['profile'])){
-                    $this->model['profile'] = $this->model['profile']->toArray();
+                    $profiles = $this->model['profile']->toArray();
+                    $this->model['profile'] = [];
                     $following = \Redis::sMembers("following:profile:" . $profileId);
-                    foreach($this->model['profile'] as &$profile){
+                    foreach($profiles as &$profile){
                         if($profile && isset($profile['id'])){
                             $profile['isFollowing'] = in_array($profile['id'],$following);
+                            $this->model['profile'][] = $profile;
                         }
 
                     }
                 }
 
                 if(isset($this->model['company'])){
-                    $this->model['company'] = $this->model['company']->toArray();
-                    foreach($this->model['company'] as $company){
+                    $companies = $this->model['company']->toArray();
+                    $this->model['company'] = [];
+                    foreach($companies as $company){
                         $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                        $this->model['company'][] = $company;
                     }
                 }
             }
@@ -529,7 +534,7 @@ class SearchController extends Controller
 
             if (!empty($this->model)) {
                 if (isset($this->model['profile'])) {
-                $this->model['profile'] = $this->model['profile']->toArray();
+//                $this->model['profile'] = $this->model['profile']->toArray();
                     $following = \Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile'];
                     $this->model['profile'] = [];
@@ -568,12 +573,16 @@ class SearchController extends Controller
 
         $model = $model::whereNull('deleted_at');
 
+        if($type == 'collaborate' || $type == 'collaborates' || $type == 'job' || $type == 'jobs')
+        {
+            $model = $model->orderBy("created_at","desc");
+        }
+
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
         }
 
         return $model->get();
-
 
     }
 
