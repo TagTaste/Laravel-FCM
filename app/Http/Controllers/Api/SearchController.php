@@ -455,7 +455,7 @@ class SearchController extends Controller
 
     public function searchForApp(Request $request, $type = null)
     {
-        $query = $request->input('q');
+        $query = isset($request->input('q')) ? $request->input('q') : "";
         $this->model = [];
         $params = [
             'index' => "api",
