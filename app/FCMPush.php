@@ -45,10 +45,8 @@ class FCMPush extends Model
                 $data = $dataBuilder->build();
             }
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
-            $x = $downstreamResponse->numberSuccess();
-            $y = $downstreamResponse->numberFailure();
-            \Log::info("send success fcm".$x);
-            \Log::info("send failure fcm".$y);
+            $downstreamResponse->numberSuccess();
+            $downstreamResponse->numberFailure();
         }
 
 
@@ -69,6 +67,7 @@ class FCMPush extends Model
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
+            $downstreamResponse->numberFailure();
         }
 
     }
