@@ -522,7 +522,7 @@ class SearchController extends Controller
             }
         }
         else {
-            $suggestions = $this->getModels($type, []);
+            $suggestions = $this->getModelsForApp($type,$skip,$take);
             if ($suggestions && $suggestions->count()) {
                 $this->model[$type] = $suggestions->toArray();
             }
@@ -557,6 +557,22 @@ class SearchController extends Controller
 
         return $this->sendResponse();
     }
+
+    private function getModelsForApp($type,$skip = null ,$take = null)
+    {
+        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
+
+        $model = $model::whereNull('deleted_at');
+
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
+        }
+
+        return $model->get();
+
+
+    }
+
 
 
 }
