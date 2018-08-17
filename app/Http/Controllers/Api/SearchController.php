@@ -459,7 +459,7 @@ class SearchController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $query = $request->input('q');
         $this->model = [];
-
+        $profileId = $request->user()->profile->id;
         if(isset($query) && !is_null($query))
         {
             $params = [
@@ -529,11 +529,13 @@ class SearchController extends Controller
 
             if (!empty($this->model)) {
                 if (isset($this->model['profile'])) {
-//                $this->model['profile'] = $this->model['profile']->toArray();
+                $this->model['profile'] = $this->model['profile']->toArray();
                     $following = \Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile'];
                     $this->model['profile'] = [];
                     foreach ($profiles as $profile) {
+                        if(is_null($profile))
+                            continue;
                         if ($profile && isset($profile['id'])) {
                             $profile['isFollowing'] = in_array($profile['id'], $following);
                         }
@@ -547,6 +549,8 @@ class SearchController extends Controller
                     $companies = $this->model['company'];
                     $this->model['company'] = [];
                     foreach ($companies as $company) {
+                        if(is_null($company))
+                            continue;
                         $company['isFollowing'] = Company::checkFollowing($profileId, $company['id']);
                         $this->model['company'][] = $company;
                     }
