@@ -456,13 +456,8 @@ class SearchController extends Controller
 
     public function searchForApp(Request $request, $type = null)
     {
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $query = $request->input('q');
-        $this->model = [];
-        $profileId = $request->user()->profile->id;
-        if(isset($query) && !is_null($query))
-        {
+        if(isset($query) && !is_null($query)) {
             $params = [
                 'index' => "api",
                 'body' => [
@@ -476,57 +471,96 @@ class SearchController extends Controller
 
             $this->setType($type);
 
-            if($type){
+            if ($type) {
                 $params['type'] = $type;
             }
             $client = SearchClient::get();
 
             $response = $client->search($params);
+            $this->model = [];
 
-            if($response['hits']['total'] > 0){
+            $page = $request->input('page');
+            list($skip, $take) = \App\Strategies\Paginator::paginate($page);
 
+            if ($response['hits']['total'] > 0) {
                 $hits = collect($response['hits']['hits']);
                 $hits = $hits->groupBy("_type");
 
-                foreach($hits as $name => $hit){
+                foreach ($hits as $name => $hit) {
                     $this->model[$name] = [];
                     $ids = $hit->pluck('_id')->toArray();
-                    $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+                    $searched = $this->getModels($name, $ids, $request->input('filters'), $skip, $take);
 
-                    $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                    $suggestions = $this->filterSuggestions($query, $name, $skip, $take);
                     $suggested = collect([]);
-                    if(!empty($suggestions)){
-                        $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                    if (!empty($suggestions)) {
+                        $suggested = $this->getModels($name, array_pluck($suggestions, 'id'));
                     }
 
                     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
                 }
-                $profileId = $request->user()->profile->id;
 
-                if(isset($this->model['profile'])){
+
+                if (isset($this->model['profile'])) {
+//                $this->model['profile'] = $this->model['profile']->toArray();
+                    $following = \Redis::sMembers("following:profile:" . $profileId);
                     $profiles = $this->model['profile']->toArray();
                     $this->model['profile'] = [];
-                    $following = \Redis::sMembers("following:profile:" . $profileId);
-                    foreach($profiles as $profile){
-                        if($profile && isset($profile['id'])){
-                            $profile['isFollowing'] = in_array($profile['id'],$following);
+                    foreach ($profiles as $profile) {
+                        if ($profile && isset($profile['id'])) {
+                            $profile['isFollowing'] = in_array($profile['id'], $following);
                         }
                         $this->model['profile'][] = $profile;
 
                     }
                 }
 
-                if(isset($this->model['company'])){
+                if (isset($this->model['company'])) {
+//                $this->model['company'] = $this->model['company']->toArray();
                     $companies = $this->model['company']->toArray();
                     $this->model['company'] = [];
-                    foreach($companies as $company){
-                        $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    foreach ($companies as $company) {
+                        $company['isFollowing'] = Company::checkFollowing($profileId, $company['id']);
                         $this->model['company'][] = $company;
                     }
                 }
+
+//            if(isset($this->model['job']))
+//            {
+//                $jobs = $this->model['job'];
+//                $data = [];
+//                foreach($jobs as $job){
+//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
+//                }
+//                $this->model['job'] = $data;
+//            }
+
+                if (isset($this->model['recipe'])) {
+                    $recipes = $this->model['recipe'];
+                    $this->model['recipe'] = [];
+                    foreach ($recipes as $recipe) {
+                        $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
+                    }
+
+                }
+
+                if (isset($this->model['collaborate'])) {
+                    $collaborates = $this->model['collaborate'];
+                    $this->model['collaborate'] = [];
+                    foreach ($collaborates as $collaborate) {
+                        $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                    }
+
+                }
+
+                return $this->sendResponse();
             }
         }
         else {
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+            $this->model = [];
+            $profileId = $request->user()->profile->id;
             $suggestions = $this->getModelsForApp($type,$skip,$take);
             if ($suggestions && $suggestions->count()) {
                 $this->model[$type] = $suggestions->toArray();
