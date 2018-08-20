@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Chat\Message;
 use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
@@ -35,7 +36,7 @@ class FCMPush extends Model
             if($iosData['action'] == 'chat' || $iosData['action'] == 'message')
             {
                 $extraData = $iosData;
-                $message = \DB::table('chat_messages')->where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
+                $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
                 $extraData['model']['latestMessages'] = $message;
                 // For Android
                 $dataBuilder = new PayloadDataBuilder();
