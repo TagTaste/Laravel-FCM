@@ -189,7 +189,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->dailyAt('01:01');
         $schedule->command("build:suggestion:suggestiontodatabase:job")->dailyAt('02:01');
         $schedule->command("build:suggestion:suggestiontodatabase:company")->dailyAt('03:01');
-        $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('03:01');
+        $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('04:01');
 
     }
 

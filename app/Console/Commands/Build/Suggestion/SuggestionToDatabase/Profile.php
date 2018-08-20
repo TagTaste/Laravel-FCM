@@ -37,7 +37,7 @@ class Profile extends Command
      */
     public function handle()
     {
-        \DB::table('profiles')->whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
+        \DB::table('profiles')->whereNull('deleted_at')->orderBy('id')->chunk(20, function ($models) {
             foreach ($models as $model) {
                 $checkProfile = \DB::table('suggestion_engine')->where('type','=','profile')->where('profile_id',$model->id)->first();
                 if(isset($checkProfile))

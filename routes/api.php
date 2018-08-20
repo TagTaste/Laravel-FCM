@@ -293,8 +293,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
-
-            //history
+                Route::get("searchForApp/{type?}",'SearchController@searchForApp');
+                //history
                 Route::get("history/{type}","HistoryController@history");
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
@@ -553,7 +553,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("csv/designation",function (Request $request){
                 $this->model = [];
                 $studentDetail = \DB::table("experiences")
-                ->select(\DB::raw('COUNT(*) as count, designation'))
+                ->select(\DB::raw('COUNT(*) as count, designation, GROUP_CONCAT(company) as companies'))
+                ->orderBy("designation","desc")
                 ->groupBy("designation")
                 ->get();
                    
@@ -565,7 +566,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     "Expires" => "0"
                 );
         
-                $columns = array('count','designation');
+                $columns = array('count','designation','companies');
         
                 $str = '';
                 foreach ($columns as $c) {
@@ -586,9 +587,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/language",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("profiles")
-                ->select(\DB::raw('COUNT(*) as count, expertise as language'))
-                ->groupBy("expertise")
+                $studentDetail = \DB::table("profile_filters")
+                ->select(\DB::raw('COUNT(*) as count, value as language'))
+                ->where('key','=','language')
+                ->groupBy("value")
                 ->get();
                    
                 $headers = array(
@@ -620,9 +622,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/skill",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("profiles")
-                ->select(\DB::raw('COUNT(*) as count, keywords as skill'))
-                ->groupBy("keywords")
+                $studentDetail = \DB::table("profile_filters")
+                ->select(\DB::raw('COUNT(*) as count, value as skill'))
+                ->where('key','=','skills')
+                ->groupBy("value")
                 ->get();
                    
                 $headers = array(
