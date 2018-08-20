@@ -541,7 +541,7 @@ class SearchController extends Controller
                     $recipes = $this->model['recipe'];
                     $this->model['recipe'] = [];
                     foreach($recipes as $recipe){
-                        $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
+                        $this->model['recipe'][] = $recipe;
                     }
 
                 }
@@ -551,7 +551,7 @@ class SearchController extends Controller
                     $collaborates = $this->model['collaborate'];
                     $this->model['collaborate'] = [];
                     foreach($collaborates as $collaborate){
-                        $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                        $this->model['collaborate'][] = $collaborate;
                     }
 
                 }
@@ -610,7 +610,7 @@ class SearchController extends Controller
                     $recipes = $this->model['recipe'];
                     $this->model['recipe'] = [];
                     foreach($recipes as $recipe){
-                        $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
+                        $this->model['recipe'][] = $recipe;
                     }
 
                 }
@@ -620,7 +620,7 @@ class SearchController extends Controller
                     $collaborates = $this->model['collaborate'];
                     $this->model['collaborate'] = [];
                     foreach($collaborates as $collaborate){
-                        $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
+                        $this->model['collaborate'][] = $collaborate;
                     }
 
                 }
