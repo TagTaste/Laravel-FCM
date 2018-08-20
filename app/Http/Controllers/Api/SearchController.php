@@ -457,7 +457,7 @@ class SearchController extends Controller
     public function searchForApp(Request $request, $type = null)
     {
         $query = $request->input('q');
-        if(isset($query) && !is_null($query)) {
+        if(isset($query) && !is_null($query) && !empty($query)) {
             $profileId = $request->user()->profile->id;
             $params = [
                 'index' => "api",
