@@ -354,11 +354,10 @@ class BatchController extends Controller
                 $reports['subtitle'] = $data->subtitle;
                 $reports['is_nested'] = $data->is_nested;
                 $reports['question'] = $data->questions ;
-                \Log::info($data->questions);
                 if($data->is_nested == 1)
                 {
                     $reports['nestedAnswers'] = [];
-                    foreach ($data->questions as $item)
+                    foreach ($data->questions->questions as $item)
                     {
                         \Log::info($item);
                         $subReports = [];
