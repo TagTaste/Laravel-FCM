@@ -373,13 +373,6 @@ class BatchController extends Controller
                     }
                 }
                 $reports['total_applicants'] = $totalApplicants;
-                \Log::info("data id ");
-                \Log::info($data->id);
-                \Log::info($batchId);
-                \Log::info($collaborateId);
-                \Log::info(\DB::table('collaborate_tasting_user_review')->where('current_status',3)->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))
-                    ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                    ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->toSql());
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
                 $reports['answer'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))
