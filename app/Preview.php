@@ -15,12 +15,13 @@ class Preview
     
         $this->tags = $html->getElementsByTagName('meta');
     }
+
     public static function get($url)
     {
         $key = "preview:" . sha1($url);
         if(!\Redis::exists($key)){
             $self = new self($url);
-            $tags = $self->parseFacebookTags();
+            $tags = $self->parseMetaTags($url);
             \Redis::set($key,json_encode($tags));
         }
     
@@ -54,17 +55,41 @@ class Preview
         return $response;
     }
     
-    protected function parseFacebookTags()
+    protected function parseMetaTags($url)
     {
-        $meta = [];
+        $meta = ["description"=>"","image"=>"","url" => $url,"title" => ""];
        
         foreach($this->tags as $tag) {
-            if(str_contains($tag->getAttribute('property'),'og')){
-                $property = $tag->getAttribute('property');
-                $property = substr($property,3);
-                $value = $tag->getAttribute('content');
-                $meta[$property] = $value;
-            }
+
+           /**
+                 * Property parser
+                 */
+                if(str_contains($tag->getAttribute('property'),'og'))
+                {
+                    $property = $tag->getAttribute('property');
+                    $property = substr($property,3);
+                    $value = $tag->getAttribute('content');
+                    $meta[$property] = $value;
+                }
+
+                /**
+                 *Parse Twitter
+                 */
+                if(str_contains($tag->getAttribute('name'),'twitter'))
+                {
+                    $name = $tag->getAttribute('name');
+                    $name = substr($name,8);
+                    $value = $tag->getAttribute('content');
+                    if(array_key_exists($name,$meta)){
+                        if($meta[$name] == ""){
+                            $meta[$name] = $value;
+                        }
+                    }
+                    else{
+                        $meta[$name] = $value;
+                    }
+                }
+
         }
         return $meta;
     }
