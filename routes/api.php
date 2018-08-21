@@ -437,6 +437,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');
+                \Log::info("in api url ".$url);
                 $tags = \App\Preview::get($url);
                 
                 return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
