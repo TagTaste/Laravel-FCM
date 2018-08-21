@@ -99,7 +99,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 {
                     if($nestedOption->nested_option)
                     {
-                        $extra = \Db::table('global_nested_option')->where('type','=','Arom')->get();
+                        $extra = \Db::table('global_nested_option')->where('type','=','Aroma')->get();
                         foreach ($extra as $nested)
                         {
                             $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
