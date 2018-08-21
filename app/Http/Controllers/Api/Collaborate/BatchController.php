@@ -359,7 +359,7 @@ class BatchController extends Controller
                     $reports['nestedAnswers'] = [];
                     foreach ($data->questions as $item)
                     {
-                        dd($item);
+                        \Log::info($item);
                         $subReports = [];
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
