@@ -362,7 +362,7 @@ class BatchController extends Controller
                         $subReports = [];
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
-                        $subReports['subtitle'] = $item->subtitle;
+                        $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
                         $subReports['is_nested'] = $item->is_nested;
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
