@@ -59,7 +59,7 @@ class ReviewController extends Controller
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
                         'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId];
                 }
-                if(isset($answer['comment']) && !is_null($answer['comment']))
+                if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
                     $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
