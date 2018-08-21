@@ -353,11 +353,13 @@ class BatchController extends Controller
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
                 $reports['is_nested'] = $data->is_nested;
-                if($data->is_nested == 1 && isset($data->questions))
+                $reports['question'] = $data->questions ;
+                if($data->is_nested == 1)
                 {
                     $reports['nestedAnswers'] = [];
                     foreach ($data->questions as $item)
                     {
+                        dd($item);
                         $subReports = [];
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
