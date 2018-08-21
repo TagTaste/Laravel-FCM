@@ -397,7 +397,7 @@ class BatchController extends Controller
                 $model[] = $reports;
             }
         }
-        $this->model = $model;
+        $this->model = "agle hafte milge";
 
         return $this->sendResponse();
     }
