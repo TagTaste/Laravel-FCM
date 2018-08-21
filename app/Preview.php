@@ -18,12 +18,10 @@ class Preview
 
     public static function get($url)
     {
-        \Log::info("in preview url ".$url);
         $key = "preview:" . sha1($url);
         if(!\Redis::exists($key)){
             $self = new self($url);
             $tags = $self->parseMetaTags($url);
-            \Log::info($tags);
             \Redis::set($key,json_encode($tags));
         }
     
