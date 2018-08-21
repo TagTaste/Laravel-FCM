@@ -69,9 +69,19 @@ class ReviewController extends Controller
             }
         }
         if(count($data)>0)
+        {
             $this->model = Review::insert($data);
+            if($currentStatus == 3)
+            {
+                \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
+                    ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
+            }
+        }
         else
+        {
             $this->model = false;
+
+        }
         return $this->sendResponse();
     }
 }
