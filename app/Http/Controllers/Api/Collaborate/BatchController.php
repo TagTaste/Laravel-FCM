@@ -310,8 +310,8 @@ class BatchController extends Controller
         }
 
         $questionIds = \DB::table("collaborate_tasting_questions")->where('collaborate_id',$collaborateId)->where('header_type_id',$headerId)->get()->pluck('id');
-        $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->whereIn('question_id',$questionIds)
-            ->orderBy('question_id')->groupBy('question_id')->get();
+        $this->model = \DB::table('collaborate_tasting_user_review')->select('question_id','value','intensity',\DB::raw('count(*) as total'))->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->whereIn('question_id',$questionIds)
+            ->orderBy('question_id')->groupBy('question_id','value','intensity')->get();
 
         return $this->sendResponse();
     }

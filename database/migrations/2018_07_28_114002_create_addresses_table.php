@@ -13,7 +13,7 @@ class CreateAddressesTable extends Migration
      */
     public function up()
     {
-        //
+
         Schema::create('profile_addresses',function(Blueprint $table){
             $table->increments('id');
             $table->text('label')->nullable();
@@ -39,6 +39,6 @@ class CreateAddressesTable extends Migration
     public function down()
     {
         //
-        Schema::drop('addresses');
+        Schema::drop('profile_addresses');
     }
 }
