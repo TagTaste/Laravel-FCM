@@ -353,17 +353,48 @@ class BatchController extends Controller
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
                 $reports['is_nested'] = $data->is_nested;
+                if($data->is_nested == 1 && isset($data->questions))
+                {
+                    $reports['nestedAnswers'] = [];
+                    foreach ($data->questions as $item)
+                    {
+                        $subReports = [];
+                        $subReports['question_id'] = $item->id;
+                        $subReports['title'] = $item->title;
+                        $subReports['subtitle'] = $item->subtitle;
+                        $subReports['is_nested'] = $item->is_nested;
+                        $subReports['total_applicants'] = $totalApplicants;
+                        $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
+                            ->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
+                        $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))
+                            ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
+                            ->orderBy('question_id')->groupBy('question_id','value','intensity')->get();
+                        $reports['nestedAnswers'][] = $subReports;
+                    }
+                }
                 $reports['total_applicants'] = $totalApplicants;
-                $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
+
+                $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
-                $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))
+                $reports['answer'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))
                     ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                    ->orderBy('question_id')->groupBy('question_id','value','intensity')->get();
+                    ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+
+                if(isset($data->questions->nested_option))
+                {
+                    $reports['nested_option'] = $data->questions->nested_option;
+                    if($data->questions->nested_option == 1)
+                    {
+                        foreach($reports['answer'] as &$item)
+                        {
+                            $nestedOption = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
+                                ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
+                            $item->path = $nestedOption->path;
+                        }
+                    }
+                }
+
                 $model[] = $reports;
-            }
-            else
-            {
-                $model[] = $data;
             }
         }
         $this->model = $model;
