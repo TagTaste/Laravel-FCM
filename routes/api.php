@@ -611,5 +611,54 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         
             });
 
+            Route::get("csv/farmer",function(Request $request) {
+                $this->model = [];
+                $studentDetail = \DB::table("profiles")
+               ->join('users',"users.id",'=','profiles.user_id')
+                ->leftJoin('experiences','profiles.id','=','experiences.profile_id')
+                ->select('users.name','profiles.id','users.email as email','profiles.phone as phone')
+                ->orWhere('profiles.keywords','LIKE','%Farmer%')
+                ->orWhere('profiles.keywords','LIKE','%Farming%')
+                ->orWhere('profiles.keywords','LIKE','%Organic Produce%')
+                ->orWhere('profiles.about','LIKE','%Farmer%')
+                ->orWhere('profiles.about','LIKE','%Farming%')
+                ->orWhere('profiles.about','LIKE','%Organic Produce%')
+                ->orWhere('experiences.company','LIKE','%Farmer%')
+                ->orWhere('experiences.company','LIKE','%Farming%')
+                ->orWhere('experiences.company','LIKE','%Organic Produce%')
+                ->orWhere('experiences.designation','LIKE','%Farmer%')
+                ->orWhere('experiences.designation','LIKE','%Farming%')
+                ->orWhere('experiences.designation','LIKE','%Organic Produce%')
+                ->orWhere('experiences.description','LIKE','%Farmer%')
+                ->orWhere('experiences.description','LIKE','%Farming%')
+                ->orWhere('experiences.description','LIKE','%Organic Produce%')
+                ->groupBy("id")
+                ->get();
+                   
+                $headers = array(
+                    "Content-type" => "text/csv",
+                    "Content-Disposition" => "attachment; filename=farmer_list.csv",
+                    "Pragma" => "no-cache",
+                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+                    "Expires" => "0"
+                );
+        
+                $columns = array('name','id','email','phone');
+        
+                $str = '';
+                foreach ($columns as $c) {
+                    $str = $str.$c.',';
+                }
+                $str = $str."\n";
+        
+                foreach($studentDetail as $review) {
+                    foreach ($columns as $c) {
+                        $str = $str.$review->{$c}.',';
+                    }
+                    $str = $str."\n";
+                }
+       
+                return response($str, 200, $headers);
+            });
 
 });
