@@ -71,6 +71,7 @@ class ShoutoutController extends Controller
         if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
 
             $key = "preview:" . sha1($inputs['preview']['url']);
+
             if(!\Redis::exists($key)){
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
                     $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);

@@ -91,6 +91,7 @@ class Preview
                 }
 
         }
+        $meta['url'] = $url;
         return $meta;
     }
 }
