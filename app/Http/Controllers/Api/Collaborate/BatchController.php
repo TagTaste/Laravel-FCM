@@ -377,16 +377,16 @@ class BatchController extends Controller
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('question_id')->groupBy('question_id','value','leaf_id')->get();
+                            ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $reports['nestedAnswers'][] = $subReports;
                     }
                 }
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
-                $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('intensity'),\DB::raw('count(*) as total'))->where('current_status',3)
+                $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                     ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                    ->orderBy('question_id')->groupBy('question_id','value','leaf_id')->get();
+                    ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
 
                 if(isset($data->questions->nested_option))
                 {
