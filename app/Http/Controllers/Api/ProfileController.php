@@ -124,6 +124,7 @@ class ProfileController extends Controller
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
+            $name = ucwords($name);
             $request->user()->update(['name'=>trim($name)]);
         }
         
