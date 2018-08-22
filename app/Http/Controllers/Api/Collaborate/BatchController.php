@@ -409,7 +409,21 @@ class BatchController extends Controller
     {
         $gender = ['Male','Female','Others'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
+        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
         $city = [];
+        foreach ($applicants as $applicant)
+        {
+            if(isset($applicant->applier_address))
+            {
+                $applierAddress = json_decode($applicant->applier_address,true);
+                $city[] = $applierAddress['city'];
+            }
+        }
+
+        $this->model = ['Gender'=>$gender,'Age'=>$age,'city'=>$city];
+
+        return $this->sendResponse();
+
     }
 
 }

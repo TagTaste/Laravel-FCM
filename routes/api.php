@@ -220,8 +220,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
+
+
+
                     Route::get("userBatches","CollaborateController@userBatches");
-                    //collaborate comments
                     Route::post("seenBatchesList","CollaborateController@seenBatchesList");
                 Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::get("userBatches",'BatchController@userBatches');
@@ -258,6 +260,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("insertHeaders","QuestionController@insertHeaders");
                 Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
                 Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
+
+                //collaborate comments
 
                 Route::resource('comments','CommentController');
 
