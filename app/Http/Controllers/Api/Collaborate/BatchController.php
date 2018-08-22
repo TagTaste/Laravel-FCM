@@ -407,7 +407,9 @@ class BatchController extends Controller
 
     public function filters(Request $request, $collaborateId)
     {
-
+        $gender = ['Male','Female','Others'];
+        $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
+        $city = [];
     }
 
 }

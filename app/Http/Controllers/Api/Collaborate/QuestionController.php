@@ -213,7 +213,15 @@ class QuestionController extends Controller
                 }
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
             }
-            $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+            if(!is_null($comment))
+            {
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+            }
+            else
+            {
+                $answers[] = ['question_id'=>$questionId,'option'=>$data];
+
+            }
         }
 
         return $answers;
