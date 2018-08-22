@@ -341,6 +341,9 @@ class BatchController extends Controller
                 }
             }
         }
+
+        //filters data
+
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->distinct()->get(['profile_id'])->count();
         $model = [];
@@ -400,6 +403,11 @@ class BatchController extends Controller
         $this->model = $model;
 
         return $this->sendResponse();
+    }
+
+    public function filters(Request $request, $collaborateId)
+    {
+
     }
 
 }

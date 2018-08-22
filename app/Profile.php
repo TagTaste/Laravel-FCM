@@ -892,7 +892,7 @@ class Profile extends Model
 
     public function getBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)->count();
+        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)->where('begin_tasting',1)->count();
     }
 
     public function getNewBatchesCountAttribute()

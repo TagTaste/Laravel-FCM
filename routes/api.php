@@ -234,6 +234,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //reports
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
 
+                //filter for dashboard of product review
+                Route::get("dashboard/filters","BatchController@filters");
+
                 Route::resource('batches','BatchController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
                 Route::post('rejectPeople','ApplicantController@rejectPeople');
