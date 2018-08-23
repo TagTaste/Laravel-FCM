@@ -164,8 +164,6 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\MergeCollaborators::class,
 
-        CollaborateApplicantFieldFilled::class
-
 
     ];
 
