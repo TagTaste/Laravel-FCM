@@ -43,6 +43,8 @@ class CollaborateApplicantFieldFilled extends Command
                 $address = json_decode($model->applier_address,true);
                 $city = isset($address['city']) ? $address['city'] : null;
                 $profile = Profile::where('id',$model->profile_id)->first();
+                \Log::info($profile->ageRange);
+                \Log::info($profile->gender);
                 \DB::table('collaborate_applicants')->where('id',$model->id)->update(['city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender]);
             }
         });
