@@ -518,4 +518,15 @@ class BatchController extends Controller
 
     }
 
+    public function comments(Request $request, $collaborateId, $batchId, $headerId, $questionId)
+    {
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$questionId)
+            ->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
+    }
+
 }

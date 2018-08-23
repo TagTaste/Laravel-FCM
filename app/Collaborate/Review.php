@@ -11,6 +11,13 @@ class Review extends Model {
 
     protected $fillable = ['key','value','leaf_id','question_id','tasting_header_id','collaborate_id','profile_id','batch_id','intensity','current_status','created_at','updated_at'];
 
-    protected $visible = ['id','key','value','leaf_id','question_id','tasting_header_id','collaborate_id','profile_id','batch_id','intensity','current_status','created_at','updated_at'];
+    protected $visible = ['id','key','value','leaf_id','question_id','tasting_header_id','collaborate_id','profile_id','batch_id',
+        'intensity','current_status','created_at','updated_at','profile'];
 
+    protected $with = ['profile'];
+
+    public function profile()
+    {
+        return $this->belongsTo(\App\Recipe\Profile::class);
+    }
 }
