@@ -166,7 +166,7 @@ class BatchController extends Controller
     {
         $profileIds = $request->input('profile_id');
         $batchId = $request->input('batch_id');
-        $checkUserReview = \DB::table('collaborate_tasting_user_review')->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->exists();
+        $checkUserReview = \DB::table('collaborate_batches_assign')->where('begin_tasting',1)->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->exists();
         if($checkUserReview)
         {
             return $this->sendError("You can not remove from batch.");
