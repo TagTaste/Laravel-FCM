@@ -2,6 +2,7 @@
 
 use App\Collaborate;
 use App\CompanyUser;
+use App\Recipe\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -115,9 +116,10 @@ class ApplicantController extends Controller
             $applierAddress = $request->input('applier_address');
             $address = json_decode($applierAddress,true);
             $city = $address['city'];
+            $profile = Profile::where('id',$loggedInprofileId)->first();
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
-                'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,'shortlisted_at'=>$now,'city'=>$city];
-
+                'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
+                'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
         }
         else
         {
@@ -375,15 +377,16 @@ class ApplicantController extends Controller
         {
             return $this->sendError("Please select address.");
         }
+        $loggedInProfileId = $request->user()->profile->id;
         $hut = $request->has('hut') ? $request->input('hut') : 0 ;
         $applierAddress = $request->input('applier_address');
         $address = json_decode($applierAddress,true);
         $city = $address['city'];
-        $loggedInProfileId = $request->user()->profile->id;
+        $profile = Profile::where('id',$loggedInProfileId)->first();
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
-                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city]);
+                'applier_address'=>$applierAddress,'hut'=>$hut,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender]);
 
         if($this->model)
         {

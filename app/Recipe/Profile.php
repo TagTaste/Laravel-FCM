@@ -15,7 +15,7 @@ class Profile extends BaseProfile
     protected $with = [];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise','user_id',
-        'keywords','image','isFollowing','ageRange'];
+        'keywords','image','isFollowing','ageRange','gender'];
 
     protected $appends = ['name','designation','imageUrl','ageRange'];
     
@@ -27,11 +27,28 @@ class Profile extends BaseProfile
     public function getAgeRangeAttribute()
     {
         $age = $this->getDobAttribute($this->dob);
-        if(isset($age) && !is_null($age))
-        {
-            $to   = (int) $diff = (date('Y') - date('Y',strtotime($age)))/5;
-            $start = $to*5; $end = $start + 5;
-            return $start. " - ".$end;
+        if(isset($age) && !is_null($age)) {
+            $ageGroup = ['< 18', '18 - 35', '35 - 55', '55 - 70', '> 70'];
+            $to = (int)$diff = (date('Y') - date('Y', strtotime($age)));
+            switch ($to) {
+                case $to <= 18:
+                    return $ageGroup[0];
+                    break;
+                case $to > 18 && $to <= 35:
+                    return $ageGroup[1];
+                    break;
+                case $to > 35 && $to <= 55:
+                    return $ageGroup[2];
+                    break;
+                case $to > 55 && $to <= 70:
+                    return $ageGroup[3];
+                    break;
+                case $to > 70:
+                    return $ageGroup[4];
+                    break;
+                default:
+                    return null;
+            }
         }
         return null;
     }
