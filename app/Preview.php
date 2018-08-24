@@ -57,7 +57,7 @@ class Preview
     
     protected function parseMetaTags($url)
     {
-        $meta = ["description"=>"","image"=>"","url" => $url,"title" => ""];
+        $meta = [];
        
         foreach($this->tags as $tag) {
 
@@ -70,6 +70,7 @@ class Preview
                     $property = substr($property,3);
                     $value = $tag->getAttribute('content');
                     $meta[$property] = $value;
+                    $meta['url'] = $url;
                 }
 
                 /**
@@ -91,7 +92,6 @@ class Preview
                 }
 
         }
-        $meta['url'] = $url;
         return $meta;
     }
 }
