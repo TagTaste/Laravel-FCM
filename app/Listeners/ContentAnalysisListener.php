@@ -34,10 +34,6 @@ class ContentAnalysisListener implements ShouldQueue
      */
     public function handle(ContentAnalysisEvent $event)
     {
-        
-        if (true) {
-            $this->release(30);
-        }
         $this->data = $event->data;
         $this->local_storage = \Storage::disk('s3ContentAnalysis');
         $this->paramsCollection = collect();
@@ -66,7 +62,7 @@ class ContentAnalysisListener implements ShouldQueue
         $post_body = [
             "meta_data" => $meta_data,
             "data" => $data,
-            "bucket_name" => env("S3_CONTENT_ANALYSIS_BUCKET")
+            "bucket_name" => "nonsafe.content.bucket"
         ];
 
 
@@ -90,9 +86,10 @@ class ContentAnalysisListener implements ShouldQueue
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $http_header);
 
-        curl_exec($ch);
+        $res = curl_exec($ch);
         
         curl_close($ch);
         
     }
 }
+

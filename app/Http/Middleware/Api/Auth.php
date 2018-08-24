@@ -95,12 +95,31 @@ class Auth extends GetUserFromToken
 
      public function terminate($request,$response)
      {
-
         $this->request = $request;
         $request_data_collection = collect($this->request->all());
         $this->content_analysis_req_collection = collect ();
-        $request_data_collection->each(function($val,$key){
+
+        $this->requestValueRecursion($request_data_collection);
+
+        if($request_data_collection->count() > 0){
+
+            $tempArray = [];
+            $tempArray["type"] = "meta";
+            $tempArray["value"] = "IP- ".$this->request->ip().
+            " UserID- ".$this->request->user()->id.
+            " EndPoint- ".$this->request->fullUrl();
+            $this->content_analysis_req_collection->push($tempArray);
+            event(new ContentAnalysisEvent($this->content_analysis_req_collection));
+            $this->content_analysis_req_collection = null;
+        }
+     }
+
+     private function requestValueRecursion($loopValue){
+        $loopValue->each(function($val,$key){
             
+            if (gettype($val) == "array" ) {
+                $this->requestValueRecursion(collect($val));
+            } else { 
             if ($this->request->hasFile($key)) {
                 //File
                 $extension = $this->request->$key->extension();
@@ -108,7 +127,9 @@ class Auth extends GetUserFromToken
                     $extension == "jpg" || 
                     $extension == "png") 
                 {
+
                     //Image
+                    //$dump_path = $this->request->file($key."");
                     $local_storage = \Storage::disk('s3ContentAnalysis');
                     $dump_path = $local_storage->putFile('temp', $this->request->file($key.""),'public');
                     $tempArray = [];
@@ -117,7 +138,9 @@ class Auth extends GetUserFromToken
                     $this->content_analysis_req_collection->push($tempArray);
                 } 
                 else if($extension == "mp4") {
+
                     //Video
+                    //$dump_path = $this->request->file($key."");
                     $local_storage = \Storage::disk('s3ContentAnalysis');
                     $dump_path = $local_storage->putFile('temp', $this->request->file($key.""),'public');
                     $tempArray = [];
@@ -125,24 +148,21 @@ class Auth extends GetUserFromToken
                     $tempArray["value"] = $dump_path;
                     $this->content_analysis_req_collection->push($tempArray);
                 }
+                
             } else {
-                    //Text
+
+               //Text
                     $tempArray = [];
                     $tempArray["type"] = "text";
                     $tempArray["value"] = $val;
                     $this->content_analysis_req_collection->push($tempArray);
             }
-        });
-
-        if($request_data_collection->count() > 0){
-            $tempArray = [];
-            $tempArray["type"] = "meta";
-            $tempArray["value"] = "IP- ".$this->request->ip().
-            " UserID- ".$this->request->user()->id.
-            " EndPoint- ".$this->request->fullUrl();
-            $this->content_analysis_req_collection->push($tempArray);
-            event(new ContentAnalysisEvent($this->content_analysis_req_collection));
+        
         }
+        
+    });
+
+        return $this->content_analysis_req_collection;
      }
     
 }
