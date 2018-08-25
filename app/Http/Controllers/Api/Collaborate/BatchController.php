@@ -434,8 +434,8 @@ class BatchController extends Controller
                 $profileIds = $profileIds->orWhere('gender', 'LIKE', $gender);
             }
         }
-        \Log::info($profileIds);
         $profileIds = $profileIds->get()->pluck('profile_id');
+        \Log::info($profileIds);
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
 
