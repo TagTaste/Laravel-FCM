@@ -419,7 +419,7 @@ class BatchController extends Controller
             foreach ($filters['city'] as $city)
             {
                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
-                $profileIds = $profileIds->merge('ids');
+                $profileIds = $profileIds->merge($ids);
             }
         }
         if(isset($filters['age']))
@@ -427,7 +427,7 @@ class BatchController extends Controller
             foreach ($filters['age'] as $age)
             {
                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)->get()->pluck('profile_id');
-                $profileIds = $profileIds->merge('ids');
+                $profileIds = $profileIds->merge($ids);
             }
         }
         if(isset($filters['gender']))
@@ -435,9 +435,10 @@ class BatchController extends Controller
             foreach ($filters['gender'] as $gender)
             {
                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)->get()->pluck('profile_id');
-                $profileIds = $profileIds->merge('ids');
+                $profileIds = $profileIds->merge($ids);
             }
         }
+        \Log::info($profileIds);
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
 
