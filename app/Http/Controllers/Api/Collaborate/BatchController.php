@@ -412,6 +412,8 @@ class BatchController extends Controller
 
     public function filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest)
     {
+        \Log::info($filters);
+        dd($filters);
         $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId);
         if(isset($filters['city']))
         {
