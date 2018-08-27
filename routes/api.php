@@ -667,7 +667,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 });
 // unsubscribe
-Route::get("settingUpdate/{type}","SettingController@updateSetting");
-Route::post("unsubscribe","SettingController@store");
-Route::resource("unsubscribe/reason","ReasonController");
-Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");
+Route::get("settingUpdate/{type}","SettingController@updateSetting");//this will do both subscribe and unsubscribe just pass {subscribe} or unsubscribe with the hash value you received
+Route::post("unsubscribe","SettingController@store");//no use
+Route::resource("unsubscribe/reason","ReasonController");//to get or insert the reason for unsubscribe to the table. use the get route to recieve the resons for unsubscribe with id and post route to insert the resons as per your requirement. 
+Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");//this route will post the reason for the particular user for unsubscribe just pass the hash value and the reason id you received from the above route. 
