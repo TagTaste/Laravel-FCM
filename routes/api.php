@@ -99,6 +99,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("photos","PhotoController");
                     Route::resource("collaborate","CollaborateController");
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                        Route::resource("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::resource("collaborate","CollaborateController");
                     });
 
@@ -222,10 +223,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("collaborate","CollaborateController");
 
 
+                    //product review related api
 
                     Route::get("userBatches","CollaborateController@userBatches");
                     Route::post("seenBatchesList","CollaborateController@seenBatchesList");
-                Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                    Route::get("tastingMethodology","CollaborateController@tastingMethodology");
+                    Route::get("profilesJobs","CollaborateController@profilesJobs");
+                    Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+
+
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');

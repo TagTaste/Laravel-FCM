@@ -437,4 +437,24 @@ class CollaborateController extends Controller
         return $this->sendResponse();
 
     }
+
+    public function tastingMethodology()
+    {
+        $this->model = \DB::table('collaborate_tasting_methodology')->get();
+        return $this->sendResponse();
+    }
+
+    public function profilesJobs()
+    {
+        $this->model = \DB::table('profiles_job')->get();
+        return $this->sendResponse();
+    }
+
+    public function profilesSpecialization()
+    {
+        $this->model = \DB::table('profiles_specialization')->get();
+        return $this->sendResponse();
+    }
+
+
 }

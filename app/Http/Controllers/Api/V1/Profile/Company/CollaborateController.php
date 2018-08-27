@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Profile\Company;
 
 use App\Collaborate;
 use App\Company;
+use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
 use App\Http\Controllers\Api\Controller;
@@ -76,7 +77,7 @@ class CollaborateController extends Controller
         $inputs['profile_id'] = $profileId;
         $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
         $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
-                    ? Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() : Carbon::now()->addMonth()->toDateTimeString();
+                    ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         if(!empty($fields)){
@@ -157,24 +158,16 @@ class CollaborateController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
         $inputs = $request->all();
         unset($inputs['profile_id']);
-        if(isset($inputs['step']))
-        {
-            if($inputs['step'] == 3)
-            {
-                $inputs['state'] = Collaborate::$state[0];
-            }
-            else
-            {
-                $inputs['state'] = Collaborate::$state[3];
-            }
-        }
-        else
-        {
-            $inputs['state'] = Collaborate::$state[0];
-        }
-        unset($inputs['expires_on']);
+        unset($inputs['state']);
+        unset($inputs['step']);
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
@@ -214,18 +207,6 @@ class CollaborateController extends Controller
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
 
-        $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
-        if(count($addresses))
-        {
-            Collaborate\Addresses::where('collaborate_id',$id)->delete();
-            foreach ($addresses as &$address)
-            {
-                $address = ['collaborate_id'=>$id,'city'=>$address['city'],
-                    'location'=>isset($address['location']) && !is_null($address['location']) ? json_encode($address['location']) : null];
-            }
-            $collaborate->addresses()->insert($addresses);
-        }
-
         if($collaborate->state == 'Expired')
         {
             $inputs['state'] = Collaborate::$state[0];
@@ -248,23 +229,6 @@ class CollaborateController extends Controller
         $inputs['privacy_id'] = 1;
         $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::find($id);
-
-        if(isset($inputs['step']) && !is_null($inputs['step']))
-        {
-            if($inputs['step'] == 3)
-            {
-                $collaborate->addToCache();
-                $company = Company::find($companyId);
-                if(!isset($collaborate->payload_id))
-                    event(new NewFeedable($this->model, $company));
-                \App\Filter\Collaborate::addModel($this->model);
-                //remove when going live
-                Artisan::call("Collaboration:Question", ['id'=>$this->model->id]);
-
-            }
-            return $this->sendResponse();
-
-        }
         \App\Filter\Collaborate::addModel(Collaborate::find($id));
 
         return $this->sendResponse();
@@ -395,5 +359,165 @@ class CollaborateController extends Controller
         $this->model['collaborations'] = $data;
         return $this->sendResponse();
 
+    }
+
+    public function scopeOfReview(Request $request, $profileId, $companyId, $id)
+    {
+        $collaborateId = $id;
+        $inputs = $request->only(['methodology_id','age_group',
+            'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state']);
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+
+        $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
+        }
+
+        if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
+        {
+            return $this->sendError("json is not valid.");
+        }
+
+        if(isset($inputs['step']))
+        {
+            if($inputs['step'] == 3)
+            {
+                $inputs['state'] = Collaborate::$state[0];
+            }
+            else
+            {
+                $inputs['state'] = Collaborate::$state[3];
+            }
+        }
+        else
+        {
+            $inputs['state'] = Collaborate::$state[0];
+        }
+
+
+
+        if($collaborate->state == 'Active')
+        {
+            return $this->sendError("You can not update your samples.");
+        }
+
+        if($request->has('batches'))
+        {
+            $batches = $request->input('batches');
+            $batchList = [];
+            $now = Carbon::now()->toDateTimeString();
+            foreach ($batches as $batch)
+            {
+                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>$batch['notes'],'instruction'=>$batch['instruction']
+                ,'collaborate_id'=>$collaborateId,'created_at'=>$now,'updated_at'=>$now];
+            }
+            if(count($batchList))
+            {
+                Collaborate\Batches::insert($batchList);
+            }
+        }
+
+        $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
+        if(count($addresses))
+        {
+            Collaborate\Addresses::where('collaborate_id',$id)->delete();
+            foreach ($addresses as &$address)
+            {
+                $address = ['collaborate_id'=>$id,'city'=>$address['city'],
+                    'location'=>isset($address['location']) && !is_null($address['location']) ? json_encode($address['location']) : null];
+            }
+            $collaborate->addresses()->insert($addresses);
+        }
+
+        if($request->has('job_id'))
+        {
+            $jobIds = $request->input('job_id');
+            $jobs = [];
+            foreach ($jobIds as $jobId)
+            {
+                $jobs = ['collaborate_id'=>$collaborateId,'job_id'=>$jobId];
+            }
+            if(count($jobs))
+            {
+                $collaborate->job_profile()->insert($jobs);
+
+            }
+        }
+
+
+        if($request->has('specialization_id'))
+        {
+            $specializationIds = $request->input('specialization_id');
+            $specializations = [];
+            foreach ($specializationIds as $specializationId)
+            {
+                $specializations = ['collaborate_id'=>$collaborateId,'specialization_id'=>$specializationId];
+            }
+            if(count($specializations))
+            {
+                $collaborate->job_profile()->insert($specializations);
+
+            }
+        }
+        $this->model = $collaborate->update($inputs);
+        if(isset($inputs['step']) && !is_null($inputs['step']))
+        {
+            if($inputs['step'] == 3)
+            {
+                $collaborate->addToCache();
+                $company = Company::find($companyId);
+                if(!isset($collaborate->payload_id))
+                    event(new NewFeedable($this->model, $company));
+                \App\Filter\Collaborate::addModel($this->model);
+
+            }
+            return $this->sendResponse();
+
+        }
+        return $this->sendResponse();
+    }
+
+    public function checkJson($json)
+    {
+
+        $result = json_decode($json);
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return true;
+        }
+
+// OR this is equivalent
+
+        if (json_last_error() === 0) {
+            return true;
+        }
+        return false;
+
+    }
+
+    public function uploadQuestion(Request $request, $profileId, $companyId, $id)
+    {
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+
+        $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
+        }
+
+        if($collaborate->state == 'Saved')
+        {
+            //remove when going live
+            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id]);
+        }
+        $this->model = $collaborate;
+        return $this->sendResponse();
     }
 }

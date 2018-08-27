@@ -21,11 +21,12 @@ class Collaborate extends Model implements Feedable
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
         'created_at','updated_at','category_id','step','financial_min','financial_max',
-        'type_id','images','collaborate_type','is_taster_residence','allergens','product_review_meta'];
+        'type_id','images','collaborate_type','is_taster_residence','allergens','product_review_meta',
+        'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','brand_name','brand_logo'];
 
-    protected $with = ['profile','company','fields','categories','addresses'];
+    protected $with = ['profile','company','fields','categories','addresses','job_profile','specialization_profile'];
 
-    static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved=4 5 = close
+    static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -35,9 +36,10 @@ class Collaborate extends Model implements Feedable
         'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in','state','updated_at','images',
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
-        'is_taster_residence','allergens','product_review_meta'];
+        'is_taster_residence','allergens','product_review_meta','methodology_id','age_group','gender_ratio',
+        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','job_profile','specialization_profile','brand_name','brand_logo'];
 
-    protected $appends = ['applicationCount','type','product_review_meta'];
+    protected $appends = ['applicationCount','type','product_review_meta','age_group','gender_ratio','tasting_methodology'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -496,6 +498,31 @@ class Collaborate extends Model implements Feedable
         }
         return null;
 
+    }
+
+    public function getTastingMethodologyAttribute()
+    {
+        return isset($this->methodology_id) && !is_null($this->methodology_id) ? \DB::table('collaborate_tasting_methodology')->where('id',$this->methodology_id)->first() : null;
+    }
+
+    public function specialization_profile()
+    {
+        return $this->hasMany('App\Collaborate\Specialization');
+    }
+
+    public function job_profile()
+    {
+        return $this->hasMany('App\Collaborate\Job');
+    }
+
+    public function getAgeGroupAttribute($value)
+    {
+        return !is_null($value) ? json_decode($value) : null;
+    }
+
+    public function getGenderRatioAttribute($value)
+    {
+        return !is_null($value) ? json_decode($value) : null;
     }
 
 }
