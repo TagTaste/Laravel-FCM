@@ -467,6 +467,9 @@ class Company extends Model
         foreach ($data as &$datum)
         {
             $datum = json_decode($datum,true);
+            if(!isset($data['id'])){
+                continue;
+            }
             $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
 //            $datum['self'] = $followerProfileId === $datum['id'];
         }

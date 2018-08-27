@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Chat;
+use App\CompanyUser;
 use App\Strategies\Paginator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\File;
+use App\Mail\JobResponse;
 
 class ChatController extends Controller
 {
@@ -334,5 +336,50 @@ class ChatController extends Controller
         }
 
     }
-}
 
+    public function featureMessage(Request $request,$feature,$featureId)
+    {   
+        $model = $this->getModel($feature,$featureId);
+        if(empty($model))
+        {
+            return $this->sendError("Invalid model name or Id");
+        }
+        $inputs = $request->except(['_method','_token']);
+        $profileIds = $inputs['profile_id'];
+        if(!is_array($profileIds))
+        {
+            $profileIds = [$profileIds];
+        }
+        $LoggedInUser = $request->user();
+        $loggedInProfileId = $LoggedInUser->profile->id;
+        $data = [];
+
+        if(isset($model->company_id)&& (!is_null($model->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$loggedInProfileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($model->profile_id != $loggedInProfileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
+        $data['message'] = $inputs['message'];
+        $data['username'] = $LoggedInUser->name;
+        $data['sender_info'] = $LoggedInUser;
+        $data['model_title'] = $model->title;
+        $data['model_name'] = $feature;
+        $data['model_id'] = $model->id;
+        event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
+        $this->model = true;
+        return $this->sendResponse();
+        
+
+    }
+    private function getModel($feature,$featureId)
+    {
+        $class = "\\App\\" . ucwords($feature);
+        return $class::find($featureId);
+    }
+}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Deeplink;
+use App\PublicView\Collaborate;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use Illuminate\Http\Request;
@@ -124,6 +125,24 @@ class PublicViewController extends Controller
         if(!$this->model){
             return response()->json(['data' => null, 'model' => null, 'errors' => ["Could not find model."]]);
         }
+        return response()->json(['data'=>$this->model]);
+    }
+
+    public function seeall(Request $request, $modelName)
+    {
+        if ($modelName != 'collaborate') {
+            return $this->sendError("Model not found.");
+        }
+
+        $collaborations = Collaborate::whereNull('deleted_at')->orderBy("created_at","desc");
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        $this->model = [];
+        $this->model["count"] = $collaborations->count();
+        $this->model["data"] = $collaborations->skip($skip)->take($take)->get();
+
         return response()->json(['data'=>$this->model]);
     }
 

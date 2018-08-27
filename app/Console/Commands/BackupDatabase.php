@@ -63,11 +63,11 @@ class BackupDatabase extends Command
         
         echo exec($command);
         
-        if(filesize($backupFilePath) == 0){
-            $this->error("Could not backup sql");
-            $message = 'Failed to backup DB: Dump file invalid.';
-            return;
-        }
+//        if(filesize($backupFilePath) == 0){
+//            $this->error("Could not backup sql");
+//            $message = 'Failed to backup DB: Dump file invalid.';
+//            return;
+//        }
     
         $this->info("DB backup done at $now...\nMoving dump to S3...");
         

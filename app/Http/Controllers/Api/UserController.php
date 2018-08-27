@@ -33,7 +33,7 @@ class UserController extends Controller
         $alreadyVerified = false;
         $result = ['status'=>'success','newRegistered' =>true];
         $user = \App\Profile\User::addFoodie($request->input('user.name'),$request->input('user.email'),$request->input('user.password'),
-            false,null,null,null,$alreadyVerified,null);
+            false,null,null,null,$alreadyVerified,null,null,null);
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
             ['email'=>$request->input('user.email')
                 ,'password'=>$request->input('user.password')])];
@@ -164,7 +164,7 @@ class UserController extends Controller
         $socialiteUser = $request->all();
         if(isset($socialiteUser['remove'])&&$socialiteUser['remove'] == 1)
         {
-            $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider_user_id',$socialiteUser['id'])->delete();
+            $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider',$provider)->delete();
             \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>null]);
             return $this->sendResponse();
         }
@@ -174,7 +174,7 @@ class UserController extends Controller
         {
             $user = \App\Profile\User::where('email',$request->user()->email)->first();
             $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
-            $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink);
+            $this->model = $user->createSocialAccount($provider,$socialiteUser['id'],$socialiteUser['avatar_original'],$socialiteUser['token'],$socialiteUserLink,false,$socialiteUser['user']);
             return $this->sendResponse();
         }
         else

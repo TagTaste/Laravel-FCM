@@ -89,6 +89,8 @@ class CollaborateController extends Controller
             $i = 1;
             foreach ($images as $image)
             {
+                if(is_null($image))
+                    continue;
                 $imagesArray[]['image'.$i] = $image;
                 $i++;
             }
@@ -154,7 +156,7 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
-
+        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -162,11 +164,14 @@ class CollaborateController extends Controller
             $i = 1;
             foreach ($images as $image)
             {
+                if(is_null($image))
+                    continue;
                 $imagesArray[]['image'.$i] = $image;
                 $i++;
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
+
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
