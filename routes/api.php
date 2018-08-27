@@ -666,3 +666,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
 });
+// unsubscribe
+Route::get("settingUpdate/{type}","SettingController@updateSetting");
+Route::post("unsubscribe","SettingController@store");
+Route::resource("unsubscribe/reason","ReasonController");
+Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");

@@ -11,6 +11,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Crypt;
 
 class Action extends Notification implements ShouldQueue
 {
@@ -79,8 +80,6 @@ class Action extends Notification implements ShouldQueue
         } else {
             $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
         }
-
-
         if(is_null($preference)) {
             return $via;
         }
@@ -106,8 +105,27 @@ class Action extends Notification implements ShouldQueue
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
-    {
+    {  
         if(view()->exists($this->view)){
+
+            if($this->data->action != 'expire'||$this->data->action != 'admin'||$this->data->action != 'expire'||$this->data->action != 'delete-model'||$this->data->action != 'expire-model')
+        {
+            $action = $this->data->action;
+            $profileId = $notifiable->id;
+            $model = $this->modelName;
+            if($this->model->company_id != null)
+            {
+                $companyId = $this->model->company_id;
+            }
+            else{
+                $companyId = 0;
+            }
+            $encrypted = Crypt::encryptString($profileId."/".$companyId."/".$action."/".$model);
+            $unsubscribe_link = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribe_link'=>$unsubscribe_link]
+            );
+        }
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
             );

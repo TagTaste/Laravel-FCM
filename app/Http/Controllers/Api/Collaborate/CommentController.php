@@ -1,4 +1,5 @@
-<?php namespace App\Http\Controllers\Api\Collaborate;
+<?php 
+namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate;
 use App\Comment;

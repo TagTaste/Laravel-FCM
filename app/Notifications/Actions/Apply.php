@@ -63,7 +63,7 @@ class Apply extends Action
         } else {
             $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
         }
-
+        
         if(is_null($preference)) {
             return $via;
         }
