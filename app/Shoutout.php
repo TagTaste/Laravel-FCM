@@ -176,16 +176,12 @@ class Shoutout extends Model implements Feedable
 
         try {
             $preview = json_decode($value,true);
-           
-            $key = "preview:" . sha1($preview['url']);
-    
-        if(!\Redis::exists($key)){
+
             if(isset($preview['image']) && !is_null($preview['image']))
             {
                 
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
-        }
         
             return $preview;
 
