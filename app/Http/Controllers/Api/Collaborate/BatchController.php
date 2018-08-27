@@ -387,7 +387,7 @@ class BatchController extends Controller
                     ->where('batch_id',$batchId)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
-                    $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$data->id)
+                    $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
                         ->skip(0)->take(3)->get();
                 }
                 else

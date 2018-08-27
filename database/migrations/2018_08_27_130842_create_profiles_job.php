@@ -14,7 +14,7 @@ class CreateProfilesJob extends Migration
     public function up()
     {
 
-        Schema::create('job_profile',function(Blueprint $table){
+        Schema::create('profiles_job',function(Blueprint $table){
             $table->increments('id');
             $table->string("name");
             $table->text("description")->nullable();
@@ -29,6 +29,6 @@ class CreateProfilesJob extends Migration
     public function down()
     {
         //
-        Schema::drop('job_profile');
+        Schema::drop('profiles_job');
     }
 }

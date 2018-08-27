@@ -14,7 +14,7 @@ class CreateProfilesSpecialization extends Migration
     public function up()
     {
 
-        Schema::create('specialization_profile',function(Blueprint $table){
+        Schema::create('profiles_specialization',function(Blueprint $table){
             $table->increments('id');
             $table->string("name");
             $table->text("description")->nullable();
@@ -29,6 +29,6 @@ class CreateProfilesSpecialization extends Migration
     public function down()
     {
         //
-        Schema::drop('specialization_profile');
+        Schema::drop('profiles_specialization');
     }
 }
