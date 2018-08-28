@@ -532,8 +532,15 @@ class CollaborateController extends Controller
 
         if($collaborate->state == 'Save')
         {
+            $globalQuestionId = $request->input('global_question_id');
+            $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->exists();
+            if(!$checkQuestionexist)
+            {
+                $this->model = false;
+                return $this->sendError("Global question id is not exists.");
+            }
             //check again when going live
-            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$request->input('global_question_id')]);
+            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$globalQuestionId]);
             $collaborate->update(['step'=>2]);
             $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         }
