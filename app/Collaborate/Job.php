@@ -11,7 +11,7 @@ class Job extends Model {
 
     protected $fillable = ['collaborate_id','job_id'];
 
-    protected $visible = ['name','description'];
+    protected $visible = ['id','name','description'];
 
     protected $appends = ['id','name','description'];
 
