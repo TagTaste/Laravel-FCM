@@ -99,7 +99,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("photos","PhotoController");
                     Route::resource("collaborate","CollaborateController");
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
-                        Route::resource("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
+                        Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
+                        Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                         Route::resource("collaborate","CollaborateController");
                     });
 
@@ -230,6 +231,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("tastingMethodology","CollaborateController@tastingMethodology");
                     Route::get("profilesJobs","CollaborateController@profilesJobs");
                     Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("gloablQuestion","CollaborateController@gloablQuestion");
 
 
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){

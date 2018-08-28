@@ -19,7 +19,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
      */
 
     protected $header = [];
-    protected $signature = 'Collaboration:Question {id}';
+    protected $signature = 'Collaboration:Question {id} {global_question_id}';
 
     /**
      * The console command description.
@@ -45,7 +45,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
     public function handle()
     {
         $id = $this->argument('id');
-        $questions = \DB::table('global_questions')->where('id',3)->first();
+        $globalQuestionId = $this->argument('global_question_id');
+        $questions = \DB::table('global_questions')->where('id',$globalQuestionId)->first();
         $questions = $questions->question_json;
         $questions = json_decode($questions,true);
         $data = [];

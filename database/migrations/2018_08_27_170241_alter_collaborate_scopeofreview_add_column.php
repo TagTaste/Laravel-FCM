@@ -23,6 +23,7 @@ class AlterCollaborateScopeofreviewAddColumn extends Migration
             $table->integer("no_of_expert")->nullable();
             $table->integer("no_of_veterans")->nullable();
             $table->boolean('is_product_endorsement')->default(0);
+            $table->integer("no_of_batches")->default(4);
         });
     }
 
@@ -36,7 +37,7 @@ class AlterCollaborateScopeofreviewAddColumn extends Migration
         Schema::table('collaborates',function(Blueprint $table){
             $table->dropForeign(['methodology_id']);
             $table->dropColumn(['methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans'
-                ,'is_product_endorsement','brand_name','brand_logo']);
+                ,'is_product_endorsement','brand_name','brand_logo','no_of_batches']);
 
         });
     }

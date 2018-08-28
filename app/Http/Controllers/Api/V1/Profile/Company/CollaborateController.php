@@ -70,12 +70,29 @@ class CollaborateController extends Controller
      */
     public function store(Request $request, $profileId, $companyId)
     {
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
+        if(!$checkAdmin){
+            return $this->sendError("Invalid Admin.");
+        }
+
+
         $profile = $request->user()->profile;
         $profileId = $profile->id ;
         $inputs = $request->all();
+        $inputs['state'] = 1;
+        if(isset($inputs['collaborate_type']) && $inputs['collaborate_type'] == 'product-review')
+        {
+            $checkCompanyPremium = Company::where('id',$companyId)->where('is_premium',1)->exists();
+            if(!$checkCompanyPremium)
+            {
+                return $this->sendError("This company do not have premium account");
+            }
+            $inputs['step'] = 1;
+            $inputs['state'] = 4;
+        }
         $inputs['company_id'] = $companyId;
         $inputs['profile_id'] = $profileId;
-        $inputs['state'] = isset($inputs['step']) && !is_null($inputs['step']) ? Collaborate::$state[3] :Collaborate::$state[0];
         $inputs['expires_on'] = isset($inputs['expires_on']) && !is_null($inputs['expires_on'])
                     ? $inputs['expires_on'] : Carbon::now()->addMonth()->toDateTimeString();
         $fields = $request->has("fields") ? $request->input('fields') : [];
@@ -108,7 +125,6 @@ class CollaborateController extends Controller
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
-
         $this->model = $this->model->create($inputs);
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
@@ -366,6 +382,7 @@ class CollaborateController extends Controller
         $collaborateId = $id;
         $inputs = $request->only(['methodology_id','age_group',
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state']);
+        $this->checkInputForScopeReview($inputs);
         $loggedInProfileId = $request->user()->profile->id;
 
         $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
@@ -380,48 +397,39 @@ class CollaborateController extends Controller
 
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
+            $this->model = false;
             return $this->sendError("json is not valid.");
         }
 
         if(isset($inputs['step']))
         {
-            if($inputs['step'] == 3)
-            {
-                $inputs['state'] = Collaborate::$state[0];
-            }
-            else
-            {
-                $inputs['state'] = Collaborate::$state[3];
-            }
+            $inputs['state'] = Collaborate::$state[0];
         }
         else
         {
             $inputs['state'] = Collaborate::$state[0];
         }
 
-
-
-        if($collaborate->state == 'Active')
-        {
-            return $this->sendError("You can not update your samples.");
-        }
-
         if($request->has('batches'))
         {
+            if($collaborate->state == 'Active')
+            {
+                return $this->sendError("You can not update your samples.");
+            }
             $batches = $request->input('batches');
             $batchList = [];
             $now = Carbon::now()->toDateTimeString();
             foreach ($batches as $batch)
             {
-                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>$batch['notes'],'instruction'=>$batch['instruction']
-                ,'collaborate_id'=>$collaborateId,'created_at'=>$now,'updated_at'=>$now];
+                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
+                    'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
+                    'created_at'=>$now,'updated_at'=>$now];
             }
-            if(count($batchList))
+            if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
             {
                 Collaborate\Batches::insert($batchList);
             }
         }
-
         $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
         if(count($addresses))
         {
@@ -440,10 +448,11 @@ class CollaborateController extends Controller
             $jobs = [];
             foreach ($jobIds as $jobId)
             {
-                $jobs = ['collaborate_id'=>$collaborateId,'job_id'=>$jobId];
+                $jobs[] = ['collaborate_id'=>$collaborateId,'job_id'=>$jobId];
             }
             if(count($jobs))
             {
+                Collaborate\Job::where('collaborate_id',$id)->delete();
                 $collaborate->job_profile()->insert($jobs);
 
             }
@@ -456,18 +465,20 @@ class CollaborateController extends Controller
             $specializations = [];
             foreach ($specializationIds as $specializationId)
             {
-                $specializations = ['collaborate_id'=>$collaborateId,'specialization_id'=>$specializationId];
+                $specializations[] = ['collaborate_id'=>$collaborateId,'specialization_id'=>$specializationId];
             }
             if(count($specializations))
             {
-                $collaborate->job_profile()->insert($specializations);
+                Collaborate\Specialization::where('collaborate_id',$id)->delete();
+                $collaborate->specialization_profile()->insert($specializations);
 
             }
         }
         $this->model = $collaborate->update($inputs);
+        $this->model = Collaborate::where('id',$id)->first();
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
-            if($inputs['step'] == 3)
+            if($inputs['step'] == 3 && $collaborate->state == 'Save')
             {
                 $collaborate->addToCache();
                 $company = Company::find($companyId);
@@ -502,9 +513,16 @@ class CollaborateController extends Controller
 
     public function uploadQuestion(Request $request, $profileId, $companyId, $id)
     {
-        $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
-        if(!$checkAdmin){
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
             return $this->sendError("Invalid Admin.");
+        }
+        $checkQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id', $id)->exists();
+        if ($checkQuestion)
+        {
+            $this->model = false;
+            return $this->sendError("You can not update your question");
         }
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
@@ -512,12 +530,47 @@ class CollaborateController extends Controller
             return $this->sendError("Collaboration not found.");
         }
 
-        if($collaborate->state == 'Saved')
+        if($collaborate->state == 'Save')
         {
-            //remove when going live
-            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id]);
+            //check again when going live
+            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$request->input('global_question_id')]);
+            $collaborate->update(['step'=>2]);
+            $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         }
         $this->model = $collaborate;
         return $this->sendResponse();
+    }
+
+    public function checkInputForScopeReview(&$inputs)
+    {
+        $gender = ['Male','Female','Others'];
+        $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
+        $ageGroup = htmlspecialchars_decode($inputs['age_group']);
+        $ageGroups = json_decode($ageGroup,true);
+        $genderTypes = htmlspecialchars_decode($inputs['gender_ratio']);
+        $genderTypes = json_decode($genderTypes,true);
+        if(count($ageGroups))
+        {
+            foreach ($ageGroups as $key=>$ageGroup)
+            {
+                if(!in_array($key,$age))
+                {
+                    unset($ageGroups[$key]);
+                }
+            }
+            $inputs['age_group'] = json_encode($ageGroups);
+        }
+        if(count($genderTypes))
+        {
+            foreach ($genderTypes as $key=>$genderType)
+            {
+                if(!in_array($key,$gender))
+                {
+                    unset($genderTypes[$key]);
+                }
+            }
+            $inputs['gender_ratio'] = json_encode($genderTypes);
+        }
+
     }
 }
