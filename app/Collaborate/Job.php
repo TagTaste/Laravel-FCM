@@ -19,7 +19,7 @@ class Job extends Model {
 
     public function getIdAttribute()
     {
-        $this->job = \DB::table('profiles_job')->where('id',$this->job)->first();
+        $this->job = \DB::table('profiles_job')->where('id',$this->job_id)->first();
         return isset($this->job->id) ? $this->job->id : null;
     }
 
