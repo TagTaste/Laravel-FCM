@@ -481,7 +481,6 @@ class CollaborateController extends Controller
         {
             if($inputs['step'] == 3 && $collaborate->state == 'Active')
             {
-                \Log::info("here is scope of review");
                 $collaborate->addToCache();
                 $company = Company::find($companyId);
                 if(!isset($collaborate->payload_id))
