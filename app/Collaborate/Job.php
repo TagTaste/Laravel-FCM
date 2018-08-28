@@ -13,14 +13,18 @@ class Job extends Model {
 
     protected $visible = ['name','description'];
 
-    protected $appends = ['name','description'];
+    protected $appends = ['id','name','description'];
 
     protected $job = null;
 
+    public function getIdAttribute()
+    {
+        $this->job = \DB::table('profiles_job')->where('id',$this->job)->first();
+        return isset($this->job->id) ? $this->job->id : null;
+    }
+
     public function getNameAttribute()
     {
-        $this->job = \DB::table('profiles_job')->where('id',$this->job_id)->first();
-
         return isset($this->job->name) ? $this->job->name : null;
     }
 
