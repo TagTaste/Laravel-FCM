@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateProfilesSpecialization extends Migration
+class CreateSpecializations extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateProfilesSpecialization extends Migration
     public function up()
     {
 
-        Schema::create('profiles_specialization',function(Blueprint $table){
+        Schema::create('specializations',function(Blueprint $table){
             $table->increments('id');
             $table->string("name");
             $table->text("description")->nullable();
@@ -29,6 +29,6 @@ class CreateProfilesSpecialization extends Migration
     public function down()
     {
         //
-        Schema::drop('profiles_specialization');
+        Schema::drop('specializations');
     }
 }

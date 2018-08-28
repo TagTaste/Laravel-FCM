@@ -446,13 +446,13 @@ class CollaborateController extends Controller
 
     public function profilesJobs()
     {
-        $this->model = \DB::table('profiles_job')->get();
+        $this->model = \DB::table('occupations')->get();
         return $this->sendResponse();
     }
 
     public function profilesSpecialization()
     {
-        $this->model = \DB::table('profiles_specialization')->get();
+        $this->model = \DB::table('specializations')->get();
         return $this->sendResponse();
     }
 
@@ -462,5 +462,9 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-
+    public function profilesAllergens()
+    {
+        $this->model = \DB::table('allergens')->get();
+        return $this->sendResponse();
+    }
 }

@@ -21,7 +21,7 @@ class CountApplications extends Command
      *
      * @var string
      */
-    protected $description = 'Rebuild Job application Count';
+    protected $description = 'Rebuild Occupation application Count';
 
     /**
      * Create a new command instance.

@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
             //Collab
             \App\Console\Commands\Build\Meta\Collaboration\CountApplications::class,
             
-            //Job
+            //Occupation
             \App\Console\Commands\Build\Meta\Job\CountApplications::class,
         
             //Likes

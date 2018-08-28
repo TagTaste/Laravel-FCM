@@ -59,7 +59,7 @@ class SetExpireon extends Command
                 else {
                     event(new \App\Events\Actions\ExpireModel($model));
                 }
-//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[2]]);
+//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Occupation::$state[2]]);
                 \App\Filter\Job::removeModel($model->id);
                 event(new DeleteFeedable($model));
                 $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
@@ -71,7 +71,7 @@ class SetExpireon extends Command
 
 //        \DB::table("jobs")->whereRaw('deleted_at < expires_on')->whereNotNull('deleted_at')->orderBy('id')->chunk(100,function($models){
 //            foreach($models as $model){
-//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Job::$state[1]]);
+//                \DB::table('jobs')->where('id',$model->id)->update(['state'=>Occupation::$state[1]]);
 //            }
 //        });
 

@@ -38,10 +38,10 @@ class ExpireonJob extends Command
     public function handle()
     {
         // expire (applicant)
-//        \App\Job::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
+//        \App\Occupation::with([])->where('expires_on','<=',Carbon::now()->toDateTimeString())->whereNull('deleted_at')
 //            ->orderBy('id')->chunk(100,function($models)= {
 //                foreach ($models as $model) {
-//                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Job::$state[2]]);
+//                    $model->update(['deleted_at'=>Carbon::now()->toDateTimeString(),'state'=>Occupation::$state[2]]);
 //                    //send notificants to applicants for delete job
 //                    $profileIds = Application::where('job_id',$model->id)->get()->pluck('profile_id');
 //                    foreach ($profileIds as $profileId)
@@ -49,7 +49,7 @@ class ExpireonJob extends Command
 //                        $model->profile_id = $profileId;
 //                        event(new \App\Events\Actions\ExpireModel($model));
 //                    }
-//                    \App\Filter\Job::removeModel($model->id);
+//                    \App\Filter\Occupation::removeModel($model->id);
 //                    event(new DeleteFeedable($model));
 //                }
 //            });
@@ -83,7 +83,7 @@ class ExpireonJob extends Command
 
         //notify 1 days before expiry
 
-//        \App\Job::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
+//        \App\Occupation::with([])->where('expires_on','>=',Carbon::now()->toDateTimeString())
 //            ->where('expires_on','<=',Carbon::now()->addDays(1)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
 //                foreach($models as $model){
 //                    $companyId = $model->company_id;
@@ -132,7 +132,7 @@ class ExpireonJob extends Command
 
         //notify 8 days before expiry
 //
-//        \App\Job::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
+//        \App\Occupation::with([])->where('expires_on','>=',Carbon::now()->addDays(7)->toDateTimeString())
 //            ->where('expires_on','<=',Carbon::now()->addDays(8)->toDateTimeString())->whereNull('deleted_at')->orderBy('id')->chunk(100,function($models){
 //                foreach($models as $model){
 //                    $companyId = $model->company_id;

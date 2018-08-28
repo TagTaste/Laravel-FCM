@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class ProfileSpecializationTableSeeder extends Seeder
+class SpecializationsTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -25,7 +25,7 @@ class ProfileSpecializationTableSeeder extends Seeder
         $data[] = ['name'=>'Equipments'];
         $data[] = ['name'=>'Any Other'];
 
-        \DB::table('profiles_specialization')->insert($data);
+        \DB::table('specializations')->insert($data);
 
     }
 }

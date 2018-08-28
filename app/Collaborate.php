@@ -25,7 +25,8 @@ class Collaborate extends Model implements Feedable
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
         'brand_name','brand_logo','no_of_batches'];
 
-    protected $with = ['profile','company','fields','categories','addresses','job_profile','specialization_profile'];
+    protected $with = ['profile','company','fields','categories','addresses','collaborate_occupations',
+        'collaborate_specializations','collaborate_allergens'];
 
     static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
@@ -38,8 +39,8 @@ class Collaborate extends Model implements Feedable
         'applicationCount','file1','deliverables','start_in','state','updated_at','images',
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
         'is_taster_residence','allergens','product_review_meta','methodology_id','age_group','gender_ratio',
-        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','job_profile','specialization_profile',
-        'brand_name','brand_logo','no_of_batches'];
+        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens'];
 
     protected $appends = ['applicationCount','type','product_review_meta','age_group','gender_ratio','tasting_methodology'];
 
@@ -507,14 +508,19 @@ class Collaborate extends Model implements Feedable
         return isset($this->methodology_id) && !is_null($this->methodology_id) ? \DB::table('collaborate_tasting_methodology')->where('id',$this->methodology_id)->first() : null;
     }
 
-    public function specialization_profile()
+    public function collaborate_specializations()
     {
         return $this->hasMany('App\Collaborate\Specialization');
     }
 
-    public function job_profile()
+    public function collaborate_occupations()
     {
-        return $this->hasMany('App\Collaborate\Job');
+        return $this->hasMany('App\Collaborate\Occupation');
+    }
+
+    public function collaborate_allergens()
+    {
+        return $this->hasMany('App\Collaborate\Allergens');
     }
 
     public function getAgeGroupAttribute($value)

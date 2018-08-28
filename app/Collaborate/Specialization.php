@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Specialization extends Model {
 
-    protected $table = 'collaborate_profiles_specialization';
+    protected $table = 'collaborate_specializations';
 
     protected $fillable = ['collaborate_id','specialization_id'];
 
@@ -19,7 +19,7 @@ class Specialization extends Model {
 
     public function getIdAttribute()
     {
-        $this->spcialzation = \DB::table('profiles_specialization')->where('id',$this->specialization_id)->first();
+        $this->spcialzation = \DB::table('specializations')->where('id',$this->specialization_id)->first();
         return isset($this->spcialzation->id) ? $this->spcialzation->id : null;
     }
 

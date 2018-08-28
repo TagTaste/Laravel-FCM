@@ -92,7 +92,7 @@ class SettingsTableSeeder extends Seeder
                 'group_name' => 'default',
             ],
             [
-                'title' => 'Job notifications',
+                'title' => 'Occupation notifications',
                 'bell_description' => 'You\'ll always be notified when there is an action like someone applied to the job that you opened.',
                 'push_description' => 'Notify me when there is an action like someone applied to my job.',
                 'email_description' => 'Notify me when there is an action like someone applied to my job.',
@@ -233,7 +233,7 @@ class SettingsTableSeeder extends Seeder
                 'group_name' => 'default',
             ],
             [
-                'title' => 'Job notifications',
+                'title' => 'Occupation notifications',
                 'bell_description' => 'You\'ll always be notified when there is an action like someone applied to the job that your company opened.',
                 'push_description' => 'Notify me when there is an action like someone applied to the job that my company opened.',
                 'email_description' => 'Notify me when there is an action like someone applied to the job that my company opened.',

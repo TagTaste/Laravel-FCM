@@ -229,8 +229,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("userBatches","CollaborateController@userBatches");
                     Route::post("seenBatchesList","CollaborateController@seenBatchesList");
                     Route::get("tastingMethodology","CollaborateController@tastingMethodology");
-                    Route::get("profilesJobs","CollaborateController@profilesJobs");
+                    Route::get("profilesOccupations","CollaborateController@profilesJobs");
                     Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("profilesAllergens","CollaborateController@profilesAllergens");
                     Route::get("gloablQuestion","CollaborateController@gloablQuestion");
 
 

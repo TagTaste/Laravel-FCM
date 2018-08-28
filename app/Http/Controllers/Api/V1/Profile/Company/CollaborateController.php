@@ -132,6 +132,22 @@ class CollaborateController extends Controller
         $company = Company::find($companyId);
         $this->model = $this->model->fresh();
 
+        if($request->has('allergens_id'))
+        {
+            $allergensIds = $request->input('allergens_id');
+            $allergens = [];
+            foreach ($allergensIds as $allergensId)
+            {
+                $allergens[] = ['collaborate_id'=>$this->model->id,'allergens_id'=>$allergensId];
+            }
+            if(count($allergens))
+            {
+                Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
+                $this->model->collaborate_allergens()->insert($allergens);
+            }
+        }
+        $this->model = $this->model->fresh();
+
         if($this->model->collaborate_type != 'product-review')
         {
             //push to feed
@@ -221,6 +237,21 @@ class CollaborateController extends Controller
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+
+        if($request->has('allergens_id'))
+        {
+            $allergensIds = $request->input('allergens_id');
+            $allergens = [];
+            foreach ($allergensIds as $allergensId)
+            {
+                $allergens[] = ['collaborate_id'=>$collaborate->id,'allergens_id'=>$allergensId];
+            }
+            if(count($allergens))
+            {
+                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
+                $collaborate->collaborate_allergens()->insert($allergens);
+            }
         }
 
         if($collaborate->state == 'Expired')
@@ -442,18 +473,18 @@ class CollaborateController extends Controller
             $collaborate->addresses()->insert($addresses);
         }
 
-        if($request->has('job_id'))
+        if($request->has('occupation_id'))
         {
-            $jobIds = $request->input('job_id');
+            $jobIds = $request->input('occupation_id');
             $jobs = [];
             foreach ($jobIds as $jobId)
             {
-                $jobs[] = ['collaborate_id'=>$collaborateId,'job_id'=>$jobId];
+                $jobs[] = ['collaborate_id'=>$collaborateId,'occupation_id'=>$jobId];
             }
             if(count($jobs))
             {
-                Collaborate\Job::where('collaborate_id',$id)->delete();
-                $collaborate->job_profile()->insert($jobs);
+                Collaborate\Occupation::where('collaborate_id',$id)->delete();
+                $collaborate->collaborate_occupations()->insert($jobs);
 
             }
         }
@@ -470,7 +501,7 @@ class CollaborateController extends Controller
             if(count($specializations))
             {
                 Collaborate\Specialization::where('collaborate_id',$id)->delete();
-                $collaborate->specialization_profile()->insert($specializations);
+                $collaborate->collaborate_specializations()->insert($specializations);
 
             }
         }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCollaborateProfilesSpecialization extends Migration
+class CreateCollaborateAllergens extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateCollaborateProfilesSpecialization extends Migration
      */
     public function up()
     {
-        Schema::create("collaborate_profiles_specialization",function(Blueprint $table){
+        Schema::create("collaborate_allergens",function(Blueprint $table){
             $table->integer("collaborate_id")->unsigned();
-            $table->integer("specialization_id")->unsigned();
+            $table->integer("allergens_id")->unsigned();
 
             $table->foreign("collaborate_id")->references('id')->on('collaborates');
-            $table->foreign("specialization_id")->references('id')->on('profiles_specialization');
+            $table->foreign("allergens_id")->references('id')->on('allergens');
         });
     }
 
@@ -29,6 +29,6 @@ class CreateCollaborateProfilesSpecialization extends Migration
      */
     public function down()
     {
-        Schema::drop('collaborate_profiles_specialization');
+        Schema::drop('collaborate_allergens');
     }
 }
