@@ -509,7 +509,7 @@ class ApplicantController extends Controller
         $this->model = [];
         $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
-        $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
+        $this->model['invitedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();

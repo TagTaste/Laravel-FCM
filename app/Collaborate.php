@@ -21,7 +21,7 @@ class Collaborate extends Model implements Feedable
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
         'created_at','updated_at','category_id','step','financial_min','financial_max',
-        'type_id','images','collaborate_type','is_taster_residence','allergens','product_review_meta',
+        'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
         'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
         'brand_name','brand_logo','no_of_batches'];
 
@@ -38,7 +38,7 @@ class Collaborate extends Model implements Feedable
         'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in','state','updated_at','images',
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
-        'is_taster_residence','allergens','product_review_meta','methodology_id','age_group','gender_ratio',
+        'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
         'brand_name','brand_logo','no_of_batches','collaborate_allergens'];
 
