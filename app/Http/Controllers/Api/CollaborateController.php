@@ -467,4 +467,48 @@ class CollaborateController extends Controller
         $this->model = \DB::table('allergens')->get();
         return $this->sendResponse();
     }
+
+    public function addCities(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/city";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $cities = [];
+        foreach ($data as $item)
+        {
+
+            foreach ($item as $datum)
+            {
+                if(is_null($datum))
+                    break;
+                if(isset($datum['selected']))
+                {
+                    if($datum['selected'] == 'Yes')
+                        $cities[] = ['city'=>$datum['city'],'state'=>$datum['state'],'region'=>$datum['region']];
+                }
+
+            }
+        }
+        $this->model = \DB::table('cities')->insert($cities);
+        return $this->sendResponse();
+    }
 }

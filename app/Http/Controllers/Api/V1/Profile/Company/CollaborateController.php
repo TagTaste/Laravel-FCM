@@ -461,16 +461,18 @@ class CollaborateController extends Controller
                 Collaborate\Batches::insert($batchList);
             }
         }
-        $addresses = isset($inputs['addresses']) ? $inputs['addresses'] : null;
-        if(count($addresses))
+
+        if($request->has('city'))
         {
+            $addresses = $request->input('city');
             Collaborate\Addresses::where('collaborate_id',$id)->delete();
-            foreach ($addresses as &$address)
+            $cities = [];
+            foreach ($addresses as $address)
             {
-                $address = ['collaborate_id'=>$id,'city'=>$address['city'],
-                    'location'=>isset($address['location']) && !is_null($address['location']) ? json_encode($address['location']) : null];
+                $cities[] = ['collaborate_id'=>$collaborateId,'city_id'=>$address['id'],'no_of_taster'=>$address['no_of_taster']];
             }
-            $collaborate->addresses()->insert($addresses);
+            if(count($cities))
+                $collaborate->addresses()->insert($cities);
         }
 
         if($request->has('occupation_id'))
