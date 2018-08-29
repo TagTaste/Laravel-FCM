@@ -456,7 +456,7 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
-    public function gloablQuestion(Request $request)
+    public function CollaborateController(Request $request)
     {
         $this->model = \DB::table('global_questions')->get();
         return $this->sendResponse();

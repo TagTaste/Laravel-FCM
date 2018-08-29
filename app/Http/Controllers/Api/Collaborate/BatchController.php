@@ -68,12 +68,11 @@ class BatchController extends Controller
     public function show($collaborateId,$id)
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
-        $profiles = Profile::whereIn('id',$profileIds)->get();
-
+        $profiles = Collaborate\Applicant::whereIn('profile_id',$profileIds)->get();
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['id']);
+            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
         $this->model = [];
@@ -538,6 +537,69 @@ class BatchController extends Controller
             ->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
+    }
+
+    public function hutCsv(Request $request, $collaborateId, $batchId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $this->model = [];
+        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->get()->pluck('profile_id');
+
+        $applicantDetails = Collaborate\Applicant::where("collaborate_id",$collaborateId)->whereIn('profile_id',$profileIds)
+            ->where('hut',1)->get();
+
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=HUT_USER_ADDRESS_LIST.csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $profiles = [];
+        $index = 1;
+        foreach ($applicantDetails as $applicantDetail)
+        {
+            $applierAddress = "";
+
+            $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
+                ];
+            dd($profiles);
+        }
+
+        $columns = array('S.No','Name','Profile Link','Delivery Address','Sample Name','Collaboration Link');
+
+        $str = '';
+        foreach ($columns as $c) {
+            $str = $str.$c.',';
+        }
+        $str = $str."\n";
+
+        foreach($applicantDetails as $review) {
+            foreach ($columns as $c) {
+                $str = $str.$review->{$c}.',';
+            }
+            $str = $str."\n";
+        }
+
+        return response($str, 200, $headers);
     }
 
 }

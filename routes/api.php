@@ -232,7 +232,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("profilesOccupations","CollaborateController@profilesJobs");
                     Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
                     Route::get("profilesAllergens","CollaborateController@profilesAllergens");
-                    Route::get("gloablQuestion","CollaborateController@gloablQuestion");
+                    Route::get("globalQuestion","CollaborateController@globalQuestion");
                     Route::get("getCities","CollaborateController@getCities");
                     Route::post("addCities","CollaborateController@addCities");
 
@@ -251,6 +251,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                     //filter for dashboard of product review
                 Route::get("dashboard/filters","BatchController@filters");
+
+                Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
 
                 Route::resource('batches','BatchController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
