@@ -51,7 +51,7 @@ class Profile extends Model
     private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
 
-    private $profileCompletionMendatoryFieldForCollaborationApply = ['dob','name','about','verified_phone','city','country'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','about','verified_phone','city','country'];
 
     public static function boot()
     {
@@ -857,7 +857,7 @@ class Profile extends Model
         {
             $remaningMandatoryItem = [];
             $remaningOptionalItem = [];
-            $profileCompletionMendatoryFieldForCollaborationApply = [];
+            $profileCompletionMandatoryFieldForCollaborationApply = [];
             $index = 0;
             if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
             {
@@ -882,11 +882,11 @@ class Profile extends Model
                     $remaningOptionalItem[] = $item;
                 }
             }
-            foreach ($this->profileCompletionMendatoryFieldForCollaborationApply as $item)
+            foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
             {
                 if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count($this->{$item}) == 0)
                 {
-                    $profileCompletionMendatoryFieldForCollaborationApply[] = $item;
+                    $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
                 }
             }
             $percentage = ((30 - $index) / 30 ) * 100;
@@ -894,7 +894,7 @@ class Profile extends Model
                 'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
                 'mandatory_remaining_field' => $remaningMandatoryItem,
                 'optional_remaining_field' => $remaningOptionalItem,
-                'mendatory_field_for_collaboration_apply' => $profileCompletionMendatoryFieldForCollaborationApply
+                'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
             ];
 
             return $profileCompletion;
