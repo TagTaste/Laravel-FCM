@@ -579,6 +579,8 @@ class BatchController extends Controller
         {
             $applierAddress = "";
 
+//            $applierAddress += isset($applicantDetail->) ?
+
             $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
                 ];
             dd($profiles);
