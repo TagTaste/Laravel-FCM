@@ -190,7 +190,42 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        if($request->has('occupation_id'))
+        {
+            $jobIds = $request->input('occupation_id');
+            $jobs = [];
+            foreach ($jobIds as $jobId)
+            {
+                $jobs[] = ['profile_id'=>$loggedInProfileId,'occupation_id'=>$jobId];
+            }
+            if(count($jobs))
+            {
+                Profile\Occupation::where('profile_id',$loggedInProfileId)->delete();
+                $this->model->profile_occupations()->insert($jobs);
+
+            }
+        }
+
+        if($request->has('specialization_id'))
+        {
+            $specializationIds = $request->input('specialization_id');
+            $specializations = [];
+            foreach ($specializationIds as $specializationId)
+            {
+                $specializations[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$specializationId];
+            }
+            if(count($specializations))
+            {
+                Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
+                $this->model->profile_specializations()->insert($specializations);
+
+            }
+        }
         $profileData = Profile::find($request->user()->profile->id);
+        $this->model = $profileData;
         \App\Filter\Profile::addModel($profileData);
         return $this->sendResponse();
     }

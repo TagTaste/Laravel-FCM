@@ -27,8 +27,8 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress'
-    ];
+        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress',
+        'profile_occupations', 'profile_specializations'];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
@@ -38,9 +38,8 @@ class Profile extends Model
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
-        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress'
-
-    ];
+        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
+        'profile_occupations', 'profile_specializations'];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','address','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
@@ -51,7 +50,7 @@ class Profile extends Model
     private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','about','verified_phone','city','country'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','about','verified_phone','profile_occupations'];
 
     public static function boot()
     {
@@ -917,5 +916,14 @@ class Profile extends Model
         return $this->hasMany('App\Profile\ShippingAddress');
     }
 
+    public function profile_specializations()
+    {
+        return $this->hasMany('App\Profile\Specialization');
+    }
+
+    public function profile_occupations()
+    {
+        return $this->hasMany('App\Profile\Occupation');
+    }
 }
 
