@@ -468,6 +468,12 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function getCities(Request $request)
+    {
+        $this->model = \DB::table('cities')->get();
+        return $this->sendResponse();
+    }
+
     public function addCities(Request $request)
     {
         $filename = str_random(32) . ".xlsx";
