@@ -462,6 +462,12 @@ class CollaborateController extends Controller
         return $this->sendResponse();
     }
 
+    public function globalQuestionParticular(Request $request,$id)
+    {
+        $this->model = \DB::table('global_questions')->where('id',$id)->get();
+        return $this->sendResponse();
+    }
+
     public function profilesAllergens()
     {
         $this->model = \DB::table('allergens')->get();

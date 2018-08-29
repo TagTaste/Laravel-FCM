@@ -269,7 +269,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 	}]
 
 }';
-         $data = ['name'=>'Rusk Tasting','keywords'=>"Rusk , Solid Category','Veg','Any Other",'description'=>'I don\'t need introduction Follow my simple instruction Wine',
+         $data = ['name'=>'Rusk Tasting','keywords'=>"Rusk, Solid Category,Veg,Any Other",'description'=>'I don\'t need introduction Follow my simple instruction Wine',
              'question_json'=>$questions];
 
          \DB::table('global_questions')->insert($data);
