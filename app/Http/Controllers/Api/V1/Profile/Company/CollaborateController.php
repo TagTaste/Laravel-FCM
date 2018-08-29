@@ -514,9 +514,9 @@ class CollaborateController extends Controller
         {
             if($inputs['step'] == 3 && $collaborate->state == 'Active')
             {
-                $collaborate->addToCache();
+                $this->model->addToCache();
                 $company = Company::find($companyId);
-                if(!isset($collaborate->payload_id))
+                if(!isset($this->model->payload_id))
                     event(new NewFeedable($this->model, $company));
                 \App\Filter\Collaborate::addModel($this->model);
 
