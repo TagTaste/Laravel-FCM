@@ -42,7 +42,7 @@ class InviteForReview extends Action
         }
         else
         {
-            $this->who = null;
+            $this->who = ['id'=>$who->id, 'name'=>$who->name, 'imageUrl'=>$who->imageUrl,'type'=>'profile', 'tagline'=>$who->tagline];
         }
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
