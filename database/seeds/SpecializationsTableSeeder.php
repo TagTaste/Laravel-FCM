@@ -20,7 +20,7 @@ class SpecializationsTableSeeder extends Seeder
         $data[] = ['name'=>'Purchase Manager'];
         $data[] = ['name'=>'F&B Professional'];
         $data[] = ['name'=>'Food Safety'];
-        $data[] = ['name'=>'Farmers'];
+        $data[] = ['name'=>'Farmer'];
         $data[] = ['name'=>'Flavorist'];
         $data[] = ['name'=>'Equipment'];
         $data[] = ['name'=>'Any Other'];
