@@ -207,6 +207,9 @@ class ProfileController extends Controller
             }
             if(count($specializations))
             {
+                \Log::info("here is count");
+                \Log::info(count($specializations));
+                \Log::info($specializations);
                 Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
                 $this->model->profile_specializations()->insert($specializations);
 
