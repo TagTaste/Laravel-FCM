@@ -623,4 +623,91 @@ class BatchController extends Controller
         return response()->download($filePath, $collaborateId."_HUT_USER_ADDRESS_LIST.xls", $headers);
     }
 
+    public function allHutCsv(Request $request, $collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $this->model = [];
+        $applicantDetails = Collaborate\Applicant::where("collaborate_id",$collaborateId)->where('hut',1)->get();
+
+        $headers = array(
+            "Content-type" => "application/vnd.ms-excel; charset=utf-8",
+            "Content-Disposition" => "attachment; filename=".$collaborateId."_HUT_USER_ADDRESS_LIST.xls",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+        $profiles = [];
+        $index = 1;
+        foreach ($applicantDetails as $applicantDetail)
+        {
+            $applierAddress = "";
+            $applierAddress = isset($applicantDetail->applier_address['house_no']) && !is_null($applicantDetail->applier_address['house_no']) ? $applierAddress.$applicantDetail->applier_address['house_no'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['landmark']) && !is_null($applicantDetail->applier_address['landmark']) ? $applierAddress.$applicantDetail->applier_address['landmark'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['locality']) && !is_null($applicantDetail->applier_address['locality']) ? $applierAddress.$applicantDetail->applier_address['locality'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['city']) && !is_null($applicantDetail->applier_address['city']) ? $applierAddress.$applicantDetail->applier_address['city'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['state']) && !is_null($applicantDetail->applier_address['state']) ? $applierAddress.$applicantDetail->applier_address['state'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['country']) && !is_null($applicantDetail->applier_address['country']) ? $applierAddress.$applicantDetail->applier_address['country'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['pincode']) && !is_null($applicantDetail->applier_address['pincode']) ? $applierAddress." - ".$applicantDetail->applier_address['pincode'] : $applierAddress;
+
+            $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$applicantDetail->profile->id)->get()->pluck('batch_id');
+            $batches = \DB::table('collaborate_batches')->whereIn('id',$batchIds)->get();
+            $batchList = "";
+            foreach ($batches as $batch)
+            {
+                $batchList = $batchList;
+            }
+            $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
+                'Delivery Address'=>$applierAddress];
+            $index++;
+        }
+        $columns = array('S.No','Name','Profile Link','Delivery Address','Sample Name');
+        Excel::create($collaborateId."_HUT_USER_ADDRESS_LIST", function($excel) use($profiles, $columns,$collaborateId) {
+
+            // Set the title
+            $excel->setTitle("HUT USER ADDRESS");
+
+            // Chain the setters
+            $excel->setCreator('TagTaste')
+                ->setCompany('TagTaste');
+
+            // Call them separately
+            $excel->setDescription('Collaboration Applicant applier HUT Address');
+            // Our first sheet
+            $excel->sheet('First sheet', function($sheet) use($profiles, $columns,$collaborateId) {
+                $sheet->setOrientation('landscape');
+                $sheet->row(1,array("Collaboration Link - "."https://www.tagtaste.com/collaborate/".$collaborateId));
+                $sheet->row(3,$columns);
+                $index = 4;
+                foreach ($profiles as $key => $value) {
+                    $sheet->appendRow($index, $value);
+                    $index++;
+                }
+                $sheet->appendRow("");
+
+            });
+
+        })->store('xls');
+        $filePath = storage_path("exports/".$collaborateId."_HUT_USER_ADDRESS_LIST.xls");
+
+        return response()->download($filePath, $collaborateId."_HUT_USER_ADDRESS_LIST.xls", $headers);
+    }
+
+
 }

@@ -411,7 +411,7 @@ class CollaborateController extends Controller
     public function scopeOfReview(Request $request, $profileId, $companyId, $id)
     {
         $collaborateId = $id;
-        $inputs = $request->only(['methodology_id','age_group',
+        $inputs = $request->only(['methodology_id','age_group','is_taster_residence',
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state']);
         $this->checkInputForScopeReview($inputs);
         $loggedInProfileId = $request->user()->profile->id;
