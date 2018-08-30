@@ -728,7 +728,22 @@ class Profile extends Model
 
     public function getAddressAttribute($value)
     {
-        return $value;
+        if (!empty($value)) {
+            if(request()->user()->profile->id == $this->id)
+            {
+                return $value;
+            }
+
+            if($this->address_private == 3)
+            {
+                return null;
+            }
+            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+            {
+                return null;
+            }
+            return $value;
+        }
     }
 
     public function getPhoneAttribute($value)
