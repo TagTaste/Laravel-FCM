@@ -380,6 +380,7 @@ class BatchController extends Controller
                             ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $reports['nestedAnswers'][] = $subReports;
                     }
+                    $reports['question']['questions']['nestedAnswers'] = $reports['nestedAnswers'];
                 }
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
