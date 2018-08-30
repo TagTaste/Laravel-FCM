@@ -2,6 +2,7 @@
 
 use App\Collaborate;
 use App\CompanyUser;
+use App\Recipe\Company;
 use App\Recipe\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -351,8 +352,7 @@ class ApplicantController extends Controller
         {
             return $this->sendError("Already Invited");
         }
-        $company = \Redis::get('company:small:' . $collaborate->company_id);
-        $company = json_decode($company);
+        $company = Company::where('id',$collaborate->company_id)->first();
         $now = Carbon::now()->toDateTimeString();
         foreach ($profileIds as $profileId)
         {
@@ -390,8 +390,7 @@ class ApplicantController extends Controller
 
         if($this->model)
         {
-            $company = \Redis::get('company:small:' . $collaborate->company_id);
-            $company = json_decode($company);
+            $company = Company::where('id',$collaborate->company_id)->first();
             $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
             foreach ($profileIds as $profileId)
             {
@@ -416,8 +415,7 @@ class ApplicantController extends Controller
 
         if($this->model)
         {
-            $company = \Redis::get('company:small:' . $collaborate->company_id);
-            $company = json_decode($company);
+            $company = Company::where('id',$collaborate->company_id)->first();
             $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
             foreach ($profileIds as $profileId)
             {

@@ -2,6 +2,7 @@
 
 use App\Collaborate;
 use App\CompanyUser;
+use App\Recipe\Company;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -202,8 +203,7 @@ class BatchController extends Controller
             ->update(['begin_tasting'=>1]);
         if($this->model)
         {
-            $company = \Redis::get('company:small:' . $collaborate->company_id);
-            $company = json_decode($company);
+            $company = Company::where('id',$collaborate->company_id)->first();
             foreach ($profileIds as $profileId)
             {
                 $currentStatus = \Redis::get("current_status:batch:$batchId:profile:$profileId");
