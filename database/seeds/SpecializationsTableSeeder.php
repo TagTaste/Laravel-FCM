@@ -12,17 +12,17 @@ class SpecializationsTableSeeder extends Seeder
     public function run()
     {
         $data = [];
-        $data[] = ['name'=>'Chefs'];
-        $data[] = ['name'=>'Researchers'];
+        $data[] = ['name'=>'Chef'];
+        $data[] = ['name'=>'Researcher'];
         $data[] = ['name'=>'Food Technologist'];
-        $data[] = ['name'=>'Beverage Experts'];
-        $data[] = ['name'=>'Nutritionists'];
-        $data[] = ['name'=>'Purchase Managers'];
-        $data[] = ['name'=>'F&B Professionals'];
+        $data[] = ['name'=>'Beverage Expert'];
+        $data[] = ['name'=>'Nutritionist'];
+        $data[] = ['name'=>'Purchase Manager'];
+        $data[] = ['name'=>'F&B Professional'];
         $data[] = ['name'=>'Food Safety'];
         $data[] = ['name'=>'Farmers'];
-        $data[] = ['name'=>'Flavorists'];
-        $data[] = ['name'=>'Equipments'];
+        $data[] = ['name'=>'Flavorist'];
+        $data[] = ['name'=>'Equipment'];
         $data[] = ['name'=>'Any Other'];
 
         \DB::table('specializations')->insert($data);

@@ -15,11 +15,11 @@ class OccupationsTableSeeder extends Seeder
         $data[] = ['name'=>'Service'];
         $data[] = ['name'=>'Government'];
         $data[] = ['name'=>'Manufacturing'];
-        $data[] = ['name'=>'Entrepreneurs'];
+        $data[] = ['name'=>'Entrepreneur'];
         $data[] = ['name'=>'Academia'];
-        $data[] = ['name'=>'Students'];
-        $data[] = ['name'=>'Home Makers'];
-        $data[] = ['name'=>'Farmers'];
+        $data[] = ['name'=>'Student'];
+        $data[] = ['name'=>'Home Maker'];
+        $data[] = ['name'=>'Farmer'];
         $data[] = ['name'=>'Any Other'];
 
         \DB::table('occupations')->insert($data);
