@@ -40,7 +40,7 @@ class ReviewController extends Controller
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
-        Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+        $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
         if(count($answers))
@@ -76,11 +76,6 @@ class ReviewController extends Controller
                 \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
             }
-        }
-        else
-        {
-            $this->model = false;
-
         }
         return $this->sendResponse();
     }
