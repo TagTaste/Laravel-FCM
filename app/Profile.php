@@ -729,7 +729,6 @@ class Profile extends Model
     public function getAddressAttribute($value)
     {
         if (!empty($value)) {
-
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
