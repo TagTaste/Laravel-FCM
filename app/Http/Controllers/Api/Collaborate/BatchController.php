@@ -364,7 +364,7 @@ class BatchController extends Controller
                 $reports['question'] = $data->questions ;
                 if($data->is_nested == 1)
                 {
-                    $nestedAnswers = [];
+                    $reports['nestedAnswers'] = [];
                     foreach ($data->questions->questions as $item)
                     {
                         $subReports = [];
@@ -378,9 +378,8 @@ class BatchController extends Controller
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
                             ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
-                        $nestedAnswers[] = $subReports;
+                        $reports['nestedAnswers'][] = $subReports;
                     }
-                    $reports['question']['questions']['nestedAnswers'] = $nestedAnswers;
                 }
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
