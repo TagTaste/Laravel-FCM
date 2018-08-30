@@ -516,9 +516,6 @@ class CollaborateController extends Controller
         {
             if($inputs['step'] == 3 && $collaborate->state == 'Active')
             {
-                \Log::info("state is here");
-                \Log::info("step".$inputs['step']." state".$collaborate->state );
-                \Log::info("step".$inputs['step']." state".$this->model->state );
                 $this->model->addToCache();
                 $company = Company::find($companyId);
                 if(!isset($this->model->payload_id))
