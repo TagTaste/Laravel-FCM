@@ -170,10 +170,11 @@ class ProfileController extends Controller
         }
 
         //save the model
+        $userId = $request->user()->id;
+        $this->model = \App\Profile::where('user_id',$userId)->first();
+
         if(isset($data['profile']) && !empty($data['profile'])){
-            $userId = $request->user()->id;
             try {
-                $this->model = \App\Profile::where('user_id',$userId)->first();
                 $this->model->update($data['profile']);
                 $this->model->addToCache();
                 $this->model->refresh();
@@ -207,9 +208,6 @@ class ProfileController extends Controller
             }
             if(count($specializations))
             {
-                \Log::info("here is count");
-                \Log::info(count($specializations));
-                \Log::info($specializations);
                 Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
                 $this->model->profile_specializations()->insert($specializations);
 
