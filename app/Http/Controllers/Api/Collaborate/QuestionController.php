@@ -34,6 +34,10 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
+        $collaborate = $this->model->where('id',$id)->first();
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
+        }
         $loggedInProfileId = $request->user()->profile->id;
         if(!$request->has('batch_id'))
         {
@@ -100,9 +104,8 @@ class QuestionController extends Controller
                 }
                 if($data->questions->title == 'INSTRUCTION')
                 {
-                    $batchInfo = \DB::table('collaborate_batches')->where('id',$batchId)->first();
-                    if(isset($batchInfo->instruction))
-                        $data->questions->subtitle = $batchInfo->instruction;
+                    if(isset($collaborate->taster_instruction))
+                        $data->questions->subtitle = $collaborate->taster_instruction;
 
                 }
                 $model[] = $data->questions;

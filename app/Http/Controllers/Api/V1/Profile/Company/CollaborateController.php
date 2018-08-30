@@ -432,6 +432,8 @@ class CollaborateController extends Controller
             return $this->sendError("json is not valid.");
         }
 
+        $inputs['is_taster_residence'] = is_null($inputs['is_taster_residence']) ? 0 : $inputs['is_taster_residence'];
+
         if(isset($inputs['step']))
         {
             $inputs['state'] = Collaborate::$state[0];
