@@ -2,6 +2,7 @@
 
 namespace App\Recipe;
 
+use App\CollaborateCategory;
 use Storage;
 use App\Collaborate as BaseCollaborate;
 
@@ -28,6 +29,16 @@ class Collaborate extends BaseCollaborate
     public function company()
     {
         return $this->belongsTo(\App\Recipe\Company::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsTo(CollaborateCategory::class,'category_id');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Collaborate\Addresses');
     }
 
 
