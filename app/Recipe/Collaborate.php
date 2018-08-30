@@ -18,7 +18,7 @@ class Collaborate extends BaseCollaborate
         'created_at','deleted_at','file1','deliverables','start_in','state','updated_at',
         'profile','company','images','is_taster_residence','addresses','categories','type','collaborate_type'];
 
-    protected $with = ['profile','company'];
+    protected $with = ['profile','company','addresses','categories'];
 
 
     public function profile()
