@@ -426,6 +426,11 @@ class CollaborateController extends Controller
             return $this->sendError("Collaboration not found.");
         }
 
+        if($inputs['no_of_veterans'] > 0 || $inputs['no_of_expert'] > 0)
+        {
+            $inputs['is_taster_residence'] = 1;
+        }
+
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
             $this->model = false;
