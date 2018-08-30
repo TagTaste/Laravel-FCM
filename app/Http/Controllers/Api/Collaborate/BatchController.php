@@ -671,10 +671,10 @@ class BatchController extends Controller
             $batchList = "";
             foreach ($batches as $batch)
             {
-                $batchList = $batchList;
+                $batchList = $batch->name.",".$batchList;
             }
             $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
-                'Delivery Address'=>$applierAddress];
+                'Delivery Address'=>$applierAddress,'Sample Name'=>$batchList];
             $index++;
         }
         $columns = array('S.No','Name','Profile Link','Delivery Address','Sample Name');
