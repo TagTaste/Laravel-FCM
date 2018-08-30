@@ -68,7 +68,7 @@ class BatchController extends Controller
     public function show($collaborateId,$id)
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
-        $profiles = Collaborate\Applicant::whereIn('profile_id',$profileIds)->get();
+        $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->get();
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
