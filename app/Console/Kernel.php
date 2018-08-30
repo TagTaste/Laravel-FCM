@@ -18,6 +18,7 @@ use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\CollaborateApplicantFieldFilled;
 use App\Console\Commands\CollaborationQuestions;
+use App\Console\Commands\CapitalizeUserName;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
@@ -163,6 +164,7 @@ class Kernel extends ConsoleKernel
 
 
         \App\Console\Commands\MergeCollaborators::class,
+        CapitalizeUserName::class
 
 
     ];

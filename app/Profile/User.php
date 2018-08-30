@@ -213,7 +213,7 @@ class User extends BaseUser
         else
         {
             $user = static::create([
-                'name' => $name,
+                'name' => ucwords($name),
                 'email' => $email,
                 'password' => is_null($password) ? null : bcrypt($password),
                 'email_token' =>str_random(15),

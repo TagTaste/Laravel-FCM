@@ -532,29 +532,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("education")
-                ->select(\DB::raw('COUNT(*) as count, college'))
-                ->groupBy("college")
-                ->get();
-
-                // ->select("education.profile_id as profile_id", "users.name as name","users.email as email","profiles.phone as phoneNo")
-                //     ->join('profiles','profiles.id','=','education.profile_id')
-                //     ->join('users','users.id','=','profiles.user_id')
-                //     ->where('education.ongoing','=',1)
-                //     ->orWhere('education.end_date','like','%2018%')
-                //     ->whereNull('profiles.deleted_at')
-                //     ->groupBy('profiles.id')
-                //     ->get();
+                $studentDetail = \DB::table("users")->join('profiles','users.id','=','profiles.user_id')->
+                    select('profiles.id','users.name','users.email','profiles.gender')->whereNull('profiles.deleted_at')->get();
                    
                 $headers = array(
                     "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_colleges.csv",
+                    "Content-Disposition" => "attachment; filename=users_name_gender.csv",
                     "Pragma" => "no-cache",
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
         
-                $columns = array('count','college');
+                $columns = array('id','name','email','gender');
         
                 $str = '';
                 foreach ($columns as $c) {
@@ -572,112 +561,5 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 return response($str, 200, $headers);
         
             });
-
-
-            Route::get("csv/designation",function (Request $request){
-                $this->model = [];
-                $studentDetail = \DB::table("experiences")
-                ->select(\DB::raw('COUNT(*) as count, designation, GROUP_CONCAT(company) as companies'))
-                ->orderBy("designation","desc")
-                ->groupBy("designation")
-                ->get();
-                   
-                $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_designations.csv",
-                    "Pragma" => "no-cache",
-                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-                    "Expires" => "0"
-                );
-        
-                $columns = array('count','designation','companies');
-        
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
-                    }
-                    $str = $str."\n";
-                }
-       
-                return response($str, 200, $headers);
-        
-            });
-
-            Route::get("csv/language",function (Request $request){
-                $this->model = [];
-                $studentDetail = \DB::table("profile_filters")
-                ->select(\DB::raw('COUNT(*) as count, value as language'))
-                ->where('key','=','language')
-                ->groupBy("value")
-                ->get();
-                   
-                $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_language.csv",
-                    "Pragma" => "no-cache",
-                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-                    "Expires" => "0"
-                );
-        
-                $columns = array('count','language');
-        
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
-                    }
-                    $str = $str."\n";
-                }
-       
-                return response($str, 200, $headers);
-        
-            });
-
-            Route::get("csv/skill",function (Request $request){
-                $this->model = [];
-                $studentDetail = \DB::table("profile_filters")
-                ->select(\DB::raw('COUNT(*) as count, value as skill'))
-                ->where('key','=','skills')
-                ->groupBy("value")
-                ->get();
-                   
-                $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_skills.csv",
-                    "Pragma" => "no-cache",
-                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-                    "Expires" => "0"
-                );
-        
-                $columns = array('count','skill');
-        
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
-                    }
-                    $str = $str."\n";
-                }
-       
-                return response($str, 200, $headers);
-        
-            });
-
 
 });
