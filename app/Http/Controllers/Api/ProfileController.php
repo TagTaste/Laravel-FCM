@@ -213,9 +213,7 @@ class ProfileController extends Controller
 
             }
         }
-        $profileData = Profile::find($request->user()->profile->id);
-        $this->model = $profileData;
-        \App\Filter\Profile::addModel($profileData);
+        $this->model = Profile::find($request->user()->profile->id);
         return $this->sendResponse();
     }
     
