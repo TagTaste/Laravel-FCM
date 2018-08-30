@@ -514,12 +514,16 @@ class CollaborateController extends Controller
         $this->model = Collaborate::where('id',$id)->first();
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
-            if($inputs['step'] == 3 && $collaborate->state == 'Active')
+            if($inputs['step'] == 3 && $collaborate->state == 'Save')
             {
                 $this->model->addToCache();
                 $company = Company::find($companyId);
                 if(!isset($this->model->payload_id))
+                {
                     event(new NewFeedable($this->model, $company));
+                    //add subscriber
+                    event(new \App\Events\Model\Subscriber\Create($this->model,$profile));
+                }
                 \App\Filter\Collaborate::addModel($this->model);
 
             }
