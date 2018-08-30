@@ -193,20 +193,12 @@ class ProfileController extends Controller
 
         $loggedInProfileId = $request->user()->profile->id;
 
-        if($request->has('occupation_id'))
+        if(isset($data['profile']['occupation_id']) && !is_null($data['profile']['occupation_id']))
         {
-            $jobIds = $request->input('occupation_id');
-            $jobs = [];
-            foreach ($jobIds as $jobId)
-            {
-                $jobs[] = ['profile_id'=>$loggedInProfileId,'occupation_id'=>$jobId];
-            }
-            if(count($jobs))
-            {
-                Profile\Occupation::where('profile_id',$loggedInProfileId)->delete();
-                $this->model->profile_occupations()->insert($jobs);
-
-            }
+            $jobs = ['profile_id'=>$loggedInProfileId,'occupation_id'=>$data['profile']['occupation_id']];
+            Profile\Occupation::where('profile_id',$loggedInProfileId)->delete();
+            $this->model->profile_occupations()->insert($jobs);
+            unset($data['profile']['occupation_id']);
         }
 
         if($request->has('specialization_id'))
