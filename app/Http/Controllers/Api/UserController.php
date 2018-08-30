@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\EmailVerification;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
+use App\Profile;
 use App\SocialAccount;
 use App\User;
 use Illuminate\Http\Request;

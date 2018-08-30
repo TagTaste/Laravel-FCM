@@ -11,6 +11,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
      */
     public function run()
     {
+
          $questions = '{
 	"INSTRUCTION": [{
 		"title": "INSTRUCTION",

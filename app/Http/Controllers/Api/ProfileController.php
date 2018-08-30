@@ -162,15 +162,11 @@ class ProfileController extends Controller
         //phone verified for request otp
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
-            $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
+            $profile = \DB::table('profiles')->where('id',$request->user()->profile->id)->first();
             if($data['profile']['phone'] != $profile->phone)
             {
                 $data['profile']['verified_phone'] = 0;
             }
-        }
-        else
-        {
-            $data['profile']['verified_phone'] = 0;
         }
 
         //save the model
