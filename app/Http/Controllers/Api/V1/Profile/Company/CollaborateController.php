@@ -412,7 +412,7 @@ class CollaborateController extends Controller
     {
         $collaborateId = $id;
         $inputs = $request->only(['methodology_id','age_group','is_taster_residence',
-            'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state']);
+            'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);
         $loggedInProfileId = $request->user()->profile->id;
 
