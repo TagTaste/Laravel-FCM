@@ -50,11 +50,12 @@ class CollaborationQuestions extends Command implements ShouldQueue
         $questions = $questions->question_json;
         $questions = json_decode($questions,true);
         $data = [];
-        $data[] = ['header_type'=>'INSTRUCTION','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
+        $data[] = ['header_type'=>'INSTRUCTIONS','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
         $data[] = ['header_type'=>'APPEARANCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
         $data[] = ['header_type'=>'AROMA','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
+        $data[] = ['header_type'=>'SOUND','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
         $data[] = ['header_type'=>'TASTE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'AROMATICS','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
+        $data[] = ['header_type'=>'AROMATICS','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
         $data[] = ['header_type'=>'TEXTURE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
         $data[] = ['header_type'=>'OVERALL PREFERENCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
 
