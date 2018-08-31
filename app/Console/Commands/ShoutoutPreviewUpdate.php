@@ -40,7 +40,7 @@ class ShoutoutPreviewUpdate extends Command
      */
     public function handle()
     {
-        Shoutout::where('id','>=',1)->orderBy('id')->chunk(100,function($models){
+        Shoutout::where('id','>=',2302)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $preview = $model->preview;
 
