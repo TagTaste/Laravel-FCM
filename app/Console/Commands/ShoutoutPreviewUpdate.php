@@ -40,7 +40,7 @@ class ShoutoutPreviewUpdate extends Command
      */
     public function handle()
     {
-        Shoutout::where('id','>=',2302)->orderBy('id')->chunk(100,function($models){
+        Shoutout::where('id','>=',2810)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $preview = $model->preview;
 
@@ -69,6 +69,7 @@ class ShoutoutPreviewUpdate extends Command
 
                     if(isset($inputs))
                     {
+                        echo "model is done ".$model->id."\n";
                         $inputs = json_encode($inputs);
                         $model->update(['preview'=>$inputs,'updated_at'=>$model->updated_at]);
                         $model->addToCache();
