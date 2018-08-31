@@ -24,6 +24,8 @@ class AlterCollaborateScopeofreviewAddColumn extends Migration
             $table->integer("no_of_veterans")->nullable();
             $table->boolean('is_product_endorsement')->default(0);
             $table->integer("no_of_batches")->default(4);
+            $table->integer("global_question_id")->nullable();
+            $table->text("taster_instruction")->nullable();
         });
     }
 

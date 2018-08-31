@@ -27,6 +27,9 @@ class CreateCollaborateApplicants extends Migration
             $table->json('applier_address')->nullable();
             $table->boolean("hut")->default(0);
             $table->text("message")->nullable();
+            $table->string("city")->nullable();
+            $table->string("age_group")->nullable();
+            $table->string("gender")->nullable();
             $table->timestamps();
 
         });

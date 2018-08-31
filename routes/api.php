@@ -209,6 +209,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         
                 //collaborates shortlist
                     Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
+
                     Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
 
             //collaborate
