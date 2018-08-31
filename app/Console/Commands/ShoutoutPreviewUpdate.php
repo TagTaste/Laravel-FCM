@@ -70,8 +70,10 @@ class ShoutoutPreviewUpdate extends Command
                     if(isset($inputs))
                     {
                         $inputs = json_encode($inputs);
+                        $model->update(['preview'=>$inputs,'updated_at'=>$model->updated_at]);
+                        $model->addToCache();
                     }
-                    var_dump($inputs);
+
                 }
             }
         });
