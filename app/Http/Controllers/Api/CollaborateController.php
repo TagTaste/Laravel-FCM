@@ -476,7 +476,7 @@ class CollaborateController extends Controller
 
     public function getCities(Request $request)
     {
-        $this->model = \DB::table('cities')->get();
+        $this->model = \DB::table('cities')->where('is_active',1)->get();
         return $this->sendResponse();
     }
 
@@ -515,12 +515,25 @@ class CollaborateController extends Controller
                 if(isset($datum['selected']))
                 {
                     if($datum['selected'] == 'Yes')
-                        $cities[] = ['city'=>$datum['city'],'state'=>$datum['state'],'region'=>$datum['region']];
+                        $cities[] = ['city'=>$datum['city'],'state'=>$datum['state'],'region'=>$datum['region'],'is_active'=>1];
+                    else
+                        $cities[] = ['city'=>$datum['city'],'state'=>$datum['state'],'region'=>$datum['region'],'is_active'=>0];
                 }
 
             }
         }
         $this->model = \DB::table('cities')->insert($cities);
+        return $this->sendResponse();
+    }
+
+    public function uploadGlobalQuestion(Request $request)
+    {
+        $name = $request->input('name');
+        $keywords = $request->input('keywords');
+        $description = $request->input('description');
+        $questions = $request->input('question_json');
+        $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions];
+        $this->model = \DB::table('global_questions')->insert($data);
         return $this->sendResponse();
     }
 }

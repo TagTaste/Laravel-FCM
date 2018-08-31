@@ -18,6 +18,7 @@ class CreateCities extends Migration
             $table->string('city');
             $table->string("state")->nullable();
             $table->string('region')->nullable();
+            $table->boolean('is_active')->default(0);
         });
     }
 

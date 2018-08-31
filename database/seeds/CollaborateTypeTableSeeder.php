@@ -15,15 +15,36 @@ class CollaborateTypeTableSeeder extends Seeder
 
             [
                 'name' => 'Vegetarian',
-                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_vegetarian.png'
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ],
             [
-                'name' => 'Contain Egg',
-                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_contains_egg.png'
+                'name' => 'Vegetarian - Jain',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ],
             [
-                'name' => 'Non - Vegetarian',
-                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_non_vegetarian.png'
+                'name' => 'Vegan',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ]
+            ,
+            [
+                'name' => 'Non Vegetarian',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Contains Fish',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Contains Pork',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Contains Poultry',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Halal Food',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ]
 
         ]);
