@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMailAnalysisTables extends Migration
+class CreateMailAnalysisTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,8 @@ class CreateMailAnalysisTables extends Migration
     public function up()
     {
         //
-        Schema::table('newsletters',function(Blueprint $table){
-            $table->integer('is_unsubscribed')->default(0);
-        });
     }
+
     /**
      * Reverse the migrations.
      *
@@ -26,8 +24,5 @@ class CreateMailAnalysisTables extends Migration
     public function down()
     {
         //
-        Schema::table('newsletters',function(Blueprint $table){
-            $table->dropColumn('is_unsubscribed');
-        });
     }
 }
