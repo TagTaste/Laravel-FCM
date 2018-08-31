@@ -21,7 +21,7 @@ class Preview
         $key = "preview:" . sha1($url);
         if(!\Redis::exists($key)){
             $self = new self($url);
-            $tags = $self->parseMetaTags($url);
+            $tags = $self->parseFacebookTags($url);
             \Redis::set($key,json_encode($tags));
         }
     
@@ -55,7 +55,7 @@ class Preview
         return $response;
     }
     
-    protected function parseMetaTags($url)
+    protected function parseFacebookTags($url)
     {
         $meta = [];
        
