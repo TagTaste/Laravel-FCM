@@ -29,6 +29,7 @@ use App\Console\Commands\RemoveNullFcmTokens;
 use App\Console\Commands\RemoveSpecialCharsHandle;
 use App\Console\Commands\ServiceInterruption;
 use App\Console\Commands\SetPlatformAndroid;
+use App\Console\Commands\ShoutoutPreviewUpdate;
 use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -153,7 +154,11 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
         FixCollaborateImage::class,
-        CapitalizeUserName::class
+        CapitalizeUserName::class,
+
+        //update shutout preview
+
+        ShoutoutPreviewUpdate::class
 
 
     ];
