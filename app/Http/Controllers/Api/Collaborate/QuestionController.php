@@ -41,7 +41,7 @@ class QuestionController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         if(!$request->has('batch_id'))
         {
-            return $this->sendError("No sample id found");
+            return $this->sendError("No product id found");
         }
         $headerId = $id;
         $batchId = $request->input('batch_id');
@@ -50,7 +50,7 @@ class QuestionController extends Controller
 
         if(!$checkAssign)
         {
-            return $this->sendError("Wrong sample assigned");
+            return $this->sendError("Wrong product assigned");
         }
         $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNull('parent_question_id')->where('header_type_id',$id)->orderBy('id')->get();
@@ -104,6 +104,7 @@ class QuestionController extends Controller
                 }
                 if($data->questions->title == 'INSTRUCTION')
                 {
+                    $data->questions->subtitle = "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.";
                     if(isset($collaborate->taster_instruction))
                         $data->questions->subtitle = $collaborate->taster_instruction;
 
@@ -130,7 +131,7 @@ class QuestionController extends Controller
         $value = $request->input('value');
         if(!$request->has('batch_id'))
         {
-            return $this->sendError("No sample id found");
+            return $this->sendError("No product id found");
         }
         $batchId = $request->input('batch_id');
         $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)
@@ -138,7 +139,7 @@ class QuestionController extends Controller
 
         if(!$checkAssign)
         {
-            return $this->sendError("Wrong sample assigned");
+            return $this->sendError("Wrong product assigned");
         }
         $id = $request->has('id') ? $request->input('id') : null;
         $this->model = [];
@@ -189,7 +190,7 @@ class QuestionController extends Controller
         $term = $request->input('term');
         if(!$request->has('batch_id'))
         {
-            return $this->sendError("No sample id found");
+            return $this->sendError("No product id found");
         }
         $this->model['option'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
             ->where('collaborate_id',$collaborateId)->where('value','like',"%$term%")->get();

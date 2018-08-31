@@ -30,13 +30,13 @@ class ReviewController extends Controller
         $batchId = $request->input('batch_id');
         if(!$request->has('batch_id'))
         {
-            return $this->sendError("No sample id found");
+            return $this->sendError("No prodcut id found");
         }
         $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
 
         if(!$checkAssign)
         {
-            return $this->sendError("Wrong sample assigned");
+            return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);

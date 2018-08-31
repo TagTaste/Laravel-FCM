@@ -452,7 +452,7 @@ class CollaborateController extends Controller
         {
             if($collaborate->state == 'Active')
             {
-                return $this->sendError("You can not update your samples.");
+                return $this->sendError("You can not update your products.");
             }
             $batches = $request->input('batches');
             $batchList = [];

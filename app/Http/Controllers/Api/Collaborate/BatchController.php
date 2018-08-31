@@ -609,7 +609,7 @@ class BatchController extends Controller
             $excel->sheet('First sheet', function($sheet) use($profiles, $columns, $batchInfo,$collaborateId) {
                 $sheet->setOrientation('landscape');
                 $sheet->row(1,array("Collaboration Link - "."https://www.tagtaste.com/collaborate/".$collaborateId));
-                $sheet->row(2,array("Sample Name - ".$batchInfo->name));
+                $sheet->row(2,array("Product Name - ".$batchInfo->name));
                 $sheet->row(3,$columns);
                 $index = 4;
                 foreach ($profiles as $key => $value) {
@@ -680,10 +680,10 @@ class BatchController extends Controller
                 $batchList = $batch->name.",".$batchList;
             }
             $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
-                'Delivery Address'=>$applierAddress,'Sample Name'=>$batchList];
+                'Delivery Address'=>$applierAddress,'product Name'=>$batchList];
             $index++;
         }
-        $columns = array('S.No','Name','Profile Link','Delivery Address','Sample Name');
+        $columns = array('S.No','Name','Profile Link','Delivery Address','product Name');
         Excel::create($collaborateId."_HUT_USER_ADDRESS_LIST", function($excel) use($profiles, $columns,$collaborateId) {
 
             // Set the title

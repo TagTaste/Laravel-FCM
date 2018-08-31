@@ -15,6 +15,8 @@ class AlterProfileAddColumnGender extends Migration
     {
         Schema::table('profiles',function(Blueprint $table){
             $table->string('gender')->nullable();
+            $table->boolean("is_veteran")->default(0);
+            $table->boolean("is_expert")->default(0);
         });
     }
 
