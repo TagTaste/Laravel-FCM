@@ -565,6 +565,9 @@ class BatchController extends Controller
         $applicantDetails = Collaborate\Applicant::where("collaborate_id",$collaborateId)->whereIn('profile_id',$profileIds)
             ->where('hut',1)->get();
 
+        if(count($applicantDetails) == 0)
+            return $this->sendError("No User exists.");
+
         $headers = array(
             "Content-type" => "application/vnd.ms-excel; charset=utf-8",
             "Content-Disposition" => "attachment; filename=".$collaborateId."_HUT_USER_ADDRESS_LIST.xls",
@@ -645,6 +648,9 @@ class BatchController extends Controller
 
         $this->model = [];
         $applicantDetails = Collaborate\Applicant::where("collaborate_id",$collaborateId)->where('hut',1)->get();
+
+        if(count($applicantDetails) == 0)
+            return $this->sendError("No User exists.");
 
         $headers = array(
             "Content-type" => "application/vnd.ms-excel; charset=utf-8",
