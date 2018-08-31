@@ -90,18 +90,18 @@ class SettingController extends Controller
     {
         $hash = $request->input('k');
         $decryptedString = Crypt::decryptString($hash);
+        if (filter_var($decryptedString, FILTER_VALIDATE_EMAIL)) {
+            \DB::table('newsletters')->where('email',$decryptedString)->update(['is_unsubscribed'=>1]);
+            return redirect(env('APP_URL')."/unsubscribed/?k=".$hash);
+        }
         $info = explode("/",$decryptedString);
-        if($info[1] != 0)
-        {
-            $preference = Setting::getNotificationPreference($info[0], $info[1], $info[2],null,$info[3]);
-            $companyId = $info[1];
+        for ($i=0; $i <5 ; $i++) { 
+            if($info[$i]==="0")
+            $info[$i]=NULL;
         }
-        else
-        {
-            $preference = Setting::getNotificationPreference($info[0], null, $info[2],null,$info[3]);
-            $companyId = null;
-        }
-        $setting = Setting::getSetting($preference->setting_id,$info[0],$companyId);
+            $preference = Setting::getNotificationPreference($info[0], $info[1], $info[2],$info[3],$info[4]);
+        $setting = Setting::getSetting($preference->setting_id,$info[0],$info[1]);
+        dd($setting);
         if($type === 'unsubscribe')
         {
             $setting->{'email_value'} = 0;
@@ -128,8 +128,16 @@ class SettingController extends Controller
         $reason_id = $request->input('reason_id');
         $decryptedString = Crypt::decryptString($hash);
         $info = explode("/",$decryptedString);
-        $model = \DB::table('profile_unsubscribe')->insert(['reason_id'=>$reason_id, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
-        return $model;        
+        if($info[1] != 0)
+        {
+            $companyId = null; 
+        }
+        if($info[1] == 0)
+        {
+            $companyId = null;
+        }
+        $model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reason_id, 'profile_id'=>$info[0], 'company_id'=>$companyId, 'action'=>$info[2], 'model'=>$info[3]]);
+        return 1;        
 
     }
 

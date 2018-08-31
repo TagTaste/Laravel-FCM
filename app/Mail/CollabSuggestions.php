@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Crypt;
 
 class CollabSuggestions extends Mailable
 {
@@ -17,10 +18,15 @@ class CollabSuggestions extends Mailable
      * @return void
      */
     public $name;
-    public function __construct($name)
+    public $profileId;
+    public $unsubscribe_link;
+    public function __construct($name,$id)
     {
         //
         $this->name = $name;
+        $this->profileId = \App\Profile::where('user_id',$id)->pluck('id');
+        $encryptedString = Crypt::encryptString($this->profileId."/0/newsletter/informative/0");
+        $this->unsubscribe_link = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encryptedString;
     }
 
     /**
@@ -30,6 +36,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('Top trending collaborations, you should see on TagTaste.')->view('emails.collaboration-suggestions');
+        return $this->subject('Top trending collaborations, you should see on TagTaste.')->view('emails.collaboration-suggestions',['unsubscribe_link'=>$this->unsubscribe_link]);
     }
 }
