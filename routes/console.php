@@ -184,13 +184,21 @@ Artisan::command('inspire', function () {
     $users = \DB::table('users')->whereNull('deleted_at')->get();
     foreach ($users as $user)
     {
-        $count++;
+        
 
         $email = $user->email;
-        echo "Sending collab mail to " . $email . "\n";
+        $profileId = \App\Profile::where('user_id',$user->id)->pluck('id');
+        $preference = \App\Setting::getNotificationPreference($profileId[0], null, "newsletter","informative",null);
+        $setting = \App\Setting::getSetting($preference->setting_id,$profileId[0]);
+        if($setting->email_value)
+        {
+            $count++;
+            echo "Sending collab mail to " . $email . "\n";
 
         $mail = (new \App\Mail\CollabSuggestions($user->name,$user->id))->onQueue('emails');
         \Mail::to($email)->send($mail);
+        }
+        
     };
     echo "\nsent $count mails";
 });

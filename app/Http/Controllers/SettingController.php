@@ -101,7 +101,6 @@ class SettingController extends Controller
         }
             $preference = Setting::getNotificationPreference($info[0], $info[1], $info[2],$info[3],$info[4]);
         $setting = Setting::getSetting($preference->setting_id,$info[0],$info[1]);
-        dd($setting);
         if($type === 'unsubscribe')
         {
             $setting->{'email_value'} = 0;
