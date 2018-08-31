@@ -14,8 +14,10 @@ class CreateMailAnalysisTables extends Migration
     public function up()
     {
         //
+        Schema::table('newsletters',function(Blueprint $table){
+            $table->integer('is_unsubscribed')->default(0);
+        });
     }
-
     /**
      * Reverse the migrations.
      *
@@ -24,5 +26,8 @@ class CreateMailAnalysisTables extends Migration
     public function down()
     {
         //
+        Schema::table('newsletters',function(Blueprint $table){
+            $table->dropColumn('is_unsubscribed');
+        });
     }
 }
