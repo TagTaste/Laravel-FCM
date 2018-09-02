@@ -39,7 +39,7 @@ class AlterCollaborateScopeofreviewAddColumn extends Migration
         Schema::table('collaborates',function(Blueprint $table){
             $table->dropForeign(['methodology_id']);
             $table->dropColumn(['methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans'
-                ,'is_product_endorsement','brand_name','brand_logo','no_of_batches']);
+                ,'is_product_endorsement','brand_name','brand_logo','no_of_batches','taster_instruction','global_question_id']);
 
         });
     }

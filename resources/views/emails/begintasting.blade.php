@@ -39,7 +39,7 @@
                                                                         {{$notifiable->name}},
                                                                         <br>
                                                                         <br>
-                                                                        <b>{{$data->who['name']}}</b> has assigned a new sample <b>(</b><b>{{$batchInfo->name}}</b><b>)</b> to you for tasting. Click on the link below to begin tasting and feedback process.
+                                                                        <b>{{$data->who['name']}}</b> has assigned a new product <b>(</b><b>{{$batchInfo->name}}</b><b>)</b> to you for tasting. Click on the link below to begin tasting and feedback process.
                                                                         <br>
                                                                         <br>
 

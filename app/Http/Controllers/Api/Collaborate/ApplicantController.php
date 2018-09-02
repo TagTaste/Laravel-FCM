@@ -99,7 +99,7 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $isInvited = $request->input(['is_invited']);
+        $isInvited = 0;
         $now = Carbon::now()->toDateTimeString();
         if(!$request->has('applier_address'))
         {
@@ -121,28 +121,6 @@ class ApplicantController extends Controller
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
-        }
-        else
-        {
-            if(!$request->has('profile_id'))
-            {
-                return $this->sendError("Please select user for invitation");
-            }
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$request->user()->profile->id)->exists();
-            if(!$checkUser){
-                return $this->sendError("You are not admin.");
-            }
-            if($request->user()->profile->id == $request->input('profile_id'))
-            {
-                return $this->sendError("You can not invite admins of company");
-            }
-            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$request->input('profile_id'))
-                ->whereNotNull('shortlisted_at')->exists();
-            if($checkApplicant)
-            {
-                return $this->sendError("Already Invited");
-            }
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
         }
         $this->model = $this->model->create($inputs);
 
@@ -283,7 +261,7 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
 
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>null,'rejected_at'=>null]);
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
 
         return $this->sendResponse();
     }

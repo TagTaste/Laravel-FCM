@@ -28,7 +28,7 @@ class AlterProfileAddColumnGender extends Migration
     public function down()
     {
         Schema::table('profiles',function(Blueprint $table){
-            $table->dropColumn('gender');
+            $table->dropColumn(['gender',"is_veteran","is_expert"]);
         });
     }
 }
