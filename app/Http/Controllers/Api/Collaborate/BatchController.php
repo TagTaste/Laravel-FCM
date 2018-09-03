@@ -40,6 +40,8 @@ class BatchController extends Controller
                 ->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
 
             $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
+
+            $batch['beginTasting'] = \DB::table('collaborate_batches_assign')->where('begin_tasting',1)->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
         }
         $this->model = $batches;
         return $this->sendResponse();
