@@ -11,7 +11,16 @@ class GlobalQuestionUploadTableSeeder extends Seeder
      */
     public function run()
     {
-
+        $headerInfo = [['header_name'=>"INSTRUCTIONS","header_info"=>"Here is info "],
+            ['header_name'=>"INSTRUCTIONS","header_info"=>"Here is info "],
+            ['header_name'=>"APPEARANCE","header_info"=>"Here is info "],
+            ['header_name'=>"AROMA","header_info"=>"Here is info "],
+            ['header_name'=>"SOUND","header_info"=>"Here is info "],
+            ['header_name'=>"TASTE","header_info"=>"Here is info "],
+            ['header_name'=>"AROMATICS","header_info"=>"Here is info "],
+            ['header_name'=>"TEXTURE","header_info"=>"Here is info "],
+            ['header_name'=>"OVERALL PREFERENCE","header_info"=>"Here is info "],
+        ];
          $questions = '{
 
 	"INSTRUCTIONS": [{
@@ -508,7 +517,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 }';
          $data = ['name'=>'Kari Kari','keywords'=>"Form for Japanese snacks",'description'=>'Kari Kari, Japan, Snacks, Healthy Snacks',
-             'question_json'=>$questions];
+             'question_json'=>$questions,'header_info'=>json_encode($headerInfo,true)];
 
          \DB::table('global_questions')->insert($data);
     }

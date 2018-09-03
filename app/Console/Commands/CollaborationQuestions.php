@@ -45,23 +45,20 @@ class CollaborationQuestions extends Command implements ShouldQueue
     public function handle()
     {
         $id = $this->argument('id');
+        $collaborateId = $id;
         $globalQuestionId = $this->argument('global_question_id');
         $questions = \DB::table('global_questions')->where('id',$globalQuestionId)->first();
+        $data = $questions->header_info;
         $questions = $questions->question_json;
         $questions = json_decode($questions,true);
-        $data = [];
-        $data[] = ['header_type'=>'INSTRUCTIONS','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'APPEARANCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'AROMA','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'SOUND','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'TASTE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'AROMATICS','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
-        $data[] = ['header_type'=>'TEXTURE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
-        $data[] = ['header_type'=>'OVERALL PREFERENCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
+        $data = json_decode($data,true);
+        $header = [];
+        foreach ($data as &$datum)
+        {
+            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$datum['header_info'],'collaborate_id'=>$collaborateId];
+        }
 
-
-        $this->model = Collaborate\ReviewHeader::insert($data);
-        $collaborateId = $id;
+        $this->model = Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
         {
             $data = [];
