@@ -519,7 +519,6 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 //}';
 
         $headerInfo2 = [['header_name'=>"INSTRUCTION","header_info"=>"Here is info "],
-            ['header_name'=>"INSTRUCTIONS","header_info"=>"Here is info "],
             ['header_name'=>"APPEARANCE","header_info"=>"Here is info "],
             ['header_name'=>"AROMA","header_info"=>"Here is info "],
             ['header_name'=>"TASTE","header_info"=>"Here is info "],
