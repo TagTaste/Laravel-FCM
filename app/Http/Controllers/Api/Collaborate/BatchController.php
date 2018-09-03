@@ -436,6 +436,7 @@ class BatchController extends Controller
         {
             foreach ($filters['age'] as $age)
             {
+                $age = htmlspecialchars_decode($age);
                 $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)->get()->pluck('profile_id');
                 $profileIds = $profileIds->merge($ids);
             }
