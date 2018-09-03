@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class VersionController extends Controller
 {
-    public function getAndroidVersion() {
+    public function getAndroidVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_ANDROID);
         \Log::info($request->user()->profile->id);
         return response()->json($version);
