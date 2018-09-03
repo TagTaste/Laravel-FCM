@@ -103,7 +103,6 @@ class UserController extends Controller
         if($user)
         {
             $this->model = \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'app_version'=>$apk_version]);
-            \Log::info($this->model);
             return $this->sendResponse();
         }
         return $this->sendError("User not found.");
