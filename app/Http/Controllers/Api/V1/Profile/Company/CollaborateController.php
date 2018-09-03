@@ -465,7 +465,8 @@ class CollaborateController extends Controller
             }
             if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
             {
-                Collaborate\Batches::created($batchList);
+                $this->model = Collaborate\Batches::insert($batchList);
+                return $this->sendResponse();
             }
         }
 
