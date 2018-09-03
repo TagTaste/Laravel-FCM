@@ -93,7 +93,7 @@ class UserController extends Controller
         $user = User::where("id", $request->user()->id)->first();
         \Log::info($request->all());
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
-        $apk_version = $request->has('platform') ? NULL : $request->header('X-VERSION') ;
+        $apk_version = $request->header('X-VERSION') ;
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
         if($tokenExists)
         {
