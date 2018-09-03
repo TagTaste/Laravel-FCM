@@ -447,6 +447,7 @@ class BatchController extends Controller
                 $profileIds = $profileIds->merge($ids);
             }
         }
+        dd($profileIds);
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
 
