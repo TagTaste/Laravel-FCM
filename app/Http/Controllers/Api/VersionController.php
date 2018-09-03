@@ -19,6 +19,7 @@ class VersionController extends Controller
         if(Auth::check())
         {
             $profileId = $request->user()->profile->id;
+            \Log::info(\DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get());
              \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->update(['app_version'=>$version->latest_version]);
         }
         return response()->json($version);
