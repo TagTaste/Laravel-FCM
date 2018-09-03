@@ -9,13 +9,18 @@
 namespace App\Http\Controllers\Api;
 use \App\Version;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 class VersionController extends Controller
 {
     public function getAndroidVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_ANDROID);
-        \Log::info($request->user()->profile->id);
+        if(Auth::check())
+        {
+            $profileId = $request->user()->profile->id;
+            \Log::info($profileId);
+        }
         return response()->json($version);
     }
 
