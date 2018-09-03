@@ -332,7 +332,7 @@ class BatchController extends Controller
                 {
                     $item->questions = json_decode($item->questions);
                     $item->questions->id = $item->id;
-                    $item->questions->is_nested = $item->is_nested;
+                    $item->questions->is_nested_question = $item->is_nested_question;
                     $item->questions->is_mandatory = $item->is_mandatory;
                     $item->questions->is_active = $item->is_active;
                     $item->questions->parent_question_id = $item->parent_question_id;
@@ -363,9 +363,9 @@ class BatchController extends Controller
                 $reports['question_id'] = $data->id;
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
-                $reports['is_nested'] = $data->is_nested;
+                $reports['is_nested_question'] = $data->is_nested_question;
                 $reports['question'] = $data->questions ;
-                if($data->is_nested == 1)
+                if($data->is_nested_question == 1)
                 {
                     $reports['nestedAnswers'] = [];
                     foreach ($data->questions->questions as $item)
@@ -374,7 +374,7 @@ class BatchController extends Controller
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
                         $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
-                        $subReports['is_nested'] = $item->is_nested;
+                        $subReports['is_nested_question'] = $item->is_nested_question;
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
@@ -399,10 +399,10 @@ class BatchController extends Controller
                         ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
                 }
 
-                if(isset($data->questions->nested_option))
+                if(isset($data->questions->is_nested_option))
                 {
-                    $reports['nested_option'] = $data->questions->nested_option;
-                    if($data->questions->nested_option == 1)
+                    $reports['is_nested_option'] = $data->questions->is_nested_option;
+                    if($data->questions->is_nested_option == 1)
                     {
                         foreach($reports['answer'] as &$item)
                         {
@@ -462,9 +462,9 @@ class BatchController extends Controller
                 $reports['question_id'] = $data->id;
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
-                $reports['is_nested'] = $data->is_nested;
+                $reports['is_nested_question'] = $data->is_nested_question;
                 $reports['question'] = $data->questions ;
-                if($data->is_nested == 1)
+                if($data->is_nested_question == 1)
                 {
                     $reports['nestedAnswers'] = [];
                     foreach ($data->questions->questions as $item)
@@ -473,7 +473,7 @@ class BatchController extends Controller
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
                         $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
-                        $subReports['is_nested'] = $item->is_nested;
+                        $subReports['is_nested_question'] = $item->is_nested_question;
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
@@ -490,10 +490,10 @@ class BatchController extends Controller
                     ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
                     ->whereIn('profile_id',$profileIds)->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
 
-                if(isset($data->questions->nested_option))
+                if(isset($data->questions->is_nested_option))
                 {
-                    $reports['nested_option'] = $data->questions->nested_option;
-                    if($data->questions->nested_option == 1)
+                    $reports['is_nested_option'] = $data->questions->is_nested_option;
+                    if($data->questions->is_nested_option == 1)
                     {
                         foreach($reports['answer'] as &$item)
                         {
