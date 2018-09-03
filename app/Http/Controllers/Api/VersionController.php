@@ -15,6 +15,7 @@ class VersionController extends Controller
 {
     public function getAndroidVersion() {
         $version = Version::getVersion(Version::$APP_ANDROID);
+        \Log::info($request->user()->profile->id);
         return response()->json($version);
     }
 
