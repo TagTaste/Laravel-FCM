@@ -522,7 +522,7 @@ class BatchController extends Controller
             }
         }
 
-        $this->model = ['Gender'=>$gender,'Age'=>$age,'city'=>$city];
+        $this->model = ['Gender'=>$gender,'Age'=>$age,'city'=>array_unique($city)];
 
         return $this->sendResponse();
 
