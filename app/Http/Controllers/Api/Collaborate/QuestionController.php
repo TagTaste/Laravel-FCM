@@ -73,7 +73,7 @@ class QuestionController extends Controller
                 {
                     $item->questions = json_decode($item->questions);
                     $item->questions->id = $item->id;
-                    $item->questions->is_nested = $item->is_nested;
+                    $item->questions->is_nested_question = $item->is_nested_question;
                     $item->questions->is_mandatory = $item->is_mandatory;
                     $item->questions->is_active = $item->is_active;
                     $item->questions->parent_question_id = $item->parent_question_id;
@@ -91,13 +91,13 @@ class QuestionController extends Controller
             if(isset($data->questions)&&!is_null($data->questions))
             {
                 $data->questions->id = $data->id;
-                $data->questions->is_nested = $data->is_nested;
+                $data->questions->is_nested_question = $data->is_nested_question;
                 $data->questions->is_mandatory = $data->is_mandatory;
                 $data->questions->is_active = $data->is_active;
                 $data->questions->parent_question_id = $data->parent_question_id;
                 $data->questions->header_type_id = $data->header_type_id;
                 $data->questions->collaborate_id = $data->collaborate_id;
-                if(isset($data->questions->nested_option))
+                if(isset($data->questions->is_nested_option))
                 {
                     $data->questions->option = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                         ->where('question_id',$data->id)->whereNull('parent_id')->get();
@@ -294,7 +294,7 @@ class QuestionController extends Controller
             if($checknested)
             {
                 \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)->where('collaborate_id',$collaborateId)
-                    ->where('id',$question->id)->update(['nested_option'=>1]);
+                    ->where('id',$question->id)->update(['is_nested_option'=>1]);
             }
 
         }
@@ -306,13 +306,13 @@ class QuestionController extends Controller
     {
         $title = $request->input('title');
         $subTitle = $request->has('subtitle') ? !is_null($request->input('subtitle')) ? $request->input('subtitle') : null : null;
-        $isNested = $request->input('is_nested');
+        $isNested = $request->input('is_nested_question');
         $parentQueId = $request->has('parent_question_id') ? !is_null($request->input('parent_question_id'))
             ? $request->input('parent_question_id') : null : null ;
 
         $questions = $request->input('questions');
 
-        $this->model = \DB::table('collaborate_tasting_questions')->insert(['title'=>$title,'subtitle'=>$subTitle,'is_nested'=>$isNested,
+        $this->model = \DB::table('collaborate_tasting_questions')->insert(['title'=>$title,'subtitle'=>$subTitle,'is_nested_question'=>$isNested,
             'parent_question_id'=>$parentQueId,'is_active'=>1,'is_mandatory'=>1,'questions'=>$questions,'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId]);
         return $this->sendResponse();
     }

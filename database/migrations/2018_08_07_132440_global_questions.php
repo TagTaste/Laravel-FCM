@@ -21,6 +21,7 @@ class GlobalQuestions extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->json('question_json')->nullable();
+            $table->json("header_info")->nullable();
             $table->timestamps();
         });
     }
