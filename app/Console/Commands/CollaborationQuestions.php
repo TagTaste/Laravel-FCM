@@ -56,7 +56,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
         foreach ($data as &$datum)
         {
             $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
-            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$datum['header_info'],'collaborate_id'=>$collaborateId];
+            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$headerInfo,'collaborate_id'=>$collaborateId];
         }
 
         $this->model = Collaborate\ReviewHeader::insert($header);
