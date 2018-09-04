@@ -408,6 +408,9 @@ class BatchController extends Controller
                             $nestedOption = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                                 ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
                             $item->path = isset($nestedOption->path) ? $nestedOption->path : null;
+                            \Log::info("value is ".$item->value);
+                            \Log::info("leaf id is ".$item->leaf_id);
+                            \Log::info("path is ".$item->path);
                         }
                     }
                 }
