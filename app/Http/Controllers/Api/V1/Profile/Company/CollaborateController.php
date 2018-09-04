@@ -455,7 +455,6 @@ class CollaborateController extends Controller
                 return $this->sendError("You can not update your products.");
             }
             $batches = $request->input('batches');
-            \Log::info($batches);
             $batchList = [];
             $now = Carbon::now()->toDateTimeString();
             foreach ($batches as $batch)
@@ -642,6 +641,5 @@ class CollaborateController extends Controller
                 $inputs['gender_ratio'] = json_encode($gendeInput);
             }
         }
-        \Log::info($inputs);
     }
 }
