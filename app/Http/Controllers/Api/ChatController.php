@@ -395,6 +395,10 @@ class ChatController extends Controller
     }
     private function getModel($feature,$featureId)
     {
+        if($feature == 'jobs' || $feature == 'Jobs' || $feature == 'job' || $feature == 'Job')
+            $feature = 'Job';
+        else if($feature == 'collaborates' || $feature == 'Collaborates' || $feature == 'collaborate' || $feature == 'Collaborate')
+            $feature = 'Collaborate';
         $class = "\\App\\" . ucwords($feature);
         return $class::find($featureId);
     }
