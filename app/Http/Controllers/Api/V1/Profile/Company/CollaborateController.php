@@ -602,37 +602,41 @@ class CollaborateController extends Controller
         $gender = ['Male','Female','Others'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
         if(isset($inputs['age_group']))
+        {
             $inputs['age_group'] = json_decode($inputs['age_group'],true);
+            $ageGroups = $inputs['age_group'];
+            if(count($ageGroups))
+            {
+                foreach ($ageGroups as &$key=>&$ageGroup)
+                {
+                    $key = htmlspecialchars_decode($key);
+                    $ageGroup = htmlspecialchars_decode($ageGroup);
+                    if(!in_array($key,$age))
+                    {
+                        unset($ageGroups[$key]);
+                    }
+                }
+                $inputs['age_group'] = json_encode($ageGroups);
+            }
+        }
         if(isset($inputs['gender_ratio']))
+        {
             $inputs['gender_ratio'] = json_decode($inputs['gender_ratio'],true);
-
+            $genderTypes = $inputs['gender_ratio'];
+            if(count($genderTypes))
+            {
+                foreach ($genderTypes as $key=>$genderType)
+                {
+                    $key = htmlspecialchars_decode($key);
+                    $genderType = htmlspecialchars_decode($genderType);
+                    if(!in_array($key,$gender))
+                    {
+                        unset($genderTypes[$key]);
+                    }
+                }
+                $inputs['gender_ratio'] = json_encode($genderTypes);
+            }
+        }
         \Log::info($inputs);
-        $ageGroup = htmlspecialchars_decode($inputs['age_group']);
-        $ageGroups = json_decode($ageGroup,true);
-        $genderTypes = htmlspecialchars_decode($inputs['gender_ratio']);
-        $genderTypes = json_decode($genderTypes,true);
-        if(count($ageGroups))
-        {
-            foreach ($ageGroups as $key=>$ageGroup)
-            {
-                if(!in_array($key,$age))
-                {
-                    unset($ageGroups[$key]);
-                }
-            }
-            $inputs['age_group'] = json_encode($ageGroups);
-        }
-        if(count($genderTypes))
-        {
-            foreach ($genderTypes as $key=>$genderType)
-            {
-                if(!in_array($key,$gender))
-                {
-                    unset($genderTypes[$key]);
-                }
-            }
-            $inputs['gender_ratio'] = json_encode($genderTypes);
-        }
-
     }
 }
