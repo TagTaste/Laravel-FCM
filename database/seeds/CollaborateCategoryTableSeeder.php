@@ -11,7 +11,7 @@ class CollaborateCategoryTableSeeder extends Seeder {
     {
         \App\CollaborateCategory::insert([
             [
-                'name'=>'Alcoholic',
+                'name'=>'Baby Food',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -19,35 +19,7 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Bakery Ingredients',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Bakery Products',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Beverage',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Butter',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
                 'name'=>'Cereals',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Cheese',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Chillies',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Chocolates',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -59,19 +31,11 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Cream',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
                 'name'=>'Dairy',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Dry Fruits',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Edible Oils',
+                'name'=>'Desserts',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -79,23 +43,11 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Flour',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Food',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
                 'name'=>'Fruits',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Fruits State',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Gourmet',
+                'name'=>'Fungi',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -107,79 +59,35 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Ingredients',
+                'name'=>'Honey',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Jams',
+                'name'=>'Legumes',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Juices',
+                'name'=>'Meat',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Livestock Spices',
+                'name'=>'Nuts',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Logistics',
+                'name'=>'Oil',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Meat Cuts',
+                'name'=>'Poultry',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Meats',
+                'name'=>'Preserves',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Meats Processed',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Milk Dairy',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Milk Non Dairy',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Millets Range',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Non Vegetarian',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Packing Type',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Peppers',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Processing',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Product Stage',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Rice',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Salts',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Sauce',
+                'name'=>'Savories',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -187,19 +95,7 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Seafood Raw',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Seasonings',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Shape',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Soyabeen',
+                'name'=>'Seeds',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -207,27 +103,15 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'',
+                'name'=>'Sweetener',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Spices States',
+                'name'=>'Vegetable Pastes',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Starches',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'State',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Storage',
-                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
-            ],
-            [
-                'name'=>'Syrup',
+                'name'=>'Vegetable Purees',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
@@ -235,11 +119,47 @@ class CollaborateCategoryTableSeeder extends Seeder {
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Vineger',
+                'name'=>'Beer',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ],
             [
-                'name'=>'Yeastes',
+                'name'=>'Beverages',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Cider',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Fruit Drinks',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Milk',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Non-alcoholic Beverages',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Spirits',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Water',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Whisky',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Wine',
+                'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
+            ],
+            [
+                'name'=>'Any Other',
                 'category_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_category_default.png'
             ]
         ]);

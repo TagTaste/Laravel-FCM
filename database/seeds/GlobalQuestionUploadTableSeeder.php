@@ -801,7 +801,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
   ]
 }';
          $data = ['name'=>'Kari Kari','keywords'=>"Form for Japanese snacks",'description'=>'Kari Kari, Japan, Snacks, Healthy Snacks',
-             'question_json'=>$questions1,'header_info'=>json_encode($headerInfo1,true)];
+             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
          \DB::table('global_questions')->insert($data);
     }
