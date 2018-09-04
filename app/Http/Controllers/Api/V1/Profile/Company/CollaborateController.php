@@ -601,6 +601,10 @@ class CollaborateController extends Controller
     {
         $gender = ['Male','Female','Others'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
+        if(isset($inputs['age_group']))
+            $inputs['age_group'] = json_decode($inputs['age_group'],true);
+        if(isset($inputs['gender_ratio']))
+            $inputs['gender_ratio'] = json_decode($inputs['gender_ratio'],true);
         $ageGroup = htmlspecialchars_decode($inputs['age_group']);
         $ageGroups = json_decode($ageGroup,true);
         $genderTypes = htmlspecialchars_decode($inputs['gender_ratio']);
