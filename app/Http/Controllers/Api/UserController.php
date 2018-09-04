@@ -91,7 +91,7 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
-        \Log::info($request->headers->all();
+        \Log::info($request->headers->all());
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $apk_version = $request->header('X-VERSION') ;
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
