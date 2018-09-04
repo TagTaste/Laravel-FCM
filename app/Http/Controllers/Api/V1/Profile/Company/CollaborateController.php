@@ -579,7 +579,7 @@ class CollaborateController extends Controller
             return $this->sendError("Collaboration not found.");
         }
 
-        if($collaborate->state == 'Active')
+        if($collaborate->state == 'Save')
         {
             $globalQuestionId = $request->input('global_question_id');
             $checkQuestionexist = \DB::table('global_questions')->where('id',$globalQuestionId)->exists();
