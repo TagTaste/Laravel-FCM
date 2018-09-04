@@ -455,6 +455,7 @@ class CollaborateController extends Controller
                 return $this->sendError("You can not update your products.");
             }
             $batches = $request->input('batches');
+            \Log::info($batches);
             $batchList = [];
             $now = Carbon::now()->toDateTimeString();
             foreach ($batches as $batch)
