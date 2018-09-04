@@ -541,19 +541,22 @@ class CollaborateController extends Controller
 
     public function checkJson($json)
     {
+        if(!is_null($json))
+        {
+            $result = json_decode($json);
 
-        $result = json_decode($json);
-
-        if (json_last_error() === JSON_ERROR_NONE) {
-            return true;
-        }
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return true;
+            }
 
 // OR this is equivalent
 
-        if (json_last_error() === 0) {
-            return true;
+            if (json_last_error() === 0) {
+                return true;
+            }
+            return false;
         }
-        return false;
+        return true;
 
     }
 
