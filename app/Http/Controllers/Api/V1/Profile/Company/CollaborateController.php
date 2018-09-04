@@ -594,7 +594,7 @@ class CollaborateController extends Controller
             $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
         }
         $this->model = $collaborate;
-        return response()->json(['data'=>$this->model,'errors'=>[],'messages'=>null]);
+        return $this->sendResponse();
     }
 
     public function checkInputForScopeReview(&$inputs)
