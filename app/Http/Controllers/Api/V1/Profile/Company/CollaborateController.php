@@ -591,7 +591,7 @@ class CollaborateController extends Controller
             //check again when going live
             Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$globalQuestionId]);
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
-            $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+            $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
         }
         $this->model = $collaborate;
         return $this->sendResponse();
