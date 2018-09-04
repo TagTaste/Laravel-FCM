@@ -596,7 +596,7 @@ class CollaborateController extends Controller
 
     public function checkInputForScopeReview(&$inputs)
     {
-        print_r($inputs);
+        \Log::info($inputs);
         $gender = ['Male','Female','Others'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
         $ageGroup = htmlspecialchars_decode($inputs['age_group']);
