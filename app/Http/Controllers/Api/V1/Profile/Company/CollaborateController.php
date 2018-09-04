@@ -607,7 +607,8 @@ class CollaborateController extends Controller
             $ageGroups = $inputs['age_group'];
             if(count($ageGroups))
             {
-                foreach ($ageGroups as &$key=>&$ageGroup)
+                $ageInputs = [];
+                foreach ($ageGroups as $key=>$ageGroup)
                 {
                     $key = htmlspecialchars_decode($key);
                     $ageGroup = htmlspecialchars_decode($ageGroup);
@@ -615,8 +616,9 @@ class CollaborateController extends Controller
                     {
                         unset($ageGroups[$key]);
                     }
+                    $ageInputs[] = [$key=>$ageGroup];
                 }
-                $inputs['age_group'] = json_encode($ageGroups);
+                $inputs['age_group'] = json_encode($ageInputs);
             }
         }
         if(isset($inputs['gender_ratio']))
@@ -625,6 +627,7 @@ class CollaborateController extends Controller
             $genderTypes = $inputs['gender_ratio'];
             if(count($genderTypes))
             {
+                $gendeInput = [];
                 foreach ($genderTypes as $key=>$genderType)
                 {
                     $key = htmlspecialchars_decode($key);
@@ -633,8 +636,9 @@ class CollaborateController extends Controller
                     {
                         unset($genderTypes[$key]);
                     }
+                    $gendeInput[] = [$key=>$genderType];
                 }
-                $inputs['gender_ratio'] = json_encode($genderTypes);
+                $inputs['gender_ratio'] = json_encode($gendeInput);
             }
         }
         \Log::info($inputs);
