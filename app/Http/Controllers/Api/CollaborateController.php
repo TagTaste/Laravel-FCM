@@ -540,7 +540,7 @@ class CollaborateController extends Controller
 
     public function mandatoryField(Request $request,$type)
     {
-        if($type = 'product-review')
+        if($type == 'product-review')
             $this->model = $request->user()->profile->getProfileCompletionAttribute();
         else
             $this->model = [];
