@@ -348,7 +348,6 @@ class BatchController extends Controller
         $filters = $request->input('filters');
         if(isset($filters) && !empty($filters))
         {
-            \Log::info($filters);
             return $this->filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest);
         }
 
@@ -449,7 +448,6 @@ class BatchController extends Controller
                 $profileIds = $profileIds->merge($ids);
             }
         }
-        \Log::info($profileIds);
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
 
