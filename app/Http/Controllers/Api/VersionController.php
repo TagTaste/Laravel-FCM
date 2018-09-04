@@ -15,11 +15,6 @@ class VersionController extends Controller
 {
     public function getAndroidVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_ANDROID);
-        // if(Auth::check())
-        // {
-        //     $profileId = $request->user()->profile->id;
-        //      \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->update(['app_version'=>$version->latest_version]);
-        // }
         return response()->json($version);
     }
 
