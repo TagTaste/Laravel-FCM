@@ -801,7 +801,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
   ]
 }';
 
-        $headerInfo3 = [['header_name'=>"INSTRUCTIONS"],
+        $headerInfo3 = [['header_name'=>"INSTRUCTIONS","header_info"=>null],
 
             ['header_name'=>"APPEARANCE","header_info"=>"OBSERVE the visual aspect of the product like it's shape, density of mass and color."],
 
