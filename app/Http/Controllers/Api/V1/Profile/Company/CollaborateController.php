@@ -413,6 +413,7 @@ class CollaborateController extends Controller
         $collaborateId = $id;
         $inputs = $request->only(['methodology_id','age_group','is_taster_residence',
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
+        \Log::info($inputs);
         $this->checkInputForScopeReview($inputs);
         $loggedInProfileId = $request->user()->profile->id;
 
@@ -430,7 +431,6 @@ class CollaborateController extends Controller
         {
             $inputs['is_taster_residence'] = 1;
         }
-        \Log::info($inputs);
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
             $this->model = false;
