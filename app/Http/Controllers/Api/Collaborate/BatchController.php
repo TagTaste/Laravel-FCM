@@ -518,14 +518,14 @@ class BatchController extends Controller
         $city = [];
         foreach ($applicants as $applicant)
         {
-            if(isset($applicant->applier_address))
+            if(isset($applicant->city))
             {
-                $applierAddress = json_decode($applicant->applier_address,true);
-                $city[] = $applierAddress['city'];
+                if(in_array($applicant->city,$city))
+                    $city[] = $applicant->city;
             }
         }
 
-        $this->model = ['Gender'=>$gender,'Age'=>$age,'city'=>array_unique($city)];
+        $this->model = ['Gender'=>$gender,'Age'=>$age,'city'=>$city];
 
         return $this->sendResponse();
 
