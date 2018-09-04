@@ -430,7 +430,7 @@ class CollaborateController extends Controller
         {
             $inputs['is_taster_residence'] = 1;
         }
-
+        \Log::info($inputs);
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
             $this->model = false;
