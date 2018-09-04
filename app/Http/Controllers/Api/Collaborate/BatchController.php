@@ -520,7 +520,7 @@ class BatchController extends Controller
         {
             if(isset($applicant->city))
             {
-                if(in_array($applicant->city,$city))
+                if(!in_array($applicant->city,$city))
                     $city[] = $applicant->city;
             }
         }
