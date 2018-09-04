@@ -536,8 +536,8 @@ class BatchController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$questionId)
-            ->skip($skip)->take($take)->get();
+        $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$questionId)->where('batch_id',$batchId)
+            ->where('tasting_header_id',$headerId)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
