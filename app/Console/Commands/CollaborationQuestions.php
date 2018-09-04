@@ -59,7 +59,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
             $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$headerInfo,'collaborate_id'=>$collaborateId];
         }
 
-        $this->model = Collaborate\ReviewHeader::insert($header);
+        Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
         {
             $data = [];
@@ -127,7 +127,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             return 0;
                         }
                         print_r($extraQuestion);
-                        $this->model = \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
+                        \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
 
                         $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
