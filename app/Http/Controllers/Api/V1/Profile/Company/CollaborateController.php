@@ -605,6 +605,8 @@ class CollaborateController extends Controller
             $inputs['age_group'] = json_decode($inputs['age_group'],true);
         if(isset($inputs['gender_ratio']))
             $inputs['gender_ratio'] = json_decode($inputs['gender_ratio'],true);
+
+        \Log::info($inputs);
         $ageGroup = htmlspecialchars_decode($inputs['age_group']);
         $ageGroups = json_decode($ageGroup,true);
         $genderTypes = htmlspecialchars_decode($inputs['gender_ratio']);
