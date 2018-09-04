@@ -6,6 +6,7 @@ use App\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;
 use App\PeopleLike;
+use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -534,6 +535,15 @@ class CollaborateController extends Controller
         $questions = $request->input('question_json');
         $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions];
         $this->model = \DB::table('global_questions')->insert($data);
+        return $this->sendResponse();
+    }
+
+    public function mandatoryField(Request $request,$type)
+    {
+        if($type = 'product-review')
+            $this->model = $request->user()->profile->getProfileCompletionAttribute();
+        else
+            $this->model = [];
         return $this->sendResponse();
     }
 }

@@ -199,6 +199,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //collaborate
                 //collaborate categories
+                Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
                 Route::resource("collaborate/categories","CollaborateCategoryController");
                 Route::get('collaborate/types',"CollaborateController@types");
                 Route::get('batchesColor',"CollaborateController@batchesColor");

@@ -41,7 +41,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -55,7 +55,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -69,7 +69,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -83,7 +83,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -97,7 +97,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -111,7 +111,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -124,7 +124,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1
 
@@ -142,7 +142,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -158,7 +158,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -173,7 +173,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1
 
@@ -195,7 +195,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"intensity_value": "Low,Medium,High",
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -217,7 +217,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"intensity_value": "Low,Medium,High",
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -233,7 +233,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -253,7 +253,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"intensity_value": "Low,Medium,High",
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 0,
 
@@ -269,7 +269,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -285,7 +285,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -300,7 +300,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1
 
@@ -322,7 +322,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -338,7 +338,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -355,7 +355,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_mandatory": 1,
 
-			"is_nested": 0
+			"is_nested_question": 0
 
 		}
 
@@ -369,7 +369,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -381,7 +381,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"title": "First Chew",
 
-			"is_nested": 1,
+			"is_nested_question": 1,
 
 			"question": [{
 
@@ -391,7 +391,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 					"is_intensity": 0,
 
-					"is_nested": 0,
+					"is_nested_question": 0,
 
 					"is_mandatory": 1,
 
@@ -407,7 +407,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"title": "Chewdown experience",
 
-			"is_nested": 1,
+			"is_nested_question": 1,
 
 			"question": [{
 
@@ -417,7 +417,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 					"is_intensity": 0,
 
-					"is_nested": 0,
+					"is_nested_question": 0,
 
 					"is_mandatory": 1,
 
@@ -435,7 +435,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"subtitle ": "Swallow and then run your tongue over teeth and inside mouth",
 
-			"is_nested": 1,
+			"is_nested_question": 1,
 
 			"is_mandatory": 0,
 
@@ -447,7 +447,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 					"is_intensity": 0,
 
-					"is_nested": 0,
+					"is_nested_question": 0,
 
 					"is_mandatory": 1,
 
@@ -467,7 +467,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_intensity": 0,
 
-			"is_nested": 0,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
@@ -482,7 +482,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 			"is_mandatory": 1,
 
-			"is_nested": 0
+			"is_nested_question": 0
 
 		}
 
@@ -496,7 +496,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_intensity": 0,
 
-		"is_nested": 0,
+		"is_nested_question": 0,
 
 		"is_mandatory": 1,
 
@@ -511,7 +511,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 		"is_mandatory": 1,
 
-		"is_nested": 0
+		"is_nested_question": 0
 
 	}]
 
@@ -538,7 +538,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Visual Observation",
       "select_type": 1,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Broken,Cracked,Uniform Shape"
     },
@@ -546,7 +546,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Color of the mass and crust",
       "select_type": 1,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Pale,Medium,Deep"
     },
@@ -554,7 +554,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Sponginess on touching",
       "select_type": 1,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Low,Medium,High"
     },
@@ -562,7 +562,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Overall Preference (Appearance)",
       "select_type": 5,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
     },
@@ -570,7 +570,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Any comments?",
       "select_type": 3,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1
     }
   ],
@@ -581,7 +581,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "is_intensity": 1,
       "intensity_type": 2,
       "intensity_value": "Low,Medium,High",
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Milky,Buttery,Fruity,Sour,Chocolate,Caramelized,Cheesy,Nutty,Vanilla,Any Other"
     },
@@ -590,17 +590,17 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "select_type": 2,
       "is_intensity": 1,
       "intensity_type": 1,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "intensity_value": "15",
-      "nested_option": 1,
+      "is_nested_option": 1,
       "option": "Vegetal,Spices,Fruits,Nuts,Floral,Animal,Caramel,Earthy,Chemical,Putrid"
     },
     {
       "title": "Overall Preference (Aroma)",
       "select_type": 5,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
     },
@@ -608,7 +608,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Any comments?",
       "select_type": 3,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1
     }
   ],
@@ -619,7 +619,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "is_intensity": 1,
       "intensity_type": 2,
       "intensity_value": "Low,Medium,High",
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Sweet,Salt,Sour,Bitter,Umami"
     },
@@ -627,7 +627,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Chemical Feeling Factor Observed?",
       "select_type": 1,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Yes,No"
     },
@@ -635,7 +635,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Overall Preference (Taste)",
       "select_type": 5,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
     },
@@ -643,7 +643,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Any comments?",
       "select_type": 3,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1
     }
   ],
@@ -652,7 +652,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Feel of baked flour",
       "select_type": 1,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Yes,No"
     },
@@ -662,7 +662,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "is_intensity": 1,
       "intensity_type": 2,
       "intensity_value": "Weak,Sufficient,Strong,Overwhelming",
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Eggy,Raisin,Caramelized,Vanilla,Citrus,Blueberry,Strawberry,Banana,Almond,Walnut"
     },
@@ -670,7 +670,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Overall Preference (Aromatics)",
       "select_type": 5,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
     },
@@ -679,7 +679,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "select_type": 3,
       "is_intensity": 0,
       "is_mandatory": 1,
-      "is_nested": 0
+      "is_nested_question": 0
     }
   ],
   "TEXTURE": [
@@ -687,19 +687,19 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Surface/Mass",
       "select_type": 2,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Rough,Smooth,Loose Particles,Oily Lips,Moist,Wet"
     },
     {
       "title": "First Chew",
-      "is_nested": 1,
+      "is_nested_question": 1,
       "question": [
         {
           "title": "Uniformity",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Low,Medium,High"
         },
@@ -707,7 +707,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
           "title": "Compactness",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Airy,Dense"
         },
@@ -715,7 +715,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
           "title": "Burst of flavour",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Low,Medium,High"
         }
@@ -723,13 +723,13 @@ class GlobalQuestionUploadTableSeeder extends Seeder
     },
     {
       "title": "Chewdown experience",
-      "is_nested": 1,
+      "is_nested_question": 1,
       "question": [
         {
           "title": "Moisture absorption",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Low,Medium,High"
         },
@@ -737,7 +737,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
           "title": "Cohesiveness",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Low,Medium,High"
         }
@@ -745,14 +745,14 @@ class GlobalQuestionUploadTableSeeder extends Seeder
     },
     {
       "title": "Residual/After-taste (Swallow)",
-      "is_nested": 1,
+      "is_nested_question": 1,
       "is_mandatory": 0,
       "question": [
         {
           "title": "Loose Particles",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Yes,No"
         },
@@ -760,7 +760,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
           "title": "Mouthcoating-oily/chalky, Toothstick",
           "select_type": 1,
           "is_intensity": 0,
-          "is_nested": 0,
+          "is_nested_question": 0,
           "is_mandatory": 1,
           "option": "Yes,No"
         }
@@ -770,7 +770,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Overall Preference (Appearance)",
       "select_type": 5,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
     },
@@ -779,7 +779,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "select_type": 3,
       "is_intensity": 0,
       "is_mandatory": 1,
-      "is_nested": 0
+      "is_nested_question": 0
     }
   ],
   "OVERALL PREFERENCE": [
@@ -787,7 +787,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "title": "Overall Product Preference",
       "select_type": 5,
       "is_intensity": 0,
-      "is_nested": 0,
+      "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Don\'t like,Can\'t Say,Somewhat Like,Clearly Like,Love It"
     },
@@ -796,7 +796,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
       "select_type": 3,
       "is_intensity": 0,
       "is_mandatory": 1,
-      "is_nested": 0
+      "is_nested_question": 0
     }
   ]
 }';
