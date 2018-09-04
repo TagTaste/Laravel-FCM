@@ -562,8 +562,6 @@ class CollaborateController extends Controller
 
     public function uploadQuestion(Request $request, $profileId, $companyId, $id)
     {
-        \Log::info("here is request");
-
         $loggedInProfileId = $request->user()->profile->id;
         $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
         if (!$checkAdmin) {
@@ -595,9 +593,8 @@ class CollaborateController extends Controller
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
             $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
         }
-        \Log::info("here is response");
         $this->model = $collaborate;
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model,'errors'=>[],'messages'=>null]);
     }
 
     public function checkInputForScopeReview(&$inputs)
