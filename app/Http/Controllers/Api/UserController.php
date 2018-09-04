@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Actions\JoinFriend;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -91,7 +92,7 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
-        \Log::info($request->headers->all());
+        \Log::info($request->all());
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $apk_version = $request->header('X-VERSION') ;
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
@@ -193,6 +194,16 @@ class UserController extends Controller
         $this->model = \DB::table("app_info")->where("profile_id",$request->user()->profile->id)
                             ->where('fcm_token',$request->input('fcm_token'))->update(['is_active'=>0]);
         return $this->sendResponse();
+    }
+
+    public function getApkDeviceInfo(Request $request)
+    {
+        if(Auth::check())
+        {
+            $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$request->input('device_info')]);
+            return $this->sendResponse();
+        }
+        
     }
 
 

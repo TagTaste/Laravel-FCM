@@ -77,6 +77,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+            Route::post('/user/apkDeviceInfo',['uses'=>'UserController@getApkDeviceInfo']);
             Route::post('/user/feedIssue',['uses'=>'UserController@feedIssue']);
             Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');

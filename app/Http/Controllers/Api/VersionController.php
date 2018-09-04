@@ -9,7 +9,6 @@
 namespace App\Http\Controllers\Api;
 use \App\Version;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 
 class VersionController extends Controller
