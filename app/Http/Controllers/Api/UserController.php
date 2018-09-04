@@ -199,11 +199,20 @@ class UserController extends Controller
 
     public function getApkDeviceInfo(Request $request)
     {
-        if(Auth::check())
+        $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
+        if($this->isJSON($device_info))
         {
             $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$request->input('device_info')]);
-            return $this->sendResponse();
         }
+            
+            return $this->sendResponse();
+        
+    }
+
+   private function isJSON($string)
+   {
+        $string = json_decode($string, true);
+        return json_last_error() === 0 ? true : false;
         
     }
 
