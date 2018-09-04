@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Collaborate;
 
+use App\Collaborate;
 use App\Collaborate\Questions;
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
@@ -34,7 +35,7 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
-        $collaborate = $this->model->where('id',$id)->first();
+        $collaborate = Collaborate::where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
