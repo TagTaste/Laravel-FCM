@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Actions\JoinFriend;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -96,6 +95,9 @@ class UserController extends Controller
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : $request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL ; 
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
+        if (!$this->isJSON($device_info)) {
+            return $this->sendError("Device info should be json object"); 
+        }
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
         if($tokenExists)
         {
@@ -203,9 +205,11 @@ class UserController extends Controller
         if($this->isJSON($device_info))
         {
             $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->where('profile_id',$request->user()->profile->id)->update(['app_version'=>$request->header('X-VERSION'),'device_info'=>$request->input('device_info')]);
-        }
-            
             return $this->sendResponse();
+        }
+        else{
+            return $this->sendError("Device info should be json object");
+        }
         
     }
 
