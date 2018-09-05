@@ -589,6 +589,6 @@ class CollaborateController extends Controller
             }
         }
         \Log::info($questions);
-        $this->model = \DB::table('global_nested_option')->insert($questions);
+//        $this->model = \DB::table('global_nested_option')->insert($questions);
     }
 }
