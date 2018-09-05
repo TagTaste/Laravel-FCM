@@ -17,7 +17,7 @@ class VersionController extends Controller
         $version = Version::getVersion(Version::$APP_ANDROID);
         if($version->latest_version > $version->compatible_version)
         {
-            dd($request->user()->profile->id);
+            \Log::info($request->user()->profile->id);
             //event(new \App\Events\UpgradeApkEvent($request->user()->profile->id));
         }
         return response()->json($version);
