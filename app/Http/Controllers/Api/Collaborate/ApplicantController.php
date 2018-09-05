@@ -433,14 +433,12 @@ class ApplicantController extends Controller
         $batchId = (int)$request->input("batch_id");
         $this->model = [];
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id')->unique();
-        \Log::info($profileIds);
         $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)
             ->whereNotNull('shortlisted_at')->whereNull('rejected_at')->get();
         $profiles = $profiles->toArray();
         $applicants = [];
         foreach ($profiles as &$applicant)
         {
-            \Log::info($applicant['profile']['id']);
             $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
             $count = count($batchIds);
             if($count)
