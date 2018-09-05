@@ -71,13 +71,10 @@ class BatchController extends Controller
     public function show($collaborateId,$id)
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
-        \Log::info("here profile");
-        \Log::info($profileIds);
         $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->get();
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            \Log::info("here loop ");
             $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
