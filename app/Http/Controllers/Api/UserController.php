@@ -92,8 +92,9 @@ class UserController extends Controller
     {
         $user = User::where("id", $request->user()->id)->first();
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
-        $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : $request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL ; 
+        $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : ($request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL) ; 
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
+        \Log::info("This is info :".$device_info);
         if (!$this->isJSON($device_info)) {
             return $this->sendError("Device info should be json object"); 
         }
