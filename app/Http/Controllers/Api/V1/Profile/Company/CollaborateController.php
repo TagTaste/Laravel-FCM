@@ -578,8 +578,6 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
-        $this->model = $collaborate;
-        return $this->sendResponse();
 
         if($collaborate->state == 'Save')
         {
@@ -590,10 +588,12 @@ class CollaborateController extends Controller
                 $this->model = false;
                 return $this->sendError("Global question id is not exists.");
             }
-            //check again when going live
-            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$globalQuestionId]);
-            $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
+//            //check again when going live
+//            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$globalQuestionId]);
+//            $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
             $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
+            $this->model = $collaborate;
+            return $this->sendResponse();
         }
         $this->model = $collaborate;
         return $this->sendResponse();
