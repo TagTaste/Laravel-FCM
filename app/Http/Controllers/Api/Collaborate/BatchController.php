@@ -490,7 +490,7 @@ class BatchController extends Controller
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->skip(0)->take(3)->get();
+                        ->where('current_status',3)->skip(0)->take(3)->get();
                 }
                 else
                 {
@@ -548,7 +548,7 @@ class BatchController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$questionId)->where('batch_id',$batchId)
-            ->where('tasting_header_id',$headerId)->skip($skip)->take($take)->get();
+            ->where('tasting_header_id',$headerId)->where('current_status',3)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }

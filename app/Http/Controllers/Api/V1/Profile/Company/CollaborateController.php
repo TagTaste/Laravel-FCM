@@ -450,32 +450,6 @@ class CollaborateController extends Controller
             $inputs['state'] = Collaborate::$state[0];
         }
 
-        if($request->has('batches'))
-        {
-            if($collaborate->state == 'Active')
-            {
-                return $this->sendError("You can not update your products.");
-            }
-            $batches = $request->input('batches');
-            $batchList = [];
-            $now = Carbon::now()->toDateTimeString();
-            foreach ($batches as $batch)
-            {
-                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
-                    'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
-                    'created_at'=>$now,'updated_at'=>$now];
-            }
-            if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
-            {
-                Collaborate\Batches::insert($batchList);
-                $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
-                foreach ($batches as $batch)
-                {
-                    $batch->addToCache();
-                }
-            }
-        }
-
         if($request->has('city'))
         {
             $addresses = $request->input('city');
@@ -523,6 +497,32 @@ class CollaborateController extends Controller
         }
         $inputs['privacy_id'] = 1;
         $this->model = $collaborate->update($inputs);
+
+        if($request->has('batches'))
+        {
+            if($collaborate->state == 'Active')
+            {
+                return $this->sendError("You can not update your products.");
+            }
+            $batches = $request->input('batches');
+            $batchList = [];
+            $now = Carbon::now()->toDateTimeString();
+            foreach ($batches as $batch)
+            {
+                $batchList[] = ['name'=>$batch['name'],'color_id'=>$batch['color_id'],'notes'=>isset($batch['notes']) ? $batch['notes'] : null,
+                    'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
+                    'created_at'=>$now,'updated_at'=>$now];
+            }
+            if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
+            {
+                Collaborate\Batches::insert($batchList);
+                $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+                foreach ($batches as $batch)
+                {
+                    $batch->addToCache();
+                }
+            }
+        }
         $this->model = Collaborate::where('id',$id)->first();
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
