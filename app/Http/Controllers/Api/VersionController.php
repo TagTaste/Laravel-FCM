@@ -16,10 +16,10 @@ class VersionController extends Controller
 {
     public function getAndroidVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_ANDROID);
-        if($version->latest_version > $version->compatible_version)
-        {
-            event(new UpgradeApkEvent($request->user()->profile));
-        }
+//        if($version->latest_version > $version->compatible_version)
+//        {
+//            event(new UpgradeApkEvent($request->user()->profile));
+//        }
         return response()->json($version);
     }
 
