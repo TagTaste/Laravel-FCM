@@ -454,7 +454,7 @@ class ApplicantController extends Controller
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
-            $applicant->batches = $count > 0 ? $batchInfos : null;
+            $applicant['batches'] = $count > 0 ? $batchInfos : null;
             $applicants[] = $applicant;
         }
         $this->model['applicants'] = $applicants;
