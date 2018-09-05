@@ -68,35 +68,19 @@ class ShoutoutController extends Controller
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-        if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
-
-            $key = "preview:" . sha1($inputs['preview']['url']);
-
-            if(!\Redis::exists($key)){
-                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                    $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
-                    $s3 = \Storage::disk('s3');
-                    $filePath = 'p/' . $profile->id . "/si";
-                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                    if($resp){
-                        \File::delete(storage_path($image));
-                    }
-                    $inputs['preview']['image'] = $resp;
-                    $inputs['preview'] = json_encode($inputs['preview']);
-                }
-                else{
-                    $inputs['preview'] = null; 
-                }  
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            if($resp){
+                \File::delete(storage_path($image));
             }
-            else{
-                /***
-                 * THis url is already present in Redis
-                 */
-                            
-                $inputs['preview'] = \Redis::get($key);
-            }
-        }else{
-            $inputs['preview'] = null;
+            $inputs['preview']['image'] = $resp;
+        }
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
         }
 
         if($request->has('media_file'))
@@ -173,36 +157,24 @@ class ShoutoutController extends Controller
 
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-    if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
-        
-        $key = "preview:" . sha1($inputs['preview']['url']);
-        if(!\Redis::exists($key)){
-            if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
-                $s3 = \Storage::disk('s3');
-                $filePath = 'p/' . $profile->id . "/si";
-                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                if($resp){
-                    \File::delete(storage_path($image));
-                }
-                $inputs['preview']['image'] = $resp;
-                $inputs['preview'] = json_encode($inputs['preview']);
-            }   
-            else{
-                $input['preview'] = null;
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+            $s3 = \Storage::disk('s3');
+            $filePath = 'p/' . $profile->id . "/si";
+            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            if($resp){
+                \File::delete(storage_path($image));
             }
+            $inputs['preview']['image'] = $resp;
         }
-        else{
-            /***
-             * This url is already present in Redis
-             */
-            $inputs['preview'] = \Redis::get($key);
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
         }
-    }
-    else{
-        $inputs['preview'] = null;
-    }
-
+        else
+        {
+            $inputs['preview'] = null;
+        }
 		$this->model = $shoutout->update($inputs);
         $shoutout->addToCache();
 
