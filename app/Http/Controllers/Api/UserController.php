@@ -98,7 +98,7 @@ class UserController extends Controller
         if (!$this->isJSON($device_info)) {
             return $this->sendError("Device info should be json object"); 
         }
-        $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
+        $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->where('device_info',!=,NULL)->exists();
         if($tokenExists)
         {
             $this->model = 1;
