@@ -502,6 +502,10 @@ class CollaborateController extends Controller
             {
                 return $this->sendError("You can not update your products.");
             }
+        }
+        $this->model = $collaborate->update($inputs);
+        if($request->has('batches'))
+        {
             $batches = $request->input('batches');
             $batchList = [];
             $now = Carbon::now()->toDateTimeString();
@@ -521,7 +525,6 @@ class CollaborateController extends Controller
                 }
             }
         }
-        $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::where('id',$id)->first();
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
