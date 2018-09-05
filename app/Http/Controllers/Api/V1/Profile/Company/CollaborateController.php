@@ -7,6 +7,7 @@ use App\Company;
 use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
+use App\Events\UploadQuestionEvent;
 use App\Http\Controllers\Api\Controller;
 use App\Profile;
 use Carbon\Carbon;
@@ -567,16 +568,17 @@ class CollaborateController extends Controller
         if (!$checkAdmin) {
             return $this->sendError("Invalid Admin.");
         }
-        $checkQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id', $id)->exists();
-        if ($checkQuestion)
-        {
-            $this->model = false;
-            return $this->sendError("You can not update your question");
-        }
+
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
+        }
+
+        if(isset($collaborate->global_question_id) && !is_null($collaborate->global_question_id))
+        {
+            $this->model = false;
+            return $this->sendError("You can not update your question");
         }
 
         if($collaborate->state == 'Save')
@@ -589,7 +591,7 @@ class CollaborateController extends Controller
                 return $this->sendError("Global question id is not exists.");
             }
             //check again when going live
-            $this->model = Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$globalQuestionId]);
+            event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
             $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
             $this->model = $collaborate;
