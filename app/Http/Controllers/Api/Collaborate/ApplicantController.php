@@ -433,29 +433,12 @@ class ApplicantController extends Controller
         $batchId = (int)$request->input("batch_id");
         $this->model = [];
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id')->unique();
-        $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->whereNotNull('shortlisted_at')->get()->pluck('profile_id')->unique();
-        $profileIds = $profileIds->toArray();
-        $this->model['count'] = count($profileIds);
-        $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20);
-        $data = [];
-        foreach ($profileIds as &$profileId)
-        {
-            $profileId = "profile:small:".$profileId ;
-        }
-        if(count($profileIds))
-        {
-            $data = \Redis::mget($profileIds);
-        }
-        foreach($data as &$profile){
-            if(is_null($profile))
-                continue;
-            $profile = json_decode($profile);
-        }
+        $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->whereNotNull('shortlisted_at')->get();
+        $profiles = $profiles->toArray();
         $applicants = [];
-        foreach ($data as &$applicant)
+        foreach ($profiles as &$applicant)
         {
-            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant->id.":");
+            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
             $count = count($batchIds);
             if($count)
             {
@@ -467,7 +450,7 @@ class ApplicantController extends Controller
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant->id);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile']['id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
