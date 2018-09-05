@@ -72,7 +72,8 @@ class EventServiceProvider extends ServiceProvider
 
 
         'App\Events\SuggestionEngineEvent' => ['App\Listeners\SuggestionEngineListener'],
-        'App\Events\FeatureMailEvent' => ['App\Listeners\FeatureMailListener']
+        'App\Events\FeatureMailEvent' => ['App\Listeners\FeatureMailListener'],
+        'App\Events\UpgradeApkEvent' => ['App\Listeners\UpgradeApkListener']
 
     ];
 
