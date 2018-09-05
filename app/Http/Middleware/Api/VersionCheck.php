@@ -41,7 +41,7 @@ class VersionCheck
         }
         
         //if the version is compatible;
-        if(!$api->isCompatible($version) && !$isIosRequest){
+        if(!$api->isCompatible($version) || $isIosRequest){
             $response = $next($request);
         } else {
             $response = response()->json(['error'=>'incompatible_version',
