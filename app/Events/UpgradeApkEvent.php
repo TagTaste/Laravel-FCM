@@ -19,12 +19,12 @@ class UpgradeApkEvent
      *
      * @return void
      */
-    public $profile_id;
+    public $profile;
 
-    public function __construct($profile_id)
+    public function __construct($profile)
     {
         //
-        $this->profile_id = $profile_id;
+        $this->profile = $profile;
     }
 
     /**

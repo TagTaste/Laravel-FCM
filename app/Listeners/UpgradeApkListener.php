@@ -28,7 +28,6 @@ class UpgradeApkListener
     public function handle(UpgradeApkEvent $event)
     {
         //
-        \Log::info("about to send notifics");
-        Notification::send($event->profile_id, new \App\Notifications\UpgradeApk());
+        Notification::send($event->profile, new \App\Notifications\UpgradeApk());
     }
 }

@@ -55,8 +55,10 @@ class UpgradeApk extends Notification
      */
     public function toArray($notifiable)
     {
-        return [
-            //
+        $data = [
+            'action' => 'upgrade-apk',
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : \App\Recipe\Profile::find($notifiable->id)->toArray(),
         ];
+        return $data;
     }
 }

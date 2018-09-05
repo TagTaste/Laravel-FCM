@@ -15,13 +15,12 @@ use App\Events\UpgradeApkEvent;
 class VersionController extends Controller
 {
     public function getAndroidVersion(Request $request) {
-        //$version = Version::getVersion(Version::$APP_ANDROID);
-        //if($version->latest_version > $version->compatible_version)
-        //{
-            event(new UpgradeApkEvent($request->user()->profile->id));
-        //}
-        //return response()->json($version);
-            return 1;
+        $version = Version::getVersion(Version::$APP_ANDROID);
+        if($version->latest_version > $version->compatible_version)
+        {
+            event(new UpgradeApkEvent($request->user()->profile));
+        }
+        return response()->json($version);
     }
 
     public function getIosVersion() {
