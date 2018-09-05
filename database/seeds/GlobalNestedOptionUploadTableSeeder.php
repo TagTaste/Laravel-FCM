@@ -2720,7 +2720,7 @@ class GlobalNestedOptionUploadTableSeeder extends Seeder
 
         foreach ($extra as $item)
         {
-            $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value']];
+            $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active']];
         }
         \DB::table('global_nested_option')->insert($data);
 
