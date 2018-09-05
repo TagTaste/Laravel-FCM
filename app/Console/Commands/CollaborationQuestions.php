@@ -117,7 +117,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             foreach ($extra as $nested)
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
-                                $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>1,
+                                $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
                                     'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
                             }
                         }
@@ -189,7 +189,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         $subquestion['option'] = $option;
                     unset($subquestion['question']);
                     $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
-                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
+                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active'=>1,'collaborate_id'=>$collaborateId];
                     Collaborate\Questions::create($subData);
 
                 }
