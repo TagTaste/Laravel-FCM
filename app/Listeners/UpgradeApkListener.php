@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\UpgradeApkEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Notification;
 
 class UpgradeApkListener
 {
