@@ -23,7 +23,7 @@ class VersionController extends Controller
         return response()->json($version);
     }
 
-    public function getIosVersion() {
+    public function getIosVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_IOS);
         return response()->json($version);
     }
