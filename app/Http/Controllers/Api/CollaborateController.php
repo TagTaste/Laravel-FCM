@@ -416,14 +416,19 @@ class CollaborateController extends Controller
                     $batchId = "batch:".$batchId;
                 }
                 $batchInfos = \Redis::mGet($batchIds);
+                $batches = [];
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
                     $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                    if($batchInfo->current_status != 0)
+                    {
+                        $batches[] = $batchInfo;
+                    }
                 }
             }
-            $collaborate['batches'] = $count > 0 ? $batchInfos : [];
+            $collaborate['batches'] = $count > 0 ? $batches : [];
         }
         $this->model = $collaborates;
 
