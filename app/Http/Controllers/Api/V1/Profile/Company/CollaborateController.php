@@ -578,6 +578,8 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
+        $this->model = $collaborate;
+        return $this->sendResponse();
 
         if($collaborate->state == 'Save')
         {
