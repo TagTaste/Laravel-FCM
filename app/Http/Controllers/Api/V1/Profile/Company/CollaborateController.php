@@ -496,8 +496,6 @@ class CollaborateController extends Controller
             }
         }
         $inputs['privacy_id'] = 1;
-        $this->model = $collaborate->update($inputs);
-
         if($request->has('batches'))
         {
             if($collaborate->state == 'Active')
@@ -523,6 +521,7 @@ class CollaborateController extends Controller
                 }
             }
         }
+        $this->model = $collaborate->update($inputs);
         $this->model = Collaborate::where('id',$id)->first();
         if(isset($inputs['step']) && !is_null($inputs['step']))
         {
