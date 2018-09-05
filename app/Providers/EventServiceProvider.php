@@ -76,7 +76,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UpgradeApkEvent' => ['App\Listeners\UpgradeApkListener'],
 
         //product review collaboration upload question
-        'App\Events\UploadQuestionEvent' => ['App\Listeners\UploadQuestionListener']
+        'App\Events\UploadQuestionEvent' => ['App\Listeners\UploadQuestionListener'],
+        'App\Events\UpgradeIosEvent' => ['App\Listeners\UpgradeIosListener']
 
     ];
 
