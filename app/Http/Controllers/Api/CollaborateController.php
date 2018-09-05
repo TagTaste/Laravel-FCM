@@ -143,9 +143,10 @@ class CollaborateController extends Controller
                 ->updateExistingPivot($companyId,
                     [
                         'created_at'=>Carbon::now()->toDateTimeString(),
+                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
-                        'profile_id' => $request->input('profile_id')
+                        'profile_id' => $request->user()->profile->id
                     ]);
 
             $company = \Redis::get('company:small:' . $companyId);
@@ -183,7 +184,8 @@ class CollaborateController extends Controller
                     [
                         'created_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message")
+                        'message' => $request->input("message"),
+                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))

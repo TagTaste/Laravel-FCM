@@ -15,6 +15,6 @@ class Collaborate extends BaseModel
     public function similar($skip,$take)
     {
         $collaborate = self::skip($skip)->take($take);
-        return $collaborate->whereNull('deleted_at')->where('id','!=',$this->id)->get();
+        return $collaborate->whereNull('deleted_at')->where('state',self::$state[0])->where('id','!=',$this->id)->get();
     }
 }

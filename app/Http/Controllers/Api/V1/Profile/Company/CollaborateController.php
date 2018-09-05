@@ -414,8 +414,9 @@ class CollaborateController extends Controller
         $collaborateId = $id;
         $inputs = $request->only(['methodology_id','age_group','is_taster_residence',
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
-        \Log::info($inputs);
         $this->checkInputForScopeReview($inputs);
+        if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
+            $inputs['is_product_endorsement'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
 
         $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
