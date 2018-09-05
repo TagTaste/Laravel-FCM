@@ -92,12 +92,13 @@ class UserController extends Controller
     {
         $user = User::where("id", $request->user()->id)->first();
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
-        $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : ($request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL) ; 
+        $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : ($request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL) ;
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
         $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
         if($tokenExists)
         {
-            \DB::table("app_info")->insert(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform, 'user_app_version'=>$version, 'device_info'=>$device_info]);
+            \DB::table("app_info")->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)
+                ->update(['user_app_version'=>$version, 'device_info'=>$device_info]);
             $this->model = 1;
             return $this->sendResponse();
         }
