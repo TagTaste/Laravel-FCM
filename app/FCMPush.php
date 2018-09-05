@@ -14,7 +14,14 @@ class FCMPush extends Model
     public function send($notifiable,Notification $notification)
     {
         $data = $notification->toArray($notifiable);
-        $this->fcmNotification($data,$notifiable->id);
+        if($data["action"] === 'upgrade-apk')
+        {
+            $this->upgradeApk($data,$notifiable->id);
+        }
+        else
+        {
+            $this->fcmNotification($data,$notifiable->id);
+        }
     }
     
     public function fcmNotification($data,$profileId)
@@ -64,4 +71,25 @@ class FCMPush extends Model
             return "Notification from TagTaste";
         return $notifications;
     }
+
+    protected function upgradeApk($data,$profileId)
+    {
+        $optionBuilder = new OptionsBuilder();
+        $optionBuilder->setTimeToLive(60*20);
+
+        // For Android
+        $dataBuilder = new PayloadDataBuilder();
+        $dataBuilder->addData(['data' => $data]);
+
+        $option = $optionBuilder->build();
+        $data = $dataBuilder->build();
+        $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
+        if(count($token))
+        {
+            $downstreamResponse = FCM::sendTo($token, $option, null, $data);
+            $downstreamResponse->numberSuccess();
+        }
+    }
+
+
 }

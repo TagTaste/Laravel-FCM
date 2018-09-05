@@ -73,9 +73,11 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\SuggestionEngineEvent' => ['App\Listeners\SuggestionEngineListener'],
         'App\Events\FeatureMailEvent' => ['App\Listeners\FeatureMailListener'],
+        'App\Events\UpgradeApkEvent' => ['App\Listeners\UpgradeApkListener'],
 
         //product review collaboration upload question
-        'App\Events\UploadQuestionEvent' => ['App\Listeners\UploadQuestionListener']
+        'App\Events\UploadQuestionEvent' => ['App\Listeners\UploadQuestionListener'],
+        'App\Events\UpgradeIosEvent' => ['App\Listeners\UpgradeIosListener']
 
     ];
 

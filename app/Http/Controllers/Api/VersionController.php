@@ -7,18 +7,23 @@
  */
 
 namespace App\Http\Controllers\Api;
-use \App\Version;
+use App\Version;
 use Illuminate\Http\Request;
+use App\Events\UpgradeApkEvent;
 
 
 class VersionController extends Controller
 {
-    public function getAndroidVersion() {
+    public function getAndroidVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_ANDROID);
+//        if($version->latest_version > $version->compatible_version)
+//        {
+//            event(new UpgradeApkEvent($request->user()->profile));
+//        }
         return response()->json($version);
     }
 
-    public function getIosVersion() {
+    public function getIosVersion(Request $request) {
         $version = Version::getVersion(Version::$APP_IOS);
         return response()->json($version);
     }
