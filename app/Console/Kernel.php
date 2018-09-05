@@ -16,11 +16,11 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
+use App\Console\Commands\CollaborationQuestions;
 use App\Console\Commands\CapitalizeUserName;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
-use App\Console\Commands\fixKeywords;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
             //Collab
             \App\Console\Commands\Build\Meta\Collaboration\CountApplications::class,
             
-            //Job
+            //Occupation
             \App\Console\Commands\Build\Meta\Job\CountApplications::class,
         
             //Likes
@@ -154,6 +154,15 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
         FixCollaborateImage::class,
+        CollaborationQuestions::class,
+
+        //for product review commands
+        \App\Console\Commands\Build\ProductReview\Batches::class,
+        \App\Console\Commands\Build\ProductReview\CurrentStatusReview::class,
+        \App\Console\Commands\Build\ProductReview\UserBatches::class,
+
+
+        \App\Console\Commands\MergeCollaborators::class,
         CapitalizeUserName::class,
 
         //update shutout preview

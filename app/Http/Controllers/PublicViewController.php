@@ -25,9 +25,14 @@ class PublicViewController extends Controller
 
         // Added to retrieve profile details from handle
         if($modelName === 'profile' && starts_with($id, '@')) {
-            $model = $model = $class::where('handle', substr($id,1))->first();
+            $model = $class::where('handle', substr($id,1))->first();
             $id = isset($model->id) ? $model->id : null;
-        } else {
+        }
+        else if($modelName === 'collaborate')
+        {
+            $model = $class::where('id',$id)->where('state',$class::$state[0])->whereNull('deleted_at')->first();
+        }
+        else {
             $model = $class::find($id);
         }
 

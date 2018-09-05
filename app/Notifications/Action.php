@@ -38,7 +38,6 @@ class Action extends Notification implements ShouldQueue
         if(method_exists($this->model,'getNotificationContent')){
             $this->allData = $this->model->getNotificationContent();
         }
-
     }
 
     /**
@@ -50,7 +49,6 @@ class Action extends Notification implements ShouldQueue
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
 
@@ -98,7 +96,6 @@ class Action extends Notification implements ShouldQueue
         if($preference->push_value) {
             $via[] = FCMPush::class;
         }
-
         return $via;
     }
 

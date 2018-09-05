@@ -15,6 +15,8 @@ class AlterProfileAddColumnGender extends Migration
     {
         Schema::table('profiles',function(Blueprint $table){
             $table->string('gender')->nullable();
+            $table->boolean("is_veteran")->default(0);
+            $table->boolean("is_expert")->default(0);
         });
     }
 
@@ -26,7 +28,7 @@ class AlterProfileAddColumnGender extends Migration
     public function down()
     {
         Schema::table('profiles',function(Blueprint $table){
-            $table->dropColumn('gender');
+            $table->dropColumn(['gender',"is_veteran","is_expert"]);
         });
     }
 }

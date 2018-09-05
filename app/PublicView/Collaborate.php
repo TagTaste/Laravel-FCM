@@ -19,7 +19,7 @@ class Collaborate extends BaseCollaborate
         ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile'];
 
 
-    protected $appends = ['owner'];
+    protected $appends = ['owner' ,'images'];
 
     protected $with = ['profile'];
 
@@ -58,7 +58,7 @@ class Collaborate extends BaseCollaborate
                 $images = json_decode($value, true);
                 $i = 1;
                 foreach ($images as $image) {
-                    $imageArray[] = $image['image'.$i];
+                    $imageArray[] = isset($image['image'.$i]) ? $image['image'.$i] : $image;
                     $i++;
                 }
             }
