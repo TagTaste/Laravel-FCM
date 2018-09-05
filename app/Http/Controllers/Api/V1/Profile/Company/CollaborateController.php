@@ -7,6 +7,7 @@ use App\Company;
 use App\CompanyUser;
 use App\Events\DeleteFeedable;
 use App\Events\NewFeedable;
+use App\Events\UploadQuestionEvent;
 use App\Http\Controllers\Api\Controller;
 use App\Profile;
 use Carbon\Carbon;
@@ -414,6 +415,8 @@ class CollaborateController extends Controller
         $inputs = $request->only(['methodology_id','age_group','is_taster_residence',
             'gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','step','state','taster_instruction']);
         $this->checkInputForScopeReview($inputs);
+        if(!isset($inputs['is_product_endorsement']) || is_null($inputs['is_product_endorsement']))
+            $inputs['is_product_endorsement'] = 0;
         $loggedInProfileId = $request->user()->profile->id;
 
         $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
@@ -430,7 +433,6 @@ class CollaborateController extends Controller
         {
             $inputs['is_taster_residence'] = 1;
         }
-
         if(!$this->checkJson($inputs['age_group']) || !$this->checkJson($inputs['gender_ratio']))
         {
             $this->model = false;
@@ -466,6 +468,11 @@ class CollaborateController extends Controller
             if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
             {
                 Collaborate\Batches::insert($batchList);
+                $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
+                foreach ($batches as $batch)
+                {
+                    $batch->addToCache();
+                }
             }
         }
 
@@ -536,19 +543,22 @@ class CollaborateController extends Controller
 
     public function checkJson($json)
     {
+        if(!is_null($json))
+        {
+            $result = json_decode($json);
 
-        $result = json_decode($json);
-
-        if (json_last_error() === JSON_ERROR_NONE) {
-            return true;
-        }
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return true;
+            }
 
 // OR this is equivalent
 
-        if (json_last_error() === 0) {
-            return true;
+            if (json_last_error() === 0) {
+                return true;
+            }
+            return false;
         }
-        return false;
+        return true;
 
     }
 
@@ -559,16 +569,17 @@ class CollaborateController extends Controller
         if (!$checkAdmin) {
             return $this->sendError("Invalid Admin.");
         }
-        $checkQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id', $id)->exists();
-        if ($checkQuestion)
-        {
-            $this->model = false;
-            return $this->sendError("You can not update your question");
-        }
+
 
         $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
+        }
+
+        if(isset($collaborate->global_question_id) && !is_null($collaborate->global_question_id))
+        {
+            $this->model = false;
+            return $this->sendError("You can not update your question");
         }
 
         if($collaborate->state == 'Save')
@@ -581,9 +592,11 @@ class CollaborateController extends Controller
                 return $this->sendError("Global question id is not exists.");
             }
             //check again when going live
-            Artisan::call("Collaboration:Question", ['id'=>$collaborate->id,'global_question_id'=>$globalQuestionId]);
+            event(new UploadQuestionEvent($collaborate->id,$globalQuestionId));
             $collaborate->update(['step'=>2,'global_question_id'=>$globalQuestionId]);
-            $collaborate = $this->model->where('company_id',$companyId)->where('id',$id)->first();
+            $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
+            $this->model = $collaborate;
+            return $this->sendResponse();
         }
         $this->model = $collaborate;
         return $this->sendResponse();
@@ -593,32 +606,45 @@ class CollaborateController extends Controller
     {
         $gender = ['Male','Female','Others'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
-        $ageGroup = htmlspecialchars_decode($inputs['age_group']);
-        $ageGroups = json_decode($ageGroup,true);
-        $genderTypes = htmlspecialchars_decode($inputs['gender_ratio']);
-        $genderTypes = json_decode($genderTypes,true);
-        if(count($ageGroups))
+        if(isset($inputs['age_group']))
         {
-            foreach ($ageGroups as $key=>$ageGroup)
+            $inputs['age_group'] = json_decode($inputs['age_group'],true);
+            $ageGroups = $inputs['age_group'];
+            if(count($ageGroups))
             {
-                if(!in_array($key,$age))
+                $ageInputs = [];
+                foreach ($ageGroups as $key=>$ageGroup)
                 {
-                    unset($ageGroups[$key]);
+                    $key = htmlspecialchars_decode($key);
+                    $ageGroup = htmlspecialchars_decode($ageGroup);
+                    if(!in_array($key,$age))
+                    {
+                        unset($ageGroups[$key]);
+                    }
+                    $ageInputs[] = [$key=>$ageGroup];
                 }
+                $inputs['age_group'] = json_encode($ageInputs);
             }
-            $inputs['age_group'] = json_encode($ageGroups);
         }
-        if(count($genderTypes))
+        if(isset($inputs['gender_ratio']))
         {
-            foreach ($genderTypes as $key=>$genderType)
+            $inputs['gender_ratio'] = json_decode($inputs['gender_ratio'],true);
+            $genderTypes = $inputs['gender_ratio'];
+            if(count($genderTypes))
             {
-                if(!in_array($key,$gender))
+                $gendeInput = [];
+                foreach ($genderTypes as $key=>$genderType)
                 {
-                    unset($genderTypes[$key]);
+                    $key = htmlspecialchars_decode($key);
+                    $genderType = htmlspecialchars_decode($genderType);
+                    if(!in_array($key,$gender))
+                    {
+                        unset($genderTypes[$key]);
+                    }
+                    $gendeInput[] = [$key=>$genderType];
                 }
+                $inputs['gender_ratio'] = json_encode($gendeInput);
             }
-            $inputs['gender_ratio'] = json_encode($genderTypes);
         }
-
     }
 }

@@ -18,32 +18,44 @@ class CollaborateTypeTableSeeder extends Seeder
                 'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ],
             [
-                'name' => 'Vegetarian - Jain',
+                'name' => 'Non-vegetarian',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Vaishno',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ]
+            ,
+            [
+                'name' => 'Halal',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Alcoholic',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Kosher',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Jain',
+                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
+            ],
+            [
+                'name' => 'Celiac',
                 'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ],
             [
                 'name' => 'Vegan',
                 'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
-            ]
-            ,
+            ],
             [
-                'name' => 'Non Vegetarian',
+                'name' => 'Pareve',
                 'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ],
             [
-                'name' => 'Contains Fish',
-                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
-            ],
-            [
-                'name' => 'Contains Pork',
-                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
-            ],
-            [
-                'name' => 'Contains Poultry',
-                'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
-            ],
-            [
-                'name' => 'Halal Food',
+                'name' => 'Buddhist',
                 'type_image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-review-images/icons_type_default.png'
             ]
 

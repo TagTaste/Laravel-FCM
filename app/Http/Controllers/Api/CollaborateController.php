@@ -6,6 +6,7 @@ use App\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;
 use App\PeopleLike;
+use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -142,9 +143,10 @@ class CollaborateController extends Controller
                 ->updateExistingPivot($companyId,
                     [
                         'created_at'=>Carbon::now()->toDateTimeString(),
+                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
-                        'profile_id' => $request->input('profile_id')
+                        'profile_id' => $request->user()->profile->id
                     ]);
 
             $company = \Redis::get('company:small:' . $companyId);
@@ -182,7 +184,8 @@ class CollaborateController extends Controller
                     [
                         'created_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message")
+                        'message' => $request->input("message"),
+                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -535,5 +538,56 @@ class CollaborateController extends Controller
         $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions];
         $this->model = \DB::table('global_questions')->insert($data);
         return $this->sendResponse();
+    }
+
+    public function mandatoryField(Request $request,$type)
+    {
+        if($type == 'product-review')
+            $this->model = $request->user()->profile->getProfileCompletionAttribute();
+        else
+            $this->model = [];
+        return $this->sendResponse();
+    }
+
+    public function uploadGlobalNestedOption(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/collaborate/global/nested/option";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $questions = [];
+        $extra = [];
+        foreach ($data as $item)
+        {
+
+            foreach ($item as $datum)
+            {
+                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+                    break;
+                $extra[] = $datum;
+                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
+                $questions[] = ["s_no"=>$datum['sequence_id'],'parent_id'=>$parentId,'value'=>$datum['categories'],'type'=>'AROMA'];
+            }
+        }
+        \Log::info($questions);
+        $this->model = \DB::table('global_nested_option')->insert($questions);
     }
 }
