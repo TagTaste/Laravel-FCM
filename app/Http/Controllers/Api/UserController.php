@@ -91,7 +91,7 @@ class UserController extends Controller
     public function fcmToken(Request $request)
     {
         $user = User::where("id", $request->user()->id)->first();
-        \Log::info($request->all());
+        \Log::info($request->header('X-VERSION-IOS');
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : $request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL ; 
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
