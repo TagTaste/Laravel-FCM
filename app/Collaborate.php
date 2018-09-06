@@ -157,14 +157,14 @@ class Collaborate extends Model implements Feedable
     {
         $approvedOn = Carbon::now()->toDateTimeString();
         return Applicant::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
-            ->whereNull('company_id')->update(['rejected_at'=>$approvedOn]);
+            ->whereNull('company_id')->update(['rejected_at'=>$approvedOn,'shortlisted_at'=>null]);
     }
     
     public function rejectCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
         return Applicant::where('collaborate_id',$this->id)->where('company_id',$company->id)
-            ->update(['rejected_at'=>$approvedOn]);
+            ->update(['rejected_at'=>$approvedOn,'shortlisted_at'=>null]);
         }
     
     public function comments()

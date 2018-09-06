@@ -252,7 +252,7 @@ class CollaborateController extends Controller
 
     public function approve(Request $request, $profileId, $id)
     {
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
+        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
 
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
@@ -280,7 +280,7 @@ class CollaborateController extends Controller
 
     public function reject(Request $request, $profileId, $id)
     {
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->whereNull('company_id')->first();
+        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
 
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
