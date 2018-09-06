@@ -362,7 +362,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 	    $archived = \App\Collaborate\Applicant::join('profiles','collaborate_applicants.profile_id','=','profiles.id')
             ->whereNotNull('collaborate_applicants.rejected_at')->whereNull('profiles.deleted_at')
-            ->where('collaborate_id',$id)->with('profile','company');
+            ->where('collaborate_id',$id)->with('profile','collaborate','company');
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
@@ -422,13 +422,13 @@ class CollaborateController extends Controller
                     $batchInfo = json_decode($batchInfo);
                     $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
-                    if($batchInfo->current_status != 0)
+                    if($currentStatus != 0)
                     {
                         $batches[] = $batchInfo;
                     }
                 }
             }
-            $collaborate['batches'] = $count > 0 ? $batches : [];
+            $collaborate['batches'] = $count > 0 ? $batchInfos : [];
         }
         $this->model = $collaborates;
 
