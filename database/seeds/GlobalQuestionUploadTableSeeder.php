@@ -2026,7 +2026,21 @@ class GlobalQuestionUploadTableSeeder extends Seeder
             }]
          
   }';
-         $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'Seasoned nuts',
+        $headerInfo4 = [['header_name'=>"INSTRUCTIONS"],
+            ['header_name'=>"APPEARANCE","header_info"=>"OBSERVE the visual aspect of the product like it's shape, density of mass and color."],
+
+            ['header_name'=>"AROMA","header_info"=>"SNIFF the product. If you experienced aroma, fill up this section. Otherwise, move to the next section."],
+
+            ['header_name'=>"TASTE","header_info"=>"TAKE A BITE and figure out basic taste(s) you experienced."],
+
+            ['header_name'=>"AROMATICS","header_info"=>"OBSERVE the smell that was released after you chewed the product."],
+
+            ['header_name'=>"ORAL TEXTURE","header_info"=>"CHEW the product multiple times. Observe if it sticks to the mouth, its loose particles and after-taste."],
+
+            ['header_name'=>"OVERALL PREFERENCE","header_info"=>"RATE the overall experience of the product and provide some comments."],
+
+        ];
+        $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'Seasoned nuts',
              'question_json'=>$questions4,'header_info'=>json_encode($headerInfo4,true)];
 
          \DB::table('global_questions')->insert($data);
