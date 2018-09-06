@@ -362,7 +362,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 	    $archived = \App\Collaborate\Applicant::join('profiles','collaborate_applicants.profile_id','=','profiles.id')
             ->whereNotNull('collaborate_applicants.rejected_at')->whereNull('profiles.deleted_at')
-            ->where('collaborate_id',$id)->with('profile','collaborate','company');
+            ->where('collaborate_id',$id)->with('profile','company');
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
