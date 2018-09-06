@@ -2027,7 +2027,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
          
   }';
          $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'Seasoned nuts',
-             'question_json'=>$questions3,'header_info'=>json_encode($headerInfo3,true)];
+             'question_json'=>$questions4,'header_info'=>json_encode($headerInfo4,true)];
 
          \DB::table('global_questions')->insert($data);
     }
