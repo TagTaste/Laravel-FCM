@@ -432,6 +432,11 @@ class ApplicantController extends Controller
     {
         $batchId = (int)$request->input("batch_id");
         $this->model = [];
+        $page = $request->input('page');
+        if(!is_null($page) && $page >1)
+        {
+            return $this->sendResponse();
+        }
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id')->unique();
         $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)
             ->whereNotNull('shortlisted_at')->whereNull('rejected_at')->get();
