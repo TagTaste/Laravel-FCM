@@ -77,6 +77,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+            Route::post('/user/device/info',['uses'=>'UserController@getApkDeviceInfo']);
             Route::post('/user/feedIssue',['uses'=>'UserController@feedIssue']);
             Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');
@@ -99,6 +100,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("photos","PhotoController");
                     Route::resource("collaborate","CollaborateController");
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                        Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
+                        Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                         Route::resource("collaborate","CollaborateController");
                     });
 
@@ -107,6 +110,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             });
             //change password
                 Route::post("change/password","UserController@changePassword");
+
+
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
@@ -144,6 +149,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //company rating
             Route::get("companies/{companyId}/rating","CompanyRatingController@getRating");
             Route::post("companies/{companyId}/rating","CompanyRatingController@rating");
+
+            //search api without admin
+            Route::get("companies/{companyId}/getUserWithoutAdmin","CompanyController@getUserWithoutAdmin");
             
             //channel names for socket.io
                 Route::get('channels/companies/{id}/public',function($id){
@@ -173,6 +181,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //is the network feed required?
                 //what does it mean?
                 //Route::get("feed/network",'FeedController@network');
+
+            //get premium companies
+
+            Route::get("profile/premium","ProfileController@getPremium");
             
             //jobs
                 Route::get("jobs/all","JobController@all");
@@ -188,7 +200,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //collaborate
                 //collaborate categories
+                Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
                 Route::resource("collaborate/categories","CollaborateCategoryController");
+                Route::get('collaborate/types',"CollaborateController@types");
+                Route::get('batchesColor',"CollaborateController@batchesColor");
 
 
                 //collaborate templates
@@ -196,9 +211,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         
                 //collaborates shortlist
                     Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
+
                     Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
-                    
-                //collaborate
+
+            //collaborate
                     Route::get("collaborate/all","CollaborateController@all");
                     Route::get("collaborate/filters","CollaborateController@filters");
                     Route::post("collaborate/{id}/like","CollaborateController@like");
@@ -209,11 +225,68 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
-    
+
+
+                    //product review related api
+
+                    Route::get("userBatches","CollaborateController@userBatches");
+                    Route::post("seenBatchesList","CollaborateController@seenBatchesList");
+                    Route::get("tastingMethodology","CollaborateController@tastingMethodology");
+                    Route::get("profilesOccupations","CollaborateController@profilesJobs");
+                    Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("profilesAllergens","CollaborateController@profilesAllergens");
+                    Route::post("uploadGlobalNestedOption","CollaborateController@uploadGlobalNestedOption");
+                    Route::post("uploadGlobalQuestion","CollaborateController@uploadGlobalQuestion");
+                    Route::get("globalQuestion/{id}","CollaborateController@globalQuestionParticular");
+                    Route::get("globalQuestion","CollaborateController@globalQuestion");
+                    Route::get("getCities","CollaborateController@getCities");
+                    Route::post("addCities","CollaborateController@addCities");
+
+
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                Route::get("userBatches",'BatchController@userBatches');
+                Route::post("beginTasting",'BatchController@beginTasting');
+                Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
+                Route::post('removeFromBatch','BatchController@removeFromBatch');
+                Route::post('assignBatch','BatchController@assignBatch');
+                Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
+                Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
+                //reports
+                Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
+                Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
+
+                    //filter for dashboard of product review
+                Route::get("dashboard/filters","BatchController@filters");
+                Route::get("batches/hutCsv","BatchController@allHutCsv");
+                Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
+
+                Route::resource('batches','BatchController');
+                Route::post('shortlistPeople','ApplicantController@shortlistPeople');
+                Route::post('rejectPeople','ApplicantController@rejectPeople');
+                Route::post('inviteForReview','ApplicantController@inviteForReview'); //not need
+                Route::post('acceptInvitation','ApplicantController@acceptInvitation');
+                Route::post('rejectInvitation','ApplicantController@rejectInvitation');// make api as show interested
+                Route::post("showInterest","ApplicantController@store");
+                Route::get("getShortlistApplicants","ApplicantController@getShortlistApplicants");
+                Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
+                Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
+                Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
+                Route::resource('collaborateApplicants','ApplicantController');
+                // api for product-review tasting
+                Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
+                Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
+                Route::post("headers/{headerId}","ReviewController@reviewAnswers");
+                Route::get("headers/{id}","QuestionController@reviewQuestions");
+                Route::get("headers","QuestionController@headers");
+                Route::post("insertHeaders","QuestionController@insertHeaders");
+                Route::post("insertHeaders/{id}/insertQuestions","QuestionController@insertQuestions");
+                Route::post("headers/{headerId}/insertQuestion/{id}/aroma","QuestionController@aromQuestions");
+
                 //collaborate comments
-                    Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
-                        Route::resource('comments','CommentController');
-                    });
+
+                Route::resource('comments','CommentController');
+
+            });
 
             //photos
                 Route::resource("photos","PhotoController");
@@ -250,8 +323,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
                 Route::get("searchForApp/{type?}",'SearchController@searchForApp');
-                
-            //history
+                //history
                 Route::get("history/{type}","HistoryController@history");
             //Route::post('like/{model}/{modelId}','LikeController@store');
             
@@ -411,6 +483,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('tagboards','TagBoardController');
                 Route::post("tagboards/{id}/like","TagBoardController@like");
 
+                Route::resource("shippingAddress","ShippingAddressController");
                 Route::resource("experiences","ExperienceController");
                 Route::resource("books","BookController");
                 Route::resource("shows","ShowController");

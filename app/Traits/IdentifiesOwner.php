@@ -11,7 +11,7 @@ trait IdentifiesOwner
      *
      * If both company_id and profile_id is defined, preference if given to company.
      *
-     * Eg. A new Job must go on the company's feed, but not necessarily on the feed of
+     * Eg. A new Occupation must go on the company's feed, but not necessarily on the feed of
      * the person creating the job.
      *
      * @return mixed

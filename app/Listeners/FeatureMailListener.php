@@ -2,13 +2,13 @@
 
 namespace App\Listeners;
 
+use App\Collaborate\Profile;
 use App\Events\FeatureMailEvent;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use App\Jobs\SendFeatureMessage as SendMessage;
 
-class FeatureMailListener implements ShouldQueue
+class FeatureMailListener
 {
     /**
      * Create the event listener.
@@ -34,8 +34,11 @@ class FeatureMailListener implements ShouldQueue
         }
         if($event->inputs['is_mailable'])
         {
-            $profiles = \App\Profile::whereIn('id',$event->profileIds)->get();
-            Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
+            foreach ($event->profileIds as $profileId)
+            {
+                $profiles = Profile::where('id',$profileId)->first();
+                Notification::send($profiles, new \App\Notifications\FeatureMessage($event->data,$profiles));
+            }
 
         }
 

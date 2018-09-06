@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class FeatureMessage extends Notification
+class FeatureMessage extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -47,7 +47,7 @@ class FeatureMessage extends Notification
         $button_link = env('APP_URL').'/'.$this->info['model_name'].'/'.$this->info['model_id'];
         return (new MailMessage())
                     ->subject($this->info['sender_info']->name." sent you a new message on TagTaste!")
-                    ->view('emails.collab-message', ["name"=>$this->profiles[0]->name,"username"=>$this->info['username'],"message1"=>$this->info['message'],
+                    ->view('emails.collab-message', ["name"=>$this->profiles->name,"username"=>$this->info['username'],"message1"=>$this->info['message'],
                         "model_name"=>$this->info['model_name'], "model_title"=>$this->info['model_title'], "button_link"=>$button_link]);
     }
 

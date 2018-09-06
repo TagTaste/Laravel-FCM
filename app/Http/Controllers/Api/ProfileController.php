@@ -163,22 +163,19 @@ class ProfileController extends Controller
         //phone verified for request otp
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
-            $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
+            $profile = \DB::table('profiles')->where('id',$request->user()->profile->id)->first();
             if($data['profile']['phone'] != $profile->phone)
             {
                 $data['profile']['verified_phone'] = 0;
             }
         }
-        else
-        {
-            $data['profile']['verified_phone'] = 0;
-        }
 
         //save the model
+        $userId = $request->user()->id;
+        $this->model = \App\Profile::where('user_id',$userId)->first();
+
         if(isset($data['profile']) && !empty($data['profile'])){
-            $userId = $request->user()->id;
             try {
-                $this->model = \App\Profile::where('user_id',$userId)->first();
                 $this->model->update($data['profile']);
                 $this->model->addToCache();
                 $this->model->refresh();
@@ -191,8 +188,33 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-        $profileData = Profile::find($request->user()->profile->id);
-        \App\Filter\Profile::addModel($profileData);
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        if(isset($data['profile']['occupation_id']) && !is_null($data['profile']['occupation_id']))
+        {
+            $jobs = ['profile_id'=>$loggedInProfileId,'occupation_id'=>$data['profile']['occupation_id']];
+            Profile\Occupation::where('profile_id',$loggedInProfileId)->delete();
+            $this->model->profile_occupations()->insert($jobs);
+            unset($data['profile']['occupation_id']);
+        }
+
+        if($request->has('specialization_id'))
+        {
+            $specializationIds = $request->input('specialization_id');
+            $specializations = [];
+            foreach ($specializationIds as $specializationId)
+            {
+                $specializations[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$specializationId];
+            }
+            if(count($specializations))
+            {
+                Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
+                $this->model->profile_specializations()->insert($specializations);
+
+            }
+        }
+        $this->model = Profile::find($request->user()->profile->id);
         return $this->sendResponse();
     }
     
@@ -856,6 +878,31 @@ class ProfileController extends Controller
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
         $this->model = $profiles;
+        return $this->sendResponse();
+    }
+
+    public function getPremium(Request $request)
+    {
+        $companyIds = \DB::table('companies')->whereNull('deleted_at')->select('id')->where('is_premium',1)->get()->pluck('id');
+        $companyIds = \DB::table('company_users')->select('company_id')
+            ->where('user_id',$request->user()->id)
+            ->whereIn('company_id',$companyIds)->get()->pluck('company_id');
+
+        if(count($companyIds) === 0){
+            $this->model = [];
+            return $this->sendResponse();
+        }
+        $premiumnCompanies = [];
+        foreach($companyIds as &$companyId)
+        {
+            $premiumnCompanies[] = "company:small:" . $companyId;
+        }
+        $data = \Redis::mget($premiumnCompanies);
+        foreach($data as &$company){
+            $company = json_decode($company);
+        }
+        $this->model = $data;
+
         return $this->sendResponse();
     }
 }

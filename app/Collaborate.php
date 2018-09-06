@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Channel\Payload;
-use App\Collaboration\Collaborator;
+use App\Collaborate\Applicant;
 use App\Interfaces\Feedable;
 use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
@@ -14,17 +14,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Collaborate extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
-    
+
     protected $fillable = ['title', 'i_am', 'looking_for', 'expires_on','video','location',
         'description','project_commences','image1','image2','image3','image4','image5',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
-        'created_at','updated_at','images'];
+        'created_at','updated_at','category_id','step','financial_min','financial_max',
+        'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
+        'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
+        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction'];
 
-    protected $with = ['profile','company','fields','categories'];
+    protected $with = ['profile','company','fields','categories','addresses','collaborate_occupations',
+        'collaborate_specializations','collaborate_allergens'];
 
-    static public $state = [1,2,3]; //active =1 , delete =2 expired =3
+    static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -32,15 +36,23 @@ class Collaborate extends Model implements Feedable
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
         'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at','images'];
+        'applicationCount','file1','deliverables','start_in','state','updated_at','images',
+        'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
+        'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
+        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction'];
 
-    protected $appends = ['applicationCount'];
+    protected $appends = ['applicationCount','type','product_review_meta','age_group','gender_ratio','tasting_methodology'];
 
     protected $casts = [
         'privacy_id' => 'integer',
         'profile_id' => 'integer',
-        'company_id' => 'integer'
+        'company_id' => 'integer',
+        'financial_min' => 'integer',
+        'financial_max' => 'integer'
     ];
+
+    private $interestedCount = 0;
     
     public static function boot()
     {
@@ -60,7 +72,7 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount'])->toJson());
+        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
     
     }
     
@@ -88,9 +100,9 @@ class Collaborate extends Model implements Feedable
         return $this->belongsTo(\App\Recipe\Company::class);
     }
     
-    public function collaborators()
+    public function collaborateapplicants()
     {
-        return \DB::table("collaborators")->where("collaborate_id",$this->id)->get();
+        return \DB::table("collaborate_applicants")->where("collaborate_id",$this->id)->get();
     }
     
     /**
@@ -98,8 +110,8 @@ class Collaborate extends Model implements Feedable
      */
     public function profiles()
     {
-        return $this->belongsToMany(\App\Collaborate\Profile::class,'collaborators',
-            'collaborate_id','profile_id')->withPivot('applied_on','approved_on','rejected_on','template_values');
+        return $this->belongsToMany(\App\Collaborate\Profile::class,'collaborate_applicants',
+            'collaborate_id','profile_id')->withPivot('created_at','shortlisted_at','rejected_at');
     }
     
     /**
@@ -107,8 +119,8 @@ class Collaborate extends Model implements Feedable
      */
     public function companies()
     {
-        return $this->belongsToMany(\App\Collaborate\Company::class,'collaborators',
-            'collaborate_id','company_id')->withPivot('applied_on','approved_on','rejected_on','template_values');
+        return $this->belongsToMany(\App\Collaborate\Company::class,'collaborate_applicants',
+            'collaborate_id','company_id')->withPivot('created_at','shortlisted_at','rejected_at');
     }
     
     public function applications()
@@ -124,15 +136,15 @@ class Collaborate extends Model implements Feedable
     public function approveProfile(Profile $profile)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
-            ->whereNull('company_id')->update(['approved_on'=>$approvedOn,'archived_at'=>null]);
+        return Applicant::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
+            ->whereNull('company_id')->update(['shortlisted_at'=>$approvedOn,'rejected_at'=>null]);
     }
     
     public function approveCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('company_id',$company->id)
-            ->update(['approved_on'=>$approvedOn,'archived_at'=>null]);
+        return Applicant::where('collaborate_id',$this->id)->where('company_id',$company->id)
+            ->update(['shortlisted_at'=>$approvedOn,'rejected_at'=>null]);
     }
     
     public function rejected()
@@ -144,15 +156,15 @@ class Collaborate extends Model implements Feedable
     public function rejectProfile(Profile $profile)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
-            ->whereNull('company_id')->update(['rejected_on'=>$approvedOn,'archived_at'=>$approvedOn]);
+        return Applicant::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
+            ->whereNull('company_id')->update(['rejected_at'=>$approvedOn,'shortlisted_at'=>null]);
     }
     
     public function rejectCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
-        return Collaborator::where('collaborate_id',$this->id)->where('company_id',$company->id)
-            ->update(['rejected_on'=>$approvedOn,'archived_at'=>$approvedOn]);
+        return Applicant::where('collaborate_id',$this->id)->where('company_id',$company->id)
+            ->update(['rejected_at'=>$approvedOn,'shortlisted_at'=>null]);
         }
     
     public function comments()
@@ -218,8 +230,8 @@ class Collaborate extends Model implements Feedable
     
     public function getInterestedAttribute() : array
     {
-        $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
-        $profileIds = \DB::table("collaborators")->select('profile_id')->where("collaborate_id",$this->id)->get();
+        $count = \DB::table("collaborate_applicants")->where("collaborate_id",$this->id)->count();
+        $profileIds = \DB::table("collaborate_applicants")->select('profile_id')->where("collaborate_id",$this->id)->get();
         if($profileIds){
             $profileIds = $profileIds->pluck('profile_id')->toArray();
         }
@@ -241,7 +253,7 @@ class Collaborate extends Model implements Feedable
     
     private function setInterestedAsProfiles(&$meta,&$profileId)
     {
-        $interested = \DB::table('collaborators')->where('collaborate_id',$this->id);
+        $interested = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id);
     
         $companyIds = \DB::table("company_users")->select('company_id')->where('profile_id',$profileId)->get();
         
@@ -274,14 +286,33 @@ class Collaborate extends Model implements Feedable
     {
         $meta = [];
 
+        if($this->collaborate_type == 'product-review')
+        {
+            $key = "meta:collaborate:likes:" . $this->id;
+            $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+            $meta['likeCount'] = \Redis::sCard($key);
+
+            $meta['commentCount'] = $this->comments()->count();
+            $peopleLike = new PeopleLike();
+            $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
+            $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+            $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+
+            $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
+            $meta['interestedCount'] = $this->interestedCount;
+            $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            return $meta;
+        }
+
         $this->setInterestedAsProfiles($meta,$profileId);
-        
+
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = \Redis::sCard($key);
-    
+
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
@@ -302,7 +333,7 @@ class Collaborate extends Model implements Feedable
     public function getMetaForCompany(int $companyId) : array
     {
         $meta = [];
-        $meta['interested'] = \DB::table('collaborators')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
+        $meta['interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('company_id',$companyId)->exists();
         return $meta;
     }
     
@@ -323,7 +354,7 @@ class Collaborate extends Model implements Feedable
 
     public function categories()
     {
-        return $this->belongsToMany('App\CollaborateCategory', 'collaborate_category_pivots','collaborate_id','category_id');
+        return $this->belongsTo(CollaborateCategory::class,'category_id');
     }
     
     public function getNotificationContent()
@@ -332,7 +363,8 @@ class Collaborate extends Model implements Feedable
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,
-            'image' => null
+            'image' => null,
+            'collaborate_type' => $this->collaborate_type
         ];
     }
     
@@ -367,7 +399,11 @@ class Collaborate extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        return (int)\Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+        if($this->collaborate_type != 'product-review')
+        {
+            $this->interestedCount = (int)\Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?? 0;
+        }
+        return $this->interestedCount;
     }
     
     public function getFile1Attribute($value)
@@ -399,8 +435,8 @@ class Collaborate extends Model implements Feedable
 
     public function getApprovedAttribute() : array
     {
-        $count = \DB::table("collaborators")->where("collaborate_id",$this->id)->count();
-        $profileIds = \DB::table("collaborators")->select('profile_id')->whereNull('archived_at')->where("collaborate_id",$this->id)->get();
+        $count = \DB::table("collaborate_applicants")->where("collaborate_id",$this->id)->count();
+        $profileIds = \DB::table("collaborate_applicants")->select('profile_id')->whereNull('rejected_at')->where("collaborate_id",$this->id)->get();
         if($profileIds){
             $profileIds = $profileIds->pluck('profile_id')->toArray();
         }
@@ -410,12 +446,91 @@ class Collaborate extends Model implements Feedable
 
     public function getStateAttribute($value)
     {
-        if($value == 1)
-            return 'Active';
-        else if($value == 3)
-            return 'Expired';
-        else
-            return 'Delete';
+        switch ($value) {
+            case 1:
+                return 'Active';
+                break;
+            case 2:
+                return 'Delete';
+                break;
+            case 3:
+                return 'Expired';
+                break;
+            case 4:
+                return 'Save';
+                break;
+            default:
+                return 'Close';
+        }
+    }
+
+
+    public function getTypeAttribute()
+    {
+        return isset($this->type_id) && !is_null($this->type_id) ? \DB::table('collaborate_types')->where('id',$this->type_id)->first() : null;
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany('App\Collaborate\Addresses');
+    }
+
+    public function getProductReviewMetaAttribute()
+    {
+        $meta = [];
+        if($this->collaborate_type == 'product-review')
+        {
+            $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->where('is_invited',1)->exists();
+            $meta['has_batch_assign'] = \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
+                ->where('profile_id',request()->user()->profile->id)->where('begin_tasting',1)->exists();
+            $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
+                ->where('profile_id',request()->user()->profile->id)->get()->pluck('batch_id')->toArray();
+            $completedBatchIds = \DB::table('collaborate_tasting_user_review')->where('profile_id',request()->user()->profile->id)
+                ->where('collaborate_id',$this->id)->where('current_status',3)->get()->pluck('batch_id')->toArray();
+            sort($batchIds);
+            sort($completedBatchIds);
+            $meta['is_completed_product_review'] = count($completedBatchIds) > 0 ? ($batchIds == $completedBatchIds) : false;
+            $meta['is_interested'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->where('is_invited',0)->whereNull('rejected_at')->exists();
+            $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
+                ->where('is_invited',1)->first();
+            $meta['is_actioned'] = isset($applicants) ? isset($applicants->shortlisted_at) || isset($applicants->rejected_at) ? true : false : false;
+            $meta['is_invitation_accepted'] = isset($applicants) ? isset($applicants->shortlisted_at) && !is_null($applicants->shortlisted_at) ? true : false : false;
+            return $meta;
+        }
+        return null;
+
+    }
+
+    public function getTastingMethodologyAttribute()
+    {
+        return isset($this->methodology_id) && !is_null($this->methodology_id) ? \DB::table('collaborate_tasting_methodology')->where('id',$this->methodology_id)->first() : null;
+    }
+
+    public function collaborate_specializations()
+    {
+        return $this->hasMany('App\Collaborate\Specialization');
+    }
+
+    public function collaborate_occupations()
+    {
+        return $this->hasMany('App\Collaborate\Occupation');
+    }
+
+    public function collaborate_allergens()
+    {
+        return $this->hasMany('App\Collaborate\Allergens');
+    }
+
+    public function getAgeGroupAttribute($value)
+    {
+        return !is_null($value) ? json_decode($value) : null;
+    }
+
+    public function getGenderRatioAttribute($value)
+    {
+        return !is_null($value) ? json_decode($value) : null;
     }
 
 }

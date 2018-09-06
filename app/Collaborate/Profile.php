@@ -13,12 +13,5 @@ class Profile extends BaseProfile
     protected $with = [];
     
     protected $visible = [
-        'id',
-        'tagline',
-        'about',
-        'imageUrl',
-        'name',
-        'pivot',
-        'handle'
-    ];
+        'id','name'];
 }
