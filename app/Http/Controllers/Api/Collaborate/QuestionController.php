@@ -105,6 +105,7 @@ class QuestionController extends Controller
                 }
                 if($data->questions->title == 'INSTRUCTION' || $data->questions->title == 'INSTRUCTIONS' || $data->questions->title == 'Instruction' || $data->questions->title == 'Instructions')
                 {
+                    \Log::info("here loop ");
                     $data->questions->subtitle = "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.";
                     if(isset($collaborate->taster_instruction))
                         $data->questions->subtitle = $collaborate->taster_instruction;
@@ -114,6 +115,14 @@ class QuestionController extends Controller
             }
             else
             {
+                \Log::info("here");
+                if($data->title == 'INSTRUCTION' || $data->title == 'INSTRUCTIONS' || $data->title == 'Instruction' || $data->title == 'Instructions')
+                {
+                    $data->subtitle = "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.";
+                    if(isset($collaborate->taster_instruction))
+                        $data->subtitle = $collaborate->taster_instruction;
+
+                }
                 $model[] = $data;
             }
         }
