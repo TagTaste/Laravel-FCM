@@ -38,9 +38,4 @@ class Applicant extends Model {
         return json_decode($value,true);
     }
 
-    public function collaborate()
-    {
-        return $this->belongsTo(\App\Recipe\Collaborate::class);
-    }
-
 }
