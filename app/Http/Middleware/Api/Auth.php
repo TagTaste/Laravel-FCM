@@ -60,6 +60,11 @@ class Auth extends GetUserFromToken
         });
 
         $response = $next($request);
+
+        $response->headers->set('Access-Control-Allow-Origin' , '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
+
         $this->recordData($request, $response);
         return $response;
     }
@@ -84,7 +89,7 @@ class Auth extends GetUserFromToken
         $data["user"]["name"] = $user["name"];
 
         //To add response field
-        $data["response"]["status"] = $response->status();
+        $data["response"]["status"] = 200;
 
         //Firing the event
         event(new LogRecord($data));
