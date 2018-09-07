@@ -89,7 +89,7 @@ class Auth extends GetUserFromToken
         $data["user"]["name"] = $user["name"];
 
         //To add response field
-        $data["response"]["status"] = $response->status();
+        $data["response"]["status"] = 200;
 
         //Firing the event
         event(new LogRecord($data));
