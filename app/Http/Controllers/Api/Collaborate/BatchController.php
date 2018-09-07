@@ -394,7 +394,7 @@ class BatchController extends Controller
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->skip(0)->take(3)->get();
+                        ->where('current_status',3)->where('tasting_header_id',$headerId)->skip(0)->take(3)->get();
                 }
                 else
                 {
@@ -495,7 +495,7 @@ class BatchController extends Controller
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->where('current_status',3)->skip(0)->take(3)->get();
+                        ->where('current_status',3)->where('tasting_header_id',$headerId)->skip(0)->take(3)->get();
                 }
                 else
                 {
