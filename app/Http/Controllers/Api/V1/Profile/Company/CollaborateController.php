@@ -503,6 +503,12 @@ class CollaborateController extends Controller
                 return $this->sendError("You can not update your products.");
             }
         }
+        if($collaborate->state != 'Active')
+        {
+            $now = Carbon::now()->toDateTimeString();
+            $inputs['created_at'] = $now;
+            $inputs['updated_at'] = $now;
+        }
         $this->model = $collaborate->update($inputs);
         if($request->has('batches'))
         {
