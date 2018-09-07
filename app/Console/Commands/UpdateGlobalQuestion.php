@@ -647,7 +647,7 @@ class UpdateGlobalQuestion extends Command
          
          }';
 
-         $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'',
+         $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'nuts',
              'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
          \DB::table('global_questions')->where('id',$id)->update($data);
