@@ -16,6 +16,7 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
+use App\Console\Commands\CloseCollaborate;
 use App\Console\Commands\CollaborationQuestions;
 use App\Console\Commands\CapitalizeUserName;
 use App\Console\Commands\CountryCodeFix;
@@ -167,7 +168,8 @@ class Kernel extends ConsoleKernel
 
         //update shutout preview
 
-        ShoutoutPreviewUpdate::class
+        ShoutoutPreviewUpdate::class,
+        CloseCollaborate::class
 
 
     ];
