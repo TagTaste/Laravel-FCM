@@ -40,7 +40,7 @@ class UpdateGlobalQuestion extends Command
 
         $id = $this->argument('id');
 
-        $headerInfo2 = [['header_name'=>"INSTRUCTIONS123456"],
+        $headerInfo2 = [['header_name'=>"INSTRUCTIONS"],
 
         ['header_name'=>"APPEARANCE","header_info"=>"OBSERVE the visual aspect of the product like it's shape, density of mass and color."],
     
@@ -54,12 +54,12 @@ class UpdateGlobalQuestion extends Command
     
         ['header_name'=>"OVERALL PREFERENCE","header_info"=>"RATE the overall experience of the product and provide some comments."],
     
-];
+    ];
         $questions2 = '{
 
             "INSTRUCTIONS": [{
          
-               "title": "INSTRUCTIONS123",
+               "title": "INSTRUCTIONS",
          
                "subtitle": "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.",
          
@@ -78,7 +78,7 @@ class UpdateGlobalQuestion extends Command
          
                "is_nested_question": 0,
          
-               "is_mandatory": 0,
+               "is_mandatory": 1,
          
                "option": "Full pieces,Evenly cut pieces,Unevenly cut pieces"
          
@@ -248,7 +248,7 @@ class UpdateGlobalQuestion extends Command
          
                   "is_nested_question": 0,
          
-                  "is_mandatory": 1,
+                  "is_mandatory": 0,
          
                   "option": "Warm sensation spices,Chillies,Astringent,Hot temperature,Cold temperature"
          
@@ -647,7 +647,7 @@ class UpdateGlobalQuestion extends Command
          
          }';
 
-         $data = ['name'=>'Kari Kari 209','keywords'=>"Form for Japanese snacks",'description'=>'Kari Kari, Japan, Snacks, Healthy Snacks',
+         $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'',
              'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
          \DB::table('global_questions')->where('id',$id)->update($data);
