@@ -478,7 +478,7 @@ class Collaborate extends Model implements Feedable
     public function getProductReviewMetaAttribute()
     {
         $meta = [];
-        if($this->collaborate_type == 'product-review')
+        if($this->collaborate_type == 'product-review' && isset(request()->user()->profile->id))
         {
             $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
                 ->where('is_invited',1)->exists();
