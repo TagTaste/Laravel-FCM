@@ -14,7 +14,7 @@ class CloseCollaborate extends Command
      *
      * @var string
      */
-    protected $signature = 'close:collaboration';
+    protected $signature = 'close:collaboration ';
     /**
      * The console command description.
      *
@@ -37,7 +37,9 @@ class CloseCollaborate extends Command
      */
     public function handle()
     {
-        \App\Collaborate::with([])->where('id', 208)
+        $id = $this->argument('id');
+
+        \App\Collaborate::with([])->where('id', $id)
             ->orderBy('id')->chunk(100, function ($models) {
                 foreach ($models as $model) {
                     event(new \App\Events\DeleteFilters(class_basename($model), $model->id));
