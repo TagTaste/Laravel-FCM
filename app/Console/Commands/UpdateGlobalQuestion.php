@@ -271,7 +271,7 @@ class UpdateGlobalQuestion extends Command
 }
 ';
 
-         $data = ['name'=>'Seasoned nuts','keywords'=>"nuts",'description'=>'nuts',
+         $data = ['name'=>'Cold Brew Coffee','keywords'=>"Cold Brew,Coffee,Cold Brew Coffee",'description'=>'Cold Brew Coffee',
              'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
          \DB::table('global_questions')->where('id',$id)->update($data);
