@@ -428,7 +428,7 @@ class CollaborateController extends Controller
                     }
                 }
             }
-            $collaborate['batches'] = $count > 0 ? $batchInfos : [];
+            $collaborate['batches'] = $count > 0 ? $batches : [];
         }
         $this->model = $collaborates;
 
