@@ -172,7 +172,7 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\InsertGlobalQuestion::class,
 
-        \App\Console\Commands\UpdateGlobalQuestion::class
+        \App\Console\Commands\UpdateGlobalQuestion::class,
         CloseCollaborate::class
 
 
