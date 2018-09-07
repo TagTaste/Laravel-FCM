@@ -67,21 +67,7 @@ class InsertGlobalQuestion extends Command
          
             "APPEARANCE": [{
          
-               "title": "Visual observation",
-         
-               "select_type": 2,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 1,
-         
-               "option": "Broken,Cracked,Foreign material,Blisters,Folds,Sugar / crystals,Flat,Crushed,Fluffy,Even"
-         
-            }, {
-         
-               "title": "Color of the crust",
+               "title": "Color of coffee",
          
                "select_type": 1,
          
@@ -91,77 +77,7 @@ class InsertGlobalQuestion extends Command
          
                "is_mandatory": 1,
          
-               "option": "Hay,Straw,Golden,Copper,Bronze,Light brown,Brown,Chocolate,Charcoal,Any other"
-         
-            }, {
-         
-               "title": "Intensity of the color",
-         
-               "select_type": 1,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 1,
-         
-               "option": "Low,Medium,High"
-         
-            }, {
-         
-               "title": "Sponginess (on touching)",
-         
-               "select_type": 1,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 1,
-         
-               "option": "Low,Medium,High"
-         
-            }, {
-         
-               "title": "Cross section (cut from the centre)",
-         
-               "select_type": 2,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 1,
-         
-               "option": "Bright,Dull,Shiny,Matt,Greasy,Dense,Thick,Thin,Airy,Firm"
-         
-            }, {
-         
-               "title": "Filling",
-         
-               "select_type": 1,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 1,
-         
-               "option": "Bright,Dull,Shiny,Matt"
-         
-            }, {
-         
-               "title": "Quantity of filling",
-         
-               "select_type": 1,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 1,
-         
-               "option": "Less,More,Just fine"
+               "option": "Black,White,Pale brown,Brown,Pale white"
          
             }, {
          
@@ -214,21 +130,7 @@ class InsertGlobalQuestion extends Command
          
                }, {
          
-               "title": "Any off aroma (if observed)",
-         
-               "select_type": 2,
-         
-               "is_intensity": 0,
-         
-               "is_nested_question": 0,
-         
-               "is_mandatory": 0,
-         
-               "option": "Chemical,Preservative,Metallic,Medicinal"
-         
-            }, {
-         
-               "title": "Overall aroma experience in a single word",
+               "title": "Any off aroma (If yes, describe more in comments)",
          
                "select_type": 1,
          
@@ -238,7 +140,7 @@ class InsertGlobalQuestion extends Command
          
                "is_mandatory": 1,
          
-               "option": "Pleasant,Inviting,Mouthwatering,Unpleasant,Uninviting,Repelling"
+               "option": "Yes,No"
          
             }, {
          
@@ -285,21 +187,21 @@ class InsertGlobalQuestion extends Command
          
                   "is_mandatory": 1,
          
-                  "option": "Sweet,Salt,Sour,Bitter,Astringent,Pungent,Umami,Bland"
+                  "option": "Sweet,Salt,Sour,Bitter,Astringent,Pungent,Bland"
          
                }, {
          
                   "title": "Chemical feeling factor (if observed)",
          
-                  "select_type": 2,
+                  "select_type": 1,
          
                   "is_intensity": 0,
          
                   "is_nested_question": 0,
          
-                  "is_mandatory": 0,
+                  "is_mandatory": 1,
          
-                  "option": "Hot,Cold,Dry feeling (Astringent),Metallic"
+                  "option": "Yes,No"
          
                }, {
          
@@ -354,6 +256,28 @@ class InsertGlobalQuestion extends Command
          
                }, {
          
+                  "title": "After-taste",
+         
+                  "is_nested_question": 1,
+         
+                  "question": [{
+         
+                        "title": "Duration of the after-taste",
+         
+                        "select_type": 1,
+         
+                        "is_intensity": 0,
+         
+                        "is_nested_question": 0,
+         
+                        "is_mandatory": 1,
+         
+                        "option": "None,Short,Sufficient,Long"
+         
+                     }]
+         
+               }, {
+         
                   "title": "Overall preference",
          
                   "select_type": 5,
@@ -383,43 +307,13 @@ class InsertGlobalQuestion extends Command
          
             "ORAL TEXTURE": [{
          
-                  "title": "Surface texture",
-         
-                  "subtitle": "Hold the product between the lips",
-         
-                  "select_type": 2,
-         
-                  "is_intensity": 0,
-         
-                  "is_nested_question": 0,
-         
-                  "is_mandatory": 1,
-         
-                  "option": "Rough,Smooth,Loose Particles,Oily,Moist,Buttery,Dry"
-         
-               }, {
-         
-                  "title": "Filling texture",
-         
-                  "select_type": 2,
-         
-                  "is_intensity": 0,
-         
-                  "is_nested_question": 0,
-         
-                  "is_mandatory": 1,
-         
-                  "option": "Sticky,Greasy,Dry and Hard,Wet,Soft,Creamy,Saucy,Watery,Crystal,Loose"
-         
-               }, {
-         
-                  "title": "First Chew",
+                  "title": "Acidity",
          
                   "is_nested_question": 1,
          
                   "question": [{
          
-                        "title": "Uniformity",
+                        "title": "Brightness of coffee",
          
                         "select_type": 1,
          
@@ -429,71 +323,63 @@ class InsertGlobalQuestion extends Command
          
                         "is_mandatory": 1,
          
-                        "option": "Low,Medium,High"
+                        "option": "Flat,Bright"
          
                      }, {
          
-                        "title": "Burst of flavour (moisture release)",
+                        "title": "If you selected Bright, was it...?",
          
-                        "select_type": 1,
+                        "select_type": 2,
          
-                        "is_intensity": 0,
+                        "is_intensity": 1,
+         
+                        "intensity_type": 1,
+         
+                        "intensity_value": 15,
          
                         "is_nested_question": 0,
          
-                        "is_mandatory": 1,
+                        "is_mandatory": 0,
          
-                        "option": "Low,Medium,High"
+                        "option": "Tangy,Winey,Sour,Fermented"
          
                      }]
          
                }, {
          
-                  "title": "Chew-down experience",
+                  "title": "Body",
          
                   "is_nested_question": 1,
          
                   "question": [{
          
-                        "title": "Moisture absorption",
+                        "title": "Is it like...?",
          
                         "select_type": 1,
          
-                        "is_intensity": 0,
+                        "is_intensity": 1,
+         
+                        "intensity_type": 1,
+         
+                        "intensity_value": 15,
          
                         "is_nested_question": 0,
          
                         "is_mandatory": 1,
          
-                        "option": "Low,Medium,High"
-         
-                     }, {
-         
-                        "title": "Cohesiveness",
-         
-                        "select_type": 1,
-         
-                        "is_intensity": 0,
-         
-                        "is_nested_question": 0,
-         
-                        "is_mandatory": 1,
-         
-                        "option": "Low,Medium,High"
+                        "option": "Syrup,Whole Milk,Water,Any other"
          
                      }]
          
                }, {
          
-                  "title": "Residual",
+                  "title": "Sweetness",
          
                   "is_nested_question": 1,
          
                   "question": [{
          
-                        "title": "Sticky Texture",
-         
-                        "subtitle": "Is there a film being formed between product and teeth?",
+                        "title": "Fullness of Flavour",
          
                         "select_type": 1,
          
@@ -503,39 +389,8 @@ class InsertGlobalQuestion extends Command
          
                         "is_mandatory": 1,
          
-                        "option": "Yes,No"
+                        "option": "Strong,Mild,Pale"
          
-                     }, {
-         
-                        "title": "Pasty Texture",
-         
-                        "subtitle": "Forms quickly into a paste without sticking",
-         
-                        "select_type": 1,
-         
-                        "is_intensity": 0,
-         
-                        "is_nested_question": 0,
-         
-                        "is_mandatory": 1,
-         
-                        "option": "Yes,No"
-         
-                     }, {
-         
-                        "title": "Bite Length",
-         
-                        "subtitle": "Chewing time taken to form a bolus",
-         
-                        "select_type": 1,
-         
-                        "is_intensity": 0,
-         
-                        "is_nested_question": 0,
-         
-                        "is_mandatory": 1,
-         
-                        "option": "Long,Short,Just fine"
          
                      }]
          
@@ -567,8 +422,49 @@ class InsertGlobalQuestion extends Command
          
                }],
          
+            "OVERALL PREFERENCE": [{
+         
+                  "title": "Overall preference",
+         
+                  "select_type": 5,
+         
+                  "is_intensity": 0,
+         
+                  "is_nested_question": 0,
+         
+                  "is_mandatory": 1,
+         
+                  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+         
+               }, {
+         
+                  "title": "Comments",
+         
+                  "select_type": 3,
+         
+                  "is_intensity": 0,
+         
+                  "is_mandatory": 0,
+         
+                  "is_nested_question": 0
+         
+               }],
          
             "OVERALL PREFERENCE": [{
+         
+               "title": "Are these 5 elements balanced: Aroma, Taste, Acidity, Body and Flavour?",
+         
+               "select_type": 1,
+         
+               "is_intensity": 0,
+         
+               "is_nested_question": 0,
+         
+               "is_mandatory": 1,
+         
+               "option": "Yes,No"
+         
+            }, {
          
                "title": "Full product experience",
          
@@ -597,7 +493,7 @@ class InsertGlobalQuestion extends Command
             }]
          
          }';
-         $data = ['name'=>'Bunfills','keywords'=>"bunfills",'description'=>'Bunfills',
+         $data = ['name'=>'Cold Brew Coffee','keywords'=>"Cold Brew,Coffee,Cold Brew Coffee",'description'=>'Cold Brew Coffee',
              'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
          \DB::table('global_questions')->insert($data);
