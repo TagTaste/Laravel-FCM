@@ -262,8 +262,8 @@ class User extends BaseUser
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
-
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
+        if(isset($this->profile->id))
+            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)
