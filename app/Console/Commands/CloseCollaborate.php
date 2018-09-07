@@ -14,7 +14,7 @@ class CloseCollaborate extends Command
      *
      * @var string
      */
-    protected $signature = 'close:collaboration ';
+    protected $signature = 'close:collaboration {id}';
     /**
      * The console command description.
      *
