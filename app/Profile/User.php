@@ -390,7 +390,7 @@ class User extends BaseUser
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
         if(isset($this->profile->id))
-            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
+            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socailLink]);
 //        ,'dob'=>$dob,'address'=>$location,
 //            'gender'=>$gender
 
