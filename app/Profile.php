@@ -50,7 +50,7 @@ class Profile extends Model
     private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','about','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','about','verified_phone','profile_occupations'];
 
     public static function boot()
     {
