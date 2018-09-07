@@ -60,7 +60,7 @@ class UpdateGlobalQuestion extends Command
       "select_type": 1,
       "is_intensity": 1,
       "intensity_type": 2,
-      "intensity_value": “Low,Medium,High”,
+      "intensity_value": "Low,Medium,High",
       "is_nested_question": 0,
       "is_mandatory": 1,
       "option": "Brown (Coffee bean),Rust (Roasted coffee),Black (Brew only),Caramel (Milk coffee),Any other"
@@ -88,9 +88,10 @@ class UpdateGlobalQuestion extends Command
          "is_nested_question": 0,
          "is_mandatory": 1,
          "is_nested_option": 1,
-         "nested_option_list": "AROMA",
-      }, {
-      "title": "Any off aroma (If yes, describe more in comments)",
+         "nested_option_list": "AROMA"
+      }, 
+      {
+      "title":"Any off aroma (If yes, describe more in comments)",
       "select_type": 1,
       "is_intensity": 0,
       "is_nested_question": 0,
@@ -152,7 +153,7 @@ class UpdateGlobalQuestion extends Command
          "is_nested_question": 0,
          "is_mandatory": 1,
          "is_nested_option": 1,
-         "nested_option_list": "AROMA",
+         "nested_option_list": "AROMA"
       }, {
          "title": "After-taste",
          "is_nested_question": 1,
@@ -268,8 +269,7 @@ class UpdateGlobalQuestion extends Command
       "is_mandatory": 0,
       "is_nested_question": 0
    }]
-}
-';
+}';
 
          $data = ['name'=>'Cold Brew Coffee','keywords'=>"Cold Brew,Coffee,Cold Brew Coffee",'description'=>'Cold Brew Coffee',
              'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
