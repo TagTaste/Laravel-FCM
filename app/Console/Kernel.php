@@ -167,7 +167,11 @@ class Kernel extends ConsoleKernel
 
         //update shutout preview
 
-        ShoutoutPreviewUpdate::class
+        ShoutoutPreviewUpdate::class,
+
+        \App\Console\Commands\InsertGlobalQuestion::class,
+
+        \App\Console\Commands\UpdateGlobalQuestion::class
 
 
     ];
