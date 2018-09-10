@@ -441,7 +441,6 @@ class BatchController extends Controller
         }
         if(isset($filters['age']))
         {
-            $profileIds = new Collection([]);
             $ageFilterIds = new Collection([]);
             foreach ($filters['age'] as $age)
             {
@@ -454,12 +453,11 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
-            $profileIds = $profileIds->merge($ageFilterIds);
+            $profileIds = $ageFilterIds;
 
         }
         if(isset($filters['gender']))
         {
-            $profileIds = new Collection([]);
             $genderFilterIds = new Collection([]);
 
             foreach ($filters['gender'] as $gender)
@@ -472,7 +470,7 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
-            $profileIds = $profileIds->merge($genderFilterIds);
+            $profileIds = $genderFilterIds;
         }
 
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
