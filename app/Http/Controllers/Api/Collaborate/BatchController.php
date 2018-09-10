@@ -441,6 +441,7 @@ class BatchController extends Controller
         }
         if(isset($filters['age']))
         {
+            $profileIds = new Collection([]);
             $ageFilterIds = new Collection([]);
             foreach ($filters['age'] as $age)
             {
@@ -458,6 +459,7 @@ class BatchController extends Controller
         }
         if(isset($filters['gender']))
         {
+            $profileIds = new Collection([]);
             $genderFilterIds = new Collection([]);
 
             foreach ($filters['gender'] as $gender)
