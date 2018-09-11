@@ -68,7 +68,7 @@ class EventServiceProvider extends ServiceProvider
 
         'App\Events\ContentAnalysisEvent' => [
             'App\Listeners\ContentAnalysisListener',
-        ]
+        ],
         
 
     ];
