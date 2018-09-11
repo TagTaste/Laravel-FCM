@@ -103,6 +103,12 @@ class SettingController extends Controller
         $setting = Setting::getSetting($preference->setting_id,$info[0],$info[1]);
         if($type === 'unsubscribe')
         {
+            $reason_id = $request->input('reason_id');
+            if(is_null($reason_id) || !isset($reason_id))
+            {
+                return $this->sendError("Reason should be selected");
+            }
+            $model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reason_id, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
             $setting->{'email_value'} = 0;
             $setting->save();   
             return redirect(env('APP_URL')."/unsubscribed/?k=".$hash); 
