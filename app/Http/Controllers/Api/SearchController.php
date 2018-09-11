@@ -10,15 +10,16 @@ class SearchController extends Controller
 {
     //aliases added for frontend
     private $models = [
-        'collaborate'=> \App\Collaborate::class,
+        'collaborate'=> \App\Recipe\Collaborate::class,
+        'collaborates'=> \App\Recipe\Collaborate::class,
         'recipe' => \App\Recipe::class,
         'recipes' => \App\Recipe::class,
-        'profile' => \App\Profile::class,
-        'people' => \App\Profile::class,
-        'company' => \App\Company::class,
-        'companies' => \App\Company::class,
-        'job' => \App\Job::class,
-        'jobs' => \App\Job::class
+        'profile' => \App\Recipe\Profile::class,
+        'people' => \App\Recipe\Profile::class,
+        'company' => \App\Recipe\Company::class,
+        'companies' => \App\Recipe\Company::class,
+        'job' => \App\Recipe\Job::class,
+        'jobs' => \App\Recipe\Job::class
     ];
     
     private $filters = [
@@ -452,6 +453,245 @@ class SearchController extends Controller
         $this->messages = ['Nothing found.'];
         return $this->sendResponse();
     }
+
+    public function searchForApp(Request $request, $type = null)
+    {
+        $query = $request->input('q');
+        if(isset($query) && !is_null($query) && !empty($query)) {
+            $profileId = $request->user()->profile->id;
+            $params = [
+                'index' => "api",
+                'body' => [
+                    'query' => [
+                        'query_string' => [
+                            'query' => $query
+                        ]
+                    ]
+                ]
+            ];
+
+            $this->setType($type);
+
+            if($type){
+                $params['type'] = $type;
+            }
+            $client = SearchClient::get();
+
+            $response = $client->search($params);
+            $this->model = [];
+
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+            if($response['hits']['total'] > 0){
+                $hits = collect($response['hits']['hits']);
+                $hits = $hits->groupBy("_type");
+
+                foreach($hits as $name => $hit){
+                    $this->model[$name] = [];
+                    $ids = $hit->pluck('_id')->toArray();
+                    $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+
+                    $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                    $suggested = collect([]);
+                    if(!empty($suggestions)){
+                        $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                    }
+
+                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                }
+
+
+                if(isset($this->model['profile'])){
+//                $this->model['profile'] = $this->model['profile']->toArray();
+                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $profiles = $this->model['profile']->toArray();
+                    $this->model['profile'] = [];
+                    foreach($profiles as $profile){
+                        if($profile && isset($profile['id'])){
+                            $profile['isFollowing'] = in_array($profile['id'],$following);
+                        }
+                        $this->model['profile'][] = $profile;
+
+                    }
+                }
+
+                if(isset($this->model['company'])){
+//                $this->model['company'] = $this->model['company']->toArray();
+                    $companies = $this->model['company']->toArray();
+                    $this->model['company'] = [];
+                    foreach($companies as $company){
+                        $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                        $this->model['company'][] = $company;
+                    }
+                }
+
+//            if(isset($this->model['job']))
+//            {
+//                $jobs = $this->model['job'];
+//                $data = [];
+//                foreach($jobs as $job){
+//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
+//                }
+//                $this->model['job'] = $data;
+//            }
+
+                if(isset($this->model['recipe']))
+                {
+                    $recipes = $this->model['recipe'];
+                    $this->model['recipe'] = [];
+                    foreach($recipes as $recipe){
+                        $this->model['recipe'][] = $recipe;
+                    }
+
+                }
+
+                if(isset($this->model['collaborate']))
+                {
+                    $collaborates = $this->model['collaborate'];
+                    $this->model['collaborate'] = [];
+                    foreach($collaborates as $collaborate){
+                        $this->model['collaborate'][] = $collaborate;
+                    }
+
+                }
+
+                return $this->sendResponse();
+
+            }
+
+            $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+            $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+
+            if($suggestions && $suggestions->count()){
+//            if(!array_key_exists($type,$this->model)){
+//                $this->model[$type] = [];
+//            }
+                $this->model[$type] = $suggestions->toArray();
+            }
+
+            if(!empty($this->model)){
+                if(isset($this->model['profile'])){
+//                $this->model['profile'] = $this->model['profile']->toArray();
+                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $profiles = $this->model['profile'];
+                    $this->model['profile'] = [];
+                    foreach($profiles as $profile){
+                        if($profile && isset($profile['id'])){
+                            $profile['isFollowing'] = in_array($profile['id'],$following);
+                        }
+                        $this->model['profile'][] = $profile;
+
+                    }
+                }
+
+                if(isset($this->model['company'])){
+//                $this->model['company'] = $this->model['company']->toArray();
+                    $companies = $this->model['company'];
+                    $this->model['company'] = [];
+                    foreach($companies as $company){
+                        $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                        $this->model['company'][] = $company;
+                    }
+                }
+
+//            if(isset($this->model['job']))
+//            {
+//                $jobs = $this->model['job'];
+//                $data = [];
+//                foreach($jobs as $job){
+//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
+//                }
+//                $this->model['job'] = $data;
+//            }
+
+                if(isset($this->model['recipe']))
+                {
+                    $recipes = $this->model['recipe'];
+                    $this->model['recipe'] = [];
+                    foreach($recipes as $recipe){
+                        $this->model['recipe'][] = $recipe;
+                    }
+
+                }
+
+                if(isset($this->model['collaborate']))
+                {
+                    $collaborates = $this->model['collaborate'];
+                    $this->model['collaborate'] = [];
+                    foreach($collaborates as $collaborate){
+                        $this->model['collaborate'][] = $collaborate;
+                    }
+
+                }
+
+                return $this->sendResponse();
+            }
+        }
+        else {
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+            $this->model = [];
+            $profileId = $request->user()->profile->id;
+            $suggestions = $this->getModelsForApp($type,$skip,$take);
+            if ($suggestions && $suggestions->count()) {
+                $this->model[$type] = $suggestions->toArray();
+            }
+
+            if (!empty($this->model)) {
+                if (isset($this->model['profile'])) {
+//                $this->model['profile'] = $this->model['profile']->toArray();
+                    $following = \Redis::sMembers("following:profile:" . $profileId);
+                    $profiles = $this->model['profile'];
+                    $this->model['profile'] = [];
+                    foreach ($profiles as $profile) {
+                        if(is_null($profile))
+                            continue;
+                        if ($profile && isset($profile['id'])) {
+                            $profile['isFollowing'] = in_array($profile['id'], $following);
+                        }
+                        $this->model['profile'][] = $profile;
+
+                    }
+                }
+
+                if (isset($this->model['company'])) {
+//                $this->model['company'] = $this->model['company']->toArray();
+                    $companies = $this->model['company'];
+                    $this->model['company'] = [];
+                    foreach ($companies as $company) {
+                        if(is_null($company))
+                            continue;
+                        $company['isFollowing'] = Company::checkFollowing($profileId, $company['id']);
+                        $this->model['company'][] = $company;
+                    }
+                }
+            }
+        }
+
+
+        return $this->sendResponse();
+    }
+
+    private function getModelsForApp($type,$skip = null ,$take = null)
+    {
+        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
+
+        $model = $model::whereNull('deleted_at');
+
+        if($type == 'collaborate' || $type == 'collaborates' || $type == 'job' || $type == 'jobs')
+        {
+            $model = $model->orderBy("created_at","desc");
+        }
+
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
+        }
+
+        return $model->get();
+
+    }
+
 
 
 }

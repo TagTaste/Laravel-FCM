@@ -16,6 +16,7 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
+use App\Console\Commands\CapitalizeUserName;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
@@ -31,6 +32,7 @@ use App\Console\Commands\SetPlatformAndroid;
 use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\SettingChanges as SettingChanges;
 
 class Kernel extends ConsoleKernel
 {
@@ -54,7 +56,7 @@ class Kernel extends ConsoleKernel
         Collaboration::class,
         Job::class,
         Share::class,
-        
+        SettingChanges::class,
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
         \App\Console\Commands\Build\Search\Company::class,
@@ -150,7 +152,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Job::class,
         \App\Console\Commands\Build\Suggestion\SuggestionToDatabase\Collaborate::class,
 
-        FixCollaborateImage::class
+        FixCollaborateImage::class,
+        CapitalizeUserName::class
 
 
     ];
@@ -165,7 +168,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
-        $schedule->command('backup:db')->dailyAt('00:00');
+
+        $schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
 
         //command for redis store suggestion
         $schedule->command("build:suggestion:collaborate")->dailyAt('00:05');
@@ -177,7 +181,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->dailyAt('01:01');
         $schedule->command("build:suggestion:suggestiontodatabase:job")->dailyAt('02:01');
         $schedule->command("build:suggestion:suggestiontodatabase:company")->dailyAt('03:01');
-        $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('03:01');
+        $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('04:01');
 
     }
 

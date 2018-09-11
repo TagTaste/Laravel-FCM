@@ -68,19 +68,35 @@ class ShoutoutController extends Controller
         
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
-            $s3 = \Storage::disk('s3');
-            $filePath = 'p/' . $profile->id . "/si";
-            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-            if($resp){
-                \File::delete(storage_path($image));
+        if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
+
+            $key = "preview:" . sha1($inputs['preview']['url']);
+
+            if(!\Redis::exists($key)){
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                    $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $profile->id . "/si";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    if($resp){
+                        \File::delete(storage_path($image));
+                    }
+                    $inputs['preview']['image'] = $resp;
+                    $inputs['preview'] = json_encode($inputs['preview']);
+                }
+                else{
+                    $inputs['preview'] = null; 
+                }  
             }
-            $inputs['preview']['image'] = $resp;
-        }
-        if(isset($inputs['preview']))
-        {
-            $inputs['preview'] = json_encode($inputs['preview']);
+            else{
+                /***
+                 * THis url is already present in Redis
+                 */
+                            
+                $inputs['preview'] = \Redis::get($key);
+            }
+        }else{
+            $inputs['preview'] = null;
         }
 
         if($request->has('media_file'))
@@ -89,7 +105,7 @@ class ShoutoutController extends Controller
             $filename = $request->file('media_file')->getClientOriginalName();
             $filename = str_random(15).".".\File::extension($filename);
             $inputs['media_url'] = $request->file("media_file")->storeAs($path, $filename,['visibility'=>'public']);
-            $mediaJson =  $this->videoTranscoding($inputs['media_url']);
+            $mediaJson =  $this->videoTranscodingNew($inputs['media_url']);
             $mediaJson = json_decode($mediaJson,true);
             $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
             $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
@@ -132,6 +148,7 @@ class ShoutoutController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
+
 		$inputs = $request->all();
         $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
 
@@ -156,24 +173,35 @@ class ShoutoutController extends Controller
 
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
-        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-            $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
-            $s3 = \Storage::disk('s3');
-            $filePath = 'p/' . $profile->id . "/si";
-            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-            if($resp){
-                \File::delete(storage_path($image));
+    if (isset($inputs['preview']) && isset($inputs['preview']['url'])) {
+        
+        $key = "preview:" . sha1($inputs['preview']['url']);
+        if(!\Redis::exists($key)){
+            if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+                $s3 = \Storage::disk('s3');
+                $filePath = 'p/' . $profile->id . "/si";
+                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                if($resp){
+                    \File::delete(storage_path($image));
+                }
+                $inputs['preview']['image'] = $resp;
+                $inputs['preview'] = json_encode($inputs['preview']);
+            }   
+            else{
+                $input['preview'] = null;
             }
-            $inputs['preview']['image'] = $resp;
         }
-        if(isset($inputs['preview']))
-        {
-            $inputs['preview'] = json_encode($inputs['preview']);
+        else{
+            /***
+             * This url is already present in Redis
+             */
+            $inputs['preview'] = \Redis::get($key);
         }
-        else
-        {
-            $inputs['preview'] = null;
-        }
+    }
+    else{
+        $inputs['preview'] = null;
+    }
 
 		$this->model = $shoutout->update($inputs);
         $shoutout->addToCache();
@@ -257,8 +285,12 @@ class ShoutoutController extends Controller
         return "app/" . $path . $filename;
     }
 
-    private function videoTranscoding($url)
+    /**
+     * This function is execute our native video transcoder which direct to 
+     */
+    private function videoTranscodingNew($url)
     {
+        
         $profileId = request()->user()->profile->id;
         $curl = curl_init();
         $data = [

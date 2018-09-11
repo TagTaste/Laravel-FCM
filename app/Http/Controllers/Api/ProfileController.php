@@ -124,6 +124,7 @@ class ProfileController extends Controller
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
+            $name = ucwords($name);
             $request->user()->update(['name'=>trim($name)]);
         }
         
@@ -790,12 +791,12 @@ class ProfileController extends Controller
                 }
                 $otp = \DB::table('profiles')->where('id',$request->user()->profile->id)->first();
 
-                $otp = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
-                $text = $otp." is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
+                $otpNo = isset($otp->otp) && !is_null($otp->otp) ? $otp->otp : mt_rand(100000, 999999);
+                $text = $otpNo." is your One Time Password to verify your number with TagTaste. Valid for 5 min.";
                 $client = new Client();
                 $response = $client->get("http://193.105.74.159/api/v3/sendsms/plain?user=".env('SMS_KAP_USERNAME')."&password=".env('SMS_KAP_PASSWORD')."&sender=".env('SMS_KAP_TEMPLATEID')."&SMSText=$text&type=longsms&GSM=91$number");
 
-                $this->model = $profile->update(['otp'=>$otp]);
+                $this->model = $profile->update(['otp'=>$otpNo]);
 
                 $job = ((new PhoneVerify($number,$request->user()->profile))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));
                 dispatch($job);
@@ -811,7 +812,6 @@ class ProfileController extends Controller
                 $this->model->refresh();
                 //update filters
                 \App\Filter\Profile::addModel($this->model);
-
 
             } catch(\Exception $e){
                 \Log::error($e->getMessage() . " " . $e->getFile() . " " . $e->getLine());
@@ -833,5 +833,29 @@ class ProfileController extends Controller
         }
         return $this->sendResponse();
 
+    }
+
+    public function followFbFriends(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $loggedInUserProviderId = $request->input('loggedin_provider_user_id');
+        $userExist = \DB::table('social_accounts')->where('provider_user_id',$loggedInUserProviderId)
+            ->where('user_id',$request->user()->id)->first();
+
+        if(!isset($userExist))
+        {
+            return $this->sendError("The Facebook account you are trying to connect seems to be a different one, 
+            please make sure you are logged in with your own Facebook account.");
+        }
+        $usersProviderIds = $request->input('provider_user_id');
+        $user_ids = \DB::table('social_accounts')->whereIn('provider_user_id',$usersProviderIds)->get()->pluck('user_id');
+        //dd($profile_ids);
+        $profiles = \App\Recipe\Profile::whereIn('user_id',$user_ids)->get();
+        foreach ($profiles as &$profile)
+        {
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+        }
+        $this->model = $profiles;
+        return $this->sendResponse();
     }
 }

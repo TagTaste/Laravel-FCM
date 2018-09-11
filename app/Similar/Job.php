@@ -10,7 +10,7 @@ class Job extends BaseJob
     
     public function similar($skip,$take)
     {
-        return self::where('location','like',$this->location)->where('id','!=',$this->id)->whereNull('deleted_at')->skip($skip)
+        return self::where('id','!=',$this->id)->whereNull('deleted_at')->skip($skip)
             ->take($take)
             ->get();
     }
