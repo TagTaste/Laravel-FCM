@@ -252,10 +252,21 @@ class CollaborateController extends Controller
 
     public function approve(Request $request, $profileId, $id)
     {
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $collaborate = $this->model->where('id', $id)->first();
 
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
+        }
+
+        if(isset($collaborate->company_id) && !is_null($collaborate->company_id))
+        {
+            $checkAdmin = \DB::table('company_users')
+                ->where('company_id',$collaborate->company_id)->where('user_id',request()->user()->id)->exists();
+
+            if(!$checkAdmin)
+            {
+                return $this->sendError( "Collaboration not found.");
+            }
         }
 
         if ($request->has('company_id')) {
@@ -280,10 +291,21 @@ class CollaborateController extends Controller
 
     public function reject(Request $request, $profileId, $id)
     {
-        $collaborate = $this->model->where('profile_id', $profileId)->where('id', $id)->first();
+        $collaborate = $this->model->where('id', $id)->first();
 
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
+        }
+
+        if(isset($collaborate->company_id) && !is_null($collaborate->company_id))
+        {
+            $checkAdmin = \DB::table('company_users')
+                ->where('company_id',$collaborate->company_id)->where('user_id',request()->user()->id)->exists();
+
+            if(!$checkAdmin)
+            {
+                return $this->sendError( "Collaboration not found.");
+            }
         }
 
         if ($request->has('company_id')) {
