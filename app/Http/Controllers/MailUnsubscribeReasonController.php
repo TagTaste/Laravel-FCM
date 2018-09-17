@@ -18,13 +18,13 @@ class MailUnsubscribeReasonController extends Controller
     public function store(Request $request)
     {
     	$input = $request->all();
-    	$count = \DB::table('unsubscribe_reasons')->where('reason',$input['reason'])->count();
-    	if($count === 0)
+    	$exist = \DB::table('unsubscribe_reasons')->where('reason',$input['reason'])->exists();
+    	if(!$exist)
     	{
     		$this->model = \DB::table('unsubscribe_reasons')->insert($input);
     		return 1;	
     	}
-    	return 0;
+    	return $this->sendError("Reason already stored");
     	
     }
 }
