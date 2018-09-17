@@ -9,83 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 class SettingController extends Controller
 {
     //
-    public function getSettings($profileId, Request $request)
-    {
-        $hash = $request->input('k');
-    	$profile_id = $profileId;
-    	$profile = \App\Profile::where('id',$profile_id)->with('user')->first();
-    	$email = $profile['user']['email'];
-    	if($hashKey === Hash::make($profile_id.$email))
-    	{
-    		$models = Setting::getAllSettings($profile_id);
-        	$this->model = $this->formatData($models);	
-    	}
-        return $this->model;
-    }
-    private function formatData($models) : array {
-
-        $data = [];
-        $types = ['email', 'bell', 'push'];
-
-        foreach ($models as $m) {
-            foreach ($types as $type) {
-                if($m->{$type.'_visibility'} == 0) continue;
-                $data[$type][$m->group_name][] = [
-                    'id' => $m->id,
-                    'title' => $m->title,
-                    'description' => $m->{$type.'_description'},
-                    'active' => $m->{$type.'_active'} ? true : false,
-                    'value' => $m->{$type.'_value'} ? true : false,
-                ];
-
-            }
-        }
-
-        $settingModels = [];
-        foreach ($types as $type) {
-            $groups = [];
-            foreach ($data[$type] as $key => $items) {
-                $groups[] = ['group_name' => $key, 'items' => $items];
-            }
-            $settingModels[$type] = $groups;
-        }
-
-        return $settingModels;
-
-    }
-
-    public function store(Request $request)
-    {
-        /// request schema
-        /// company_id = int (nullable)
-        /// setting_id = int (required)
-        /// type = {bell, push, email} (required)
-        /// value = {true, false} (required)
-
-        $input = $request->all();
-        $profile_id = $request->input('profile_id');
-        $company_id = null;
-
-        if(isset($input['company_id'])) {
-            $company_id = $input['company_id'];
-            $checkAdmin = CompanyUser::checkAdmin($profile_id, $company_id);
-            if(!$checkAdmin) {
-                return response()->json(['data' => null, 'errors' => ["User does not belong to this company."], 'messages' => null],401);
-            }
-        }
-
-        $setting = Setting::getSetting($input['setting_id'],$profile_id,$company_id);
-        if(is_null($setting)) {
-            $this->addError('Setting does not exists');
-            return $this->sendResponse();
-        }
-        $setting->{$input['type'].'_value'} = !!$input['value'];
-        $setting->save();
-
-        $this->model = true;
-
-        return 1;
-    }
+    
     public function updateSetting($type, Request $request)
     {
         $hash = $request->input('k');
@@ -121,7 +45,7 @@ class SettingController extends Controller
         }
         else
         {
-            return $this->error("undefined type");
+            return $this->sendError("undefined type");
         }
         
         
