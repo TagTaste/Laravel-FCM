@@ -81,6 +81,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     //authenticated routes.
         Route::middleware(['api.auth','optimizeImages'])->group(function(){
             Route::post('/user/fcmToken',['uses'=>'UserController@fcmToken']);
+            Route::post('/user/device/info',['uses'=>'UserController@getApkDeviceInfo']);
             Route::post('/user/feedIssue',['uses'=>'UserController@feedIssue']);
             Route::post('/logout','UserController@logout');
             Route::post('/user/verify/phone','UserController@phoneVerify');
@@ -103,6 +104,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("photos","PhotoController");
                     Route::resource("collaborate","CollaborateController");
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                        Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
+                        Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                         Route::resource("collaborate","CollaborateController");
                     });
 
@@ -201,6 +204,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             
             //collaborate
                 //collaborate categories
+                Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
                 Route::resource("collaborate/categories","CollaborateCategoryController");
                 Route::get('collaborate/types',"CollaborateController@types");
                 Route::get('batchesColor',"CollaborateController@batchesColor");
@@ -211,6 +215,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         
                 //collaborates shortlist
                     Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
+
                     Route::post("collaborate/{id}/shortlist","CollaborateController@shortlist");
 
             //collaborate
@@ -226,10 +231,23 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("collaborate","CollaborateController");
 
 
+                    //product review related api
 
                     Route::get("userBatches","CollaborateController@userBatches");
                     Route::post("seenBatchesList","CollaborateController@seenBatchesList");
-                Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
+                    Route::get("tastingMethodology","CollaborateController@tastingMethodology");
+                    Route::get("profilesOccupations","CollaborateController@profilesJobs");
+                    Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("profilesAllergens","CollaborateController@profilesAllergens");
+                    Route::post("uploadGlobalNestedOption","CollaborateController@uploadGlobalNestedOption");
+                    Route::post("uploadGlobalQuestion","CollaborateController@uploadGlobalQuestion");
+                    Route::get("globalQuestion/{id}","CollaborateController@globalQuestionParticular");
+                    Route::get("globalQuestion","CollaborateController@globalQuestion");
+                    Route::get("getCities","CollaborateController@getCities");
+                    Route::post("addCities","CollaborateController@addCities");
+
+
+            Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){
                 Route::get("userBatches",'BatchController@userBatches');
                 Route::post("beginTasting",'BatchController@beginTasting');
                 Route::get("batches/{id}/currentStatus",'BatchController@getCurrentStatus');
@@ -243,6 +261,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                     //filter for dashboard of product review
                 Route::get("dashboard/filters","BatchController@filters");
+                Route::get("batches/hutCsv","BatchController@allHutCsv");
+                Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
 
                 Route::resource('batches','BatchController');
                 Route::post('shortlistPeople','ApplicantController@shortlistPeople');
@@ -521,135 +541,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("education")
-                ->select(\DB::raw('COUNT(*) as count, college'))
-                ->groupBy("college")
-                ->get();
-
-                // ->select("education.profile_id as profile_id", "users.name as name","users.email as email","profiles.phone as phoneNo")
-                //     ->join('profiles','profiles.id','=','education.profile_id')
-                //     ->join('users','users.id','=','profiles.user_id')
-                //     ->where('education.ongoing','=',1)
-                //     ->orWhere('education.end_date','like','%2018%')
-                //     ->whereNull('profiles.deleted_at')
-                //     ->groupBy('profiles.id')
-                //     ->get();
+                $studentDetail = \DB::table("users")->join('profiles','users.id','=','profiles.user_id')->
+                    select('profiles.id','users.name','users.email','profiles.gender')->whereNull('profiles.deleted_at')->get();
                    
                 $headers = array(
                     "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_colleges.csv",
+                    "Content-Disposition" => "attachment; filename=users_name_gender.csv",
                     "Pragma" => "no-cache",
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
         
-                $columns = array('count','college');
-        
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
-                    }
-                    $str = $str."\n";
-                }
-       
-                return response($str, 200, $headers);
-        
-            });
-
-
-            Route::get("csv/designation",function (Request $request){
-                $this->model = [];
-                $studentDetail = \DB::table("experiences")
-                ->select(\DB::raw('COUNT(*) as count, designation, GROUP_CONCAT(company) as companies'))
-                ->orderBy("designation","desc")
-                ->groupBy("designation")
-                ->get();
-                   
-                $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_designations.csv",
-                    "Pragma" => "no-cache",
-                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-                    "Expires" => "0"
-                );
-        
-                $columns = array('count','designation','companies');
-        
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
-                    }
-                    $str = $str."\n";
-                }
-       
-                return response($str, 200, $headers);
-        
-            });
-
-            Route::get("csv/language",function (Request $request){
-                $this->model = [];
-                $studentDetail = \DB::table("profile_filters")
-                ->select(\DB::raw('COUNT(*) as count, value as language'))
-                ->where('key','=','language')
-                ->groupBy("value")
-                ->get();
-                   
-                $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_language.csv",
-                    "Pragma" => "no-cache",
-                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-                    "Expires" => "0"
-                );
-        
-                $columns = array('count','language');
-        
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
-                    }
-                    $str = $str."\n";
-                }
-       
-                return response($str, 200, $headers);
-        
-            });
-
-            Route::get("csv/skill",function (Request $request){
-                $this->model = [];
-                $studentDetail = \DB::table("profile_filters")
-                ->select(\DB::raw('COUNT(*) as count, value as skill'))
-                ->where('key','=','skills')
-                ->groupBy("value")
-                ->get();
-                   
-                $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=file_skills.csv",
-                    "Pragma" => "no-cache",
-                    "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-                    "Expires" => "0"
-                );
-        
-                $columns = array('count','skill');
+                $columns = array('id','name','email','gender');
         
                 $str = '';
                 foreach ($columns as $c) {

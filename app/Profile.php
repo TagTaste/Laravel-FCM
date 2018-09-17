@@ -27,8 +27,8 @@ class Profile extends Model
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
-        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress'
-    ];
+        'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress',
+        'profile_occupations', 'profile_specializations'];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
@@ -38,9 +38,8 @@ class Profile extends Model
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
-        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress'
-
-    ];
+        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
+        'profile_occupations', 'profile_specializations','is_veteran','is_expert'];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','address','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
@@ -50,6 +49,8 @@ class Profile extends Model
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
     private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
+
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','about','verified_phone','profile_occupations'];
 
     public static function boot()
     {
@@ -728,7 +729,6 @@ class Profile extends Model
     public function getAddressAttribute($value)
     {
         if (!empty($value)) {
-
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
@@ -855,6 +855,7 @@ class Profile extends Model
         {
             $remaningMandatoryItem = [];
             $remaningOptionalItem = [];
+            $profileCompletionMandatoryFieldForCollaborationApply = [];
             $index = 0;
             if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
             {
@@ -879,11 +880,19 @@ class Profile extends Model
                     $remaningOptionalItem[] = $item;
                 }
             }
+            foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
+            {
+                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count($this->{$item}) == 0)
+                {
+                    $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
+                }
+            }
             $percentage = ((30 - $index) / 30 ) * 100;
             $profileCompletion = [
                 'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
                 'mandatory_remaining_field' => $remaningMandatoryItem,
-                'optional_remaining_field' => $remaningOptionalItem
+                'optional_remaining_field' => $remaningOptionalItem,
+                'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
             ];
 
             return $profileCompletion;
@@ -906,5 +915,14 @@ class Profile extends Model
         return $this->hasMany('App\Profile\ShippingAddress');
     }
 
+    public function profile_specializations()
+    {
+        return $this->hasMany('App\Profile\Specialization');
+    }
+
+    public function profile_occupations()
+    {
+        return $this->hasMany('App\Profile\Occupation');
+    }
 }
 

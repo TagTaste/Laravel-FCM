@@ -21,11 +21,14 @@ class Collaborate extends Model implements Feedable
         'profile_id', 'company_id','template_fields','template_id',
         'notify','privacy_id','file1','deliverables','start_in','state','deleted_at',
         'created_at','updated_at','category_id','step','financial_min','financial_max',
-        'type_id','images','collaborate_type','is_taster_residence','allergens','product_review_meta'];
+        'type_id','images','collaborate_type','is_taster_residence','product_review_meta',
+        'methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement',
+        'brand_name','brand_logo','no_of_batches','global_question_id','taster_instruction'];
 
-    protected $with = ['profile','company','fields','categories','addresses'];
+    protected $with = ['profile','company','fields','categories','addresses','collaborate_occupations',
+        'collaborate_specializations','collaborate_allergens'];
 
-    static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved=4 5 = close
+    static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
     protected $visible = ['id','title', 'i_am', 'looking_for',
         'expires_on','video','location','categories',
@@ -35,9 +38,11 @@ class Collaborate extends Model implements Feedable
         'profile','company','created_at','deleted_at',
         'applicationCount','file1','deliverables','start_in','state','updated_at','images',
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
-        'is_taster_residence','allergens','product_review_meta'];
+        'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
+        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction'];
 
-    protected $appends = ['applicationCount','type','product_review_meta'];
+    protected $appends = ['applicationCount','type','product_review_meta','age_group','gender_ratio','tasting_methodology'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -152,14 +157,14 @@ class Collaborate extends Model implements Feedable
     {
         $approvedOn = Carbon::now()->toDateTimeString();
         return Applicant::where('collaborate_id',$this->id)->where('profile_id',$profile->id)
-            ->whereNull('company_id')->update(['rejected_at'=>$approvedOn]);
+            ->whereNull('company_id')->update(['rejected_at'=>$approvedOn,'shortlisted_at'=>null]);
     }
     
     public function rejectCompany(Company $company)
     {
         $approvedOn = Carbon::now()->toDateTimeString();
         return Applicant::where('collaborate_id',$this->id)->where('company_id',$company->id)
-            ->update(['rejected_at'=>$approvedOn]);
+            ->update(['rejected_at'=>$approvedOn,'shortlisted_at'=>null]);
         }
     
     public function comments()
@@ -423,6 +428,7 @@ class Collaborate extends Model implements Feedable
         $data['ogImage'] = isset($images[0]) ? $images[0]:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
         $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/collaborate/'.$this->id;
+        $data['collaborate_type'] = $this->collaborate_type; 
 
         return $data;
 
@@ -451,7 +457,7 @@ class Collaborate extends Model implements Feedable
             case 3:
                 return 'Expired';
                 break;
-            case 3:
+            case 4:
                 return 'Save';
                 break;
             default:
@@ -473,10 +479,10 @@ class Collaborate extends Model implements Feedable
     public function getProductReviewMetaAttribute()
     {
         $meta = [];
-        if($this->collaborate_type == 'product-review')
+        if($this->collaborate_type == 'product-review' && isset(request()->user()->profile->id))
         {
             $meta['is_invited'] = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->where('profile_id',request()->user()->profile->id)
-                ->where('is_invited',1)->whereNull('rejected_at')->exists();
+                ->where('is_invited',1)->exists();
             $meta['has_batch_assign'] = \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
                 ->where('profile_id',request()->user()->profile->id)->where('begin_tasting',1)->exists();
             $batchIds =  \DB::table('collaborate_batches_assign')->where('collaborate_id',$this->id)
@@ -496,6 +502,36 @@ class Collaborate extends Model implements Feedable
         }
         return null;
 
+    }
+
+    public function getTastingMethodologyAttribute()
+    {
+        return isset($this->methodology_id) && !is_null($this->methodology_id) ? \DB::table('collaborate_tasting_methodology')->where('id',$this->methodology_id)->first() : null;
+    }
+
+    public function collaborate_specializations()
+    {
+        return $this->hasMany('App\Collaborate\Specialization');
+    }
+
+    public function collaborate_occupations()
+    {
+        return $this->hasMany('App\Collaborate\Occupation');
+    }
+
+    public function collaborate_allergens()
+    {
+        return $this->hasMany('App\Collaborate\Allergens');
+    }
+
+    public function getAgeGroupAttribute($value)
+    {
+        return !is_null($value) ? json_decode($value) : null;
+    }
+
+    public function getGenderRatioAttribute($value)
+    {
+        return !is_null($value) ? json_decode($value) : null;
     }
 
 }

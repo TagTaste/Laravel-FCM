@@ -16,12 +16,12 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
-use App\Console\Commands\CollaborateApplicantFieldFilled;
+use App\Console\Commands\CloseCollaborate;
 use App\Console\Commands\CollaborationQuestions;
+use App\Console\Commands\CapitalizeUserName;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
-use App\Console\Commands\fixKeywords;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -30,6 +30,7 @@ use App\Console\Commands\RemoveNullFcmTokens;
 use App\Console\Commands\RemoveSpecialCharsHandle;
 use App\Console\Commands\ServiceInterruption;
 use App\Console\Commands\SetPlatformAndroid;
+use App\Console\Commands\ShoutoutPreviewUpdate;
 use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -69,7 +70,7 @@ class Kernel extends ConsoleKernel
             //Collab
             \App\Console\Commands\Build\Meta\Collaboration\CountApplications::class,
             
-            //Job
+            //Occupation
             \App\Console\Commands\Build\Meta\Job\CountApplications::class,
         
             //Likes
@@ -163,6 +164,16 @@ class Kernel extends ConsoleKernel
 
 
         \App\Console\Commands\MergeCollaborators::class,
+        CapitalizeUserName::class,
+
+        //update shutout preview
+
+        ShoutoutPreviewUpdate::class,
+
+        \App\Console\Commands\InsertGlobalQuestion::class,
+
+        \App\Console\Commands\UpdateGlobalQuestion::class,
+        CloseCollaborate::class
 
 
     ];

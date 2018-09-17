@@ -30,17 +30,17 @@ class ReviewController extends Controller
         $batchId = $request->input('batch_id');
         if(!$request->has('batch_id'))
         {
-            return $this->sendError("No sample id found");
+            return $this->sendError("No prodcut id found");
         }
         $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
 
         if(!$checkAssign)
         {
-            return $this->sendError("Wrong sample assigned");
+            return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
-        Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
+        $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
         if(count($answers))
@@ -76,11 +76,6 @@ class ReviewController extends Controller
                 \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
             }
-        }
-        else
-        {
-            $this->model = false;
-
         }
         return $this->sendResponse();
     }

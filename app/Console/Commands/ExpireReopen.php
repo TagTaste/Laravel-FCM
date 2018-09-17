@@ -74,7 +74,7 @@ class ExpireReopen extends Command
             }
         });
 
-        $collabIds = [465];
+        $collabIds = [218];
         \DB::table("collaborates")->whereIn('id',$collabIds)->orderBy('id')->chunk(100,function($models){
             foreach($models as $model){
                 $profile = \App\Profile::find($model->profile_id);

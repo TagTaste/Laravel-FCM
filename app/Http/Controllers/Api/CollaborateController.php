@@ -6,6 +6,7 @@ use App\Collaborate;
 use App\CompanyUser;
 use App\Events\Actions\Like;
 use App\PeopleLike;
+use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -41,7 +42,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->where('state',1)->whereNull('deleted_at')->orderBy("created_at","desc");
+		$collaborations = $this->model->where('state',Collaborate::$state[0])->whereNull('deleted_at')->orderBy("created_at","desc");
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
@@ -142,9 +143,10 @@ class CollaborateController extends Controller
                 ->updateExistingPivot($companyId,
                     [
                         'created_at'=>Carbon::now()->toDateTimeString(),
+                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
                         'message' => $request->input("message"),
-                        'profile_id' => $request->input('profile_id')
+                        'profile_id' => $request->user()->profile->id
                     ]);
 
             $company = \Redis::get('company:small:' . $companyId);
@@ -182,7 +184,8 @@ class CollaborateController extends Controller
                     [
                         'created_at'=>Carbon::now()->toDateTimeString(),
                         //'template_values' => json_encode($request->input('fields')),
-                        'message' => $request->input("message")
+                        'message' => $request->input("message"),
+                        'shortlisted_at'=>Carbon::now()->toDateTimeString(),
                     ]);
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
@@ -359,7 +362,7 @@ class CollaborateController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 	    $archived = \App\Collaborate\Applicant::join('profiles','collaborate_applicants.profile_id','=','profiles.id')
             ->whereNotNull('collaborate_applicants.rejected_at')->whereNull('profiles.deleted_at')
-            ->where('collaborate_id',$id)->with('profile','collaborate','company');
+            ->where('collaborate_id',$id)->with('profile','company');
         $this->model['count'] = $archived->count();
         $this->model['archived'] = $archived->skip($skip)->take($take)->get();
         return $this->sendResponse();
@@ -413,14 +416,19 @@ class CollaborateController extends Controller
                     $batchId = "batch:".$batchId;
                 }
                 $batchInfos = \Redis::mGet($batchIds);
+                $batches = [];
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
                     $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                    if($currentStatus != 0)
+                    {
+                        $batches[] = $batchInfo;
+                    }
                 }
             }
-            $collaborate['batches'] = $count > 0 ? $batchInfos : [];
+            $collaborate['batches'] = $count > 0 ? $batches : [];
         }
         $this->model = $collaborates;
 
@@ -436,5 +444,156 @@ class CollaborateController extends Controller
         $this->model = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->update(['last_seen'=>$now]);
         return $this->sendResponse();
 
+    }
+
+    public function tastingMethodology()
+    {
+        $this->model = \DB::table('collaborate_tasting_methodology')->get();
+        return $this->sendResponse();
+    }
+
+    public function profilesJobs()
+    {
+        $this->model = \DB::table('occupations')->get();
+        return $this->sendResponse();
+    }
+
+    public function profilesSpecialization()
+    {
+        $this->model = \DB::table('specializations')->get();
+        return $this->sendResponse();
+    }
+
+    public function globalQuestion(Request $request)
+    {
+        $this->model = \DB::table('global_questions')->get();
+        return $this->sendResponse();
+    }
+
+    public function globalQuestionParticular(Request $request,$id)
+    {
+        $this->model = \DB::table('global_questions')->where('id',$id)->get();
+        return $this->sendResponse();
+    }
+
+    public function profilesAllergens()
+    {
+        $this->model = \DB::table('allergens')->get();
+        return $this->sendResponse();
+    }
+
+    public function getCities(Request $request)
+    {
+        $this->model = \DB::table('cities')->where('is_active',1)->get();
+        return $this->sendResponse();
+    }
+
+    public function addCities(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/city";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $cities = [];
+        foreach ($data as $item)
+        {
+
+            foreach ($item as $datum)
+            {
+                if(is_null($datum))
+                    break;
+                if(isset($datum['selected']))
+                {
+                    if($datum['selected'] == 'Yes')
+                        $cities[] = ['city'=>$datum['city'],'state'=>$datum['state'],'region'=>$datum['region'],'is_active'=>1];
+                    else
+                        $cities[] = ['city'=>$datum['city'],'state'=>$datum['state'],'region'=>$datum['region'],'is_active'=>0];
+                }
+
+            }
+        }
+        $this->model = \DB::table('cities')->insert($cities);
+        return $this->sendResponse();
+    }
+
+    public function uploadGlobalQuestion(Request $request)
+    {
+        $name = $request->input('name');
+        $keywords = $request->input('keywords');
+        $description = $request->input('description');
+        $questions = $request->input('question_json');
+        $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions];
+        $this->model = \DB::table('global_questions')->insert($data);
+        return $this->sendResponse();
+    }
+
+    public function mandatoryField(Request $request,$type)
+    {
+        if($type == 'product-review')
+            $this->model = $request->user()->profile->getProfileCompletionAttribute();
+        else
+            $this->model = [];
+        return $this->sendResponse();
+    }
+
+    public function uploadGlobalNestedOption(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/collaborate/global/nested/option";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $questions = [];
+        $extra = [];
+        foreach ($data as $item)
+        {
+
+            foreach ($item as $datum)
+            {
+                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+                    break;
+                $extra[] = $datum;
+                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
+                $active = isset($datum['is_active']) ? $datum['is_active'] : 1;
+                $questions[] = ["s_no"=>$datum['sequence_id'],'parent_id'=>$parentId,'value'=>$datum['categories'],'type'=>'AROMA','is_active'=>$active];
+            }
+        }
+        \Log::info($questions);
+//        $this->model = \DB::table('global_nested_option')->insert($questions);
     }
 }

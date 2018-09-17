@@ -19,7 +19,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
      */
 
     protected $header = [];
-    protected $signature = 'Collaboration:Question {id}';
+    protected $signature = 'Collaboration:Question {id} {global_question_id}';
 
     /**
      * The console command description.
@@ -45,21 +45,21 @@ class CollaborationQuestions extends Command implements ShouldQueue
     public function handle()
     {
         $id = $this->argument('id');
-        $questions = \DB::table('global_questions')->where('id',3)->first();
+        $collaborateId = $id;
+        $globalQuestionId = $this->argument('global_question_id');
+        $questions = \DB::table('global_questions')->where('id',$globalQuestionId)->first();
+        $data = $questions->header_info;
         $questions = $questions->question_json;
         $questions = json_decode($questions,true);
-        $data = [];
-        $data[] = ['header_type'=>'INSTRUCTION','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'APPEARANCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'AROMA','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'TASTE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'AROMATICS','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the '];
-        $data[] = ['header_type'=>'TEXTURE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
-        $data[] = ['header_type'=>'OVERALL PREFERENCE','is_active'=>1,'collaborate_id'=>$id,'header_info'=>'In information technology, header refers to supplemental data placed at the beginning of a block of data being stored or transmitted. In data transmission, the data following the header are sometimes called the payload or body.'];
+        $data = json_decode($data,true);
+        $header = [];
+        foreach ($data as &$datum)
+        {
+            $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
+            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$headerInfo,'collaborate_id'=>$collaborateId];
+        }
 
-
-        $this->model = Collaborate\ReviewHeader::insert($data);
-        $collaborateId = $id;
+        Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
         {
             $data = [];
@@ -70,7 +70,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
             {
                 $subtitle = isset($item['subtitle']) ? $item['subtitle'] : null;
                 $subquestions = isset($item['question']) ? $item['question'] : [];
-                $isNested = isset($item['is_nested']) && $item['is_nested'] == 1 ? 1 : 0;
+                $isNested = isset($item['is_nested_question']) && $item['is_nested_question'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
                 $option = isset($item['option']) ? $item['option'] : null;
                 $value = explode(',',$option);
@@ -88,25 +88,46 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 if(count($option))
                     $item['option'] = $option;
                 unset($item['question']);
-                $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
+                $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
 
                 $x = Collaborate\Questions::create($data);
 
                 $nestedOption = json_decode($x->questions);
                 $extraQuestion = [];
-                if(isset($nestedOption->nested_option))
+                if(isset($nestedOption->is_nested_option))
                 {
-                    if($nestedOption->nested_option)
+                    if($nestedOption->is_nested_option)
                     {
-                        $extra = \Db::table('global_nested_option')->where('type','=','Aroma')->get();
-                        foreach ($extra as $nested)
+
+                        if(isset($nestedOption->nested_option_list))
                         {
-                            $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
-                            $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>1,
-                                'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
+                            echo $nestedOption->nested_option_list;
+                            $extra = \Db::table('global_nested_option')->where('type','like',$nestedOption->nested_option_list)->get();
+                            foreach ($extra as $nested)
+                            {
+                                $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
+                                $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>1,
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
+                            }
                         }
-                        $this->model = \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
+                        else if(isset($nestedOption->nested_option_array))
+                        {
+                            $extra = $nestedOption->nested_option_array;
+                            foreach ($extra as $nested)
+                            {
+                                $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
+                                $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId];
+                            }
+                        }
+                        else
+                        {
+                            echo "something wrong in nested option value";
+                            return 0;
+                        }
+                        print_r($extraQuestion);
+                        \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
 
                         $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
@@ -126,7 +147,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             if($checknested)
                             {
                                 \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                    ->where('id',$question->id)->update(['nested_option'=>1]);
+                                    ->where('id',$question->id)->update(['is_nested_option'=>1]);
                             }
                             $getPath = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->where('parent_id',$question->sequence_id)->get()->pluck('id');
@@ -148,7 +169,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 foreach ($subquestions as $subquestion)
                 {
                     $subtitle = isset($subquestion['subtitle']) ? $subquestion['subtitle'] : null;
-                    $isNested = isset($subquestion['is_nested']) && $subquestion['is_nested'] == 1 ? 1 : 0;
+                    $isNested = isset($subquestion['is_nested_question']) && $subquestion['is_nested_question'] == 1 ? 1 : 0;
                     $isMandatory = isset($subquestion['is_mandatory']) && $subquestion['is_mandatory'] == 1 ? 1 : 0;
                     // for sub questions
                     $option = isset($subquestion['option']) ? $subquestion['option'] : null;
@@ -167,8 +188,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     if(count($option))
                         $subquestion['option'] = $option;
                     unset($subquestion['question']);
-                    $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
-                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
+                    $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
+                        'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active'=>1,'collaborate_id'=>$collaborateId];
                     Collaborate\Questions::create($subData);
 
                 }

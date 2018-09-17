@@ -132,6 +132,7 @@ class ShoutoutController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
+
 		$inputs = $request->all();
         $shoutout = $this->model->where('id',$id)->whereNull('deleted_at')->first();
 
@@ -174,7 +175,6 @@ class ShoutoutController extends Controller
         {
             $inputs['preview'] = null;
         }
-
 		$this->model = $shoutout->update($inputs);
         $shoutout->addToCache();
 

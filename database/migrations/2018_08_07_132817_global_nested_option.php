@@ -20,6 +20,7 @@ class GlobalNestedOption extends Migration
             $table->integer('s_no');
             $table->integer('parent_id')->nullable();
             $table->string('value')->nullable();
+            $table->boolean('is_active');
             $table->timestamps();
         });
     }

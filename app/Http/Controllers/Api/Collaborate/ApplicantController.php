@@ -2,6 +2,7 @@
 
 use App\Collaborate;
 use App\CompanyUser;
+use App\Recipe\Company;
 use App\Recipe\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -98,7 +99,7 @@ class ApplicantController extends Controller
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
         }
-        $isInvited = $request->input(['is_invited']);
+        $isInvited = 0;
         $now = Carbon::now()->toDateTimeString();
         if(!$request->has('applier_address'))
         {
@@ -120,28 +121,6 @@ class ApplicantController extends Controller
             $inputs = ['is_invite'=>$isInvited,'profile_id'=>$loggedInprofileId,'collaborate_id'=>$collaborateId,
                 'message'=>$request->input('message'),'applier_address'=>$applierAddress,'hut'=>$hut,
                 'shortlisted_at'=>$now,'city'=>$city,'age_group'=>$profile->ageRange,'gender'=>$profile->gender];
-        }
-        else
-        {
-            if(!$request->has('profile_id'))
-            {
-                return $this->sendError("Please select user for invitation");
-            }
-            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$request->user()->profile->id)->exists();
-            if(!$checkUser){
-                return $this->sendError("You are not admin.");
-            }
-            if($request->user()->profile->id == $request->input('profile_id'))
-            {
-                return $this->sendError("You can not invite admins of company");
-            }
-            $checkApplicant = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('profile_id',$request->input('profile_id'))
-                ->whereNotNull('shortlisted_at')->exists();
-            if($checkApplicant)
-            {
-                return $this->sendError("Already Invited");
-            }
-            $inputs = ['is_invite'=>$isInvited,'profile_id'=>$request->input('profile_id'),'collaborate_id'=>$collaborateId,'shortlisted_at'=>$now];
         }
         $this->model = $this->model->create($inputs);
 
@@ -282,7 +261,7 @@ class ApplicantController extends Controller
         $now = Carbon::now()->toDateTimeString();
 
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)
-            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>null,'rejected_at'=>null]);
+            ->whereIn('profile_id',$shortlistedProfiles)->update(['shortlisted_at'=>$now,'rejected_at'=>null]);
 
         return $this->sendResponse();
     }
@@ -351,8 +330,7 @@ class ApplicantController extends Controller
         {
             return $this->sendError("Already Invited");
         }
-        $company = \Redis::get('company:small:' . $collaborate->company_id);
-        $company = json_decode($company);
+        $company = Company::where('id',$collaborate->company_id)->first();
         $now = Carbon::now()->toDateTimeString();
         foreach ($profileIds as $profileId)
         {
@@ -390,8 +368,7 @@ class ApplicantController extends Controller
 
         if($this->model)
         {
-            $company = \Redis::get('company:small:' . $collaborate->company_id);
-            $company = json_decode($company);
+            $company = Company::where('id',$collaborate->company_id)->first();
             $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
             foreach ($profileIds as $profileId)
             {
@@ -416,8 +393,7 @@ class ApplicantController extends Controller
 
         if($this->model)
         {
-            $company = \Redis::get('company:small:' . $collaborate->company_id);
-            $company = json_decode($company);
+            $company = Company::where('id',$collaborate->company_id)->first();
             $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
             foreach ($profileIds as $profileId)
             {
@@ -456,30 +432,19 @@ class ApplicantController extends Controller
     {
         $batchId = (int)$request->input("batch_id");
         $this->model = [];
+        $page = $request->input('page');
+        if(!is_null($page) && $page >1)
+        {
+            return $this->sendResponse();
+        }
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('collaborate_id',$collaborateId)->get()->pluck('profile_id')->unique();
-        $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->whereNotNull('shortlisted_at')->get()->pluck('profile_id')->unique();
-        $profileIds = $profileIds->toArray();
-        $this->model['count'] = count($profileIds);
-        $page = $request->has('page') ? $request->input('page') : 1;
-        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20);
-        $data = [];
-        foreach ($profileIds as &$profileId)
-        {
-            $profileId = "profile:small:".$profileId ;
-        }
-        if(count($profileIds))
-        {
-            $data = \Redis::mget($profileIds);
-        }
-        foreach($data as &$profile){
-            if(is_null($profile))
-                continue;
-            $profile = json_decode($profile);
-        }
+        $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)
+            ->whereNotNull('shortlisted_at')->whereNull('rejected_at')->get();
+        $profiles = $profiles->toArray();
         $applicants = [];
-        foreach ($data as &$applicant)
+        foreach ($profiles as &$applicant)
         {
-            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant->id.":");
+            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
             $count = count($batchIds);
             if($count)
             {
@@ -491,11 +456,11 @@ class ApplicantController extends Controller
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant->id);
+                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile']['id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
-            $applicant->batches = $count > 0 ? $batchInfos : null;
+            $applicant['batches'] = $count > 0 ? $batchInfos : null;
             $applicants[] = $applicant;
         }
         $this->model['applicants'] = $applicants;
@@ -509,7 +474,7 @@ class ApplicantController extends Controller
         $this->model = [];
         $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->count();
-        $this->model['invitedApplicantsCount'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
+        $this->model['invitedApplicants'] = Collaborate\Applicant::where('collaborate_id',$collaborateId)->where('is_invited',1)
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();

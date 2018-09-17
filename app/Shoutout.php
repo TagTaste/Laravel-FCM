@@ -171,7 +171,7 @@ class Shoutout extends Model implements Feedable
         return is_null($value) ? null : \Storage::url($value);
     }
 
-    public function getPreviewAttribute($value)
+   public function getPreviewAttribute($value)
     {
 
         try {
@@ -179,8 +179,10 @@ class Shoutout extends Model implements Feedable
 
             if(isset($preview['image']) && !is_null($preview['image']))
             {
+                
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
+        
             return $preview;
 
         } catch(\Exception $e){

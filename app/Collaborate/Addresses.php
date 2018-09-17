@@ -9,40 +9,33 @@ class Addresses extends Model {
 
     protected $table = 'collaborate_addresses';
 
-    protected $fillable = ['city','location','collaborate_id','created_at','updated_at'];
+    protected $fillable = ['collaborate_id','city_id','no_of_taster'];
 
-    protected $visible = ['city','collaborate_id','locationJson','created_at','updated_at'];
+    protected $visible = ['id','city','state','region','no_of_taster'];
 
-    protected $appends = ['locationJson'];
+    protected $appends = ['id','city','state','region'];
 
-    private $recursive_count = 0, $retArray = array();
-    public function getLocationJsonAttribute()
+    protected $cities = null;
+
+    public function getIdAttribute()
     {
-        if(isset($this->location))
-        {
-            $locationArray = json_decode($this->location,true);
-            $recurciveReturn = $this->getLocationJSONRecursiveFunction($locationArray);
-            return $this->retArray;
-        }
+        $this->cities = \DB::table('cities')->where('id',$this->city_id)->first();
+        return isset($this->cities->id) ? $this->cities->id : null;
     }
-    public function getLocationJSONRecursiveFunction($locationArray)
-    {
-        $tempCount = ++$this->recursive_count;
-        $start_date = "start_date_" . (string)$tempCount;
-        $location = "location_" . (string)$tempCount;
-        $end_date = "end_date_" . (string)$tempCount;
-        if(array_key_exists($start_date,$locationArray)){
-            $temp_array = array(
-                "start_date" => $locationArray[$start_date],
-                "end_date" => isset($locationArray[$end_date]) ? $locationArray[$end_date] : "",
-                "location" => isset($locationArray[$location]) ? $locationArray[$location] : ""
-            );
-            array_push($this->retArray,$temp_array);
 
-        $this->getLocationJsonAttribute($locationArray);
-        }else{
-            return true;
-        }
+    public function getCityAttribute()
+    {
+        return isset($this->cities->city) ? $this->cities->city : null;
+    }
+
+    public function getStateAttribute()
+    {
+        return isset($this->cities->state) ? $this->cities->state : null;
+    }
+
+    public function getRegionAttribute()
+    {
+        return isset($this->cities->region) ? $this->cities->region : null;
     }
 
 }

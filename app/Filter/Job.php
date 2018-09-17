@@ -12,14 +12,14 @@ class Job extends Filter {
     protected $strings = ['location','expected_role','Joining'=>'joining','experience_min','experience_max','compensation_min'=>'salary_min'
         ,'compensation_max'=>'salary_max'];
     
-    protected $models = ['By Company'=>'company.name','Job Type' => 'jobType.name',
+    protected $models = ['By Company'=>'company.name','Occupation Type' => 'jobType.name',
         'By Person'=> 'profile.name'];
     
     public static $cacheKey = "job:";
     
     public static $relatedColumn = 'job_id';
 
-    public static $filterOrder = ['Job Type','location','Experience','Compensation'
+    public static $filterOrder = ['Occupation Type','location','Experience','Compensation'
         ,'By Company','By Person','Joining In'];
 
     public function getprofile_nameattribute($model)

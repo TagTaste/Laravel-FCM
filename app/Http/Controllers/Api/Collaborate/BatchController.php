@@ -2,10 +2,12 @@
 
 use App\Collaborate;
 use App\CompanyUser;
-use App\Recipe\Profile;
+use App\Recipe\Company;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Collection;
+use Excel;
 
 class BatchController extends Controller
 {
@@ -38,6 +40,8 @@ class BatchController extends Controller
                 ->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
 
             $batch['assignedCount'] = \DB::table('collaborate_batches_assign')->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
+
+            $batch['beginTastingCount'] = \DB::table('collaborate_batches_assign')->where('begin_tasting',1)->where('batch_id',$batch['id'])->distinct()->get(['profile_id'])->count();
         }
         $this->model = $batches;
         return $this->sendResponse();
@@ -67,12 +71,11 @@ class BatchController extends Controller
     public function show($collaborateId,$id)
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$id)->get()->pluck('profile_id');
-        $profiles = Profile::whereIn('id',$profileIds)->get();
-
+        $profiles = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->get();
         $profiles = $profiles->toArray();
         foreach ($profiles as &$profile)
         {
-            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['id']);
+            $currentStatus = \Redis::get("current_status:batch:$id:profile:" . $profile['profile']['id']);
             $profile['current_status'] = !is_null($currentStatus) ? (int)$currentStatus : 0;
         }
         $this->model = [];
@@ -202,8 +205,7 @@ class BatchController extends Controller
             ->update(['begin_tasting'=>1]);
         if($this->model)
         {
-            $company = \Redis::get('company:small:' . $collaborate->company_id);
-            $company = json_decode($company);
+            $company = Company::where('id',$collaborate->company_id)->first();
             foreach ($profileIds as $profileId)
             {
                 $currentStatus = \Redis::get("current_status:batch:$batchId:profile:$profileId");
@@ -269,13 +271,18 @@ class BatchController extends Controller
                 $batchIdArray[] = "batch:" . $batchId;
             }
             $batchInfos = \Redis::mGet($batchIdArray);
+            $batches = [];
             foreach ($batchInfos as &$batchInfo) {
                 $batchInfo = json_decode($batchInfo);
                 $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:" . $loggedInProfileId);
                 $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
+                if($batchInfo->current_status != 0)
+                {
+                    $batches[] = $batchInfo;
+                }
             }
         }
-        $collaborate['batches'] = $count > 0 ? $batchInfos : [];
+        $collaborate['batches'] = $count > 0 ? $batches : [];
         $this->model = $collaborate;
         return $this->sendResponse();
     }
@@ -330,7 +337,7 @@ class BatchController extends Controller
                 {
                     $item->questions = json_decode($item->questions);
                     $item->questions->id = $item->id;
-                    $item->questions->is_nested = $item->is_nested;
+                    $item->questions->is_nested_question = $item->is_nested_question;
                     $item->questions->is_mandatory = $item->is_mandatory;
                     $item->questions->is_active = $item->is_active;
                     $item->questions->parent_question_id = $item->parent_question_id;
@@ -360,9 +367,9 @@ class BatchController extends Controller
                 $reports['question_id'] = $data->id;
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
-                $reports['is_nested'] = $data->is_nested;
+                $reports['is_nested_question'] = $data->is_nested_question;
                 $reports['question'] = $data->questions ;
-                if($data->is_nested == 1)
+                if($data->is_nested_question == 1)
                 {
                     $reports['nestedAnswers'] = [];
                     foreach ($data->questions->questions as $item)
@@ -371,7 +378,7 @@ class BatchController extends Controller
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
                         $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
-                        $subReports['is_nested'] = $item->is_nested;
+                        $subReports['is_nested_question'] = $item->is_nested_question;
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
@@ -384,20 +391,31 @@ class BatchController extends Controller
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
-                $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
-                    ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                    ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
-
-                if(isset($data->questions->nested_option))
+                if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
-                    $reports['nested_option'] = $data->questions->nested_option;
-                    if($data->questions->nested_option == 1)
+                    $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
+                        ->where('current_status',3)->where('tasting_header_id',$headerId)->skip(0)->take(3)->get();
+                }
+                else
+                {
+                    $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                        ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
+                        ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                }
+
+                if(isset($data->questions->is_nested_option))
+                {
+                    $reports['is_nested_option'] = $data->questions->is_nested_option;
+                    if($data->questions->is_nested_option == 1)
                     {
                         foreach($reports['answer'] as &$item)
                         {
                             $nestedOption = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                                 ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
                             $item->path = isset($nestedOption->path) ? $nestedOption->path : null;
+                            \Log::info("value is ".$item->value);
+                            \Log::info("leaf id is ".$item->leaf_id);
+                            \Log::info("path is ".$item->path);
                         }
                     }
                 }
@@ -412,32 +430,51 @@ class BatchController extends Controller
 
     public function filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest)
     {
-        $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId);
+        $profileIds = new Collection([]);
         if(isset($filters['city']))
         {
             foreach ($filters['city'] as $city)
             {
-                $profileIds = $profileIds->orWhere('city', 'LIKE', $city);
+                $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
+                $profileIds = $profileIds->merge($ids);
             }
         }
         if(isset($filters['age']))
         {
+            $ageFilterIds = new Collection([]);
             foreach ($filters['age'] as $age)
             {
-                $profileIds = $profileIds->orWhere('age_group', 'LIKE', $age);
+                $age = htmlspecialchars_decode($age);
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+                    ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+                        ->get()->pluck('profile_id');
+                $ageFilterIds = $ageFilterIds->merge($ids);
             }
+            $profileIds = $ageFilterIds;
+
         }
         if(isset($filters['gender']))
         {
+            $genderFilterIds = new Collection([]);
+
             foreach ($filters['gender'] as $gender)
             {
-                $profileIds = $profileIds->orWhere('gender', 'LIKE', $gender);
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+                        ->get()->pluck('profile_id');
+                $genderFilterIds = $genderFilterIds->merge($ids);
             }
+            $profileIds = $genderFilterIds;
         }
-        $profileIds = $profileIds->get()->pluck('profile_id');
-        $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
-            ->where('batch_id',$batchId)->whereIn('profile',$profileIds)->distinct()->get(['profile_id'])->count();
 
+        $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
+            ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
         $model = [];
         $reports = [];
         foreach ($withoutNest as $data)
@@ -447,9 +484,9 @@ class BatchController extends Controller
                 $reports['question_id'] = $data->id;
                 $reports['title'] = $data->title;
                 $reports['subtitle'] = $data->subtitle;
-                $reports['is_nested'] = $data->is_nested;
+                $reports['is_nested_question'] = $data->is_nested_question;
                 $reports['question'] = $data->questions ;
-                if($data->is_nested == 1)
+                if($data->is_nested_question == 1)
                 {
                     $reports['nestedAnswers'] = [];
                     foreach ($data->questions->questions as $item)
@@ -458,27 +495,35 @@ class BatchController extends Controller
                         $subReports['question_id'] = $item->id;
                         $subReports['title'] = $item->title;
                         $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
-                        $subReports['is_nested'] = $item->is_nested;
+                        $subReports['is_nested_question'] = $item->is_nested_question;
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
-                            ->where('batch_id',$batchId)->where('question_id',$item->id)->whereIn('profile',$profileIds)->distinct()->get(['profile_id'])->count();
+                            ->where('batch_id',$batchId)->where('question_id',$item->id)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
-                            ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->whereIn('profile',$profileIds)->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$item->id)
+                            ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $reports['nestedAnswers'][] = $subReports;
                     }
                 }
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
-                    ->where('batch_id',$batchId)->where('question_id',$data->id)->whereIn('profile',$profileIds)->distinct()->get(['profile_id'])->count();
-                $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
-                    ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                    ->whereIn('profile',$profileIds)->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
-
-                if(isset($data->questions->nested_option))
+                    ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
+                if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
-                    $reports['nested_option'] = $data->questions->nested_option;
-                    if($data->questions->nested_option == 1)
+                    $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
+                        ->where('current_status',3)->where('tasting_header_id',$headerId)->skip(0)->take(3)->get();
+                }
+                else
+                {
+                    $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                        ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
+                        ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                }
+
+                if(isset($data->questions->is_nested_option))
+                {
+                    $reports['is_nested_option'] = $data->questions->is_nested_option;
+                    if($data->questions->is_nested_option == 1)
                     {
                         foreach($reports['answer'] as &$item)
                         {
@@ -505,10 +550,10 @@ class BatchController extends Controller
         $city = [];
         foreach ($applicants as $applicant)
         {
-            if(isset($applicant->applier_address))
+            if(isset($applicant->city))
             {
-                $applierAddress = json_decode($applicant->applier_address,true);
-                $city[] = $applierAddress['city'];
+                if(!in_array($applicant->city,$city))
+                    $city[] = $applicant->city;
             }
         }
 
@@ -523,10 +568,187 @@ class BatchController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$questionId)
-            ->skip($skip)->take($take)->get();
+        $this->model = Collaborate\Review::where('collaborate_id',$collaborateId)->where('question_id',$questionId)->where('batch_id',$batchId)
+            ->where('tasting_header_id',$headerId)->where('current_status',3)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
+
+    public function hutCsv(Request $request, $collaborateId, $batchId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $this->model = [];
+        $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->get()->pluck('profile_id');
+
+        $applicantDetails = Collaborate\Applicant::where("collaborate_id",$collaborateId)->whereIn('profile_id',$profileIds)
+            ->where('hut',1)->get();
+
+        if(count($applicantDetails) == 0)
+            return $this->sendError("No User exists.");
+
+        $headers = array(
+            "Content-type" => "application/vnd.ms-excel; charset=utf-8",
+            "Content-Disposition" => "attachment; filename=".$collaborateId."_HUT_USER_ADDRESS_LIST.xls",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+        $batchInfo = \DB::table('collaborate_batches')->where('id',$batchId)->first();
+        $profiles = [];
+        $index = 1;
+        foreach ($applicantDetails as $applicantDetail)
+        {
+            $applierAddress = "";
+            $applierAddress = isset($applicantDetail->applier_address['house_no']) && !is_null($applicantDetail->applier_address['house_no']) ? $applierAddress.$applicantDetail->applier_address['house_no'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['landmark']) && !is_null($applicantDetail->applier_address['landmark']) ? $applierAddress.$applicantDetail->applier_address['landmark'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['locality']) && !is_null($applicantDetail->applier_address['locality']) ? $applierAddress.$applicantDetail->applier_address['locality'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['city']) && !is_null($applicantDetail->applier_address['city']) ? $applierAddress.$applicantDetail->applier_address['city'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['state']) && !is_null($applicantDetail->applier_address['state']) ? $applierAddress.$applicantDetail->applier_address['state'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['country']) && !is_null($applicantDetail->applier_address['country']) ? $applierAddress.$applicantDetail->applier_address['country'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['pincode']) && !is_null($applicantDetail->applier_address['pincode']) ? $applierAddress." - ".$applicantDetail->applier_address['pincode'] : $applierAddress;
+
+            $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
+                'Delivery Address'=>$applierAddress];
+            $index++;
+        }
+        $columns = array('S.No','Name','Profile Link','Delivery Address');
+        Excel::create($collaborateId."_HUT_USER_ADDRESS_LIST", function($excel) use($profiles, $columns,$batchInfo,$collaborateId) {
+
+            // Set the title
+            $excel->setTitle("HUT USER ADDRESS");
+
+            // Chain the setters
+            $excel->setCreator('TagTaste')
+                ->setCompany('TagTaste');
+
+            // Call them separately
+            $excel->setDescription('Collaboration Applicant applier HUT Address');
+            // Our first sheet
+            $excel->sheet('First sheet', function($sheet) use($profiles, $columns, $batchInfo,$collaborateId) {
+                $sheet->setOrientation('landscape');
+                $sheet->row(1,array("Collaboration Link - "."https://www.tagtaste.com/collaborate/".$collaborateId));
+                $sheet->row(2,array("Product Name - ".$batchInfo->name));
+                $sheet->row(3,$columns);
+                $index = 4;
+                foreach ($profiles as $key => $value) {
+                    $sheet->appendRow($index, $value);
+                    $index++;
+                }
+                $sheet->appendRow("");
+
+            });
+
+        })->store('xls');
+        $filePath = storage_path("exports/".$collaborateId."_HUT_USER_ADDRESS_LIST.xls");
+
+        return response()->download($filePath, $collaborateId."_HUT_USER_ADDRESS_LIST.xls", $headers);
+    }
+
+    public function allHutCsv(Request $request, $collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $this->model = [];
+        $applicantDetails = Collaborate\Applicant::where("collaborate_id",$collaborateId)->where('hut',1)->get();
+
+        if(count($applicantDetails) == 0)
+            return $this->sendError("No User exists.");
+
+        $headers = array(
+            "Content-type" => "application/vnd.ms-excel; charset=utf-8",
+            "Content-Disposition" => "attachment; filename=".$collaborateId."_HUT_USER_ADDRESS_LIST.xls",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+        $profiles = [];
+        $index = 1;
+        foreach ($applicantDetails as $applicantDetail)
+        {
+            $applierAddress = "";
+            $applierAddress = isset($applicantDetail->applier_address['house_no']) && !is_null($applicantDetail->applier_address['house_no']) ? $applierAddress.$applicantDetail->applier_address['house_no'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['landmark']) && !is_null($applicantDetail->applier_address['landmark']) ? $applierAddress.$applicantDetail->applier_address['landmark'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['locality']) && !is_null($applicantDetail->applier_address['locality']) ? $applierAddress.$applicantDetail->applier_address['locality'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['city']) && !is_null($applicantDetail->applier_address['city']) ? $applierAddress.$applicantDetail->applier_address['city'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['state']) && !is_null($applicantDetail->applier_address['state']) ? $applierAddress.$applicantDetail->applier_address['state'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['country']) && !is_null($applicantDetail->applier_address['country']) ? $applierAddress.$applicantDetail->applier_address['country'] : $applierAddress;
+            $applierAddress = isset($applicantDetail->applier_address['pincode']) && !is_null($applicantDetail->applier_address['pincode']) ? $applierAddress." - ".$applicantDetail->applier_address['pincode'] : $applierAddress;
+
+            $batchIds = \DB::table('collaborate_batches_assign')->where('profile_id',$applicantDetail->profile->id)->get()->pluck('batch_id');
+            $batches = \DB::table('collaborate_batches')->whereIn('id',$batchIds)->get();
+            $batchList = "";
+            foreach ($batches as $batch)
+            {
+                $batchList = $batch->name.",".$batchList;
+            }
+            $profiles[] = ['S.No'=>$index,'Name'=>$applicantDetail->profile->name,'Profile Link'=>"https://www.tagtaste.com/@".$applicantDetail->profile->handle,
+                'Delivery Address'=>$applierAddress,'product Name'=>$batchList];
+            $index++;
+        }
+        $columns = array('S.No','Name','Profile Link','Delivery Address','product Name');
+        Excel::create($collaborateId."_HUT_USER_ADDRESS_LIST", function($excel) use($profiles, $columns,$collaborateId) {
+
+            // Set the title
+            $excel->setTitle("HUT USER ADDRESS");
+
+            // Chain the setters
+            $excel->setCreator('TagTaste')
+                ->setCompany('TagTaste');
+
+            // Call them separately
+            $excel->setDescription('Collaboration Applicant applier HUT Address');
+            // Our first sheet
+            $excel->sheet('First sheet', function($sheet) use($profiles, $columns,$collaborateId) {
+                $sheet->setOrientation('landscape');
+                $sheet->row(1,array("Collaboration Link - "."https://www.tagtaste.com/collaborate/".$collaborateId));
+                $sheet->row(3,$columns);
+                $index = 4;
+                foreach ($profiles as $key => $value) {
+                    $sheet->appendRow($index, $value);
+                    $index++;
+                }
+                $sheet->appendRow("");
+
+            });
+
+        })->store('xls');
+        $filePath = storage_path("exports/".$collaborateId."_HUT_USER_ADDRESS_LIST.xls");
+
+        return response()->download($filePath, $collaborateId."_HUT_USER_ADDRESS_LIST.xls", $headers);
+    }
+
 
 }

@@ -57,7 +57,7 @@ class TypeController extends Controller
         $inputs = $request->all();
         $this->model->create($inputs);
         
-        return redirect()->route('types.index')->with('message', 'Job Type created successfully.');
+        return redirect()->route('types.index')->with('message', 'Occupation Type created successfully.');
     }
     
     /**
@@ -100,7 +100,7 @@ class TypeController extends Controller
         $type = $this->model->findOrFail($id);
         $type->update($inputs);
         
-        return redirect()->route('types.index')->with('message', 'Job Type updated successfully.');
+        return redirect()->route('types.index')->with('message', 'Occupation Type updated successfully.');
     }
     
     /**
@@ -113,6 +113,6 @@ class TypeController extends Controller
     {
         $this->model->destroy($id);
         
-        return redirect()->route('types.index')->with('message', 'Job Type deleted successfully.');
+        return redirect()->route('types.index')->with('message', 'Occupation Type deleted successfully.');
     }
 }

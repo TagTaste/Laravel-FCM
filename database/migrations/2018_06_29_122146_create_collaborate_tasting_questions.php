@@ -17,7 +17,7 @@ class CreateCollaborateTastingQuestions extends Migration
             $table->increments('id');
             $table->string("title");
             $table->text("subtitle")->nullable();
-            $table->boolean("is_nested")->default(0);
+            $table->boolean("is_nested_question")->default(0);
             $table->boolean("is_mandatory")->default(0);
             $table->unsignedInteger("parent_question_id")->nullable();
             $table->json("questions")->nullable();

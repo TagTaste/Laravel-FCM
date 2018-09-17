@@ -213,7 +213,7 @@ class User extends BaseUser
         else
         {
             $user = static::create([
-                'name' => $name,
+                'name' => ucwords($name),
                 'email' => $email,
                 'password' => is_null($password) ? null : bcrypt($password),
                 'email_token' =>str_random(15),
@@ -262,8 +262,8 @@ class User extends BaseUser
             Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
         }
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
-
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
+        if(isset($this->profile->id))
+            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)
@@ -389,8 +389,8 @@ class User extends BaseUser
 
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
-        \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socailLink]);
-
+        if(isset($this->profile->id))
+            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socailLink]);
 //        ,'dob'=>$dob,'address'=>$location,
 //            'gender'=>$gender
 

@@ -191,7 +191,7 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         Stevebauman\Purify\PurifyServiceProvider::class,
-        'Maatwebsite\Excel\ExcelServiceProvider',
+        Maatwebsite\Excel\ExcelServiceProvider::class ,
         PulkitJalan\Google\GoogleServiceProvider::class,
         GoogleSheets\Providers\SheetsServiceProvider::class,
         LaravelFCM\FCMServiceProvider::class,

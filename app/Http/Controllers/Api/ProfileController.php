@@ -124,6 +124,7 @@ class ProfileController extends Controller
         //update user name
         if(!empty($data['name'])){
             $name = array_pull($data, 'name');
+            $name = ucwords($name);
             $request->user()->update(['name'=>trim($name)]);
         }
         
@@ -162,22 +163,19 @@ class ProfileController extends Controller
         //phone verified for request otp
         if(isset($data['profile']['phone']) && !empty($data['profile']['phone']))
         {
-            $profile = Profile::with([])->where('id',$request->user()->profile->id)->first();
+            $profile = \DB::table('profiles')->where('id',$request->user()->profile->id)->first();
             if($data['profile']['phone'] != $profile->phone)
             {
                 $data['profile']['verified_phone'] = 0;
             }
         }
-        else
-        {
-            $data['profile']['verified_phone'] = 0;
-        }
 
         //save the model
+        $userId = $request->user()->id;
+        $this->model = \App\Profile::where('user_id',$userId)->first();
+
         if(isset($data['profile']) && !empty($data['profile'])){
-            $userId = $request->user()->id;
             try {
-                $this->model = \App\Profile::where('user_id',$userId)->first();
                 $this->model->update($data['profile']);
                 $this->model->addToCache();
                 $this->model->refresh();
@@ -190,8 +188,33 @@ class ProfileController extends Controller
                 return $this->sendError("Could not update.");
             }
         }
-        $profileData = Profile::find($request->user()->profile->id);
-        \App\Filter\Profile::addModel($profileData);
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        if(isset($data['profile']['occupation_id']) && !is_null($data['profile']['occupation_id']))
+        {
+            $jobs = ['profile_id'=>$loggedInProfileId,'occupation_id'=>$data['profile']['occupation_id']];
+            Profile\Occupation::where('profile_id',$loggedInProfileId)->delete();
+            $this->model->profile_occupations()->insert($jobs);
+            unset($data['profile']['occupation_id']);
+        }
+
+        if($request->has('specialization_id'))
+        {
+            $specializationIds = $request->input('specialization_id');
+            $specializations = [];
+            foreach ($specializationIds as $specializationId)
+            {
+                $specializations[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$specializationId];
+            }
+            if(count($specializations))
+            {
+                Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
+                $this->model->profile_specializations()->insert($specializations);
+
+            }
+        }
+        $this->model = Profile::find($request->user()->profile->id);
         return $this->sendResponse();
     }
     

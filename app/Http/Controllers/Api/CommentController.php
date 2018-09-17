@@ -19,7 +19,7 @@ class CommentController extends Controller {
         'shoutout' =>\App\Shoutout::class,
         'collaborate_share' => \App\Shareable\Collaborate::class,
         'photo_share' => \App\Shareable\Photo::class,
-//        'job_share' => \App\Shareable\Job::class,
+//        'job_share' => \App\Shareable\Occupation::class,
         'recipe_share' => \App\Shareable\Recipe::class,
         'shoutout_share' => \App\Shareable\Shoutout::class
     ];

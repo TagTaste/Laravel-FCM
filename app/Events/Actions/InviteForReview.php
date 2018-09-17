@@ -40,10 +40,6 @@ class InviteForReview extends Action
         {
             $this->who = ['id'=>$company->id, 'name'=>$company->name, 'imageUrl'=>$company->logo,'type'=>'company', 'tagline'=>$company->tagline];
         }
-        else
-        {
-            $this->who = null;
-        }
         $this->action = $action === null ? strtolower(class_basename(static::class)) : $action;
         $this->image = $image;
         $this->content = $content;
