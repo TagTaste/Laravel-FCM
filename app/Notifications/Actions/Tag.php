@@ -42,8 +42,20 @@ class Tag extends Action
         $this->notification = $this->sub;
 
         if(view()->exists($this->view)){
+            $action = $this->data->action;
+            $profileId = $notifiable->id;
+            $model = $this->modelName;
+            if($this->model->company_id != null)
+            {
+                $companyId = $this->model->company_id;
+            }
+            else{
+                $companyId = 0;
+            }
+            $encrypted = Crypt::encryptString($profileId."/".$companyId."/".$action."/0/".$model);
+            $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content'])]
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
             );
         }
     }

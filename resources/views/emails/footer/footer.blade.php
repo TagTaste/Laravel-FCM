@@ -54,10 +54,10 @@
                     <span>2018</span>
                 </td>
             </tr>
-            @if(isset($unsubscribe_link))
+            @if(isset($unsubscribeLink))
             <tr>
                 <td style="padding: 10px 0px 20px 0px;font-size: 12px;color: #181818;" align="center">
-                    <a href="{{$unsubscribe_link}}"><u>unsubscribe</u></a>
+                    <a href="{{$unsubscribeLink}}"><u>unsubscribe</u></a>
                 </td>
             </tr>
             @endif

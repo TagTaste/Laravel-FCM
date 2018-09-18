@@ -108,7 +108,7 @@ class Action extends Notification implements ShouldQueue
     {  
         if(view()->exists($this->view)){
 
-            if($this->data->action != 'expire'||$this->data->action != 'admin'||$this->data->action != 'expire'||$this->data->action != 'delete-model'||$this->data->action != 'expire-model')
+            if($this->data->action != 'expire'||$this->data->action != 'admin'||$this->data->action != 'delete-model')
         {
             $action = $this->data->action;
             $profileId = $notifiable->id;
@@ -121,9 +121,9 @@ class Action extends Notification implements ShouldQueue
                 $companyId = 0;
             }
             $encrypted = Crypt::encryptString($profileId."/".$companyId."/".$action."/0/".$model);
-            $unsubscribe_link = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
+            $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribe_link'=>$unsubscribe_link]
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
             );
         }
             return (new MailMessage())->subject($this->sub)->view(
