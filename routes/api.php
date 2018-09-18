@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Crypt;
 
 
 
@@ -572,4 +573,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             });
 
 
+});
+route::get('generate/hash',function()
+{
+    $action = 'like';
+            $profileId = 785;
+            $model = "collaborate";
+            $companyId = 0;
+            $encrypted = Crypt::encryptString($profileId."/".$companyId."/".$action."/0/".$model);
+            return $encrypted;
 });

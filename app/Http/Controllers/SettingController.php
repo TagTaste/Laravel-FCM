@@ -57,8 +57,10 @@ class SettingController extends Controller
             {
                 return $this->sendError("Reason should be selected");
             }
-            $model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
-            return $this->model;
+            $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
+            $sendResponse['status'] = 'success';
+            $sendResponse['error'] = 0;
+            return $sendResponse;
     }
 
 
