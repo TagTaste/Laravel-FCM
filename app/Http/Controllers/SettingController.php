@@ -15,14 +15,7 @@ class SettingController extends Controller
     
         $info = explode("/",$decryptedString);
         $emailValue = $type == 'unsubscribe' ? 0 : 1;
-
-        \Log::info("type");
-        \Log::info($type);
-        \Log::info($info[0]);
-        \Log::info($info[1]);
-        \Log::info($info[2]);
-
-        if(isset($info[2]) && !is_null($info[2]))
+        if(isset($info[2]) && !is_null($info[2]) && !empty($info[2]))
         {
             $this->model = \DB::table('notification_settings')->where('setting_id',$info[0])->where('profile_id',$info[1])
                 ->where('company_id',$info[2])->update(['email_value'=>$emailValue]);
