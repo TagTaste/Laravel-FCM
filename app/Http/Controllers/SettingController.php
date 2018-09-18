@@ -54,7 +54,7 @@ class SettingController extends Controller
         return response()->json(["data"=>$this->model,"error"=>"","status"=>200]);
     }
 
-    public function getUnSubscribeReason()
+    public function getUnsubscribeReason()
     {
         $this->model = \DB::table('unsubscribe_reasons')->get();
         return response()->json(["data"=>$this->model,"error"=>"","status"=>200]);

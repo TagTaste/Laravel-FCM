@@ -63,7 +63,7 @@ Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController
 
 // unsubscribe
 Route::get("settingUpdate/{type}","SettingController@updateSetting");//this will do both subscribe and unsubscribe just pass subscribe or unsubscribe with the hash value you received and reason id for the reason of unsubscribe  
-Route::resource("unsubscribe/reason","SettingController@getUnSubscribeReason");//to get or insert the reason for unsubscribe to the table. use the get route to recieve the resons for unsubscribe with id and post route to insert the resons as per your requirement.
+Route::resource("unsubscribe/reason","SettingController@getUnsubscribeReason");//to get or insert the reason for unsubscribe to the table. use the get route to recieve the resons for unsubscribe with id and post route to insert the resons as per your requirement.
 Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");//this route will post the reason for the particular user for unsubscribe just pass the hash value and the reason id you received from the above route. 
 
 //has prefix api/ - defined in RouteServiceProvider.php
@@ -581,7 +581,7 @@ route::get('generate',function(){
     //         $model = $this->modelName;
             
                 //$companyId = $this->model->company_id;
-                $encrypted = Crypt::encryptString("1/785/".null);
+                $encrypted = Crypt::encryptString("1/123/".null);
                 return $encrypted;
             
                 
