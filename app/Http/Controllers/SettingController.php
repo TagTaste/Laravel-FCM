@@ -62,7 +62,7 @@ class SettingController extends Controller
         }
         else
         {
-            $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[1], 'setting_id'=>$info[0]]);
+            $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[1], 'company_id'=>null, 'setting_id'=>$info[0]]);
         }
         return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
     }
