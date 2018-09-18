@@ -54,11 +54,19 @@ class SettingController extends Controller
         {
             return response()->json(["data"=>null,"error"=>"Reason should be selected.","status"=>200]);
         }
+        if(isset($info[2]) && !is_null($info[2]) && !empty($info[2]))
+        {
+
         $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[1], 'company_id'=>$info[2], 'setting_id'=>$info[0]]);
+        }
+        else
+        {
+            $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[1], 'company_id'=>null, 'setting_id'=>$info[0]]);
+        }
         return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
     }
 
-    public function getUnSubscribeReason()
+    public function getUnsubscribeReason()
     {
         $this->model = \DB::table('unsubscribe_reasons')->get();
         return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
