@@ -25,7 +25,7 @@ class Auth extends GetUserFromToken
 
     private $versionKey = 'X-VERSION';
     private $versionKeyIos = 'X-VERSION-IOS';
-    private $request,$content_analysis_req_collection;
+    private $request,$contentAnalysisReqCollection;
 
     public function handle($request, Closure $next)
     {
@@ -96,21 +96,20 @@ class Auth extends GetUserFromToken
      public function terminate($request,$response)
      {
         $this->request = $request;
-        $request_data_collection = collect($this->request->all());
-        $this->content_analysis_req_collection = collect ();
+        $requestDataCollection = collect($this->request->all());
+        $this->contentAnalysisReqCollection = collect ();
 
-        $this->requestValueRecursion($request_data_collection);
+        $this->requestValueRecursion($requestDataCollection);
 
-        if($request_data_collection->count() > 0){
-
+        if($requestDataCollection->count() > 0){
             $tempArray = [];
             $tempArray["type"] = "meta";
             $tempArray["value"] = "IP- ".$this->request->ip().
             " UserID- ".$this->request->user()->id.
             " EndPoint- ".$this->request->fullUrl();
-            $this->content_analysis_req_collection->push($tempArray);
-            event(new ContentAnalysisEvent($this->content_analysis_req_collection));
-            $this->content_analysis_req_collection = null;
+            $this->contentAnalysisReqCollection->push($tempArray);
+            event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
+            $this->contentAnalysisReqCollection = null;
         }
      }
 
@@ -127,7 +126,6 @@ class Auth extends GetUserFromToken
                     $extension == "jpg" || 
                     $extension == "png") 
                 {
-
                     //Image
                     //$dump_path = $this->request->file($key."");
                     $local_storage = \Storage::disk('s3ContentAnalysis');
@@ -135,10 +133,9 @@ class Auth extends GetUserFromToken
                     $tempArray = [];
                     $tempArray["type"] = "image";
                     $tempArray["value"] = $dump_path;
-                    $this->content_analysis_req_collection->push($tempArray);
+                    $this->contentAnalysisReqCollection->push($tempArray);
                 } 
                 else if($extension == "mp4") {
-
                     //Video
                     //$dump_path = $this->request->file($key."");
                     $local_storage = \Storage::disk('s3ContentAnalysis');
@@ -146,23 +143,22 @@ class Auth extends GetUserFromToken
                     $tempArray = [];
                     $tempArray["type"] = "video";
                     $tempArray["value"] = $dump_path;
-                    $this->content_analysis_req_collection->push($tempArray);
+                    $this->contentAnalysisReqCollection->push($tempArray);
                 }
                 
             } else {
-
                //Text
                     $tempArray = [];
                     $tempArray["type"] = "text";
                     $tempArray["value"] = $val;
-                    $this->content_analysis_req_collection->push($tempArray);
+                    $this->contentAnalysisReqCollection->push($tempArray);
             }
         
         }
         
     });
 
-        return $this->content_analysis_req_collection;
+        return $this->contentAnalysisReqCollection;
      }
     
 }
