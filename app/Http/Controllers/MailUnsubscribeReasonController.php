@@ -11,7 +11,11 @@ class MailUnsubscribeReasonController extends Controller
 
     public function index()
     {
-    	$this->model = \DB::table('unsubscribe_reasons')->get();
+    	$this->model['data'] = \DB::table('unsubscribe_reasons')->get();
+    	if($this->model['data'] != NULL);
+    	{
+    		$this->model['status'] = "success";
+    	}
     	return $this->model;
     }
 
