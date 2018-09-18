@@ -52,12 +52,12 @@ class SettingController extends Controller
             $info[$i]=NULL;
         }
 
-        $reasonId = $request->input('reason_id');
-            if(is_null($reason_id) || !isset($reason_id))
+        $reasonId = $request->input('reasonId');
+            if(is_null($reasonId) || !isset($reasonId))
             {
                 return $this->sendError("Reason should be selected");
             }
-            $model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reason_id, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
+            $model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
             return $this->model;
     }
 
