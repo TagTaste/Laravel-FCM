@@ -14,14 +14,18 @@ class SettingController extends Controller
         $decryptedString = Crypt::decryptString($hash);
     
         $info = explode("/",$decryptedString);
-        $emailValue = $type == 'unsubscribe' ? 0 : 1;
+        $emailValue = 1;
+        if($type == 'unsubscribe')
+            $emailValue = 0;
         if(isset($info[2]) && !is_null($info[2]) && !empty($info[2]))
         {
+            \Log::info("email value with company ".$emailValue);
             $this->model = \DB::table('notification_settings')->where('setting_id',$info[0])->where('profile_id',$info[1])
                 ->where('company_id',$info[2])->update(['email_value'=>$emailValue]);
         }
         else
         {
+            \Log::info("email value without company ".$emailValue);
             $this->model = \DB::table('notification_settings')->where('setting_id',$info[0])->where('profile_id',$info[1])
                 ->update(['email_value'=>$emailValue]);
         }
