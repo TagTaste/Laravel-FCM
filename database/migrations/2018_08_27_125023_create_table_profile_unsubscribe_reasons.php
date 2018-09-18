@@ -16,14 +16,14 @@ class CreateTableProfileUnsubscribeReasons extends Migration
         //
         Schema::create('profile_unsubscribe_reasons',function(Blueprint $table){
             $table->increments('id');
-            $table->integer('profile_id');
-            $table->integer('company_id')->nullable();
-            $table->integer('reason_id');
-            $table->string('action')->nullable();
-            $table->string('model')->nullable();
+            $table->unsignedInteger('profile_id');
+            $table->unsignedInteger('company_id')->nullable();
+            $table->unsignedInteger('reason_id');
+            $table->unsignedInteger("setting_id");
             $table->foreign('profile_id')->references('id')->on('profiles');
             $table->foreign('company_id')->references('id')->on('companies');
             $table->foreign('reason_id')->references('id')->on('unsubscribe_reasons');
+            $table->foreign('setting_id')->references('id')->on('settings');
             $table->timestamps();
         });
     }

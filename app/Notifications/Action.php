@@ -25,6 +25,7 @@ class Action extends Notification implements ShouldQueue
     public $image;
     public $modelName;
     public $allData ;
+    public $settingId ;
     /**
      * Create a new notification instance.
      *
@@ -83,7 +84,7 @@ class Action extends Notification implements ShouldQueue
         if(is_null($preference)) {
             return $via;
         }
-
+        $this->settingId = $preference->setting_id;
         $via = [];
         if($preference->bell_value) {
             $via[] = 'broadcast';
@@ -116,11 +117,12 @@ class Action extends Notification implements ShouldQueue
             if($this->model->company_id != null)
             {
                 $companyId = $this->model->company_id;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
             }
             else{
-                $companyId = 0;
+                $companyId = null;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
             }
-            $encrypted = Crypt::encryptString($profileId."/".$companyId."/".$action."/0/".$model);
             $unsubscribeLink = env('APP_URL')."/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]

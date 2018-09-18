@@ -48,11 +48,12 @@ class Tag extends Action
             if($this->model->company_id != null)
             {
                 $companyId = $this->model->company_id;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
             }
             else{
-                $companyId = 0;
+                $companyId = null;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
             }
-            $encrypted = Crypt::encryptString($profileId."/".$companyId."/".$action."/0/".$model);
             $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
