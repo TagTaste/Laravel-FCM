@@ -14,11 +14,11 @@ class AlterCollaborateAddColumn extends Migration
     public function up()
     {
         Schema::table('collaborates',function(Blueprint $table){
-//            $table->integer('category_id')->unsigned()->nullable();
-//            $table->foreign('category_id')->references('id')->on('collaborate_categories');
-//            $table->integer("step")->nullable();
-//            $table->integer('financial_min')->nullable();
-//            $table->integer('financial_max')->nullable();
+            $table->integer('category_id')->unsigned()->nullable();
+            $table->foreign('category_id')->references('id')->on('collaborate_categories');
+            $table->integer("step")->nullable();
+            $table->integer('financial_min')->nullable();
+            $table->integer('financial_max')->nullable();
         });
     }
 
