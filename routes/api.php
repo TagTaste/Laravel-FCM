@@ -581,7 +581,7 @@ route::get('generate',function(){
     //         $model = $this->modelName;
             
                 //$companyId = $this->model->company_id;
-                $encrypted = Crypt::encryptString("1/785/".null);
+                $encrypted = Crypt::encryptString("2/125/".null);
                 return $encrypted;
             
                 
