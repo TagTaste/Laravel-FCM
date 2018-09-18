@@ -24,14 +24,14 @@ class SettingController extends Controller
         {
             $model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reason_id, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
             $setting->{'email_value'} = 0;
-            $setting->save();   
-            return redirect(env('APP_URL')."/unsubscribed/?k=".$hash); 
+            $data = $setting->save();  
+            return response()->json(["data"=>$data,"error"=>"","status"=>200]); 
         }
         if($type === 'subscribe')
         {
             $setting->{'email_value'} = 1;
-            $setting->save();
-            return redirect(env('APP_URL')."/subscribed");
+            $data = $setting->save();
+            return response()->json(["data"=>$data,"error"=>"","status"=>200]); 
         }
         else
         {
@@ -58,9 +58,7 @@ class SettingController extends Controller
                 return $this->sendError("Reason should be selected");
             }
             $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[0], 'company_id'=>$info[1], 'action'=>$info[2], 'model'=>$info[3]]);
-            $sendResponse['status'] = 'success';
-            $sendResponse['error'] = 0;
-            return $sendResponse;
+            return response()->json(["data"=>$this->model,"error"=>"","status"=>200]); 
     }
 
 
