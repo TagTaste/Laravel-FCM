@@ -19,19 +19,27 @@ class SettingController extends Controller
             $emailValue = 0;
         if(isset($info[2]) && !is_null($info[2]) && !empty($info[2]))
         {
-            \Log::info("email value with company ".$emailValue);
+            $setting = Setting::getSetting($info[0],$info[1],$info[2]);
             $this->model = \DB::table('notification_settings')->where('setting_id',$info[0])->where('profile_id',$info[1])
                 ->where('company_id',$info[2])->update(['email_value'=>$emailValue]);
         }
         else
         {
-            \Log::info("email value without company ".$emailValue);
+            $setting = Setting::getSetting($info[0],$info[1],null);
             $this->model = \DB::table('notification_settings')->where('setting_id',$info[0])->where('profile_id',$info[1])
                 ->update(['email_value'=>$emailValue]);
         }
-        \Log::info("here");
-        \Log::info($this->model);
-        return response()->json(["data"=>$this->model,"error"=>"","status"=>200]);
+        if(!$this->model)
+        {
+            if(is_null($setting)) {
+                $this->addError('Setting does not exists');
+                return $this->sendResponse();
+            }
+            $setting->{'email_value'} = $emailValue;
+            $setting->save();
+            $this->model = 1;
+        }
+        return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
 
     }
 
@@ -48,13 +56,13 @@ class SettingController extends Controller
             return $this->sendError("Reason should be selected");
         }
         $this->model = \DB::table('profile_unsubscribe_reasons')->insert(['reason_id'=>$reasonId, 'profile_id'=>$info[1], 'company_id'=>$info[2], 'setting_id'=>$info[0]]);
-        return response()->json(["data"=>$this->model,"error"=>"","status"=>200]);
+        return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
     }
 
     public function getUnSubscribeReason()
     {
         $this->model = \DB::table('unsubscribe_reasons')->get();
-        return response()->json(["data"=>$this->model,"error"=>"","status"=>200]);
+        return response()->json(["data"=>$this->model,"error"=>null,"status"=>200]);
     }
 
 
