@@ -249,9 +249,7 @@ class CollaborateController extends Controller
         {
             $allergensIds = $request->input('allergens_id');
             $allergens = [];
-            \Log::info("log");
-            \Log::info($allergensIds);
-            if(count($allergensIds) > 0 && !empty($allergensIds))
+            if(count($allergensIds) > 0 && !empty($allergensIds) && is_array($allergensIds))
             {
                 foreach ($allergensIds as $allergensId)
                 {
