@@ -223,7 +223,7 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
-            if(count($images) > 0 && !empty($images))
+            if(count($images) > 0 && !empty($images) && is_array($images))
             {
                 foreach ($images as $image)
                 {
@@ -464,7 +464,7 @@ class CollaborateController extends Controller
             $addresses = $request->input('city');
             Collaborate\Addresses::where('collaborate_id',$id)->delete();
             $cities = [];
-            if(count($addresses) > 0 && !empty($addresses))
+            if(count($addresses) > 0 && !empty($addresses) && is_array($addresses))
             {
                 foreach ($addresses as $address)
                 {
@@ -483,7 +483,7 @@ class CollaborateController extends Controller
         {
             $jobIds = $request->input('occupation_id');
             $jobs = [];
-            if(count($jobIds) > 0 && !empty($jobIds))
+            if(count($jobIds) > 0 && !empty($jobIds) && is_array($jobIds))
             {
                 foreach ($jobIds as $jobId)
                 {
@@ -504,7 +504,7 @@ class CollaborateController extends Controller
         {
             $specializationIds = $request->input('specialization_id');
             $specializations = [];
-            if(count($specializationIds) > 0 && !empty($specializationIds))
+            if(count($specializationIds) > 0 && !empty($specializationIds) && is_array($specializationIds))
             {
                 foreach ($specializationIds as $specializationId)
                 {
