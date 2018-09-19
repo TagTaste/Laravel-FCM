@@ -223,8 +223,7 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
-            \Log::info($images);
-            if(count($images) > 0)
+            if(count($images) > 0 && !empty($images))
             {
                 foreach ($images as $image)
                 {
