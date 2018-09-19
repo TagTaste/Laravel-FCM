@@ -32,8 +32,7 @@ class SettingController extends Controller
         if(!$this->model)
         {
             if(is_null($setting)) {
-                $this->addError('Setting does not exists');
-                return $this->sendResponse();
+                return response()->json(["data"=>null,"error"=>"Setting does not exists.","status"=>200]);
             }
             $setting->{'email_value'} = $emailValue;
             $setting->save();
@@ -53,7 +52,7 @@ class SettingController extends Controller
         $reasonId = $request->input('reasonId');
         if(is_null($reasonId) || !isset($reasonId) || !isset($info[0]) || !isset($info[1]) || !isset($info[2]))
         {
-            return $this->sendError("Reason should be selected");
+            return response()->json(["data"=>null,"error"=>"Reason should be selected.","status"=>200]);
         }
         if(isset($info[2]) && !is_null($info[2]) && !empty($info[2]))
         {
