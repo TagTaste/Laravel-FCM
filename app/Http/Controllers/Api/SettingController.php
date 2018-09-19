@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers\Api;
+<?php
+
+namespace App\Http\Controllers\Api;
 
 use App\CompanyUser;
 use App\Setting;
