@@ -235,7 +235,7 @@ class CollaborateController extends Controller
                 $inputs['images'] = json_encode($imagesArray,true);
             }
             else
-                $inputs[$images] = null;
+                $inputs['images'] = null;
         }
 
         if($request->hasFile('file1')){
@@ -243,6 +243,10 @@ class CollaborateController extends Controller
             $name = $request->file('file1')->getClientOriginalName();
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
+        }
+        else
+        {
+            $inputs["file1"] = null;
         }
 
         if($request->has('allergens_id'))
