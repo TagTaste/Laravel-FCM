@@ -42,7 +42,7 @@ class Profile extends Model
         'profile_occupations', 'profile_specializations','is_veteran','is_expert'];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
-        'resumeUrl','experience','education','address','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
+        'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
