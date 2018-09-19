@@ -18,7 +18,7 @@ class Comment extends Action
     public $view;
     public $sub;
     public $notification;
-
+    
     public function __construct($event)
     {
         parent::__construct($event);
@@ -59,7 +59,7 @@ class Comment extends Action
                 $companyId = null;
                 $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
             }
-            $unsubscribeLink = env('APP_URL')."/unsubscribe/?k=".$encrypted;
+            $unsubscribeLink = env('APP_URL')."/updateSetting/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
             );
