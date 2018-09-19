@@ -19,7 +19,7 @@ class CollabSuggestions extends Mailable
      */
     public $name;
     public $profileId;
-    public $unsubscribe_link;
+    public $unsubscribeLink;
     public function __construct($name,$id)
     {
         //
@@ -36,6 +36,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('Top trending collaborations, you should see on TagTaste.')->view('emails.collaboration-suggestions',['unsubscribe_link'=>$this->unsubscribe_link]);
+        return $this->subject('Top trending collaborations, you should see on TagTaste.')->view('emails.collaboration-suggestions',['unsubscribeLink'=>$this->unsubscribeLink]);
     }
 }
