@@ -10,6 +10,7 @@ use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Crypt;
 
 class Comment extends Action
 {
