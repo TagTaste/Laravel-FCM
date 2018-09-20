@@ -552,7 +552,7 @@ class CollaborateController extends Controller
                     'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
                     'created_at'=>$now,'updated_at'=>$now];
             }
-            if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
+            if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
             {
                 Collaborate\Batches::insert($batchList);
                 $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
