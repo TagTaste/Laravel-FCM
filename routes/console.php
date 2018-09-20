@@ -195,7 +195,7 @@ Artisan::command('inspire', function () {
             $count++;
             echo "Sending collab mail to " . $email . "\n";
 
-        $mail = (new \App\Mail\CollabSuggestions($user->name,$user->id))->onQueue('emails');
+        $mail = (new \App\Mail\CollabSuggestions($user->name,$user->id,$preference->setting_id))->onQueue('emails');
         \Mail::to($email)->send($mail);
         }
         
