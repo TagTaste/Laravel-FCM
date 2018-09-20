@@ -240,10 +240,6 @@ class CollaborateController extends Controller
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
-        else
-        {
-            $inputs["file1"] = null;
-        }
 
         if($request->has('allergens_id'))
         {
