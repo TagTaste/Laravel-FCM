@@ -250,7 +250,7 @@ class ShoutoutController extends Controller
         //$file = file_get_contents($avatar);
         $file = $this->get_web_page($url);
         $filename = str_random(20) . ".jpg";
-        $path = 'images/p/' . $profileId . "/simages/";
+        $path = 'images/p/' . $profileId . "/";
         $path = storage_path($path);
 
         if(!is_dir($path) && !mkdir($path,0755,true)){
