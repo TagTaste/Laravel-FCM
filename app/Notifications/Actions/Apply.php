@@ -13,7 +13,6 @@ class Apply extends Action
     public $view;
     public $sub;
     public $notification ;
-
     public function __construct($event)
     {
         parent::__construct($event);
@@ -63,11 +62,11 @@ class Apply extends Action
         } else {
             $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action,null,$this->modelName);
         }
-
+        
         if(is_null($preference)) {
             return $via;
         }
-
+        $this->settingId = $preference->setting_id;
         $via = [];
         if($preference->bell_value) {
             $via[] = 'broadcast';

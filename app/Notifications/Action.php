@@ -11,6 +11,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Crypt;
 
 class Action extends Notification implements ShouldQueue
 {
@@ -24,6 +25,7 @@ class Action extends Notification implements ShouldQueue
     public $image;
     public $modelName;
     public $allData ;
+    public $settingId ;
     /**
      * Create a new notification instance.
      *
@@ -79,12 +81,10 @@ class Action extends Notification implements ShouldQueue
         } else {
             $preference = Setting::getNotificationPreference($notifiable->id, null, $this->data->action);
         }
-
-
         if(is_null($preference)) {
             return $via;
         }
-
+        $this->settingId = $preference->setting_id;
         $via = [];
         if($preference->bell_value) {
             $via[] = 'broadcast';
@@ -106,8 +106,28 @@ class Action extends Notification implements ShouldQueue
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
-    {
+    {  
         if(view()->exists($this->view)){
+
+            if($this->data->action != 'expire'||$this->data->action != 'admin'||$this->data->action != 'delete-model')
+        {
+            $action = $this->data->action;
+            $profileId = $notifiable->id;
+            $model = $this->modelName;
+            if($this->model->company_id != null)
+            {
+                $companyId = $this->model->company_id;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            }
+            else{
+                $companyId = null;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            }
+            $unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encrypted;
+            return (new MailMessage())->subject($this->sub)->view(
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
+            );
+        }
             return (new MailMessage())->subject($this->sub)->view(
                 $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable,'content'=>$this->getContent($this->allData['content'])]
             );

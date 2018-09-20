@@ -10,6 +10,7 @@ use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use Carbon\Carbon;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Crypt;
 
 class Comment extends Action
 {
@@ -17,7 +18,7 @@ class Comment extends Action
     public $view;
     public $sub;
     public $notification;
-
+    
     public function __construct($event)
     {
         parent::__construct($event);
@@ -46,8 +47,21 @@ class Comment extends Action
         $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
         $this->allData['title'] = $this->sub;
         if(view()->exists($this->view)){
+            $action = $this->data->action;
+            $profileId = $notifiable->id;
+            $model = $this->modelName;
+            if($this->model->company_id != null)
+            {
+                $companyId = $this->model->company_id;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            }
+            else{
+                $companyId = null;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            }
+            $unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content'])]
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
             );
         }
     }

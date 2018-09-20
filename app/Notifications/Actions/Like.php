@@ -64,7 +64,7 @@ class Like extends Action
         if(is_null($preference)) {
             return $via;
         }
-
+        
         $via = [];
         if($preference->bell_value) {
             $via[] = 'broadcast';
