@@ -144,7 +144,7 @@ class CollaborateController extends Controller
                     $allergens[] = ['collaborate_id'=>$this->model->id,'allergens_id'=>$allergensId];
                 }
                 Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
-                $collaborate->collaborate_allergens()->insert($allergens);
+                $this->model->collaborate_allergens()->insert($allergens);
             }
             else
             {
