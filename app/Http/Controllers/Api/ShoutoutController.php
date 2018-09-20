@@ -251,14 +251,14 @@ class ShoutoutController extends Controller
         $file = $this->get_web_page($url);
         $filename = str_random(20) . ".jpg";
         $path = "app/" . "images/p/" . $profileId . "/simages/";
-        storage_path($path);
+        $path = storage_path($path);
 
         if(!is_dir($path) && !mkdir($path,0755,true)){
             \Log::info("Did not create directory.");
         }
-        $filename = $path . $filename;
-        file_put_contents($filename,$file);
-        return $filename;
+        $filename1 = $path . $filename;
+        file_put_contents($filename1,$file);
+        return "app/" . "images/p/" . $profileId . "/simages/" . $filename;
 
 	    $path = 'images/p/' . $profileId . "/simages/";
         \Storage::disk('local')->makeDirectory($path);
