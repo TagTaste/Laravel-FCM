@@ -247,19 +247,6 @@ class ShoutoutController extends Controller
     
     public function getExternalImage($url,$profileId){
 
-        //$file = file_get_contents($avatar);
-        $file = $this->get_web_page($url);
-        $filename = str_random(20) . ".jpg";
-        $path = "app/" . "images/p/" . $profileId . "/simages/";
-        $path = storage_path($path);
-
-        if(!is_dir($path) && !mkdir($path,0755,true)){
-            \Log::info("Did not create directory.");
-        }
-        $filename1 = $path . $filename;
-        file_put_contents($filename1,$file);
-        return "app/" . "images/p/" . $profileId . "/simages/" . $filename;
-
 	    $path = 'images/p/' . $profileId . "/simages/";
         \Storage::disk('local')->makeDirectory($path);
         $filename = str_random(32) . ".jpg";
