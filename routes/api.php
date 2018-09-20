@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Crypt;
 
 
 
@@ -59,6 +60,13 @@ Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
+
+// unsubscribe
+Route::get("settingUpdate/{type}","SettingController@updateSetting");//this will do both subscribe and unsubscribe just pass subscribe or unsubscribe with the hash value you received and reason id for the reason of unsubscribe  
+
+Route::get("unsubscribe/reason","SettingController@getUnSubscribeReason");//to get or insert the reason for unsubscribe to the table. use the get route to recieve the resons for unsubscribe with id and post route to insert the resons as per your requirement.
+
+Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");//this route will post the reason for the particular user for unsubscribe just pass the hash value and the reason id you received from the above route. 
 
 //has prefix api/ - defined in RouteServiceProvider.php
 Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
@@ -566,5 +574,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 return response($str, 200, $headers);
         
             });
+
 
 });

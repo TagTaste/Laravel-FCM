@@ -9,6 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Crypt;
 
 class Tag extends Action
 {
@@ -42,8 +43,21 @@ class Tag extends Action
         $this->notification = $this->sub;
 
         if(view()->exists($this->view)){
+            $action = $this->data->action;
+            $profileId = $notifiable->id;
+            $model = $this->modelName;
+            if($this->model->company_id != null)
+            {
+                $companyId = $this->model->company_id;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            }
+            else{
+                $companyId = null;
+                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            }
+            $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
             return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content'])]
+                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
             );
         }
     }
