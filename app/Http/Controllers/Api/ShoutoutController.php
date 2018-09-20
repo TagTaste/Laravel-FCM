@@ -74,9 +74,13 @@ class ShoutoutController extends Controller
             $filePath = 'p/' . $profile->id . "/si";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             if($resp){
+                $inputs['preview']['image'] = $resp;
                 \File::delete(storage_path($image));
             }
-            $inputs['preview']['image'] = $resp;
+            else
+            {
+                $inputs['preview']['image'] = null;
+            }
         }
         if(isset($inputs['preview']))
         {
