@@ -26,7 +26,7 @@ class CollabSuggestions extends Mailable
         $this->name = $name;
         $this->profileId = \App\Profile::where('user_id',$id)->pluck('id');
         $encryptedString = Crypt::encryptString($this->profileId[0]."/0/newsletter/informative/0");
-        $this->unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encryptedString;
+        $this->unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encryptedString;
     }
 
     /**
