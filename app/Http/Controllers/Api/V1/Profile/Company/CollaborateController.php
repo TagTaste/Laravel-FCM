@@ -209,14 +209,6 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
-        if(isset($inputs['expires_on']) && !is_null($inputs['expires_on']))
-        {
-            $inputs['expires_on'] = Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() ;
-        }
-        else
-        {
-            unset($inputs['expires_on']);
-        }
 
         if($collaborate->collaborate_type == 'collaborate')
             unset($inputs['expires_on']);
