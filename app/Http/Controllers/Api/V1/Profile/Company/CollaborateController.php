@@ -644,7 +644,6 @@ class CollaborateController extends Controller
         if(isset($inputs['age_group']))
         {
             $inputs['age_group'] = json_decode($inputs['age_group'],true);
-            \Log::info($inputs['age_group']);
             $ageGroups = $inputs['age_group'];
             if(count($ageGroups))
             {
