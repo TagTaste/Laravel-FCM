@@ -71,7 +71,7 @@ class ShoutoutController extends Controller
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
             $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
             $s3 = \Storage::disk('s3');
-            $filePath = 'p/' . $profile->id . "/si";
+            $filePath = "/images/p/" . $profile->id . "/simages/";
             \Log::info($image);
             \Log::info($filePath);
             $resp = $s3->putFile($filePath, new File(storage_path($image)), ['visibility'=>'public']);
@@ -250,7 +250,7 @@ class ShoutoutController extends Controller
         //$file = file_get_contents($avatar);
         $file = $this->get_web_page($url);
         $filename = str_random(20) . ".jpg";
-        $path = 'images/p/' . $profileId . "/";
+        $path = "/images/p/" . $profileId . "/simages/";
         $path = storage_path($path);
 
         if(!is_dir($path) && !mkdir($path,0755,true)){
