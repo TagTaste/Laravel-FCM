@@ -141,14 +141,14 @@ class CollaborateController extends Controller
             {
                 foreach ($allergensIds as $allergensId)
                 {
-                    $allergens[] = ['collaborate_id'=>$collaborate->id,'allergens_id'=>$allergensId];
+                    $allergens[] = ['collaborate_id'=>$this->model->id,'allergens_id'=>$allergensId];
                 }
-                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
+                Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
                 $collaborate->collaborate_allergens()->insert($allergens);
             }
             else
             {
-                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
+                Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
             }
         }
         $this->model = $this->model->fresh();
