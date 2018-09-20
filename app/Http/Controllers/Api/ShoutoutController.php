@@ -10,6 +10,7 @@ use App\Shoutout;
 use App\Traits\CheckTags;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ShoutoutController extends Controller
 {
@@ -74,7 +75,7 @@ class ShoutoutController extends Controller
             $filePath = "/images/p/" . $profile->id . "/simages";
             \Log::info($image);
             \Log::info($filePath);
-            $resp = $s3->putFile($filePath, new File(storage_path($image)), ['visibility'=>'public']);
+            $resp = Storage::disk('s3')->put($filePath, new File(storage_path($image)), ['visibility'=>'public']);
             if($resp){
                 $inputs['preview']['image'] = $resp;
                 \File::delete(storage_path($image));
