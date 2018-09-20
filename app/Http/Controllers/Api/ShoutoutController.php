@@ -70,12 +70,12 @@ class ShoutoutController extends Controller
         $profile = $request->user()->profile;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
             $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
+            \Log::info("image");
+            \Log::info($image);
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $profile->id . "/si";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             if($resp){
-                \Log::info("reso");
-                \Log::info($resp);
                 $inputs['preview']['image'] = $resp;
                 \File::delete(storage_path($image));
             }
@@ -250,6 +250,8 @@ class ShoutoutController extends Controller
         \Storage::disk('local')->makeDirectory($path);
         $filename = str_random(10) . ".jpg";
         $saveto = storage_path("app/" . $path) .  $filename;
+        \Log::info("saveto");
+        \Log::info($saveto);
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -260,6 +262,8 @@ class ShoutoutController extends Controller
         $fp = fopen($saveto,'a');
         fwrite($fp, $raw);
         fclose($fp);
+        \Log::info("response");
+        \Log::info("app/" . $path . $filename);
         return "app/" . $path . $filename;
     }
 
