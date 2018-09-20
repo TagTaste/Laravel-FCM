@@ -181,7 +181,7 @@ Artisan::command('inspire', function () {
 \Artisan::command("sendCollab",function(){
     
     $count = 0;
-    $users = \DB::table('users')->whereNull('deleted_at')->where('id',723)->get();
+    $users = \DB::table('users')->whereNull('deleted_at')->get();
     foreach ($users as $user)
     {
         

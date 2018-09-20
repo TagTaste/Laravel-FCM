@@ -577,16 +577,3 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
 });
-route::get('generate',function(){
-    // $action = $this->data->action;
-    //         $profileId = $notifiable->id;
-    //         $model = $this->modelName;
-            
-                //$companyId = $this->model->company_id;
-
-                $encrypted = Crypt::encryptString("3/785/".null);
-
-                return $encrypted;
-            
-                
-});
