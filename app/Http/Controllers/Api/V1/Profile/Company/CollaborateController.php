@@ -137,14 +137,18 @@ class CollaborateController extends Controller
         {
             $allergensIds = $request->input('allergens_id');
             $allergens = [];
-            foreach ($allergensIds as $allergensId)
+            if(count($allergensIds) > 0 && !empty($allergensIds) && is_array($allergensIds))
             {
-                $allergens[] = ['collaborate_id'=>$this->model->id,'allergens_id'=>$allergensId];
+                foreach ($allergensIds as $allergensId)
+                {
+                    $allergens[] = ['collaborate_id'=>$collaborate->id,'allergens_id'=>$allergensId];
+                }
+                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
+                $collaborate->collaborate_allergens()->insert($allergens);
             }
-            if(count($allergens))
+            else
             {
-                Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
-                $this->model->collaborate_allergens()->insert($allergens);
+                Collaborate\Allergens::where('collaborate_id',$collaborate->id)->delete();
             }
         }
         $this->model = $this->model->fresh();
