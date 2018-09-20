@@ -171,7 +171,6 @@ class ShoutoutController extends Controller
             if($resp){
                 \File::delete(storage_path($image));
             }
-            $inputs['preview']['image'] = $resp;
         }
         if(isset($inputs['preview']))
         {
