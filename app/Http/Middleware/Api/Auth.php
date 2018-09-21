@@ -135,7 +135,7 @@ class Auth extends GetUserFromToken
                     $tempArray["value"] = $dump_path;
                     $this->contentAnalysisReqCollection->push($tempArray);
                 } 
-                else if($extension == "mp4") {
+                else if($extension == "mp4" || $extension == "avi" || $extension == "flv" || $extension == "wmv" || $extension == "mov") {
                     //Video
                     //$dump_path = $this->request->file($key."");
                     $local_storage = \Storage::disk('s3ContentAnalysis');
