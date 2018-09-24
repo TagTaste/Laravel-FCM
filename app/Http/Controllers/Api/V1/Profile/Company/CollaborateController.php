@@ -242,7 +242,8 @@ class CollaborateController extends Controller
         }
         else
         {
-            $inputs["file1"] = isset($inputs['file1']) ? $inputs['file1'] : null;
+
+          $inputs["file1"] = null;
         }
 
         if($request->has('allergens_id'))
