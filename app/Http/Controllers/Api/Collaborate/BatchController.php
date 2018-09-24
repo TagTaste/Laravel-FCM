@@ -472,7 +472,80 @@ class BatchController extends Controller
             }
             $profileIds = $genderFilterIds;
         }
+        if($profileIds->count() > 0 && isset($filters['profile_id']))
+        {
+            $profileIds = $profileIds->forget($filters['profile_id']);
+        }
+        if($profileIds->count() == 0 && isset($filters['profile_id']))
+        {
+            $profileIds = $filters['profile_id'];
+            $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
+                ->where('batch_id',$batchId)->whereNotIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
+            $model = [];
+            $reports = [];
+            foreach ($withoutNest as $data)
+            {
+                if(isset($data->questions)&&!is_null($data->questions))
+                {
+                    $reports['question_id'] = $data->id;
+                    $reports['title'] = $data->title;
+                    $reports['subtitle'] = $data->subtitle;
+                    $reports['is_nested_question'] = $data->is_nested_question;
+                    $reports['question'] = $data->questions ;
+                    if($data->is_nested_question == 1)
+                    {
+                        $reports['nestedAnswers'] = [];
+                        foreach ($data->questions->questions as $item)
+                        {
+                            $subReports = [];
+                            $subReports['question_id'] = $item->id;
+                            $subReports['title'] = $item->title;
+                            $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
+                            $subReports['is_nested_question'] = $item->is_nested_question;
+                            $subReports['total_applicants'] = $totalApplicants;
+                            $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
+                                ->where('batch_id',$batchId)->where('question_id',$item->id)->whereNotIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
+                            $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                                ->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$item->id)
+                                ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            $reports['nestedAnswers'][] = $subReports;
+                        }
+                    }
+                    $reports['total_applicants'] = $totalApplicants;
+                    $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
+                        ->where('batch_id',$batchId)->whereNotIn('profile_id',$profileIds)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
+                    if(isset($data->questions->select_type) && $data->questions->select_type == 3)
+                    {
+                        $reports['answer'] = Collaborate\Review::where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
+                            ->where('current_status',3)->where('tasting_header_id',$headerId)->skip(0)->take(3)->get();
+                    }
+                    else
+                    {
+                        $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                            ->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
+                            ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                    }
 
+                    if(isset($data->questions->is_nested_option))
+                    {
+                        $reports['is_nested_option'] = $data->questions->is_nested_option;
+                        if($data->questions->is_nested_option == 1)
+                        {
+                            foreach($reports['answer'] as &$item)
+                            {
+                                $nestedOption = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
+                                    ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
+                                $item->path = isset($nestedOption->path) ? $nestedOption->path : null;
+                            }
+                        }
+                    }
+
+                    $model[] = $reports;
+                }
+            }
+            $this->model = $model;
+            return $this->sendResponse();
+        }
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
         $model = [];
