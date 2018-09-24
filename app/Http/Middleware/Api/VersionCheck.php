@@ -18,7 +18,6 @@ class VersionCheck
      */
     public function handle($request, Closure $next)
     {
-        $isIosRequest = false;
         //if version key not specified, we've got a badass. Let 'em through.
         if(!$request->hasHeader($this->versionKey) && !$request->hasHeader($this->versionKeyIos)){
             return $next($request);
@@ -29,7 +28,6 @@ class VersionCheck
             $api = Version::getVersion(Version::$APP_ANDROID);
         } else {
             $version = $request->header($this->versionKeyIos);
-            $isIosRequest = true;
             $api = Version::getVersion(Version::$APP_IOS);
         }
         
@@ -41,7 +39,7 @@ class VersionCheck
         }
         
         //if the version is compatible;
-        if(!$api->isCompatible($version) || $isIosRequest){
+        if(!$api->isCompatible($version)){
             $response = $next($request);
         } else {
             $response = response()->json(['error'=>'incompatible_version',

@@ -10,6 +10,7 @@ use App\Shoutout;
 use App\Traits\CheckTags;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ShoutoutController extends Controller
 {
@@ -71,12 +72,16 @@ class ShoutoutController extends Controller
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
             $image = $this->getExternalImage($inputs['preview']['image'],$profile->id);
             $s3 = \Storage::disk('s3');
-            $filePath = 'p/' . $profile->id . "/si";
-            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+            $filePath = "images/p/" . $profile->id . "/simages";
+            $resp = Storage::disk('s3')->put($filePath, new File(storage_path($image)), ['visibility'=>'public']);
             if($resp){
+                $inputs['preview']['image'] = $resp;
                 \File::delete(storage_path($image));
             }
-            $inputs['preview']['image'] = $resp;
+            else
+            {
+                $inputs['preview']['image'] = null;
+            }
         }
         if(isset($inputs['preview']))
         {
@@ -165,7 +170,6 @@ class ShoutoutController extends Controller
             if($resp){
                 \File::delete(storage_path($image));
             }
-            $inputs['preview']['image'] = $resp;
         }
         if(isset($inputs['preview']))
         {
@@ -240,9 +244,10 @@ class ShoutoutController extends Controller
 	}
     
     public function getExternalImage($url,$profileId){
+
 	    $path = 'images/p/' . $profileId . "/simages/";
         \Storage::disk('local')->makeDirectory($path);
-        $filename = str_random(10) . ".jpg";
+        $filename = str_random(32) . ".jpg";
         $saveto = storage_path("app/" . $path) .  $filename;
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -289,5 +294,37 @@ class ShoutoutController extends Controller
         $response = json_decode($response);
         $body = $response->body;
         return json_encode($body,true);
+    }
+
+    public function get_web_page( $url )
+    {
+        $url = urldecode($url);
+        $url = htmlspecialchars_decode($url);
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,     // return web page
+            CURLOPT_HEADER         => false,    // don't return headers
+            CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+            CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+            CURLOPT_TIMEOUT        => 120,      // timeout on response
+            CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+            CURLOPT_CAINFO => app_path("cacert.pem")
+        );
+
+        $ch      = curl_init( $url );
+        curl_setopt_array( $ch, $options );
+        $content = curl_exec( $ch );
+        $err     = curl_errno( $ch );
+        $errmsg  = curl_error( $ch );
+        $header  = curl_getinfo( $ch );
+        curl_close( $ch );
+        \Log::debug($err);
+        \Log::debug($errmsg);
+        \Log::debug($header);
+        return $content;
+
+//        $header['errno']   = $err;
+//        $header['errmsg']  = $errmsg;
+//        $header['content'] = $content;
+//        return $header;
     }
 }
