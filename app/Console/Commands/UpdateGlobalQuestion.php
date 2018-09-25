@@ -41,238 +41,701 @@ class UpdateGlobalQuestion extends Command
         $id = $this->argument('id');
 
         $headerInfo2 = [['header_name'=>"INSTRUCTIONS"],
-            ['header_name'=>"APPEARANCE","header_info"=>"Observe the visual aspect of the product."],
-            ['header_name'=>"AROMA","header_info"=>"Sniff the product. If you experienced aroma, fill up this section. Otherwise, move to the next section."],
-            ['header_name'=>"TASTE","header_info"=>"Take a sip and figure out basic taste(s) you experienced."],
-            ['header_name'=>"AROMATICS","header_info"=>"Observe the smell that was released after you have sipped the product."],
-            ['header_name'=>"ORAL TEXTURE","header_info"=>"Sip the product multiple times. Observe if it sticks to the mouth, its loose particles and after-taste."],
-            ['header_name'=>"OVERALL PREFERENCE","header_info"=>"Rate the overall experience of the product and provide some comments."],
+
+            ['header_name'=>"APPEARANCE","header_info"=>"Observe the visual aspect of the product like it's shape, density of mass and color."],
+
+            ['header_name'=>"AROMA","header_info"=>"Sniff the product. If you experienced aroma, fill up this section."],
+
+            ['header_name'=>"TASTE","header_info"=>"Take a bite and figure out basic taste(s) you experienced."],
+
+            ['header_name'=>"AROMATICS","header_info"=>"Observe the smell that was released after you chewed the product."],
+
+            ['header_name'=>"ORAL TEXTURE","header_info"=>"Chew only for 3-4 times then answer first chew, continue chewing to get pulp and answer chew down experience and residual  sub section. Observe if it sticks to the mouth, its loose particles and after-feel."],
+
+            ['header_name'=>"OVERALL PREFERENCE","header_info"=>"Rate the overall experience of the product on the preference scale and write about balance/imbalance of 5 main attributes (Appearance, Aroma, Taste, Aromatics, Texture) in comment section below."],
+
         ];
         $questions2 = '{
-	"INSTRUCTIONS": [{
-		"title": "INSTRUCTIONS",
-		"subtitle": "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.",
-		"select_type": 4
-	}],
 
-	"APPEARANCE": [{
-		"title": "Color of coffee",
-		"select_type": 1,
-		"is_intensity": 1,
-		"intensity_type": 2,
-		"intensity_value": "Low,Medium,High",
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Brown (Coffee bean),Rust (Roasted coffee),Black (Brew only),Caramel (Milk coffee),Any other"
-	}, {
-		"title": "Overall preference",
-		"select_type": 5,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-	}, {
-		"title": "Comments",
-		"select_type": 3,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 0
-	}],
+			"INSTRUCTIONS": [{
+		 
+			   "title": "INSTRUCTIONS",
+		 
+			   "subtitle": "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.",
+		 
+			   "select_type": 4
+		 
+			}],
+		 
+		 
+			"APPEARANCE": [{
+		 
+			   "title": "Visual observation",
+		 
+			   "select_type": 2,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Broken,Cracked,Foreign material,Blisters,Folds,Sugar / crystals,Flat,Crushed,Fluffy,Even,Deflated,Balloon like"
+		 
+			}, {
+		 
+			   "title": "Color of the crust",
+		 
+			   "select_type": 2,
+		 
+			   "is_intensity": 1,
+		 
+			   "intensity_type": 2,
+		 
+			   "intensity_value": "Pale,Medium,Deep",
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Hay,Straw,Golden,Copper,Bronze,Light brown,Brown,Chocolate,Charcoal,Any other"
+		 
+			}, {
+		 
+			   "title": "Sponginess (on touching)",
+		 
+			   "select_type": 1,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Low,Medium,High"
+		 
+			}, {
+		 
+			   "title": "Cross section (cut from the centre)",
+		 
+			   "select_type": 2,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Bright,Dull,Shiny,Matt,Greasy,Dense,Thick,Thin,Airy,Firm"
+		 
+			}, {
+		 
+				  "title": "Appearance of filling",
+		 
+				  "is_nested_question": 1,
+		 
+				  "question": [{
+		 
+						"title": "Identify color",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Bright,Dull,Glace"
+		 
+					 }, {
+		 
+						"title": "Quantity",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Low,Medium,High"
+		 
+					 }]
+		 
+			   }, {
+		 
+			   "title": "Overall preference",
+		 
+			   "select_type": 5,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+		 
+			}, {
+		 
+			   "title": "Comments",
+		 
+			   "select_type": 3,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 0
+		 
+			}],
+		 
+		 
+			"AROMA": [{
+		 
+				  "title": "Aromas observed",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 1,
+		 
+				  "intensity_type": 1,
+		 
+				  "intensity_value": 15,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "is_nested_option": 1,
+		 
+				  "nested_option_list": "AROMA"
+		 
+			   }, {
+		 
+			   "title": "Any off aroma (if observed)",
+		 
+			   "select_type": 2,
+		 
+			   "is_intensity": 1,
+		 
+			   "intensity_type": 1,
+		 
+			   "intensity_value": 15,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 0,
+		 
+			   "option": "Chemical,Preservative,Metallic,Medicinal"
+		 
+			}, {
+		 
+			   "title": "Overall aroma experience",
+		 
+			   "select_type": 1,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Pleasant,Inviting,Mouthwatering,Unpleasant,Uninviting,Repelling"
+		 
+			}, {
+		 
+				  "title": "Overall preference",
+		 
+				  "select_type": 5,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+		 
+			   }, {
+		 
+				  "title": "Comments",
+		 
+				  "select_type": 3,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 0
+		 
+			   }],
+		 
+		 
+			"TASTE": [{
+		 
+				  "title": "Basic taste",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 1,
+		 
+				  "intensity_type": 1,
+		 
+				  "intensity_value": 15,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Sweet,Salt,Sour,Bitter,Umami"
+		 
+			   }, {
+		 
+				  "title": "Ayurveda taste intensity",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 1,
+		 
+				  "intensity_type": 1,
+		 
+				  "intensity_value": 15,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 0,
+		 
+				  "option": "Astringent (Dryness),Pungent - Masala (Warm Spices),Pungent - Cool Sensation (Cool Species),Pungent - Chilli"
+		 
+			   }, {
+		 
+				  "title": "Overall preference",
+		 
+				  "select_type": 5,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+		 
+			   }, {
+		 
+				  "title": "Comments",
+		 
+				  "select_type": 3,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 0
+		 
+			   }],
+		 
+		 
+			"AROMATICS": [{
+		 
+				  "title": "Aromatics observed",
+		 
+				  "subtitle": "Aromatics is the smell that is released after you chew the product",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 1,
+		 
+				  "intensity_type": 1,
+		 
+				  "intensity_value": 15,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "is_nested_option": 1,
+		 
+				  "nested_option_list": "AROMA"
+		 
+			   }, {
+		 
+				  "title": "Identify OFF taste (consider aromatics as well)",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 1,
+		 
+				  "intensity_type": 1,
+		 
+				  "intensity_value": 15,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Chemical,Excess Preservatives,Gas (Kerosene / Sulphur),Medicinal (Hospital smell),Metallic (Tin / Al / Cl),Tetra pack"
+		 
+			   }, {
+		 
+				  "title": "Aftertaste",
+		 
+				  "is_nested_question": 1,
+		 
+				  "question": [{
+		 
+						"title": "Did you feel the aftertaste? (consider aromatics as well)",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Yes,No"
+		 
+					 }, {
+		 
+						"title": "How was the aftertaste?",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 1,
+		 
+						"intensity_type": 2,
+		 
+						"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Pleasant,Unpleasant"
+		 
+					 }, {
+		 
+						"title": "Length of the aftertaste?",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Short,Long"
+		 
+					 }]
+		 
+			   }, {
+		 
+				  "title": "Overall preference",
+		 
+				  "select_type": 5,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+		 
+			   }, {
+		 
+				  "title": "Comments",
+		 
+				  "select_type": 3,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_mandatory": 0,
+		 
+				  "is_nested_question": 0
+		 
+			   }],
+		 
+		 
+			"ORAL TEXTURE": [{
+		 
+				  "title": "Surface texture",
+		 
+				  "subtitle": "Hold the product between the lips",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Rough,Smooth,Loose Particles,Oily,Moist,Buttery,Dry"
+		 
+			   }, {
+		 
+				  "title": "Filling texture",
+		 
+				  "select_type": 2,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Sticky,Greasy,Dry and hard,Wet,Soft,Creamy,Saucy,Watery,Crystal,Loose,Pasty"
+		 
+			   }, {
+		 
+				  "title": "First Chew",
+		 
+				  "subtitle": "Chew 3-4 times and pause",
+		 
+				  "is_nested_question": 1,
+		 
+				  "question": [{
+		 
+						"title": "Uniformity",
+		 
+						"subtitle": "Same force need to chew a single bite",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Low,Medium,High"
+		 
+					 }, {
+		 
+						"title": "Burst of flavour",
+		 
+						"subtitle": "Moisture release",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Low,Medium,High"
+		 
+					 }, {
+		 
+						"title": "Melt in the mouth (only filling)",
+		 
+						"subtitle": "Amount of saliva and time needed for filling to melt",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Low,Medium,High"
+		 
+					 }]
+		 
+			   }, {
+		 
+				  "title": "Chew-down experience",
+		 
+				  "subtitle": "Chew multiple times to make pulp",
+		 
+				  "is_nested_question": 1,
+		 
+				  "question": [{
+		 
+						"title": "Moisture absorption",
+		 
+						"subtitle": "Amount of saliva absorbed",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Low,Medium,High"
+		 
+					 }, {
+		 
+						"title": "Cohesiveness",
+		 
+						"subtitle": "Pulp stays together or scatters",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Low,Medium,High"
+		 
+					 }, {
+		 
+						"title": "Sticky texture",
+		 
+						"subtitle": "Is there a film being formed between product and teeth?",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Yes,No"
+		 
+					 }, {
+		 
+						"title": "Pasty texture",
+		 
+						"subtitle": "Forms quickly into a paste without sticking",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Yes,No"
+		 
+					 }, {
+		 
+						"title": "Bite length",
+		 
+						"subtitle": "Chewing time taken to form a pulp",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Long,Short,Just fine"
+		 
+					 }]
+		 
+			   }, {
+		 
+				  "title": "Residual",
+		 
+				  "is_nested_question": 1,
+		 
+				  "question": [{
+		 
+						"title": "Did you feel anything left in mouth?",
+		 
+						"select_type": 1,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 1,
+		 
+						"option": "Yes,No"
+		 
+					 }, {
+		 
+						"title": "If residual was left, did you get...?",
+		 
+						"select_type": 2,
+		 
+						"is_intensity": 0,
+		 
+						"is_nested_question": 0,
+		 
+						"is_mandatory": 0,
+		 
+						"option": "Oily film,Loose particles,Sticking on Tooth,Chalky"
+		 
+					 }]
+		 
+			   }, {
+		 
+				  "title": "Overall preference",
+		 
+				  "select_type": 5,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_nested_question": 0,
+		 
+				  "is_mandatory": 1,
+		 
+				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+		 
+			   }, {
+		 
+				  "title": "Comments",
+		 
+				  "select_type": 3,
+		 
+				  "is_intensity": 0,
+		 
+				  "is_mandatory": 0,
+		 
+				  "is_nested_question": 0
+		 
+			   }],
+		 
+		 
+			"OVERALL PREFERENCE": [{
+		 
+			   "title": "Full product experience",
+		 
+			   "select_type": 5,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_nested_question": 0,
+		 
+			   "is_mandatory": 1,
+		 
+			   "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+		 
+			}, {
+		 
+			   "title": "Comments",
+		 
+			   "select_type": 3,
+		 
+			   "is_intensity": 0,
+		 
+			   "is_mandatory": 0,
+		 
+			   "is_nested_question": 0
+		 
+			}]
+		 
+		 }';
 
-	"AROMA": [{
-			"title": "Aromas observed",
-			"select_type": 2,
-			"is_intensity": 1,
-			"intensity_type": 1,
-			"intensity_value": 15,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"is_nested_option": 1,
-			"nested_option_list": "AROMA"
-		},
-		{
-			"title": "Any off aroma (If yes, describe more in comments)",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Yes,No"
-		}, {
-			"title": "Overall preference",
-			"select_type": 5,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-		}, {
-			"title": "Comments",
-			"select_type": 3,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 0
-		}
-	],
-
-	"TASTE": [{
-		"title": "Basic taste",
-		"select_type": 2,
-		"is_intensity": 1,
-		"intensity_type": 1,
-		"intensity_value": 15,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Sweet,Salt,Sour,Bitter,Umami,Astringent,Pungent"
-	}, {
-		"title": "Chemical feeling factor (if observed)",
-		"select_type": 1,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Yes,No"
-	}, {
-		"title": "Overall preference",
-		"select_type": 5,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-	}, {
-		"title": "Comments",
-		"select_type": 3,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 0
-	}],
-
-	"AROMATICS": [{
-		"title": "Aromatics observed",
-		"subtitle": "Aromatics is the smell that is released after you chew the product",
-		"select_type": 2,
-		"is_intensity": 1,
-		"intensity_type": 1,
-		"intensity_value": 15,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"is_nested_option": 1,
-		"nested_option_list": "AROMA"
-	}, {
-		"title": "After-taste",
-		"is_nested_question": 1,
-		"question": [{
-			"title": "After-taste",
-			"select_type": 1,
-			"is_intensity": 1,
-			"intensity_type": 2,
-			"intensity_value": "Low,Medium,High",
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Good,Bad"
-		}, {
-			"title": "Duration of the after-taste",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "None,Short,Sufficient,Long"
-		}]
-	}, {
-		"title": "Overall preference",
-		"select_type": 5,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-	}, {
-		"title": "Comments",
-		"select_type": 3,
-		"is_intensity": 0,
-		"is_mandatory": 0,
-		"is_nested_question": 0
-	}],
-
-	"ORAL TEXTURE": [{
-		"title": "Acidity",
-		"is_nested_question": 1,
-		"question": [{
-			"title": "Brightness of coffee",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Flat,Bright"
-		}, {
-			"title": "If you selected Bright, was it...?",
-			"select_type": 2,
-			"is_intensity": 1,
-			"intensity_type": 1,
-			"intensity_value": 15,
-			"is_nested_question": 0,
-			"is_mandatory": 0,
-			"option": "Tangy,Winey,Sour,Fermented"
-		}]
-	}, {
-		"title": "Body",
-		"is_nested_question": 1,
-		"question": [{
-			"title": "Is it like...?",
-			"select_type": 1,
-			"is_intensity": 1,
-			"intensity_type": 1,
-			"intensity_value": 15,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Syrup,Whole Milk,Water,Any other"
-		}]
-	}, {
-		"title": "Sweetness",
-		"is_nested_question": 1,
-		"question": [{
-			"title": "Fullness of Flavour",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "None,Barely detectable,Identifiable but not very intense,Slighty intense,Moderately intense,Intense,Very intense,Extremely intense"
-		}]
-	}, {
-		"title": "Overall preference",
-		"select_type": 5,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-	}, {
-		"title": "Comments",
-		"select_type": 3,
-		"is_intensity": 0,
-		"is_mandatory": 0,
-		"is_nested_question": 0
-	}],
-
-	"OVERALL PREFERENCE": [{
-		"title": "Are these 5 elements balanced: Aroma, Taste, Acidity, Body and Flavour4",
-		"select_type": 1,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Yes,No"
-	}, {
-		"title": "Full product experience",
-		"select_type": 5,
-		"is_intensity": 0,
-		"is_nested_question": 0,
-		"is_mandatory": 1,
-		"option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-	}, {
-		"title": "Comments",
-		"select_type": 3,
-		"is_intensity": 0,
-		"is_mandatory": 0,
-		"is_nested_question": 0
-	}]
-}';
-
-         $data = ['name'=>'Cold Brew Coffee','keywords'=>"Cold Brew,Coffee,Cold Brew Coffee",'description'=>'Cold Brew Coffee',
+         $data = ['name'=>'Bunfills','keywords'=>"Bunfills",'description'=>'Bunfills',
              'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
          \DB::table('global_questions')->where('id',$id)->update($data);
