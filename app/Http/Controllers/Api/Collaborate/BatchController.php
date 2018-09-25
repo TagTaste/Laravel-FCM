@@ -823,5 +823,55 @@ class BatchController extends Controller
         return response()->download($filePath, $collaborateId."_HUT_USER_ADDRESS_LIST.xls", $headers);
     }
 
+    public function reportSummary(Request $request, $collaborateId)
+    {
+        $filters = $request->input('filters');
+        $profileIds = new Collection([]);
+        if(isset($filters['city']))
+        {
+            foreach ($filters['city'] as $city)
+            {
+                $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
+                $profileIds = $profileIds->merge($ids);
+            }
+        }
+        if(isset($filters['age']))
+        {
+            $ageFilterIds = new Collection([]);
+            foreach ($filters['age'] as $age)
+            {
+                $age = htmlspecialchars_decode($age);
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+                        ->get()->pluck('profile_id');
+                $ageFilterIds = $ageFilterIds->merge($ids);
+            }
+            $profileIds = $ageFilterIds;
 
+        }
+        if(isset($filters['gender']))
+        {
+            $genderFilterIds = new Collection([]);
+
+            foreach ($filters['gender'] as $gender)
+            {
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+                        ->get()->pluck('profile_id');
+                $genderFilterIds = $genderFilterIds->merge($ids);
+            }
+            $profileIds = $genderFilterIds;
+        }
+        if($profileIds->count() > 0 && isset($filters['profile_id']))
+        {
+            $profileIds = $profileIds->forget($filters['profile_id']);
+        }
+
+    }
 }
