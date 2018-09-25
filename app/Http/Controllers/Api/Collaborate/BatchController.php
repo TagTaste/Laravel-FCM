@@ -873,5 +873,12 @@ class BatchController extends Controller
             $profileIds = $profileIds->forget($filters['profile_id']);
         }
 
+        $questions = Collaborate\Questions::where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get();
+        return $questions;
+
+        $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+            ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('select',1)
+            ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+
     }
 }
