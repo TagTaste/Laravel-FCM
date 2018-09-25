@@ -874,7 +874,7 @@ class BatchController extends Controller
         }
 
         $questions = Collaborate\Questions::where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get();
-        return 1;
+        return $questions;
 
         $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
             ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('select',1)
