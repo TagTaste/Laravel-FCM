@@ -188,15 +188,10 @@ class CollaborateController extends Controller
         }
         else
         {
-
-            if(isset($inputs['file1']))
-            {
+            if($inputs['file1'] == $collaborate->file1)
                 unset($inputs['file1']);
-            }
             else
-            {
                 $inputs['file1'] = null;
-            }
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);

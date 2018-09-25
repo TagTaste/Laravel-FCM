@@ -195,7 +195,6 @@ class CollaborateController extends Controller
      */
     public function update(Request $request, $profileId, $companyId, $id)
     {
-        \Log::info($request->all());
         $loggedInProfileId = $request->user()->profile->id;
 
         $checkAdmin = CompanyUser::where('company_id',$companyId)->where('profile_id',$loggedInProfileId)->exists();
@@ -242,15 +241,10 @@ class CollaborateController extends Controller
         }
         else
         {
-
-          if(isset($inputs['file1']))
-          {
-              unset($inputs['file1']);
-          }
-          else
-          {
-              $inputs['file1'] = null;
-          }
+            if($inputs['file1'] == $collaborate->file1)
+                unset($inputs['file1']);
+            else
+                $inputs['file1'] = null;
         }
         if($request->has('allergens_id'))
         {
