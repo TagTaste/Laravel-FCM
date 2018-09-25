@@ -32,14 +32,14 @@ class VersionCheck
             $isIosRequest = true;
             $api = Version::getVersion(Version::$APP_IOS);
         }
-        
+
         if(empty($version)){
             $response = response()->json(['error'=>'invalid_version',
                 'message'=>'empty_version'],400);
             $response->headers->add($api->toHeaders());
             return $response;
         }
-        
+
         //if the version is compatible;
         if(!$api->isCompatible($version) || $isIosRequest){
             $response = $next($request);
@@ -47,9 +47,9 @@ class VersionCheck
             $response = response()->json(['error'=>'incompatible_version',
                 'message'=>'force_update'],400);
         }
-        
+
         $response->headers->add($api->toHeaders());
-        
+
         return $response;
     }
 }
