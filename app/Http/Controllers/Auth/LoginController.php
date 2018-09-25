@@ -108,7 +108,6 @@ class LoginController extends Controller
     {
         $result = ['status'=>'success' , 'newRegistered' => $this->newRegistered];
         $input = $request->all();
-        \Log::info($input);
         $authUser = $this->findOrCreateUser($input, $provider);
         if(!$authUser)
         {

@@ -28,10 +28,6 @@ class Application extends Model
     
     public function shortlist(Profile $shortlister, $tag)
     {
-        \Log::info($tag);
-        \Log::info(self::$tags[$tag]);
-        \Log::info(!isset(self::$tags[$tag]));
-        \Log::info($this->shortlisted == $tag);
         if(!isset(self::$tags[$tag]) || $this->shortlisted == $tag){
             return false;
         }

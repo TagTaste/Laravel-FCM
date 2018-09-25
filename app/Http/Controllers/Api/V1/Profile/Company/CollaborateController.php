@@ -656,7 +656,6 @@ class CollaborateController extends Controller
                     $ageInputs[] = [$key=>$ageGroup];
                 }
                 $inputs['age_group'] = json_encode($ageInputs);
-                \Log::info($inputs['age_group']);
             }
         }
         if(isset($inputs['gender_ratio']))

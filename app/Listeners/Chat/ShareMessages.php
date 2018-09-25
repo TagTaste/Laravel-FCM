@@ -37,8 +37,6 @@ class ShareMessages implements ShouldQueue
         $profileIds = $event->profileIds;
         if(count($chatIds))
         {
-            \Log::info("chat is here in count");
-            \Log::info($chatIds);
             foreach ($chatIds as $chatId)
             {
                 $info = [];
@@ -79,8 +77,6 @@ class ShareMessages implements ShouldQueue
                 ->get();
             $chatProfileIds = $chatIds->pluck('profile_id');
             $chatIds = $chatIds->pluck('chat_id');
-            \Log::info("chat is here");
-            \Log::info($chatIds);
             foreach ($chatIds as $chatId)
             {
                 $info = [];

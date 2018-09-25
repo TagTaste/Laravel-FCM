@@ -33,7 +33,6 @@ class ServiceInterruptionJob
      */
     public function handle()
     {
-        \Log::info("job");
         \Mail::send('emails.serviceInterruption', ['userName'=>$this->username], function($message)
         {
             $message->to($this->useremail, $this->username)->subject('[Resolved] Interruption in the services');
