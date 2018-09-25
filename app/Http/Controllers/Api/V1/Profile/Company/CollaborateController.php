@@ -137,14 +137,18 @@ class CollaborateController extends Controller
         {
             $allergensIds = $request->input('allergens_id');
             $allergens = [];
-            foreach ($allergensIds as $allergensId)
+            if(count($allergensIds) > 0 && !empty($allergensIds) && is_array($allergensIds))
             {
-                $allergens[] = ['collaborate_id'=>$this->model->id,'allergens_id'=>$allergensId];
-            }
-            if(count($allergens))
-            {
+                foreach ($allergensIds as $allergensId)
+                {
+                    $allergens[] = ['collaborate_id'=>$this->model->id,'allergens_id'=>$allergensId];
+                }
                 Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
                 $this->model->collaborate_allergens()->insert($allergens);
+            }
+            else
+            {
+                Collaborate\Allergens::where('collaborate_id',$this->model->id)->delete();
             }
         }
         $this->model = $this->model->fresh();
@@ -205,14 +209,6 @@ class CollaborateController extends Controller
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }
-        if(isset($inputs['expires_on']) && !is_null($inputs['expires_on']))
-        {
-            $inputs['expires_on'] = Carbon::now()->addMonth($inputs['expires_on'])->toDateTimeString() ;
-        }
-        else
-        {
-            unset($inputs['expires_on']);
-        }
 
         if($collaborate->collaborate_type == 'collaborate')
             unset($inputs['expires_on']);
@@ -246,7 +242,8 @@ class CollaborateController extends Controller
         }
         else
         {
-            $inputs["file1"] = null;
+
+          $inputs["file1"] = null;
         }
 
         if($request->has('allergens_id'))
@@ -548,7 +545,7 @@ class CollaborateController extends Controller
                     'instruction'=>isset($batch['instruction']) ? $batch['instruction'] : null, 'collaborate_id'=>$collaborateId,
                     'created_at'=>$now,'updated_at'=>$now];
             }
-            if(count($batchList) > 0 && count($batchList) < $collaborate->no_of_batches)
+            if(count($batchList) > 0 && count($batchList) <= $collaborate->no_of_batches)
             {
                 Collaborate\Batches::insert($batchList);
                 $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->get();
@@ -659,6 +656,7 @@ class CollaborateController extends Controller
                     $ageInputs[] = [$key=>$ageGroup];
                 }
                 $inputs['age_group'] = json_encode($ageInputs);
+                \Log::info($inputs['age_group']);
             }
         }
         if(isset($inputs['gender_ratio']))
