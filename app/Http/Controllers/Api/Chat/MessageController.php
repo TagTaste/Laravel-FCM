@@ -112,15 +112,13 @@ class MessageController extends Controller
     
             $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
         }
-
-        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-            $image = $this->getExternalImage($inputs['preview']['image'],$profileId);
+        if(isset($inputs['preview']->image) && !empty($inputs['preview']->image)){
+            $image = $this->getExternalImage($inputs['preview']->image,$profileId);
             $s3 = \Storage::disk('s3');
             $filePath = 'p/' . $profileId . "/ci";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             $inputs['preview']['image'] = $resp;
         }
-        \Log::info($inputs['preview']);
         if(isset($inputs['preview']))
         {
             $inputs['preview'] = json_encode($inputs['preview']);
@@ -129,7 +127,6 @@ class MessageController extends Controller
         {
             $inputs['preview'] = null;
         }
-
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);

@@ -47,8 +47,6 @@ class ShareMessages implements ShouldQueue
                     $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
                     $inputs['preview']['image'] = $resp;
                 }
-                \Log::info($inputs['preview']);
-
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
@@ -93,8 +91,6 @@ class ShareMessages implements ShouldQueue
                     $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
                     $inputs['preview']['image'] = $resp;
                 }
-                \Log::info($inputs['preview']);
-
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
@@ -131,7 +127,6 @@ class ShareMessages implements ShouldQueue
                     $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
                     $inputs['preview']['image'] = $resp;
                 }
-                \Log::info($inputs['preview']);
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
