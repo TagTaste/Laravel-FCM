@@ -120,6 +120,7 @@ class MessageController extends Controller
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             $inputs['preview']['image'] = $resp;
         }
+        \Log::info($inputs['preview']);
         if(isset($inputs['preview']))
         {
             $inputs['preview'] = json_encode($inputs['preview']);
