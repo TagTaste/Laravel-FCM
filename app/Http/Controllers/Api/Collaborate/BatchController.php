@@ -382,7 +382,7 @@ class BatchController extends Controller
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                        $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
                             ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $reports['nestedAnswers'][] = $subReports;
@@ -874,13 +874,22 @@ class BatchController extends Controller
         }
 
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
-        $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('leaf_id','batch_id','value',\DB::raw('count(*) as total'))
+
+        $overAllPreference = \DB::table('collaborate_tasting_user_review')->join('collaborate_tasting_header','collaborate_tasting_questions.header_type_id','=','collaborate_tasting_header.id')
+            ->select('header_type_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))
             ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)
-            ->orderBy('leaf_id')->groupBy('question_id','value','leaf_id','batch_id')->get();
+            ->orderBy('header_type_id','batch_id')->groupBy('question_id','value','leaf_id','batch_id')->get();
 
-        $batchIds = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
-
-
+//        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
+//
+//        $overAllPreference = [];
+//        $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
+//        foreach ($headers as $header)
+//        {
+//            $data = [];
+//            $data['header_type'] = $header->header_type;
+//            $data['id'] = $header->id;
+//        }
         return $overAllPreference;
 
     }
