@@ -34,6 +34,7 @@ class ShareMessages implements ShouldQueue
         $loggedInProfileId = $event->user->profile->id;
 
         $inputs = $event->inputs;
+        $inputs['preview'] = isset($inputs['preview']) ? json_decode($inputs['preview'],true) : null;
         $profileIds = $event->profileIds;
         if(count($chatIds))
         {
