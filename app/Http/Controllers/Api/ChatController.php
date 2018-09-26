@@ -69,7 +69,6 @@ class ChatController extends Controller
         //check for existing chats only for single profileId.
         if(is_array($profileIds) && count($profileIds) === 1 && $request->input('isSingle') == 1){
             $existingChats = Chat::open($profileIds[0],$loggedInProfileId);
-            \Log::info($existingChats);
             if(!is_null($existingChats) && $existingChats->count() > 0){
                 $this->messages[] = "chat_open";
                 $this->model = $existingChats;
@@ -157,7 +156,6 @@ class ChatController extends Controller
         $data = [];
         if(count($profileIds)) {
             foreach ($profileIds as $profileId) {
-                \Log::info($profileId);
                 $data[] = ['chat_id' => $id, 'profile_id' => $profileId, 'created_at' => $now,'updated_at'=>$now,'is_admin'=>0];
             }
             $chat->members()->insert($data);
@@ -206,7 +204,6 @@ class ChatController extends Controller
         $profileIds = $request->input('profile_id');
         $chatIds = $request->input('chat_id');
         $inputs = $request->all();
-
         event(new \App\Events\Chat\ShareMessage($chatIds,$profileIds,$inputs,$request->user()));
 
         $this->model = true;

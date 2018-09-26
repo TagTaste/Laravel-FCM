@@ -36,7 +36,6 @@ class PhoneVerify implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info("Sending otp");
         $loggedInProfileId = $this->profile->id;
         Profile::where('id',$loggedInProfileId)->update(['otp'=>null]);
         //$job = ((new ChangeOtp($loggedInProfileId))->onQueue('phone_verify'))->delay(Carbon::now()->addMinutes(5));

@@ -34,11 +34,10 @@ class ShareMessages implements ShouldQueue
         $loggedInProfileId = $event->user->profile->id;
 
         $inputs = $event->inputs;
+        $inputs['preview'] = isset($inputs['preview']) ? json_decode($inputs['preview'],true) : null;
         $profileIds = $event->profileIds;
         if(count($chatIds))
         {
-            \Log::info("chat is here in count");
-            \Log::info($chatIds);
             foreach ($chatIds as $chatId)
             {
                 $info = [];
@@ -52,6 +51,10 @@ class ShareMessages implements ShouldQueue
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
+                }
+                else
+                {
+                    $inputs['preview'] = null;
                 }
 
                 $info['chat_id'] = $chatId;
@@ -79,8 +82,6 @@ class ShareMessages implements ShouldQueue
                 ->get();
             $chatProfileIds = $chatIds->pluck('profile_id');
             $chatIds = $chatIds->pluck('chat_id');
-            \Log::info("chat is here");
-            \Log::info($chatIds);
             foreach ($chatIds as $chatId)
             {
                 $info = [];
@@ -94,6 +95,10 @@ class ShareMessages implements ShouldQueue
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
+                }
+                else
+                {
+                    $inputs['preview'] = null;
                 }
 
                 $info['chat_id'] = $chatId;
@@ -126,6 +131,10 @@ class ShareMessages implements ShouldQueue
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
+                }
+                else
+                {
+                    $inputs['preview'] = null;
                 }
 
                 $info['chat_id'] = $chatId;

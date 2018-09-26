@@ -363,7 +363,6 @@ class ProfileController extends Controller
         }
 
         $graphResponse = json_decode($res->getBody(), true);
-        \Log::info(json_encode($graphResponse));
         $friendsFbId = [];
         foreach ($graphResponse['data']  as $f) {
             $friendsFbId[] = $f['id'];
@@ -680,7 +679,6 @@ class ProfileController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        \Log::info($profileIds);
         //$this->model['count'] = count($profileIds);
         $data = [];
         /*

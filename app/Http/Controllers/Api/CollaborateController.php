@@ -593,7 +593,6 @@ class CollaborateController extends Controller
                 $questions[] = ["s_no"=>$datum['sequence_id'],'parent_id'=>$parentId,'value'=>$datum['categories'],'type'=>'AROMA','is_active'=>$active];
             }
         }
-        \Log::info($questions);
 //        $this->model = \DB::table('global_nested_option')->insert($questions);
     }
 }

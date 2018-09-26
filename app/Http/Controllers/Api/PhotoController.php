@@ -17,7 +17,6 @@ class PhotoController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         if(!$loggedInProfileId){
-            \Log::info($request->all());
             return $this->sendError("Invalid Profile.");
         }
         $photo = Photo::where('id',$id)->first();

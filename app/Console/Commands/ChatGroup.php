@@ -39,10 +39,8 @@ class ChatGroup extends Command
                 \DB::table('chat_members')->where('chat_id',$model->id)->where('profile_id',$model->profile_id)->update(['is_admin'=>1]);
                 \DB::table('chat_members')->where('chat_id',$model->id)->update(['is_single'=>0]);
                 $chatIds = \DB::table('chat_members')->where('chat_id',$model->id)->count();
-                \Log::info($model->id);
                 if($chatIds == 2 && !isset($model->name))
                 {
-                    \Log::info($model->id);
                     \DB::table('chat_members')->where('chat_id',$model->id)->update(['is_single'=>1]);
                 }
             }

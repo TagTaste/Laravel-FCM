@@ -19,7 +19,6 @@ class Preview
     public static function get($url)
     {
         $key = "preview:" . sha1($url);
-        \Log::info($key);
         if(!\Redis::exists($key)){
             $self = new self($url);
             $tags = $self->parseFacebookTags($url);

@@ -63,7 +63,6 @@ class EducationController extends Controller {
 	public function update(Request $request, $profileId, $id)
 	{
         $input = $request->except(['_method','_token']);
-        \Log::info($input);
         $this->model = Education::where('id',$id)->where("profile_id",$request->user()->profile->id)->update($input);
         return $this->sendResponse();
 	}
