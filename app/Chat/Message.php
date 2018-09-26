@@ -54,7 +54,7 @@ class Message extends Model
             {
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
-            return $preview;
+            return is_object($preview) ? json_encode($preview) : $preview;
 
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
@@ -62,6 +62,10 @@ class Message extends Model
             \Log::error($e->getLine());
             \Log::error($e->getMessage());
         }
-        return empty($preview) ? null : $preview;
+        return empty($preview) ? null : is_object($preview) ? json_encode($preview) : $preview;
+    }
+    public function isJson($string) {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 }
