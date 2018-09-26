@@ -124,6 +124,10 @@ class MessageController extends Controller
         {
             $inputs['preview'] = json_encode($inputs['preview']);
         }
+        else
+        {
+            $inputs['preview'] = null;
+        }
 
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;

@@ -51,6 +51,10 @@ class ShareMessages implements ShouldQueue
                 {
                     $info['preview'] = json_encode($inputs['preview']);
                 }
+                else
+                {
+                    $inputs['preview'] = null;
+                }
 
                 $info['chat_id'] = $chatId;
                 $info['profile_id'] = $loggedInProfileId;
@@ -91,6 +95,10 @@ class ShareMessages implements ShouldQueue
                 {
                     $info['preview'] = json_encode($inputs['preview']);
                 }
+                else
+                {
+                    $inputs['preview'] = null;
+                }
 
                 $info['chat_id'] = $chatId;
                 $info['profile_id'] = $loggedInProfileId;
@@ -122,6 +130,10 @@ class ShareMessages implements ShouldQueue
                 if(isset($inputs['preview']))
                 {
                     $info['preview'] = json_encode($inputs['preview']);
+                }
+                else
+                {
+                    $inputs['preview'] = null;
                 }
 
                 $info['chat_id'] = $chatId;
