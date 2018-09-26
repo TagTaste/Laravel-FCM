@@ -222,19 +222,19 @@ class ProfileController extends Controller
     {
         if($request->hasFile($key)){
     
-            //$data['profile'][$key] = $this->saveFile($path,$request,$key);
+            $data['profile'][$key] = $this->saveFile($path,$request,$key);
             
-            if($key == 'image'){
-                //create a thumbnail
-                $path = $path . "/" . str_random(20) . ".jpg";
-                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
-                    $constraint->aspectRatio();
-                })->stream('jpg',70);
-                \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-                $data['profile']['image'] = $path;
-            } else {
-                $data['profile'][$key] = $this->saveFile($path,$request,$key);
-            }
+//            if($key == 'image'){
+//                //create a thumbnail
+//                $path = $path . "/" . str_random(20) . ".jpg";
+//                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
+//                    $constraint->aspectRatio();
+//                })->stream('jpg',70);
+//                \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+//                $data['profile']['image'] = $path;
+//            } else {
+//                $data['profile'][$key] = $this->saveFile($path,$request,$key);
+//            }
         }
     }
     
