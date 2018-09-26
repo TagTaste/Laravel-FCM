@@ -112,9 +112,8 @@ class MessageController extends Controller
     
             $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
         }
-        \Log::info($inputs['preview']);
-
-        \Log::info($inputs['preview']['image']);
+        $preview = $inputs['preview'];
+        \Log::info($preview->image);
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
             $image = $this->getExternalImage($inputs['preview']['image'],$profileId);
             $s3 = \Storage::disk('s3');
