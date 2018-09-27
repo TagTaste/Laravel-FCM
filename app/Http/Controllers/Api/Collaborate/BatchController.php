@@ -877,7 +877,7 @@ class BatchController extends Controller
 
         $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))
             ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)
-            ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
+            ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('question_id','leaf_id','value','batch_id')->get();
 
         $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
 //
