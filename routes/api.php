@@ -260,6 +260,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("batches/{id}/getShortlistedPeople","BatchController@getShortlistedPeople");
                 Route::get("batches/{id}/getShortlistedSearchPeople","BatchController@getShortlistedSearchPeople");
                 //reports
+                Route::get("reportSummary","BatchController@reportSummary");
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
 
