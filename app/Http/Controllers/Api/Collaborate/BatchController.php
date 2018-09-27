@@ -899,11 +899,13 @@ class BatchController extends Controller
 
                     if($header->id == $overAllPreference->tasting_header_id && $batch->id == $overAllPreference->batch_id)
                     {
-                        $totalReview += $overAllPreference->total;
-                        $totalValue += $overAllPreference->leaf_id * $overAllPreference->total;
+                        $totalReview = $totalReview + $overAllPreference->total;
+                        $totalValue = $totalValue + $overAllPreference->leaf_id * $overAllPreference->total;
                     }
                 }
-                $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
+                $item['totalReview'] = $totalReview;
+                $item['value'] = $totalValue;
+//                $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
             }
             $data['batches'] = $item;
             $model[] = $data;
