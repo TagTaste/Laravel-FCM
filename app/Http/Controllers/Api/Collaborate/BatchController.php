@@ -875,7 +875,7 @@ class BatchController extends Controller
 
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
 
-        $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))
+        $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))
             ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)
             ->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('question_id','leaf_id','value','batch_id')->get();
 
