@@ -875,13 +875,11 @@ class BatchController extends Controller
 
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
 
-        $overAllPreference = \DB::table('collaborate_tasting_user_review')->join('collaborate_tasting_header','collaborate_tasting_user_review.tasting_header_id','=','collaborate_tasting_header.id')
-            ->select('collaborate_tasting_user_review.leaf_id','collaborate_tasting_user_review.batch_id','collaborate_tasting_user_review.value',\DB::raw('count(*) as total'))
-            ->where('collaborate_tasting_user_review.collaborate_id',$collaborateId)->whereIn('collaborate_tasting_user_review.question_id',$questionIds)
-            ->orderBy('collaborate_tasting_header.id','collaborate_tasting_user_review.batch_id')->groupBy('collaborate_tasting_user_review.question_id',
-                'collaborate_tasting_user_review.value','collaborate_tasting_user_review.leaf_id','collaborate_tasting_user_review.batch_id')->get();
+        $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('leaf_id','batch_id','value',\DB::raw('count(*) as total'))
+            ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)
+            ->orderBy('leaf_id','batch_id')->groupBy('question_id','value','leaf_id','batch_id')->get();
 
-//        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
+        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
 //
 //        $overAllPreference = [];
 //        $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
