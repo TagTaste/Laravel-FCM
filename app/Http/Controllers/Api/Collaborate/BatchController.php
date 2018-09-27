@@ -875,12 +875,12 @@ class BatchController extends Controller
 
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
 
-        $overAllPreference = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))
+        $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))
             ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)
             ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
 
         $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
-//
+
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
         foreach ($headers as $header)
@@ -888,7 +888,26 @@ class BatchController extends Controller
             $data = [];
             $data['header_type'] = $header->header_type;
             $data['id'] = $header->id;
+            $item  = [];
+            foreach ($batches as $batch)
+            {
+                $item['batch_info'] = $batch;
+                $totalValue = 0;
+                $totalReview = 0;
+                foreach ($overAllPreferences as $overAllPreference)
+                {
+
+                    if($header->id == $overAllPreference->tasting_header_id && $batch->id == $overAllPreference->batch_id)
+                    {
+                        $totalReview += $overAllPreference->total;
+                        $totalValue += $overAllPreference->leaf_id * $overAllPreference->total;
+                    }
+                }
+                $item['overAllPreference'] = number_format((float)($totalReview/$totalValue), 2, '.', '');
+            }
+            $data['batches'] = $item;
+            $model[] = $data;
         }
-        return $overAllPreference;
+        return $model;
     }
 }
