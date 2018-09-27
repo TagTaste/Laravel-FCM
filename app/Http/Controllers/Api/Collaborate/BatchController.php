@@ -903,7 +903,7 @@ class BatchController extends Controller
                         $totalValue += $overAllPreference->leaf_id * $overAllPreference->total;
                     }
                 }
-                $item['overAllPreference'] = number_format((float)($totalReview/$totalValue), 2, '.', '');
+                $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
             }
             $data['batches'] = $item;
             $model[] = $data;
