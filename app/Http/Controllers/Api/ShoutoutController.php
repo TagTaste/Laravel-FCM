@@ -79,14 +79,13 @@ class ShoutoutController extends Controller
             }
             else
             {
-                $inputs['preview'] = null;
+                $inputs['preview']['image'] = null;
             }
             if($resp)
             {
                 \File::delete(storage_path($image));
             }
         }
-        \Log::info($inputs['preview']);
         if(isset($inputs['preview']))
         {
             $inputs['preview'] = json_encode($inputs['preview']);
