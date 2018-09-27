@@ -906,11 +906,12 @@ class BatchController extends Controller
                 if($totalValue && $totalReview)
                     $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
                 else
-                    $item['overAllPreference'] = 0;
+                    $item['overAllPreference'] = "0.00";
             }
             $data['batches'] = $item;
             $model[] = $data;
         }
-        return $model;
+        $this->model = $model;
+        return $this->sendResponse();
     }
 }
