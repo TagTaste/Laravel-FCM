@@ -359,9 +359,9 @@ class BatchController extends Controller
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->distinct()->get(['profile_id'])->count();
         $model = [];
-        $reports = [];
         foreach ($withoutNest as $data)
         {
+            $reports = [];
             if(isset($data->questions)&&!is_null($data->questions))
             {
                 $reports['question_id'] = $data->id;
@@ -390,6 +390,8 @@ class BatchController extends Controller
                     $reports['nestedAnswers'] = $subAnswers;
 
                 }
+                else
+                    unset($reports['nestedAnswers']);
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
@@ -481,9 +483,9 @@ class BatchController extends Controller
             $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->whereNotIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
             $model = [];
-            $reports = [];
             foreach ($withoutNest as $data)
             {
+                $reports = [];
                 if(isset($data->questions)&&!is_null($data->questions))
                 {
                     $reports['question_id'] = $data->id;
@@ -511,6 +513,8 @@ class BatchController extends Controller
                         }
                         $reports['nestedAnswers'] = $subAnswers;
                     }
+                    else
+                        unset($reports['nestedAnswers']);
                     $reports['total_applicants'] = $totalApplicants;
                     $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                         ->where('batch_id',$batchId)->whereNotIn('profile_id',$profileIds)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
@@ -549,9 +553,9 @@ class BatchController extends Controller
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
         $model = [];
-        $reports = [];
         foreach ($withoutNest as $data)
         {
+            $reports = [];
             if(isset($data->questions)&&!is_null($data->questions))
             {
                 $reports['question_id'] = $data->id;
@@ -579,6 +583,8 @@ class BatchController extends Controller
                     }
                     $reports['nestedAnswers'] = $subAnswers;
                 }
+                else
+                    unset($reports['nestedAnswers']);
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                     ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
