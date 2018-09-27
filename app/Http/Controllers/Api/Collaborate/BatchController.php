@@ -491,7 +491,7 @@ class BatchController extends Controller
                     $reports['question'] = $data->questions ;
                     if($data->is_nested_question == 1)
                     {
-                        $reports['nestedAnswers'] = [];
+                        $subAnswers = [];
                         foreach ($data->questions->questions as $item)
                         {
                             $subReports = [];
@@ -505,8 +505,9 @@ class BatchController extends Controller
                             $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                                 ->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$item->id)
                                 ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
-                            $reports['nestedAnswers'][] = $subReports;
+                            $subAnswers[] = $subReports;
                         }
+                        $reports['nestedAnswers'] = $subAnswers;
                     }
                     $reports['total_applicants'] = $totalApplicants;
                     $reports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
@@ -894,12 +895,14 @@ class BatchController extends Controller
         foreach ($headers as $header)
         {
             $data = [];
+            if($header->header_type == 'INSTRUCTIONS')
+                continue;
             $data['header_type'] = $header->header_type;
             $data['id'] = $header->id;
             $item  = [];
             foreach ($batches as $batch)
             {
-                $item['batch_info'] = $batch;
+                $item['batch_info'][] = $batch;
                 $totalValue = 0;
                 $totalReview = 0;
                 foreach ($overAllPreferences as $overAllPreference)
@@ -912,9 +915,9 @@ class BatchController extends Controller
                     }
                 }
                 if($totalValue && $totalReview)
-                    $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
+                    $item['overAllPreference'][] = number_format((float)($totalValue/$totalReview), 2, '.', '');
                 else
-                    $item['overAllPreference'] = "0.00";
+                    $item['overAllPreference'][] = "0.00";
             }
             $data['batches'] = $item;
             $model[] = $data;
