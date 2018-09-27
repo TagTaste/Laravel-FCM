@@ -297,6 +297,7 @@ Artisan::command('inspire', function () {
 \Artisan::command("tagtasteInsightFollow",function(){
 
     $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    $channelOwner = App\Company::find(137);
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
@@ -307,7 +308,6 @@ Artisan::command('inspire', function () {
             continue;
         }
 
-        $channelOwner = App\Company::find(137);
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
@@ -334,6 +334,7 @@ Artisan::command('inspire', function () {
 \Artisan::command("tagtasteTagtastingFollow",function(){
 
     $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    $channelOwner = App\Company::find(322);
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
@@ -344,7 +345,6 @@ Artisan::command('inspire', function () {
             continue;
         }
 
-        $channelOwner = App\Company::find(322);
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
