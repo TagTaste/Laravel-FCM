@@ -359,9 +359,9 @@ class BatchController extends Controller
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->distinct()->get(['profile_id'])->count();
         $model = [];
-        $reports = [];
         foreach ($withoutNest as $data)
         {
+            $reports = [];
             if(isset($data->questions)&&!is_null($data->questions))
             {
                 $reports['question_id'] = $data->id;
@@ -371,9 +371,6 @@ class BatchController extends Controller
                 $reports['question'] = $data->questions ;
                 if($data->questions->is_nested_question == 1)
                 {
-                    \Log::info($reports['title']);
-                    \Log::info("is nested question ".$data->is_nested_question);
-                    \Log::info("is nested question ".$data->questions->is_nested_question);
                     $subAnswers = [];
                     foreach ($data->questions->questions as $item)
                     {
@@ -484,9 +481,9 @@ class BatchController extends Controller
             $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
                 ->where('batch_id',$batchId)->whereNotIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
             $model = [];
-            $reports = [];
             foreach ($withoutNest as $data)
             {
+                $reports = [];
                 if(isset($data->questions)&&!is_null($data->questions))
                 {
                     $reports['question_id'] = $data->id;
@@ -496,9 +493,6 @@ class BatchController extends Controller
                     $reports['question'] = $data->questions ;
                     if($data->questions->is_nested_question == 1)
                     {
-                        \Log::info($reports['title']);
-                        \Log::info("is nested question ".$data->is_nested_question);
-                        \Log::info("is nested question ".$data->questions->is_nested_question);
                         $subAnswers = [];
                         foreach ($data->questions->questions as $item)
                         {
@@ -555,9 +549,9 @@ class BatchController extends Controller
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
         $model = [];
-        $reports = [];
         foreach ($withoutNest as $data)
         {
+            $reports = [];
             if(isset($data->questions)&&!is_null($data->questions))
             {
                 $reports['question_id'] = $data->id;
@@ -567,9 +561,6 @@ class BatchController extends Controller
                 $reports['question'] = $data->questions ;
                 if($data->questions->is_nested_question == 1)
                 {
-                    \Log::info($reports['title']);
-                    \Log::info("is nested question ".$data->is_nested_question);
-                    \Log::info("is nested question ".$data->questions->is_nested_question);
                     $subAnswers = [];
                     foreach ($data->questions->questions as $item)
                     {
