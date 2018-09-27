@@ -371,6 +371,9 @@ class BatchController extends Controller
                 $reports['question'] = $data->questions ;
                 if($data->questions->is_nested_question == 1)
                 {
+                    \Log::info($reports['title']);
+                    \Log::info("is nested question ".$data->is_nested_question);
+                    \Log::info("is nested question ".$data->questions->is_nested_question);
                     $subAnswers = [];
                     foreach ($data->questions->questions as $item)
                     {
@@ -493,6 +496,9 @@ class BatchController extends Controller
                     $reports['question'] = $data->questions ;
                     if($data->questions->is_nested_question == 1)
                     {
+                        \Log::info($reports['title']);
+                        \Log::info("is nested question ".$data->is_nested_question);
+                        \Log::info("is nested question ".$data->questions->is_nested_question);
                         $subAnswers = [];
                         foreach ($data->questions->questions as $item)
                         {
@@ -561,6 +567,9 @@ class BatchController extends Controller
                 $reports['question'] = $data->questions ;
                 if($data->questions->is_nested_question == 1)
                 {
+                    \Log::info($reports['title']);
+                    \Log::info("is nested question ".$data->is_nested_question);
+                    \Log::info("is nested question ".$data->questions->is_nested_question);
                     $subAnswers = [];
                     foreach ($data->questions->questions as $item)
                     {
