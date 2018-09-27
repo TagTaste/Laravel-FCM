@@ -74,7 +74,6 @@ class ShoutoutController extends Controller
             $filePath = 'p/' . $profile->id . "/si";
             $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
             $ext= pathinfo($resp);
-            \Log::info($ext);
             $ext = isset($ext['extension']) ? $ext['extension'] : null;
             if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
                 $inputs['preview']['image'] = $resp;
