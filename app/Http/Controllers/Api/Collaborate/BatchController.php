@@ -833,6 +833,7 @@ class BatchController extends Controller
     public function reportSummary(Request $request, $collaborateId)
     {
         $filters = $request->input('filters');
+        \Log::info($filters);
         $profileIds = new Collection([]);
         if(isset($filters['city']))
         {
@@ -856,9 +857,12 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
+            \Log::info("here");
+            \Log::info($ageFilterIds);
             $profileIds = $ageFilterIds;
 
         }
+        \Log::info($profileIds);
         if(isset($filters['gender']))
         {
             $genderFilterIds = new Collection([]);
