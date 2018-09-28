@@ -833,7 +833,6 @@ class BatchController extends Controller
     public function reportSummary(Request $request, $collaborateId)
     {
         $filters = $request->input('filters');
-        \Log::info($filters);
         $profileIds = new Collection([]);
         if(isset($filters['city']))
         {
@@ -857,12 +856,8 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
-            \Log::info("here");
-            \Log::info($ageFilterIds);
-            $profileIds = $ageFilterIds;
 
         }
-        \Log::info($profileIds);
         if(isset($filters['gender']))
         {
             $genderFilterIds = new Collection([]);
@@ -892,6 +887,12 @@ class BatchController extends Controller
             $profileIds = $filters['profile_id'];
             $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
                 ->where('collaborate_id',$collaborateId)->whereNotIn('profile_id',$profileIds)->whereIn('question_id',$questionIds)
+                ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
+        }
+        else if($profileIds->count() > 0)
+        {
+            $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
+                ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)->whereIn('profile_id',$profileIds)
                 ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
         }
         else
