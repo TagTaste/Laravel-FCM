@@ -856,7 +856,7 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
-
+            $profileIds = $ageFilterIds;
         }
         if(isset($filters['gender']))
         {
@@ -874,7 +874,7 @@ class BatchController extends Controller
             }
             $profileIds = $genderFilterIds;
         }
-        \Log::info($profileIds->count());
+        \Log::info($profileIds);
 
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
         if($profileIds->count() > 0 && isset($filters['profile_id']))
