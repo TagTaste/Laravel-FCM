@@ -297,6 +297,7 @@ Artisan::command('inspire', function () {
 \Artisan::command("tagtasteInsightFollow",function(){
 
     $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    $channelOwner = App\Company::find(137);
     foreach ($profileIds as $profileId)
     {
         echo 'profile id is'.$profileId ."\n";
@@ -307,7 +308,6 @@ Artisan::command('inspire', function () {
             continue;
         }
 
-        $channelOwner = App\Company::find(137);
         if(!$channelOwner){
             throw new ModelNotFoundException();
         }
@@ -320,6 +320,43 @@ Artisan::command('inspire', function () {
 
         //profiles that are following $channelOwner
         \Redis::sAdd("followers:company:137", $profileId);
+
+        echo 'profile id is'.$profileId ."\n";
+
+        if(!$this->model){
+            continue;
+        }
+        echo 'profile id is'.$profileId ."\n";
+
+    }
+
+});
+\Artisan::command("tagtasteTagtastingFollow",function(){
+
+    $profileIds = \App\Recipe\Profile::whereNull('deleted_at')->get()->pluck('id');
+    $channelOwner = App\Company::find(322);
+    foreach ($profileIds as $profileId)
+    {
+        echo 'profile id is'.$profileId ."\n";
+        $x = \Redis::sIsMember("followers:company:322",$profileId);
+        echo 'following is '.$x ."\n";
+        if($x)
+        {
+            continue;
+        }
+
+        if(!$channelOwner){
+            throw new ModelNotFoundException();
+        }
+        $user = \App\Profile::where('id',$profileId)->first();
+        $this->model = $user->subscribeNetworkOf($channelOwner);
+        $id = $user->id;
+
+        //companies the logged in user is following
+        \Redis::sAdd("following:profile:" . $profileId, "company.322");
+
+        //profiles that are following $channelOwner
+        \Redis::sAdd("followers:company:322", $profileId);
 
         echo 'profile id is'.$profileId ."\n";
 
