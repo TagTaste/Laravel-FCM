@@ -43,6 +43,12 @@ class UpdateNotificationModel extends Command
             $profile = isset($data['profile']) ? $data['profile'] : null;
             if(!is_null($profile))
             {
+                if(isset($data['action']) && $data['action'] == 'apply')
+                {
+                    $text = $data['profile']['name'] ." has shown interest in your collaboration ".$data['model']['content'];
+                    $data['notification'] = $text;
+                    \DB::table('notifications')->where('id', $notification->id)->update(['data'=>json_encode($data,true)]);
+                }
                 continue;
             }
             \DB::table('notifications')->where('id', $notification->id)->delete();
