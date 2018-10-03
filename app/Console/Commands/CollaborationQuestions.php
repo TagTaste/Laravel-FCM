@@ -78,7 +78,9 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     $value = $item['option'];
                     $option = [];
                     $i = 1;
+                    \Log::info("option is here ");
                     foreach($value as $v){
+                        \Log::info($v);
                         if(!isset($v['value']) || !isset($v['color_code']))
                             continue;
                         $option[] = [
@@ -88,6 +90,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         ];
                         $i++;
                     }
+                    \Log::info($option);
                 }
                 else
                 {
