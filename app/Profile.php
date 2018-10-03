@@ -21,14 +21,14 @@ class Profile extends Model
         'ingredients', 'favourite_moments', 'verified', 'youtube_channel', 'followers', 'following', 'user_id', 'created_at',
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
-        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender'
+        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type','foodie_type_id'
     ];
 
     //if you add a relation here, make sure you remove it from
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
         'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress',
-        'profile_occupations', 'profile_specializations'];
+        'profile_occupations', 'profile_specializations','profiles_allergens'];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',
@@ -39,11 +39,11 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
         'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
-        'profile_occupations', 'profile_specializations','is_veteran','is_expert'];
+        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','allergens'];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','establishment_types','cuisines','allergens'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
@@ -923,6 +923,29 @@ class Profile extends Model
     public function profile_occupations()
     {
         return $this->hasMany('App\Profile\Occupation');
+    }
+
+    public function getFoodieTypeAttribute()
+    {
+        return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id',$this->foodie_type_id)->first() : null;
+    }
+
+    public function GetAllergensAttribute()
+    {
+        $allergensIds =  \DB::table('profiles_allergens')->where('profile_id',request()->user()->profile->id)->get()->pluck('allergens_id');
+        return  \DB::table('allergens')->whereIn('id',$allergensIds)->get();
+    }
+
+    public function getCuisinesAttribute()
+    {
+        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',request()->user()->profile->id)->get()->pluck('cuisine_id');
+        return  \DB::table('cuisines')->whereIn('id',$cuisineIds)->get();
+    }
+
+    public function GetEstablishmentTypesAttribute()
+    {
+        $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
+        return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
     }
 }
 

@@ -7,6 +7,7 @@ use App\CompanyUser;
 use App\Events\Actions\Follow;
 use App\Events\SuggestionEngineEvent;
 use App\Profile;
+use App\Recipe\Collaborate;
 use App\Subscriber;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -212,6 +213,64 @@ class ProfileController extends Controller
                 Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
                 $this->model->profile_specializations()->insert($specializations);
 
+            }
+        }
+        if($request->has('cuisine_id'))
+        {
+            $cuisineIds = $request->input('cuisine_id');
+            $cuisines = [];
+            foreach ($cuisineIds as $cuisineId)
+            {
+                $cuisines[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$cuisineId];
+            }
+            if(count($cuisines))
+            {
+                \DB::table('profiles_cuisines')->insert($cuisines);
+
+            }
+        }
+        if($request->has('cuisine_id'))
+        {
+            $cuisineIds = $request->input('cuisine_id');
+            $cuisines = [];
+            foreach ($cuisineIds as $cuisineId)
+            {
+                $cuisines[] = ['profile_id'=>$loggedInProfileId,'cuisine_id'=>$cuisineId];
+            }
+            if(count($cuisines))
+            {
+                \DB::table('profiles_cuisines')->where('profile_id',$loggedInProfileId)->delete();
+                \DB::table('profiles_cuisines')->insert($cuisines);
+
+            }
+        }
+        if($request->has('establishment_type_id'))
+        {
+            $establishmentTypeIds = $request->input('establishment_type_id');
+            $establishmentTypes = [];
+            foreach ($establishmentTypeIds as $establishmentTypeId)
+            {
+                $establishmentTypes[] = ['profile_id'=>$loggedInProfileId,'establishment_type_id'=>$establishmentTypeId];
+            }
+            if(count($establishmentTypes))
+            {
+                \DB::table('profile_establishment_types')->where('profile_id',$loggedInProfileId)->delete();
+                \DB::table('profile_establishment_types')->insert($establishmentTypes);
+
+            }
+        }
+        if($request->has('allergens_id'))
+        {
+            $allergensIds = $request->input('allergens_id');
+            $allergens = [];
+            foreach ($allergensIds as $allergensId)
+            {
+                $allergens[] = ['profile_id'=>$loggedInProfileId,'allergens_id'=>$allergensId];
+            }
+            if(count($allergens))
+            {
+                \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->delete();
+                \DB::table('profiles_allergens')->insert($allergens);
             }
         }
         $this->model = Profile::find($request->user()->profile->id);
@@ -900,6 +959,21 @@ class ProfileController extends Controller
             $company = json_decode($company);
         }
         $this->model = $data;
+
+        return $this->sendResponse();
+    }
+
+    public function getCategory(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
+            ->get()->pluck('collaborate_id');
+        $totalTastingDoneCount = \DB::table('collaborate_tasting_user_review')->whereIn('collaborate_id',$collaborateIds)->where('current_status',3)->count();
+        $categoryIds = Collaborate::whereIn('id',$collaborateIds)->get()->pluck('category_id');
+        $categories = \DB::table('collaborate_categories')->whereIn('id',$categoryIds)->get();
+        $this->model = [];
+        $this->model['tastingDone'] = $totalTastingDoneCount;
+        $this->model['category'] = $categories;
 
         return $this->sendResponse();
     }
