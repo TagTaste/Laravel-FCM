@@ -76,14 +76,11 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 if(isset($item['select_type']) && $item['select_type'] == 5)
                 {
                     $value = $item['option'];
-                    \Log::info("value");
-                    \Log::info($value);
                     $option = [];
                     $i = 1;
                     foreach($value as $v){
                         if(!isset($v['value']) || !isset($v['color_code']))
                         {
-                            \Log::info($v);
                             continue;
                         }
                         $option[] = [
@@ -93,8 +90,6 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         ];
                         $i++;
                     }
-                    \Log::info("option");
-                    \Log::info($option);
                 }
                 else
                 {
