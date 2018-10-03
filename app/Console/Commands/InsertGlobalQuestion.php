@@ -172,9 +172,38 @@ class InsertGlobalQuestion extends Command
 			   "is_nested_question": 0,
 		 
 			   "is_mandatory": 1,
-		 
-			   "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
-		 
+			   
+			   "option": [{
+			   
+					 "vale" : "Don\'t like",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }, {
+					 
+					 "vale" : "Can\'t like",
+					 
+					 "color_code":"#DC143C"
+					 
+					 },{
+					 
+					 "vale" : "Somewhat like",
+					 
+					 "color_code":"#B22222"
+					 
+					 },{
+					 
+					 "vale" : "Clearly like",
+					 
+					 "color_code":"#FF0000"
+					 
+					 },{
+					 
+					 "vale" : "Love it",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }]		 
 			}, {
 		 
 			   "title": "Comments",
@@ -254,7 +283,37 @@ class InsertGlobalQuestion extends Command
 		 
 				  "is_mandatory": 1,
 		 
-				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+				  "option": [{
+			   
+					 "vale" : "Don\'t like",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }, {
+					 
+					 "vale" : "Can\'t like",
+					 
+					 "color_code":"#DC143C"
+					 
+					 },{
+					 
+					 "vale" : "Somewhat like",
+					 
+					 "color_code":"#B22222"
+					 
+					 },{
+					 
+					 "vale" : "Clearly like",
+					 
+					 "color_code":"#FF0000"
+					 
+					 },{
+					 
+					 "vale" : "Love it",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }]	
 		 
 			   }, {
 		 
@@ -319,7 +378,37 @@ class InsertGlobalQuestion extends Command
 		 
 				  "is_mandatory": 1,
 		 
-				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+				  "option": [{
+			   
+					 "vale" : "Don\'t like",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }, {
+					 
+					 "vale" : "Can\'t like",
+					 
+					 "color_code":"#DC143C"
+					 
+					 },{
+					 
+					 "vale" : "Somewhat like",
+					 
+					 "color_code":"#B22222"
+					 
+					 },{
+					 
+					 "vale" : "Clearly like",
+					 
+					 "color_code":"#FF0000"
+					 
+					 },{
+					 
+					 "vale" : "Love it",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }]	
 		 
 			   }, {
 		 
@@ -442,7 +531,37 @@ class InsertGlobalQuestion extends Command
 		 
 				  "is_mandatory": 1,
 		 
-				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+				  "option": [{
+			   
+					 "vale" : "Don\'t like",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }, {
+					 
+					 "vale" : "Can\'t like",
+					 
+					 "color_code":"#DC143C"
+					 
+					 },{
+					 
+					 "vale" : "Somewhat like",
+					 
+					 "color_code":"#B22222"
+					 
+					 },{
+					 
+					 "vale" : "Clearly like",
+					 
+					 "color_code":"#FF0000"
+					 
+					 },{
+					 
+					 "vale" : "Love it",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }]	
 		 
 			   }, {
 		 
@@ -685,7 +804,37 @@ class InsertGlobalQuestion extends Command
 		 
 				  "is_mandatory": 1,
 		 
-				  "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+				  "option": [{
+			   
+					 "vale" : "Don\'t like",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }, {
+					 
+					 "vale" : "Can\'t like",
+					 
+					 "color_code":"#DC143C"
+					 
+					 },{
+					 
+					 "vale" : "Somewhat like",
+					 
+					 "color_code":"#B22222"
+					 
+					 },{
+					 
+					 "vale" : "Clearly like",
+					 
+					 "color_code":"#FF0000"
+					 
+					 },{
+					 
+					 "vale" : "Love it",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }]	
 		 
 			   }, {
 		 
@@ -714,7 +863,37 @@ class InsertGlobalQuestion extends Command
 		 
 			   "is_mandatory": 1,
 		 
-			   "option": "Don\'t like,Can\'t say,Somewhat like,Clearly like,Love it"
+			   "option": [{
+			   
+					 "vale" : "Don\'t like",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }, {
+					 
+					 "vale" : "Can\'t like",
+					 
+					 "color_code":"#DC143C"
+					 
+					 },{
+					 
+					 "vale" : "Somewhat like",
+					 
+					 "color_code":"#B22222"
+					 
+					 },{
+					 
+					 "vale" : "Clearly like",
+					 
+					 "color_code":"#FF0000"
+					 
+					 },{
+					 
+					 "vale" : "Love it",
+					 
+					 "color_code":"#CD5C5C"
+					 
+					 }]	
 		 
 			}, {
 		 

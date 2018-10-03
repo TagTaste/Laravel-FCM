@@ -591,7 +591,8 @@ class CollaborateController extends Controller
                 $extra[] = $datum;
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
                 $active = isset($datum['is_active']) ? $datum['is_active'] : 1;
-                $questions[] = ["s_no"=>$datum['sequence_id'],'parent_id'=>$parentId,'value'=>$datum['categories'],'type'=>'AROMA','is_active'=>$active];
+                $description = isset($datum['description']) ? $datum['description'] : null;
+                $questions[] = ["s_no"=>$datum['sequence_id'],'parent_id'=>$parentId,'value'=>$datum['categories'],'type'=>'AROMA','is_active'=>$active,'description'=>$description];
             }
         }
 //        $this->model = \DB::table('global_nested_option')->insert($questions);
