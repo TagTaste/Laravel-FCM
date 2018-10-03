@@ -14,9 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            For
-                                            collaboration
-                                            : {{$model['content']}}
+                                            Collaboration: {{$model['content']}}
                                         </div>
                                     </td>
                                 </tr>
@@ -51,7 +49,7 @@
                                                             <td valign="top" align="center" bgcolor="#FFFFFF">
                                                                 <a href="{{env('APP_URL')}}/collaborate/{{$model['id']}}"
                                                                    style="display: inline-block;text-decoration: none;padding: 14px 24px;color: #FFFFFF;background-color: #D9222A;box-shadow: none;border: none;font-size: 16px;margin: 31px 0px 31px 0px;border-radius: 24px;font-weight: normal;">
-                                                                    visit the collaboration
+                                                                    View Collaboration
                                                                 </a>
                                                             </td>
                                                         </tr>
