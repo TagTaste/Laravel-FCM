@@ -175,31 +175,31 @@ class InsertGlobalQuestion extends Command
 			   
 			   "option": [{
 			   
-					 "vale" : "Don\'t like",
+					 "value" : "Don\'t like",
 					 
 					 "color_code":"#CD5C5C"
 					 
 					 }, {
 					 
-					 "vale" : "Can\'t like",
+					 "value" : "Can\'t like",
 					 
 					 "color_code":"#DC143C"
 					 
 					 },{
 					 
-					 "vale" : "Somewhat like",
+					 "value" : "Somewhat like",
 					 
 					 "color_code":"#B22222"
 					 
 					 },{
 					 
-					 "vale" : "Clearly like",
+					 "value" : "Clearly like",
 					 
 					 "color_code":"#FF0000"
 					 
 					 },{
 					 
-					 "vale" : "Love it",
+					 "value" : "Love it",
 					 
 					 "color_code":"#CD5C5C"
 					 
@@ -285,31 +285,31 @@ class InsertGlobalQuestion extends Command
 		 
 				  "option": [{
 			   
-					 "vale" : "Don\'t like",
+					 "value" : "Don\'t like",
 					 
 					 "color_code":"#CD5C5C"
 					 
 					 }, {
 					 
-					 "vale" : "Can\'t like",
+					 "value" : "Can\'t like",
 					 
 					 "color_code":"#DC143C"
 					 
 					 },{
 					 
-					 "vale" : "Somewhat like",
+					 "value" : "Somewhat like",
 					 
 					 "color_code":"#B22222"
 					 
 					 },{
 					 
-					 "vale" : "Clearly like",
+					 "value" : "Clearly like",
 					 
 					 "color_code":"#FF0000"
 					 
 					 },{
 					 
-					 "vale" : "Love it",
+					 "value" : "Love it",
 					 
 					 "color_code":"#CD5C5C"
 					 
@@ -380,31 +380,31 @@ class InsertGlobalQuestion extends Command
 		 
 				  "option": [{
 			   
-					 "vale" : "Don\'t like",
+					 "value" : "Don\'t like",
 					 
 					 "color_code":"#CD5C5C"
 					 
 					 }, {
 					 
-					 "vale" : "Can\'t like",
+					 "value" : "Can\'t like",
 					 
 					 "color_code":"#DC143C"
 					 
 					 },{
 					 
-					 "vale" : "Somewhat like",
+					 "value" : "Somewhat like",
 					 
 					 "color_code":"#B22222"
 					 
 					 },{
 					 
-					 "vale" : "Clearly like",
+					 "value" : "Clearly like",
 					 
 					 "color_code":"#FF0000"
 					 
 					 },{
 					 
-					 "vale" : "Love it",
+					 "value" : "Love it",
 					 
 					 "color_code":"#CD5C5C"
 					 
@@ -533,31 +533,31 @@ class InsertGlobalQuestion extends Command
 		 
 				  "option": [{
 			   
-					 "vale" : "Don\'t like",
+					 "value" : "Don\'t like",
 					 
 					 "color_code":"#CD5C5C"
 					 
 					 }, {
 					 
-					 "vale" : "Can\'t like",
+					 "value" : "Can\'t like",
 					 
 					 "color_code":"#DC143C"
 					 
 					 },{
 					 
-					 "vale" : "Somewhat like",
+					 "value" : "Somewhat like",
 					 
 					 "color_code":"#B22222"
 					 
 					 },{
 					 
-					 "vale" : "Clearly like",
+					 "value" : "Clearly like",
 					 
 					 "color_code":"#FF0000"
 					 
 					 },{
 					 
-					 "vale" : "Love it",
+					 "value" : "Love it",
 					 
 					 "color_code":"#CD5C5C"
 					 
@@ -806,31 +806,31 @@ class InsertGlobalQuestion extends Command
 		 
 				  "option": [{
 			   
-					 "vale" : "Don\'t like",
+					 "value" : "Don\'t like",
 					 
 					 "color_code":"#CD5C5C"
 					 
 					 }, {
 					 
-					 "vale" : "Can\'t like",
+					 "value" : "Can\'t like",
 					 
 					 "color_code":"#DC143C"
 					 
 					 },{
 					 
-					 "vale" : "Somewhat like",
+					 "value" : "Somewhat like",
 					 
 					 "color_code":"#B22222"
 					 
 					 },{
 					 
-					 "vale" : "Clearly like",
+					 "value" : "Clearly like",
 					 
 					 "color_code":"#FF0000"
 					 
 					 },{
 					 
-					 "vale" : "Love it",
+					 "value" : "Love it",
 					 
 					 "color_code":"#CD5C5C"
 					 
@@ -865,31 +865,31 @@ class InsertGlobalQuestion extends Command
 		 
 			   "option": [{
 			   
-					 "vale" : "Don\'t like",
+					 "value" : "Don\'t like",
 					 
 					 "color_code":"#CD5C5C"
 					 
 					 }, {
 					 
-					 "vale" : "Can\'t like",
+					 "value" : "Can\'t like",
 					 
 					 "color_code":"#DC143C"
 					 
 					 },{
 					 
-					 "vale" : "Somewhat like",
+					 "value" : "Somewhat like",
 					 
 					 "color_code":"#B22222"
 					 
 					 },{
 					 
-					 "vale" : "Clearly like",
+					 "value" : "Clearly like",
 					 
 					 "color_code":"#FF0000"
 					 
 					 },{
 					 
-					 "vale" : "Love it",
+					 "value" : "Love it",
 					 
 					 "color_code":"#CD5C5C"
 					 
