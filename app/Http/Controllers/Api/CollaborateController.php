@@ -540,7 +540,8 @@ class CollaborateController extends Controller
         $keywords = $request->input('keywords');
         $description = $request->input('description');
         $questions = $request->input('question_json');
-        $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions];
+        $headers = $request->input("header_info");
+        $data = ['name'=>$name,'keywords'=>$keywords,'description'=>$description,'question_json'=>$questions,'header_info'=>json_encode($headers,true)];
         $this->model = \DB::table('global_questions')->insert($data);
         return $this->sendResponse();
     }
