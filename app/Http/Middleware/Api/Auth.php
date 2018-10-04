@@ -10,6 +10,8 @@ use Tymon\JWTAuth\Middleware\GetUserFromToken;
 use Request;
 use App\Events\LogRecord;
 use App\Version;
+use App\Events\ContentAnalysisEvent;
+use Illuminate\Support\Collection;
 
 class Auth extends GetUserFromToken
 {
@@ -23,6 +25,7 @@ class Auth extends GetUserFromToken
 
     private $versionKey = 'X-VERSION';
     private $versionKeyIos = 'X-VERSION-IOS';
+    private $request,$contentAnalysisReqCollection;
 
     public function handle($request, Closure $next)
     {
@@ -93,6 +96,74 @@ class Auth extends GetUserFromToken
 
         //Firing the event
         event(new LogRecord($data));
+     }
+
+     public function terminate($request,$response)
+     {
+        $this->request = $request;
+        $requestDataCollection = collect($this->request->all());
+        $this->contentAnalysisReqCollection = collect ();
+
+        $this->requestValueRecursion($requestDataCollection);
+
+        if($requestDataCollection->count() > 0){
+            $tempArray = [];
+            $tempArray["type"] = "meta";
+            $tempArray["value"] = "IP- ".$this->request->ip().
+            " UserID- ".$this->request->user()->id.
+            " EndPoint- ".$this->request->fullUrl();
+            $this->contentAnalysisReqCollection->push($tempArray);
+            event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
+            $this->contentAnalysisReqCollection = null;
+        }
+     }
+
+     private function requestValueRecursion($loopValue){
+        $loopValue->each(function($val,$key){
+            
+            if (gettype($val) == "array" ) {
+                $this->requestValueRecursion(collect($val));
+            } else { 
+            if ($this->request->hasFile($key)) {
+                //File
+                $extension = $this->request->$key->extension();
+                if ($extension == "jpeg" || 
+                    $extension == "jpg" || 
+                    $extension == "png") 
+                {
+                    //Image
+                    //$dump_path = $this->request->file($key."");
+                    $local_storage = \Storage::disk('s3ContentAnalysis');
+                    $dump_path = $local_storage->putFile('temp', $this->request->file($key.""),'public');
+                    $tempArray = [];
+                    $tempArray["type"] = "image";
+                    $tempArray["value"] = $dump_path;
+                    $this->contentAnalysisReqCollection->push($tempArray);
+                } 
+                else if($extension == "mp4" || $extension == "avi" || $extension == "flv" || $extension == "wmv" || $extension == "mov") {
+                    //Video
+                    //$dump_path = $this->request->file($key."");
+                    $local_storage = \Storage::disk('s3ContentAnalysis');
+                    $dump_path = $local_storage->putFile('temp', $this->request->file($key.""),'public');
+                    $tempArray = [];
+                    $tempArray["type"] = "video";
+                    $tempArray["value"] = $dump_path;
+                    $this->contentAnalysisReqCollection->push($tempArray);
+                }
+                
+            } else {
+               //Text
+                    $tempArray = [];
+                    $tempArray["type"] = "text";
+                    $tempArray["value"] = $val;
+                    $this->contentAnalysisReqCollection->push($tempArray);
+            }
+        
+        }
+        
+    });
+
+        return $this->contentAnalysisReqCollection;
      }
     
 }
