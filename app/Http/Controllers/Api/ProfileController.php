@@ -221,20 +221,6 @@ class ProfileController extends Controller
             $cuisines = [];
             foreach ($cuisineIds as $cuisineId)
             {
-                $cuisines[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$cuisineId];
-            }
-            if(count($cuisines))
-            {
-                \DB::table('profiles_cuisines')->insert($cuisines);
-
-            }
-        }
-        if($request->has('cuisine_id'))
-        {
-            $cuisineIds = $request->input('cuisine_id');
-            $cuisines = [];
-            foreach ($cuisineIds as $cuisineId)
-            {
                 $cuisines[] = ['profile_id'=>$loggedInProfileId,'cuisine_id'=>$cuisineId];
             }
             if(count($cuisines))
