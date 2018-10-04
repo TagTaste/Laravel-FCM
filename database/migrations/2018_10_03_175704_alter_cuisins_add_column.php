@@ -15,7 +15,7 @@ class AlterCuisinsAddColumn extends Migration
     {
         Schema::table('cuisines',function(Blueprint $table){
             $table->boolean("is_active")->default(1);
-            $table->boolean("country")->nullable();
+            $table->string("country")->nullable();
             $table->text("description")->nullable();
         });
     }
