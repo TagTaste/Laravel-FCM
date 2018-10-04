@@ -21,7 +21,7 @@ class Profile extends Model
         'ingredients', 'favourite_moments', 'verified', 'youtube_channel', 'followers', 'following', 'user_id', 'created_at',
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
-        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type','foodie_type_id'
+        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id'
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -43,7 +43,7 @@ class Profile extends Model
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','establishment_types','cuisines'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types','cuisines','allergens'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];

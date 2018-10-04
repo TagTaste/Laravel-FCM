@@ -204,45 +204,69 @@ class ProfileController extends Controller
         {
             $specializationIds = $request->input('specialization_id');
             $specializations = [];
-            foreach ($specializationIds as $specializationId)
+            if(count($specializationIds) > 0 && !empty($specializationIds) && is_array($specializationIds))
             {
-                $specializations[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$specializationId];
+                foreach ($specializationIds as $specializationId)
+                {
+                    $specializations[] = ['profile_id'=>$loggedInProfileId,'specialization_id'=>$specializationId];
+                }
+                if(count($specializations))
+                {
+                    Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
+                    $this->model->profile_specializations()->insert($specializations);
+
+                }
             }
-            if(count($specializations))
+            else
             {
                 Profile\Specialization::where('profile_id',$loggedInProfileId)->delete();
-                $this->model->profile_specializations()->insert($specializations);
-
             }
+
         }
         if($request->has('cuisine_id'))
         {
             $cuisineIds = $request->input('cuisine_id');
             $cuisines = [];
-            foreach ($cuisineIds as $cuisineId)
+            if(count($cuisineIds) > 0 && !empty($cuisineIds) && is_array($cuisineIds))
             {
-                $cuisines[] = ['profile_id'=>$loggedInProfileId,'cuisine_id'=>$cuisineId];
+                foreach ($cuisineIds as $cuisineId)
+                {
+                    $cuisines[] = ['profile_id'=>$loggedInProfileId,'cuisine_id'=>$cuisineId];
+                }
+                if(count($cuisines))
+                {
+                    \DB::table('profiles_cuisines')->where('profile_id',$loggedInProfileId)->delete();
+                    \DB::table('profiles_cuisines')->insert($cuisines);
+
+                }
             }
-            if(count($cuisines))
+            else
             {
                 \DB::table('profiles_cuisines')->where('profile_id',$loggedInProfileId)->delete();
-                \DB::table('profiles_cuisines')->insert($cuisines);
-
             }
+
         }
         if($request->has('establishment_type_id'))
         {
             $establishmentTypeIds = $request->input('establishment_type_id');
             $establishmentTypes = [];
-            foreach ($establishmentTypeIds as $establishmentTypeId)
+            if(count($establishmentTypeIds) > 0 && !empty($establishmentTypeIds) && is_array($establishmentTypeIds))
             {
-                $establishmentTypes[] = ['profile_id'=>$loggedInProfileId,'establishment_type_id'=>$establishmentTypeId];
+
+                foreach ($establishmentTypeIds as $establishmentTypeId)
+                {
+                    $establishmentTypes[] = ['profile_id'=>$loggedInProfileId,'establishment_type_id'=>$establishmentTypeId];
+                }
+                if(count($establishmentTypes))
+                {
+                    \DB::table('profile_establishment_types')->where('profile_id',$loggedInProfileId)->delete();
+                    \DB::table('profile_establishment_types')->insert($establishmentTypes);
+
+                }
             }
-            if(count($establishmentTypes))
+            else
             {
                 \DB::table('profile_establishment_types')->where('profile_id',$loggedInProfileId)->delete();
-                \DB::table('profile_establishment_types')->insert($establishmentTypes);
-
             }
         }
         $this->model = Profile::find($request->user()->profile->id);
