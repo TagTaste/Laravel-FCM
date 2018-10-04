@@ -245,20 +245,6 @@ class ProfileController extends Controller
 
             }
         }
-        if($request->has('allergens_id'))
-        {
-            $allergensIds = $request->input('allergens_id');
-            $allergens = [];
-            foreach ($allergensIds as $allergensId)
-            {
-                $allergens[] = ['profile_id'=>$loggedInProfileId,'allergens_id'=>$allergensId];
-            }
-            if(count($allergens))
-            {
-                \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->delete();
-                \DB::table('profiles_allergens')->insert($allergens);
-            }
-        }
         $this->model = Profile::find($request->user()->profile->id);
         return $this->sendResponse();
     }
@@ -961,6 +947,27 @@ class ProfileController extends Controller
         $this->model['tastingDone'] = $totalTastingDoneCount;
         $this->model['category'] = $categories;
 
+        return $this->sendResponse();
+    }
+
+    public function addAllergens(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = false;
+        if($request->has('allergens_id'))
+        {
+            $allergensIds = $request->input('allergens_id');
+            $allergens = [];
+            foreach ($allergensIds as $allergensId)
+            {
+                $allergens[] = ['profile_id'=>$loggedInProfileId,'allergens_id'=>$allergensId];
+            }
+            if(count($allergens))
+            {
+                \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->delete();
+                $this->model = \DB::table('profiles_allergens')->insert($allergens);
+            }
+        }
         return $this->sendResponse();
     }
 }

@@ -39,11 +39,11 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
         'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
-        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','allergens'];
+        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines'];
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','establishment_types','cuisines','allergens'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','establishment_types','cuisines'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
@@ -928,12 +928,6 @@ class Profile extends Model
     public function getFoodieTypeAttribute()
     {
         return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id',$this->foodie_type_id)->first() : null;
-    }
-
-    public function GetAllergensAttribute()
-    {
-        $allergensIds =  \DB::table('profiles_allergens')->where('profile_id',request()->user()->profile->id)->get()->pluck('allergens_id');
-        return  \DB::table('allergens')->whereIn('id',$allergensIds)->get();
     }
 
     public function getCuisinesAttribute()
