@@ -62,7 +62,7 @@ class InsertGlobalQuestion extends Command
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"option": "Red,Crimson,Rose,Ruby,Wine,Jam,Cherry,Apple,Strawberry,Blood,Brick,Vermilion (Sindoor)"
+			"option": "Tan,Beige,Sand,Peeled Banana,Hay,Straw,Golden,Butter,Lemon,Mustard,Corn (Raw),Honey,Peanut Butter,Caramel"
 		}, {
 			"title": "Surface appearance",
 			"select_type": 2,
@@ -76,7 +76,7 @@ class InsertGlobalQuestion extends Command
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"option": "Smooth,Silky,Seeds,Seed awareness,Skin,Skin awareness,Fibre,Fibre awareness,Small pieces"
+			"option": "Smooth,Silky,Small pieces,Skin,Skin awareness,Fibre,Fibre awareness"
 		}]
 	}, {
 		"title": "Surface Texture (With Touch)",
@@ -388,7 +388,7 @@ class InsertGlobalQuestion extends Command
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"option": "Seed feeling,Fibre feeling,Skin feeling,Mealiness (granular) feeling"
+            "option": "Fibre feeling,Skin feeling,Mealiness (granular) feeling"
 		}]
 	}, {
 		"title": "Residual (Afterfeel)",
@@ -460,9 +460,11 @@ class InsertGlobalQuestion extends Command
 		"is_nested_question": 0
 	}]
 }';
-        $data = ['name'=>'Raw Tomato and Red Chili','keywords'=>"tomato,red chili",'description'=>null,
-            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
+        $data = ['name'=>'Raw Ginger','keywords'=>"Ginger",'description'=>null,
+            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
+
+
     }
 }
