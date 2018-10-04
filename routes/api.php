@@ -383,6 +383,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
             Route::get("foodieType","ProfileController@foodieType");
+            Route::get("establishmentType","ProfileController@establishmentType");
 
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);

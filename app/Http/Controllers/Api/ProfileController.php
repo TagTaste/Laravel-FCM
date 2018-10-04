@@ -976,4 +976,10 @@ class ProfileController extends Controller
         $this->model = \DB::table('foodie_type')->get();
         return $this->sendResponse();
     }
+
+    public function establishmentType()
+    {
+        $this->model = \DB::table('establishment_types')->get();
+        return $this->sendResponse();
+    }
 }
