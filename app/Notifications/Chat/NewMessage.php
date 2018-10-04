@@ -82,7 +82,7 @@ class NewMessage extends Notification
 
 //             }
 //         }
-//         $data['notification'] = $notification;
+        $data['notification'] = null;
         return $data;
     }
 }
