@@ -11,7 +11,7 @@
                             <table width= "550" align="center" border="0" cellspacing="0" cellpadding="0"  border-collapse="collapse" bgcolor="#F8F6F9" style="background-color:#F8F6F9">
                                 <tr>
                                     <td align="center"  bgcolor="#FFFFFF" style="border-radius:5px 5px 0px 0px;" width="100%">
-                                        <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 20px 78px 20px 78px;">5 collaborations you must see</div>
+                                        <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 20px 78px 20px 78px;">5 Collaborations you must see</div>
                                     </td>
                                 </tr>
                                 <tr>
