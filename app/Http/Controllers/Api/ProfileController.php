@@ -940,7 +940,7 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
             ->get()->pluck('collaborate_id');
-        $totalTastingDoneCount = \DB::table('collaborate_tasting_user_review')->where('profile_id',$loggedInProfileId)->whereIn('collaborate_id',$collaborateIds)->where('current_status',3)->count();
+        $totalTastingDoneCount = \DB::table('collaborate_tasting_user_review')->where('profile_id',$loggedInProfileId)->whereIn('collaborate_id',$collaborateIds)->where('current_status',3)->groupBy('batch_id')->count();
         $categoryIds = Collaborate::whereIn('id',$collaborateIds)->get()->pluck('category_id');
         $categories = \DB::table('collaborate_categories')->whereIn('id',$categoryIds)->get();
         $this->model = [];
