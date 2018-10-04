@@ -118,8 +118,8 @@ class InsertGlobalQuestion extends Command
 		"subtitle": "We have list of around 400 aromas grouped under 11 heads. If you select \'any other\' option, please write the aroma in the comment box. Use search box to locate the selected aroma from the list.",
 		"select_type": 2,
 		"is_intensity": 1,
-		"intensity_type": 2,
-		"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+		"intensity_type": 1,
+         "intensity_value": "8",
 		"is_nested_question": 0,
 		"is_mandatory": 1,
 		"is_nested_option": 1,
@@ -136,8 +136,8 @@ class InsertGlobalQuestion extends Command
 		"subtitle": "Bad aromas that render the food unfit for consumption.",
 		"select_type": 2,
 		"is_intensity": 1,
-		"intensity_type": 2,
-		"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+		"intensity_type": 1,
+        "intensity_value": "8",
 		"is_nested_question": 0,
 		"is_mandatory": 0,
 		"is_nested_option": 1,
@@ -249,8 +249,8 @@ class InsertGlobalQuestion extends Command
 		"subtitle": "We have list of around 400 aromatics grouped under 11 heads. If you select \'any other\' option, please write the aroma in the comment box. Use search box to locate the selected aroma from the list.",
 		"select_type": 2,
 		"is_intensity": 1,
-		"intensity_type": 2,
-        "intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+		"intensity_type": 1,
+        "intensity_value": "8",
 		"is_nested_question": 0,
 		"is_mandatory": 1,
 		"is_nested_option": 1,
@@ -267,8 +267,8 @@ class InsertGlobalQuestion extends Command
 		"subtitle": "Bad aromas that render the food unfit for consumption.",
 		"select_type": 2,
         "is_intensity": 1,
-		"intensity_type": 2,
-		"intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+		"intensity_type": 1,
+        "intensity_value": "8",
 		"is_nested_question": 0,
 		"is_mandatory": 0,
 		"is_nested_option": 1,
@@ -281,8 +281,8 @@ class InsertGlobalQuestion extends Command
 			"title": "How was the aftertaste?",
 			"select_type": 1,
 			"is_intensity": 1,
-			"intensity_type": 2,
-            "intensity_value": "Weak,Sufficient,Strong,Overwhelming",
+			"intensity_type": 1,
+            "intensity_value": "8",
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": "None,Pleasant,Unpleasant"
@@ -460,7 +460,7 @@ class InsertGlobalQuestion extends Command
 		"is_nested_question": 0
 	}]
 }';
-        $data = ['name'=>'Raw Tomato and Red Chili','keywords'=>"tomato,red chili",'description'=>'Bunfills',
+        $data = ['name'=>'Raw Tomato and Red Chili','keywords'=>"tomato,red chili",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('global_questions')->insert($data);
