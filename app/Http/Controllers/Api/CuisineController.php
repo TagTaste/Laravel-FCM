@@ -68,14 +68,14 @@ class CuisineController extends Controller {
         $cuisines = [];
         foreach ($data as $item)
         {
-
             foreach ($item as $datum)
             {
-                if(isset($datum['Country'])||isset($datum['Country'])||isset($datum['Cuisine'])||is_null($datum['Cuisine']))
+                if(is_null($datum['country'])||is_null($datum['cuisine']))
                     break;
-                $cuisines[] = ['is_active'=>1,'country'=>$datum['Country'],'name'=>$datum['Cuisine']];
+                $cuisines[] = ['is_active'=>1,'country'=>$datum['country'],'name'=>$datum['cuisine']];
             }
         }
+//        dd($cuisines);
         $this->model = \App\Cuisine::insert($cuisines);
         return $this->sendResponse();
     }
