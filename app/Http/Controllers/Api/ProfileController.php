@@ -970,4 +970,9 @@ class ProfileController extends Controller
         }
         return $this->sendResponse();
     }
+
+    public function foodieType(Request $request)
+    {
+        $this->model = \DB::table('foodie_type')->get();
+    }
 }
