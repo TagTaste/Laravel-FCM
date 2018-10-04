@@ -186,6 +186,13 @@ class CollaborateController extends Controller
             $extension = \File::extension($request->file('file1')->getClientOriginalName());
             $inputs["file1"] = $request->file("file1")->storeAs($relativePath, $name . "." . $extension,['visibility'=>'public']);
         }
+        else
+        {
+            if($inputs['file1'] == $collaborate->file1)
+                unset($inputs['file1']);
+            else
+                $inputs['file1'] = null;
+        }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
         if($collaborate->state == 'Expired')

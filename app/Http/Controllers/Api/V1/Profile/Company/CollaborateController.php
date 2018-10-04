@@ -233,7 +233,6 @@ class CollaborateController extends Controller
             else
                 $inputs['images'] = null;
         }
-
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
             $name = $request->file('file1')->getClientOriginalName();
@@ -242,10 +241,11 @@ class CollaborateController extends Controller
         }
         else
         {
-
-          $inputs["file1"] = null;
+            if($inputs['file1'] == $collaborate->file1)
+                unset($inputs['file1']);
+            else
+                $inputs['file1'] = null;
         }
-
         if($request->has('allergens_id'))
         {
             $allergensIds = $request->input('allergens_id');
