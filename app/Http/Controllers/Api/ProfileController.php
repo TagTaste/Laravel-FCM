@@ -965,9 +965,11 @@ class ProfileController extends Controller
             if(count($allergens))
             {
                 \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->delete();
-                $this->model = \DB::table('profiles_allergens')->insert($allergens);
+                \DB::table('profiles_allergens')->insert($allergens);
             }
         }
+        $allergenIds = \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->get()->pluck('allergens_id');
+        $this->model = \DB::table('allergens')->whereIn('id',$allergenIds)->get();
         return $this->sendResponse();
     }
 
