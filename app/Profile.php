@@ -28,7 +28,7 @@ class Profile extends Model
     //App\Recommend to prevent any unwanted results like nested looping.
     protected $with = [
         'awards', 'certifications', 'tvshows', 'books', 'patents', 'projects', 'professional', 'training','shippingaddress',
-        'profile_occupations', 'profile_specializations','profiles_allergens'];
+        'profile_occupations', 'profile_specializations'];
 
     protected $visible = ['id', 'tagline', 'about', 'phone', 'country_code', 'address', 'dob', 'interests',
         'imageUrl', 'heroImageUrl', 'website_url', 'blog_url', 'facebook_url', 'linkedin_url', 'google_url', 'instagram_link',

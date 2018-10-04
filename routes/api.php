@@ -406,6 +406,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource('companies','CompanyController');
 
             //recipes cuisine
+            Route::post("uploadCuisine","CuisineController@uploadCuisine");
             Route::resource("cuisine",'CuisineController');
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
