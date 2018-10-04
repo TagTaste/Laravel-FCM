@@ -460,7 +460,7 @@ class InsertGlobalQuestion extends Command
 		"is_nested_question": 0
 	}]
 }';
-        $data = ['name'=>'Raw Tomato and Red Chili','keywords'=>"tomato,red chili",'description'=>'Bunfills',
+        $data = ['name'=>'Raw ','keywords'=>"tomato,red chili",'description'=>'Bunfills',
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('global_questions')->insert($data);
