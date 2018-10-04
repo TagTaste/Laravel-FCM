@@ -935,12 +935,12 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
-    public function getCategory(Request $request)
+    public function tastingCategory(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
         $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
             ->get()->pluck('collaborate_id');
-        $totalTastingDoneCount = \DB::table('collaborate_tasting_user_review')->whereIn('collaborate_id',$collaborateIds)->where('current_status',3)->count();
+        $totalTastingDoneCount = \DB::table('collaborate_tasting_user_review')->where('profile_id',$loggedInProfileId)->whereIn('collaborate_id',$collaborateIds)->where('current_status',3)->count();
         $categoryIds = Collaborate::whereIn('id',$collaborateIds)->get()->pluck('category_id');
         $categories = \DB::table('collaborate_categories')->whereIn('id',$categoryIds)->get();
         $this->model = [];
