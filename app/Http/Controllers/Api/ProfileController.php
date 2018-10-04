@@ -982,14 +982,22 @@ class ProfileController extends Controller
         {
             $allergensIds = $request->input('allergens_id');
             $allergens = [];
-            foreach ($allergensIds as $allergensId)
+            if(count($allergensIds) > 0 && !empty($allergensIds) && is_array($allergensIds))
             {
-                $allergens[] = ['profile_id'=>$loggedInProfileId,'allergens_id'=>$allergensId];
+
+                foreach ($allergensIds as $allergensId)
+                {
+                    $allergens[] = ['profile_id'=>$loggedInProfileId,'allergens_id'=>$allergensId];
+                }
+                if(count($allergens))
+                {
+                    \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->delete();
+                    \DB::table('profiles_allergens')->insert($allergens);
+                }
             }
-            if(count($allergens))
+            else
             {
                 \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->delete();
-                \DB::table('profiles_allergens')->insert($allergens);
             }
         }
         $allergenIds = \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->get()->pluck('allergens_id');
