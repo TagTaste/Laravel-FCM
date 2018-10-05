@@ -64,6 +64,14 @@ return [
 //            'bucket_endpoint'=>env('S3_USE_BUCKET_ENDPOINT'),
         ],
 
+        's3ContentAnalysis' => [
+            'driver' => 's3',
+            'key' => env('S3_KEY'),
+            'secret' => env('S3_SECRET'),
+            'region' => env('S3_CONTENT_ANALYSIS_REGION'),
+            'bucket' => env('S3_CONTENT_ANALYSIS_BUCKET')
+        ]
+
     ],
 
 ];
