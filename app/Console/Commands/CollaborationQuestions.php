@@ -58,7 +58,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
             $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
             $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$headerInfo,'collaborate_id'=>$collaborateId];
         }
-
+        \Log::info("header is here ");
+        \Log::info($header);
         Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
         {
@@ -111,7 +112,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 unset($item['question']);
                 $data = ['title'=>$item['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($item,true),'parent_question_id'=>null,
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active','collaborate_id'=>$collaborateId];
-
+                \Log::info("question ");
+                \Log::info($data);
                 $x = Collaborate\Questions::create($data);
 
                 $nestedOption = json_decode($x->questions);
@@ -213,6 +215,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     unset($subquestion['question']);
                     $subData = ['title'=>$subquestion['title'],'subtitle'=>$subtitle,'is_nested_question'=>$isNested,'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
                         'header_type_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active'=>1,'collaborate_id'=>$collaborateId];
+                    \Log::info("question sub ");
+                    \Log::info($data);
                     Collaborate\Questions::create($subData);
 
                 }

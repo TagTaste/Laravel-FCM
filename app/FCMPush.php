@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Chat\Message;
 use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
@@ -39,8 +40,21 @@ class FCMPush extends Model
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
         if(count($token))
         {
+            if($iosData['action'] == 'chat' || $iosData['action'] == 'message')
+            {
+                $extraData = $iosData;
+                $message = Message::where('chat_id',$iosData['model']['id'])->whereNull('read_on')->orderBy('created_at','desc')->take(5)->get();
+                $extraData['model']['latestMessages'] = $message;
+                // For Android
+                $dataBuilder = new PayloadDataBuilder();
+                $dataBuilder->addData(['data' => $extraData]);
+
+                $option = $optionBuilder->build();
+                $data = $dataBuilder->build();
+            }
             $downstreamResponse = FCM::sendTo($token, $option, null, $data);
             $downstreamResponse->numberSuccess();
+            $downstreamResponse->numberFailure();
         }
 
 
@@ -61,6 +75,7 @@ class FCMPush extends Model
         {
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
+            $downstreamResponse->numberFailure();
         }
 
     }
