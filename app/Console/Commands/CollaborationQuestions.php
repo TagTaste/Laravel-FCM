@@ -77,11 +77,12 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 if(isset($item['select_type']) && $item['select_type'] == 5)
                 {
                     $value = $item['option'];
-                    $option = [];
-                    $i = 1;
-                    foreach($value as $v){
-                        if(!isset($v['value']) || !isset($v['color_code']))
-                        {
+                    if(is_string($value))
+                    {
+                        $value = explode(',',$option);
+                        $option = [];
+                        $i = 1;
+                        foreach($value as $v){
                             if(is_null($v) || empty($v))
                                 continue;
                             $option[] = [
@@ -89,14 +90,24 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'value' => $v
                             ];
                             $i++;
-                            continue;
                         }
-                        $option[] = [
-                            'id' => $i,
-                            'value' => $v['value'],
-                            'colorCode'=> $v['color_code']
-                        ];
-                        $i++;
+                    }
+                    else
+                    {
+                        $option = [];
+                        $i = 1;
+                        foreach($value as $v){
+                            if(!isset($v['value']) || !isset($v['color_code']))
+                            {
+                                continue;
+                            }
+                            $option[] = [
+                                'id' => $i,
+                                'value' => $v['value'],
+                                'colorCode'=> $v['color_code']
+                            ];
+                            $i++;
+                        }
                     }
                 }
                 else
