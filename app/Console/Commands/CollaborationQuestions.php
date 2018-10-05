@@ -82,6 +82,13 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     foreach($value as $v){
                         if(!isset($v['value']) || !isset($v['color_code']))
                         {
+                            if(is_null($v) || empty($v))
+                                continue;
+                            $option[] = [
+                                'id' => $i,
+                                'value' => $v
+                            ];
+                            $i++;
                             continue;
                         }
                         $option[] = [
