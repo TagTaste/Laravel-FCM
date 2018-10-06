@@ -432,13 +432,30 @@ class BatchController extends Controller
     public function filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest)
     {
         $profileIds = new Collection([]);
+        if($profileIds->count() > 0 && isset($filters['profile_id']))
+        {
+            $profileIds = $profileIds->diff($filters['profile_id']);
+        }
+        else if($profileIds->count() == 0 && isset($filters['profile_id']))
+        {
+            $profileIds = $filters['profile_id'];
+        }
         if(isset($filters['city']))
         {
+            $cityFilterIds = new Collection([]);
             foreach ($filters['city'] as $city)
             {
-                $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
-                $profileIds = $profileIds->merge($ids);
+                if($profileIds->count() > 0)
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
+
+                $cityFilterIds = $cityFilterIds->merge($ids);
+
             }
+            $profileIds = $cityFilterIds;
+
         }
         if(isset($filters['age']))
         {
@@ -472,14 +489,6 @@ class BatchController extends Controller
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
             $profileIds = $genderFilterIds;
-        }
-        if($profileIds->count() > 0 && isset($filters['profile_id']))
-        {
-            $profileIds = $profileIds->diff($filters['profile_id']);
-        }
-        else if($profileIds->count() == 0 && isset($filters['profile_id']))
-        {
-            $profileIds = $filters['profile_id'];
         }
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
