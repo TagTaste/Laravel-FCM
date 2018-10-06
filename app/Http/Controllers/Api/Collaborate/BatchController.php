@@ -439,10 +439,8 @@ class BatchController extends Controller
             {
                 $filterProfile[] = (int)$filter;
             }
-            \Log::info($filterProfile);
             $profileIds = $profileIds->merge($filterProfile);
         }
-        \Log::info($profileIds);
 
         if(isset($filters['city']))
         {
