@@ -437,7 +437,7 @@ class BatchController extends Controller
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter)
             {
-                $filterProfile[] = $filter;
+                $filterProfile[] = (int)$filter;
             }
             \Log::info($filterProfile);
             $profileIds = $profileIds->merge($filterProfile);
