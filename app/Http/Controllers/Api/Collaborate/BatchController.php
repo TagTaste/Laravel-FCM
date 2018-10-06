@@ -874,12 +874,10 @@ class BatchController extends Controller
 
     public function getPRProfile(Request $request, $collaborateId, $batchId)
     {
-
-        $profileIds = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->where('id',$batchId)->get()->pluck('profile_id');
+        $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
         $query = $request->input('term');
-        \Log::info($profileIds);
         $profiles = \App\Recipe\Profile::join('users','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)
-            ->orWhere('users.name','like',"%$query%")
+            ->where('users.name','like',"%$query%")
             ->get();
         $this->model = $profiles;
         return $this->sendResponse();
