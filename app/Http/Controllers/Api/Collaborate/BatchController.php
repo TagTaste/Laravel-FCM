@@ -432,13 +432,9 @@ class BatchController extends Controller
     public function filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest)
     {
         $profileIds = new Collection([]);
-        if($profileIds->count() > 0 && isset($filters['profile_id']))
+        if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
-            $profileIds = $profileIds->diff($filters['profile_id']);
-        }
-        else if($profileIds->count() == 0 && isset($filters['profile_id']))
-        {
-            $profileIds = collect($filters['profile_id']);
+            $profileIds = $profileIds->merge($filters['profile_id']);
         }
         if(isset($filters['city']))
         {
