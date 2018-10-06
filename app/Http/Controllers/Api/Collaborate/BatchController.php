@@ -434,10 +434,12 @@ class BatchController extends Controller
         $profileIds = new Collection([]);
         if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
-            $profileIds = $profileIds->merge($filters['profile_id']);
+            foreach ($filters['profile_id'] as $filter)
+            {
+                $profileIds = $profileIds->merge($filter);
+            }
         }
         \Log::info($profileIds);
-
         if(isset($filters['city']))
         {
             $cityFilterIds = new Collection([]);
