@@ -872,7 +872,7 @@ class BatchController extends Controller
         return $this->sendResponse();
     }
 
-    public function getCompleteReviewProfile(Request $request, $collaborateId, $batchId)
+    public function getPRProfile(Request $request, $collaborateId, $batchId)
     {
 
         $profileIds = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
