@@ -481,10 +481,6 @@ class BatchController extends Controller
         {
             $profileIds = $filters['profile_id'];
         }
-        else
-        {
-            $profileIds = [];
-        }
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
         $model = [];
