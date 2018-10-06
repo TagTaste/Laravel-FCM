@@ -438,7 +438,7 @@ class BatchController extends Controller
         }
         else if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
-            $profileIds = $filters['profile_id'];
+            $profileIds = collect($filters['profile_id']);
         }
         if(isset($filters['city']))
         {
