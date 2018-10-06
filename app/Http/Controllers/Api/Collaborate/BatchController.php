@@ -875,7 +875,7 @@ class BatchController extends Controller
     public function getPRProfile(Request $request, $collaborateId, $batchId)
     {
 
-        $profileIds = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
+        $profileIds = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->where('id',$batchId)->get()->pluck('profile_id');
         $query = $request->input('term');
 
         $profiles = \App\Recipe\Profile::select('profiles.id','profiles.name','profiles.imageUrl')
