@@ -439,12 +439,9 @@ class BatchController extends Controller
             {
                 $filterProfile[] = (int)$filter;
             }
-            \Log::info("profile ids");
-            \Log::info($filterProfile);
             $profileIds = $profileIds->merge($filterProfile);
         }
-        \Log::info("profile ids");
-        \Log::info($profileIds);
+
         if(isset($filters['city']))
         {
             $cityFilterIds = new Collection([]);
@@ -495,12 +492,8 @@ class BatchController extends Controller
             }
             $profileIds = $genderFilterIds;
         }
-        \Log::info("profile ids");
-        \Log::info($profileIds);
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
-        \Log::info("total applicant");
-        \Log::info($totalApplicants);
         $model = [];
         foreach ($withoutNest as $data)
         {
@@ -894,9 +887,8 @@ class BatchController extends Controller
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
         $query = $request->input('term');
-        $profiles = \App\Recipe\Profile::join('users','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)
-            ->where('users.name','like',"%$query%")
-            ->get();
+        $profiles = \App\Recipe\Profile::join('users','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)
+            ->where('users.name','like',"%$query%")->get();
         $this->model = $profiles;
         return $this->sendResponse();
     }
