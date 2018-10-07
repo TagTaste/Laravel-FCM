@@ -891,7 +891,8 @@ class BatchController extends Controller
         $profileIds = \App\Recipe\Profile::select('profiles.id')->join('users','profiles.user_id','=','users.id')
             ->whereIn('profiles.id',$profileIds)->where('users.name','like',"%$query%")
             ->get()->pluck('id');
-        $this->model = Profile::whereIn('id',$profileIds);
+
+        $this->model = $profileIds;
         return $this->sendResponse();
     }
 }
