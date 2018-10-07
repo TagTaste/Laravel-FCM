@@ -892,7 +892,7 @@ class BatchController extends Controller
             ->whereIn('profiles.id',$profileIds)->where('users.name','like',"%$query%")
             ->get()->pluck('id');
 
-        $this->model = $profileIds;
+        $this->model = Profile::whereIn('id',$profileIds)->get();
         return $this->sendResponse();
     }
 }
