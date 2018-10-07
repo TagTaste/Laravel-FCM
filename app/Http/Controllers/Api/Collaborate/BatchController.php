@@ -887,7 +887,7 @@ class BatchController extends Controller
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
         $query = $request->input('term');
-        $profiles = \App\Recipe\Profile::select('profiles.id')->join('users','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)
+        $profiles = \App\Recipe\Profile::select('profiles.id')->join('users','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)
             ->where('users.name','like',"%$query%")->get();
         $this->model = $profiles;
         return $this->sendResponse();
