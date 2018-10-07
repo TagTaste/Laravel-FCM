@@ -3,6 +3,7 @@
 use App\Collaborate;
 use App\CompanyUser;
 use App\Recipe\Company;
+use App\Recipe\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -887,9 +888,10 @@ class BatchController extends Controller
     {
         $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
         $query = $request->input('term');
-        $profiles = \App\Recipe\Profile::select('profiles.id')->join('users','profiles.user_id','=','users.id')->whereIn('profiles.id',$profileIds)
-            ->where('users.name','like',"%$query%")->get();
-        $this->model = $profiles;
+        $profileIds = \App\Recipe\Profile::select('profiles.id')->join('users','profiles.user_id','=','users.id')
+            ->whereIn('profiles.id',$profileIds)->where('users.name','like',"%$query%")
+            ->get()->pluck('id');
+        $this->model = Profile::whereIn('id',$profileIds);
         return $this->sendResponse();
     }
 }
