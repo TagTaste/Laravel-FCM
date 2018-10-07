@@ -439,9 +439,12 @@ class BatchController extends Controller
             {
                 $filterProfile[] = (int)$filter;
             }
+            \Log::info("profile ids");
+            \Log::info($filterProfile);
             $profileIds = $profileIds->merge($filterProfile);
         }
-
+        \Log::info("profile ids");
+        \Log::info($profileIds);
         if(isset($filters['city']))
         {
             $cityFilterIds = new Collection([]);
@@ -492,8 +495,12 @@ class BatchController extends Controller
             }
             $profileIds = $genderFilterIds;
         }
+        \Log::info("profile ids");
+        \Log::info($profileIds);
         $totalApplicants = \DB::table('collaborate_tasting_user_review')->where('value','!=','')->where('current_status',3)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
+        \Log::info("total applicant");
+        \Log::info($totalApplicants);
         $model = [];
         foreach ($withoutNest as $data)
         {
