@@ -46,7 +46,19 @@ class ShareMessages implements ShouldQueue
                     $s3 = \Storage::disk('s3');
                     $filePath = 'p/' . $loggedInProfileId . "/ci";
                     $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                    $inputs['preview']['image'] = $resp;
+                    $ext= pathinfo($resp);
+                    $ext = isset($ext['extension']) ? $ext['extension'] : null;
+                    if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
+                        $inputs['preview']['image'] = $resp;
+                    }
+                    else
+                    {
+                        $inputs['preview']['image'] = null;
+                    }
+                    if($resp)
+                    {
+                        \File::delete(storage_path($image));
+                    }
                 }
                 if(isset($inputs['preview']))
                 {
@@ -90,7 +102,19 @@ class ShareMessages implements ShouldQueue
                     $s3 = \Storage::disk('s3');
                     $filePath = 'p/' . $loggedInProfileId . "/ci";
                     $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                    $inputs['preview']['image'] = $resp;
+                    $ext= pathinfo($resp);
+                    $ext = isset($ext['extension']) ? $ext['extension'] : null;
+                    if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
+                        $inputs['preview']['image'] = $resp;
+                    }
+                    else
+                    {
+                        $inputs['preview']['image'] = null;
+                    }
+                    if($resp)
+                    {
+                        \File::delete(storage_path($image));
+                    }
                 }
                 if(isset($inputs['preview']))
                 {
