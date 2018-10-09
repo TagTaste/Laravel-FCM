@@ -41,4 +41,43 @@ class CuisineController extends Controller {
         return $this->sendResponse();
 	}
 
+	public function uploadCuisine(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/collaborate/global/nested/option";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $cuisines = [];
+        foreach ($data as $item)
+        {
+            foreach ($item as $datum)
+            {
+                if(is_null($datum['country'])||is_null($datum['cuisine']))
+                    break;
+                $cuisines[] = ['is_active'=>1,'country'=>$datum['country'],'name'=>$datum['cuisine']];
+            }
+        }
+//        dd($cuisines);
+        $this->model = \App\Cuisine::insert($cuisines);
+        return $this->sendResponse();
+    }
+
 }

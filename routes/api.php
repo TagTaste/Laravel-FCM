@@ -384,6 +384,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //check handle
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
+            Route::get("foodieType","ProfileController@foodieType");
+            Route::get("establishmentType","ProfileController@establishmentType");
+
+
+            Route::post("profile/addAllergens","ProfileController@addAllergens");
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
@@ -391,6 +396,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("profile/{id}/mutualFollowers",['uses'=>'ProfileController@mutualFollowers']);
             Route::get('profile/{id}/following',['uses'=>'ProfileController@following']);
             Route::get("profile/{id}/recent",['uses'=>'ProfileController@recentUploads']);
+            Route::get("profile/tastingCategory","ProfileController@tastingCategory");
             Route::get('/people','ProfileController@all');
             Route::get('/people/onboarding','ProfileController@onboarding');
             Route::get("people/filters", "ProfileController@filters");
@@ -407,6 +413,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource('companies','CompanyController');
 
             //recipes cuisine
+            Route::post("uploadCuisine","CuisineController@uploadCuisine");
             Route::resource("cuisine",'CuisineController');
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){

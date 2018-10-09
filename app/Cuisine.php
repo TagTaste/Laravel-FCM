@@ -9,7 +9,7 @@ class Cuisine extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','country','is_active'];
 
-    protected $visible = ['id', 'name','key','value'];
+    protected $visible = ['id', 'name','country','is_active'];
 }
