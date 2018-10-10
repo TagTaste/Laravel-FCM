@@ -110,6 +110,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                         Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
+                        Route::post("collaborate/close","CollaborateController@collaborateClose");
                         Route::resource("collaborate","CollaborateController");
                     });
 
@@ -249,6 +250,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("globalQuestion","CollaborateController@globalQuestion");
                     Route::get("getCities","CollaborateController@getCities");
                     Route::post("addCities","CollaborateController@addCities");
+                    Route::get("collaborateCloseReason","CollaborateController@collaborateCloseReason");
 
 
             Route::group(['namespace'=>'Collaborate','prefix'=>'collaborate/{collaborateId}','as'=>'collaborate.'],function(){

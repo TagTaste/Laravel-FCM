@@ -13,7 +13,14 @@ class CreateCollaborationCloseReason extends Migration
      */
     public function up()
     {
-        //
+        Schema::create("collaborate_close_reason",function(Blueprint $table){
+            $table->increments('id');
+            $table->text("reason")->nullable();
+            $table->text("other_reason")->nullable();
+            $table->unsignedInteger('collaborate_id');
+            $table->foreign("collaborate_id")->references("id")->on("collaborates");
+
+        });
     }
 
     /**
@@ -23,6 +30,6 @@ class CreateCollaborationCloseReason extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('collaborate_close_reason');
     }
 }
