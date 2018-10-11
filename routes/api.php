@@ -525,7 +525,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
     
-            
+            Route::post("/uploadFiles","UploadFilesController@uploadFiles");
+
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');
                 $tags = \App\Preview::get($url);
