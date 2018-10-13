@@ -37,7 +37,7 @@ class InsertGlobalQuestion extends Command
      */
     public function handle()
     {
-        $headerInfo2 = [['header_name'=>"INSTRUCTION"],
+        $headerInfo2 = [['header_name'=>"INSTRUCTIONS"],
                 ['header_name'=>"APPEARANCE","header_info"=>"Observe the visual aspect of the product like it's shape, density of mass and color."],
                 ['header_name'=>"AROMA","header_info"=>"Sniff the product. If you experienced aroma, fill up this section."],
                 ['header_name'=>"TASTE","header_info"=>"Take a bite and figure out basic taste(s) you experienced."],
