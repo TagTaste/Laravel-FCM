@@ -14,9 +14,9 @@ class UploadFilesController extends Controller
         /**
          * Validating all files by mime type & size of less than 10MB
          */
-        $validationStatus = $this->validate($request,[
-            'file.*'=>'required|file|mimetypes:text/plain,image/jpeg,application/octet-stream,audio/mpeg,application/zip,application/pdf,text/html,image/png|max:10500'
-        ]);
+        // $validationStatus = $this->validate($request,[
+        //     'file.*'=>'required|file|mimetypes:text/plain,image/jpeg,application/octet-stream,audio/mpeg,application/zip,application/pdf,text/html,image/png|max:10500'
+        // ]);
 
         if ($request->hasFile('file')){
             $files = $request->file('file');
@@ -31,10 +31,48 @@ class UploadFilesController extends Controller
                 $path = $file->storeAs('global/file/'.$profile_id,$filename,['visibility'=>'public',"disk"=>"s3"]);
                 $file_url = \Storage::disk('s3')->url($path);
                 $tempArray = [];
-                $tempArray["file_mime_type"] = $fileMime;
-                $tempArray["size"] = \Storage::disk('s3')->size($path);
-                $tempArray["last_modified"] = \Storage::disk('s3')->lastModified($path);
-                $tempArray["file"]["url"] = $file_url;
+                $image_size = \Storage::disk('s3')->size($path);
+                $last_modified = \Storage::disk('s3')->lastModified($path);
+                /**
+                 * Return image meta data or false in case of any error
+                 * 0 => Width
+                 * 1 => Height
+                 * 2 => Image Type (Int)
+                 * 3 => Dimension is String
+                 */
+                $image_meta = getimagesize($file_url);
+
+                /**
+                 * Replacing key's name with appropriate one's
+                 */
+                if ($image_meta) {
+                    if(array_key_exists("0",$image_meta)){
+                        $image_meta["width"] = $image_meta["0"];
+                        unset($image_meta["0"]);
+                    }
+                    if(array_key_exists("1",$image_meta)){
+                        $image_meta["height"] = $image_meta["1"];
+                        unset($image_meta["1"]);
+                    }
+                    if(array_key_exists("2",$image_meta)){
+                        $image_meta["type"] = $image_meta["2"];
+                        unset($image_meta["2"]);
+                    }
+                    if(array_key_exists("3",$image_meta)){
+                        $image_meta["text"] = $image_meta["3"];
+                        unset($image_meta["3"]);
+                    }
+                    $image_meta["last_modified"]=$last_modified;
+                    $image_meta["size"]=$image_size;
+                    $tempArray["meta"] = $image_meta;
+                    $tempArray["url"] = $file_url;
+                } else {
+                    $image_meta["last_modified"]=$last_modified;
+                    $image_meta["size"]=$image_size;
+                    $image_meta["mime"] = $fileMime;
+                    $tempArray["meta"] = $image_meta;
+                    $tempArray["url"] = $file_url;
+                }
                 /**
                  * Creating transcoded files in case of video file
                  */
