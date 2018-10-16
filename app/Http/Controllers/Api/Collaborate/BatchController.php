@@ -4,6 +4,7 @@ use App\Collaborate;
 use App\CompanyUser;
 use App\Recipe\Company;
 use App\Recipe\Profile;
+use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -898,5 +899,122 @@ class BatchController extends Controller
 
         $this->model = Profile::whereIn('id',$profileIds)->get();
         return $this->sendResponse();
+    }
+
+    public function reportPdf(Request $request, $collaborateId)
+    {
+        $filters = $request->input('filters');
+        $profileIds = new Collection([]);
+        if($profileIds->count() == 0 && isset($filters['profile_id']))
+        {
+            $filterProfile = [];
+            foreach ($filters['profile_id'] as $filter)
+            {
+                $filterProfile[] = (int)$filter;
+            }
+            $profileIds = $profileIds->merge($filterProfile);
+        }
+
+        if(isset($filters['city']))
+        {
+            $cityFilterIds = new Collection([]);
+            foreach ($filters['city'] as $city)
+            {
+                if($profileIds->count() > 0)
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
+
+                $cityFilterIds = $cityFilterIds->merge($ids);
+
+            }
+            $profileIds = $cityFilterIds;
+
+        }
+        if(isset($filters['age']))
+        {
+            $ageFilterIds = new Collection([]);
+            foreach ($filters['age'] as $age)
+            {
+                $age = htmlspecialchars_decode($age);
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
+                        ->get()->pluck('profile_id');
+                $ageFilterIds = $ageFilterIds->merge($ids);
+            }
+            $profileIds = $ageFilterIds;
+
+        }
+        if(isset($filters['gender']))
+        {
+            $genderFilterIds = new Collection([]);
+
+            foreach ($filters['gender'] as $gender)
+            {
+                if($profileIds->count() > 0 )
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
+                else
+                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
+                        ->get()->pluck('profile_id');
+                $genderFilterIds = $genderFilterIds->merge($ids);
+            }
+            $profileIds = $genderFilterIds;
+        }
+        $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
+        if($profileIds->count() > 0)
+            $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
+                ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->whereIn('question_id',$questionIds)
+                ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
+        else
+        {
+            $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
+                ->where('collaborate_id',$collaborateId)->whereIn('question_id',$questionIds)
+                ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
+        }
+
+        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
+
+        $model = [];
+        $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
+        foreach ($headers as $header)
+        {
+            $data = [];
+            if($header->header_type == 'INSTRUCTIONS')
+                continue;
+            $data['header_type'] = $header->header_type;
+            $data['id'] = $header->id;
+            foreach ($batches as $batch)
+            {
+                $item  = [];
+                $item['batch_info'] = $batch;
+                $totalValue = 0;
+                $totalReview = 0;
+                foreach ($overAllPreferences as $overAllPreference)
+                {
+
+                    if($header->id == $overAllPreference->tasting_header_id && $batch->id == $overAllPreference->batch_id)
+                    {
+                        $totalReview = $totalReview + $overAllPreference->total;
+                        $totalValue = $totalValue + $overAllPreference->leaf_id * $overAllPreference->total;
+                    }
+                }
+                if($totalValue && $totalReview)
+                    $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
+                else
+                    $item['overAllPreference'] = "0.00";
+
+                $data['batches'][] = $item;
+            }
+            $model[] = $data;
+        }
+        $this->model = $model;
+        $pdf = PDF::loadView('collaborates.reports',$this->model);
+
+        return $pdf->download('collaborates.reports');
     }
 }
