@@ -849,7 +849,7 @@ class BatchController extends Controller
                 ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
         }
 
-        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->get();
+        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->orderBy('id')->get();
 
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
