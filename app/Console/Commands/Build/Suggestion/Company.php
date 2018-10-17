@@ -51,20 +51,20 @@ class Company extends Command
                 }
             });
 
-//        \DB::table('suggestion_engine')->where('type','company')
-//            ->orderBy('profile_id')->chunk(100,function($owners){
-//                foreach($owners as $owner){
-//                    $suggestedIds = $owner->suggested_id;
-//                    $suggestedIds = explode(',',$suggestedIds);
-//                    foreach ($suggestedIds as $suggestedId)
-//                    {
-//                        if(!\Redis::sIsMember('following:profile:'.$owner->profile_id, "company.".$suggestedId))
-//                        {
-//                            \Redis::sAdd('suggested:company:'.$owner->profile_id,$suggestedId);
-//                        }
-//                    }
-//                }
-//            });
+        \DB::table('suggestion_engine')->where('type','company')
+            ->orderBy('profile_id')->chunk(100,function($owners){
+                foreach($owners as $owner){
+                    $suggestedIds = $owner->suggested_id;
+                    $suggestedIds = explode(',',$suggestedIds);
+                    foreach ($suggestedIds as $suggestedId)
+                    {
+                        if(!\Redis::sIsMember('following:profile:'.$owner->profile_id, "company.".$suggestedId))
+                        {
+                            \Redis::sAdd('suggested:company:'.$owner->profile_id,$suggestedId);
+                        }
+                    }
+                }
+            });
 
 
 

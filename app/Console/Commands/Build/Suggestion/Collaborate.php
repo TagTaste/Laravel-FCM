@@ -51,17 +51,17 @@ class Collaborate extends Command
                 }
             });
 
-//        \DB::table('suggestion_engine')->where('type','collaborate')
-//            ->orderBy('profile_id')->chunk(100,function($owners){
-//                foreach($owners as $owner){
-//                    $suggestedIds = $owner->suggested_id;
-//                    $suggestedIds = explode(',',$suggestedIds);
-//                    foreach ($suggestedIds as $suggestedId)
-//                    {
-//                        \Redis::sAdd('suggested:collaborate:'.$owner->profile_id,$suggestedId);
-//                    }
-//                }
-//            });
+        \DB::table('suggestion_engine')->where('type','collaborate')
+            ->orderBy('profile_id')->chunk(100,function($owners){
+                foreach($owners as $owner){
+                    $suggestedIds = $owner->suggested_id;
+                    $suggestedIds = explode(',',$suggestedIds);
+                    foreach ($suggestedIds as $suggestedId)
+                    {
+                        \Redis::sAdd('suggested:collaborate:'.$owner->profile_id,$suggestedId);
+                    }
+                }
+            });
 
 
 

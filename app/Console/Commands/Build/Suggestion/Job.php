@@ -51,21 +51,21 @@ class Job extends Command
                 }
             });
 
-//        \DB::table('suggestion_engine')->where('type','job')
-//            ->orderBy('profile_id')->chunk(100,function($owners){
-//                foreach($owners as $owner){
-//                    $suggestedIds = $owner->suggested_id;
-//                    $suggestedIds = explode(',',$suggestedIds);
-//                    foreach ($suggestedIds as $suggestedId)
-//                    {
-//                        $hasApplied = \DB::table('applications')->where('job_id',$suggestedId)->where('profile_id',$owner->profile_id)->exists();
-//                        if(!$hasApplied)
-//                        {
-//                            \Redis::sAdd('suggested:job:'.$owner->profile_id,$suggestedId);
-//                        }
-//                    }
-//                }
-//            });
+        \DB::table('suggestion_engine')->where('type','job')
+            ->orderBy('profile_id')->chunk(100,function($owners){
+                foreach($owners as $owner){
+                    $suggestedIds = $owner->suggested_id;
+                    $suggestedIds = explode(',',$suggestedIds);
+                    foreach ($suggestedIds as $suggestedId)
+                    {
+                        $hasApplied = \DB::table('applications')->where('job_id',$suggestedId)->where('profile_id',$owner->profile_id)->exists();
+                        if(!$hasApplied)
+                        {
+                            \Redis::sAdd('suggested:job:'.$owner->profile_id,$suggestedId);
+                        }
+                    }
+                }
+            });
 
 
 
