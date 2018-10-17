@@ -262,7 +262,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                 //reports
                 Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");
-                Route::get("reportPdf","BatchController@reportPdf");
+                Route::get("batches/{id}/reportPdf","BatchController@reportPdf");
                 Route::get("reportSummary","BatchController@reportSummary");
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
