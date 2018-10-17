@@ -18,7 +18,7 @@ class SuggestionEngineController extends Controller
         $key = 'suggested:'.$modelName.':'.$request->user()->profile->id;
 
         $modelIds = \Redis::sMembers($key);
-
+        \Log::info($modelIds);
         if($modelName == 'job' || $modelName == 'collaborate')
         {
             $model = new $this->relationships[$modelName];
