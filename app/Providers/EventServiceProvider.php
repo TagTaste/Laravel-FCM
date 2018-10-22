@@ -84,7 +84,8 @@ class EventServiceProvider extends ServiceProvider
 
         //product review collaboration upload question
         'App\Events\UploadQuestionEvent' => ['App\Listeners\UploadQuestionListener'],
-        'App\Events\UpgradeIosEvent' => ['App\Listeners\UpgradeIosListener']
+        'App\Events\UpgradeIosEvent' => ['App\Listeners\UpgradeIosListener'],
+        'App\Events\Chat\MessageTypeEvent'=>['App\Listeners\Chat\MessageTypeListener']
 
 
     ];

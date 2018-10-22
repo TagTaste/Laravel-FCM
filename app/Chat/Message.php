@@ -9,15 +9,15 @@ class Message extends Model
 {
     protected $table = 'chat_messages';
     
-    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview'];
+    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type'];
     
-    protected $visible = ['id','message','created_at','chat_id','profile','read_on','fileUrl','preview'];
+    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview','read','parentMessage','messageType'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl'];
+    protected $appends = ['fileUrl','read','parentMessage','messageType'];
 
 
     public static function boot()
@@ -54,7 +54,7 @@ class Message extends Model
             {
                 $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
             }
-            return is_array($preview) ? (string)json_encode($preview,true) : $preview;
+            return $preview;
 
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
@@ -62,10 +62,30 @@ class Message extends Model
             \Log::error($e->getLine());
             \Log::error($e->getMessage());
         }
-        return empty($preview) ? null : is_array($preview) ? (string)json_encode($preview,true) : $preview;
+        return empty($preview) ? null : $preview;
     }
-    public function isJson($string) {
-        json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
+
+    public function getReadAttribute()
+    {
+        $meta = \DB::table('message_recepients')->where('message_id',$this->id)->where('recepient_id','!=',request()->user()->profile->id)->whereNull('read_on')->exists();
+        return !$meta;
     }
+
+    public function getParentMessageAttribute()
+    {
+        if($this->parent_message_id)
+        {
+            return Message::where('id',$this->parent_message_id)->first();
+        }
+    }
+
+    public function getMessageTypeAttribute()
+    {
+        if($this->type != 0)
+        {
+            return \DB::table('chat_message_type')->where('id',$this->type)->first();
+        }
+    }
+
+
 }
