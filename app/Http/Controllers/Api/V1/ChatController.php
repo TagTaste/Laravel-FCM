@@ -108,8 +108,8 @@ class ChatController extends Controller
     	$this->model->members()->insert($input);
         $info['chatId'] = $chatId;
         $info['content'] = null;
-        $info['type'] = ;
-        event(new \App\Events\Chat\MessageTypeEvent($info,$request->user()->profile));
+        $info['type'] = 1;
+        event(new \App\Events\Chat\MessageTypeEvent($info,$inputs['profile_id']));
     }
 
     public function uploadImage($request)
