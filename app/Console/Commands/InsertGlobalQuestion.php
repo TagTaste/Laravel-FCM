@@ -523,7 +523,7 @@ class InsertGlobalQuestion extends Command
 	]
 }';
 
-        $data = ['name'=>'RUSK MULTIGRAIN','keywords'=>"RUSK MULTIGRAIN",'description'=>null,
+        $data = ['name'=>'RUSK MULTIGRAIN Numeric','keywords'=>"RUSK MULTIGRAIN",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
