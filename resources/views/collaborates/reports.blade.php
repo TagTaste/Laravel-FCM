@@ -71,6 +71,51 @@
         margin-bottom: 0;
         font-family: Helvetica Neue, Arial;
     }
+    .pr-reports-textual-intensity {
+        width: 100%;
+        display: block;
+        white-space: nowrap;
+    }
+    .textual-intensity-text-container {
+        display: inline-block;
+        width: 33%;
+        vertical-align: top;
+        position: relative;
+        height: 12px;
+    }
+    .textual-intensity-text {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 15px;
+        color: rgba(112,8,12,.7);
+        margin-bottom: 0;
+        position: relative;
+    }
+    .textual-intensity-bar {
+        width: 60%;
+        display: inline-block;
+        vertical-align: top;
+        border-radius: 7px;
+        position: relative;
+        vertical-align: top;
+    }
+    .textual-intensity-active-bar {
+        background-color: #ffa9ae;
+        position: absolute;
+        top: 0;
+        height: 12px;
+        left: 0;
+        border-radius: 7px;
+        vertical-align: top;
+    }
+    .textual-intensity-count {
+        width: 5%;
+        margin-left: 20px;
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+        height: 12px;
+    }
 </style>
 @foreach($data as $header)
     <h1>{{$header['headerName']}}</h1>
@@ -167,7 +212,7 @@
                     @if ($intensityType === 1)
                         @include('collaborates.reports-numeric-intensity')
                     @else
-                        @include('collaborates.reports-textual-intensity', ['answers' => $answers])
+                        @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
                     @endif
                 @endif
             @endif

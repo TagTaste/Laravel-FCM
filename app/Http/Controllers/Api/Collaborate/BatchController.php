@@ -903,33 +903,30 @@ class BatchController extends Controller
 
     public function reportPdf(Request $request, $collaborateId,$batchId)
     {
-//        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
-//
-//        if ($collaborate === null) {
-//            return $this->sendError("Invalid Collaboration Project.");
-//        }
-//        $profileId = $request->user()->profile->id;
-//
-//        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
-//        {
-//            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
-//            if(!$checkUser){
-//                return $this->sendError("Invalid Collaboration Project.");
-//            }
-//        }
-//        else if($collaborate->profile_id != $profileId){
-//            return $this->sendError("Invalid Collaboration Project.");
-//        }
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
         $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
 
         $this->model = [];
-        $flag = 0;
         foreach ($headers as $header)
         {
             if($header->header_type == 'INSTRUCTIONS')
                 continue;
-            if($flag >=1 )
-                break;
             $headerId = $header->id;
             $withoutNest = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
                 ->whereNull('parent_question_id')->where('header_type_id',$headerId)->orderBy('id')->get();
@@ -1040,11 +1037,10 @@ class BatchController extends Controller
                 }
             }
             $this->model[] = ['headerName'=>$header->header_type,'data'=>$model];
-            $flag++;
         }
         $data = $this->model;
 //        dd($data);
-        $pdf = PDF::loadView('collaborates.reports',['data' => $data]);
+        $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
 
         return $pdf->download('collaborates.reports');
     }
