@@ -4,19 +4,29 @@
     }
     .pr-answer-row {
         display: block;
+        white-space: nowrap;
+        width: 100%;
+        margin-top: 7px;
+        margin-bottom: 7px;
     }
     .pr-answer-row .pr-answer-container {
-        width: 100%;
+        width: 70%;
         border: 2px solid rgba(217,34,42,.4);
-        height: 38px;
+        height: 30px;
         border-radius: 5px;
         position: relative;
         overflow: hidden;
         background: #fbe9ea;
-        margin: 10px 13px 0 0;
+        margin: 0 13px 0 0;
+        display: inline-block;
+        vertical-align: top;
+        left: 0;
+    }
+    .pr-text-margin {
+        margin-bottom: 10px;
     }
     .pr-answer-row .pr-answer-container .active {
-        height: 100%;
+        height: 30px;
         background: #f7cdce;
         width: 0;
         position: absolute;
@@ -27,14 +37,20 @@
     .pr-answer-row .pr-answer-container .answer-pill-details {
         display: flex;
         align-items: center;
-        height: 38px;
-        line-height: 30px;
+        height: 30px;
+        line-height: 25px;
         z-index: 10;
         position: relative;
         padding-left: 25px;
     }
     .pr-answer-row .pr-responses-count {
-        margin: 5px 0 10px 0;
+        display: inline-block;
+        width: 28%;
+        vertical-align: middle;
+        text-align: center;
+        margin-left: 10px;
+        vertical-align: top;
+        height: 0;
     }
     .pr-report-helper-text {
         font-size: 12px;
@@ -71,17 +87,22 @@
         margin-bottom: 0;
         font-family: Helvetica Neue, Arial;
     }
+    .pr-textual-intensity-container {
+        margin-bottom: 10px;
+    }
     .pr-reports-textual-intensity {
         width: 100%;
         display: block;
-        white-space: nowrap;
+        vertical-align: top;
+        margin-bottom: 5px;
     }
     .textual-intensity-text-container {
         display: inline-block;
-        width: 33%;
+        width: 30%;
         vertical-align: top;
         position: relative;
-        height: 12px;
+        height: 0;
+        top: 0;
     }
     .textual-intensity-text {
         font-size: 12px;
@@ -92,29 +113,32 @@
         position: relative;
     }
     .textual-intensity-bar {
-        width: 60%;
+        width: 50%;
         display: inline-block;
-        vertical-align: top;
-        border-radius: 7px;
         position: relative;
-        vertical-align: top;
+        height: 12px;
+        background-color: rgba(251,232,233,.4);
+        border-radius: 7px;
     }
     .textual-intensity-active-bar {
-        background-color: #ffa9ae;
+        display: block;
         position: absolute;
         top: 0;
-        height: 12px;
         left: 0;
+        background-color: #ffa9ae;
+        position: absolute;
+        height: 12px;
         border-radius: 7px;
-        vertical-align: top;
     }
     .textual-intensity-count {
-        width: 5%;
+        width: 15%;
+        margin-top: -12px;
         margin-left: 20px;
         display: inline-block;
-        vertical-align: top;
         position: relative;
-        height: 12px;
+        height: 0;
+        text-align: left;
+        top: 0;
     }
 </style>
 @foreach($data as $header)
@@ -144,7 +168,7 @@
                         @endphp
                         <div>
                             <p class="pr-report-pill-title">{{$currentQuestionIndex}}.{{$nestedQuestionIndex}} {{$nestedAnswer['title']}}</p>
-                            <p class="pr-report-pill-helper">{{$totalAnswers}} out of {{$totalApplicants}} answered this question.</p>
+                            <p class="pr-report-pill-helper pr-text-margin">{{$totalAnswers}} out of {{$totalApplicants}} answered this question.</p>
                         </div>
                         @foreach($answers as $answer)
                             @php
@@ -181,7 +205,7 @@
                     $isComment = $questions->select_type == 3;
                     $answers = isset($headerData['answer']) ? $headerData['answer'] : [];
                 @endphp
-                <p class="pr-report-pill-helper">{{$totalAnswers}} out of {{$totalApplicants}} answered this question.</p>
+                <p class="pr-report-pill-helper pr-text-margin">{{$totalAnswers}} out of {{$totalApplicants}} answered this question.</p>
                 @if ($isIntensity == 0)
                     @if ($isComment === false)
                         @foreach ($answers as $answer)
@@ -210,7 +234,7 @@
                     @endif
                 @else
                     @if ($intensityType === 1)
-                        @include('collaborates.reports-numeric-intensity')
+                        @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
                     @else
                         @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
                     @endif
