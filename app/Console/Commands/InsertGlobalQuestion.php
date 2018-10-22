@@ -215,6 +215,23 @@ class InsertGlobalQuestion extends Command
 			]
 		},
 		{
+             "title": "Ayurveda Taste - numeric intensity",
+
+            "select_type": 2,
+
+            "is_mandatory": 1,
+
+            "is_intensity": 1,
+
+            "intensity_type": 1,
+
+            "intensity_value": 15,
+
+            "is_nested_question": 0,
+
+            "option": "Astringent (Dryness),Pungent- Masala (Warm Spices),Pungent- Cool Sensation (Cool Spices),Pungent- Chilli"
+        },
+        {
 			"title": "Ayurveda Taste",
 			"select_type": 2,
 			"is_mandatory": 1,
