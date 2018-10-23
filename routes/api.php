@@ -555,9 +555,25 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("users")->join('profiles','users.id','=','profiles.user_id')->
-                    select('profiles.id','users.name','users.email','profiles.gender')->whereNull('profiles.deleted_at')->get();
-                   
+                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[16,142,143])->get();
+                $applicantsDetails = [];
+                foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
+                {
+                    $applicantsDetails['collaborate_id'] = $collaborateApplicantsDetail->collaborate_id;
+                    $applicantsDetails['message'] = $collaborateApplicantsDetail->message;
+                    if(isset($collaborateApplicantsDetail->company_id) && !is_null($collaborateApplicantsDetail->company_id))
+                    {
+                        $applicantsDetails['profile_id'] = null;
+                        $applicantsDetails['company_id'] = $collaborateApplicantsDetail->company_id;
+                        $applicantsDetails['name'] = $collaborateApplicantsDetail->company->name;
+                    }
+                    else
+                    {
+                        $applicantsDetails['profile_id'] = $collaborateApplicantsDetail->profile_id;
+                        $applicantsDetails['company_id'] = null;
+                        $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
+                    }
+                }
                 $headers = array(
                     "Content-type" => "text/csv",
                     "Content-Disposition" => "attachment; filename=users_name_gender.csv",
@@ -566,7 +582,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     "Expires" => "0"
                 );
         
-                $columns = array('id','name','email','gender');
+                $columns = array('collaborate_id','name','profile_id','company_id','message');
         
                 $str = '';
                 foreach ($columns as $c) {
@@ -574,7 +590,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 }
                 $str = $str."\n";
         
-                foreach($studentDetail as $review) {
+                foreach($applicantsDetails as $review) {
                     foreach ($columns as $c) {
                         $str = $str.$review->{$c}.',';
                     }
