@@ -556,9 +556,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
                 $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[1295])->get();
-                $applicantsDetails = [];
+                $data = [];
                 foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
                 {
+                    $applicantsDetails = [];
                     $applicantsDetails['collaborate_id'] = $collaborateApplicantsDetail->collaborate_id;
                     $applicantsDetails['message'] = $collaborateApplicantsDetail->message;
                     if(isset($collaborateApplicantsDetail->company_id) && !is_null($collaborateApplicantsDetail->company_id))
@@ -573,6 +574,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         $applicantsDetails['company_id'] = null;
                         $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
                     }
+                    $data[] = $applicantsDetails;
                 }
                 $headers = array(
                     "Content-type" => "text/csv",
@@ -590,8 +592,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 }
                 $str = $str."\n";
 
-                foreach($applicantsDetails as $review) {
-                    \Log::info($review);
+                foreach($data as $review) {
                     foreach ($columns as $c) {
                         $str = $str.$review[$c].',';
                     }
