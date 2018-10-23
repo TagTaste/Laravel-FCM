@@ -64,9 +64,10 @@ class CollaborationQuestions extends Command implements ShouldQueue
         foreach ($questions as $key=>$question)
         {
             $data = [];
-            $header = \DB::table('collaborate_tasting_header')->select('id')->where('header_type','=',$key)
+            $header = \DB::table('collaborate_tasting_header')->select('id')->where('header_type','like',$key)
                 ->where('collaborate_id',$collaborateId)->first();
             $headerId = $header->id;
+            \Log::info("header id ".$headerId);
             foreach ($question as $item)
             {
                 $subtitle = isset($item['subtitle']) ? $item['subtitle'] : null;
