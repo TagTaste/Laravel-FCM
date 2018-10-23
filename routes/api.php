@@ -589,10 +589,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     $str = $str.$c.',';
                 }
                 $str = $str."\n";
-                $applicantsDetails = (object)$applicantsDetails;
+
                 foreach($applicantsDetails as $review) {
+                    \Log::info($review);
                     foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
+                        $str = $str.$review[$c].',';
                     }
                     $str = $str."\n";
                 }
