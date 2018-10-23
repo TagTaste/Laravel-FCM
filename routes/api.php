@@ -591,7 +591,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     $str = $str.$c.',';
                 }
                 $str = $str."\n";
-
+                dd($data);
                 foreach($data as $review) {
                     foreach ($columns as $c) {
                         $str = $str.$review[$c].',';
