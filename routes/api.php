@@ -574,7 +574,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
                     }
                 }
-                dd($applicantsDetails);
                 $headers = array(
                     "Content-type" => "text/csv",
                     "Content-Disposition" => "attachment; filename=users_name_gender.csv",
