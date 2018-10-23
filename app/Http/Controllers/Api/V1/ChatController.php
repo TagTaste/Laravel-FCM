@@ -48,7 +48,7 @@ class ChatController extends Controller
         	{
                  $profileIds[] = $ownerProfileId;
         	}
-
+        	$inputs = [];
             $inputs['chat_type'] = $request->input('chat_type');
             $inputs['name']= $request->input('name') == null ? null: $request->input('name');
             $inputs['image']= $request->input('image') == null ? null: $request->input('image');
@@ -106,6 +106,7 @@ class ChatController extends Controller
     	}
     	
     	$this->model->members()->insert($input);
+    	$info = [];
         $info['chatId'] = $chatId;
         $info['content'] = null;
         $info['type'] = 1;
