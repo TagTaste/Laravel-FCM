@@ -555,7 +555,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[16,142,143])->get();
+                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[1295])->get();
                 $applicantsDetails = [];
                 foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
                 {
