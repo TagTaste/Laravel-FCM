@@ -14,6 +14,8 @@ class Review extends Model {
     protected $visible = ['id','key','value','leaf_id','question_id','tasting_header_id','collaborate_id','profile_id','batch_id',
         'intensity','current_status','created_at','updated_at','profile'];
 
+    //current_status 0 - to be notified, 1 - notified, 2 - in progress, 3 - completed
+
     protected $with = ['profile'];
 
     public function profile()

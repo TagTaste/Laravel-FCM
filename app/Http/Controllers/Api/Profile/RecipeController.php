@@ -53,18 +53,18 @@ class RecipeController extends Controller
         $inputs['profile_id'] = $profileId;
         
         //save cuisine
-        if($request->has("cuisine")){
-            $inputCuisine = $request->input('cuisine');
-            $cuisine = Cuisine::where('name', $inputCuisine['name']);
-            if(isset($inputCuisine['id'])){
-                $cuisine = $cuisine->where('id',$inputCuisine['id']);
-            }
-            $cuisine = $cuisine->first();
-            if (!$cuisine) {
-                $cuisine = Cuisine::create($request->input("cuisine"));
-            }
-            $inputs['cuisine_id'] = $cuisine->id;
-        }
+//        if($request->has("cuisine")){
+//            $inputCuisine = $request->input('cuisine');
+//            $cuisine = Cuisine::where('name', $inputCuisine['name']);
+//            if(isset($inputCuisine['id'])){
+//                $cuisine = $cuisine->where('id',$inputCuisine['id']);
+//            }
+//            $cuisine = $cuisine->first();
+//            if (!$cuisine) {
+//                $cuisine = Cuisine::create($request->input("cuisine"));
+//            }
+//            $inputs['cuisine_id'] = $cuisine->id;
+//        }
         
         //save directions
         if($request->has('directions')){
@@ -171,19 +171,19 @@ class RecipeController extends Controller
 
         $inputs = $request->except(['ingredients', 'equipments', 'images', '_method', '_token','cuisine','directions']);
         
-        //save cuisine
-        if($request->has('cuisine')){
-            $inputCuisine = $request->input('cuisine');
-            $cuisine = Cuisine::where('name', $inputCuisine['name']);
-            if(isset($inputCuisine['id'])){
-                $cuisine = $cuisine->where('id',$inputCuisine['id']);
-            }
-            $cuisine = $cuisine->first();
-            if (!$cuisine) {
-                $cuisine = Cuisine::create($request->input("cuisine"));
-            }
-            $inputs['cuisine_id'] = $cuisine->id;
-        }
+//        //save cuisine
+//        if($request->has('cuisine')){
+//            $inputCuisine = $request->input('cuisine');
+//            $cuisine = Cuisine::where('name', $inputCuisine['name']);
+//            if(isset($inputCuisine['id'])){
+//                $cuisine = $cuisine->where('id',$inputCuisine['id']);
+//            }
+//            $cuisine = $cuisine->first();
+//            if (!$cuisine) {
+//                $cuisine = Cuisine::create($request->input("cuisine"));
+//            }
+//            $inputs['cuisine_id'] = $cuisine->id;
+//        }
         
         if($request->has('directions')){
             $inputs['directions'] = json_encode($request->input("directions"));
