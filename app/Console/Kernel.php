@@ -173,7 +173,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\InsertGlobalQuestion::class,
 
         \App\Console\Commands\UpdateGlobalQuestion::class,
-        CloseCollaborate::class
+        CloseCollaborate::class,
+        \App\Console\Commands\FillTableRecepient::class,
+        \App\Console\Commands\FillChatType::class,
 
 
     ];

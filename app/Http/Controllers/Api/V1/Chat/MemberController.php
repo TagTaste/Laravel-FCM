@@ -24,18 +24,21 @@ class MemberController extends Controller
     public function index(Request $request,$chatId)
     {
     	$loggedInProfileId = $request->user()->profile->id;
-        if(!$this->isMember($loggedInProfileId, $chatId))
+
+    	$member = \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->first();
+
+        if(!isset($member) || is_null($member))
         {
             return $this->sendError("This user doesnt belong to this chat");
         }
-        $memberDeleted = Member::withTrashed()->where('profile_id',$loggedInProfileId)->where('chat_id',$chatId)->first()->deleted_at;
-        if(is_null($memberDeleted))
+
+        if(is_null($member->deleted_at))
         {
             $this->model = Member::where('chat_id',$chatId)->get();
         }
         else
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$memberDeleted)->get();
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$members->deleted_at)->get();
         }
     	return $this->sendResponse();
     }
@@ -43,35 +46,41 @@ class MemberController extends Controller
     public function store(Request $request,$chatId)
     {
     	$loggedInProfileId = $request->user()->profile->id;
-    	if($this->getChatType($chatId) == 1)
-    	{
-    		return $this->sendError("This is one-to-one chat");
-    	}
     	if(!$this->isAdmin($chatId,$loggedInProfileId))
     	{
     		return $this->sendError('Only group admins can perform this action');
     	}
     	$profileIds = $request->input('profileId');
     	if(!is_array($profileIds))
-    		{
-            	$profileIds = [$profileIds];
-        	}
-        	$members=Member::where('chat_id',$chatId)->pluck('profile_id'); 
-        	$members = [$members];
-    	$profileIds = array_diff($profileIds,$members);
-        $input = [];
-    	foreach ($profileIds as $profileId) {
-            $deletedMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
-            if($deletedMember)
-            {
-                Member::withTrashed()->where('profile_id',$profileId)->update(['deleted_at'=>null, 'is_admin'=>0]);
-            }
-            else{
-                $input[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'is_admin'=>0,'created_at'=>$this->time];
-            }
+    	{
+    	    $profileIds = [$profileIds];
     	}
-    	$this->model = $this->model->insert($input);
-    	return $this->sendResponse();
+
+    	Member::where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['deleted_at'=>null]);
+
+    	$members = Member::where('chat_id',$chatId)->pluck('profile_id');
+    	$members = [$members];
+    	$profileIds = array_diff($profileIds,$members);
+        $chatMembers = [];
+
+        foreach ($profileIds as $profileId)
+        {
+            $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->time,'is_admin'=>0];
+        }
+
+        $this->model = $this->model->insert($chatMembers);
+
+        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>2];
+
+        $model=\App\Chat\Message::create($messageInfo);
+        $messageRecepients = [];
+        foreach ($members as $profileId)
+        {
+            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        }
+        \DB::table('chat_message_recepients')->insert($messageRecepients);
+
+        return $this->sendResponse();
     }
 
     public function destroy(Request $request, $chatId, $profileId)
@@ -81,15 +90,29 @@ class MemberController extends Controller
     		return $this->sendError("invalid Function only valid on group chats");
     	}
     	$loggedInProfileId = $request->user()->profile->id;
-    	if(!$this->isAdmin($chatId,$loggedInProfileId) && $loggedInProfileId!=$profileId)
+    	if(!$this->isAdmin($chatId,$loggedInProfileId) && $loggedInProfileId != $profileId)
     	{
     		return $this->sendError("This user cant perform this action");
     	}
-    	if(Chat::where('id',$chatId)->pluck('profile_id')->first() == $profileId)
+    	$checkSuperAdmin = \Db::table('chats')->where('id',$chatId)->first();
+    	if($checkSuperAdmin->profile_id == $profileId)
     	{
     		return $this->sendError('Super admin cannot be removed from the group');
     	}
     	$this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
+
+    	$type = $loggedInProfileId == $profileId ? 4 : 3;
+        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type];
+
+        $model=\App\Chat\Message::create($messageInfo);
+        $messageRecepients = [];
+        $profileIds = Member::where('chat_id',$chatId)->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        }
+        \DB::table('chat_message_recepients')->insert($messageRecepients);
+
     	return $this->sendResponse();
 
     }
@@ -97,10 +120,6 @@ class MemberController extends Controller
     public function addAdmin(Request $request, $chatId)
     { 
     	$loggedInProfileId = $request->user()->profile->id;
-        if($this->getChatType($chatId) === 1)
-        {
-            return $this->sendError("This operation is not possible in one-on-one chat");
-        }
     	if(!$this->isAdmin($chatId, $loggedInProfileId))
     	{
     		return $this->sendError('This user cannot perform this action');
@@ -111,6 +130,20 @@ class MemberController extends Controller
            	$profileIds = [$profileIds];
         }
         $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
+
+
+        $type = 7 ;
+
+        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type];
+
+        $model=\App\Chat\Message::create($messageInfo);
+        $messageRecepients = [];
+        $profileIds = Member::where('chat_id',$chatId)->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        }
+        \DB::table('chat_message_recepients')->insert($messageRecepients);
 
         return $this->sendResponse();
     }
@@ -130,6 +163,19 @@ class MemberController extends Controller
             return $this->sendError("Super admin cannot be removed from the admin");
         }
     	$this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
+
+        $type = 8 ;
+        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type];
+
+        $model=\App\Chat\Message::create($messageInfo);
+        $messageRecepients = [];
+        $profileIds = Member::where('chat_id',$chatId)->pluck('profile_id');
+        foreach ($profileIds as $profileId)
+        {
+            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        }
+        \DB::table('chat_message_recepients')->insert($messageRecepients);
+
         return $this->sendResponse();
     }
     protected function getChatType($id)
@@ -144,8 +190,6 @@ class MemberController extends Controller
 
     protected function isMember($profileId, $chatId)
     {
-        return Chat::where('id',$chatId)->whereHas('members', function($query) use ($profileId){
-            $query->withTrashed()->where('profile_id',$profileId);
-        })->exists();
+        return \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
     }
 }

@@ -23,46 +23,64 @@ class ChatController extends Controller
 
     public function index(Request $request)
     {
-    	$profileId = $request->user()->id;
-        
+        $profileId = $request->user()->profile->id;
+
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-        $query->where('profile_id',$profileId)->withTrashed();
-        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
-        message_recepients'),function($join) use ($profileId){
-        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
-        })->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
 
         return $this->sendResponse();
+//    	$profileId = $request->user()->id;
+//
+//        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+//        $query->where('profile_id',$profileId)->withTrashed();
+//        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
+//        message_recepients'),function($join) use ($profileId){
+//        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
+//        })->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
+//
+//        return $this->sendResponse();
     }
 
     public function store(Request $request)
     {
     	$ownerProfileId = $request->user()->profile->id;
-            //String[] $profileIds = request.getParameterValues("profileId");
-    		$profileIds = $request->input('profileId');
-    		if(!is_array($profileIds))
-    		{
-            	$profileIds = [$profileIds];
-        	}
-        	if(!in_array($ownerProfileId, $profileIds))
-        	{
-                 $profileIds[] = $ownerProfileId;
-        	}
-        	$inputs = [];
-            $inputs['chat_type'] = $request->input('chat_type');
-            $inputs['name']= $request->input('name') == null ? null: $request->input('name');
-            $inputs['image']= $request->input('image') == null ? null: $request->input('image');
-            $inputs['profile_id']=$ownerProfileId;
-            $inputs['created_at']=$this->now; 
+    	//String[] $profileIds = request.getParameterValues("profileId");
+        $profileIds = $request->input('profileId');
+        if(!is_array($profileIds))
+        {
+            $profileIds = [$profileIds];
+        }
+        if(!in_array($ownerProfileId, $profileIds))
+        {
+            $profileIds[] = $ownerProfileId;
+        }
+        $inputs = [];
+        $inputs['chat_type'] = $request->input('chat_type');
+        $inputs['name']= $request->input('name') == null ? null: $request->input('name');
+        $inputs['image']= $request->input('image') == null ? null: $request->input('image');
+        $inputs['profile_id']=$ownerProfileId;
+        $inputs['created_at']=$this->now;
 
-  	  	if($request->input('chat_type') == '1' && count($profileIds) === 2)
+  	  	if($request->input('chat_type') == 1 && count($profileIds) === 2)
     	{  
     		$existingChats = Chat::open($ownerProfileId,$profileIds[0]);
 
     		if($existingChats === null)
     		{
-    			$this->createChatRoom($inputs,$profileIds);
-                return $this->sendResponse();
+    		    $message = $request->input('message');
+    		    if(isset($message) && !is_null($message))
+                {
+                    $this->createChatRoom($inputs,$profileIds,$message);
+                    return $this->sendResponse();
+                }
+                else
+                {
+                    return $this->sendError("Please enter message");
+                }
+
     		}
     		else
     		{
@@ -70,7 +88,7 @@ class ChatController extends Controller
     			return $this->sendResponse();
     		}
     	}
-    	elseif($request->input('chat_type') == '0')
+    	else if($request->input('chat_type') == 0)
     	{
     		if($request->input('name') == null)
     		{
@@ -79,9 +97,6 @@ class ChatController extends Controller
     		else
     		{
                 $this->createChatRoom($inputs, $profileIds);
-                if($request->hasFile("image") && $request->input('chat_type')==0){
-                    $this->uploadImage($request);
-                }
                 return $this->sendResponse();
     		}
     	}
@@ -95,46 +110,52 @@ class ChatController extends Controller
     {
         $profileId = $request->user()->profile->id;
 
-    	$this->model = Chat::whereHas('members',function($query) use ($profileId){
-    		$query->where('profile_id',$profileId)->withTrashed();
-    	})->join(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
-        message_recepients'),function($join) use ($profileId){
-        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
-        })->where('chats.id',$id)->where('message_recepients.deleted',0)->first();
-
-    	$this->model == null ? $this->sendError('This chat id doesnt belong to this user') : null;
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->where('id',$id)->first();
 
         return $this->sendResponse();
-
     }
 
+    // only in change group name and group image and by only admin
     public function update(Request $request, $id)
     {
-    	$profileId = $request->user()->profile->id;
+        $loggedInProfileId = $request->user()->profile->id;
+    	$checkAdmin = Member::where('chat_id',$id)->where('profile_id',$loggedInProfileId)
+            ->whereNull('is_admin',1)->whereNull('deleted_at')->exists();
 
-    	$this->model = Chat::whereHas('members',function($query) use ($profileId){
-    		$query->where('profile_id',$profileId);
-    	})->where('id',$id)->where('chat_type',0)->first();
-    	if($this->model == null)
+    	if(!isset($checkAdmin) || is_null($checkAdmin))
         {
-            return $this->sendError("This chat doesnt belong to this user");
+            return $this->sendError("You are not a part of this chat.");
         }
-    	if($request->hasFile("image")){
-            $this->uploadImage($request);
-            $info['chatId'] = $id;
-            $info['content'] = null;
-            $info['type'] = 4;
-            event(new \App\Events\Chat\MessageTypeEvent($info,$request->user()->profile));
-        }
-        if($request->input('name')!= null)
+
+        if($request->has('name') || $request->has('image'))
         {
-        	$this->model->update(['name'=>$request->input('name')]);
-            $info['chatId'] = $id;
-            $info['content'] = $request->input('name');
-            $info['type'] = 5;
-            event(new \App\Events\Chat\MessageTypeEvent($info,$request->user()->profile));
+            $inputs = $request->has('name') ? ['name'=>$request->input('name')] : ['image'=>$request->input('image')];
+            $profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
+
+            $type = $request->has('name') ? 5 : 6;
+            $messageInfo = ['chat_id'=>$id,'profile_id'=>$loggedInProfileId,'type'=>$type];
+
+            $model=\App\Chat\Message::create($messageInfo);
+
+            $messageRecepients = [];
+            foreach ($profileIds as $profileId)
+            {
+                $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$profileId,'sender_id'=>$loggedInProfileId, 'chat_id'=>$id];
+            }
+            \DB::table('chat_message_recepients')->insert($messageRecepients);
+            $this->model = Chat::where('id',$id)->update($inputs);
+            $this->model = Chat::where('id',$id)->first();
+            return $this->sendResponse();
         }
-        return $this->model;
+        else
+        {
+            $this->model = false;
+            return $this->sendResponse();
+        }
     }
 
     public function chatSearch(Request $request)
@@ -235,26 +256,36 @@ class ChatController extends Controller
     }
 
 
-    public function createChatRoom($inputs, $profileIds)
+    public function createChatRoom($inputs, $profileIds, $message = null)
     {
         $this->model = Chat::create($inputs);
         $chatId = $this->model->id;
-        $input = [];
+        $chatMembers = [];
         foreach ($profileIds as $profileId)
         {
-            if($profileId == $inputs['profile_id'])
+            if($profileId == $inputs['profile_id'] && $this->model->chat_type == 0)
                 $isAdmin = 1;
             else
                 $isAdmin = 0;
-            $input[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
+            $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
         }
 
-        $this->model->members()->insert($input);
-        $info = [];
-        $info['chatId'] = $chatId;
-        $info['content'] = null;
-        $info['type'] = 1;
-        event(new \App\Events\Chat\MessageTypeEvent($info,$inputs['profile_id']));
+        $this->model->members()->insert($chatMembers);
+        if($this->model->chat_type == 0)
+        {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'],'type'=>1];
+        }
+        else
+        {
+            $messageInfo = ['chat_id'=>$chatId,'message'=>$message,'profile_id'=>$inputs['profile_id'],'type'=>0];
+        }
+        $model=\App\Chat\Message::create($messageInfo);
+        $messageRecepients = [];
+        foreach ($profileIds as $profileId)
+        {
+            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$inputs['profile_id'],'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        }
+        return \DB::table('chat_message_recepients')->insert($messageRecepients);
     }
 
     public function uploadImage($request)

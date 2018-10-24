@@ -61,34 +61,15 @@ class Chat extends Model
         if(isset($memberOfChat->deleted_at))
         {
             $this->isEnabled = false;
-            $message = $this->messages()->whereBetween('5',[$memberOfChat->created_at,$memberOfChat->deleted_at])->orderBy('created_at','desc')->take(1)->get();
-            $msgArray = $message->toArray();
-            $id = $msgArray[0]["id"];
-            $isDeleted = \DB::table('message_recepients')->where('message_id',$id)->where('recepient_id',request()->user()->profile->id)->whereNull('deleted_on')->first();
-            if($isDeleted)
-            {
-                return $message;
-            }
-            else{
-                return null;
-            }
+            return Message::join('message_recepients','message_recepients.message_id','=','chat_messages.id')
+                ->orderBy('message_recepients.created_at','desc')->first();
+
         }
         else
         {
-            $message = $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->where('type',0)->take(1)->get();
-            $msgArray = $message->toArray();
-            if(count($msgArray)!=0)
-            {
-                $id = $msgArray[0]["id"];
-                $isNotDeleted = \DB::table('message_recepients')->where('message_id',$id)->where('recepient_id',request()->user()->profile->id)->whereNull('deleted_on')->first();
-                if($isNotDeleted)
-                {
-                return $message;
-                }
-            }
-            else{
-                return null;
-            }
+            $this->isEnabled = false;
+            return Message::join('message_recepients','message_recepients.message_id','=','chat_messages.id')
+                ->whereNull('message_recepients.deleted_at')->orderBy('message_recepients.created_at','desc')->first();
         }
     }
 

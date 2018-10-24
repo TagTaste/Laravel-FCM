@@ -19,6 +19,16 @@ class Message extends Model
 
     protected $appends = ['fileUrl','read','parentMessage','messageType'];
 
+    //type only in group
+    // 1 - when owner create a group
+    // 2 - when admin added someone
+    // 3 when admin remove someone
+    // 4 when someone is left
+    // 5 group name change
+    // 6 iamge change
+    // 7 make admin
+    // 8 remove admin
+
 
     public static function boot()
     {
