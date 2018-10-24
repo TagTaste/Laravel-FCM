@@ -573,7 +573,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     else
                     {
                         $applicantsDetails['profile_id'] = $collaborateApplicantsDetail->profile_id;
-                        $profileDetails =\DB::table('users')->join('users','profiles.user_id','=','users.id')
+                        $profileDetails =\DB::table('users')->join('users','users.id','=','profiles.user_id')
                             ->where('profiles.id',$collaborateApplicantsDetail->profile_id)->first();
                         $applicantsDetails['phone'] = $profileDetails->phone;
                         $applicantsDetails['email'] = $profileDetails->email;
