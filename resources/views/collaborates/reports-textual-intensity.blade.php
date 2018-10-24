@@ -34,6 +34,7 @@
             $percent = $currentAnswer->percent;
             $intensities = $currentAnswer->selectedIntensity;
             $finalTotal = $currentAnswer->finalTotal;
+            $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
         @endphp
         <div class="pr-answer-row">
             <div class="pr-answer-container">
@@ -48,7 +49,7 @@
                 </div>
             </div>
             <div class="pr-responses-count">
-                <p class="pr-report-helper-text">{{$finalTotal}}</p>
+                <p class="pr-report-helper-text">{{$finalTotal}} {{$prResponseSuffix}} ({{$percent}}%)</p>
             </div>
         </div>
         <div class="pr-textual-intensity-container">

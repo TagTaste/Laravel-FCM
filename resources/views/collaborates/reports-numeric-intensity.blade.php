@@ -31,12 +31,20 @@
             $answerTitle = $currentAnswer->value;
             $percent = $currentAnswer->percent;
             $finalTotal = $currentAnswer->finalTotal;
+            $avgIntensity = round($currentAnswer->avgIntensity, 1);
+            $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
         @endphp
         <div class="pr-answer-row">
             <div class="pr-answer-container">
                 <div class="active" style="width: {{$percent}}%;"></div>
                 <div class="answer-pill-details">
                     <p class="pr-report-pill-text">
+                        @isset($avgIntensity)
+                            <span class="pr-intensity-numeric-block">
+                                <img class="pr-intensity-numeric-img" src="https://www.tagtaste.com/images/product-review/icons-intensity-bars.png" />
+                                {{$avgIntensity}}
+                            </span>
+                        @endisset
                         @isset($path)
                             <span>{{$path}} > </span>
                         @endisset
@@ -45,7 +53,7 @@
                 </div>
             </div>
             <div class="pr-responses-count">
-                <p class="pr-report-helper-text">{{$finalTotal}} </p>
+                <p class="pr-report-helper-text">{{$finalTotal}} {{$prResponseSuffix}} ({{$percent}}%)</p>
             </div>
         </div>
     @endforeach
