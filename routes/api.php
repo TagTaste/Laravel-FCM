@@ -555,7 +555,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[234,235,217,256,242,241,245,244,243,250,249,248,246,237,215])->get();
+                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[1295])->get();
                 $data = [];
                 foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
                 {
@@ -567,12 +567,19 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         $applicantsDetails['profile_id'] = null;
                         $applicantsDetails['company_id'] = $collaborateApplicantsDetail->company_id;
                         $applicantsDetails['name'] = $collaborateApplicantsDetail->company->name;
+                        $applicantsDetails['city'] = null;
+                        $applicantsDetails['email'] = null;
                     }
                     else
                     {
                         $applicantsDetails['profile_id'] = $collaborateApplicantsDetail->profile_id;
+                        $profileDetails =\DB::table('users')->join('users','profiles.user_id','=','users.id')
+                            ->where('profiles.id',$collaborateApplicantsDetail->profile_id)->first();
+                        $applicantsDetails['phone'] = $profileDetails->phone;
+                        $applicantsDetails['email'] = $profileDetails->email;
                         $applicantsDetails['company_id'] = null;
                         $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
+                        $applicantsDetails['city'] = $collaborateApplicantsDetail->city;
                     }
                     $data[] = $applicantsDetails;
                 }
@@ -584,7 +591,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     "Expires" => "0"
                 );
         
-                $columns = array('collaborate_id','name','profile_id','company_id','message');
+                $columns = array('collaborate_id','name','email','phone','profile_id','company_id','message');
         
                 $str = '';
                 foreach ($columns as $c) {
