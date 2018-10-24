@@ -1042,7 +1042,7 @@ class BatchController extends Controller
         $data = $this->model;
 //        dd($data);
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
-
+        \Log::info("here is here");
         return $pdf->download('collaborates.reports');
     }
 }
