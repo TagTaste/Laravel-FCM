@@ -16,9 +16,12 @@ class Chat extends Model
 
     //protected $with = ['members'];
 
-    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount','is_enabled','chat_type'];
+    protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
+        'unreadMessageCount','is_enabled','chat_type'];
 
-    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount','is_enabled'];
+    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled'];
+
+    //chat type = 1 is single chat, 0 is group chat
 
     protected $isEnabled = true;
 
@@ -29,23 +32,11 @@ class Chat extends Model
 
     public function getProfilesAttribute()
     {
-        // $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
-        // if(isset($memberOfChat->deleted_at))
-        // {
-        //     return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->deleted_at)->whereNull('deleted_at')->get()->pluck('profile');
-        // }
-        // else
-        // {
-        //     if(isset($memberOfChat->deleted_at))
-        //     {
-        //         $memberOfChat->restore();
-        //     }
-        //     return $this->members()->withTrashed()->whereNull('deleted_at')->get()->pluck('profile');
-        // }
         if($this->chat_type === 1)
         {
             return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
         }
+        return null;
 
     }
 
@@ -70,7 +61,7 @@ class Chat extends Model
         if(isset($memberOfChat->deleted_at))
         {
             $this->isEnabled = false;
-            $message = $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->deleted_at])->orderBy('created_at','desc')->take(1)->get();
+            $message = $this->messages()->whereBetween('5',[$memberOfChat->created_at,$memberOfChat->deleted_at])->orderBy('created_at','desc')->take(1)->get();
             $msgArray = $message->toArray();
             $id = $msgArray[0]["id"];
             $isDeleted = \DB::table('message_recepients')->where('message_id',$id)->where('recepient_id',request()->user()->profile->id)->whereNull('deleted_on')->first();
@@ -138,7 +129,8 @@ class Chat extends Model
 
     public function getUnreadMessageCountAttribute()
     {
-        return \DB::table('message_recepients')->where('recepient_id',request()->user()->profile->id)->where('chat_id',$this->id)->whereNull('read_on')->whereNull('deleted_on')->count();
+        return \DB::table('message_recepients')->where('recepient_id',request()->user()->profile->id)
+            ->where('chat_id',$this->id)->whereNull('read_on')->whereNull('deleted_on')->count();
     }
 
     public function getIsEnabledAttribute()

@@ -91,42 +91,9 @@ class ChatController extends Controller
     	}
     }
 
-    public function createChatRoom($inputs, $profileIds)
-    {  
-    	$this->model = Chat::create($inputs);
-        $chatId = $this->model->id;
-    	$input = [];
-    	foreach ($profileIds as $profileId)
-    	 {
-    		if($profileId == $inputs['profile_id'])
-    			$isAdmin = 1;
-    		else
-    			$isAdmin = 0;
-    		$input[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
-    	}
-    	
-    	$this->model->members()->insert($input);
-    	$info = [];
-        $info['chatId'] = $chatId;
-        $info['content'] = null;
-        $info['type'] = 1;
-        event(new \App\Events\Chat\MessageTypeEvent($info,$inputs['profile_id']));
-    }
-
-    public function uploadImage($request)
-    {	
-        $imageName = str_random("32") . ".jpg";
-        $path = Chat::getImagePath($this->model->id);
-        $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
-        if(!$response){
-            throw new \Exception("Could not save image " . $imageName . " at " . $path);
-        }
-        $this->model->update(['image'=>$response]);
-  
-    }
-
     public function show(Request $request,$id)
-    {	$profileId = $request->user()->profile->id;
+    {
+        $profileId = $request->user()->profile->id;
 
     	$this->model = Chat::whereHas('members',function($query) use ($profileId){
     		$query->where('profile_id',$profileId)->withTrashed();
@@ -134,7 +101,9 @@ class ChatController extends Controller
         message_recepients'),function($join) use ($profileId){
         $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
         })->where('chats.id',$id)->where('message_recepients.deleted',0)->first();
+
     	$this->model == null ? $this->sendError('This chat id doesnt belong to this user') : null;
+
         return $this->sendResponse();
 
     }
@@ -175,8 +144,11 @@ class ChatController extends Controller
     	$data['groups'] = Chat::whereHas('members',function($query) use ($loggedInProfileId){
     		$query->where('profile_id',$loggedInProfileId);
     	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
+
     	$profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-    	$data['profile'] = \App\Recipe\Profile::whereIn('profiles.id',$profileIds)->join('users','profiles.user_id','users.id')->where('users.name','like','%'.$key.'%')->get();
+    	$data['profile'] = \App\Recipe\Profile::whereIn('profiles.id',$profileIds)->join('users','profiles.user_id','users.id')
+            ->where('users.name','like','%'.$key.'%')->get();
+
         $this->model = $data;
     	return $this->sendResponse();
     	
@@ -187,7 +159,7 @@ class ChatController extends Controller
     {
     	$loggedInProfileId = $request->user()->profile->id;
     	$profileId = $request->input('profileId');
-        if($profileId == $loggedInProfileId || !\App\Profile::where('id',$profileId)->exists())
+        if($profileId == $loggedInProfileId)
         {
             return $this->sendError("Invalid Input");
         }
@@ -260,6 +232,41 @@ class ChatController extends Controller
         fwrite($fp, $raw);
         fclose($fp);
         return "app/" . $path . $filename;
+    }
+
+
+    public function createChatRoom($inputs, $profileIds)
+    {
+        $this->model = Chat::create($inputs);
+        $chatId = $this->model->id;
+        $input = [];
+        foreach ($profileIds as $profileId)
+        {
+            if($profileId == $inputs['profile_id'])
+                $isAdmin = 1;
+            else
+                $isAdmin = 0;
+            $input[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
+        }
+
+        $this->model->members()->insert($input);
+        $info = [];
+        $info['chatId'] = $chatId;
+        $info['content'] = null;
+        $info['type'] = 1;
+        event(new \App\Events\Chat\MessageTypeEvent($info,$inputs['profile_id']));
+    }
+
+    public function uploadImage($request)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $path = Chat::getImagePath($this->model->id);
+        $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $this->model->update(['image'=>$response]);
+
     }
 
 }
