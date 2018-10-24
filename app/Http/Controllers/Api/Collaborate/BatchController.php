@@ -1043,8 +1043,8 @@ class BatchController extends Controller
 //        dd($data);
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
-        file_get_contents("/app/collaborate/collaboratesreport.pdf",$pdf);
-        $pdf = base64_encode(file_get_contents("/app/collaborate/collaboratesreport.pdf",$pdf));
+        file_put_contents(storage_path("app/collaborate/") ."collaboratesreport.pdf",$pdf);
+        $pdf = base64_encode(file_get_contents(storage_path("app/collaborate/") ."collaboratesreport.pdf",$pdf));
         return response()->json(['pdf'=>$pdf]);
     }
 }
