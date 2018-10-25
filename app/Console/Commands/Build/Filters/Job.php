@@ -39,7 +39,7 @@ class Job extends Command
     {
         \DB::table("job_filters")->delete();
     
-        \App\Job::whereNull('deleted_at')->chunk(100,function($models){
+        \App\Job::whereNull('deleted_at')->where('state',1)->chunk(100,function($models){
             foreach($models as $model){
                // new \App\Cached\Filter\Profile($model);
                 \App\Filter\Job::addModel($model);
