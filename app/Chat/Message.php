@@ -11,13 +11,14 @@ class Message extends Model
     
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type'];
     
-    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview','read','parentMessage','messageType'];
+    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview',
+        'read','parentMessage','type'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl','read','parentMessage','messageType'];
+    protected $appends = ['fileUrl','read','parentMessage'];
 
     //type only in group
     // 1 - when owner create a group
@@ -88,14 +89,5 @@ class Message extends Model
             return Message::where('id',$this->parent_message_id)->first();
         }
     }
-
-    public function getMessageTypeAttribute()
-    {
-        if($this->type != 0)
-        {
-            return \DB::table('chat_message_type')->where('id',$this->type)->first();
-        }
-    }
-
 
 }
