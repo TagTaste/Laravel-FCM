@@ -37,9 +37,12 @@ class MessageController extends Controller
     public function index(Request $request, $chatId)
     {
         $loggedInProfileId = $request->user()->profile->id;
+
         if($this->isChatMember($loggedInProfileId, $chatId))
         {   
-            $this->model = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')->where('message_recepients.recepient_id',$loggedInProfileId)->get();
+            $this->model = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
+                ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
+                ->where('message_recepients.recepient_id',$loggedInProfileId)->get();
 
             return $this->model;
         }
