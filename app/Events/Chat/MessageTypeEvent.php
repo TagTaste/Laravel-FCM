@@ -22,10 +22,8 @@ class MessageTypeEvent
     public $sender;
     public $receiver;
     public $info;
-    public function __construct($info, $sender, $receiver = null)
+    public function __construct($info)
     {
-        $this->sender = $sender;
-        $this->receiver = $receiver;
         $this->info = $info;
     }
 

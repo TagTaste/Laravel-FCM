@@ -93,7 +93,8 @@ class Message extends Model
     {
         if($this->type != 0)
         {
-            return \DB::table('chat_message_type')->where('id',$this->type)->first();
+            $message = explode('.', $this->message);
+            return ['sender_profile'=>\App\Recipe\Profile::where('id',$message[0])->first() ,'action'=> \DB::table('chat_message_type')->where('id',$this->type)->pluck('text')->first(), 'reciever_profile'=>\App\Recipe\Profile::where('id',$message[2])->first()];
         }
     }
 

@@ -69,16 +69,13 @@ class MemberController extends Controller
         }
 
         $this->model = $this->model->insert($chatMembers);
+        $members = \App\Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
+        foreach ($profileIds as $profileId ) {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$member];
 
-        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>2];
-
-        $model=\App\Chat\Message::create($messageInfo);
-        $messageRecepients = [];
-        foreach ($members as $profileId)
-        {
-            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            $messageInfo = [];
         }
-        \DB::table('chat_message_recepients')->insert($messageRecepients);
 
         return $this->sendResponse();
     }
@@ -94,24 +91,17 @@ class MemberController extends Controller
     	{
     		return $this->sendError("This user cant perform this action");
     	}
-    	$checkSuperAdmin = \Db::table('chats')->where('id',$chatId)->first();
+    	$checkSuperAdmin = \DB::table('chats')->where('id',$chatId)->first();
     	if($checkSuperAdmin->profile_id == $profileId)
     	{
     		return $this->sendError('Super admin cannot be removed from the group');
     	}
+
+        $type = $loggedInProfileId == $profileId ? 4 : 3;
+        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
+        event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+
     	$this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
-
-    	$type = $loggedInProfileId == $profileId ? 4 : 3;
-        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type];
-
-        $model=\App\Chat\Message::create($messageInfo);
-        $messageRecepients = [];
-        $profileIds = Member::where('chat_id',$chatId)->pluck('profile_id');
-        foreach ($profileIds as $profileId)
-        {
-            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
-        }
-        \DB::table('chat_message_recepients')->insert($messageRecepients);
 
     	return $this->sendResponse();
 
@@ -134,16 +124,10 @@ class MemberController extends Controller
 
         $type = 7 ;
 
-        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type];
-
-        $model=\App\Chat\Message::create($messageInfo);
-        $messageRecepients = [];
-        $profileIds = Member::where('chat_id',$chatId)->pluck('profile_id');
-        foreach ($profileIds as $profileId)
-        {
-            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        foreach ($profileIds as $profileId) {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
-        \DB::table('chat_message_recepients')->insert($messageRecepients);
 
         return $this->sendResponse();
     }
@@ -165,16 +149,10 @@ class MemberController extends Controller
     	$this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
 
         $type = 8 ;
-        $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type];
-
-        $model=\App\Chat\Message::create($messageInfo);
-        $messageRecepients = [];
-        $profileIds = Member::where('chat_id',$chatId)->pluck('profile_id');
-        foreach ($profileIds as $profileId)
-        {
-            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$loggedInProfileId,'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        foreach ($profileIds as $profileId) {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
-        \DB::table('chat_message_recepients')->insert($messageRecepients);
 
         return $this->sendResponse();
     }

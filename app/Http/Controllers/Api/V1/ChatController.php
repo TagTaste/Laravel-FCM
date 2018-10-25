@@ -124,7 +124,7 @@ class ChatController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
     	$checkAdmin = Member::where('chat_id',$id)->where('profile_id',$loggedInProfileId)
-            ->whereNull('is_admin',1)->whereNull('deleted_at')->exists();
+            ->where('is_admin',1)->whereNull('deleted_at')->exists();
 
     	if(!isset($checkAdmin) || is_null($checkAdmin))
         {
@@ -137,16 +137,9 @@ class ChatController extends Controller
             $profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
 
             $type = $request->has('name') ? 5 : 6;
-            $messageInfo = ['chat_id'=>$id,'profile_id'=>$loggedInProfileId,'type'=>$type];
+            $messageInfo = ['chat_id'=>$id,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
 
-            $model=\App\Chat\Message::create($messageInfo);
-
-            $messageRecepients = [];
-            foreach ($profileIds as $profileId)
-            {
-                $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$profileId,'sender_id'=>$loggedInProfileId, 'chat_id'=>$id];
-            }
-            \DB::table('chat_message_recepients')->insert($messageRecepients);
             $this->model = Chat::where('id',$id)->update($inputs);
             $this->model = Chat::where('id',$id)->first();
             return $this->sendResponse();
@@ -273,19 +266,21 @@ class ChatController extends Controller
         $this->model->members()->insert($chatMembers);
         if($this->model->chat_type == 0)
         {
-            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'],'type'=>1];
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'],'type'=>1, 'message'=>$inputs['profile_id'].'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
         else
         {
             $messageInfo = ['chat_id'=>$chatId,'message'=>$message,'profile_id'=>$inputs['profile_id'],'type'=>0];
         }
-        $model=\App\Chat\Message::create($messageInfo);
-        $messageRecepients = [];
-        foreach ($profileIds as $profileId)
-        {
-            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$inputs['profile_id'],'sender_id'=>$profileId, 'chat_id'=>$chatId];
-        }
-        return \DB::table('chat_message_recepients')->insert($messageRecepients);
+        //$model=\App\Chat\Message::create($messageInfo);
+        // $messageRecepients = [];
+        // foreach ($profileIds as $profileId)
+        // {
+        //     $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$profileId, 'chat_id'=>$chatId];
+        // }
+        // return \DB::table('message_recepients')->insert($messageRecepients);
+        return $this->sendResponse();
     }
 
     public function uploadImage($request)
