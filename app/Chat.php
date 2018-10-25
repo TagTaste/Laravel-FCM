@@ -12,13 +12,16 @@ class Chat extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'profile_id','image'];
+    protected $fillable = ['name', 'profile_id','image','chat_type'];
 
     //protected $with = ['members'];
 
-    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount','is_enabled'];
+    protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
+        'unreadMessageCount','is_enabled','chat_type'];
 
-    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount','is_enabled'];
+    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled'];
+
+    //chat type = 1 is single chat, 0 is group chat
 
     protected $isEnabled = true;
 
@@ -29,20 +32,12 @@ class Chat extends Model
 
     public function getProfilesAttribute()
     {
-        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        if($this->chat_type === 1)
+        {
+            return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
+        }
+        return null;
 
-        if(isset($memberOfChat->exited_on))
-        {
-            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get()->pluck('profile');
-        }
-        else
-        {
-            if(isset($memberOfChat->deleted_at))
-            {
-                $memberOfChat->restore();
-            }
-            return $this->members()->withTrashed()->whereNull('exited_on')->get()->pluck('profile');
-        }
     }
 
     public function messages()
@@ -53,6 +48,7 @@ class Chat extends Model
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
+        
     }
 
     public function getLatestMessagesAttribute()
@@ -62,15 +58,18 @@ class Chat extends Model
             return;
         }
 
-        if(isset($memberOfChat->exited_on))
+        if(isset($memberOfChat->deleted_at))
         {
             $this->isEnabled = false;
-            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
+            return Message::join('message_recepients','message_recepients.message_id','=','chat_messages.id')
+                ->orderBy('message_recepients.created_at','desc')->first();
+
         }
         else
         {
-            $this->isEnabled = true;
-            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+            $this->isEnabled = false;
+            return Message::join('message_recepients','message_recepients.message_id','=','chat_messages.id')
+                ->whereNull('message_recepients.deleted_at')->orderBy('message_recepients.created_at','desc')->first();
         }
     }
 
@@ -94,12 +93,13 @@ class Chat extends Model
             ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
             ->join("chats",'chats.id','=','c1.chat_id')
             ->where(function($query) use ($profileIdOne){
-                $query->where('c1.profile_id','=',$profileIdOne)->where('c1.is_single','=',1)
+                $query->where('c1.profile_id','=',$profileIdOne)
                 ;
             })->where(function($query) use ($profileIdTwo) {
-                $query->where('c2.profile_id','=',$profileIdTwo)->where('c2.is_single','=',1)
+                $query->where('c2.profile_id','=',$profileIdTwo)
                 ;
             })
+            ->where('chat_type',1)
             ->whereNull('chats.deleted_at')
             ->groupBy('c1.chat_id')
             ->orderBy('c1.chat_id')
@@ -110,7 +110,8 @@ class Chat extends Model
 
     public function getUnreadMessageCountAttribute()
     {
-        return \DB::table('chat_messages')->where('chat_id',$this->id)->whereNull('read_on')->count();
+        return \DB::table('message_recepients')->where('recepient_id',request()->user()->profile->id)
+            ->where('chat_id',$this->id)->whereNull('read_on')->whereNull('deleted_on')->count();
     }
 
     public function getIsEnabledAttribute()

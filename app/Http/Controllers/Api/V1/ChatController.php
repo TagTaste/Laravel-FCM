@@ -1,0 +1,303 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use Illuminate\Http\Request;
+use App\Strategies\Paginator;
+use App\Chat\Member;
+use App\Chat;
+use Carbon\Carbon;
+use App\Http\Controllers\Api\Controller;
+
+class ChatController extends Controller
+{
+    //
+    public $model;
+    public $now;
+
+    public function __construct(Chat $model)
+    {
+        $this->now = \Carbon\Carbon::now()->toDateTimeString();
+        $this->model = $model;
+    }
+
+    public function index(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
+
+        return $this->sendResponse();
+//    	$profileId = $request->user()->id;
+//
+//        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+//        $query->where('profile_id',$profileId)->withTrashed();
+//        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
+//        message_recepients'),function($join) use ($profileId){
+//        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
+//        })->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
+//
+//        return $this->sendResponse();
+    }
+
+    public function store(Request $request)
+    {
+    	$ownerProfileId = $request->user()->profile->id;
+    	//String[] $profileIds = request.getParameterValues("profileId");
+        $profileIds = $request->input('profileId');
+        if(!is_array($profileIds))
+        {
+            $profileIds = [$profileIds];
+        }
+        if(!in_array($ownerProfileId, $profileIds))
+        {
+            $profileIds[] = $ownerProfileId;
+        }
+        $inputs = [];
+        $inputs['chat_type'] = $request->input('chat_type');
+        $inputs['name']= $request->input('name') == null ? null: $request->input('name');
+        $inputs['image']= $request->input('image') == null ? null: $request->input('image');
+        $inputs['profile_id']=$ownerProfileId;
+        $inputs['created_at']=$this->now;
+
+  	  	if($request->input('chat_type') == 1 && count($profileIds) === 2)
+    	{  
+    		$existingChats = Chat::open($ownerProfileId,$profileIds[0]);
+
+    		if($existingChats === null)
+    		{
+    		    $message = $request->input('message');
+    		    if(isset($message) && !is_null($message))
+                {
+                    $this->createChatRoom($inputs,$profileIds,$message);
+                    return $this->sendResponse();
+                }
+                else
+                {
+                    return $this->sendError("Please enter message");
+                }
+
+    		}
+    		else
+    		{
+    			$this->model = $existingChats;
+    			return $this->sendResponse();
+    		}
+    	}
+    	else if($request->input('chat_type') == 0)
+    	{
+    		if($request->input('name') == null)
+    		{
+    			return $this->sendError('Name field cannot be empty');
+    		}
+    		else
+    		{
+                $this->createChatRoom($inputs, $profileIds);
+                return $this->sendResponse();
+    		}
+    	}
+    	else
+    	{
+    		return $this->sendError("Chat type is not defined");
+    	}
+    }
+
+    public function show(Request $request,$id)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $page = $request->input('page');
+        list($skip,$take) = Paginator::paginate($page);
+        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
+            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+        })->where('id',$id)->first();
+
+        return $this->sendResponse();
+    }
+
+    // only in change group name and group image and by only admin
+    public function update(Request $request, $id)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+    	$checkAdmin = Member::where('chat_id',$id)->where('profile_id',$loggedInProfileId)
+            ->whereNull('is_admin',1)->whereNull('deleted_at')->exists();
+
+    	if(!isset($checkAdmin) || is_null($checkAdmin))
+        {
+            return $this->sendError("You are not a part of this chat.");
+        }
+
+        if($request->has('name') || $request->has('image'))
+        {
+            $inputs = $request->has('name') ? ['name'=>$request->input('name')] : ['image'=>$request->input('image')];
+            $profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
+
+            $type = $request->has('name') ? 5 : 6;
+            $messageInfo = ['chat_id'=>$id,'profile_id'=>$loggedInProfileId,'type'=>$type];
+
+            $model=\App\Chat\Message::create($messageInfo);
+
+            $messageRecepients = [];
+            foreach ($profileIds as $profileId)
+            {
+                $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$profileId,'sender_id'=>$loggedInProfileId, 'chat_id'=>$id];
+            }
+            \DB::table('chat_message_recepients')->insert($messageRecepients);
+            $this->model = Chat::where('id',$id)->update($inputs);
+            $this->model = Chat::where('id',$id)->first();
+            return $this->sendResponse();
+        }
+        else
+        {
+            $this->model = false;
+            return $this->sendResponse();
+        }
+    }
+
+    public function chatSearch(Request $request)
+    {
+    	$key = $request->input('k');
+    	 $loggedInProfileId = $request->user()->profile->id;
+    	$data['groups'] = Chat::whereHas('members',function($query) use ($loggedInProfileId){
+    		$query->where('profile_id',$loggedInProfileId);
+    	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
+
+    	$profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+    	$data['profile'] = \App\Recipe\Profile::whereIn('profiles.id',$profileIds)->join('users','profiles.user_id','users.id')
+            ->where('users.name','like','%'.$key.'%')->get();
+
+        $this->model = $data;
+    	return $this->sendResponse();
+    	
+	
+    }
+
+    public function getChatId(Request $request)
+    {
+    	$loggedInProfileId = $request->user()->profile->id;
+    	$profileId = $request->input('profileId');
+        if($profileId == $loggedInProfileId)
+        {
+            return $this->sendError("Invalid Input");
+        }
+    	$this->model = Chat::open($loggedInProfileId,$profileId);
+         $this->model == null ? $this->sendError('No existing chats with this user') : null;
+         return $this->sendResponse();
+    }
+
+    public function shareAsMessage(Request $request)
+    {
+        // $profileIds = $request->input('profileId');
+        // $chatIds = $request->input('chatId');
+        // $inputs = $request->all();
+
+        // event(new \App\Events\Chat\ShareMessage($chatIds,$profileIds,$inputs,$request->user()));
+
+        // $this->model = true;
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $profileIds = $request->input('profileId');
+        $inputs = $request->all();
+
+        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $loggedInProfileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = $resp;
+                }
+                if(isset($inputs['preview']))
+                {
+                    $info['preview'] = json_encode($inputs['preview']);
+                }
+                else
+                {
+                    $info['preview'] = null;
+                }
+                foreach ($profileIds as $profileId) {
+                    $chat = Chat::open($loggedInProfileId, $profileId);
+                    if (!$chat) {
+                        $chat = Chat::create(['profile_id'=>$loggedInProfileId, 'chat_type'=>1]);
+                        $input = [];
+                        $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$loggedInProfileId, 'is_admin'=>1];
+                        $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$profileId, 'is_admin'=>0]; 
+                        $member = Member::insert($input);
+                    }
+                    $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
+                    $recepients = [];
+                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now];
+                    $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null];
+                    \DB::table('message_recepients')->insert($recepients);
+                    $this->model = $message;
+                }
+        return $this->sendResponse();
+    }
+
+    public function getExternalImage($url,$profileId){
+        $path = 'images/p/' . $profileId . "/cimages/";
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(10) . ".image";
+        $saveto = storage_path("app/" . $path) .  $filename;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+
+        $fp = fopen($saveto,'a');
+        fwrite($fp, $raw);
+        fclose($fp);
+        return "app/" . $path . $filename;
+    }
+
+
+    public function createChatRoom($inputs, $profileIds, $message = null)
+    {
+        $this->model = Chat::create($inputs);
+        $chatId = $this->model->id;
+        $chatMembers = [];
+        foreach ($profileIds as $profileId)
+        {
+            if($profileId == $inputs['profile_id'] && $this->model->chat_type == 0)
+                $isAdmin = 1;
+            else
+                $isAdmin = 0;
+            $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
+        }
+
+        $this->model->members()->insert($chatMembers);
+        if($this->model->chat_type == 0)
+        {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'],'type'=>1];
+        }
+        else
+        {
+            $messageInfo = ['chat_id'=>$chatId,'message'=>$message,'profile_id'=>$inputs['profile_id'],'type'=>0];
+        }
+        $model=\App\Chat\Message::create($messageInfo);
+        $messageRecepients = [];
+        foreach ($profileIds as $profileId)
+        {
+            $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$inputs['profile_id'],'sender_id'=>$profileId, 'chat_id'=>$chatId];
+        }
+        return \DB::table('chat_message_recepients')->insert($messageRecepients);
+    }
+
+    public function uploadImage($request)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $path = Chat::getImagePath($this->model->id);
+        $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $this->model->update(['image'=>$response]);
+
+    }
+
+}
