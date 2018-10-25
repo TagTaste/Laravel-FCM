@@ -517,7 +517,7 @@ class BatchController extends Controller
     {
         $filters = $request->input('filter');
 
-        $gender = ['Male','Female','Others'];
+        $gender = ['Male','Female','Other'];
         $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
         $currentStatus = [0,1,2,3];
         $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
@@ -821,9 +821,9 @@ class BatchController extends Controller
         }
         if(isset($filters['current_status']) && !is_null($batchId))
         {
-            $currentStatusIds = new Collection([]);
             foreach ($filters['current_status'] as $currentStatus)
             {
+                $currentStatusIds = new Collection([]);
                 if($currentStatus == 0 || $currentStatus == 1)
                 {
                     if($profileIds->count() > 0)
@@ -843,6 +843,7 @@ class BatchController extends Controller
                             ->where('current_status',$currentStatus)->get()->pluck('profile_id');
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
+                $profileIds = $currentStatusIds;
             }
             $profileIds = $currentStatusIds;
 
