@@ -106,10 +106,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("feed",'FeedController@feed');
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");
+                    Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                         Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
+                        Route::get("collaborate/draft","CollaborateController@draft");
                         Route::resource("collaborate","CollaborateController");
                     });
 
