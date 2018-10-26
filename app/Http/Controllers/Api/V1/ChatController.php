@@ -73,7 +73,9 @@ class ChatController extends Controller
     		    $message = $request->input('message');
     		    if(isset($message) && !is_null($message))
                 {
-                    $this->createChatRoom($inputs,$profileIds,$message);
+                    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
+                    $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId];
+                    event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
                     return $this->sendResponse();
                 }
                 else
@@ -96,7 +98,7 @@ class ChatController extends Controller
     		}
     		else
     		{
-                $this->createChatRoom($inputs, $profileIds);
+                $chatId = $this->createChatRoom($inputs, $profileIds);
                 return $this->sendResponse();
     		}
     	}
@@ -280,7 +282,7 @@ class ChatController extends Controller
         //     $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$profileId, 'chat_id'=>$chatId];
         // }
         // return \DB::table('message_recepients')->insert($messageRecepients);
-        return $this->sendResponse();
+        return $chatId;
     }
 
     public function uploadImage($request)
