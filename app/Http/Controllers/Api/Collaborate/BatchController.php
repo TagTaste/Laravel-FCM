@@ -842,10 +842,10 @@ class BatchController extends Controller
                         $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('current_status',$currentStatus)->get()->pluck('profile_id');
                 }
-                \Log::info($profileIds);
-                \Log::info("here is ids ");
                 $currentStatusIds = $currentStatusIds->merge($ids);
                 $profileIds = $currentStatusIds;
+                \Log::info($profileIds);
+                \Log::info("here is ids ");
             }
             $profileIds = $currentStatusIds;
 
