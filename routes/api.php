@@ -106,13 +106,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("feed",'FeedController@feed');
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");
-                    Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                         Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
-                        Route::get("collaborate/draft","CollaborateController@draft");
                         Route::resource("collaborate","CollaborateController");
+                        Route::resource('photos','PhotoController');
                     });
 
 
@@ -134,10 +133,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("chats/{chatId}/members",'Chat\\MemberController');
                 Route::resource("chats/{chatId}/messages",'Chat\\MessageController');
                 Route::resource("chats","ChatController");
-    
+
             //product categories
                 Route::resource("categories","CategoryController");
-            
+
             //share
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
@@ -162,7 +161,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //search api without admin
             Route::get("companies/{companyId}/getUserWithoutAdmin","CompanyController@getUserWithoutAdmin");
-            
+
             //channel names for socket.io
                 Route::get('channels/companies/{id}/public',function($id){
                     return response()->json(['company.public.' . $id]);
@@ -195,19 +194,19 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //get premium companies
 
             Route::get("profile/premium","ProfileController@getPremium");
-            
+
             //jobs
                 Route::get("jobs/all","JobController@all");
                 Route::get("jobs/filters", "JobController@filters");
                 Route::resource("jobs","JobController");
                 //Route::post("jobs/message","ChatController@jobMessage");
-            
+
             //similar
                 Route::get("similar/{relationship}/{relationshipId}",'SimilarController@similar');
-            
+
             //fields for collaboration
                 Route::resource("fields",'FieldController');
-            
+
             //collaborate
                 //collaborate categories
                 Route::get("mandatoryField/{type}","CollaborateController@mandatoryField");
@@ -218,7 +217,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                 //collaborate templates
                  Route::resource("collaborate/templates","CollaborateTemplateController");
-        
+
                 //collaborates shortlist
                     Route::get("collaborate/shortlisted","CollaborateController@shortlisted");
 
@@ -264,7 +263,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                 //reports
                 Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");
-                Route::get("batches/{id}/reportPdf","BatchController@reportPdf");
                 Route::get("reportSummary","BatchController@reportSummary");
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
@@ -304,7 +302,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //photos
                 Route::resource("photos","PhotoController");
-                
+
             //recipes rating
                 Route::post("recipes/{recipeId}/rate","RecipeRatingController@rate");
 
@@ -320,7 +318,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             //tag
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}/note","TagController@updateNote");
                 Route::post("tag/{tagboardId}/{relationship}/{relationshipId}","TagController@tag");
-            
+
             //comments
                 Route::get('comments/{model}/{modelId}','CommentController@index');
                 Route::get('comments/{id}/{modelName}/{modelId}','CommentController@notificationComment');
@@ -340,7 +338,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //history
                 Route::get("history/{type}","HistoryController@history");
             //Route::post('like/{model}/{modelId}','LikeController@store');
-            
+
             //notifications
                 Route::post('notifications/{type}/seen','NotificationController@seen');
                 Route::get('notifications/unread','NotificationController@unread');
@@ -423,13 +421,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //Route::resource('albums','AlbumController');
                 Route::post("recipes/{id}/like","RecipeController@like");
                 Route::resource("recipes","RecipeController");
-                
+
                 Route::post("collaborate/{id}/approve","CollaborateController@approve");
                 Route::post("collaborate/{id}/reject","CollaborateController@reject");
                 Route::get("collaborate/interested","CollaborateController@interested");
                 Route::get("collaborate/expired","CollaborateController@expired");
                 Route::resource("collaborate","CollaborateController");
-    
+
                 Route::post("jobs/{id}/apply", "JobController@apply");
                 Route::post("jobs/{id}/unapply", "JobController@unapply");
                 Route::get('jobs/{id}/applications', 'JobController@applications');
@@ -438,7 +436,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("jobs/expired","JobController@expired");
 
                 Route::resource("jobs","JobController");
-                
+
                 Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
                 Route::resource('photos','PhotoController');
                 Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
@@ -452,7 +450,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource('companies','CompanyController');
                 Route::get("companies/{id}/logo.jpg",['as'=>'company.logo','uses'=>'CompanyController@logo']);
                 Route::get("companies/{id}/hero_image.jpg",['as'=>'company.heroImage','uses'=>'CompanyController@heroImage']);
-    
+
                 //namespace company - Checks for company admin
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                     Route::resource("websites","WebsiteController");
@@ -469,24 +467,24 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                     Route::resource("catalogue","CompanyCatalogueController");
                     Route::resource("products/catalogue","ProductCatalogueController");
-                    
+
                     Route::post("collaborate/{id}/approve","CollaborateController@approve");
                     Route::post("collaborate/{id}/reject","CollaborateController@reject");
                     Route::get("collaborate/expired","CollaborateController@expired");
                     Route::get("collaborate/interested","CollaborateController@interested");
                     Route::resource("collaborate","CollaborateController");
 
-                    
+
                     Route::get('photo/{id}.jpg',['as'=>'photos.image','uses'=>'PhotoController@image']);
-    
+
                     Route::resource('photos','PhotoController');
                     Route::group(['namespace'=>'Photo','prefix'=>'photos/{photoId}','as'=>'comments.'],function(){
                         Route::resource('comments','CommentController');
                         Route::resource('like','PhotoLikeController');
                     });
-                    
+
                     Route::resource("portfolio","PortfolioController");
-                    
+
                     Route::get('jobs/{id}/applications', 'JobController@applications');
                     Route::post("jobs/{id}/applications/{shortlistedProfileId}/shortlist","JobController@shortlist");
                     Route::get("jobs/expired","JobController@expired");
@@ -494,13 +492,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("products","ProductController");
                     Route::resource("users","UserController");
                 });
-    
+
                 //Company namespace - Does not check for company admin
                 Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.'],function(){
                     Route::post("jobs/{id}/apply", "JobController@apply");
                     Route::post("jobs/{id}/unapply", "JobController@unapply");
                 });
-                
+
                 Route::resource('tagboards','TagBoardController');
                 Route::post("tagboards/{id}/like","TagBoardController@like");
 
@@ -527,17 +525,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("experiences","ExperienceController");
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
-    
-            
+
+
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');
                 $tags = \App\Preview::get($url);
-                
+
                 return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
             });
-            
+
             Route::get('@{handle}','HandleController@show');
-    
+
 //            Route::get("apk_version",function(){
 //                $version = \App\Version::getVersion();
 //                return response()->json($version);
@@ -558,9 +556,34 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $studentDetail = \DB::table("users")->join('profiles','users.id','=','profiles.user_id')->
-                    select('profiles.id','users.name','users.email','profiles.gender')->whereNull('profiles.deleted_at')->get();
-                   
+                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[234 ,235 ,217 ,256 ,242 ,241 ,245 ,244 ,243 ,250 ,249 ,248 ,246 ,237 ,215])->get();
+                $data = [];
+                foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
+                {
+                    $applicantsDetails = [];
+                    $applicantsDetails['collaborate_id'] = $collaborateApplicantsDetail->collaborate_id;
+                    $applicantsDetails['message'] = $collaborateApplicantsDetail->message;
+                    if(isset($collaborateApplicantsDetail->company_id) && !is_null($collaborateApplicantsDetail->company_id))
+                    {
+                        $applicantsDetails['profile_id'] = null;
+                        $applicantsDetails['company_id'] = $collaborateApplicantsDetail->company_id;
+                        $applicantsDetails['name'] = $collaborateApplicantsDetail->company->name;
+                        $applicantsDetails['city'] = null;
+                        $applicantsDetails['email'] = null;
+                    }
+                    else
+                    {
+                        $applicantsDetails['profile_id'] = $collaborateApplicantsDetail->profile_id;
+                        $profileDetails =\DB::table('profiles')->join('users','users.id','=','profiles.user_id')
+                            ->where('profiles.id',$collaborateApplicantsDetail->profile_id)->first();
+                        $applicantsDetails['phone'] = $profileDetails->phone;
+                        $applicantsDetails['email'] = $profileDetails->email;
+                        $applicantsDetails['company_id'] = null;
+                        $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
+                        $applicantsDetails['city'] = $collaborateApplicantsDetail->city;
+                    }
+                    $data[] = $applicantsDetails;
+                }
                 $headers = array(
                     "Content-type" => "text/csv",
                     "Content-Disposition" => "attachment; filename=users_name_gender.csv",
@@ -568,18 +591,17 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
-        
-                $columns = array('id','name','email','gender');
-        
+
+                $columns = array('collaborate_id','name','email','phone','profile_id','company_id','message');
+
                 $str = '';
                 foreach ($columns as $c) {
                     $str = $str.$c.',';
                 }
                 $str = $str."\n";
-        
-                foreach($studentDetail as $review) {
+                foreach($data as $review) {
                     foreach ($columns as $c) {
-                        $str = $str.$review->{$c}.',';
+                        $str = $str.$review[$c].',';
                     }
                     $str = $str."\n";
                 }
