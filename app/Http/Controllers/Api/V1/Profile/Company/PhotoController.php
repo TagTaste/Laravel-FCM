@@ -22,12 +22,18 @@ class PhotoController extends Controller
      */
     public function index(Request $request, $profileId,$companyId)
     {
-        $photos = Photo::forCompany($companyId)->orderBy('created_at','desc')->orderBy('updated_at','desc')->paginate(10);
+        $photos = Photo::forCompany($companyId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $count = $photos->count();
+        $photos = $photos->skip($skip)->take($take)->get();
+
         $this->model = [];
         $loggedInProfileId = $request->user()->profile->id;
         foreach($photos as $photo){
             $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($loggedInProfileId)];
         }
+        $this->model = ['data'=>$this->model,'count'=>$count];
         return $this->sendResponse();
     }
 
