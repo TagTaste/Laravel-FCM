@@ -385,7 +385,7 @@ class BatchController extends Controller
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $subAnswers[] = $subReports;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
@@ -405,7 +405,7 @@ class BatchController extends Controller
                 {
                     $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                 }
 
                 if(isset($data->questions->is_nested_option))
@@ -521,7 +521,7 @@ class BatchController extends Controller
                             ->where('batch_id',$batchId)->where('question_id',$item->id)->whereIn('profile_id',$profileIds)->distinct()->get(['profile_id'])->count();
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $subAnswers[] = $subReports;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
@@ -540,7 +540,7 @@ class BatchController extends Controller
                 {
                     $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->whereIn('profile_id',$profileIds)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                 }
 
                 if(isset($data->questions->is_nested_option))
