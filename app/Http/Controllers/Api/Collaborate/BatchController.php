@@ -433,10 +433,8 @@ class BatchController extends Controller
     public function filterReports($filters,$collaborateId, $batchId, $headerId,$withoutNest)
     {
         $profileIds = new Collection([]);
-        $isFilterAble = false;
         if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
-            $isFilterAble = true;
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter)
             {
@@ -447,12 +445,10 @@ class BatchController extends Controller
 
         if(isset($filters['city']))
         {
-            $isFilterAble = true;
-
             $cityFilterIds = new Collection([]);
             foreach ($filters['city'] as $city)
             {
-                if($isFilterAble)
+                if($profileIds->count() > 0)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -466,13 +462,11 @@ class BatchController extends Controller
         }
         if(isset($filters['age']))
         {
-            $isFilterAble = true;
-
             $ageFilterIds = new Collection([]);
             foreach ($filters['age'] as $age)
             {
                 $age = htmlspecialchars_decode($age);
-                if($isFilterAble)
+                if($profileIds->count() > 0 )
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
                     ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -485,13 +479,11 @@ class BatchController extends Controller
         }
         if(isset($filters['gender']))
         {
-            $isFilterAble = true;
-
             $genderFilterIds = new Collection([]);
 
             foreach ($filters['gender'] as $gender)
             {
-                if($isFilterAble)
+                if($profileIds->count() > 0 )
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
