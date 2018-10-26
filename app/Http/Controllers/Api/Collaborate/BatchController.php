@@ -832,6 +832,9 @@ class BatchController extends Controller
                     else
                         $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
+                    if($ids->count() > 0)
+                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                        ->whereNotIn('profile_id',$ids)->get()->pluck('profile_id');
                 }
                 else
                 {
@@ -841,6 +844,9 @@ class BatchController extends Controller
                     else
                         $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('current_status',$currentStatus)->get()->pluck('profile_id');
+                    if($ids->count() > 0)
+                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                            ->whereNotIn('profile_id',$ids)->get()->pluck('profile_id');
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
                 $profileIds = $currentStatusIds;
