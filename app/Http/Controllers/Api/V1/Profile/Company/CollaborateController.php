@@ -398,6 +398,24 @@ class CollaborateController extends Controller
 
     }
 
+    public function draft(Request $request,$profileId, $companyId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[3])->orderBy('deleted_at','desc');
+        $this->model = [];
+        $data = [];
+        $this->model['count'] = $collaborations->count();
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        foreach($collaborations as $collaboration){
+            $data[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+        }
+        $this->model['collaborations'] = $data;
+        return $this->sendResponse();
+
+    }
+
     public function interested(Request $request, $profileId, $companyId)
     {
         $profileId = $request->user()->profile->id;
