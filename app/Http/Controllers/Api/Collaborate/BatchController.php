@@ -849,8 +849,6 @@ class BatchController extends Controller
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
                 $profileIds = $currentStatusIds;
-                \Log::info($profileIds);
-                \Log::info("here is ids ");
             }
             $profileIds = $currentStatusIds;
 
