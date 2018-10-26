@@ -211,7 +211,27 @@ class InsertGlobalQuestion extends Command
 					"is_nested_question": 0,
 					"is_mandatory": 1,
 					"option": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
-				}
+				},
+				{
+                    "title": "Taste(textual intensity)",
+                    "select_type": 2,
+                    "is_mandatory": 1,
+                    "is_intensity": 1,
+                    "intensity_type": 2,
+                    "intensity_value": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
+                    "is_nested_question": 0,
+                    "option": "Astringent (Dryness),Pungent- Masala (Warm Spices),Pungent- Cool Sensation (Cool Spices),Pungent- Chilli"
+                },
+                {
+                    "title": "Taste - numeric intensity",
+                    "select_type": 2,
+                    "is_mandatory": 1,
+                    "is_intensity": 1,
+                    "intensity_type": 1,
+                    "intensity_value": 15,
+                    "is_nested_question": 0,
+                    "option": "Astringent (Dryness),Pungent- Masala (Warm Spices),Pungent- Cool Sensation (Cool Spices),Pungent- Chilli"
+                }
 			]
 		},
 		{
@@ -249,6 +269,7 @@ class InsertGlobalQuestion extends Command
 			"is_mandatory": 1,
 			"option": "30% Bitter and 70% Sweet,70% Bitter and 30% Sweet,100% Bitter,15% Bitter,10% Bitter and 90% Sweet (Milk Chocolate)"
 		},
+		
 		{
 			"title": "Overall preference",
 			"select_type": 5,
