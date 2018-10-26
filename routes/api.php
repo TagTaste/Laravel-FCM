@@ -111,6 +111,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
                         Route::resource("collaborate","CollaborateController");
+                        Route::resource('photos','PhotoController');
                     });
 
 
