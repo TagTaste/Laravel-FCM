@@ -40,6 +40,10 @@
         },
         {
             "type": "vcs",
+            "url":  "https://github.com/TagTaste/api-response.git"
+        },
+        {
+            "type": "vcs",
             "url":  "https://github.com/TagTaste/Laravel-FCM.git"
         },
         {
