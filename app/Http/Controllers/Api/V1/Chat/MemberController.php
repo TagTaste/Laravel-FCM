@@ -71,7 +71,7 @@ class MemberController extends Controller
         $this->model = $this->model->insert($chatMembers);
         $members = \App\Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
         foreach ($profileIds as $profileId ) {
-            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$member];
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$profileId];
 
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
             $messageInfo = [];
