@@ -84,7 +84,7 @@ class MessageController extends Controller
             {
                 $members = Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
                 foreach ($members as $profileId) {
-                    \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId]);
+                    \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
                 }
             }
             return $this->sendResponse();
