@@ -810,8 +810,10 @@ class BatchController extends Controller
     public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
     {
         $profileIds = new Collection([]);
+        $isFilterAble = false;
         if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
+            $isFilterAble = true;
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter)
             {
@@ -821,12 +823,13 @@ class BatchController extends Controller
         }
         if(isset($filters['current_status']) && !is_null($batchId))
         {
+            $isFilterAble = true;
             $currentStatusIds = new Collection([]);
             foreach ($filters['current_status'] as $currentStatus)
             {
                 if($currentStatus == 0 || $currentStatus == 1)
                 {
-                    if($profileIds->count() > 0)
+                    if($isFilterAble)
                         $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->whereIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
                     else
@@ -840,7 +843,7 @@ class BatchController extends Controller
                 }
                 else
                 {
-                    if($profileIds->count() > 0)
+                    if($isFilterAble)
                         $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->whereIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
                     else
@@ -854,10 +857,12 @@ class BatchController extends Controller
         }
         if(isset($filters['city']))
         {
+            $isFilterAble = true;
+
             $cityFilterIds = new Collection([]);
             foreach ($filters['city'] as $city)
             {
-                if($profileIds->count() > 0)
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -871,11 +876,13 @@ class BatchController extends Controller
         }
         if(isset($filters['age']))
         {
+            $isFilterAble = true;
+
             $ageFilterIds = new Collection([]);
             foreach ($filters['age'] as $age)
             {
                 $age = htmlspecialchars_decode($age);
-                if($profileIds->count() > 0 )
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -888,11 +895,13 @@ class BatchController extends Controller
         }
         if(isset($filters['gender']))
         {
+            $isFilterAble = true;
+
             $genderFilterIds = new Collection([]);
 
             foreach ($filters['gender'] as $gender)
             {
-                if($profileIds->count() > 0 )
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
