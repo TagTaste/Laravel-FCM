@@ -117,6 +117,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::post("uploadFile",'MessageController@uploadFile');
                         Route::post("markAsRead",'MessageController@markAsRead');
                         Route::delete("deleteChat",'MessageController@deleteChat');
+                        Route::delete("deleteMessage","MessageController@deleteMessage");
 
                     });
                 Route::get("feed",'FeedController@feed');

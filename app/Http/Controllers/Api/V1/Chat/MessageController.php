@@ -206,4 +206,19 @@ class MessageController extends Controller
             return $this->sendError("This user is not a part of this chat");
         }
     }
+
+    public function deleteMessage(Request $request, $chatId)
+    {   
+        $loggedInProfileId = $request->user()->profile->id;
+        $messageId = $request->input('messageId');
+        if(!$this->isChatMember($loggedInProfileId, $chatId))
+        {
+            return $this->sendError("This user is not a part of this chat");
+        }
+        else
+        {
+            $this->model =  \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->where('chat_id',$chatId)->where('message_id',$messageId)->update(['deleted_on'=>$this->time]);
+            return $this->sendResponse();
+        }
+    }
 }
