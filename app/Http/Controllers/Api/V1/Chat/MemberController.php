@@ -55,12 +55,10 @@ class MemberController extends Controller
     	{
     	    $profileIds = [$profileIds];
     	}
+    	Member::withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['deleted_at'=>null]);
 
-    	Member::where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['deleted_at'=>null]);
-
-    	$members = Member::where('chat_id',$chatId)->pluck('profile_id');
-    	$members = [$members];
-    	$profileIds = array_diff($profileIds,$members);
+    	$memberIds = Member::where('chat_id',$chatId)->pluck('profile_id')->toArray();
+        $profileIds = array_diff($profileIds, $memberIds);
         $chatMembers = [];
 
         foreach ($profileIds as $profileId)
@@ -144,10 +142,7 @@ class MemberController extends Controller
     	{
            	$profileIds = [$profileIds];
         } 
-        if(in_array(Chat::where('id',$chatId)->pluck('profile_id'), $profileIds))
-        {
-            return $this->sendError("Super admin cannot be removed from the admin");
-        }
+        $profileIds = array_diff($profileIds, Chat::where('id',$chatId)->pluck('profile_id')->toArray());
     	$this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
 
         $type = 8 ;
