@@ -925,6 +925,7 @@ class BatchController extends Controller
         else if($collaborate->profile_id != $profileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
+        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->orderBy('id')->get();
 
         $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
 
