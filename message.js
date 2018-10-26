@@ -1,7 +1,5 @@
 require('newrelic');
 var app = require('express')();
-// app.set('views',__dirname)
-// app.set('view engine', 'ejs');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var Redis = require('ioredis');
@@ -13,21 +11,6 @@ var logErr = function(err,count){
     if(err !== null) console.log(err);
 };
 
-app.get('/chat', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
-app.get('/chat1', function(req, res){
-  res.sendFile(__dirname + '/index1.html');
-});
-app.get('/chat2', function(req, res){
-  res.sendFile(__dirname + '/index2.html');
-});
-app.get('/chat3', function(req, res){
-  res.sendFile(__dirname + '/index3.html');
-});
-app.get('/chat4', function(req, res){
-  res.sendFile(__dirname + '/index4.html');
-});
 var chatNamespace = io.of('/chat');
 
 var chatEmit = function(pattern,channel,message){

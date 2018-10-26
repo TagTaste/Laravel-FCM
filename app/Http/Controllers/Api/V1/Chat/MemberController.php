@@ -123,7 +123,9 @@ class MemberController extends Controller
 
 
         $type = 7 ;
-
+        if (in_array($loggedInProfileId, $profileIds)) {
+            return $this->sendError("user cannot make himself admin");
+        }
         foreach ($profileIds as $profileId) {
             $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
