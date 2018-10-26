@@ -6,7 +6,6 @@ use App\Recipe\Company;
 use App\Recipe\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
 
 class ApplicantController extends Controller
@@ -52,14 +51,8 @@ class ApplicantController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = [];
-        //filters data
-        $filters = $request->input('filters');
-        $profileIds = $this->getFilterProfileIds($filters,$collaborateId);
-        $type = true;
-        $boolean = 'and' ;
-        if(isset($filters))
-            $type = false;
-        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereNotNull('shortlisted_at')            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
+        $applicants = Collaborate\Applicant::where('collaborate_id',$collaborateId)->whereNotNull('shortlisted_at')
+            ->whereNull('rejected_at')->orderBy("created_at","desc")->skip($skip)->take($take)->get();
 
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
@@ -485,93 +478,6 @@ class ApplicantController extends Controller
             ->whereNull('shortlisted_at')->whereNull('rejected_at')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
-    }
-
-    public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
-    {
-        $profileIds = new Collection([]);
-        if($profileIds->count() == 0 && isset($filters['profile_id']))
-        {
-            $filterProfile = [];
-            foreach ($filters['profile_id'] as $filter)
-            {
-                $filterProfile[] = (int)$filter;
-            }
-            $profileIds = $profileIds->merge($filterProfile);
-        }
-        if(isset($filters['current_status']) && !is_null($batchId))
-        {
-            $currentStatusIds = new Collection([]);
-            foreach ($filters['current_status'] as $currentStatus)
-            {
-                if($currentStatus == 0 || $currentStatus == 1)
-                {
-                    if($profileIds->count() > 0)
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                            ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-                }
-                else
-                {
-                    if($profileIds->count() > 0)
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                            ->where('current_status',$currentStatus)->get()->pluck('profile_id');
-                }
-                $currentStatusIds = $currentStatusIds->merge($ids);
-            }
-            $profileIds = $currentStatus;
-        }
-        if(isset($filters['city']))
-        {
-            $cityFilterIds = new Collection([]);
-            foreach ($filters['city'] as $city)
-            {
-                if($profileIds->count() > 0)
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
-                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
-                $cityFilterIds = $cityFilterIds->merge($ids);
-            }
-            $profileIds = $cityFilterIds;
-        }
-        if(isset($filters['age']))
-        {
-            $ageFilterIds = new Collection([]);
-            foreach ($filters['age'] as $age)
-            {
-                $age = htmlspecialchars_decode($age);
-                if($profileIds->count() > 0 )
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
-                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
-                        ->get()->pluck('profile_id');
-                $ageFilterIds = $ageFilterIds->merge($ids);
-            }
-            $profileIds = $ageFilterIds;
-        }
-        if(isset($filters['gender']))
-        {
-            $genderFilterIds = new Collection([]);
-            foreach ($filters['gender'] as $gender)
-            {
-                if($profileIds->count() > 0 )
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
-                        ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
-                else
-                    $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
-                        ->get()->pluck('profile_id');
-                $genderFilterIds = $genderFilterIds->merge($ids);
-            }
-            $profileIds = $genderFilterIds;
-        }
-        return $profileIds;
     }
 
 }
