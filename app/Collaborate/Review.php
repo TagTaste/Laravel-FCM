@@ -16,8 +16,6 @@ class Review extends Model {
 
     protected $with = ['profile'];
 
-    //current_status 0 - to be notified, 1 - notified, 2 - in progress, 3 - completed
-
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
