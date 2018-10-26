@@ -821,16 +821,12 @@ class BatchController extends Controller
         }
         if(isset($filters['current_status']) && !is_null($batchId))
         {
+            $currentStatusIds = new Collection([]);
             foreach ($filters['current_status'] as $currentStatus)
             {
-                $currentStatusIds = new Collection([]);
                 if($currentStatus == 0 || $currentStatus == 1)
                 {
-                    if($profileIds->count() > 0)
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                    $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
 
                     $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
@@ -840,15 +836,10 @@ class BatchController extends Controller
                 }
                 else
                 {
-                    if($profileIds->count() > 0)
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                            ->whereIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
-                    else
-                        $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                    $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('current_status',$currentStatus)->get()->pluck('profile_id');
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
-                $profileIds = $currentStatusIds;
             }
             $profileIds = $currentStatusIds;
 
