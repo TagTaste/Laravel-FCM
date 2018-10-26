@@ -213,7 +213,7 @@ class MessageController extends Controller
         $messageId = $request->input('messageId');
         if(!$this->isChatMember($loggedInProfileId, $chatId))
         {
-            return $this->sendError("This user is not a part of this chat");
+            return $this->sendError("Invalid function on chat");
         }
         else
         {
