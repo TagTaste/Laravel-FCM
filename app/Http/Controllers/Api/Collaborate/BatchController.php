@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Collection;
 use Excel;
 use Illuminate\Support\Facades\Storage;
+use File;
 
 class BatchController extends Controller
 {
@@ -1050,10 +1051,11 @@ class BatchController extends Controller
         $pdf = $pdf->output();
         $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
         file_put_contents("collaboratesreport.pdf",$pdf);
-//        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
+        $file = File::get("collaboratesreport.pdf");
+        \Log::info($file);
 //        return response()->json(['pdf'=>$pdf]);
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
-        $this->model = \Storage::url($pdf->storeAs($relativePath, $name,['visibility'=>'public']));
+        $this->model = \Storage::url($file->storeAs($relativePath, $name,['visibility'=>'public']));
         return $this->sendResponse();
 //        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
 
