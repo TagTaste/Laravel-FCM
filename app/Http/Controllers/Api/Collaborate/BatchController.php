@@ -1049,7 +1049,7 @@ class BatchController extends Controller
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
         $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
-        return \Storage::put($name,$pdf);
+        return \Storage::url($name,$pdf);
 //        file_put_contents("collaboratesreport.pdf",$pdf);
 //        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
         return response()->json(['pdf'=>$pdf]);
