@@ -11,7 +11,8 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Collection;
 use Excel;
 use Illuminate\Support\Facades\Storage;
-use File;
+use Illuminate\Http\File;
+
 
 class BatchController extends Controller
 {
@@ -1049,15 +1050,18 @@ class BatchController extends Controller
         $data = $this->model;
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
-        $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
-        file_put_contents("collaboratesreport.pdf",$pdf);
-        $file = File::get("collaboratesreport.pdf");
-        \Log::info($file);
-//        return response()->json(['pdf'=>$pdf]);
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
-        \Log::info($file->storeAs($relativePath, $name,['visibility'=>'public']));
-        $this->model = \Storage::url($file->storeAs($relativePath, $name,['visibility'=>'public']));
-        return $this->sendResponse();
+        $name = "images/collaboratePdf/$collaborateId/collaborate"."collaborate-".$collaborateId."-batch-".$batchId.".pdf";
+//        $filename = $path . "/" . $filename;
+//        file_put_contents($filename,$file);
+        file_put_contents($name,$pdf);
+//        $file = File::get("collaboratesreport.pdf");
+//        return response()->json(['pdf'=>$pdf]);
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
+        \Log::info($resp);
+//        $this->model = \Storage::url($file->storeAs($relativePath, $name,['visibility'=>'public']));
+        return $resp;
 //        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
 
     }
