@@ -813,6 +813,7 @@ class BatchController extends Controller
     public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
     {
         $profileIds = new Collection([]);
+        $isFilterAble = false;
         if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
             $filterProfile = [];
@@ -1052,17 +1053,10 @@ class BatchController extends Controller
         $pdf = $pdf->output();
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
         $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
-//        $filename = $path . "/" . $filename;
-//        file_put_contents($filename,$file);
         file_put_contents($name,$pdf);
-//        $file = File::get("collaboratesreport.pdf");
-//        return response()->json(['pdf'=>$pdf]);
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
-        \Log::info($resp);
         $this->model = \Storage::url($resp);
         return $this->sendResponse();
-//        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
-
     }
 }
