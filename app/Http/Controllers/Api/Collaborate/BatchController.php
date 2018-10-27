@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Collection;
 use Excel;
+use Illuminate\Support\Facades\Storage;
 
 class BatchController extends Controller
 {
@@ -1047,8 +1048,10 @@ class BatchController extends Controller
         $data = $this->model;
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
-        file_put_contents("collaboratesreport.pdf",$pdf);
-        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
+        $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
+        return \Storage::put($name,$pdf);
+//        file_put_contents("collaboratesreport.pdf",$pdf);
+//        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
         return response()->json(['pdf'=>$pdf]);
 //        $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
 //        $name = "collaborate-".$collaborateId."-batch-".$batchId;
