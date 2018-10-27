@@ -1047,14 +1047,14 @@ class BatchController extends Controller
         $data = $this->model;
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
-        return $pdf;
         file_put_contents("collaboratesreport.pdf",$pdf);
-        $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
-        $name = "collaborate-".$collaborateId."-batch-".$batchId;
-//        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
-
-        $this->model = \Storage::url($pdf->storeAs($relativePath, $name,['visibility'=>'public']));
-        return $this->sendResponse();
+        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
+        return response()->json(['pdf'=>$pdf]);
+//        $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
+//        $name = "collaborate-".$collaborateId."-batch-".$batchId;
+////        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
+//        $this->model = \Storage::url($pdf->storeAs($relativePath, $name,['visibility'=>'public']));
+//        return $this->sendResponse();
 //        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
 
     }
