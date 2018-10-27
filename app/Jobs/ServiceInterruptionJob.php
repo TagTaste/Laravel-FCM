@@ -35,7 +35,7 @@ class ServiceInterruptionJob
     {
         \Mail::send('emails.tagtaste-interruption-service', ['userName'=>$this->username], function($message)
         {
-            $message->to($this->useremail, $this->username)->subject('Interruption in the services');
+            $message->to($this->useremail, $this->username)->subject('[Resolved] Interruption in the services');
         });
     }
 }
