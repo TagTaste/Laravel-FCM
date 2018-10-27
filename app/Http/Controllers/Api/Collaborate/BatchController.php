@@ -1060,8 +1060,8 @@ class BatchController extends Controller
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
         \Log::info($resp);
-//        $this->model = \Storage::url($file->storeAs($relativePath, $name,['visibility'=>'public']));
-        return $resp;
+        $this->model = \Storage::url($resp);
+        return $this->sendResponse();
 //        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
 
     }
