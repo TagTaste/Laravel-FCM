@@ -46,10 +46,9 @@ class ServiceInterruption extends Command
                 {
                     $count++;
                     \Log::info($model->name);
-                    \Mail::send('emails.serviceInterruption', ['userName'=>$this->name], function($message)
-                    {
-                        $message->to($this->email, $this->name)->subject('Interruption in the services');
-                    });
+                    $mail = (new ServiceInterruptionJob($model->email,$model->name))->onQueue('emails');
+                    \Log::info('Queueing send invitation...');
+                    dispatch($mail);
                     \Log::info("no is ".$count);
                 }
             });
