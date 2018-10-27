@@ -40,8 +40,8 @@
             "url":  "https://github.com/cjwilburn/l5scaffold.git"
         },
         {
-            "type": "vcs",
-            "url":  "https://github.com/TagTaste/api-response.git"
+          "type": "vcs",
+          "url":  "https://github.com/TagTaste/api-response.git"
         },
         {
             "type": "vcs",
