@@ -1055,6 +1055,7 @@ class BatchController extends Controller
         \Log::info($file);
 //        return response()->json(['pdf'=>$pdf]);
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
+        \Log::info($file->storeAs($relativePath, $name,['visibility'=>'public']));
         $this->model = \Storage::url($file->storeAs($relativePath, $name,['visibility'=>'public']));
         return $this->sendResponse();
 //        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
