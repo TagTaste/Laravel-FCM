@@ -1051,7 +1051,7 @@ class BatchController extends Controller
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
         $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
-        $name = "images/collaboratePdf/$collaborateId/collaborate"."collaborate-".$collaborateId."-batch-".$batchId.".pdf";
+        $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
 //        $filename = $path . "/" . $filename;
 //        file_put_contents($filename,$file);
         file_put_contents($name,$pdf);
