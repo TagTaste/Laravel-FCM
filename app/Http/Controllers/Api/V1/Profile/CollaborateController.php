@@ -341,7 +341,7 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $profileId = $request->user()->profile->id;
-        $collaborations = $this->model->where('profile_id', $profileId)->where('state',Collaborate::$state[2])->whereNull('company_id')->orderBy('deleted_at', 'desc');
+        $collaborations = $this->model->where('profile_id', $profileId)->whereIn('state',[3,5])->whereNull('company_id')->orderBy('deleted_at', 'desc');
         $this->model = [];
         $data = [];
         $this->model['count'] = $collaborations->count();
