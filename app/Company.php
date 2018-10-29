@@ -53,6 +53,8 @@ class Company extends Model
         'affiliations',
         'style_logo',
         'style_hero_image',
+        'logo_meta',
+        'hero_image_meta'
     ];
     
     protected $visible = [
@@ -103,7 +105,8 @@ class Company extends Model
         'style_hero_image',
         'company_id',
         'is_premium',
-
+        'logo_meta',
+        'hero_image_meta'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
