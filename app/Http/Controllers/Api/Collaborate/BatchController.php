@@ -819,6 +819,7 @@ class BatchController extends Controller
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter)
             {
+                $isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
@@ -830,21 +831,25 @@ class BatchController extends Controller
             {
                 if($currentStatus == 0 || $currentStatus == 1)
                 {
-                    if($profileIds->count() > 0)
+                    if($isFilterAble)
+                    {
                         $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->whereIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
+                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                            ->get()->pluck('profile_id');
+                    }
                     else
+                    {
                         $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-
-                    $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                        ->get()->pluck('profile_id');
-
+                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                            ->get()->pluck('profile_id');
+                    }
                     $ids = $ids->diff($ids2);
                 }
                 else
                 {
-                    if($profileIds->count() > 0)
+                    if($isFilterAble)
                         $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->whereIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
                     else
@@ -853,6 +858,7 @@ class BatchController extends Controller
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
             }
+            $isFilterAble = true;
             $profileIds = $currentStatusIds;
 
         }
@@ -861,15 +867,15 @@ class BatchController extends Controller
             $cityFilterIds = new Collection([]);
             foreach ($filters['city'] as $city)
             {
-                if($profileIds->count() > 0)
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
 
                 $cityFilterIds = $cityFilterIds->merge($ids);
-
             }
+            $isFilterAble = true;
             $profileIds = $cityFilterIds;
 
         }
@@ -879,7 +885,7 @@ class BatchController extends Controller
             foreach ($filters['age'] as $age)
             {
                 $age = htmlspecialchars_decode($age);
-                if($profileIds->count() > 0 )
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -887,6 +893,7 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
+            $isFilterAble = true;
             $profileIds = $ageFilterIds;
 
         }
@@ -896,7 +903,7 @@ class BatchController extends Controller
 
             foreach ($filters['gender'] as $gender)
             {
-                if($profileIds->count() > 0 )
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -904,6 +911,7 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
+            $isFilterAble = true;
             $profileIds = $genderFilterIds;
         }
 
