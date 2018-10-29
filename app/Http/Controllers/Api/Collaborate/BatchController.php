@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Collection;
 use Excel;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\File;
+
 
 class BatchController extends Controller
 {
@@ -393,7 +396,7 @@ class BatchController extends Controller
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $subAnswers[] = $subReports;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
@@ -413,7 +416,7 @@ class BatchController extends Controller
                 {
                     $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id')->groupBy('question_id','value','leaf_id','intensity')->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                 }
 
                 if(isset($data->questions->is_nested_option))
@@ -810,11 +813,13 @@ class BatchController extends Controller
     public function getFilterProfileIds($filters, $collaborateId, $batchId = null)
     {
         $profileIds = new Collection([]);
+        $isFilterAble = false;
         if($profileIds->count() == 0 && isset($filters['profile_id']))
         {
             $filterProfile = [];
             foreach ($filters['profile_id'] as $filter)
             {
+                $isFilterAble = true;
                 $filterProfile[] = (int)$filter;
             }
             $profileIds = $profileIds->merge($filterProfile);
@@ -826,21 +831,25 @@ class BatchController extends Controller
             {
                 if($currentStatus == 0 || $currentStatus == 1)
                 {
-                    if($profileIds->count() > 0)
+                    if($isFilterAble)
+                    {
                         $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->whereIn('profile_id',$profileIds)->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
+                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                            ->get()->pluck('profile_id');
+                    }
                     else
+                    {
                         $ids = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->where('begin_tasting',$currentStatus)->get()->pluck('profile_id');
-
-                    $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
-                        ->get()->pluck('profile_id');
-
+                        $ids2 = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
+                            ->get()->pluck('profile_id');
+                    }
                     $ids = $ids->diff($ids2);
                 }
                 else
                 {
-                    if($profileIds->count() > 0)
+                    if($isFilterAble)
                         $ids = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id', $batchId)
                             ->whereIn('profile_id',$profileIds)->where('current_status',$currentStatus)->get()->pluck('profile_id');
                     else
@@ -849,6 +858,7 @@ class BatchController extends Controller
                 }
                 $currentStatusIds = $currentStatusIds->merge($ids);
             }
+            $isFilterAble = true;
             $profileIds = $currentStatusIds;
 
         }
@@ -857,15 +867,15 @@ class BatchController extends Controller
             $cityFilterIds = new Collection([]);
             foreach ($filters['city'] as $city)
             {
-                if($profileIds->count() > 0)
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('city', 'LIKE', $city)->get()->pluck('profile_id');
 
                 $cityFilterIds = $cityFilterIds->merge($ids);
-
             }
+            $isFilterAble = true;
             $profileIds = $cityFilterIds;
 
         }
@@ -875,7 +885,7 @@ class BatchController extends Controller
             foreach ($filters['age'] as $age)
             {
                 $age = htmlspecialchars_decode($age);
-                if($profileIds->count() > 0 )
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('age_group', 'LIKE', $age)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -883,6 +893,7 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $ageFilterIds = $ageFilterIds->merge($ids);
             }
+            $isFilterAble = true;
             $profileIds = $ageFilterIds;
 
         }
@@ -892,7 +903,7 @@ class BatchController extends Controller
 
             foreach ($filters['gender'] as $gender)
             {
-                if($profileIds->count() > 0 )
+                if($isFilterAble)
                     $ids = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->where('gender', 'LIKE', $gender)
                         ->whereIn('profile_id',$profileIds)->get()->pluck('profile_id');
                 else
@@ -900,6 +911,7 @@ class BatchController extends Controller
                         ->get()->pluck('profile_id');
                 $genderFilterIds = $genderFilterIds->merge($ids);
             }
+            $isFilterAble = true;
             $profileIds = $genderFilterIds;
         }
 
@@ -1047,10 +1059,12 @@ class BatchController extends Controller
         $data = $this->model;
         $pdf = PDF::loadView('collaborates.reports',['data' => $data,'filters'=>$filters]);
         $pdf = $pdf->output();
-        file_put_contents("collaboratesreport.pdf",$pdf);
-        $pdf = base64_encode(file_get_contents("collaboratesreport.pdf",$pdf));
-        return response()->json(['pdf'=>$pdf]);
-//        return PDF::view('collaborates.reports',['data' => $data,'filters'=>$filters]);
-
+        $relativePath = "images/collaboratePdf/$collaborateId/collaborate";
+        $name = "collaborate-".$collaborateId."-batch-".$batchId.".pdf";
+        file_put_contents($name,$pdf);
+        $s3 = \Storage::disk('s3');
+        $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
+        $this->model = \Storage::url($resp);
+        return $this->sendResponse();
     }
 }
