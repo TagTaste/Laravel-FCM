@@ -606,4 +606,13 @@ class CollaborateController extends Controller
         $this->model = \DB::table('global_nested_option')->insert($data);
         return $this->sendResponse();
     }
+
+    public function collaborateCloseReason()
+    {
+        $data[] = ['id'=>1,'reason'=>'Completed'];
+        $data[] = ['id'=>2,'reason'=>'Did not find enough responses for this collaboration'];
+        $data[] = ['id'=>3,'reason'=>'Other'];
+        $this->model = $data;
+        return $this->sendResponse();
+    }
 }

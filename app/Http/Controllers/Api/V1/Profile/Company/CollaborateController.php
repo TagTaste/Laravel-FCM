@@ -696,4 +696,46 @@ class CollaborateController extends Controller
             }
         }
     }
+
+    public function collaborateClose(Request $request, $profileId, $companyId, $id)
+    {
+        $data = [];
+        $reasonId = $request->input('reason_id');
+        if($reasonId == 1 || $reasonId == 2 || $reasonId == 3 )
+        {
+            $description = null;
+            if($reasonId == 1)
+                $reason = 'Completed';
+            else if($reasonId == 2)
+                $reason = 'Did not find enough responses for this collaboration';
+            else
+            {
+                $reason = 'Other';
+                $description = $request->input('description');
+            }
+            $data = ['collaborate_id'=>$id,'reason'=>$reason,'other_reason'=>$description];
+        }
+        else
+        {
+            return $this->sendError("Please select valid reason");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+
+
+        $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
+        }
+        event(new \App\Events\DeleteFilters(class_basename($collaborate), $collaborate->id));
+        $collaborate->update(['deleted_at' => Carbon::now()->toDateTimeString(), 'state' => Collaborate::$state[4]]);
+        event(new DeleteFeedable($collaborate));
+
+        $this->model = \DB::table('collaborate_close_reason')->insert($data);
+
+        return $this->sendResponse();
+    }
 }
