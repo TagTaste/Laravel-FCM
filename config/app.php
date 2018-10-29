@@ -197,6 +197,7 @@ return [
         LaravelFCM\FCMServiceProvider::class,
         Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
 
     ],
 
@@ -259,6 +260,7 @@ return [
         'FCM'      => LaravelFCM\Facades\FCM::class,
         'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 
 ];

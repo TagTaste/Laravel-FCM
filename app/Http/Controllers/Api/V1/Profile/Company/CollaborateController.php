@@ -384,7 +384,7 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[2])->orderBy('deleted_at','desc');
+        $collaborations = $this->model->where('company_id',$companyId)->whereIn('state',[3,5])->orderBy('deleted_at','desc');
         $this->model = [];
         $data = [];
         $this->model['count'] = $collaborations->count();
@@ -396,6 +396,23 @@ class CollaborateController extends Controller
         $this->model['collaborations'] = $data;
         return $this->sendResponse();
 
+    }
+
+    public function draft(Request $request,$profileId, $companyId)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $collaborations = $this->model->where('company_id',$companyId)->where('state',Collaborate::$state[3])->orderBy('deleted_at','desc');
+        $this->model = [];
+        $data = [];
+        $this->model['count'] = $collaborations->count();
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        foreach($collaborations as $collaboration){
+            $data[] = ['collaboration'=>$collaboration,'meta'=>$collaboration->getMetaFor($profileId)];
+        }
+        $this->model['collaborations'] = $data;
+        return $this->sendResponse();
     }
 
     public function interested(Request $request, $profileId, $companyId)
@@ -678,5 +695,47 @@ class CollaborateController extends Controller
                 $inputs['gender_ratio'] = json_encode($gendeInput);
             }
         }
+    }
+
+    public function collaborateClose(Request $request, $profileId, $companyId, $id)
+    {
+        $data = [];
+        $reasonId = $request->input('reason_id');
+        if($reasonId == 1 || $reasonId == 2 || $reasonId == 3 )
+        {
+            $description = null;
+            if($reasonId == 1)
+                $reason = 'Completed';
+            else if($reasonId == 2)
+                $reason = 'Did not find enough responses for this collaboration';
+            else
+            {
+                $reason = 'Other';
+                $description = $request->input('description');
+            }
+            $data = ['collaborate_id'=>$id,'reason'=>$reason,'other_reason'=>$description];
+        }
+        else
+        {
+            return $this->sendError("Please select valid reason");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $checkAdmin = CompanyUser::where('company_id', $companyId)->where('profile_id', $loggedInProfileId)->exists();
+        if (!$checkAdmin) {
+            return $this->sendError("Invalid Admin.");
+        }
+
+
+        $collaborate = Collaborate::where('company_id',$companyId)->where('id',$id)->first();
+        if($collaborate === null){
+            return $this->sendError("Collaboration not found.");
+        }
+        event(new \App\Events\DeleteFilters(class_basename($collaborate), $collaborate->id));
+        $collaborate->update(['deleted_at' => Carbon::now()->toDateTimeString(), 'state' => Collaborate::$state[4]]);
+        event(new DeleteFeedable($collaborate));
+
+        $this->model = \DB::table('collaborate_close_reason')->insert($data);
+
+        return $this->sendResponse();
     }
 }

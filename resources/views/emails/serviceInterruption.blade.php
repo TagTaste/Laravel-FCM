@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            [Resolved] Interruption in the services
+                                            Interruption in the services
                                         </div>
                                     </td>
                                 </tr>
@@ -38,15 +38,12 @@
                                                                         Dear {{$userName}}
                                                                         <br>
                                                                         <br>
-                                                                        We are pleased  to inform you that all our services have been restored to normal. We thank you for your patience and sincerely regret the inconvenience caused to you.
-                                                                        <br>
-                                                                        <br>
-                                                                        If you are still facing any issue, please do not hesitate to write to us at support@tagtaste.com, or call us at +91 - 9958657225.
+                                                                        Please be advised that the platform will be under maintainance from 5:00 PM to 6:30 PM IST on October 27th, 2018. This period of downtime is scheduled for necessary updates to be applied to the network servers. We apologise for the inconvenience that this may cause.
                                                                         <br>
                                                                         <br>
                                                                         Regards,
                                                                         <br>
-                                                                        Arun & Jaspal
+                                                                        Team TagTaste
                                                                     </p>
                                                                 </div>
                                                             </td>
