@@ -22,7 +22,7 @@ class AlterImageProgressiveAll extends Migration
             $table->json("hero_image_meta")->nullable();
         });
         Schema::table('collaborates',function(Blueprint $table){
-            $table->json("images_meta")->nullable();
+            $table->json("image_meta")->nullable();
         });
         Schema::table('photos',function(Blueprint $table){
             $table->json("image_meta")->nullable();
@@ -48,7 +48,7 @@ class AlterImageProgressiveAll extends Migration
             $table->dropColumn(["logo_meta","hero_image_meta"]);
         });
         Schema::table('collaborates',function(Blueprint $table){
-            $table->dropColumn(["images_meta"]);
+            $table->dropColumn(["image_meta"]);
         });
         Schema::table('photos',function(Blueprint $table){
             $table->dropColumn(["image_meta"]);
