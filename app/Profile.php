@@ -44,7 +44,7 @@ class Profile extends Model
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type',
-        'establishment_types','cuisines','allergens',"image_meta","hero_image_meta"];
+        'establishment_types','cuisines','allergens'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
@@ -941,18 +941,6 @@ class Profile extends Model
     {
         $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
         return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
-    }
-
-    public function getImageMetaAttribute()
-    {
-        if(!is_null($this->image_meta))
-            return json_decode($this->image_meta);
-    }
-
-    public function getHeroImageMetaAttribute()
-    {
-        if(!is_null($this->hero_image_meta))
-            return json_decode($this->hero_image_meta);
     }
 }
 
