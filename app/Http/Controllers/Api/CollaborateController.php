@@ -42,7 +42,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->where('state',Collaborate::$state[0])->whereNull('deleted_at')->orderBy("created_at","desc");
+		$collaborations = $this->model->where('state',Collaborate::$state[0])->orderBy("created_at","desc");
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
