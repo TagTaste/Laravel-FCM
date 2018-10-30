@@ -128,14 +128,14 @@ class ProfileController extends Controller
             $name = ucwords($name);
             $request->user()->update(['name'=>trim($name)]);
         }
-        
+
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        $this->saveFileToData("image",$path,$request,$data);
+        $this->saveFileToData("image_meta",$path,$request,$data);
         
         //save hero image
         $path = \App\Profile::getHeroImagePath($id);
-        $this->saveFileToData("hero_image",$path,$request,$data);
+        $this->saveFileToData("hero_image_meta",$path,$request,$data);
 
         //save profile resume
 
@@ -278,7 +278,7 @@ class ProfileController extends Controller
         if($request->hasFile($key)){
     
             $data['profile'][$key] = $this->saveFile($path,$request,$key);
-            
+
 //            if($key == 'image'){
 //                //create a thumbnail
 //                $path = $path . "/" . str_random(20) . ".jpg";
@@ -295,9 +295,14 @@ class ProfileController extends Controller
     
     private function saveFile($path,&$request,$key)
     {
-        
         $imageName = str_random("32") . ".jpg";
-        $response = $request->file($key)->storeAs($path,$imageName,['visibility'=>'public']);
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(180, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->stream('jpg',70);
+        $response['tiny_photo'] = \Storage::url(\Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']));
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }

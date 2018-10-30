@@ -170,7 +170,9 @@ class Company extends Model
             'name' => $this->name,
             'logo' => $this->logo,
             'tagline' => $this->tagline,
-            'city' =>$this->city
+            'city' =>$this->city,
+            'logo_meta' =>$this->logo_meta,
+            'hero_image_meta' =>$this->hero_image_meta
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
     }
