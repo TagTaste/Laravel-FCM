@@ -6,8 +6,6 @@ use App\Company;
 use App\CompanyUser;
 use App\Events\Actions\Follow;
 use App\Events\SuggestionEngineEvent;
-use App\Exceptions\Handler;
-use app\Helpers\AppHelper;
 use App\Profile;
 use App\Recipe\Collaborate;
 use App\Subscriber;
@@ -133,13 +131,11 @@ class ProfileController extends Controller
 
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        AppHelper::instance()->saveFileToData("image_meta",$path,$request,$data,"image");
-
+        $this->saveFileToData("image_meta",$path,$request,$data,"image");
 
         //save hero image
         $path = \App\Profile::getHeroImagePath($id);
-//        Handler::saveFileToData("image_meta",$path,$request,$data,"image");
-//        $this->saveFileToData("hero_image_meta",$path,$request,$data,"hero_image");
+        $this->saveFileToData("hero_image_meta",$path,$request,$data,"hero_image");
 
         //save profile resume
 
@@ -277,15 +273,15 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
     
-//    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
-//    {
-//        if($request->hasFile($key) && !is_null($extraKey)){
-//
-//            $response = $this->saveFile($path,$request,$key);
-//            $data['profile'][$key] = json_encode($response,true);
-//            $data['profile'][$extraKey] = $response['original_photo'];
-//        }
-//    }
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
+    {
+        if($request->hasFile($key) && !is_null($extraKey)){
+
+            $response = $this->saveFile($path,$request,$key);
+            $data['profile'][$key] = json_encode($response,true);
+            $data['profile'][$extraKey] = $extraKey;
+        }
+    }
     
     private function saveFile($path,&$request,$key)
     {

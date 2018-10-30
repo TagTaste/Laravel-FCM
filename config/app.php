@@ -261,7 +261,6 @@ return [
         'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
-        'AppHelper' => App\Helpers\AppHelper::class
     ],
 
 ];
