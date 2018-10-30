@@ -58,11 +58,10 @@ class PhotoController extends Controller
         //create the photo
         $data = $request->except(['_method','_token','company_id']);
         
-        if(!$request->hasFile('file') && empty($request->input('file)'))){
+        if(!$request->hasFile('image_meta') && empty($request->input('image_meta)'))){
            return $this->sendError("Photo missing.");
         }
         
-        $imageName = str_random(32) . ".jpg";
         $path = Photo::getCompanyImagePath($profileId, $companyId);
         $this->saveFileToData("image_meta",$path,$request,$data,"file");
         $data['image_info'] = null;
