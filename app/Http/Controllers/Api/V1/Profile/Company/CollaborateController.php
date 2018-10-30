@@ -102,11 +102,11 @@ class CollaborateController extends Controller
             unset($inputs['fields']);
         }
         //save images
-        unset($inputs['images']);
+        unset($inputs['image_meta']);
         $imagesArray = [];
-        if ($request->has("images"))
+        if ($request->has("image_meta"))
         {
-            $images = $request->input('images');
+            $images = $request->input('image_meta');
             $i = 1;
             if(count($images) && is_array($images))
             {
@@ -114,9 +114,10 @@ class CollaborateController extends Controller
                 {
                     if(is_null($image))
                         continue;
-                    $imagesArray[]['image'.$i] = $image;
+                    $imagesArray[]['image'.$i] = $image['original_photo'];
                     $i++;
                 }
+                $inputs['image_meta'] = json_encode($images,true);
             }
             $inputs['images'] = json_encode($imagesArray,true);
         }
@@ -213,11 +214,11 @@ class CollaborateController extends Controller
         if($collaborate->collaborate_type == 'collaborate')
             unset($inputs['expires_on']);
 
-        unset($inputs['images']);
+        unset($inputs['image_meta']);
         $imagesArray = [];
-        if ($request->has("images"))
+        if ($request->has("image_meta"))
         {
-            $images = $request->input('images');
+            $images = $request->input('image_meta');
             $i = 1;
             if(count($images) > 0 && !empty($images) && is_array($images))
             {
@@ -225,9 +226,10 @@ class CollaborateController extends Controller
                 {
                     if(is_null($image))
                         continue;
-                    $imagesArray[]['image'.$i] = $image;
+                    $imagesArray[]['image'.$i] = $image['original_photo'];
                     $i++;
                 }
+                $inputs['image_meta'] = json_encode($images,true);
                 $inputs['images'] = json_encode($imagesArray,true);
             }
             else

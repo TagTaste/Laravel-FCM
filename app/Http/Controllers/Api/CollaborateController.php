@@ -380,8 +380,20 @@ class CollaborateController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
-        $relativePath = "images/p/$profileId/collaborate";
-        $this->model = \Storage::url($request->file("image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
+        $path = "images/p/$profileId/collaborate";
+        $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file('image'))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $response['meta'] = getimagesize($request->input('image'));
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $this->model = $response;
         return $this->sendResponse();
 
     }
