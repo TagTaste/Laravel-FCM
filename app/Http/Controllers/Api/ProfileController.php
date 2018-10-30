@@ -279,7 +279,7 @@ class ProfileController extends Controller
 
             $response = $this->saveFile($path,$request,$key);
             $data['profile'][$key] = json_encode($response,true);
-            $data['profile'][$extraKey] = $extraKey;
+            $data['profile'][$extraKey] = $response['original_photo'];
         }
     }
     
