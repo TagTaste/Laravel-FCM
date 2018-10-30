@@ -941,5 +941,17 @@ class Profile extends Model
         $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
         return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
     }
+
+    public function getImageMetaAttribute()
+    {
+        if(!is_null($this->image_meta))
+            return json_decode($this->image_meta);
+    }
+
+    public function getHeroImageMetaAttribute()
+    {
+        if(!is_null($this->hero_image_meta))
+            return json_decode($this->hero_image_meta);
+    }
 }
 

@@ -50,7 +50,7 @@ class ProgressiveImage extends Command
                     $imageMeta['original_photo'] = \Storage::url($model->imageUrl);
                     $imageMeta['tiny_photo'] = \Storage::url($model->imageUrl);
                     $imageMeta['meta'] = null;
-                    $imageMeta = (object)$imageMeta;
+                    $imageMeta = json_encode($imageMeta,true);
                     $model->update(['image_meta'=> $imageMeta]);
                 }
                 if(isset($model->heroImageUrl) && !is_null($model->heroImageUrl))
