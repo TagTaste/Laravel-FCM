@@ -28,7 +28,7 @@ class ChatController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
         $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-            $query->where('profile_id',$profileId)->whereNull('deleted_at');
+            $query->where('profile_id',$profileId)->withTrashed();
         })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->get();
 
         return $this->sendResponse();

@@ -60,14 +60,12 @@ class Chat extends Model
 
         if(isset($memberOfChat->deleted_at))
         {
-            $this->isEnabled = false;
             return Message::join('message_recepients', function($query){
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.chat_id','=',$this->id)->where('message_recepients.recepient_id',request()->user()->profile->id)->first();
         }
         else
         {
-            $this->isEnabled = false;
             return Message::join('message_recepients', function($query){
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.recepient_id',request()->user()->profile->id)->where('message_recepients.chat_id','=',$this->id)->whereNull('message_recepients.deleted_on')->where('type',0)->first();
@@ -117,7 +115,7 @@ class Chat extends Model
 
     public function getIsEnabledAttribute()
     {
-        return $this->isEnabled;
+       return \App\Chat\Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)->whereNull('deleted_at')->exists();
     }
 }
 
