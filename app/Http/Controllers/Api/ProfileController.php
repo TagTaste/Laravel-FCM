@@ -133,8 +133,7 @@ class ProfileController extends Controller
 
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        $helperFunction = new AppHelper();
-        $helperFunction->saveFileToData("image_meta",$path,$request,$data,"image");
+        AppHelper::instance()->saveFileToData("image_meta",$path,$request,$data,"image");
 
 
         //save hero image

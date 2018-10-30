@@ -1,9 +1,7 @@
 <?php
 namespace app\Helpers;
 
-use Illuminate\Database\Eloquent\Model;
-
-class AppHelper extends Model
+class AppHelper
 {
 
     public static function instance()
