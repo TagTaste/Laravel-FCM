@@ -43,7 +43,8 @@ class Profile extends Model
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types','cuisines','allergens'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type',
+        'establishment_types','cuisines','allergens',"image_meta","hero_image_meta"];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
