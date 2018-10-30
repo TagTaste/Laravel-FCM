@@ -63,14 +63,13 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
-        $imageInfo = getimagesize($request->input('file'));
+        $imageInfo = getimagesize($request->input('image_meta'));
         $data['image_info'] = null;
         if(isset($imageInfo))
         {
             $data['image_info'] = json_encode($imageInfo,true);
         }
         $this->saveFileToData("image_meta",$path,$request,$data,"file");
-        dd($data);
         $data['has_tags'] = $this->hasTags($data['caption']);
         $photo = Photo::create($data);
         if(!$photo){
