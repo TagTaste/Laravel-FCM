@@ -70,6 +70,7 @@ class PhotoController extends Controller
             $data['image_info'] = json_encode($imageInfo,true);
         }
         $this->saveFileToData("image_meta",$path,$request,$data,"file");
+        dd($data);
         $data['has_tags'] = $this->hasTags($data['caption']);
         $photo = Photo::create($data);
         if(!$photo){
