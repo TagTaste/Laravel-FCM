@@ -58,7 +58,7 @@ class PhotoController extends Controller
         //create the photo
         $data = $request->except(['_method','_token','company_id']);
         
-        if(!$request->hasFile('image_meta') && empty($request->input('image_meta)'))){
+        if(!$request->hasFile('image_meta') && empty($request->input('image_meta'))){
            return $this->sendError("Photo missing.");
         }
         
