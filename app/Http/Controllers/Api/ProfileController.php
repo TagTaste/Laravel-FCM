@@ -7,6 +7,7 @@ use App\CompanyUser;
 use App\Events\Actions\Follow;
 use App\Events\SuggestionEngineEvent;
 use App\Exceptions\Handler;
+use app\Helpers\AppHelper;
 use App\Profile;
 use App\Recipe\Collaborate;
 use App\Subscriber;
@@ -132,7 +133,7 @@ class ProfileController extends Controller
 
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        $helperFunction = new Handler();
+        $helperFunction = new AppHelper();
         $helperFunction->saveFileToData("image_meta",$path,$request,$data,"image");
 
 
