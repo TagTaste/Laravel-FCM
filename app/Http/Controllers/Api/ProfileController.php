@@ -303,7 +303,7 @@ class ProfileController extends Controller
             $constraint->aspectRatio();
         })->stream('jpg',70);
         $response['tiny_photo'] = \Storage::url(\Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']));
-        $response['meta'] = getimagesize($request->input('file'));
+        $response['meta'] = getimagesize($request->input($key));
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
