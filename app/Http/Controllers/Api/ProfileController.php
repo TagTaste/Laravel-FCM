@@ -299,10 +299,11 @@ class ProfileController extends Controller
         $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
         //create a tiny image
         $path = $path."/tiny/" . str_random(20) . ".jpg";
-        $thumbnail = \Image::make($request->file($key))->resize(180, null,function ($constraint) {
+        $thumbnail = \Image::make($request->file($key))->resize(10, null,function ($constraint) {
             $constraint->aspectRatio();
-        })->stream('jpg',70);
-        $response['tiny_photo'] = \Storage::url(\Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']));
+        })->blur(1)->save('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
         $response['meta'] = getimagesize($request->input($key));
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
