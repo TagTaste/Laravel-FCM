@@ -299,7 +299,7 @@ class ProfileController extends Controller
         $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
         //create a tiny image
         $path = $path."/tiny/" . str_random(20) . ".jpg";
-        $thumbnail = \Image::make($request->file($key))->resize(10, null,function ($constraint) {
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
             $constraint->aspectRatio();
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
