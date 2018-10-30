@@ -131,11 +131,11 @@ class ProfileController extends Controller
 
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        $this->saveFileToData("image_meta",$path,$request,$data);
+        $this->saveFileToData("image_meta",$path,$request,$data,"image");
         
         //save hero image
         $path = \App\Profile::getHeroImagePath($id);
-        $this->saveFileToData("hero_image_meta",$path,$request,$data);
+        $this->saveFileToData("hero_image_meta",$path,$request,$data,"hero_image");
 
         //save profile resume
 
@@ -273,23 +273,13 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
     
-    private function saveFileToData($key,$path,&$request,&$data)
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
     {
-        if($request->hasFile($key)){
+        if($request->hasFile($key) && !is_null($extraKey)){
     
-            $data['profile'][$key] = $this->saveFile($path,$request,$key);
-
-//            if($key == 'image'){
-//                //create a thumbnail
-//                $path = $path . "/" . str_random(20) . ".jpg";
-//                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
-//                    $constraint->aspectRatio();
-//                })->stream('jpg',70);
-//                \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-//                $data['profile']['image'] = $path;
-//            } else {
-//                $data['profile'][$key] = $this->saveFile($path,$request,$key);
-//            }
+            $response = $this->saveFile($path,$request,$key);
+            $data['profile'][$key] = json_encode($response,true);
+            $data['profile'][$extraKey] = $response['original_photo'];
         }
     }
     
