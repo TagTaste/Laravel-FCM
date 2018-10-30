@@ -409,12 +409,7 @@ class Company extends Model
     
     public function getLogoAttribute($value)
     {
-        try{
-            return !is_null($value) ? \Storage::url($value) : null;
-        } catch (\Exception $e){
-            \Log::warning("Couldn't get logo for company" . $this->id);
-            \Log::warning($e->getMessage());
-        }
+        return $value;
     }
     
     public function getHeroImageAttribute($value)
@@ -426,7 +421,7 @@ class Company extends Model
         }
         else
         {
-            return \Storage::url($value);
+            return $value;
         }
     }
     

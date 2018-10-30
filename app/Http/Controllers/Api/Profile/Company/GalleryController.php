@@ -41,9 +41,8 @@ class GalleryController extends Controller
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
         if($request->hasFile('image')) {
-            $imageName = str_random(32) . ".jpg";
             $path = Gallery::getGalleryImagePath($profileId, $companyId);
-            $data['image'] = $request->file("image")->storeAs($path, $imageName, ['visibility' => 'public']);
+            $this->saveFileToData("image_meta",$path,$request,$data,"file");
         }
         $this->model = Gallery::create($data);
         return $this->sendResponse();
@@ -87,9 +86,8 @@ class GalleryController extends Controller
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['company_id'] = $companyId;
         if ($request->hasFile('image')) {
-            $imageName = str_random(32) . ".jpg";
-            $path = Gallery::getAlbumImagePath($profileId, $companyId);
-            $inputs['image'] = $request->file('image')->storeAs($path, $imageName,['visibility'=>'public']);;
+            $path = Gallery::getGalleryImagePath($profileId, $companyId);
+            $this->saveFileToData("image_meta",$path,$request,$inputs,"file");
         }
         $this->model = Gallery::where('id',$id)->update($inputs);
 
@@ -108,5 +106,33 @@ class GalleryController extends Controller
         $this->model = Gallery::where('id',$id)->delete();
 
         return $this->sendResponse();
+    }
+
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
+    {
+        if($request->hasFile($key) && !is_null($extraKey)){
+
+            $response = $this->saveFile($path,$request,$key);
+            $data[$key] = json_encode($response,true);
+            $data[$extraKey] = $response['original_photo'];
+        }
+    }
+
+    private function saveFile($path,&$request,$key)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $response['meta'] = getimagesize($request->input($key));
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        return $response;
     }
 }

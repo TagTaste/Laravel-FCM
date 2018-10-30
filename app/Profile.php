@@ -350,26 +350,13 @@ class Profile extends Model
     //specific to API
     public function getImageUrlAttribute()
     {
-        try {
-            return !is_null($this->image) ? \Storage::url($this->image) : null;
-        } catch (\Exception $e){
-            \Log::warning("Could not get image for profile:" . $this->id);
-        }
+        return $this->image;
     }
 
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        if(is_null($this->hero_image))
-        {
-            $fileId = 14 - $this->id % 14;
-            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
-        }
-        else
-        {
-            return \Storage::url($this->hero_image);
-        }
-
+        return $this->hero_image;
     }
 
     //$followsId is following $this profile

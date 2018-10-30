@@ -43,10 +43,17 @@ class Product extends Model
     
     public function getImageUrlAttribute()
     {
-        return !is_null($this->image) ? \Storage::url($this->image) : null;
+        return $this->image;
     }
     public function categories()
     {
         return $this->belongsToMany('App\Category', 'product_categories','product_id');
+    }
+
+    public static function getProductImagePath($profileId,$companyId, $filename = null)
+    {
+        $relativePath = "images/c/$companyId/gallery";
+        $status = \Storage::makeDirectory($relativePath,0644,true);
+        return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
 }

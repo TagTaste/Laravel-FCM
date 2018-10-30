@@ -39,10 +39,12 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
     
-    private function saveFileToData($key,$path,&$request,&$data)
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
     {
         if($request->hasFile($key)){
-            $data[$key] = $this->saveFile($path,$request,$key);
+            $response = $this->saveFile($path,$request,$key);
+            $data[$key] = json_encode($response,true);
+            $data[$extraKey] = $response['original_photo'];
         }
     }
     
@@ -67,7 +69,7 @@ class PhotoController extends Controller
         {
             $data['image_info'] = json_encode($imageInfo,true);
         }
-        $this->saveFileToData("file",$path,$request,$data);
+        $this->saveFileToData("image_meta",$path,$request,$data,"file");
         $data['has_tags'] = $this->hasTags($data['caption']);
         $photo = Photo::create($data);
         if(!$photo){
@@ -97,11 +99,19 @@ class PhotoController extends Controller
         }
         return $this->sendResponse();
     }
-    
+
     private function saveFile($path,&$request,$key)
     {
         $imageName = str_random("32") . ".jpg";
-        $response = $request->file($key)->storeAs($path,$imageName,['visibility'=>'public']);
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $response['meta'] = getimagesize($request->input($key));
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
@@ -147,7 +157,7 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
-        $this->saveFileToData("file",$path,$request,$data);
+        $this->saveFileToData("image_meta",$path,$request,$data,"file");
         $data['has_tags'] = $this->hasTags($data['caption']);
         $inputs = $data;
         unset($inputs['has_tags']);

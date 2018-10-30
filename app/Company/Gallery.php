@@ -29,7 +29,7 @@ class Gallery extends Model
 
     public function getImageUrlAttribute()
     {
-        return !is_null($this->image) ? \Storage::url($this->image) : null;
+        return $this->image;
     }
 
 }

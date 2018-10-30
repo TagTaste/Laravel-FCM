@@ -147,18 +147,13 @@ class CompanyController extends Controller
         $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
         if($request->hasFile('logo')){
-            $path = \App\Company::getLogoPath($profileId, $id) . "/" . str_random(20) . ".jpg";
-            $thumbnail = \Image::make($request->file('logo'))->resize(180, null,function ($constraint) {
-                $constraint->aspectRatio();
-            })->stream('jpg',70);
-            \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-            $inputs['logo'] = $path;
+            $path = \App\Company::getLogoPath($profileId, $id) ;
+            $this->saveFileToData("logo_meta",$path,$request,$inputs,"logo");
         }
 
         if($request->hasFile('hero_image')){
-            $heroImageName = str_random(32) . ".jpg";
             $path = \App\Company::getHeroImagePath($profileId, $id);
-            $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
+            $this->saveFileToData("hero_image_meta",$path,$request,$inputs,"hero_image");
         }
 
         //delete heroimage or image
