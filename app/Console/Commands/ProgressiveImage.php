@@ -51,7 +51,7 @@ class ProgressiveImage extends Command
                     $imageMeta['tiny_photo'] = \Storage::url($model->imageUrl);
                     $imageMeta['meta'] = null;
                     $imageMeta = json_encode($imageMeta,true);
-                    $model->update(['image_meta'=> $imageMeta]);
+                    $model->update(['image_meta'=> $imageMeta,'image'=>\Storage::url($model->imageUrl)]);
                 }
                 if(isset($model->heroImageUrl) && !is_null($model->heroImageUrl))
                 {
@@ -60,7 +60,7 @@ class ProgressiveImage extends Command
                     $imageMeta['tiny_photo'] = \Storage::url($model->heroImageUrl);
                     $imageMeta['meta'] = null;
                     $imageMeta = json_encode($imageMeta,true);
-                    $model->update(['hero_image_meta'=> $imageMeta]);
+                    $model->update(['hero_image_meta'=> $imageMeta,'hero_image'=>\Storage::url($model->heroImageUrl)]);
                 }
                 echo "profile id ".$model->id ."\n";
                 $model->addToCache();
@@ -75,7 +75,7 @@ class ProgressiveImage extends Command
                     $imageMeta['tiny_photo'] = \Storage::url($model->logo);
                     $imageMeta['meta'] = null;
                     $imageMeta = json_encode($imageMeta,true);
-                    $model->update(['logo_meta'=> $imageMeta]);
+                    $model->update(['logo_meta'=> $imageMeta,'logo'=>\Storage::url($model->logo)]);
                 }
                 if(isset($model->hero_image) && !is_null($model->hero_image))
                 {
@@ -84,7 +84,7 @@ class ProgressiveImage extends Command
                     $imageMeta['tiny_photo'] = \Storage::url($model->hero_image);
                     $imageMeta['meta'] = null;
                     $imageMeta = json_encode($imageMeta,true);
-                    $model->update(['hero_image_meta'=> $imageMeta]);
+                    $model->update(['hero_image_meta'=> $imageMeta,'hero_image'=>\Storage::url($model->hero_image)]);
                 }
                 echo "company id ".$model->id ."\n";
 
