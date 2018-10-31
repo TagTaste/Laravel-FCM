@@ -12,13 +12,13 @@ class Message extends Model
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type'];
     
     protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview',
-        'read','parentMessage','messageType'];
+        'read','parentMessage','headerMessage'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl','read','parentMessage','messageType'];
+    protected $appends = ['fileUrl','read','parentMessage','headerMessage'];
 
     //type only in group
     // 1 - when owner create a group
@@ -91,14 +91,42 @@ class Message extends Model
     }
 
 
-    public function getMessageTypeAttribute()
+    public function getHeaderMessageAttribute()
     {
-        if($this->type != 0)
+        if($this->type != 0 && isset($this->message))
         {
-            $message = explode('.', $this->message);
-            $type = $this->type;
-            $this->type = 1;
-            return ['sender_profile'=>\App\Recipe\Profile::where('id',$message[0])->first() ,'action'=> \DB::table('chat_message_type')->where('id',$type)->pluck('id')->first(), 'reciever_profile'=>\App\Recipe\Profile::where('id',$message[2])->first()];
+            $messageArray = explode('.', $this->message);
+            $receiverId = $messageArray[2];
+            $messageString = [];
+            if($messageArray[0] == request()->user()->profile->id)
+            {
+                $messageString[0]="You ";
+            }
+            if($messageArray[0] != request()->user()->profile->id)
+            {
+                $profile = \App\Recipe\Profile::where('id',$messageArray[0])->first();
+                $messageString[0] = $profile["name"];
+            }
+
+            $messageString[1] = \DB::table('chat_message_type')->where('id',$this->type)->pluck('text')->first();
+
+            if($messageArray[2] === null || ($messageArray[2] == $messageArray[0]))
+            {
+                $messageString[2] = null;
+            }
+
+            if($messageArray[2] ==request()->user()->profile->id)
+            {
+                $messageString[2] = " you";
+            }
+
+            else
+            {
+                $profile = \App\Recipe\Profile::where('id',$receiverId)->first()->toArray();
+                $messageString[2] = $profile["name"];
+            }
+            return $messageString[0].$messageString[1].$messageString[2];
+
         }
     }
 
