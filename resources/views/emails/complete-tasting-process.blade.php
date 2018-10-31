@@ -47,7 +47,7 @@
                                                                         <embed width="640" height="385" base="https://www.youtube.com/v/" wmode="opaque" id="swfContainer0" type="application/x-shockwave-flash" src="https://www.youtube.com/v/Bk_6r-b3kqU?border=0&autoplay=1&client=ytapi-google-gmail&version=3&start=0">
 
                                                                         <br>
-                                                                        Food review is a science as well as an art; it requires training and continued practice. We take this opportunity to formally invite you to join our structured ‘Taster’s Program’. This program would not only educate and train you about various aspects of food & beverages but also enable you to earn incentives. Most importantly, your feedback triggers progress and innovation among start-ups, farmers, and large food companies.
+                                                                        Food review is a science as well as an art; it requires training and continued practice. We take this opportunity to formally invite you to join our structured <b>‘Taster’s Program’</b>. This program would not only educate and train you about various aspects of food & beverages but also enable you to earn incentives. Most importantly, your feedback triggers progress and innovation among start-ups, farmers, and large food companies.
                                                                         <br>
                                                                         <br>
                                                                         The details of this program are attached for your kind reference
