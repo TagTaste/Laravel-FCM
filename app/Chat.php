@@ -78,6 +78,7 @@ class Chat extends Model
         $relativePath = "images/c/{$id}";
 
         \Storage::makeDirectory($relativePath);
+        
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 

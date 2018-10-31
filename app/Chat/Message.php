@@ -12,7 +12,7 @@ class Message extends Model
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type'];
     
     protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview',
-        'read','parentMessage','type','messageType'];
+        'read','parentMessage','messageType'];
     
     protected $with = ['profile'];
     
@@ -96,7 +96,9 @@ class Message extends Model
         if($this->type != 0)
         {
             $message = explode('.', $this->message);
-            return ['sender_profile'=>\App\Recipe\Profile::where('id',$message[0])->first() ,'action'=> \DB::table('chat_message_type')->where('id',$this->type)->pluck('text')->first(), 'reciever_profile'=>\App\Recipe\Profile::where('id',$message[2])->first()];
+            $type = $this->type;
+            $this->type = 1;
+            return ['sender_profile'=>\App\Recipe\Profile::where('id',$message[0])->first() ,'action'=> \DB::table('chat_message_type')->where('id',$type)->pluck('id')->first(), 'reciever_profile'=>\App\Recipe\Profile::where('id',$message[2])->first()];
         }
     }
 

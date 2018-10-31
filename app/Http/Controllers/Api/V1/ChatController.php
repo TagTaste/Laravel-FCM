@@ -98,7 +98,9 @@ class ChatController extends Controller
     		}
     		else
     		{
+
                 $chatId = $this->createChatRoom($inputs, $profileIds);
+                $this->uploadImage($request, $chatId);
                 return $this->sendResponse();
     		}
     	}
@@ -132,17 +134,22 @@ class ChatController extends Controller
         {
             return $this->sendError("You are not a part of this chat.");
         }
-
         if($request->has('name') || $request->has('image'))
         {
-            $inputs = $request->has('name') ? ['name'=>$request->input('name')] : ['image'=>$request->input('image')];
+            if($request->has('image'))
+            {
+                $this->model = Chat::where('id',$id)->first();
+                $this->uploadImage($request, $id);
+            }
+            if($request->has('name'))
+            {
+                $this->model->update(['name'=>$request->input('name')]);
+            }
             $profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
 
             $type = $request->has('name') ? 5 : 6;
             $messageInfo = ['chat_id'=>$id,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.null];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
-
-            $this->model = Chat::where('id',$id)->update($inputs);
             $this->model = Chat::where('id',$id)->first();
             return $this->sendResponse();
         }
@@ -285,16 +292,28 @@ class ChatController extends Controller
         return $chatId;
     }
 
-    public function uploadImage($request)
+    public function uploadImage($request,$chatId)
     {
         $imageName = str_random("32") . ".jpg";
-        $path = Chat::getImagePath($this->model->id);
-        $response = $request->file('image')->storeAs($path,$imageName,['visibility'=>'public']);
+        $path = Chat::getImagePath($chatId);
+        $file = $request->file('image');
+        $response = $file->storeAs($path,$imageName,['visibility'=>'public',"disk"=>"s3"]);
+        $file_url = \Storage::disk('s3')->url($response);
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        $this->model->update(['image'=>$response]);
+        $this->model->update(['image'=>$file_url]);
 
+    }
+
+    public function getChat(Request $request,$profileId)
+    {   
+        $loggedInProfileId = $request->user()->profile->id;
+        $this->model = Chat::open($loggedInProfileId,$profileId);
+        $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
+                ->where('chat_messages.chat_id',$this->model->id)->whereNull('message_recepients.deleted_on')
+                ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->get();
+                return $this->sendResponse();
     }
 
 }
