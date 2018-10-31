@@ -39,7 +39,7 @@
 
                                                                         <br>
                                                                         <br>
-                                                                        Welcome to TagTaste! We hope you enjoyed your first tasting session with us. Although our local partner would have briefed you about TagTaste, here is a quick two-minute video introduction to the platform for your quick reference.                                                                         <br>
+                                                                        Welcome to TagTaste! We hope you enjoyed your first tasting session with us. Although our local partner would have briefed you about TagTaste, <a href="https://www.youtube.com/watch?v=2SXP3dHj_-Y" target="_blank">here is a quick two-minute video</a> introduction to the platform for your quick reference.                                                                         <br>
                                                                         <a href="https://www.youtube.com/watch?v=2SXP3dHj_-Y" style="text-decoration:none;display:block"
                                                                            class="nonplayable"
                                                                            target="_blank"><img style="display:none" src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/p/7/SvoUA9qoV4UfwJNpFalqI0tgJrb59B4I.jpg" height="274" width="498">
