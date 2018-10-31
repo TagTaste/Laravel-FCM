@@ -146,12 +146,12 @@ class CompanyController extends Controller
     {
         $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
-        if($request->hasFile('logo')){
+        if($request->hasFile('logo_meta')){
             $path = \App\Company::getLogoPath($profileId, $id) ;
             $this->saveFileToData("logo_meta",$path,$request,$inputs,"logo");
         }
 
-        if($request->hasFile('hero_image')){
+        if($request->hasFile('hero_image_meta')){
             $path = \App\Company::getHeroImagePath($profileId, $id);
             $this->saveFileToData("hero_image_meta",$path,$request,$inputs,"hero_image");
         }
