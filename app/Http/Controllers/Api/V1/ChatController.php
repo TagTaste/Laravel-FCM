@@ -310,11 +310,19 @@ class ChatController extends Controller
     {   
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat::open($loggedInProfileId,$profileId);
-        $chatId = $this->model->id;
+        if($this->model == null)
+        {
+            $chatId = $this->model->id;
         $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
                 ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
                 ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->get();
                 return $this->sendResponse();
+        }
+        else
+        {
+            return $this->sendResponse();
+        }
+        
     }
 
 }
