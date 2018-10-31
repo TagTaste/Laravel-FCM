@@ -19,6 +19,7 @@ use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\CloseCollaborate;
 use App\Console\Commands\CollaborationQuestions;
 use App\Console\Commands\CapitalizeUserName;
+use App\Console\Commands\CompleteTastingMail;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
@@ -173,7 +174,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\InsertGlobalQuestion::class,
 
         \App\Console\Commands\UpdateGlobalQuestion::class,
-        CloseCollaborate::class
+        CloseCollaborate::class,
+        CompleteTastingMail::class,
 
 
     ];
