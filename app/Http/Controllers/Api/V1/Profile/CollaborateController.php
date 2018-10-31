@@ -198,7 +198,7 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-        if($collaborate->state == 'Expired')
+        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
         {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
