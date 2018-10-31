@@ -310,7 +310,7 @@ class ChatController extends Controller
     {   
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat::open($loggedInProfileId,$profileId);
-        if($this->model == null)
+        if($this->model != null)
         {
             $chatId = $this->model->id;
         $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
