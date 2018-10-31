@@ -112,6 +112,7 @@ class CollaborateController extends Controller
             {
                 foreach ($images as $image)
                 {
+                    dd($image);
                     if(is_null($image))
                         continue;
                     $imagesArray[]['image'.$i] = $image['original_photo'];
