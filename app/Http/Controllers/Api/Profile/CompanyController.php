@@ -61,12 +61,12 @@ class CompanyController extends Controller
             return $this->sendError("Could not create company.");
         }
 
-        if($request->hasFile('logo')){
+        if($request->hasFile('logo_meta')){
             $path = \App\Company::getLogoPath($profileId, $company->id);
             $this->saveFileToData("logo_meta",$path,$request,$inputs,"logo");
         }
 
-        if($request->hasFile('hero_image')){
+        if($request->hasFile('hero_image_meta')){
             $path = \App\Company::getHeroImagePath($profileId, $company->id);
             $this->saveFileToData("hero_image_meta",$path,$request,$inputs,"hero_image");
 
