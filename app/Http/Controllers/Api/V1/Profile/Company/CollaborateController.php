@@ -107,12 +107,13 @@ class CollaborateController extends Controller
         if ($request->has("image_meta"))
         {
             $images = $request->input('image_meta');
+            \Log::info($images);
             $i = 1;
             if(count($images) && is_array($images))
             {
                 foreach ($images as $image)
                 {
-                    dd($image);
+                    return $image;
                     if(is_null($image))
                         continue;
                     $imagesArray[]['image'.$i] = $image['original_photo'];
