@@ -259,7 +259,8 @@ class User extends BaseUser
             $s3 = \Storage::disk('s3');
             $filePath = 'images/p/' . $this->profile->id;
             $resp = $s3->putFile($filePath, new File($filename), ['visibility'=>'public']);
-            Profile::where('id',$this->profile->id)->update(['image'=>$resp]);
+            $imageMeta = ['original_photo'=>$resp,'tiny_photo'=>$resp,'meta'=>null];
+            Profile::where('id',$this->profile->id)->update(['image'=>$resp,'image_meta'=>json_encode($imageMeta,true)]);
         }
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         if(isset($this->profile->id))
