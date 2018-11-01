@@ -12,13 +12,13 @@ class Message extends Model
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type'];
     
     protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview',
-        'read','parentMessage','headerMessage'];
+        'read','parentMessage','headerMessage','messageType'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl','read','parentMessage','headerMessage'];
+    protected $appends = ['fileUrl','read','parentMessage','headerMessage','messageType'];
 
     //type only in group
     // 1 - when owner create a group
@@ -92,7 +92,7 @@ class Message extends Model
 
 
     public function getHeaderMessageAttribute()
-    {
+    {   
         if($this->type != 0 && isset($this->message))
         {
             $messageArray = explode('.', $this->message);
@@ -128,6 +128,14 @@ class Message extends Model
             return $messageString[0].$messageString[1].$messageString[2];
 
         }
+    }
+
+    public function getMessageTypeAttribute()
+    {
+        if($this->type == 0)
+            return 0;
+        else
+            return 1;
     }
 
 }

@@ -42,7 +42,7 @@ class ChatController extends Controller
        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
        message_recepients'),function($join) use ($profileId){
        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
-       })->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
+       })->skip($skip)->take($take)->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
 
        return $this->sendResponse();
     }
