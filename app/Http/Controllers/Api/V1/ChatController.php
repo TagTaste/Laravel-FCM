@@ -105,7 +105,10 @@ class ChatController extends Controller
     		{
 
                 $chatId = $this->createChatRoom($inputs, $profileIds);
-                $this->uploadImage($request, $chatId);
+                if($request->has('image'))
+                {
+                    $this->uploadImage($request, $chatId);
+                }
                 return $this->sendResponse();
     		}
     	}
