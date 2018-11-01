@@ -68,12 +68,11 @@ class ChatController extends Controller
         $inputs['created_at']=$this->now;
 
   	  	if($request->input('chat_type') == 1 && count($profileIds) === 2)
-    	{  
+    	{   $message = $request->input('message');
     		$existingChats = Chat::open($ownerProfileId,$profileIds[0]);
 
     		if($existingChats === null)
     		{
-    		    $message = $request->input('message');
     		    if(isset($message) && !is_null($message))
                 {
                     $chatId = $this->createChatRoom($inputs,$profileIds,$message);
@@ -89,7 +88,10 @@ class ChatController extends Controller
     		}
     		else
     		{
-    			$this->model = $existingChats;
+                $this->model = $existingChats;
+                $chatId = $this->model->id;
+                $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId];
+                event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
     			return $this->sendResponse();
     		}
     	}
@@ -313,7 +315,7 @@ class ChatController extends Controller
     {   
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat::open($loggedInProfileId,$profileId);
-        if($this->model->latestMessages != null)
+        if($this->model != null)
         {
             $chatId = $this->model->id;
         $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
@@ -321,9 +323,7 @@ class ChatController extends Controller
                 ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->get();
                 return $this->sendResponse();
         }
-        elseif ($this->model->latestMessages == null) {
-            return $this->sendResponse();
-        }
+        return $this->sendResponse();
         
     }
 
