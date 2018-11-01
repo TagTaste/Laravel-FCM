@@ -800,7 +800,13 @@ class BatchController extends Controller
 
     public function getPRProfile(Request $request, $collaborateId, $batchId)
     {
-        $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->get()->pluck('profile_id');
+        $excludeProfileIds = $request->input('profile_id');
+        if(count($excludeProfileIds) > 0)
+            $profileIds = \DB::table('collaborate_batches_assign')->whereNotIn('profile_id',$excludeProfileIds)->where('collaborate_id',$collaborateId)
+                ->where('batch_id',$batchId)->get()->pluck('profile_id');
+        else
+            $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$collaborateId)
+                ->where('batch_id',$batchId)->get()->pluck('profile_id');
         $query = $request->input('term');
         $profileIds = \App\Recipe\Profile::select('profiles.id')->join('users','profiles.user_id','=','users.id')
             ->whereIn('profiles.id',$profileIds)->where('users.name','like',"%$query%")
