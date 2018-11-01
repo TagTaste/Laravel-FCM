@@ -61,23 +61,23 @@ class OnboardingController extends Controller
             $profile->self = false;
         }
 
-        $foundationTeam = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25];
-
         $this->model['from_selection'] = $data;
 
-        foreach ($profileIds as $key => $value)
+        $foundationTeamIds = [1,10,32,165,44,556,2,4,13,637,7,2245,12,6,1585,359,1467,8,1775,3379,1574,14,15,7585,1016];
+
+        foreach ($foundationTeamIds as $key => $value)
         {
             if($loggedInProfileId == $value)
             {
-                unset($profileIds[$key]);
+                unset($foundationTeamIds[$key]);
                 continue;
             }
-            $profileIds[$key] = "profile:small:".$value ;
+            $foundationTeamIds[$key] = "profile:small:".$value ;
         }
 
-        if(count($profileIds)> 0)
+        if(count($foundationTeamIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = \Redis::mget($foundationTeamIds);
 
         }
         foreach($data as $key => &$profile){
@@ -94,7 +94,7 @@ class OnboardingController extends Controller
 
         $this->model['activity_based'] = $data; // should be later
 
-        $companyIds = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+        $companyIds = [111,137,322,84,11,321,277,271,253,245,204,197,193,187,186];
 
         foreach($companyIds as &$companyId)
         {
