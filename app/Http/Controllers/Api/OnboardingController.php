@@ -101,9 +101,12 @@ class OnboardingController extends Controller
             $companyId = "company:small:" . $companyId;
         }
         $data = \Redis::mget($companyIds);
-        foreach($data as &$company){
+        foreach($data as $key => &$company){
+            if(is_null($company)){
+                unset($data[$key]);
+                continue;
+            }
             $company = json_decode($company);
-            \Log::info($company);
             $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
         }
         $this->model['company'] = $data;
