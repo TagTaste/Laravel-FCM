@@ -94,6 +94,18 @@ class OnboardingController extends Controller
 
         $this->model['activity_based'] = $data; // should be later
 
+        $companyIds = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+
+        foreach($companyIds as &$companyId)
+        {
+            $companyId = "company:small:" . $companyId;
+        }
+        $data = \Redis::mget($companyIds);
+        foreach($data as &$company){
+            $company = json_decode($company);
+            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+        }
+        $this->model['company'] = $data;
         return $this->sendResponse();
     }
 
