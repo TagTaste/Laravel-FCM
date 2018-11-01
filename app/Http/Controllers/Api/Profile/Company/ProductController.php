@@ -46,7 +46,7 @@ class ProductController extends Controller
         $product->name = $request->input("name");
         $product->price = $request->has("price") && !empty($request->input("price")) ? $request->input("price") : null;
         $product->category = $request->input("category");
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image_meta')) {
             $path = $product->getProductImagePath($profileid, $companyId);
             $response = $this->saveFile($path,$request,"image_meta");
             $product->image = $response['original_photo'];
@@ -98,7 +98,7 @@ class ProductController extends Controller
         $product->name = $request->input("name");
         $product->price = $request->has("price") && !empty($request->input("price")) ? $request->input("price") : null;
         $product->category = $request->input("category");
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image_meta')) {
             $path = Product::getProductImagePath($profileid, $companyId);
             $response = $this->saveFile($path,$request,"image_meta");
             $product->image = $response['original_photo'];

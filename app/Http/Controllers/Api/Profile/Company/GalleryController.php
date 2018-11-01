@@ -40,9 +40,9 @@ class GalleryController extends Controller
     {
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
-        if($request->hasFile('image')) {
+        if($request->hasFile('image_meta')) {
             $path = Gallery::getGalleryImagePath($profileId, $companyId);
-            $this->saveFileToData("image_meta",$path,$request,$data,"file");
+            $this->saveFileToData("image_meta",$path,$request,$data,"image");
         }
         $this->model = Gallery::create($data);
         return $this->sendResponse();
@@ -85,9 +85,9 @@ class GalleryController extends Controller
     {
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['company_id'] = $companyId;
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image_meta')) {
             $path = Gallery::getGalleryImagePath($profileId, $companyId);
-            $this->saveFileToData("image_meta",$path,$request,$inputs,"file");
+            $this->saveFileToData("image_meta",$path,$request,$inputs,"image");
         }
         $this->model = Gallery::where('id',$id)->update($inputs);
 
