@@ -122,7 +122,7 @@ class Message extends Model
 
             else
             {
-                $profile = \App\Recipe\Profile::where('id',$receiverId)->first()->toArray();
+                $profile = \App\Recipe\Profile::where('id',$receiverId)->first();
                 $messageString[2] = $profile["name"];
             }
             return $messageString[0].$messageString[1].$messageString[2];
