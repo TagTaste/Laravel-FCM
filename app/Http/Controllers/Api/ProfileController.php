@@ -1039,7 +1039,7 @@ class ProfileController extends Controller
             \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
 
             if(!$this->model){
-                $this->sendError("You are already following this profile.");
+                continue;
             }
 
             event(new Follow($channelOwner, $request->user()->profile));
