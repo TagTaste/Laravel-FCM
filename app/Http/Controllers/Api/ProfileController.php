@@ -1046,7 +1046,7 @@ class ProfileController extends Controller
 
             \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
         }
-        if(isset($this->model))
+        if(isset($this->model) && $this->model != false)
             $this->model = true;
         return $this->sendResponse();
     }
