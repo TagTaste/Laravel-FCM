@@ -1029,7 +1029,7 @@ class ProfileController extends Controller
                 throw new ModelNotFoundException();
             }
 
-            $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
+            $data = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
             $profileId = $request->user()->profile->id;
 
             //profiles the logged in user is following
@@ -1038,10 +1038,10 @@ class ProfileController extends Controller
             //profiles that are following $channelOwner
             \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
 
-            if(!$this->model){
+            if(!$data){
                 continue;
             }
-
+            $this->model = $data;
             event(new Follow($channelOwner, $request->user()->profile));
 
             \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
