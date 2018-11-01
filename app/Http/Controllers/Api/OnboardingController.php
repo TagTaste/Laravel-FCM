@@ -22,4 +22,11 @@ class OnboardingController extends Controller
             ->get();
         return $this->sendResponse();
     }
+
+    public function getFollowers(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        // get all
+//        $profileIds
+    }
 }
