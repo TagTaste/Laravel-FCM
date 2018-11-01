@@ -1016,4 +1016,38 @@ class ProfileController extends Controller
         $this->model = \DB::table('establishment_types')->get();
         return $this->sendResponse();
     }
+
+    public function nestedFollow(Request $request)
+    {
+        $channelOwnerProfileIds = $request->input('id');
+        $this->model = false;
+        foreach ($channelOwnerProfileIds as $channelOwnerProfileId)
+        {
+            //$request->user()->profile->follow($id);
+            $channelOwner = \App\Recipe\Profile::find($channelOwnerProfileId);
+            if(!$channelOwner){
+                throw new ModelNotFoundException();
+            }
+
+            $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
+            $profileId = $request->user()->profile->id;
+
+            //profiles the logged in user is following
+            \Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
+
+            //profiles that are following $channelOwner
+            \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
+
+            if(!$this->model){
+                $this->sendError("You are already following this profile.");
+            }
+
+            event(new Follow($channelOwner, $request->user()->profile));
+
+            \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
+        }
+
+        return $this->sendResponse();
+    }
+
 }
