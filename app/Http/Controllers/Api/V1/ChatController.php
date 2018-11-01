@@ -313,7 +313,7 @@ class ChatController extends Controller
     {   
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat::open($loggedInProfileId,$profileId);
-        if($this->model != null)
+        if($this->model->latestMessages != null)
         {
             $chatId = $this->model->id;
         $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
@@ -321,8 +321,7 @@ class ChatController extends Controller
                 ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->get();
                 return $this->sendResponse();
         }
-        else
-        {
+        elseif ($this->model->latestMessages == null) {
             return $this->sendResponse();
         }
         
