@@ -1040,7 +1040,10 @@ class BatchController extends Controller
             $profileIds = $genderFilterIds;
         }
 
-        return ['profile_id'=>$profileIds,'type'=>false];
+        if($isFilterAble)
+            return ['profile_id'=>$profileIds,'type'=>false];
+        else
+            return ['profile_id'=>$profileIds,'type'=>true];
     }
 
     public function reportPdf(Request $request, $collaborateId,$batchId)
