@@ -25,7 +25,7 @@ class OnboardingController extends Controller
         return $this->sendResponse();
     }
 
-    public function getFollowers(Request $request)
+    public function getNetworkFollowers(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
 

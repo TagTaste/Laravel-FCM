@@ -411,6 +411,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             // onboarding routes
+            Route::get("onboarding/network","OnboardingController@getNetworkFollowers");
             Route::get('onboarding/skills', 'OnboardingController@skills');
             Route::get('onboarding/autocomplete/skills', 'OnboardingController@autoCompleteSkills');
 
