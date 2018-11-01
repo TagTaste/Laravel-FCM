@@ -1051,4 +1051,13 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
 
+    public function getAllergens(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $allergenIds = \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->get()->pluck('allergens_id');
+        $this->model = \DB::table('allergens')->whereIn('id',$allergenIds)->get();
+        return $this->sendResponse();
+    }
+
 }
