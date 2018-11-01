@@ -52,6 +52,7 @@ class OnboardingController extends Controller
             $data = \Redis::mget($profileIds);
 
         }
+        $profileData = [];
         foreach($data as &$profile){
             if(is_null($profile)){
                 continue;
@@ -59,9 +60,10 @@ class OnboardingController extends Controller
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
+            $profileData[] = $profile;
         }
 
-        $this->model['from_selection'] = $data;
+        $this->model['from_selection'] = $profileData;
 
         $foundationTeamIds = [1,10,32,165,44,556,2,4,13,637,7,2245,12,6,1585,359,1467,8,1775,3379,1574,14,15,7585,1016];
 
@@ -80,6 +82,8 @@ class OnboardingController extends Controller
             $data = \Redis::mget($foundationTeamIds);
 
         }
+        $profileData = [];
+
         foreach($data as $key => &$profile){
             if(is_null($profile)){
                 unset($data[$key]);
@@ -88,14 +92,15 @@ class OnboardingController extends Controller
             $profile = json_decode($profile);
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
+            $profileData[] = $profile;
         }
 
-        $this->model['foundation_team'] = $data;
+        $this->model['foundation_team'] = $profileData;
 
-        $this->model['activity_based'] = $data; // should be later
+        $this->model['activity_based'] = $profileData; // should be later
 
         $companyIds = [111,137,322,84,11,321,277,271,253,245,204,197,193,187,186];
-
+        $companyData = [];
         foreach($companyIds as &$companyId)
         {
             $companyId = "company:small:" . $companyId;
@@ -108,8 +113,9 @@ class OnboardingController extends Controller
             }
             $company = json_decode($company);
             $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+            $companyData[] = $company;
         }
-        $this->model['company'] = $data;
+        $this->model['company'] = $companyData;
         return $this->sendResponse();
     }
 
