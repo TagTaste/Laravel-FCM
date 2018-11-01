@@ -108,7 +108,7 @@ class Message extends Model
                 $messageString[0] = $profile["name"];
             }
 
-            $messageString[1] = \DB::table('chat_message_type')->where('id',$this->type)->pluck('text')->first();
+            $messageString[1] = \DB::table('chat_message_type')->where('id',$this->type)->pluck('id')->first();
 
             if($messageArray[2] === null || ($messageArray[2] == $messageArray[0]))
             {
@@ -124,6 +124,43 @@ class Message extends Model
             {
                 $profile = \App\Recipe\Profile::where('id',$receiverId)->first();
                 $messageString[2] = $profile["name"];
+            }
+
+            switch ($messageString[1]) {
+                case 1:
+                    return $messageString[0]." created group ".$this->name;
+                    break;
+                
+                case 2:
+                    return $messageString[0]." added ".$messageString[2];
+                    break;
+
+                case 3:
+                    return $messageString[0]." removed ".$messageString[2]." from the group";
+                    break;
+
+                case 4:
+                    return $messageString[0]." left the group";
+                    break;
+
+                case 5:
+                    return $messageString[0]." updated the group name";
+                    break;
+
+                case 6:
+                    return $messageString[0]." updated the group icon";
+                    break;
+
+                case 7:
+                    return $messageString[0]." added as admin by ".$messageString[2];
+                    break;
+
+                case 8:
+                    return $messageString[0]." removed as admin";
+                    break;
+                default:
+                    return "some action is taken in the group";
+                    break;
             }
             return $messageString[0].$messageString[1].$messageString[2];
 
