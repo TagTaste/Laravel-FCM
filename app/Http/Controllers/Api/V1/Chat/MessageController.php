@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Chat;
 use App\Chat\Message;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\Strategies\Paginator;
 use App\Chat;
 use Carbon\Carbon;
 
@@ -126,7 +127,7 @@ class MessageController extends Controller
         if($this->isChatMember($loggedInProfileId, $chatId))
         {
             $this->model->ids = Message::where('chat_id',$chatId)->pluck('id');
-            \DB::table('message_recepients')->whereIn('message_id',$this->model->ids)->where('recepient_id',$loggedInProfileId)->update(['deleted_on'=>$this->time]);
+            $this->model = \DB::table('message_recepients')->whereIn('message_id',$this->model->ids)->where('recepient_id',$loggedInProfileId)->update(['deleted_on'=>$this->time]);
             return $this->sendResponse();   
         }
         else
