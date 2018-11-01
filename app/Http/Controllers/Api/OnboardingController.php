@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Onboarding;
 use App\Recipe\Profile;
 use App\SearchClient;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 
 class OnboardingController extends Controller
