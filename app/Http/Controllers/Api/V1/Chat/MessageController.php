@@ -80,7 +80,22 @@ class MessageController extends Controller
             {
                 return $this->sendError("Message Field cannot be null");
             }
-            $this->model = $this->model->create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId, 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId]);
+            if(isset($inputs['preview']) && !empty($inputs['preview']))
+            {
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                $s3 = \Storage::disk('s3');
+                $filePath = 'p/' . $loggedInProfileId . "/ci";
+                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                $inputs['preview']['image'] = $resp;
+                }
+                $preview = $inputs['preview'];
+            }
+            else
+            {
+                $preview = null;
+            }
+            $this->model = $this->model->create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId, 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId, 'preview'=> $preview]);
             $messageId = $this->model->id;
 
             if(isset($messageId))
@@ -90,6 +105,15 @@ class MessageController extends Controller
                     \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
                 }
             }
+        
+        if(isset($inputs['preview']))
+        {
+            $inputs['preview'] = json_encode($inputs['preview']);
+        }
+        $inputs['chat_id'] = $chatId;
+        $inputs['profile_id'] = $loggedInProfileId;
+        $this->model = $this->model->create($inputs);
+
             return $this->sendResponse();
         }
         else
@@ -153,28 +177,42 @@ class MessageController extends Controller
     public function uploadFile(Request $request, $chatId)
     {
         $loggedInProfileId = $request->user()->profile->id;
+
         if(!$this->isChatMember($loggedInProfileId, $chatId))
         {
             return $this->sendError("This user is not a part of this chat");
         }
         if($request->hasFile('file'))
         {
+            $caption = $request->caption;
             $files = $request->file;
-            foreach ($files as $file) 
+            $storeFile = [];
+            foreach ($files as $key => $file) 
             {   
                 $ext = $file->getClientOriginalExtension();
+                $originalName = $file->getClientOriginalName();
                 $fileName = str_random("32") . ".".$ext;
-                $relativePath = "chat/$chatId/profile/$loggedInProfileId";
-                $response = \Storage::url($file->storeAs($relativePath, $fileName,['visibility'=>'public']));
+                $relativePath = "/chat/$chatId/profile/$loggedInProfileId";
+                $response['original_photo'] = \Storage::url($file->storeAs($relativePath, $fileName,['visibility'=>'public']));
+                $tinyImagePath = $relativePath."/tiny/".str_random("20").".".$ext;
+                $thumbnail = \Image::make($file)->resize(50, null,function ($constraint) {
+                $constraint->aspectRatio();
+                })->blur(1)->stream('jpg',70);
+                \Storage::disk('s3')->put($tinyImagePath, (string) $thumbnail,['visibility'=>'public']);
+                $response['tiny_photo'] = \Storage::url($tinyImagePath);
+                $response['meta'] = getimagesize($file);
+                array_push($response['meta'], $response['tiny_photo']);
                 if(!$response){
                     throw new \Exception("Could not save file " . $fileName . " at " . $relativePath);
                 }
+                    $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
                     $parentMessageId = $request->input('parentMessageId')===null ? $request->input('parentMessageId') : null;
-                    $preview = ["type"=>$ext, "link"=>$response];
-                    $preview = json_encode($preview);
-                        $this->model = $this->model->create(['chat_id'=>$chatId, 'profile_id'=>$loggedInProfileId,'parent_message_id'=>$parentMessageId, 'file'=>$response, 'preview'=>$preview]);//comment on git what to store in preview and i will do the needful. 
+                     $file_meta = ["original_name"=>$originalName, "original_link"=>$response['original_photo'], "meta"=>$response['meta']];
+                    $file_meta = json_encode($file_meta);
+                 $storeFile[] = $this->model->create(['chat_id'=>$chatId, 'profile_id'=>$loggedInProfileId,'parent_message_id'=>$parentMessageId, 'file'=>$response['original_photo'], 'file_meta'=>$file_meta, 'message'=>$thisCaption]);//comment on git what to store in preview and i will do the needful. 
                         
             }
+            $this->model = $storeFile;
             return $this->sendResponse();       
         }
 
@@ -214,13 +252,16 @@ class MessageController extends Controller
     {   
         $loggedInProfileId = $request->user()->profile->id;
         $messageId = $request->input('messageId');
+        if(!is_array($messageId)){
+            $messageId = [$messageId];
+        }
         if(!$this->isChatMember($loggedInProfileId, $chatId))
         {
             return $this->sendError("Invalid function on chat");
         }
         else
         {
-            $this->model =  \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->where('chat_id',$chatId)->where('message_id',$messageId)->update(['deleted_on'=>$this->time]);
+            $this->model =  \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->where('chat_id',$chatId)->whereIn('message_id',$messageId)->update(['deleted_on'=>$this->time]);
             return $this->sendResponse();
         }
     }

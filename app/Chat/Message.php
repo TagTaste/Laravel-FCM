@@ -9,10 +9,9 @@ class Message extends Model
 {
     protected $table = 'chat_messages';
     
-    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type'];
+    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type','file_meta'];
     
-    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','fileUrl','preview',
-        'read','parentMessage','headerMessage','messageType'];
+    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','file','preview','read','parentMessage','headerMessage','messageType','file_meta'];
     
     protected $with = ['profile'];
     
@@ -56,25 +55,25 @@ class Message extends Model
         return !is_null($this->file) ? \Storage::url($this->file) : null;
     }
 
-    public function getPreviewAttribute($value)
-    {
-        try {
-            $preview = json_decode($value,true);
+    // public function getPreviewAttribute($value)
+    // {
+    //     try {
+    //         $preview = json_decode($value,true);
 
-            if(isset($preview['image']) && !is_null($preview['image']))
-            {
-                $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
-            }
-            return $preview;
+    //         if(isset($preview['image']) && !is_null($preview['image']))
+    //         {
+    //             $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
+    //         }
+    //         return $preview;
 
-        } catch(\Exception $e){
-            \Log::error("Could not load preview image");
-            \Log::error($preview);
-            \Log::error($e->getLine());
-            \Log::error($e->getMessage());
-        }
-        return empty($preview) ? null : $preview;
-    }
+    //     } catch(\Exception $e){
+    //         \Log::error("Could not load preview image");
+    //         \Log::error($preview);
+    //         \Log::error($e->getLine());
+    //         \Log::error($e->getMessage());
+    //     }
+    //     return empty($preview) ? null : $preview;
+    // }
 
     public function getReadAttribute()
     {
