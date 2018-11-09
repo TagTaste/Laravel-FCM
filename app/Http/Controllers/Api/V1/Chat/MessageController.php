@@ -106,15 +106,15 @@ class MessageController extends Controller
                 }
             }
         
-        if(isset($inputs['preview']))
-        {
-            $inputs['preview'] = json_encode($inputs['preview']);
-        }
-        $inputs['chat_id'] = $chatId;
-        $inputs['profile_id'] = $loggedInProfileId;
-        $this->model = $this->model->create($inputs);
+        // if(isset($inputs['preview']))
+        // {
+        //     $inputs['preview'] = json_encode($inputs['preview']);
+        // }
+        // $inputs['chat_id'] = $chatId;
+        // $inputs['profile_id'] = $loggedInProfileId;
+        // $this->model = $this->model->create($inputs);
 
-            return $this->sendResponse();
+        //     return $this->sendResponse();
         }
         else
         {
