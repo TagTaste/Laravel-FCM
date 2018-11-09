@@ -106,15 +106,6 @@ class MessageController extends Controller
                 }
             }
         
-        // if(isset($inputs['preview']))
-        // {
-        //     $inputs['preview'] = json_encode($inputs['preview']);
-        // }
-        // $inputs['chat_id'] = $chatId;
-        // $inputs['profile_id'] = $loggedInProfileId;
-        // $this->model = $this->model->create($inputs);
-
-        //     return $this->sendResponse();
         }
         else
         {
@@ -209,7 +200,13 @@ class MessageController extends Controller
                     $parentMessageId = $request->input('parentMessageId')===null ? $request->input('parentMessageId') : null;
                      $file_meta = ["original_name"=>$originalName, "original_link"=>$response['original_photo'], "meta"=>$response['meta']];
                     $file_meta = json_encode($file_meta);
-                 $storeFile[] = $this->model->create(['chat_id'=>$chatId, 'profile_id'=>$loggedInProfileId,'parent_message_id'=>$parentMessageId, 'file'=>$response['original_photo'], 'file_meta'=>$file_meta, 'message'=>$thisCaption]);//comment on git what to store in preview and i will do the needful. 
+                 $this->model = $this->model->create(['chat_id'=>$chatId, 'profile_id'=>$loggedInProfileId,'parent_message_id'=>$parentMessageId, 'file'=>$response['original_photo'], 'file_meta'=>$file_meta, 'message'=>$thisCaption]);//comment on git what to store in preview and i will do the needful. 
+                 $storeFile[] = $this->model;
+                 $members = Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
+                foreach ($members as $profileId) {
+                    \DB::table('message_recepients')->insert(['message_id'=>$this->model->id, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+                }
+                 
                         
             }
             $this->model = $storeFile;
