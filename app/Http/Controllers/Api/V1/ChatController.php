@@ -150,8 +150,9 @@ class ChatController extends Controller
                 $this->uploadImage($request, $id);
             }
             if($request->has('name'))
-            {
-                $this->model->update(['name'=>$request->input('name')]);
+            {   
+                $this->model = \App\Chat::where('id',$id)->update(['name'=>$request->input('name')]);
+                dd($this->model);
             }
             $profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
 
