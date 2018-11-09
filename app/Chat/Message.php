@@ -99,12 +99,12 @@ class Message extends Model
             $messageString = [];
             if($messageArray[0] == request()->user()->profile->id)
             {
-                $messageString[0]="You ";
+                $messageString[0]="You are";
             }
             if($messageArray[0] != request()->user()->profile->id)
             {
                 $profile = \App\Recipe\Profile::where('id',$messageArray[0])->first();
-                $messageString[0] = $profile["name"];
+                $messageString[0] = $profile["name"]." is";
             }
 
             $messageString[1] = \DB::table('chat_message_type')->where('id',$this->type)->pluck('id')->first();
@@ -116,7 +116,7 @@ class Message extends Model
 
             if($messageArray[2] ==request()->user()->profile->id)
             {
-                $messageString[2] = " you";
+                $messageString[2] = "you";
             }
 
             else
