@@ -185,7 +185,7 @@ class MessageController extends Controller
                 $fileName = str_random("32") . ".".$ext;
                 $relativePath = "/chat/$chatId/profile/$loggedInProfileId";
                 $response['original_photo'] = \Storage::url($file->storeAs($relativePath, $fileName,['visibility'=>'public']));
-                $tinyImagePath = $relativePath."/tiny/".str_random("20").".".$ext;
+                $tinyImagePath = "chat/$chatId/profile/$loggedInProfileId/tiny/".str_random("20").".".$ext;
                 $thumbnail = \Image::make($file)->resize(50, null,function ($constraint) {
                 $constraint->aspectRatio();
                 })->blur(1)->stream('jpg',70);
