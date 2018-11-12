@@ -95,7 +95,7 @@ class MessageController extends Controller
             {
                 $preview = null;
             }
-            $this->model = $this->model->create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId, 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId, 'preview'=> $preview]);
+            $this->model = Message::create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId, 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId, 'preview'=> $preview, 'signature'=>$request->input('signature')]);
             $messageId = $this->model->id;
 
             if(isset($messageId))
@@ -111,6 +111,7 @@ class MessageController extends Controller
                             \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
                     }
                 }
+                return $this->sendResponse();
             }
         
         }

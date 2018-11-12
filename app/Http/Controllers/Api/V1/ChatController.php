@@ -66,6 +66,7 @@ class ChatController extends Controller
         $inputs['image']= $request->input('image') == null ? null: $request->input('image');
         $inputs['profile_id']=$ownerProfileId;
         $inputs['created_at']=$this->now;
+        $inputs['signature'] = $request->input('signature');
 
   	  	if($request->input('chat_type') == 1 && count($profileIds) === 2)
     	{   $message = $request->input('message');
@@ -76,7 +77,7 @@ class ChatController extends Controller
     		    if(isset($message) && !is_null($message))
                 {
                     $chatId = $this->createChatRoom($inputs,$profileIds,$message);
-                    $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId];
+                    $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId, 'signature'=>$inputs['signature']];
                     event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
                     return $this->sendResponse();
                 }
@@ -90,7 +91,7 @@ class ChatController extends Controller
     		{
                 $this->model = $existingChats;
                 $chatId = $this->model->id;
-                $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId];
+                $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId, 'signature'=>$inputs['signature']];
                 event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
     			return $this->sendResponse();
     		}
@@ -286,10 +287,10 @@ class ChatController extends Controller
             $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'],'type'=>1, 'message'=>$inputs['profile_id'].'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
-        else
-        {
-            $messageInfo = ['chat_id'=>$chatId,'message'=>$message,'profile_id'=>$inputs['profile_id'],'type'=>0];
-        }
+        // else
+        // {
+        //     $messageInfo = ['chat_id'=>$chatId,'message'=>$message,'profile_id'=>$inputs['profile_id'],'type'=>0];
+        // }
         //$model=\App\Chat\Message::create($messageInfo);
         // $messageRecepients = [];
         // foreach ($profileIds as $profileId)
