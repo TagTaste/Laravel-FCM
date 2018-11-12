@@ -215,6 +215,7 @@ class MessageController extends Controller
                      $file_meta = ["original_name"=>$originalName, "original_link"=>$response['original_photo'], "meta"=>$response['meta']];
                     $file_meta = json_encode($file_meta);
                  $this->model = $this->model->create(['chat_id'=>$chatId, 'profile_id'=>$loggedInProfileId,'parent_message_id'=>$parentMessageId, 'file'=>$response['original_photo'], 'file_meta'=>$file_meta, 'message'=>$thisCaption]);//comment on git what to store in preview and i will do the needful. 
+                 $messageId = $this->model->id;
                  $storeFile[] = $this->model;
                  $members = Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
                 foreach ($members as $profileId) {
