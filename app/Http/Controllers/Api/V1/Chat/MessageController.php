@@ -102,7 +102,14 @@ class MessageController extends Controller
             {
                 $members = Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
                 foreach ($members as $profileId) {
-                    \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+                    if($profileId == $loggedInProfileId)
+                    {
+                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
+                    }
+                    else
+                    {
+                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+                    }
                 }
             }
         
@@ -211,7 +218,14 @@ class MessageController extends Controller
                  $storeFile[] = $this->model;
                  $members = Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
                 foreach ($members as $profileId) {
-                    \DB::table('message_recepients')->insert(['message_id'=>$this->model->id, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+                    if($profileId == $loggedInProfileId)
+                    {
+                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
+                    }
+                    else
+                    {
+                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+                    }
                 }
                  
                         
