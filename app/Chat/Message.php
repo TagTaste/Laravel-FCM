@@ -11,13 +11,13 @@ class Message extends Model
     
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type','file_meta','signature'];
     
-    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','file','preview','read','parentMessage','headerMessage','messageType','file_meta','signature'];
+    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','file','preview','read','parentMessage','headerMessage','messageType','file_meta','signature','chatInfo'];
     
     protected $with = ['profile'];
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl','read','parentMessage','headerMessage','messageType'];
+    protected $appends = ['fileUrl','read','parentMessage','headerMessage','messageType','chatInfo'];
 
     //type only in group
     // 1 - when owner create a group
@@ -184,6 +184,14 @@ class Message extends Model
             return 0;
         else
             return 1;
+    }
+
+    public function getChatInfoAttribute()
+    {
+        $chatInfo = [];
+        $chatInfo = \App\Chat::select('chat_type', 'name', 'image')->where('id',$this->chat_id)->get();
+        // $chatInfo = ["name"=>$chatInfo['name'],"chat_type"=>$chatInfo['chat_type'], "image"=>$chatInfo['image']];
+        return $chatInfo;
     }
 
 }

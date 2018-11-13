@@ -210,9 +210,18 @@ class MessageController extends Controller
                 array_push($response['meta'], $response['tiny_photo']);
                 }
                 else
-                {
-                    $response['tiny_photo'] = null;
-                    $response['meta'] = ["mime"=>MimeType::from($originalName)];
+                {   
+                    if(strpos(MimeType::from($originalName), 'video') !== false)
+                    {
+                        $mediaJson = $this->videoTranscodingNew($response['original_photo']);
+                        $response['meta'] = json_decode($mediaJson);
+                        $mime = ["mime"=>MimeType::from($originalName)];
+                        $response['meta'] = (array) $response['meta'];
+                        array_push($response['meta'], $mime);
+                    }
+                    else
+                        $response['meta'] = ["mime"=>MimeType::from($originalName)];
+                    dd($response);
                 }
 
                     $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
@@ -295,5 +304,36 @@ class MessageController extends Controller
             $this->model =  \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->where('chat_id',$chatId)->whereIn('message_id',$messageId)->update(['deleted_on'=>$this->time]);
             return $this->sendResponse();
         }
+    }
+
+    private function videoTranscodingNew($url)
+    {
+
+        $profileId = request()->user()->profile->id;
+        $curl = curl_init();
+        $data = [
+            'profile_id' => $profileId,
+            'file_path' => $url
+        ];
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('TRANSCODING_APIGATEWAY_URL'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30000,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => array(
+                // Set here requred headers
+                "accept: */*",
+                "accept-language: en-US,en;q=0.8",
+                "content-type: application/json",
+            ),
+        ));
+        $response = curl_exec($curl);
+        $response = json_decode($response);
+        $body = $response->body;
+        return json_encode($body,true);
     }
 }
