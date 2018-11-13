@@ -221,7 +221,6 @@ class MessageController extends Controller
                     }
                     else
                         $response['meta'] = ["mime"=>MimeType::from($originalName)];
-                    dd($response);
                 }
 
                     $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
