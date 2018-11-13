@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Strategies\Paginator;
 use App\Chat;
 use Carbon\Carbon;
+use Illuminate\Http\Testing\MimeType;
 
 class MessageController extends Controller
 {
@@ -186,6 +187,7 @@ class MessageController extends Controller
             $caption = $request->caption;
             $files = $request->file;
             $storeFile = [];
+            $imageFormat = ['JPG','PNG','JPEG','GIF'];
             foreach ($files as $key => $file) 
             {   
                 $ext = $file->getClientOriginalExtension();
@@ -193,7 +195,12 @@ class MessageController extends Controller
                 $fileName = str_random("32") . ".".$ext;
                 $relativePath = "/chat/$chatId/profile/$loggedInProfileId";
                 $response['original_photo'] = \Storage::url($file->storeAs($relativePath, $fileName,['visibility'=>'public']));
-                $tinyImagePath = "chat/$chatId/profile/$loggedInProfileId/tiny/".str_random("20").".".$ext;
+                if(!$response){
+                    throw new \Exception("Could not save file " . $fileName . " at " . $relativePath);
+                }
+                if(in_array($ext, $imageFormat))
+                {
+                    $tinyImagePath = "chat/$chatId/profile/$loggedInProfileId/tiny/".str_random("20").".".$ext;
                 $thumbnail = \Image::make($file)->resize(50, null,function ($constraint) {
                 $constraint->aspectRatio();
                 })->blur(1)->stream('jpg',70);
@@ -201,9 +208,13 @@ class MessageController extends Controller
                 $response['tiny_photo'] = \Storage::url($tinyImagePath);
                 $response['meta'] = getimagesize($file);
                 array_push($response['meta'], $response['tiny_photo']);
-                if(!$response){
-                    throw new \Exception("Could not save file " . $fileName . " at " . $relativePath);
                 }
+                else
+                {
+                    $response['tiny_photo'] = null;
+                    $response['meta'] = ["mime"=>MimeType::from($originalName)];
+                }
+
                     $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
                     if($key == 0)
                     {
