@@ -26,7 +26,7 @@ class User extends BaseUser
         parent::boot();
 
         self::created(function(User $user){
-            $profile=$user->profile()->create(['onboarding_step'=>1]);
+            $profile=$user->profile()->create([]);
         });
 
         self::deleting(function($user){
@@ -263,7 +263,7 @@ class User extends BaseUser
         }
         \App\User::where('email',$this->email)->update(['verified_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         if(isset($this->profile->id))
-            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink,'onboarding_step'=>1]);
+            \App\Profile::where('id',$this->profile->id)->update([$provider.'_url'=>$socialLink]);
     }
 
     public function getSocial($typeId)
