@@ -99,12 +99,12 @@ class Message extends Model
             $messageString = [];
             if($messageArray[0] == request()->user()->profile->id)
             {
-                $messageString[0]="You are";
+                $messageString[0]="You";
             }
             if($messageArray[0] != request()->user()->profile->id)
             {
                 $profile = \App\Recipe\Profile::where('id',$messageArray[0])->first();
-                $messageString[0] = $profile["name"]." is";
+                $messageString[0] = $profile["name"];
             }
 
             $messageString[1] = \DB::table('chat_message_type')->where('id',$this->type)->pluck('id')->first();
@@ -151,19 +151,31 @@ class Message extends Model
                     break;
 
                 case 7:
-                    return $messageString[0]." added as admin by ".$messageString[2];
+                    if ($messageString[0]=="You") {
+                        return $messageString[0]." are added as admin by ".$messageString[2];   
+                    }
+                    else
+                    {
+                        return $messageString[0]." is added as admin by ".$messageString[2];
+                    }
                     break;
 
                 case 8:
-                    return $messageString[0]." removed as admin";
+                    if ($messageString[0]=="You") {
+                        return $messageString[0]." are removed as admin";
+                    }
+                    else
+                    {
+                        return $messageString[0]." is removed as admin";
+                    }
                     break;
                 default:
                     return "some action is taken in the group";
                     break;
             }
-            return $messageString[0].$messageString[1].$messageString[2];
 
         }
+        return;
     }
 
     public function getMessageTypeAttribute()
