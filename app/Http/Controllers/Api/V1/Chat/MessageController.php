@@ -113,6 +113,8 @@ class MessageController extends Controller
                     }
                 }
                 $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
+                $this->model->load('profile');
+                \Redis::publish("chat." . $this->model->chat_id,$this->model->toJson());
                 return $this->sendResponse();
             }
         
