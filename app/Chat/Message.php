@@ -33,12 +33,12 @@ class Message extends Model
 
     public static function boot()
     {
-        // self::created(function(Model $message){
+        self::created(function(Model $message){
 
-        //     //is there a better way?
-        //    $message->load('profile');
-        //    \Redis::publish("chat." . $message->chat_id,$message->toJson());
-        // });
+            //is there a better way?
+           $message->load('profile');
+           \Redis::publish("chat." . $message->chat_id,$message->toJson());
+        });
     }
     
     public function chat()
