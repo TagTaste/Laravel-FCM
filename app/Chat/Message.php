@@ -36,6 +36,7 @@ class Message extends Model
 
             //is there a better way?
             $message->load('profile');
+            $message->read = "lol";
             \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
@@ -77,6 +78,10 @@ class Message extends Model
 
     public function getReadAttribute()
     {
+        if(!\DB::table('message_recepients')->where('message_id',$this->id)->where('recepient_id','!=',request()->user()->profile->id)->exists())
+        {
+            return false;
+        }
         $meta = \DB::table('message_recepients')->where('message_id',$this->id)->where('recepient_id','!=',request()->user()->profile->id)->whereNull('read_on')->exists();
         return !$meta;
     }
