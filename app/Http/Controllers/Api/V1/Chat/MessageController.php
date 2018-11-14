@@ -211,16 +211,16 @@ class MessageController extends Controller
                 }
                 else
                 {   
-                    if(strpos(MimeType::from($originalName), 'video') !== false)
+                    if(strpos($file->getClientMimeType(), 'video') !== false)
                     {
                         $mediaJson = $this->videoTranscodingNew($response['original_photo']);
                         $response['meta'] = json_decode($mediaJson);
-                        $mime = ["mime"=>MimeType::from($originalName)];
+                        $mime = ["mime"=>$file->getClientMimeType()];
                         $response['meta'] = (array) $response['meta'];
                         array_push($response['meta'], $mime);
                     }
                     else
-                        $response['meta'] = ["mime"=>MimeType::from($originalName),"size"=>$file->getClientSize()/(1024*1024)];
+                        $response['meta'] = ["mime"=>$file->getClientMimeType(),"size"=>$file->getClientSize()/(1024*1024)];
                 }
                     $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
                     if($key == 0)
