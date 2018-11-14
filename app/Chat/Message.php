@@ -11,7 +11,8 @@ class Message extends Model
     
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type','file_meta','signature'];
     
-    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','file','preview','read','parentMessage','headerMessage','messageType','file_meta','signature','chatInfo'];
+    protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','file','preview','read','parentMessage','headerMessage','messageType',
+        'file_meta','signature','chatInfo'];
     
     protected $with = ['profile'];
     
@@ -35,8 +36,8 @@ class Message extends Model
         self::created(function(Model $message){
 
             //is there a better way?
-            $message->load('profile');
-            \Redis::publish("chat." . $message->chat_id,$message->toJson());
+//            $message->load('profile');
+//            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
     
@@ -192,8 +193,15 @@ class Message extends Model
 
     public function getChatInfoAttribute()
     {
-        $chatInfo = \DB::table('chats')->join('message_recepients','message_recepients.chat_id','=','chats.id')->select('chats.name','chats.image','chats.chat_type','chats.id',\DB::raw('COUNT(message_recepients.chat_id) as unreadMessageCount'))->where('message_recepients.recepient_id',request()->user()->profile->id)->where('read_on',null)->where('chats.id',$this->chat_id)->groupBy('message_recepients.chat_id')->first();
+        \Log::info("here is harsh");
+        \Log::info(request()->user()->profile->id);
+        \Log::info($this->chat_id);
+        $chatInfo = \DB::table('chats')->join('message_recepients','message_recepients.chat_id','=','chats.id')
+            ->select('chats.name','chats.image','chats.chat_type','chats.id',\DB::raw('COUNT(message_recepients.chat_id) as unreadMessageCount'))
+            ->where('message_recepients.recepient_id',request()->user()->profile->id)->where('read_on',null)->where('chats.id',$this->chat_id)
+            ->groupBy('message_recepients.chat_id')->first();
         // $chatInfo = ["name"=>$chatInfo['name'],"chat_type"=>$chatInfo['chat_type'], "image"=>$chatInfo['image']];
+        print_r($chatInfo,true);
         return $chatInfo;
     }
 

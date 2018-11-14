@@ -112,6 +112,11 @@ class MessageController extends Controller
                             \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
                     }
                 }
+                $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
+                \Log::info("here is message");
+                print_r($this->model,true);
+                $this->model->load('profile');
+                \Redis::publish("chat." . $this->model->chat_id,$this->model->toJson());
                 return $this->sendResponse();
             }
         
