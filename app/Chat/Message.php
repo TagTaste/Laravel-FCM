@@ -189,7 +189,7 @@ class Message extends Model
     public function getChatInfoAttribute()
     {
         $chatInfo = [];
-        $chatInfo = \App\Chat::select('chat_type', 'name', 'image')->where('id',$this->chat_id)->get();
+        $chatInfo = \App\Chat::select('image','name','chat_type')->where('id',$this->chat_id)->first();
         // $chatInfo = ["name"=>$chatInfo['name'],"chat_type"=>$chatInfo['chat_type'], "image"=>$chatInfo['image']];
         return $chatInfo;
     }
