@@ -47,7 +47,7 @@ class Message extends Model
     
     public function profile()
     {
-        return $this->belongsTo(\App\Recipe\Profile::class,'profile_id','id');
+        return $this->belongsTo(\App\Chat\Profile::class,'profile_id','id');
     }
 
     public function getFileUrlAttribute()

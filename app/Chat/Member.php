@@ -3,7 +3,7 @@
 namespace App\Chat;
 
 use App\Chat;
-use App\Recipe\Profile;
+use App\Chat\Profile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

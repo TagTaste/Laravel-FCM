@@ -47,7 +47,7 @@ class Chat extends Model
 
     public function profile()
     {
-        return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
+        return $this->belongsTo(\App\Chat\Profile::class,'profile_id');
         
     }
 
@@ -78,7 +78,7 @@ class Chat extends Model
         $relativePath = "images/c/{$id}";
 
         \Storage::makeDirectory($relativePath);
-        
+
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 
