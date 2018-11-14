@@ -198,7 +198,6 @@ class Message extends Model
             ->where('message_recepients.recepient_id',request()->user()->profile->id)->where('read_on',null)->where('chats.id',$this->chat_id)
             ->groupBy('message_recepients.chat_id')->first();
         // $chatInfo = ["name"=>$chatInfo['name'],"chat_type"=>$chatInfo['chat_type'], "image"=>$chatInfo['image']];
-        \Log::info($chatInfo);
         return $chatInfo;
     }
 
