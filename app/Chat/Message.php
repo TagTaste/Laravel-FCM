@@ -192,7 +192,7 @@ class Message extends Model
 
     public function getChatInfoAttribute()
     {
-        $chatInfo = \DB::table('chats')->join('message_recepients','message_recepients.chat_id','=','chats.id')->select('chats.name','chats.image','chats.chat_type','chats.id',\DB::raw('COUNT(message_recepients.chat_id) as unreadMessageCount'))->where('message_recepients.recepient_id',request()->user()->profile->id)->where('read_on',null)->where('chats.id',$this->chat_id)->groupBy('message_recepients.chat_id')->get();
+        $chatInfo = \DB::table('chats')->join('message_recepients','message_recepients.chat_id','=','chats.id')->select('chats.name','chats.image','chats.chat_type','chats.id',\DB::raw('COUNT(message_recepients.chat_id) as unreadMessageCount'))->where('message_recepients.recepient_id',request()->user()->profile->id)->where('read_on',null)->where('chats.id',$this->chat_id)->groupBy('message_recepients.chat_id')->first();
         // $chatInfo = ["name"=>$chatInfo['name'],"chat_type"=>$chatInfo['chat_type'], "image"=>$chatInfo['image']];
         return $chatInfo;
     }
