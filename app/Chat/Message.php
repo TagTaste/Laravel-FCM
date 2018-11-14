@@ -131,7 +131,7 @@ class Message extends Model
 
             switch ($messageString[1]) {
                 case 1:
-                    return $messageString[0]." created group ".$this->name;
+                    return $messageString[0]." created a group ".$this->name;
                     break;
                 
                 case 2:
