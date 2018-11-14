@@ -36,7 +36,6 @@ class Message extends Model
 
             //is there a better way?
             $message->load('profile');
-            $message->read = "lol";
             \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
