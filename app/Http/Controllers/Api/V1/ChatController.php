@@ -27,16 +27,6 @@ class ChatController extends Controller
 
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
-        // $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-        //     $query->where('profile_id',$profileId)->withTrashed();
-        // })->skip($skip)->take($take)->orderByRaw('updated_at desc, created_at desc')->join(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
-        // message_recepients'),function($join) use ($profileId){
-        // $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
-        // })->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
-
-        // return $this->sendResponse();
-//    	$profileId = $request->user()->id;
-//
        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
        $query->where('profile_id',$profileId)->withTrashed();
        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)

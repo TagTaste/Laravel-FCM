@@ -110,6 +110,7 @@ class Chat extends Model
 
     public function getUnreadMessageCountAttribute()
     {
+    
         return \DB::table('message_recepients')->where('recepient_id',request()->user()->profile->id)
             ->where('chat_id',$this->id)->whereNull('read_on')->whereNull('deleted_on')->count();
     }
