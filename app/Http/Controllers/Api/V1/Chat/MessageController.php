@@ -220,9 +220,8 @@ class MessageController extends Controller
                         array_push($response['meta'], $mime);
                     }
                     else
-                        $response['meta'] = ["mime"=>MimeType::from($originalName)];
+                        $response['meta'] = ["mime"=>MimeType::from($originalName),"size"=>$file->getClientSize()/(1024*1024)];
                 }
-
                     $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
                     if($key == 0)
                     {
