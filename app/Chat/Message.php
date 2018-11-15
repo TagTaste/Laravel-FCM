@@ -193,7 +193,7 @@ class Message extends Model
 
     public function getChatInfoAttribute()
     {
-            $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image')->first();
+            $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image','chat_type')->first();
         return $chat;
     }
 
