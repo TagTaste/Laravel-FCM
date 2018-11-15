@@ -105,6 +105,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
                 Route::get("getChatId",'ChatController@getChatId');
                 Route::get("chat/search",'ChatController@chatSearch');
+                Route::get("chatRoom",'ChatController@room');
                 Route::post("shareAsMessage",'ChatController@shareAsMessage');
                 Route::resource("chats","ChatController");
                 Route::get("chat/{profileId}",'ChatController@getChat');

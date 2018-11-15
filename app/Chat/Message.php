@@ -194,7 +194,7 @@ class Message extends Model
     public function getChatInfoAttribute()
     {
             $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image')->first();
-            $count = \DB::table('message_recepients')->where('chat_id',$chat->id)->where('recepient_id',request()->user()->profile->id)->count();
+            $count = \DB::table('message_recepients')->where('chat_id',$chat->id)->where('recepient_id',request()->user()->profile->id)->where('deleted_on',null)->where('read_on',null)->count();
             $chat->unreadMessageCount = $count;
         return $chat;
     }

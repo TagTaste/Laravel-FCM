@@ -185,12 +185,9 @@ class MessageController extends Controller
         }
         if($request->hasFile('file'))
         {
-            $caption = $request->caption;
-            $files = $request->file;
+            $file = $request->file;
             $storeFile = [];
             $imageFormat = ['JPG','PNG','JPEG','GIF'];
-            foreach ($files as $key => $file) 
-            {   
                 $ext = $file->getClientOriginalExtension();
                 $originalName = $file->getClientOriginalName();
                 $fileName = str_random("32") . ".".$ext;
@@ -223,35 +220,9 @@ class MessageController extends Controller
                     else
                         $response['meta'] = ["mime"=>$file->getClientMimeType(),"size"=>$file->getClientSize()/(1024*1024)];
                 }
-                    $thisCaption = isset($caption[$key]) ? $caption[$key] : null;
-                    if($key == 0)
-                    {
-                        $parentMessageId = $request->input('parentMessageId')!=null ? $request->input('parentMessageId') : null;
-                    }
-                    else
-                    {
-                        $parentMessageId = null;
-                    }
+    
                      $file_meta = ["original_name"=>$originalName, "original_link"=>$response['original_photo'], "meta"=>$response['meta']];
-                    $file_meta = json_encode($file_meta);
-                 $this->model = $this->model->create(['chat_id'=>$chatId, 'profile_id'=>$loggedInProfileId,'parent_message_id'=>$parentMessageId, 'file'=>$response['original_photo'], 'file_meta'=>$file_meta, 'message'=>$thisCaption]);//comment on git what to store in preview and i will do the needful. 
-                 $messageId = $this->model->id;
-                 $storeFile[] = $this->model;
-                 $members = Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
-                foreach ($members as $profileId) {
-                    if($profileId == $loggedInProfileId)
-                    {
-                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
-                    }
-                    else
-                    {
-                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
-                    }
-                }
-                 
-                        
-            }
-            $this->model = $storeFile;
+                 $this->model = $file_meta;
             return $this->sendResponse();       
         }
 
