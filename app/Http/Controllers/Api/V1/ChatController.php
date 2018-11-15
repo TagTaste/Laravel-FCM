@@ -334,4 +334,15 @@ class ChatController extends Controller
         return $this->sendResponse();
     }
 
+    public function chatInfo(Request $request, $chatId)
+    {
+        $this->model = \DB::table('chats')->select('image','chat_type','name')->where('id',$chatId)->first();
+        $count = \DB::table('message_recepients')->where('chat_id',$chatId)->where('recepient_id',$request->user()->profile->id)->where('read_on',null)->count();
+        if(isset($count))
+        {
+            $this->model->unreadMessageCount = $count;
+        }
+        return $this->sendResponse();
+    }
+
 }
