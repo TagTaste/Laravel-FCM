@@ -32,8 +32,8 @@ class OnboardingController extends Controller
         // get all profile ids which is related to all job profile specilazation cuisine establishment type
         $profileIds = $this->getAllProfileIds($loggedInProfileId);
         $profileIds = $profileIds->unique();
-
-        $profileIds = $profileIds->random(25);
+        $length = $profileIds->count();
+        $profileIds = $profileIds->random($length);
 
         $this->model = [];
 
