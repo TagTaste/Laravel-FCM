@@ -12,7 +12,7 @@ class Message extends Model
     protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type','file_meta','signature'];
     
     protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on','file','preview','read','parentMessage','headerMessage','messageType',
-        'file_meta','signature','chatInfo'];
+        'file_meta','signature','chatInfo','headerAction'];
     
     protected $with = ['profile'];
     
@@ -37,6 +37,16 @@ class Message extends Model
 
             //is there a better way?
            $message->load('profile');
+           if($message->type != 0)
+           {
+            $message->headerAction = "hello";
+            $action = [];
+            $action = explode('.', $message->message);
+            $action[0] = \App\Chat\Profile::where('id',$action[0])->first();
+            $action[1] = $message->type;
+            $action[2] = is_null($action[2]) ? null : \App\Chat\Profile::where('id',$action[2])->first();
+            $message->headerAction = $action;
+           }
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
