@@ -53,6 +53,18 @@ class OnboardingController extends Controller
 
         }
         $profileData = [];
+        if(count($data))
+        {
+            foreach($data as &$profile){
+                if(is_null($profile)){
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->self = false;
+                $profileData[] = $profile;
+            }
+        }
         foreach($data as &$profile){
             if(is_null($profile)){
                 continue;
