@@ -96,7 +96,7 @@ class ChatController extends Controller
     		{
 
                 $chatId = $this->createChatRoom($inputs, $profileIds);
-                $messageInfo = ['chat_id'=>$chatId, 'message'=>$ownerProfileId."created a group", 'profile_id'=>$ownerProfileId, 'type'=>1];
+                $messageInfo = ['chat_id'=>$chatId, 'message'=>$ownerProfileId.".created a group.", 'profile_id'=>$ownerProfileId, 'type'=>1];
                 event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
                 if($request->has('image'))
                 {
@@ -337,7 +337,6 @@ class ChatController extends Controller
     public function chatInfo(Request $request, $chatId)
     {
         $this->model = Chat::where('id',$chatId)->first();
-        \Log::info("here is chat info");
         if($this->model->chat_type == 0)
             $this->model->profiles = null;
 

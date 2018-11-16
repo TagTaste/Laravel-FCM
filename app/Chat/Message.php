@@ -47,6 +47,7 @@ class Message extends Model
             $action[2] = is_null($action[2]) ? null : \App\Chat\Profile::where('id',$action[2])->first();
             $message->headerAction = $action;
            }
+           event(new \App\Events\Chat\Message($message,request()->user()->profile));
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
@@ -110,7 +111,7 @@ class Message extends Model
         if($this->type != 0 && isset($this->message))
         {
             $messageArray = explode('.', $this->message);
-            $receiverId = $messageArray[2];
+            $receiverId = is_null($messageArray[2]) ? : $messageArray[2];
             $messageString = [];
             if($messageArray[0] == request()->user()->profile->id)
             {
