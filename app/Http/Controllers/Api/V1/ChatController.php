@@ -81,8 +81,6 @@ class ChatController extends Controller
     		{
                 $this->model = $existingChats;
                 $chatId = $this->model->id;
-                $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId, 'signature'=>$inputs['signature']];
-                event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
     			return $this->sendResponse();
     		}
     	}
@@ -96,8 +94,6 @@ class ChatController extends Controller
     		{
 
                 $chatId = $this->createChatRoom($inputs, $profileIds);
-                $messageInfo = ['chat_id'=>$chatId, 'message'=>$ownerProfileId.".created a group.", 'profile_id'=>$ownerProfileId, 'type'=>1];
-                event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
                 if($request->has('image'))
                 {
                     $this->uploadImage($request, $chatId);
