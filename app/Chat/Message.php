@@ -47,7 +47,9 @@ class Message extends Model
             $action[2] = is_null($action[2]) ? null : \App\Chat\Profile::where('id',$action[2])->first();
             $message->headerAction = $action;
            }
-           event(new \App\Events\Chat\Message($message,request()->user()->profile));
+           if ($message->type == 0 ) {
+                event(new \App\Events\Chat\Message($message,request()->user()->profile));   
+           }
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }

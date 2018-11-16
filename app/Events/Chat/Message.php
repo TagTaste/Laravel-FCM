@@ -33,6 +33,5 @@ class Message
         $this->image = $message->fileUrl;
         $this->profile = $profile;
         $this->headerAction = $message->headerAction;
-    
     }
 }
