@@ -187,7 +187,7 @@ class MessageController extends Controller
         {
             $file = $request->file;
             $storeFile = [];
-            $imageFormat = ['JPG','PNG','JPEG','GIF'];
+            $imageFormat = ['jpg','png','jpeg','gif'];
                 $ext = $file->getClientOriginalExtension();
                 $originalName = $file->getClientOriginalName();
                 $fileName = str_random("32") . ".".$ext;
@@ -220,9 +220,9 @@ class MessageController extends Controller
                     else
                         $response['meta'] = ["mime"=>$file->getClientMimeType(),"size"=>$file->getClientSize()/(1024*1024)];
                 }
-    
-                     $file_meta = ["original_name"=>$originalName, "original_link"=>$response['original_photo'], "meta"=>$response['meta']];
-                 $this->model = $file_meta;
+
+                $file_meta = ["original_name"=>$originalName, "original_link"=>$response['original_photo'], "meta"=>$response['meta'],'signature'=>$request->input('signature')];
+                $this->model = $file_meta;
             return $this->sendResponse();       
         }
 
