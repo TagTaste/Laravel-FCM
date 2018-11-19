@@ -146,7 +146,7 @@ class Message extends Model
 
             switch ($messageString[1]) {
                 case 1:
-                    return $messageString[0]." created a group ".$this->name;
+                    return $messageString[0]." created group ".$this->name;
                     break;
                 
                 case 2:
@@ -171,21 +171,21 @@ class Message extends Model
 
                 case 7:
                     if ($messageString[0]=="You") {
-                        return $messageString[0]." are admin now";   
+                        return $messageString[0]." are now an admin";
                     }
                     else
                     {
-                        return $messageString[0]." is admin now";
+                        return $messageString[0]." is now an admin";
                     }
                     break;
 
                 case 8:
                     if ($messageString[0]=="You") {
-                        return $messageString[0]." are removed as admin";
+                        return $messageString[0]." have been removed as an admin";
                     }
                     else
                     {
-                        return $messageString[0]." is removed as admin";
+                        return $messageString[0]." has been removed as an admin";
                     }
                     break;
                 default:
