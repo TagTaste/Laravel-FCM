@@ -103,7 +103,7 @@ class MessageController extends Controller
 
             if(isset($messageId))
             {
-                $members = Chat\Member::where('chat_id',$chatId)->whereNull('deleted_at')->pluck('profile_id');
+                $members = Chat\Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
                 foreach ($members as $profileId) {
                     if($profileId == $loggedInProfileId)
                     {
