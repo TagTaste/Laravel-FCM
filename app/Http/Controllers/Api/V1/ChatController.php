@@ -162,7 +162,7 @@ class ChatController extends Controller
     	$key = $request->input('k');
     	 $loggedInProfileId = $request->user()->profile->id;
     	$data['groups'] = Chat::whereHas('members',function($query) use ($loggedInProfileId){
-    		$query->where('profile_id',$loggedInProfileId);
+    		$query->where('profile_id',$loggedInProfileId)->withTrashed();
     	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
 
     	$profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
