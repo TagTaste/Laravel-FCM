@@ -160,7 +160,7 @@ class MemberController extends Controller
 
     protected function isAdmin($chatId,$profileId)
     {
-    	return Member::where('profile_id',$profileId)->where('chat_id',$chatId)->where('is_admin',1)->exists();
+    	return Member::where('profile_id',$profileId)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('deleted_at')->exists();
     }
 
     protected function isMember($profileId, $chatId)
