@@ -207,8 +207,8 @@ class MessageController extends Controller
                 $meta = getimagesize($file);
                 $response['meta']['width'] = $meta[0];
                 $response['meta']['height'] = $meta[1];
+                $response['meta']['mime'] = $response['mime'];
                 $response['meta']['tiny_photo'] = $response['tiny_photo'];
-//                array_push($response['meta'], $response['tiny_photo']);
                 }
                 else
                 {   
