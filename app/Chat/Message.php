@@ -9,7 +9,8 @@ class Message extends Model
 {
     protected $table = 'chat_messages';
     
-    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id','type','file_meta','signature'];
+    protected $fillable = ['message', 'chat_id', 'profile_id', 'read_on','file','preview','parent_message_id',
+        'type','file_meta','signature'];
     
     protected $visible = ['id','message','profile_id','created_at','chat_id','profile','read_on',
         'file','preview','read','parentMessage','headerMessage','messageType', 'file_meta','signature','chatInfo','headerAction'];
