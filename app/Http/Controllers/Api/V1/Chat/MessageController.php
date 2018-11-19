@@ -204,7 +204,9 @@ class MessageController extends Controller
                 })->blur(1)->stream('jpg',70);
                 \Storage::disk('s3')->put($tinyImagePath, (string) $thumbnail,['visibility'=>'public']);
                 $response['tiny_photo'] = \Storage::url($tinyImagePath);
-                $response['meta'] = getimagesize($file);
+//                $response['meta'] = getimagesize($file);
+                list($width, $height, $type, $attr) = getimagesize($file);
+                dd($width);
                 array_push($response['meta'], $response['tiny_photo']);
                 }
                 else
