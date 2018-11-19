@@ -117,6 +117,16 @@ class MemberController extends Controller
     	{
            	$profileIds = [$profileIds];
         }
+        $profileIdsExists = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->whereNull('deleted_at')->exists();
+    	if($profileIdsExists)
+        {
+            return $this->sendError('This user cannot perform this action');
+        }
+        $checkAdmin = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->where('is_admin',1)->exists();
+        if($checkAdmin)
+        {
+            return $this->sendError('This user already admin');
+        }
         $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
 
 
