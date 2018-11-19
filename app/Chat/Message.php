@@ -170,11 +170,11 @@ class Message extends Model
 
                 case 7:
                     if ($messageString[0]=="You") {
-                        return $messageString[0]." are added as admin by ".$messageString[2];   
+                        return $messageString[0]." are admin now";   
                     }
                     else
                     {
-                        return $messageString[0]." is added as admin by ".$messageString[2];
+                        return $messageString[0]." is admin now";
                     }
                     break;
 
