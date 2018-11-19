@@ -96,10 +96,19 @@ class MessageController extends Controller
             {
                 $preview = null;
             }
-            $fileMeta = $request->input('file_meta') == null ? null :  $request->input('file_meta'); 
+
+            if(!isset($inputs['file']) || empty($inputs['file']) || $inputs['file'] == '')
+            {
+                $inputs['file'] = null;
+            }
+            if(!isset($inputs['file_meta']) || empty($inputs['file_meta']) || $inputs['file_meta'] == '')
+            {
+                $inputs['file_meta'] = null;
+            }
             $this->model = Message::create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId,
                 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId,
-                'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$request->input('file'),'file_meta'=>$fileMeta]);
+                'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
+                'file_meta'=>$inputs['file_meta']]);
             $messageId = $this->model->id;
 
             if(isset($messageId))
