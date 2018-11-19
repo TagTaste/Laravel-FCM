@@ -47,6 +47,7 @@ class CurrentStatusReview extends Command
                 }
                 $currentstatus = \DB::table('collaborate_tasting_user_review')->where('batch_id',$model->batch_id)
                     ->where('profile_id',$model->profile_id)->orderBy('id', 'desc')->first();
+                echo "profile id ".$model->profile_id." batch id ".$model->batch_id." current status .".$currentstatus;
                 if(isset($currentStatus))
                 {
                     if($currentStatus->current_status == 3)
