@@ -90,7 +90,6 @@ class ChatController extends Controller
                     {
                         $inputs['file_meta'] = null;
                     }
-                    $this->model = Message::create();
                     $messageInfo = ['profile_id'=>$ownerProfileId, 'chat_id'=>$chatId,
                         'message'=>$request->input('message'), 'parent_message_id'=>null,
                         'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
