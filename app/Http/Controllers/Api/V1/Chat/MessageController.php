@@ -104,7 +104,6 @@ class MessageController extends Controller
             {
                 $inputs['file_meta'] = null;
             }
-            \Log::info($inputs);
             $this->model = Message::create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId,
                 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId,
                 'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
