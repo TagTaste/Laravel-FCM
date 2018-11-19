@@ -187,7 +187,7 @@ class MessageController extends Controller
         {
             $file = $request->file;
             $storeFile = [];
-            $imageFormat = ['jpg','png','jpeg','gif'];
+            $imageFormat = ['jpg','png','jpeg','gif','JPG','PNG','JPEG','GIF'];
                 $ext = $file->getClientOriginalExtension();
                 $originalName = $file->getClientOriginalName();
                 $fileName = str_random("32") . ".".$ext;
