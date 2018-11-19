@@ -98,7 +98,7 @@ class MessageController extends Controller
             }
             $this->model = Message::create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId,
                 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId,
-                'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$request->input('file'),'file'=>$request->input('file_meta')]);
+                'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$request->input('file'),'file_meta'=>$request->input('file_meta')]);
             $messageId = $this->model->id;
 
             if(isset($messageId))
