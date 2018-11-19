@@ -205,7 +205,6 @@ class MessageController extends Controller
                 \Storage::disk('s3')->put($tinyImagePath, (string) $thumbnail,['visibility'=>'public']);
                 $response['tiny_photo'] = \Storage::url($tinyImagePath);
                 $meta = getimagesize($file);
-                $meta = $meta->toArray();
                 $response['meta']['width'] = $meta[0];
                 $response['meta']['height'] = $meta[1];
                 $response['meta']['tiny_photo'] = $response['tiny_photo'];
