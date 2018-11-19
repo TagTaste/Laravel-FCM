@@ -91,13 +91,12 @@ class MessageController extends Controller
                 $inputs['preview']['image'] = $resp;
                 }
                 $preview = $inputs['preview'];
-                $fileMeta = $request->input('file_meta');
             }
             else
             {
                 $preview = null;
-                $fileMeta = null;
             }
+            $fileMeta = $request->input('file_meta') == null ? null :  $request->input('file_meta'); 
             $this->model = Message::create(['profile_id'=>$loggedInProfileId, 'chat_id'=>$chatId,
                 'message'=>$request->input('message'), 'parent_message_id'=>$parentMessageId,
                 'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$request->input('file'),'file_meta'=>$fileMeta]);
