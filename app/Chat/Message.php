@@ -18,7 +18,7 @@ class Message extends Model
     
     protected $touches = ['chat'];
 
-    protected $appends = ['fileUrl','read','parentMessage','headerMessage','messageType','chatInfo'];
+    protected $appends = ['read','parentMessage','headerMessage','messageType','chatInfo'];
 
     //type only in group
     // 1 - when owner create a group
