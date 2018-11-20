@@ -25,6 +25,16 @@ class Chat extends Model
 
     protected $isEnabled = true;
 
+    public static function boot()
+    {
+        self::created(function(Model $chat){
+
+            //is there a better way?
+           $chat->load('profile');
+           \Redis::publish("message",$chat->toJson());
+        });
+    }
+
     public function members()
     {
         return $this->hasMany( Member::class);
