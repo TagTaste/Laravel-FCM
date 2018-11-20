@@ -354,6 +354,7 @@ class ChatController extends Controller
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
+            \Redis::sAdd("online", $profileId);
         return $this->sendResponse();
     }
 
