@@ -18,6 +18,13 @@ class Member extends Model
     protected $visible = ['profile','is_admin','is_single','created_at','deleted_at','exited_on','last_seen','deleted_at'];
     
     protected $with = ['profile'];
+
+    public static function boot()
+    {
+        self::created(function(Model $member){
+           //\Redis::publish("new-chat-".request()->user()->profile->id,$member->toJson());
+        });   
+    }
     
     public function chat()
     {

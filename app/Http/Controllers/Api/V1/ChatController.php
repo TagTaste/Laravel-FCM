@@ -324,7 +324,8 @@ class ChatController extends Controller
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        $this->model->update(['image'=>$file_url]);
+        $this->model = $this->model->update(['image'=>$file_url]);
+
 
     }
 
