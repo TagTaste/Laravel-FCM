@@ -72,8 +72,6 @@ class MessageController extends Controller
     public function store(Request $request, $chatId)
     {   
         $inputs = $request->all();
-        \Log::info("message is here new in backend ");
-        \Log::info($inputs);
         $loggedInProfileId = $request->user()->profile->id;
         $checkExist = \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->exists();
         if($checkExist)
@@ -126,6 +124,9 @@ class MessageController extends Controller
                     }
                 }
                 $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
+                if ($this->model->type == 0 ) {
+                    event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
+                }
                 return $this->sendResponse();
             }
         
