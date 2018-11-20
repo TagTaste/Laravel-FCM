@@ -204,7 +204,6 @@ class Message extends Model
         {
             $action = explode('.', $this->message);
             $data = [];
-            dd($action);
             if(isset($action[2]) && isset($action[0]) && !is_null($action[2]) && !is_null($action[0]))
             {
                 $data = ['actionTakenBy'=> json_decode(\Redis::get("profile:small:".$action[0])),'actionedOn'=>json_decode(\Redis::get("profile:small:".$action[2]))] ;
