@@ -64,23 +64,48 @@ class ChatController extends Controller
 
     		if($existingChats === null)
     		{
-    		    if(isset($message) && !is_null($message))
-                {
-                    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
-                    $messageInfo = ['chat_id'=>$chatId, 'message'=>$message, 'profile_id'=>$ownerProfileId, 'signature'=>$inputs['signature']];
-                    event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
-                    return $this->sendResponse();
-                }
-                else
+    		    if(!$request->has('message') && !$request->has('preview') && !$request->has('file'))
                 {
                     return $this->sendError("Please enter message");
                 }
+    		    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
+    		    $preview = $request->input('preview');
+                if(isset($preview) && !empty($preview))
+                {
+                    if(isset($preview['image']) && !empty($preview['image'])){
+                        $image = $this->getExternalImage($preview['image'],$ownerProfileId);
+                        $s3 = \Storage::disk('s3');
+                        $filePath = 'p/' . $ownerProfileId . "/ci";
+                        $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                        $preview['image'] = $resp;
+                    }
+                    $preview = json_encode($preview);
+                }
+                else
+                {
+                    $preview = null;
+                }
+                $file = null;
+                $fileMeta = null;
+                if($request->has('file') && is_null($request->input('file')))
+                {
+                    $file = $request->input('file');
+                }
+                if($request->has('file_meta') && is_null($request->input('file_meta')))
+                {
+                    $fileMeta = json_encode($request->input('file_meta'));
+                }
+                $messageInfo = ['profile_id'=>$ownerProfileId, 'chat_id'=>$chatId,
+                    'message'=>$request->input('message'), 'parent_message_id'=>null,
+                    'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$file,
+                    'file_meta'=>$fileMeta];
+                event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+                return $this->sendResponse();
 
     		}
     		else
     		{
                 $this->model = $existingChats;
-                $chatId = $this->model->id;
     			return $this->sendResponse();
     		}
     	}

@@ -19,7 +19,7 @@ class Message extends Model
     
     protected $touches = ['chat'];
 
-    protected $appends = ['read','parentMessage','headerMessage','messageType','chatInfo'];
+    protected $appends = ['read','parentMessage','headerMessage','messageType','chatInfo','headerAction'];
 
     //type only in group
     // 1 - when owner create a group
@@ -38,19 +38,6 @@ class Message extends Model
 
             //is there a better way?
            $message->load('profile');
-           if($message->type != 0)
-           {
-            $message->headerAction = "hello";
-            $action = [];
-            $action = explode('.', $message->message);
-            $action[0] = \App\Chat\Profile::where('id',$action[0])->first();
-            $action[1] = $message->type;
-            $action[2] = is_null($action[2]) ? null : \App\Chat\Profile::where('id',$action[2])->first();
-            $message->headerAction = $action;
-           }
-           if ($message->type == 0 ) {
-                event(new \App\Events\Chat\Message($message,request()->user()->profile));   
-           }
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
@@ -209,6 +196,25 @@ class Message extends Model
     {
             $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image','chat_type')->first();
         return $chat;
+    }
+
+    public function getHeaderActionAttribute()
+    {
+        if($this->type != 0)
+        {
+            $action = explode('.', $this->message);
+            $data = [];
+            if(isset($action[2]) && isset($action[0]) && !is_null($action[2]) && !is_null($action[0]))
+            {
+                $data = ['actionTakenBy'=> json_decode(\Redis::get("profile:small:".$action[0])),'actionedOn'=>json_decode(\Redis::get("profile:small:".$action[2]))] ;
+            }
+            else if(isset($action[0]) && !is_null($action[0]))
+            {
+                $data = ['actionTakenBy' => json_decode(\Redis::get("profile:small:".$action[0]))];
+            }
+            return ['actionAbleProfiles'=>$data,'action'=>$this->type];
+        }
+        return null;
     }
 
 }
