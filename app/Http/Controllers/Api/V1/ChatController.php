@@ -69,33 +69,36 @@ class ChatController extends Controller
                     return $this->sendError("Please enter message");
                 }
     		    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
-                if(isset($inputs['preview']) && !empty($inputs['preview']))
+    		    $preview = $request->input('preview');
+                if(isset($preview) && !empty($preview))
                 {
-                    if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                        $image = $this->getExternalImage($inputs['preview']['image'],$ownerProfileId);
+                    if(isset($preview['image']) && !empty($preview['image'])){
+                        $image = $this->getExternalImage($preview['image'],$ownerProfileId);
                         $s3 = \Storage::disk('s3');
                         $filePath = 'p/' . $ownerProfileId . "/ci";
                         $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                        $inputs['preview']['image'] = $resp;
+                        $preview['image'] = $resp;
                     }
-                    $preview = $inputs['preview'];
+                    $preview = json_encode($preview);
                 }
                 else
                 {
                     $preview = null;
                 }
-                if(!isset($inputs['file']) || empty($inputs['file']) || $inputs['file'] == '')
+                $file = null;
+                $fileMeta = null;
+                if($request->has('file') && is_null($request->input('file')))
                 {
-                    $inputs['file'] = null;
+                    $file = $request->input('file');
                 }
-                if(!isset($inputs['file_meta']) || empty($inputs['file_meta']) || $inputs['file_meta'] == '')
+                if($request->has('file_meta') && is_null($request->input('file_meta')))
                 {
-                    $inputs['file_meta'] = null;
+                    $fileMeta = json_encode($request->input('file_meta'));
                 }
                 $messageInfo = ['profile_id'=>$ownerProfileId, 'chat_id'=>$chatId,
                     'message'=>$request->input('message'), 'parent_message_id'=>null,
-                    'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
-                    'file_meta'=>$inputs['file_meta']];
+                    'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$file,
+                    'file_meta'=>$fileMeta];
                 event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
                 return $this->sendResponse();
 
@@ -103,7 +106,6 @@ class ChatController extends Controller
     		else
     		{
                 $this->model = $existingChats;
-                $chatId = $this->model->id;
     			return $this->sendResponse();
     		}
     	}
