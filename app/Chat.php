@@ -32,11 +32,12 @@ class Chat extends Model
 
     public function getProfilesAttribute()
     {
-        if($this->chat_type === 1)
-        {
-            return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
-        }
-        return null;
+        // if($this->chat_type === 1)
+        // {
+        //     return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
+        // }
+        // return null;
+        return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
 
     }
 
