@@ -72,7 +72,7 @@ class Chat extends Model
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.recepient_id',request()->user()->profile->id)
                 ->where('message_recepients.chat_id','=',$this->id)
-                ->whereNull('message_recepients.deleted_on')->where('type',0)->first();
+                ->whereNull('message_recepients.deleted_on')->first();
         }
     }
 
