@@ -19,7 +19,7 @@ class Message extends Model
     
     protected $touches = ['chat'];
 
-    protected $appends = ['read','parentMessage','headerMessage','messageType','chatInfo'];
+    protected $appends = ['read','parentMessage','headerMessage','messageType','chatInfo','headerAction'];
 
     //type only in group
     // 1 - when owner create a group
@@ -196,6 +196,18 @@ class Message extends Model
     {
             $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image','chat_type')->first();
         return $chat;
+    }
+
+    public function getHeaderActionAttribute()
+    {
+        if($this->type != 0)
+        {
+            $action = explode('.', $this->message);
+            $actionAbleProfileIds = ["profile:small:".$action[0],"profile:small:".$action[2]];
+            $profile = \Redis::mget($actionAbleProfileIds);
+            return ['actionAbleProfiles'=>$profile,'action'=>$this->type];
+        }
+        return null;
     }
 
 }
