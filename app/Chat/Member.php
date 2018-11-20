@@ -22,7 +22,7 @@ class Member extends Model
     public static function boot()
     {
         self::created(function(Model $member){
-           //\Redis::publish("new-chat-".request()->user()->profile->id,$member->toJson());
+            \Redis::publish("new-chat-".request()->user()->profile->id,$member->toJson());
         });   
     }
     
