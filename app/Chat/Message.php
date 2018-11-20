@@ -204,12 +204,11 @@ class Message extends Model
         {
             $action = explode('.', $this->message);
             $actionAbleProfileIds = ["profile:small:".$action[0],"profile:small:".$action[2]];
-            $profiles = \Redis::mget($actionAbleProfileIds);
             $data = [];
-            foreach($profiles as &$profile){
-                if(empty($profile)){
+            foreach($actionAbleProfileIds as $profileId){
+                $profile = \Redis::get("profile:small:".$profileId);
+                if(is_null($profile))
                     continue;
-                }
                 $profile = json_decode($profile);
                 $data[] = $profile;
             }
