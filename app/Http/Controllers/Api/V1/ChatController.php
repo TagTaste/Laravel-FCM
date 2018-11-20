@@ -64,43 +64,40 @@ class ChatController extends Controller
 
     		if($existingChats === null)
     		{
-    		    if(isset($message) && !is_null($message))
-                {
-                    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
-                    if(isset($inputs['preview']) && !empty($inputs['preview']))
-                    {
-                        if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                            $image = $this->getExternalImage($inputs['preview']['image'],$ownerProfileId);
-                            $s3 = \Storage::disk('s3');
-                            $filePath = 'p/' . $ownerProfileId . "/ci";
-                            $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                            $inputs['preview']['image'] = $resp;
-                        }
-                        $preview = $inputs['preview'];
-                    }
-                    else
-                    {
-                        $preview = null;
-                    }
-                    if(!isset($inputs['file']) || empty($inputs['file']) || $inputs['file'] == '')
-                    {
-                        $inputs['file'] = null;
-                    }
-                    if(!isset($inputs['file_meta']) || empty($inputs['file_meta']) || $inputs['file_meta'] == '')
-                    {
-                        $inputs['file_meta'] = null;
-                    }
-                    $messageInfo = ['profile_id'=>$ownerProfileId, 'chat_id'=>$chatId,
-                        'message'=>$request->input('message'), 'parent_message_id'=>null,
-                        'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
-                        'file_meta'=>$inputs['file_meta']];
-                    event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
-                    return $this->sendResponse();
-                }
-                else
+    		    if(!$request->has('message') && !$request->has('preview') && !$request->has('file'))
                 {
                     return $this->sendError("Please enter message");
                 }
+    		    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
+                if(isset($inputs['preview']) && !empty($inputs['preview']))
+                {
+                    if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
+                        $image = $this->getExternalImage($inputs['preview']['image'],$ownerProfileId);
+                        $s3 = \Storage::disk('s3');
+                        $filePath = 'p/' . $ownerProfileId . "/ci";
+                        $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                        $inputs['preview']['image'] = $resp;
+                    }
+                    $preview = $inputs['preview'];
+                }
+                else
+                {
+                    $preview = null;
+                }
+                if(!isset($inputs['file']) || empty($inputs['file']) || $inputs['file'] == '')
+                {
+                    $inputs['file'] = null;
+                }
+                if(!isset($inputs['file_meta']) || empty($inputs['file_meta']) || $inputs['file_meta'] == '')
+                {
+                    $inputs['file_meta'] = null;
+                }
+                $messageInfo = ['profile_id'=>$ownerProfileId, 'chat_id'=>$chatId,
+                    'message'=>$request->input('message'), 'parent_message_id'=>null,
+                    'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
+                    'file_meta'=>$inputs['file_meta']];
+                event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+                return $this->sendResponse();
 
     		}
     		else
