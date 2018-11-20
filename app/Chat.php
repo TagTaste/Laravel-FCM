@@ -53,7 +53,7 @@ class Chat extends Model
 
     public function getLatestMessagesAttribute()
     {
-        $memberOfChat = \DB::table('')->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        $memberOfChat = \DB::table('chat_members')->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
         if(!$memberOfChat){
             return;
         }
