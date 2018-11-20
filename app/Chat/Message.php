@@ -38,19 +38,6 @@ class Message extends Model
 
             //is there a better way?
            $message->load('profile');
-           if($message->type != 0)
-           {
-            $message->headerAction = "hello";
-            $action = [];
-            $action = explode('.', $message->message);
-            $action[0] = \App\Chat\Profile::where('id',$action[0])->first();
-            $action[1] = $message->type;
-            $action[2] = is_null($action[2]) ? null : \App\Chat\Profile::where('id',$action[2])->first();
-            $message->headerAction = $action;
-           }
-           if ($message->type == 0 ) {
-                event(new \App\Events\Chat\Message($message,request()->user()->profile));   
-           }
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
     }
