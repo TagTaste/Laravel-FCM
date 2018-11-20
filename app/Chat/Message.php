@@ -203,14 +203,15 @@ class Message extends Model
         if($this->type != 0)
         {
             $action = explode('.', $this->message);
-            $actionAbleProfileIds = ["profile:small:".$action[0],"profile:small:".$action[2]];
             $data = [];
-            foreach($actionAbleProfileIds as $profileId){
-                $profile = \Redis::get("profile:small:".$profileId);
-                if(is_null($profile))
-                    continue;
-                $profile = json_decode($profile);
-                $data[] = $profile;
+            dd($action);
+            if(isset($action[2]) && isset($action[0]) && !is_null($action[2]) && !is_null($action[0]))
+            {
+                $data = ['actionTakenBy'=> json_decode(\Redis::get("profile:small:".$action[0])),'actionedOn'=>json_decode(\Redis::get("profile:small:".$action[2]))] ;
+            }
+            else if(isset($action[0]) && !is_null($action[0]))
+            {
+                $data = ['actionTakenBy' => json_decode(\Redis::get("profile:small:".$action[0]))];
             }
             return ['actionAbleProfiles'=>$data,'action'=>$this->type];
         }
