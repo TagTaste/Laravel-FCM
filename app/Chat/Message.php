@@ -211,7 +211,7 @@ class Message extends Model
                     continue;
                 }
                 $profile = json_decode($profile);
-                $followerData[] = $profile;
+                $data[] = $profile;
             }
             return ['actionAbleProfiles'=>$data,'action'=>$this->type];
         }
