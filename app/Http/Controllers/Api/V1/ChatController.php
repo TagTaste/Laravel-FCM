@@ -65,6 +65,9 @@ class ChatController extends Controller
     		if($existingChats === null)
     		{
     		    if(!$request->has('message') && !$request->has('preview') && !$request->has('file'))
+                {
+                    return $this->sendError("Please enter message");
+                }
     		    $chatId = $this->createChatRoom($inputs,$profileIds,$message);
                 if(isset($inputs['preview']) && !empty($inputs['preview']))
                 {
