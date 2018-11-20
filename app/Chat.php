@@ -25,16 +25,6 @@ class Chat extends Model
 
     protected $isEnabled = true;
 
-    public static function boot()
-    {
-        self::created(function(Model $chat){
-
-            //is there a better way?
-           $chat->load('profile');
-           \Redis::publish("message",$chat->toJson());
-        });
-    }
-
     public function members()
     {
         return $this->hasMany( Member::class);
@@ -63,7 +53,7 @@ class Chat extends Model
 
     public function getLatestMessagesAttribute()
     {
-        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        $memberOfChat = \DB::table('')->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
         if(!$memberOfChat){
             return;
         }
