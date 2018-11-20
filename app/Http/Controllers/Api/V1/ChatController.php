@@ -367,4 +367,11 @@ class ChatController extends Controller
         return $this->sendResponse();
     }
 
+    public function disconnect(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $this->model = \Redis::sRem("online", $profileId);
+        return $this->sendResponse();
+    }
+
 }

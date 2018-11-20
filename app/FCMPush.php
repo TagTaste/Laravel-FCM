@@ -70,7 +70,7 @@ class FCMPush extends Model
         $notification = $notificationBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
-        if(count($token))
+        if(count($token) && !\Redis::sIsMember("online",$profileId))
         {   
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
