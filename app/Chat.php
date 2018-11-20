@@ -60,17 +60,19 @@ class Chat extends Model
 
         if(isset($memberOfChat->deleted_at))
         {
-            return \DB::table('chat_messages')->join('message_recepients', function($query){
+            return Message::join('message_recepients', function($query){
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.chat_id','=',$this->id)
-                ->where('message_recepients.recepient_id',request()->user()->profile->id)->whereNull('message_recepients.deleted_on')->first();
+                ->where('message_recepients.recepient_id',request()->user()->profile->id)
+                ->whereNull('message_recepients.deleted_on')->first();
         }
         else
         {
-            return \DB::table('chat_messages')->join('message_recepients', function($query){
+            return Message::join('message_recepients', function($query){
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.recepient_id',request()->user()->profile->id)
-                ->where('message_recepients.chat_id','=',$this->id)->whereNull('message_recepients.deleted_on')->where('type',0)->first();
+                ->where('message_recepients.chat_id','=',$this->id)
+                ->whereNull('message_recepients.deleted_on')->first();
         }
     }
 
@@ -119,7 +121,8 @@ class Chat extends Model
 
     public function getIsEnabledAttribute()
     {
-       return \App\Chat\Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)->whereNull('deleted_at')->exists();
+       return \App\Chat\Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)
+           ->whereNull('deleted_at')->exists();
     }
 }
 

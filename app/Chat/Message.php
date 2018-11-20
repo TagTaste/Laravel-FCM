@@ -83,7 +83,8 @@ class Message extends Model
         {
             return false;
         }
-        $meta = \DB::table('message_recepients')->where('message_id',$this->id)->where('recepient_id','!=',request()->user()->profile->id)->whereNull('read_on')->exists();
+        $meta = \DB::table('message_recepients')->where('message_id',$this->id)->where('recepient_id','!=',request()->user()->profile->id)
+            ->whereNull('read_on')->exists();
         return !$meta;
     }
 
@@ -194,7 +195,7 @@ class Message extends Model
 
     public function getChatInfoAttribute()
     {
-            $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image','chat_type')->first();
+        $chat = \DB::table('chats')->where('id',$this->chat_id)->select('id','name','image','chat_type')->first();
         return $chat;
     }
 
