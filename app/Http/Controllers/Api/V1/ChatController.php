@@ -106,7 +106,6 @@ class ChatController extends Controller
     		else
     		{
                 $this->model = $existingChats;
-                $chatId = $this->model->id;
     			return $this->sendResponse();
     		}
     	}
