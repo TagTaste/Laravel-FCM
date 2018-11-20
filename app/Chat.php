@@ -60,15 +60,15 @@ class Chat extends Model
 
         if(isset($memberOfChat->deleted_at))
         {
-            return \DB::table('chat_messages')->join('message_recepients', function($query){
+            return Message::join('message_recepients', function($query){
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.chat_id','=',$this->id)
                 ->where('message_recepients.recepient_id',request()->user()->profile->id)
-                ->whereNull('message_recepients.deleted_on')->where('type',0)->first();
+                ->whereNull('message_recepients.deleted_on')->first();
         }
         else
         {
-            return \DB::table('chat_messages')->join('message_recepients', function($query){
+            return Message::join('message_recepients', function($query){
                 $query->on('message_recepients.message_id','=','chat_messages.id');
             })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.recepient_id',request()->user()->profile->id)
                 ->where('message_recepients.chat_id','=',$this->id)
