@@ -293,7 +293,7 @@ class ChatController extends Controller
                 $isAdmin = 0;
             $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
             
-            \Redis::publish("new-chat", $chatId,$profileId);
+            \Redis::publish("new-chat", '["chatId"=>$chatId, "pId"=>$profileId]');
         }
 
         $this->model->members()->insert($chatMembers);
