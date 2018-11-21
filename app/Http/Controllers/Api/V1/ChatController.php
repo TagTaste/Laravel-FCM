@@ -101,6 +101,7 @@ class ChatController extends Controller
                     'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$file,
                     'file_meta'=>$fileMeta];
                 event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+                \Log::info($this->model);
                 return $this->sendResponse();
 
     		}
