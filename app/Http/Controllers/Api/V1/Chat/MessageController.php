@@ -84,6 +84,7 @@ class MessageController extends Controller
             }
             if(isset($inputs['preview']) && !empty($inputs['preview']))
             {
+                $inputs['preview'] = json_decode($inputs['preview'],true);
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image']))
                 {
                     $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
