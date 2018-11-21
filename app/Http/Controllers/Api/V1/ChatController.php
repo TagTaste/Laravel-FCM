@@ -292,7 +292,8 @@ class ChatController extends Controller
             else
                 $isAdmin = 0;
             $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
-            \Redis::publish("new-chat", $this->model->toJson());
+            
+            \Redis::publish("new-chat", $chatId,$profileId);
         }
 
         $this->model->members()->insert($chatMembers);
@@ -301,17 +302,6 @@ class ChatController extends Controller
             $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$inputs['profile_id'],'type'=>1, 'message'=>$inputs['profile_id'].'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
-        // else
-        // {
-        //     $messageInfo = ['chat_id'=>$chatId,'message'=>$message,'profile_id'=>$inputs['profile_id'],'type'=>0];
-        // }
-        //$model=\App\Chat\Message::create($messageInfo);
-        // $messageRecepients = [];
-        // foreach ($profileIds as $profileId)
-        // {
-        //     $messageRecepients = ['message_id'=>$model->id, 'recepient_id'=>$profileId, 'chat_id'=>$chatId];
-        // }
-        // return \DB::table('message_recepients')->insert($messageRecepients);
         return $chatId;
     }
 

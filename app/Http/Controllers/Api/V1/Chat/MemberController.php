@@ -98,7 +98,6 @@ class MemberController extends Controller
         $type = $loggedInProfileId == $profileId ? 4 : 3;
         $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
         event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
-
     	$this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
 
     	return $this->sendResponse();
