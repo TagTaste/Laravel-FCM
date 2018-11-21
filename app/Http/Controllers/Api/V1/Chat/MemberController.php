@@ -181,13 +181,15 @@ class MemberController extends Controller
     {
         $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $loggedInProfileId = $request->user()->profile->id ;
-
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $ids = [];
+        $ids = []; $ids2 = [];
+        foreach ($chatProfileIds as $chatProfileId)
+            $ids2[] = $chatProfileId;
         foreach ($profileIds as $profileId)
-            $ids[] = $profileId;
-        $profileIds = array_diff($ids,$chatProfileIds);
+            $ids[] = (int)$profileId;
+
+        $profileIds = array_diff($ids,$ids2);
         $count = count($profileIds);
         if($count > 0 && \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
             $count = $count - 1;
@@ -227,9 +229,17 @@ class MemberController extends Controller
 
     public function getMembersToSearch(Request $request, $chatId)
     {
-        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
         $loggedInProfileId = $request->user()->profile->id;
+        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
+        $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $ids = []; $ids2 = [];
+        foreach ($chatProfileIds as $chatProfileId)
+            $ids2[] = $chatProfileId;
+        foreach ($profileIds as $profileId)
+            $ids[] = (int)$profileId;
+
+        $profileIds = array_diff($ids,$ids2);
         $profileIds = array_diff($profileIds,$chatProfileIds);
         $query = $request->input('term');
 
