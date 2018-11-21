@@ -77,9 +77,9 @@ class MessageController extends Controller
         if($checkExist)
         {
             $parentMessageId = $request->input('parentMessageId')!=null ? $request->input('parentMessageId') : null;
-            if(!isset($inputs['message']))
+            if(!$request->has('message') && !$request->has('preview') && !$request->has('file'))
             {
-                return $this->sendError("Message Field cannot be null");
+                return $this->sendError("Please enter message");
             }
             if(isset($inputs['preview']) && !empty($inputs['preview']))
             {
