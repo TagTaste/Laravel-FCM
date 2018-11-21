@@ -77,12 +77,13 @@ class MessageController extends Controller
         if($checkExist)
         {
             $parentMessageId = $request->input('parentMessageId')!=null ? $request->input('parentMessageId') : null;
-            if(!isset($inputs['message']))
+            if(!$request->has('message') && !$request->has('preview') && !$request->has('file'))
             {
-                return $this->sendError("Message Field cannot be null");
+                return $this->sendError("Please enter message");
             }
             if(isset($inputs['preview']) && !empty($inputs['preview']))
             {
+                $inputs['preview'] = json_encode($inputs['preview'],true);
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
                 $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
                 $s3 = \Storage::disk('s3');
@@ -90,7 +91,7 @@ class MessageController extends Controller
                 $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
                 $inputs['preview']['image'] = $resp;
                 }
-                $preview = $inputs['preview'];
+                $preview = json_decode($inputs['preview']);
             }
             else
             {
