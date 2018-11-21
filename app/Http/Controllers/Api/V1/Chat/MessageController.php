@@ -84,13 +84,15 @@ class MessageController extends Controller
             }
             if(isset($inputs['preview']) && !empty($inputs['preview']))
             {
-                $inputs['preview'] = json_decode($inputs['preview'],true);
-                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                $s3 = \Storage::disk('s3');
-                $filePath = 'p/' . $loggedInProfileId . "/ci";
-                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                $inputs['preview']['image'] = \Storage::disk('s3')->url($resp);
+                $inputs['preview'] = json_decode($inputs['preview']);
+                \Log::info($inputs['preview']);
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image']))
+                {
+                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $loggedInProfileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = \Storage::disk('s3')->url($resp);
                 }
                 $preview = json_encode($inputs['preview'],true);
             }
