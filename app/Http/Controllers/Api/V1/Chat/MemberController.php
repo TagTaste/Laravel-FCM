@@ -184,7 +184,10 @@ class MemberController extends Controller
 
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $profileIds = array_diff($profileIds,$chatProfileIds);
+        $ids = [];
+        foreach ($profileIds as $profileId)
+            $ids[] = $profileId;
+        $profileIds = array_diff($ids,$chatProfileIds);
         $count = count($profileIds);
         if($count > 0 && \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
             $count = $count - 1;
