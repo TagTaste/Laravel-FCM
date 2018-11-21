@@ -17,7 +17,7 @@ class Chat extends Model
     //protected $with = ['members'];
 
     protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
-        'unreadMessageCount','is_enabled','chat_type','is_admin'];
+        'unreadMessageCount','is_enabled','chat_type','isAdmin'];
 
     protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled','isAdmin'];
 
