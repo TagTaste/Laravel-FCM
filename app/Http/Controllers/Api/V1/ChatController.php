@@ -294,7 +294,7 @@ class ChatController extends Controller
             $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
             $obj = ['chatId'=>$chatId, 'profileId'=>$profileId];
             $obj = json_encode($obj);
-            \Redis::publish("new-chat",$obj);
+            \Redis::publish("new-chat-".$profileId,$obj);
         }
 
         $this->model->members()->insert($chatMembers);
