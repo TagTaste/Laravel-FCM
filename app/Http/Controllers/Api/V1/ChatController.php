@@ -293,7 +293,7 @@ class ChatController extends Controller
             else
                 $isAdmin = 0;
             $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
-            \Redis::publish("new-chat-".$profileId,$chatId);
+
         }
 
         $this->model->members()->insert($chatMembers);
@@ -341,6 +341,7 @@ class ChatController extends Controller
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
+        $this->model = \Redis::sAdd("online:profile:", $profileId);
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
@@ -359,7 +360,7 @@ class ChatController extends Controller
     public function disconnect(Request $request)
     {
         $profileId = $request->user()->profile->id;
-        $this->model = \Redis::sRem("online", $profileId);
+        $this->model = \Redis::sRem("online:profile:", $profileId);
         return $this->sendResponse();
     }
 

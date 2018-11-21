@@ -17,9 +17,9 @@ class Chat extends Model
     //protected $with = ['members'];
 
     protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
-        'unreadMessageCount','is_enabled','chat_type'];
+        'unreadMessageCount','is_enabled','chat_type','isAdmin','isOnline'];
 
-    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled'];
+    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled','isAdmin','isOnline'];
 
     //chat type = 1 is single chat, 0 is group chat
 
@@ -124,6 +124,18 @@ class Chat extends Model
     {
        return \App\Chat\Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)
            ->whereNull('deleted_at')->exists();
+    }
+
+    public function getIsAdminAttribute()
+    {
+        $loggedInProfileId = request()->user()->profile->id;
+        return \DB::table('chat_members')->where('chat_id',$this->id)->where('profile_id',$loggedInProfileId)->exists();
+    }
+
+    public function getIsOnlineAttribute()
+    {
+        $loggedInProfileId = request()->user()->profile->id;
+        return \Redis::sIsMember("online:profile:",$loggedInProfileId);
     }
 }
 
