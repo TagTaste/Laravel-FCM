@@ -84,6 +84,9 @@ class MessageController extends Controller
             }
             if(isset($inputs['preview']) && !empty($inputs['preview']))
             {
+                \Log::info("here");
+                \Log::info($inputs['preview']);
+
                 $inputs['preview'] = json_decode($inputs['preview']);
                 \Log::info($inputs['preview']);
                 if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image']))
