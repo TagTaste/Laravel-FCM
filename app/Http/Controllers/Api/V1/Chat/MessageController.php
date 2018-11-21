@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use App\Strategies\Paginator;
 use App\Chat;
+use Illuminate\Http\File;
 use Carbon\Carbon;
 use Illuminate\Http\Testing\MimeType;
 
@@ -83,15 +84,16 @@ class MessageController extends Controller
             }
             if(isset($inputs['preview']) && !empty($inputs['preview']))
             {
-                $inputs['preview'] = json_encode($inputs['preview'],true);
-                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
-                $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
-                $s3 = \Storage::disk('s3');
-                $filePath = 'p/' . $loggedInProfileId . "/ci";
-                $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                $inputs['preview']['image'] = $resp;
+                $inputs['preview'] = json_decode($inputs['preview'],true);
+                if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image']))
+                {
+                    $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
+                    $s3 = \Storage::disk('s3');
+                    $filePath = 'p/' . $loggedInProfileId . "/ci";
+                    $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
+                    $inputs['preview']['image'] = \Storage::disk('s3')->url($resp);
                 }
-                $preview = json_decode($inputs['preview']);
+                $preview = json_encode($inputs['preview'],true);
             }
             else
             {
@@ -325,5 +327,23 @@ class MessageController extends Controller
         $response = json_decode($response);
         $body = $response->body;
         return json_encode($body,true);
+    }
+
+    public function getExternalImage($url,$profileId){
+        $path = 'images/p/' . $profileId . "/cimages/";
+        \Storage::disk('local')->makeDirectory($path);
+        $filename = str_random(10) . ".image";
+        $saveto = storage_path("app/" . $path) .  $filename;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+        $raw=curl_exec($ch);
+        curl_close ($ch);
+
+        $fp = fopen($saveto,'a');
+        fwrite($fp, $raw);
+        fclose($fp);
+        return "app/" . $path . $filename;
     }
 }
