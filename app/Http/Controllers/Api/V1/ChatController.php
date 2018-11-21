@@ -39,6 +39,7 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info($request);
     	$ownerProfileId = $request->user()->profile->id;
     	//String[] $profileIds = request.getParameterValues("profileId");
         $profileIds = $request->input('profileId');
