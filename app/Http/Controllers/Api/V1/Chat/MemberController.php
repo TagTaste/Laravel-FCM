@@ -176,4 +176,64 @@ class MemberController extends Controller
     {
         return \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
     }
+
+    public function getMembersToAdd(Request $request, $chatId)
+    {
+        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
+        $loggedInProfileId = $request->user()->profile->id ;
+
+        $this->model = [];
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $profileIds = array_diff($profileIds,$chatProfileIds);
+        $count = count($profileIds);
+        if($count > 0 && \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId)){
+            $count = $count - 1;
+        }
+        $this->model['count'] = $count;
+        $data = [];
+
+        $page = $request->has('page') ? $request->input('page') : 1;
+        $profileIds = array_slice($profileIds ,($page - 1)*20 ,20 );
+
+        foreach ($profileIds as $key => $value)
+        {
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+        }
+
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        foreach($data as &$profile){
+            if(is_null($profile)){
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->self = false;
+        }
+        $this->model['profile'] = $data;
+        return $this->sendResponse();
+    }
+
+    public function getMembersToSearch(Request $request, $chatId)
+    {
+        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
+        $loggedInProfileId = $request->user()->profile->id;
+        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $profileIds = array_diff($profileIds,$chatProfileIds);
+        $query = $request->input('term');
+
+        $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")
+            ->whereIn('profiles.id',$profileIds)->take(15)->get();
+
+        return $this->sendResponse();
+    }
+
 }
