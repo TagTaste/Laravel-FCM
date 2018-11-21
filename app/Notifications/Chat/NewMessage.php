@@ -33,8 +33,13 @@ class NewMessage extends Notification
      * @return array
      */
     public function via($notifiable)
-    {   
-        return [FCMPush::class,'broadcast'];
+    {
+        $via = [];
+        if(isset($this->data->headerAction) && !empty($this->data->headerAction))
+            $via = ['broadcast'];
+        else
+            $via = [FCMPush::class,'broadcast'];
+        return $via;
     }
 
     /**
@@ -53,9 +58,10 @@ class NewMessage extends Notification
         $data['model'] = [
             'name' => $chat->name,
             'id' => $this->data->chatId,
-            'imageUrl' => !is_null($chat->image) ? \Storage::url($chat->image) : null,
+            'imageUrl' => !is_null($this->data->message) ? \Storage::url($chat->image) : null,
             'message'=>['id' => $this->data->id,'image'=>$this->data->image,'content'=>$this->data->message],
             'is_enabled'=>true,
+            'messageType' => is_null($this->data->message) ? 'media' : null,
             'headerAction' => $this->data->headerAction
             ];
 
@@ -65,10 +71,6 @@ class NewMessage extends Notification
             if(isset($this->data->message))
             {
                 $notification = request()->user()->name ." messaged you ".$this->data->message." on ".$chat->name." group";
-            }
-            if(isset($data['model']['headerAction']) && !empty($data['model']['headerAction']))
-            {
-                $notification = null;
             }
             else
             {
@@ -88,7 +90,6 @@ class NewMessage extends Notification
             }
         }
         $data['notification'] = $notification;
-        \Log::info($data);
         return $data;
     }
 }
