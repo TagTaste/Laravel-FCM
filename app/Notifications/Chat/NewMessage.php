@@ -58,10 +58,10 @@ class NewMessage extends Notification
         $data['model'] = [
             'name' => $chat->name,
             'id' => $this->data->chatId,
-            'imageUrl' => !is_null($this->data->message) ? \Storage::url($chat->image) : null,
+            'imageUrl' => null,
             'message'=>['id' => $this->data->id,'image'=>$this->data->image,'content'=>$this->data->message],
             'is_enabled'=>true,
-            'messageType' => is_null($this->data->message) ? 'media' : null,
+            'messageType' => isset($this->data->message) && !empty($this->data->message) ? null : 'media',
             'headerAction' => $this->data->headerAction
             ];
 
