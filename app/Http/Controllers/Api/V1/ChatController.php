@@ -295,7 +295,7 @@ class ChatController extends Controller
             $chatMembers[] = ['chat_id'=>$chatId,'profile_id'=>$profileId,'created_at'=>$this->now,'is_admin'=>$isAdmin];
             $obj = ['chatId'=>$chatId, 'profileId'=>$profileId];
             $obj = json_encode($obj);
-            \Redis::publish("new-chat",$obj);
+            \Redis::publish("new-chat-".$profileId,$obj);
         }
 
         $this->model->members()->insert($chatMembers);
@@ -317,7 +317,7 @@ class ChatController extends Controller
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        $this->model = $this->model->update(['image'=>$file_url]);
+        $this->model->update(['image'=>$file_url]);
 
 
     }
@@ -346,7 +346,6 @@ class ChatController extends Controller
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
-            \Redis::sAdd("online", $profileId);
         return $this->sendResponse();
     }
 
