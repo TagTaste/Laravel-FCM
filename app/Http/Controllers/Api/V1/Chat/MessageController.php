@@ -90,8 +90,9 @@ class MessageController extends Controller
                 $s3 = \Storage::disk('s3');
                 $filePath = 'p/' . $loggedInProfileId . "/ci";
                 $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                $inputs['preview']['image'] = \Storage::url($resp);
+                $inputs['preview']['image'] = \Storage::disk('s3')->url($resp);
                 }
+                dd($inputs['preview']);
                 $preview = json_encode($inputs['preview'],true);
             }
             else
