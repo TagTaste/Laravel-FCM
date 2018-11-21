@@ -73,8 +73,6 @@ class MessageController extends Controller
     public function store(Request $request, $chatId)
     {   
         $inputs = $request->all();
-        \Log::info("chat ids is here".$chatId);
-        \Log::info($inputs);
         $loggedInProfileId = $request->user()->profile->id;
         $checkExist = \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->exists();
         if($checkExist)
