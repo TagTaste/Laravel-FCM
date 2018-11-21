@@ -72,12 +72,13 @@ class ChatController extends Controller
     		    $preview = $request->input('preview');
                 if(isset($preview) && !empty($preview))
                 {
+                    $inputs['preview'] = json_decode($preview,true);
                     if(isset($preview['image']) && !empty($preview['image'])){
                         $image = $this->getExternalImage($preview['image'],$ownerProfileId);
                         $s3 = \Storage::disk('s3');
                         $filePath = 'p/' . $ownerProfileId . "/ci";
                         $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                        $preview['image'] = $resp;
+                        $preview['image'] = \Storage::disk('s3')->url($resp);
                     }
                     $preview = json_encode($preview);
                 }
@@ -93,7 +94,7 @@ class ChatController extends Controller
                 }
                 if($request->has('file_meta') && is_null($request->input('file_meta')))
                 {
-                    $fileMeta = json_encode($request->input('file_meta'));
+                    $fileMeta = $request->input('file_meta');
                 }
                 $messageInfo = ['profile_id'=>$ownerProfileId, 'chat_id'=>$chatId,
                     'message'=>$request->input('message'), 'parent_message_id'=>null,
@@ -316,7 +317,7 @@ class ChatController extends Controller
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
-        $this->model = $this->model->update(['image'=>$file_url]);
+        $this->model->update(['image'=>$file_url]);
 
 
     }
@@ -345,7 +346,6 @@ class ChatController extends Controller
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
             ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
-            \Redis::sAdd("online", $profileId);
         return $this->sendResponse();
     }
 
