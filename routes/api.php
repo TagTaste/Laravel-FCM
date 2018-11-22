@@ -113,6 +113,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("chats","ChatController");
                 Route::group(['namespace'=>'Chat','prefix'=>'chats/{chatId}','as'=>'chats.'],function()
                     {
+                        Route::get("getMembersToSearch","MemberController@getMembersToSearch");
+                        Route::get("getMembersToAdd","MemberController@getMembersToAdd");
                         Route::resource("members","MemberController");
                         Route::post("member/addAdmin",'MemberController@addAdmin');
                         Route::post("member/removeAdmin",'MemberController@removeAdmin');
