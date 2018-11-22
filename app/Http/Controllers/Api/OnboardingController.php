@@ -46,7 +46,7 @@ class OnboardingController extends Controller
             }
             $profileIds[$key] = "profile:small:".$value ;
         }
-
+        $data = [];
         if(count($profileIds)> 0)
         {
             $data = \Redis::mget($profileIds);
