@@ -39,7 +39,7 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('company_id',$companyId)->whereNull('deleted_at')
+        $collaborations = $this->model->where('company_id',$companyId)->where('state',1)
             ->orderBy('created_at','desc');
 
         $profileId = $request->user()->profile->id;

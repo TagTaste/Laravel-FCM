@@ -265,7 +265,7 @@ class CollaborateController extends Controller
             }
         }
 
-        if($collaborate->state == 'Expired')
+        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
         {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
