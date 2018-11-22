@@ -39,7 +39,6 @@ class ChatController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info($request);
     	$ownerProfileId = $request->user()->profile->id;
     	//String[] $profileIds = request.getParameterValues("profileId");
         $profileIds = $request->input('profileId');
@@ -102,7 +101,6 @@ class ChatController extends Controller
                     'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$file,
                     'file_meta'=>$fileMeta];
                 event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
-                \Log::info($this->model);
                 return $this->sendResponse();
 
     		}
