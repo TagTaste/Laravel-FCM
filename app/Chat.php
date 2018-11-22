@@ -129,7 +129,7 @@ class Chat extends Model
     public function getIsAdminAttribute()
     {
         $loggedInProfileId = request()->user()->profile->id;
-        return \DB::table('chat_members')->where('chat_id',$this->id)->where('profile_id',$loggedInProfileId)->exists();
+        return \DB::table('chat_members')->where('chat_id',$this->id)->where('profile_id',$loggedInProfileId)->where('is_admin',1)->exists();
     }
 
     public function getIsOnlineAttribute()
