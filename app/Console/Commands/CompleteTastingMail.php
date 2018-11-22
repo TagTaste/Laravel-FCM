@@ -40,7 +40,7 @@ class CompleteTastingMail extends Command
      */
     public function handle()
     {
-        $profileIds = \DB::table('collaborate_tasting_user_review')->whereNotIn('collaborate_id',[263,264,256])->where('current_status',3)->get()->pluck('profile_id');
+        $profileIds = \DB::table('collaborate_tasting_user_review')->whereIn('collaborate_id',[263,264,256])->where('current_status',3)->get()->pluck('profile_id');
         $userIds = Profile::whereIn('id',$profileIds)->get()->pluck('user_id');
         User::with([])->whereIn('id',$userIds)->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models) {
