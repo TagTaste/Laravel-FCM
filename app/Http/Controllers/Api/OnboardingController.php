@@ -77,10 +77,7 @@ class OnboardingController extends Controller
         // title is header in boarding
         // type is data of item is profile or company
         // ui_type = 0  is horizontal , ui_type = 1 is vertical
-        $this->model[]['title'] = "Your Selection";
-        $this->model[]['type'] = "profile";
-        $this->model[]['ui_type'] = 0;
-        $this->model[]['item'] = $profileData;
+        $this->model[] = ['title'=>'Your Selection','type'=>'profile','ui_type'=>0,'item'=>$profileData];
 
         $foundationTeamIds = [1,10,32,165,44,556,2,4,13,637,7,2245,12,6,1585,359,1467,8,1775,3379,1574,14,15,7585,1016];
 
@@ -111,15 +108,9 @@ class OnboardingController extends Controller
             $profile->self = false;
             $profileData[] = $profile;
         }
-        $this->model[]['title'] = "Foundation team";
-        $this->model[]['type'] = "profile";
-        $this->model[]['ui_type'] = 0;
-        $this->model[]['item'] = $profileData;
+        $this->model[] = ['title'=>'Foundation team','type'=>'profile','ui_type'=>0,'item'=>$profileData];
 
-        $this->model[]['title'] = "Activity Based";
-        $this->model[]['type'] = "profile";
-        $this->model[]['ui_type'] = 0;
-        $this->model[]['item'] = $profileData;
+        $this->model[] = ['title'=>'Activity Based','type'=>'profile','ui_type'=>0,'item'=>$profileData];
 
 //        $this->model['activity_based'] = $profileData; // should be later
 
@@ -140,10 +131,8 @@ class OnboardingController extends Controller
             $companyData[] = $company;
         }
 //        $this->model['company'] = $companyData;
-        $this->model[]['title'] = "Company Profile";
-        $this->model[]['type'] = "company";
-        $this->model[]['ui_type'] = 1;
-        $this->model[]['item'] = $companyData;
+        $this->model[] = ['title'=>'Company Profile','type'=>'company','ui_type'=>1,'item'=>$companyData];
+
         return $this->sendResponse();
     }
 
