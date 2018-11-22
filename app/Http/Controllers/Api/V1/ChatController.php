@@ -352,6 +352,11 @@ class ChatController extends Controller
     public function chatInfo(Request $request, $chatId)
     {
         $this->model = Chat::where('id',$chatId)->first();
+        if($this->model ==null && empty($this->model))
+        {
+            $this->model = null;
+            return $this->sendResponse();
+        }
         if($this->model->chat_type == 0)
             $this->model->profiles = null;
 
