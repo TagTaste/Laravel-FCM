@@ -77,9 +77,9 @@ class OnboardingController extends Controller
         // title is header in boarding
         // type is data of item is profile or company
         // ui_type = 0  is horizontal , ui_type = 1 is vertical
-
+        // color_type = 0 white and color_type = 1 is gray
         if(count($profileData))
-            $this->model[] = ['title'=>'Your Selection','type'=>'profile','ui_type'=>0,'item'=>$profileData];
+            $this->model[] = ['title'=>'Your Selection','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_type'=>'rgb(255, 255, 255)'];
 
         $foundationTeamIds = [1,10,32,165,44,556,2,4,13,637,7,2245,12,6,1585,359,1467,8,1775,3379,1574,14,15,7585,1016];
 
@@ -111,9 +111,9 @@ class OnboardingController extends Controller
             $profileData[] = $profile;
         }
         if(count($profileData))
-            $this->model[] = ['title'=>'Foundation team','type'=>'profile','ui_type'=>0,'item'=>$profileData];
+            $this->model[] = ['title'=>'Foundation team','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_type'=>'rgb(247, 247, 247)'];
         if(count($profileData))
-            $this->model[] = ['title'=>'Activity Based','type'=>'profile','ui_type'=>0,'item'=>$profileData];
+            $this->model[] = ['title'=>'Activity Based','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_type'=>'rgb(247, 247, 247)'];
 
 //        $this->model['activity_based'] = $profileData; // should be later
 
@@ -135,7 +135,7 @@ class OnboardingController extends Controller
         }
 //        $this->model['company'] = $companyData;
         if(count($companyData))
-            $this->model[] = ['title'=>'Company Profile','type'=>'company','ui_type'=>1,'item'=>$companyData];
+            $this->model[] = ['title'=>'Company Profile','type'=>'company','ui_type'=>1,'item'=>$companyData,'color_type'=>'rgb(255, 255, 255)'];
 
         return $this->sendResponse();
     }
