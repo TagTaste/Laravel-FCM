@@ -39,11 +39,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
         'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
-        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','onboarding_complete'];
+        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections','onboarding_complete'];
+
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
-        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types','cuisines','allergens'];
+        'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
+        'cuisines','allergens','interested_collections'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
@@ -920,6 +922,11 @@ class Profile extends Model
         return $this->hasMany('App\Profile\Specialization');
     }
 
+    public function profile_interested_collection()
+    {
+        return $this->hasMany('App\Profile\InterestedCollection');
+    }
+
     public function profile_occupations()
     {
         return $this->hasMany('App\Profile\Occupation');
@@ -936,10 +943,16 @@ class Profile extends Model
         return  \DB::table('cuisines')->whereIn('id',$cuisineIds)->get();
     }
 
-    public function GetEstablishmentTypesAttribute()
+    public function getEstablishmentTypesAttribute()
     {
         $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
         return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
+    }
+
+    public function getInterestedCollectionsAttribute()
+    {
+        $interestedCollectionIds =  \DB::table('profiles_interested_collections')->where('profile_id',request()->user()->profile->id)->get()->pluck('interested_collection_id');
+        return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
     }
 }
 

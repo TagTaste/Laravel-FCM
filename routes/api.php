@@ -246,6 +246,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("tastingMethodology","CollaborateController@tastingMethodology");
                     Route::get("profilesOccupations","CollaborateController@profilesJobs");
                     Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("profilesCategory","CollaborateController@profilesCategory");
                     Route::get("profilesAllergens","CollaborateController@profilesAllergens");
                     Route::post("uploadGlobalNestedOption","CollaborateController@uploadGlobalNestedOption");
                     Route::post("uploadGlobalQuestion","CollaborateController@uploadGlobalQuestion");
@@ -391,6 +392,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
             Route::get("foodieType","ProfileController@foodieType");
+            Route::get("interested/collections","ProfileController@interestedCollections");
             Route::get("establishmentType","ProfileController@establishmentType");
 
             Route::get("profile/getAllergens","ProfileController@getAllergens");
@@ -533,6 +535,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
 
+    
+            Route::post("/uploadFiles","UploadFilesController@uploadFiles");
 
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');

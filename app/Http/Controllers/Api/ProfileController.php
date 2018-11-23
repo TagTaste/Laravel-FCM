@@ -93,6 +93,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+        \Log::info($request->all());
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
         //proper verified.
@@ -223,6 +224,31 @@ class ProfileController extends Controller
             }
 
         }
+
+        if($request->has('interested_collection_id'))
+        {
+            $interestedCollectionIds = $request->input('interested_collection_id');
+            $interestedCollections = [];
+            if(count($interestedCollectionIds) > 0 && !empty($interestedCollectionIds) && is_array($interestedCollectionIds))
+            {
+                foreach ($interestedCollectionIds as $interestedCollectionId)
+                {
+                    $interestedCollections[] = ['profile_id'=>$loggedInProfileId,'interested_collection_id'=>$interestedCollectionId];
+                }
+                if(count($interestedCollections))
+                {
+                    \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->delete();
+                    \DB::table('profiles_interested_collections')->insert($interestedCollections);
+
+                }
+            }
+            else
+            {
+                \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->delete();
+            }
+
+        }
+
         if($request->has('cuisine_id'))
         {
             $cuisineIds = $request->input('cuisine_id');
@@ -1014,6 +1040,12 @@ class ProfileController extends Controller
     public function establishmentType()
     {
         $this->model = \DB::table('establishment_types')->get();
+        return $this->sendResponse();
+    }
+
+    public function interestedCollections()
+    {
+        $this->model = \DB::table('interested_collections')->where('featured',1)->get();
         return $this->sendResponse();
     }
 
