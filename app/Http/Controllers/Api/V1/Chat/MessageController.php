@@ -74,7 +74,7 @@ class MessageController extends Controller
     {   
         $inputs = $request->all();
         $loggedInProfileId = $request->user()->profile->id;
-        $checkExist = \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->exists();
+        $checkExist = \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
         if($checkExist)
         {
             $parentMessageId = $request->input('parentMessageId')!=null ? $request->input('parentMessageId') : null;
@@ -116,7 +116,8 @@ class MessageController extends Controller
 
             if(isset($messageId))
             {
-                $members = Chat\Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
+                $members = Chat\Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
+                \App\Chat\Member::where('chat_id',$chatId)->onlyTrashed()->update(['deleted_at'=>null]);
                 foreach ($members as $profileId) {
                     if($profileId == $loggedInProfileId)
                     {
@@ -179,17 +180,17 @@ class MessageController extends Controller
         }
     }
 
-    public function destroy(Request $request, $id)
-    {
-        $loggedInProfileId = $request->user()->profile->id;
-        \DB::table('message_recepients')->where('profile_id',$loggedInProfileId)->where('chat_message_id',$id)->update(['deleted_on'=>$this->time]);
-    }
+    // public function destroy(Request $request, $id)
+    // {
+    //     $loggedInProfileId = $request->user()->profile->id;
+    //     \DB::table('message_recepients')->where('profile_id',$loggedInProfileId)->where('chat_message_id',$id)->update(['deleted_on'=>$this->time]);
+    // }
 
 
     protected function isChatMember($profileId, $chatId)
     {   
         return Chat::where('id',$chatId)->whereHas('members', function($query) use ($profileId){
-            $query->withTrashed()->where('profile_id',$profileId);
+            $query->where('profile_id',$profileId);
         })->exists();
     }
 
@@ -272,6 +273,7 @@ class MessageController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         if($this->isChatMember($loggedInProfileId, $chatId))
         {
+            \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->update(['deleted_at'=>$this->time]);
             $this->model =  \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->where('chat_id',$chatId)->update(['deleted'=>1,'deleted_on'=>$this->time]);
             return $this->sendResponse();
         }

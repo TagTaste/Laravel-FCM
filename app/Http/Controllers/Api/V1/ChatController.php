@@ -28,11 +28,11 @@ class ChatController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-       $query->where('profile_id',$profileId)->withTrashed();
-       })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id, deleted FROM message_recepients GROUP BY chat_id, recepient_id, deleted)
+       $query->where('profile_id',$profileId);
+       })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id FROM message_recepients GROUP BY chat_id, recepient_id)
        message_recepients'),function($join) use ($profileId){
        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
-       })->skip($skip)->take($take)->orderBy('message_recepients.sent_on', 'desc')->where('message_recepients.deleted',0)->get();
+       })->skip($skip)->take($take)->orderBy('message_recepients.sent_on', 'desc')->get();
 
        return $this->sendResponse();
     }
@@ -151,7 +151,7 @@ class ChatController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
     	$checkAdmin = Member::where('chat_id',$id)->where('profile_id',$loggedInProfileId)
-            ->where('is_admin',1)->whereNull('deleted_at')->exists();
+            ->where('is_admin',1)->whereNull('exited_on')->exists();
 
     	if(!isset($checkAdmin) || is_null($checkAdmin))
         {
@@ -168,7 +168,7 @@ class ChatController extends Controller
             {   
                 $this->model = \App\Chat::where('id',$id)->update(['name'=>$request->input('name')]);
             }
-            $profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
+            //$profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
 
             $type = $request->has('name') ? 5 : 6;
             $messageInfo = ['chat_id'=>$id,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.null];
@@ -320,30 +320,30 @@ class ChatController extends Controller
 
     }
 
-    public function getChat(Request $request,$profileId)
-    {   
-        $loggedInProfileId = $request->user()->profile->id;
-        $this->model = Chat::open($loggedInProfileId,$profileId);
-        if($this->model != null)
-        {
-            $chatId = $this->model->id;
-            $page = $request->input('page');
-            list($skip,$take) = Paginator::paginate($page);
-            $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
-                ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
-                ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->skip($skip)->take($take)->get();
-                return $this->sendResponse();
-        }
-        return $this->sendResponse();
+    // public function getChat(Request $request,$profileId)
+    // {   
+    //     $loggedInProfileId = $request->user()->profile->id;
+    //     $this->model = Chat::open($loggedInProfileId,$profileId);
+    //     if($this->model != null)
+    //     {
+    //         $chatId = $this->model->id;
+    //         $page = $request->input('page');
+    //         list($skip,$take) = Paginator::paginate($page);
+    //         $this->model = \App\Chat\Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
+    //             ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
+    //             ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->skip($skip)->take($take)->get();
+    //             return $this->sendResponse();
+    //     }
+    //     return $this->sendResponse();
         
-    }
+    // }
 
     public function rooms(Request $request)
     {
         $profileId = $request->user()->profile->id;
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
+            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.exited_on')->get();
         return $this->sendResponse();
     }
 
