@@ -24,7 +24,7 @@ class Profile extends Document
         {
             $occuptionName[] = $occuption->name;
         }
-        echo "count of ".count($occuptionName;
+        echo "count of ".count($occuptionName);
         return $occuptionName;
     }
 
@@ -36,7 +36,7 @@ class Profile extends Document
         {
             $specializationName[] = $specialization->name;
         }
-        echo "count of ".count($specializationName;
+        echo "count of ".count($specializationName);
         return $specializationName;
     }
 }
