@@ -18,11 +18,23 @@ class Profile extends Document
 
     public function getValueOfOccupation()
     {
-        return $this->model->profile_occupations()->select('name')->get()->pluck('name')->toArray();
+        $occuptions = $this->model->profile_occupations;
+        $occuptionName = [];
+        foreach ($occuptions as $occuption)
+        {
+            $occuptionName[] = $occuption->name;
+        }
+        return $occuptionName;
     }
 
     public function getValueOfSpecialization()
     {
-        return $this->model->profile_specializations()->select('name')->get()->pluck('name')->toArray();
+        $specializations = $this->model->profile_specializations;
+        $specializationName = [];
+        foreach ($specializations as $specialization)
+        {
+            $specializationName[] = $specialization->name;
+        }
+        return $specializationName;
     }
 }
