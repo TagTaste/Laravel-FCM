@@ -4,7 +4,7 @@ class Profile extends Document
 {
     public $type = 'people';
     
-    public $bodyProperties = ['name','handle','about','occupation','specialization','city','company','college'];
+    public $bodyProperties = ['name','handle','about','Occupation','Specialization','city','Company','College'];
     
     public function getValueOfCollege()
     {
