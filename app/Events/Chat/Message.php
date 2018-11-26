@@ -2,7 +2,7 @@
 
 namespace App\Events\Chat;
 
-use App\Chat;
+use App\V1\Chat;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;

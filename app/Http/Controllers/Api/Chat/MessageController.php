@@ -42,10 +42,11 @@ class MessageController extends Controller
         {   
             $page = $request->input('page');
             list($skip,$take) = Paginator::paginate($page);
-            $this->model = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
+            $data = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
                 ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
             ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->where('type',0)->skip($skip)->take($take)->get();
-
+            $this->model['data'] = $data;
+            $this->model['is_enabled'] = null;
             return $this->sendResponse();
         }
         else
