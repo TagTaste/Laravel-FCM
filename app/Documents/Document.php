@@ -32,10 +32,11 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
         foreach($document->bodyProperties as $attribute){
             $method = 'getValueOf' . $attribute;
             if(method_exists($document,$method)){
+                echo "method name is ".$method."\n";
                 $document->body[$attribute] = $document->$method();
                 continue;
             }
-            
+            echo "1 method name is ".$method."\n";
             $document->body[$attribute] = $model->{$attribute};
         }
         
