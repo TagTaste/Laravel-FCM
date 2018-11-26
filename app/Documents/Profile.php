@@ -2,7 +2,7 @@
 
 class Profile extends Document
 {
-    public $type = 'people';
+    public $type = 'people1';
     
     public $bodyProperties = ['name','handle','about','Occupation','Specialization','city','Company','College'];
     
@@ -24,7 +24,7 @@ class Profile extends Document
         {
             $occuptionName[] = $occuption->name;
         }
-        \Log::info("count of ".count($occuptionName));
+        echo "count of ".count($occuptionName;
         return $occuptionName;
     }
 
@@ -36,7 +36,7 @@ class Profile extends Document
         {
             $specializationName[] = $specialization->name;
         }
-        \Log::info("count of ".count($specializationName));
+        echo "count of ".count($specializationName;
         return $specializationName;
     }
 }
