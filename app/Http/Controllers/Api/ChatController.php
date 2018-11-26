@@ -104,6 +104,12 @@ class ChatController extends Controller
             $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
+        $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>1, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            foreach ($profileIds as $profileId) {
+                $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$profileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            }
 
         return $this->sendResponse();
     }
@@ -261,6 +267,10 @@ class ChatController extends Controller
                 $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
             }
             $this->model->members()->insert($data);
+            $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>1, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
             return $this->sendmessage($request,$inputs);
 
         }
@@ -335,8 +345,7 @@ class ChatController extends Controller
             $inputs['profile_id'] = $loggedInProfileId;
             $this->model = [];
             $this->model['data'] = Chat\Message::create($inputs);
-            $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
-            $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
+            $this->model['remaining_messages'] = null;
 //        $this->model = Chat\Message::where
             event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
 

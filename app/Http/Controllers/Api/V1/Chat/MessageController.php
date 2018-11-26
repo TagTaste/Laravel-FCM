@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1\Chat;
 
-use App\Chat\Message;
+use App\V1\Chat\Message;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use App\Strategies\Paginator;
-use App\Chat;
+use App\V1\Chat;
 use Illuminate\Http\File;
 use Carbon\Carbon;
 use Illuminate\Http\Testing\MimeType;
@@ -74,7 +74,7 @@ class MessageController extends Controller
     {   
         $inputs = $request->all();
         $loggedInProfileId = $request->user()->profile->id;
-        $checkExist = \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+        $checkExist = \App\V1\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
         if($checkExist)
         {
             $parentMessageId = $request->input('parentMessageId')!=null ? $request->input('parentMessageId') : null;
@@ -117,7 +117,7 @@ class MessageController extends Controller
             if(isset($messageId))
             {
                 $members = Chat\Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
-                \App\Chat\Member::where('chat_id',$chatId)->onlyTrashed()->update(['deleted_at'=>null]);
+                \App\V1\Chat\Member::where('chat_id',$chatId)->onlyTrashed()->update(['deleted_at'=>null]);
                 foreach ($members as $profileId) {
                     if($profileId == $loggedInProfileId)
                     {
@@ -273,7 +273,7 @@ class MessageController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         if($this->isChatMember($loggedInProfileId, $chatId))
         {
-            \App\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->update(['deleted_at'=>$this->time]);
+            \App\V1\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->update(['deleted_at'=>$this->time]);
             $this->model =  \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->where('chat_id',$chatId)->update(['deleted'=>1,'deleted_on'=>$this->time]);
             return $this->sendResponse();
         }

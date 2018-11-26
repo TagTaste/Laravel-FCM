@@ -44,7 +44,7 @@ class MessageController extends Controller
             list($skip,$take) = Paginator::paginate($page);
             $this->model = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
                 ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
-                ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->skip($skip)->take($take)->get();
+            ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->where('type',0)->skip($skip)->take($take)->get();
 
             return $this->sendResponse();
         }
@@ -62,7 +62,6 @@ class MessageController extends Controller
 	 */
 	public function store(Request $request, $chatId)
 	{
-
 		$inputs = $request->except(['file']);
         $profileId = $request->user()->profile->id;
         //check ownership

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1\Chat;
 
 use Illuminate\Http\Request;
 use App\Strategies\Paginator;
-use App\Chat\Member;
-use App\Chat;
+use App\V1\Chat\Member;
+use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 
@@ -151,7 +151,7 @@ class MemberController extends Controller
     	{
            	$profileIds = [$profileIds];
         } 
-        $profileIds = array_diff($profileIds, Chat::where('id',$chatId)->whereNull('exited_on')->pluck('profile_id')->toArray());
+        $profileIds = array_diff($profileIds, Chat::where('id',$chatId)->pluck('profile_id')->toArray());
     	$this->model = $this->model->where('chat_id',$chatId)->whereNull('exited_on')->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
 
         $type = 8 ;

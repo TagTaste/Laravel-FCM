@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Strategies\Paginator;
-use App\Chat\Member;
-use App\Chat;
+use App\V1\Chat\Member;
+use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 
@@ -166,7 +166,7 @@ class ChatController extends Controller
             }
             if($request->has('name'))
             {   
-                $this->model = \App\Chat::where('id',$id)->update(['name'=>$request->input('name')]);
+                $this->model = \App\V1\Chat::where('id',$id)->update(['name'=>$request->input('name')]);
             }
             //$profileIds = Member::where('chat_id',$id)->get()->pluck('profile_id');
 
@@ -252,7 +252,7 @@ class ChatController extends Controller
                         $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$profileId, 'is_admin'=>0]; 
                         $member = Member::insert($input);
                     }
-                    $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
+                    $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
                     $recepients = [];
                     $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now];
                     $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null];

@@ -72,16 +72,18 @@ class MemberController extends Controller
         $profileIds = $request->input('profile_id');
 		$data = [];
 		$now = \Carbon\Carbon::now();
-		foreach($profileIds as $profileId){
-		    $exists = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
+		foreach($profileIds as $currentProfileId){
+		    $exists = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$currentProfileId)->first();
 		    if($exists)
             {
                 $exists->update(['exited_on'=>null,'is_admin'=>0,'is_single'=>0]);
             }
             else
             {
-                $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now->toDateTimeString(),'updated_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
+                $data[] = ['chat_id'=>$chatId,'profile_id'=>$currentProfileId, 'created_at'=>$now->toDateTimeString(),'updated_at'=>$now->toDateTimeString(),'is_admin'=>0,'is_single'=>0];
             }
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$profileId,'type'=>2, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$currentProfileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
 		$this->model = Member::insert($data);
 
@@ -105,8 +107,11 @@ class MemberController extends Controller
         }
 
         $this->model = Member::where('chat_id',$chatId)->where('profile_id',$id)->update(['exited_on'=>Carbon::now()->toDateTimeString(),'is_admin' => 0]);
+
         if($id == $profileId)
         {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$profileId,'type'=>4, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',4)->pluck('text')->first().'.'.$id];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
             $adminExist = Member::where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
             if(!$adminExist) {
                 $member = Member::where('chat_id', $chatId)->whereNull('exited_on')->first();
@@ -114,6 +119,11 @@ class MemberController extends Controller
                     $member->update(['is_admin' => 1]);
                 }
             }
+        }
+        else
+        {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$profileId,'type'=>3, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',3)->pluck('text')->first().'.'.$id];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
         return $this->sendResponse();
 	}
@@ -130,6 +140,10 @@ class MemberController extends Controller
 
         $profileIds = $request->input('profile_id');
         $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
+        foreach ($profileIds as $currentProfileId) {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$profileId,'type'=>7, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',7)->pluck('text')->first().'.'.$currentProfileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+        }
         return $this->sendResponse();
 
     }
@@ -146,6 +160,10 @@ class MemberController extends Controller
 
         $profileIds = $request->input('profile_id');
         $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
+        foreach ($profileIds as $currentProfileId) {
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$profileId,'type'=>8, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',8)->pluck('text')->first().'.'.$currentProfileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+        }
         return $this->sendResponse();
 
     }
