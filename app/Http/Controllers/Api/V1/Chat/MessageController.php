@@ -130,7 +130,7 @@ class MessageController extends Controller
                 }
                 $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
                 if ($this->model->type == 0 ) {
-                    event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
+                    event(new \App\Events\Chat\V1\Message($this->model,$request->user()->profile));
                 }
                 return $this->sendResponse();
             }
