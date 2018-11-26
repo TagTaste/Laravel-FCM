@@ -24,6 +24,7 @@ class Profile extends Document
         {
             $occuptionName[] = $occuption->name;
         }
+        \Log::info("count of ".count($occuptionName));
         return $occuptionName;
     }
 
@@ -35,6 +36,7 @@ class Profile extends Document
         {
             $specializationName[] = $specialization->name;
         }
+        \Log::info("count of ".count($specializationName));
         return $specializationName;
     }
 }
