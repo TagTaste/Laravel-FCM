@@ -100,6 +100,7 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
      */
     public function getId()
     {
+        echo "id is here ".$this->id;
         return $this->id;
     }
     
