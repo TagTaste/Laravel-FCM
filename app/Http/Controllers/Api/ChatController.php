@@ -75,14 +75,14 @@ class ChatController extends Controller
                 return $this->sendResponse();
             }
 
-            if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
-            {
-                if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
-                    return $this->sendError("max_limit_reached");
-                }
-            }
+            // if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
+            // {
+            //     if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
+            //         return $this->sendError("max_limit_reached");
+            //     }
+            // }
         }
-
+        $inputs['chat_type'] = 0;
         $this->model = \App\Chat::create($inputs);
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
@@ -174,7 +174,6 @@ class ChatController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
-        \App\ChatLimit::increaseLimit($loggedInProfileId);
         return $this->sendResponse();
     }
 
@@ -183,7 +182,7 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
+            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.exited_on')->get();
         return $this->sendResponse();
     }
 
@@ -192,8 +191,8 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
 
         $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chat_members.is_single',0)->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
-            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->groupBy('chats.id')->get();
+            ->where('chats.chat_type',0)->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
+            ->whereNull('chat_members.exited_on')->whereNull('chat_members.exited_on')->groupBy('chats.id')->get();
 
         return $this->sendResponse();
 

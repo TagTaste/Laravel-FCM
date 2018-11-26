@@ -64,7 +64,7 @@ class MemberController extends Controller
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
-        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('is_single',0)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
+        $chat =  Member::where('chat_id',$chatId)->where('is_admin',1)->where('profile_id',$profileId)->whereNull('deleted_at')->exists();
 		if(!$chat){
 		    return $this->sendError("Only chat admin can add members");
         }
@@ -76,7 +76,7 @@ class MemberController extends Controller
 		    $exists = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
 		    if($exists)
             {
-                $exists->update(['deleted_at'=>null,'exited_on'=>null,'is_admin'=>0,'is_single'=>0]);
+                $exists->update(['exited_on'=>null,'is_admin'=>0,'is_single'=>0]);
             }
             else
             {

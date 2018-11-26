@@ -80,6 +80,18 @@ class ShareMessages implements ShouldQueue
                 $info['profile_id'] = $loggedInProfileId;
                 $info['message'] = $inputs['message'];
                 $chat = Message::create($info);
+                $messageId = $chat->id;
+                $members = \App\Chat\Member::where('chat_id',$chatId)->whereNull('exited_on')->withTrashed()->pluck('profile_id');
+                foreach ($members as $profileId) {
+                    if($profileId == $loggedInProfileId)
+                    {
+                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$chat["created_at"], 'read_on' => $chat["created_at"]]);
+                    }
+                    else
+                    {
+                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$chat["created_at"]]);
+                    }
+                }
 
                 event(new \App\Events\Chat\Message($chat,$event->user->profile));
 
@@ -92,11 +104,10 @@ class ShareMessages implements ShouldQueue
                 ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
                 ->join("chats",'chats.id','=','c1.chat_id')
                 ->where(function($query) use ($loggedInProfileId){
-                    $query->where('c1.profile_id','=',$loggedInProfileId)->where('c1.is_single','=',1);
+                    $query->where('c1.profile_id','=',$loggedInProfileId);
                 })->where(function($query) use ($profileIds) {
-                    $query->whereIn('c2.profile_id',$profileIds)->where('c2.is_single','=',1)
-                    ;
-                })->whereNull('chats.deleted_at')
+                    $query->whereIn('c2.profile_id',$profileIds);
+                })->whereNull('chats.deleted_at')->where('chat_type',1)
                 ->orderBy('c1.chat_id')
                 ->get();
             $chatProfileIds = $chatIds->pluck('profile_id');
@@ -136,7 +147,18 @@ class ShareMessages implements ShouldQueue
                 $info['profile_id'] = $loggedInProfileId;
                 $info['message'] = $inputs['message'];
                 $chat = Message::create($info);
-
+                $messageId = $chat->id;
+                $members = \App\Chat\Member::where('chat_id',$chatId)->whereNull('exited_on')->withTrashed()->pluck('profile_id');
+                foreach ($members as $profileId) {
+                    if($profileId == $loggedInProfileId)
+                    {
+                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$chat["created_at"], 'read_on' => $chat["created_at"]]);
+                    }
+                    else
+                    {
+                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$chat["created_at"]]);
+                    }
+                }
                 event(new \App\Events\Chat\Message($chat,$event->user->profile));
             }
             $profileIds = array_diff($profileIds,$chatProfileIds->toArray());
@@ -172,6 +194,18 @@ class ShareMessages implements ShouldQueue
                 $info['profile_id'] = $loggedInProfileId;
                 $info['message'] = $inputs['message'];
                 $chat = Message::create($info);
+                $messageId = $chat->id;
+                $members = \App\Chat\Member::where('chat_id',$chatId)->whereNull('exited_on')->withTrashed()->pluck('profile_id');
+                foreach ($members as $profileId) {
+                    if($profileId == $loggedInProfileId)
+                    {
+                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$chat["created_at"], 'read_on' => $chat["created_at"]]);
+                    }
+                    else
+                    {
+                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$chat["created_at"]]);
+                    }
+                }
 
                 event(new \App\Events\Chat\Message($chat,$event->user->profile));
             }

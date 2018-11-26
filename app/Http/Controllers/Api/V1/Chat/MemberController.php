@@ -34,11 +34,11 @@ class MemberController extends Controller
 
         if(is_null($member->deleted_at))
         {
-            $this->model = Member::where('chat_id',$chatId)->get();
+            $this->model = Member::where('chat_id',$chatId)->whereNull('exited_on')->get();
         }
         else
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->deleted_at)->get();
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->deleted_at)->whereNull('exited_on')->get();
         }
     	return $this->sendResponse();
     }
