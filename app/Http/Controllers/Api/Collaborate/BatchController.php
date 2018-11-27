@@ -394,7 +394,7 @@ class BatchController extends Controller
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
                         $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity','profile_id')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $subAnswers[] = $subReports;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
@@ -414,7 +414,7 @@ class BatchController extends Controller
                 {
                     $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity','profile_id')->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                 }
 
                 if(isset($data->questions->is_nested_option))
@@ -754,7 +754,7 @@ class BatchController extends Controller
         $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
         $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
             ->where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereIn('question_id',$questionIds)
-            ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id','profile_id')->get();
+            ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
 
         $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->orderBy('id')->get();
 
