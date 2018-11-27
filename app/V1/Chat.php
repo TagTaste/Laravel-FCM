@@ -37,7 +37,7 @@ class Chat extends Model
         //     return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
         // }
         // return null;
-        return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
+        return $this->members()->whereNull('exited_on')->get()->pluck('profile');
 
     }
 
