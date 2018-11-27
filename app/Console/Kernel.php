@@ -176,6 +176,7 @@ class Kernel extends ConsoleKernel
         CloseCollaborate::class,
         \App\Console\Commands\FillTableRecepient::class,
         \App\Console\Commands\FillChatType::class,
+        \App\Console\Commands\ChatFileModify::class,
 
 
     ];
