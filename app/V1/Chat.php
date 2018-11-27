@@ -123,7 +123,7 @@ class Chat extends Model
     public function getIsEnabledAttribute()
     {
        return Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)
-           ->whereNull('deleted_at')->exists();
+           ->whereNull('exited_on')->exists();
     }
 
     public function getIsAdminAttribute()
