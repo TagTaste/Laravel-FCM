@@ -79,7 +79,20 @@ class ChatController extends Controller
                         $s3 = \Storage::disk('s3');
                         $filePath = 'p/' . $ownerProfileId . "/ci";
                         $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                        $preview['image'] = \Storage::disk('s3')->url($resp);
+                        $ext= pathinfo($resp);
+                        $ext = isset($ext['extension']) ? $ext['extension'] : null;
+                        if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
+                            $preview['image'] = \Storage::disk('s3')->url($resp);
+                        }
+                        else
+                        {
+                            $preview['image'] = null;
+                        }
+                        if($resp)
+                        {
+                            \File::delete(storage_path($image));
+                        }
+
                     }
                     $preview = json_encode($preview);
                 }
