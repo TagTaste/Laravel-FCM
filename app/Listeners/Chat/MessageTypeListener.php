@@ -28,7 +28,7 @@ class MessageTypeListener
     {   
         $model = \App\V1\Chat\Message::create($event->info);
         $chatId = $event->info["chat_id"];
-        $membersOfChat = \App\V1\Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
+        $membersOfChat = \App\V1\Chat\Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
         foreach ($membersOfChat as $member) {
             \DB::table('message_recepients')->insert(['chat_id'=>$chatId, 'message_id'=>$model->id, 'recepient_id'=>$member, 'sent_on'=>$model->created_at, 'read_on'=>$model->created_at]);
         }
