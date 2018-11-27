@@ -51,70 +51,35 @@ class RemoveDuplicateFromReviewTable extends Command
                     $check = \DB::table('collaborate_tasting_user_review')->where('key','like',$model->key)->where('value','like',$model->value)
                         ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
                         ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                        ->where('intensity','like',$model->intensity)->exits();
+                        ->get();
                 }
                 else if(isset($model->value))
                 {
                     $check = \DB::table('collaborate_tasting_user_review')->where('value','like',$model->value)
                         ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
                         ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                        ->where('intensity','like',$model->intensity)->exits();
+                       ->get();
                 }
                 else if(isset($model->key))
                 {
                     $check = \DB::table('collaborate_tasting_user_review')->where('key','like',$model->key)
                         ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
                         ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                        ->where('intensity','like',$model->intensity)->exits();
+                        ->get();
                 }
                 else
                 {
                     $check = \DB::table('collaborate_tasting_user_review')
                         ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
                         ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                        ->where('intensity','like',$model->intensity)->exits();
+                        ->get();
+
                 }
-                if($check)
+                if(count($check))
                 {
-                    if(isset($model->key) && isset($model->value))
+                    foreach ($check as $item)
                     {
-                        echo "collaborateion id is ".$model->collaborate_id."\n";
-                        echo "1st id is ".$model->id."\n";
-                        $mm = \DB::table('collaborate_tasting_user_review')->where('key','like',$model->key)->where('value','like',$model->value)
-                            ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
-                            ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                            ->where('intensity','like',$model->intensity)->first();
-                        echo "1st id is ".$mm->id."\n";
-                    }
-                    else if(isset($model->value))
-                    {
-                        echo "collaborateion id is ".$model->collaborate_id."\n";
-                        echo "1st id is ".$model->id."\n";
-                        $mm = \DB::table('collaborate_tasting_user_review')->where('value','like',$model->value)
-                            ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
-                            ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                            ->where('intensity','like',$model->intensity)->first();
-                        echo "1st id is ".$mm->id."\n";
-                    }
-                    else if(isset($model->key))
-                    {
-                        echo "collaborateion id is ".$model->collaborate_id."\n";
-                        echo "1st id is ".$model->id."\n";
-                        $mm = \DB::table('collaborate_tasting_user_review')->where('key','like',$model->key)
-                            ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
-                            ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                            ->where('intensity','like',$model->intensity)->first();
-                        echo "1st id is ".$mm->id."\n";
-                    }
-                    else
-                    {
-                        echo "collaborateion id is ".$model->collaborate_id."\n";
-                        echo "1st id is ".$model->id."\n";
-                        $mm = \DB::table('collaborate_tasting_user_review')
-                            ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
-                            ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
-                            ->where('intensity','like',$model->intensity)->first();
-                        echo "1st id is ".$mm->id."\n";
+                        echo $item->id."\n";
                     }
                 }
             }
