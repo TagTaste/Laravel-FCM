@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1\Chat;
 
 use Illuminate\Http\Request;
 use App\Strategies\Paginator;
-use App\Chat\Member;
-use App\Chat;
+use App\V1\Chat\Member;
+use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 
@@ -34,7 +34,7 @@ class MemberController extends Controller
 
         if(is_null($member->exited_on))
         {
-            $this->model = Member::where('chat_id',$chatId)->get();
+            $this->model = Member::where('chat_id',$chatId)->whereNull('exited_on')->get();
         }
         else
         {
@@ -55,7 +55,7 @@ class MemberController extends Controller
     	{
     	    $profileIds = [$profileIds];
     	}
-    	Member::withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['deleted_at'=>null]);
+    	Member::withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['exited_on'=>null]);
 
     	$memberIds = Member::where('chat_id',$chatId)->pluck('profile_id')->toArray();
         foreach ($profileIds as $profileId ) {
@@ -73,7 +73,7 @@ class MemberController extends Controller
         }
 
         $this->model = $this->model->insert($chatMembers);
-        $members = \App\Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
+        //$members = \App\Chat\Member::where('chat_id',$chatId)->pluck('profile_id');
 
         return $this->sendResponse();
     }
@@ -98,7 +98,7 @@ class MemberController extends Controller
         $type = $loggedInProfileId == $profileId ? 4 : 3;
         $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
         event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
-    	$this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->delete();
+    	$this->model = Member::where('chat_id',$chatId)->where('profile_id',$profileId)->update(['exited_on'=>$this->time]);
 
     	return $this->sendResponse();
 
@@ -116,17 +116,17 @@ class MemberController extends Controller
     	{
            	$profileIds = [$profileIds];
         }
-        $profileIdsExists = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->whereNotNull('deleted_at')->exists();
+        $profileIdsExists = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->whereNotNull('exited_on')->exists();
     	if($profileIdsExists)
         {
             return $this->sendError('This user cannot perform this action');
         }
-        $checkAdmin = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->where('is_admin',1)->exists();
+        $checkAdmin = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
         if($checkAdmin)
         {
             return $this->sendError('This user already admin');
         }
-        $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>1]);
+        $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->whereNull('exited_on')->update(['is_admin'=>1]);
 
 
         $type = 7 ;
@@ -152,7 +152,7 @@ class MemberController extends Controller
            	$profileIds = [$profileIds];
         } 
         $profileIds = array_diff($profileIds, Chat::where('id',$chatId)->pluck('profile_id')->toArray());
-    	$this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
+    	$this->model = $this->model->where('chat_id',$chatId)->whereNull('exited_on')->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
 
         $type = 8 ;
         foreach ($profileIds as $profileId) {
@@ -169,17 +169,17 @@ class MemberController extends Controller
 
     protected function isAdmin($chatId,$profileId)
     {
-    	return Member::where('profile_id',$profileId)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('deleted_at')->exists();
+    	return Member::where('profile_id',$profileId)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
     }
 
     protected function isMember($profileId, $chatId)
     {
-        return \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$profileId)->first();
+        return \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->first();
     }
 
     public function getMembersToAdd(Request $request, $chatId)
     {
-        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('deleted_at')->get()->pluck('profile_id');
+        $chatProfileIds = \DB::table('chat_members')->where('chat_id',$chatId)->whereNull('exited_on')->get()->pluck('profile_id');
         $loggedInProfileId = $request->user()->profile->id ;
         $this->model = [];
         $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);

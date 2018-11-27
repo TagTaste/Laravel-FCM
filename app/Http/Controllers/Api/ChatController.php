@@ -75,14 +75,14 @@ class ChatController extends Controller
                 return $this->sendResponse();
             }
 
-            if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
-            {
-                if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
-                    return $this->sendError("max_limit_reached");
-                }
-            }
+            // if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$profileIds[0]))
+            // {
+            //     if(!\App\ChatLimit::checkLimit($loggedInProfileId,$profileIds[0])){
+            //         return $this->sendError("max_limit_reached");
+            //     }
+            // }
         }
-
+        $inputs['chat_type'] = 0;
         $this->model = \App\Chat::create($inputs);
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
@@ -104,6 +104,12 @@ class ChatController extends Controller
             $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
         }
         $this->model->members()->insert($data);
+        $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>1, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            foreach ($profileIds as $profileId) {
+                $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$profileId];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            }
 
         return $this->sendResponse();
     }
@@ -135,9 +141,8 @@ class ChatController extends Controller
     public function update(Request $request, $id)
     {
         $inputs = $request->all();
-
-        $chat = $this->model->findOrFail($id);
-
+        $chat = Chat::where('id',$id)->whereNull('deleted_at')->first();
+        \Log::info($chat);
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
             $path = Chat::getImagePath($chat->id);
@@ -174,7 +179,6 @@ class ChatController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = Chat\Member::where('chat_id',$chadId)->where('profile_id',$loggedInProfileId)
             ->update(['deleted_at'=>Carbon::now()->toDateTimeString()]);
-        \App\ChatLimit::increaseLimit($loggedInProfileId);
         return $this->sendResponse();
     }
 
@@ -183,7 +187,7 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
         $this->model = \DB::table('chats')->select('chats.id')
             ->join('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.deleted_at')->get();
+            ->where('chat_members.profile_id','=',$profileId)->whereNull('chat_members.exited_on')->get();
         return $this->sendResponse();
     }
 
@@ -192,8 +196,8 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
 
         $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
-            ->where('chat_members.is_single',0)->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
-            ->whereNull('chat_members.deleted_at')->whereNull('chat_members.exited_on')->groupBy('chats.id')->get();
+            ->where('chats.chat_type',0)->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
+            ->whereNull('chat_members.exited_on')->whereNull('chat_members.exited_on')->groupBy('chats.id')->get();
 
         return $this->sendResponse();
 
@@ -262,6 +266,10 @@ class ChatController extends Controller
                 $data[] = ['chat_id'=>$chatId,'profile_id'=>$profileId, 'created_at'=>$now,'updated_at'=>$now,'is_admin'=>0,'is_single'=>$request->input('isSingle')];
             }
             $this->model->members()->insert($data);
+            $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>1, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',1)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
+            $messageInfo = ['chat_id'=>$this->model->id,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.null];
+            event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
             return $this->sendmessage($request,$inputs);
 
         }
@@ -304,8 +312,14 @@ class ChatController extends Controller
             {
                 $path = "profile/$loggedInProfileId/chat/$chatId/file";
                 $filename = $request->file('file')->getClientOriginalName();
-
-                $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+                $fileExt = \File::extension($filename);
+                $filename = "TagTaste_".str_random(15).".".$fileExt;
+                /**
+                 * Storing the file on S3
+                 */
+                $path = $file->storeAs($path,$filename,['visibility'=>'public',"disk"=>"s3"]);
+                $file_url = \Storage::disk('s3')->url($path);
+                $inputs['file'] = $file_url;
             }
 
             if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -336,8 +350,7 @@ class ChatController extends Controller
             $inputs['profile_id'] = $loggedInProfileId;
             $this->model = [];
             $this->model['data'] = Chat\Message::create($inputs);
-            $remaining = \DB::table('chat_limits')->select('remaining')->where('profile_id',$loggedInProfileId)->first();
-            $this->model['remaining_messages'] = isset($remaining->remaining) ? $remaining->remaining : null;
+            $this->model['remaining_messages'] = null;
 //        $this->model = Chat\Message::where
             event(new \App\Events\Chat\Message($this->model['data'],$request->user()->profile));
 

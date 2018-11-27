@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Chat;
+namespace App\V1\Chat;
 
-use App\Chat;
-use App\Recipe\Profile;
+use App\V1\Chat;
+use App\V1\Chat\Profile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

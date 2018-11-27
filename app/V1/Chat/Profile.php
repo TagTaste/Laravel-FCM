@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Chat;
+namespace App\V1\Chat;
 
 use App\Channel;
 use App\Job;
