@@ -8,6 +8,7 @@ use App\V1\Chat\Member;
 use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Http\File;
 
 class ChatController extends Controller
 {
@@ -78,7 +79,20 @@ class ChatController extends Controller
                         $s3 = \Storage::disk('s3');
                         $filePath = 'p/' . $ownerProfileId . "/ci";
                         $resp = $s3->putFile($filePath, new File(storage_path($image)), 'public');
-                        $preview['image'] = \Storage::disk('s3')->url($resp);
+                        $ext= pathinfo($resp);
+                        $ext = isset($ext['extension']) ? $ext['extension'] : null;
+                        if($resp && ($ext == 'jpg' || $ext == 'jpeg' || $ext == 'png')){
+                            $preview['image'] = \Storage::disk('s3')->url($resp);
+                        }
+                        else
+                        {
+                            $preview['image'] = null;
+                        }
+                        if($resp)
+                        {
+                            \File::delete(storage_path($image));
+                        }
+
                     }
                     $preview = json_encode($preview);
                 }
@@ -226,6 +240,7 @@ class ChatController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
 
         $profileIds = $request->input('profileId');
+        $chatIds = $request->input('chatId');
         $inputs = $request->all();
 
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -254,11 +269,35 @@ class ChatController extends Controller
                     }
                     $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
                     $recepients = [];
-                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now];
-                    $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null];
+                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
+                    $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];
                     \DB::table('message_recepients')->insert($recepients);
                     $this->model = $message;
                 }
+                if(count($chatIds))
+                {
+                    foreach ($chatIds as $chatId){
+                        $isMember = Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+                        if($isMember)
+                        {   $members = Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
+                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId, '']);
+                            $recepients = [];
+                            foreach ($members as $member) {
+                                if($member == $loggedInProfileId)
+                                {
+                                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
+                                }
+                                else
+                                {
+                                    $recepients[] = ['recepient_id'=>$member, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];   
+                                }
+                            }
+                            \DB::table('message_recepients')->insert($recepients);
+                            $this->model = $message;
+                        }
+                    }
+                }
+
         return $this->sendResponse();
     }
 
@@ -350,6 +389,11 @@ class ChatController extends Controller
     public function chatInfo(Request $request, $chatId)
     {
         $this->model = Chat::where('id',$chatId)->first();
+        if($this->model ==null && empty($this->model))
+        {
+            $this->model = null;
+            return $this->sendResponse();
+        }
         if($this->model->chat_type == 0)
             $this->model->profiles = null;
 
@@ -365,6 +409,18 @@ class ChatController extends Controller
         if($status == 0)
         $this->model = \Redis::sRem("online:profile:", $profileId);
         return $this->sendResponse();
+    }
+
+    public function chatGroup (Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
+            ->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
+            ->whereNull('chat_members.exited_on')->groupBy('chats.id')->where('chats.chat_type',0)->get();
+
+        return $this->sendResponse();
+
     }
 
 }
