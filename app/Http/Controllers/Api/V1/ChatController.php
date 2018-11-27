@@ -164,7 +164,7 @@ class ChatController extends Controller
     public function update(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-    	$checkAdmin = Member::where('chat_id',$id)->where('profile_id',$loggedInProfileId)
+    	$checkAdmin = Member::withTrashed()->where('chat_id',$id)->where('profile_id',$loggedInProfileId)
             ->where('is_admin',1)->whereNull('exited_on')->exists();
 
     	if(!isset($checkAdmin) || is_null($checkAdmin))
@@ -278,9 +278,9 @@ class ChatController extends Controller
                 if(count($chatIds))
                 {
                     foreach ($chatIds as $chatId){
-                        $isMember = Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+                        $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
                         if($isMember)
-                        {   $members = Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
+                        {   $members = Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
                             $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId, '']);
                             $recepients = [];
                             foreach ($members as $member) {

@@ -120,7 +120,7 @@ class Chat extends Model
 
     public function getIsEnabledAttribute()
     {
-       return Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)
+       return Member::withTrashed()->where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)
            ->whereNull('exited_on')->exists();
     }
 
