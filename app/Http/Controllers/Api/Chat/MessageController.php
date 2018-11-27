@@ -86,6 +86,7 @@ class MessageController extends Controller
                 /**
                  * Storing the file on S3
                  */
+                $file = $request->file;
                 $path = $file->storeAs($path,$filename,['visibility'=>'public',"disk"=>"s3"]);
                 $file_url = \Storage::disk('s3')->url($path);
                 $inputs['file'] = $file_url;
