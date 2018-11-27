@@ -32,13 +32,13 @@ class MemberController extends Controller
             return $this->sendError("This user doesnt belong to this chat");
         }
 
-        if(is_null($member->deleted_at))
+        if(is_null($member->exited_on))
         {
             $this->model = Member::where('chat_id',$chatId)->get();
         }
         else
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->deleted_at)->get();
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->get();
         }
     	return $this->sendResponse();
     }

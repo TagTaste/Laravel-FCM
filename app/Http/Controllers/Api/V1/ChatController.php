@@ -241,6 +241,7 @@ class ChatController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
 
         $profileIds = $request->input('profileId');
+        $chatIds = $request->input('chatId');
         $inputs = $request->all();
 
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -274,6 +275,22 @@ class ChatController extends Controller
                     \DB::table('message_recepients')->insert($recepients);
                     $this->model = $message;
                 }
+                if(count($chatIds))
+                {
+                    foreach ($chatIds as $chatId){
+                        $isMember = Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+                        if($isMember)
+                        {
+                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
+                            $recepients = [];
+                            $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now];
+                            $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null];
+                            \DB::table('message_recepients')->insert($recepients);
+                            $this->model = $message;
+                        }
+                    }
+                }
+
         return $this->sendResponse();
     }
 
