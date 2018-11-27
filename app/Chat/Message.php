@@ -45,7 +45,7 @@ class Message extends Model
 
     public function getFileUrlAttribute()
     {
-        return !is_null($this->file) ? \Storage::url($this->file) : null;
+        return $this->file;
     }
 
     public function getPreviewAttribute($value)
