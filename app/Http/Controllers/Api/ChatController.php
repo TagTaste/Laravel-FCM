@@ -142,7 +142,7 @@ class ChatController extends Controller
     {
         $inputs = $request->all();
         \Log::info($inputs);
-        $chat = $this->model->where('id',$id)->first();
+        $chat = Chat::where('id',$id)->first();
         \Log::info($chat);
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
