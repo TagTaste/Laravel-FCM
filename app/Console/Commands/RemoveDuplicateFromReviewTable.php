@@ -77,8 +77,17 @@ class RemoveDuplicateFromReviewTable extends Command
                 }
                 if(count($check)>1)
                 {
+                    $i = 0 ;
                     foreach ($check as $item)
                     {
+                        if($i == 1)
+                        {
+                            \DB::table('collaborate_tasting_user_review')
+                                ->where('leaf_id',$model->leaf_id)->where('question_id',$model->question_id)->where('tasting_header_id',$model->tasting_header_id)
+                                ->where('collaborate_id',$model->collaborate_id)->where('profile_id',$model->profile_id)->where('batch_id',$model->batch_id)
+                                ->delete();
+                        }
+                        $i++;
                         echo $item->id."\n";
                     }
                 }
