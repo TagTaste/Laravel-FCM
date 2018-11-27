@@ -79,7 +79,7 @@ class MessageController extends Controller
         
         if($request->hasFile("file"))
         {
-            $path = "profile/$loggedInProfileId/chat/$chatId/file";
+            $path = "profile/$profileId/chat/$chatId/file";
                 $filename = $request->file('file')->getClientOriginalName();
                 $fileExt = \File::extension($filename);
                 $filename = "TagTaste_".str_random(15).".".$fileExt;
