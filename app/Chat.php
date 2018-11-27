@@ -33,7 +33,7 @@ class Chat extends Model
 
         if(isset($memberOfChat->exited_on))
         {
-            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get()->pluck('profile');
+            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('exited_on')->get()->pluck('profile');
         }
         else
         {
