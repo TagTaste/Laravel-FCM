@@ -74,7 +74,7 @@ class MessageController extends Controller
     {   
         $inputs = $request->all();
         $loggedInProfileId = $request->user()->profile->id;
-        $checkExist = \App\V1\Chat\Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+        $checkExist = \App\V1\Chat\Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
         if($checkExist)
         {
             $parentMessageId = $request->input('parentMessageId')!=null ? $request->input('parentMessageId') : null;
