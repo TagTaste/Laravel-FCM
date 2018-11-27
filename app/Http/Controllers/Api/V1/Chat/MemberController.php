@@ -25,20 +25,20 @@ class MemberController extends Controller
     {
     	$loggedInProfileId = $request->user()->profile->id;
 
-    	$member = \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->first();
+    	$member = \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->first();
 
         if(!isset($member) || is_null($member))
         {
             return $this->sendError("This user doesnt belong to this chat");
         }
 
-        if(is_null($member->deleted_at))
+        if(is_null($member->exited_on))
         {
             $this->model = Member::where('chat_id',$chatId)->whereNull('exited_on')->get();
         }
         else
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->deleted_at)->whereNull('exited_on')->get();
+            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->whereNull('exited_on')->get();
         }
     	return $this->sendResponse();
     }
