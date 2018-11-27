@@ -8,6 +8,7 @@ use App\Chat\Member;
 use App\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Http\File;
 
 class ChatController extends Controller
 {
