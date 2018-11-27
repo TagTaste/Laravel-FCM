@@ -27,6 +27,7 @@ use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
+use App\Console\Commands\RemoveDuplicateFromReviewTable;
 use App\Console\Commands\RemoveNullFcmTokens;
 use App\Console\Commands\RemoveSpecialCharsHandle;
 use App\Console\Commands\ServiceInterruption;
@@ -176,6 +177,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\UpdateGlobalQuestion::class,
         CloseCollaborate::class,
         CompleteTastingMail::class,
+
+
+        RemoveDuplicateFromReviewTable::class
 
 
     ];
