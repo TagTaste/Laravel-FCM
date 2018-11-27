@@ -60,7 +60,7 @@ class MemberController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, $chatId)
-	{
+	{     \Log::info($request->all());
 		$profileId = $request->user()->profile->id;
 		
 		//check ownership of chat.
