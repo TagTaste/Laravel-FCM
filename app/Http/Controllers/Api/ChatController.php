@@ -141,7 +141,7 @@ class ChatController extends Controller
     public function update(Request $request, $id)
     {
         $inputs = $request->all();
-        \Log::info($inputs);
+        \Log::info($id);
         $chat = Chat::where('id',$id)->first();
         \Log::info($chat);
         if($request->hasFile("image")){
