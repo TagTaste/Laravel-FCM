@@ -12,16 +12,13 @@ class Chat extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'profile_id','image','chat_type'];
+    protected $fillable = ['name', 'profile_id','image'];
 
     //protected $with = ['members'];
 
-    protected $visible = ['id','name','image','profile_id','created_at','updated_at','latestMessages','profiles',
-        'unreadMessageCount','is_enabled','chat_type','isAdmin','isOnline'];
+    protected $visible = ['id','name','imageUrl','profile_id','created_at','updated_at','latestMessages','profiles','unreadMessageCount','is_enabled'];
 
-    protected $appends = ['latestMessages','profiles','unreadMessageCount','is_enabled','isAdmin','isOnline'];
-
-    //chat type = 1 is single chat, 0 is group chat
+    protected $appends = ['latestMessages','profiles','imageUrl','unreadMessageCount','is_enabled'];
 
     protected $isEnabled = true;
 
@@ -32,13 +29,20 @@ class Chat extends Model
 
     public function getProfilesAttribute()
     {
-        // if($this->chat_type === 1)
-        // {
-        //     return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
-        // }
-        // return null;
-        return $this->members()->whereNull('deleted_at')->get()->pluck('profile');
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
 
+        if(isset($memberOfChat->exited_on))
+        {
+            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('exited_on')->get()->pluck('profile');
+        }
+        else
+        {
+            if(isset($memberOfChat->deleted_at))
+            {
+                $memberOfChat->restore();
+            }
+            return $this->members()->withTrashed()->whereNull('exited_on')->get()->pluck('profile');
+        }
     }
 
     public function messages()
@@ -48,32 +52,25 @@ class Chat extends Model
 
     public function profile()
     {
-        return $this->belongsTo(\App\Chat\Profile::class,'profile_id');
-        
+        return $this->belongsTo(\App\Recipe\Profile::class,'profile_id');
     }
 
     public function getLatestMessagesAttribute()
     {
-        $memberOfChat = \DB::table('chat_members')->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
+        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$this->id)->where('profile_id',request()->user()->profile->id)->first();
         if(!$memberOfChat){
             return;
         }
 
-        if(isset($memberOfChat->deleted_at))
+        if(isset($memberOfChat->exited_on))
         {
-            return Message::join('message_recepients', function($query){
-                $query->on('message_recepients.message_id','=','chat_messages.id');
-            })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.chat_id','=',$this->id)
-                ->where('message_recepients.recepient_id',request()->user()->profile->id)
-                ->whereNull('message_recepients.deleted_on')->first();
+            $this->isEnabled = false;
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->where('type',0)->take(5)->get();
         }
         else
         {
-            return Message::join('message_recepients', function($query){
-                $query->on('message_recepients.message_id','=','chat_messages.id');
-            })->orderBy('message_recepients.sent_on','desc')->where('message_recepients.recepient_id',request()->user()->profile->id)
-                ->where('message_recepients.chat_id','=',$this->id)
-                ->whereNull('message_recepients.deleted_on')->first();
+            $this->isEnabled = true;
+            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->where('type',0)->take(5)->get();
         }
     }
 
@@ -83,7 +80,6 @@ class Chat extends Model
         $relativePath = "images/c/{$id}";
 
         \Storage::makeDirectory($relativePath);
-
         return $filename === null ? $relativePath : storage_path("app/" . $relativePath) . "/" . $filename;
     }
 
@@ -98,13 +94,12 @@ class Chat extends Model
             ->join('chat_members as c2','c2.chat_id','=','c1.chat_id')
             ->join("chats",'chats.id','=','c1.chat_id')
             ->where(function($query) use ($profileIdOne){
-                $query->where('c1.profile_id','=',$profileIdOne)
+                $query->where('c1.profile_id','=',$profileIdOne)->where('c1.is_single','=',1)
                 ;
             })->where(function($query) use ($profileIdTwo) {
-                $query->where('c2.profile_id','=',$profileIdTwo)
+                $query->where('c2.profile_id','=',$profileIdTwo)->where('c2.is_single','=',1)
                 ;
             })
-            ->where('chat_type',1)
             ->whereNull('chats.deleted_at')
             ->groupBy('c1.chat_id')
             ->orderBy('c1.chat_id')
@@ -115,27 +110,12 @@ class Chat extends Model
 
     public function getUnreadMessageCountAttribute()
     {
-    
-        return \DB::table('message_recepients')->where('recepient_id',request()->user()->profile->id)
-            ->where('chat_id',$this->id)->whereNull('read_on')->whereNull('deleted_on')->count();
+        return \DB::table('chat_messages')->where('chat_id',$this->id)->whereNull('read_on')->count();
     }
 
     public function getIsEnabledAttribute()
     {
-       return \App\Chat\Member::where('profile_id',request()->user()->profile->id)->where('chat_id',$this->id)
-           ->whereNull('deleted_at')->exists();
-    }
-
-    public function getIsAdminAttribute()
-    {
-        $loggedInProfileId = request()->user()->profile->id;
-        return \DB::table('chat_members')->where('chat_id',$this->id)->where('profile_id',$loggedInProfileId)->where('is_admin',1)->exists();
-    }
-
-    public function getIsOnlineAttribute()
-    {
-        $loggedInProfileId = request()->user()->profile->id;
-        return \Redis::sIsMember("online:profile:",$loggedInProfileId);
+        return $this->isEnabled;
     }
 }
 

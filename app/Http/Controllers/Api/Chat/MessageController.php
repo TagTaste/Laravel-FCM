@@ -36,33 +36,24 @@ class MessageController extends Controller
 	 */
 	public function index(Request $request,$chatId)
 	{
-	    $profileId = $request->user()->profile->id;
-        //check ownership
-        
-        $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->orderBy('created_at','desc')->first();
-        
-        if(!$memberOfChat) {
-            return $this->sendError("You are not part of this chat.");
-        }
-        
-        $page = $request->input('page');
-        list($skip,$take) = Paginator::paginate($page);
-        $isEnabled = true;
-        if(isset($memberOfChat->exited_on))
-        {
-            $data = $this->model->where('chat_id',$chatId)->whereBetween('created_at',[$memberOfChat->updated_at,$memberOfChat->exited_on])
-                ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
-            $isEnabled = false;
+        $loggedInProfileId = $request->user()->profile->id;
+
+        if($this->isChatMember($loggedInProfileId, $chatId))
+        {   
+            $page = $request->input('page');
+            list($skip,$take) = Paginator::paginate($page);
+            $data = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
+                ->where('chat_messages.chat_id',$chatId)->whereNull('message_recepients.deleted_on')
+            ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->where('type',0)->skip($skip)->take($take)->get();
+            $this->model = [];
+            $this->model['data'] = $data;
+            $this->model['is_enabled'] = null;
+            return $this->sendResponse();
         }
         else
         {
-            $data = $this->model->where('chat_id',$chatId)->where('created_at','>=',$memberOfChat->created_at)
-                ->orderBy('created_at','desc')->skip($skip)->take($take)->get();
+            return $this->sendError('This user is not a part of this chat');
         }
-        $this->model = [];
-        $this->model['data'] = $data;
-        $this->model['is_enabled'] = $isEnabled;
-		return $this->sendResponse();
 	}
 	
 	/**
@@ -73,7 +64,6 @@ class MessageController extends Controller
 	 */
 	public function store(Request $request, $chatId)
 	{
-
 		$inputs = $request->except(['file']);
         $profileId = $request->user()->profile->id;
         //check ownership
@@ -84,33 +74,22 @@ class MessageController extends Controller
             return $this->sendError("You are not part of this chat.");
         }
 
-        $chat = Chat\Member::where('chat_id',$chatId)->where('profile_id','!=',$profileId)->update(['last_seen'=>null]);
+        //$chat = Chat\Member::where('chat_id',$chatId)->where('profile_id','!=',$profileId)->update(['last_seen'=>null]);
 
-        if($memberOfChat->is_single){
-            //undelete other members
-            
-            $otherMemberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where("profile_id",'!=',$profileId)
-                ->whereNotNull('deleted_at')->first();
-            
-            if($otherMemberOfChat){
-                //restore if deleted
-                $data = [];
-                if($otherMemberOfChat->trashed()){
-                    $data['deleted_at'] = null;
-                }
-                
-                $data['exited_at'] = null;
-                //set exited to null, if exited;
-                $otherMemberOfChat->update($data);
-            }
-        }
         
         if($request->hasFile("file"))
         {
             $path = "profile/$profileId/chat/$chatId/file";
-            $filename = $request->file('file')->getClientOriginalName();
-    
-            $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+                $filename = $request->file('file')->getClientOriginalName();
+                $fileExt = \File::extension($filename);
+                $filename = "TagTaste_".str_random(15).".".$fileExt;
+                /**
+                 * Storing the file on S3
+                 */
+                $file = $request->file;
+                $path = $file->storeAs($path,$filename,['visibility'=>'public',"disk"=>"s3"]);
+                $file_url = \Storage::disk('s3')->url($path);
+                $inputs['file'] = $file_url;
         }
         $inputs['preview'] = isset($inputs['preview']) ? json_decode($inputs['preview'],true) : null;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -127,6 +106,33 @@ class MessageController extends Controller
         $inputs['chat_id'] = $chatId;
         $inputs['profile_id'] = $profileId;
 		$this->model = $this->model->create($inputs);
+        $messageId = $this->model->id;
+        if($memberOfChat->is_single){
+            //undelete other members
+            
+            $otherMemberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId);
+            if($otherMemberOfChat->exists()){
+                //restore if deleted
+                $data = [];
+                if($otherMemberOfChat->onlyTrashed()->exists() ){
+                    $data['deleted_at'] = null;
+                }
+                
+                //$data['exited_at'] = null;
+                //set exited to null, if exited;
+                $otherMemberOfChat->update($data);
+            }
+        }
+        foreach (Chat\Member::where('chat_id',$chatId)->pluck('profile_id') as $currentProfileId) {
+                    if($currentProfileId == $profileId)
+                    {
+                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$currentProfileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
+                    }
+                    else
+                    {
+                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$currentProfileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+                    }
+                }
 		event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}
@@ -149,10 +155,7 @@ class MessageController extends Controller
         }
         
         $profileId = $request->input('profile_id');
-        $this->model = $this->model->where("chat_id",$chatId)
-            ->where('id',$id)->where(function($query) use ($profileId,$loggedInProfileId){
-                $query->where('profile_id','=',$profileId)->orWhere('profile_id','=',$loggedInProfileId);
-            })->destroy();
+        $this->model = \DB::table('message_recepients')->where('chat_id',$chatId)->where('message_id',$id)->where('recepient_id',$loggedInProfileId)->update(['deleted_on'=>Carbon::now()->toDateTimeString()]);
 
 		return redirect()->route('messages.index')->with('message', 'Item deleted successfully.');
 	}
@@ -170,7 +173,7 @@ class MessageController extends Controller
         
         $now = Carbon::now()->toDateTimeString();
         
-        $this->model = $this->model->where('chat_id',$chatId)->update(['read_on'=>$now]);
+        $this->model = \DB::table('message_recepients')->where('chat_id',$chatId)->where('message_id','<=',$id)->where('recepient_id',$loggedInProfileId)->update(['read_on'=>Carbon::now()->toDateTimeString()]);
         return $this->sendResponse();
 	}
 
@@ -190,5 +193,12 @@ class MessageController extends Controller
         fwrite($fp, $raw);
         fclose($fp);
         return "app/" . $path . $filename;
+    }
+
+    protected function isChatMember($profileId, $chatId)
+    {   
+        return Chat::where('id',$chatId)->whereHas('members', function($query) use ($profileId){
+            $query->where('profile_id',$profileId);
+        })->exists();
     }
 }
