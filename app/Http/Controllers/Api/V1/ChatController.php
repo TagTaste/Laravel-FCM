@@ -226,7 +226,7 @@ class ChatController extends Controller
             return $this->sendError("Invalid Input");
         }
     	$this->model = Chat::open($loggedInProfileId,$profileId);
-         $this->model == null ? $this->sendError('No existing chats with this user') : null;
+         $this->model == null ? $this->sendError('No existing chats with this user'): null;
          return $this->sendResponse();
     }
 
@@ -274,7 +274,8 @@ class ChatController extends Controller
                     $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
                     $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];
                     \DB::table('message_recepients')->insert($recepients);
-                    $this->model = $message;
+                    $this->model = [];
+                    $this->model = true;
                 }
                 if(count($chatIds))
                 {
@@ -295,7 +296,8 @@ class ChatController extends Controller
                                 }
                             }
                             \DB::table('message_recepients')->insert($recepients);
-                            $this->model = $message;
+                            $this->model = [];
+                            $this->model = true;
                         }
                     }
                 }
