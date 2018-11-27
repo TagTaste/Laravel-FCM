@@ -75,7 +75,7 @@ class RemoveDuplicateFromReviewTable extends Command
                         ->get();
 
                 }
-                if(count($check))
+                if(count($check)>1)
                 {
                     foreach ($check as $item)
                     {
