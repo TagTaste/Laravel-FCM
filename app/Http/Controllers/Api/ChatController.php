@@ -312,8 +312,14 @@ class ChatController extends Controller
             {
                 $path = "profile/$loggedInProfileId/chat/$chatId/file";
                 $filename = $request->file('file')->getClientOriginalName();
-
-                $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+                $fileExt = \File::extension($filename);
+                $filename = "TagTaste_".str_random(15).".".$fileExt;
+                /**
+                 * Storing the file on S3
+                 */
+                $path = $file->storeAs($path,$filename,['visibility'=>'public',"disk"=>"s3"]);
+                $file_url = \Storage::disk('s3')->url($path);
+                $inputs['file'] = $file_url;
             }
 
             if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){

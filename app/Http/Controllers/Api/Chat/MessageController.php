@@ -79,10 +79,16 @@ class MessageController extends Controller
         
         if($request->hasFile("file"))
         {
-            $path = "profile/$profileId/chat/$chatId/file";
-            $filename = $request->file('file')->getClientOriginalName();
-    
-            $inputs['file'] = $request->file("file")->storeAs($path, $filename,['visibility'=>'public']);
+            $path = "profile/$loggedInProfileId/chat/$chatId/file";
+                $filename = $request->file('file')->getClientOriginalName();
+                $fileExt = \File::extension($filename);
+                $filename = "TagTaste_".str_random(15).".".$fileExt;
+                /**
+                 * Storing the file on S3
+                 */
+                $path = $file->storeAs($path,$filename,['visibility'=>'public',"disk"=>"s3"]);
+                $file_url = \Storage::disk('s3')->url($path);
+                $inputs['file'] = $file_url;
         }
         $inputs['preview'] = isset($inputs['preview']) ? json_decode($inputs['preview'],true) : null;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
