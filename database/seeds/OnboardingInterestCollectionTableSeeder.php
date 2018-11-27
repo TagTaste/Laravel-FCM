@@ -49,7 +49,6 @@ class OnboardingInterestCollectionTableSeeder extends Seeder
         $data[] = ['name'=>'Sandwich Bread','featured'=>1];
         $data[] = ['name'=>'Focaccia','featured'=>1];
         $data[] = ['name'=>'Noodles','featured'=>1];
-        $data[] = ['name'=>'Noodles','featured'=>1];
 
         \DB::table('interested_collections')->insert($data);
     }
