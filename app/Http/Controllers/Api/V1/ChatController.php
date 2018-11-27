@@ -281,11 +281,16 @@ class ChatController extends Controller
                     foreach ($chatIds as $chatId){
                         $isMember = Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
                         if($isMember)
-                        {
-                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
+                        {   $members = Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
+                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId, '']);
                             $recepients = [];
-                            $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now];
-                            $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null];
+                            foreach ($members as $member) {
+                                if($member == $loggedInProfileId)
+                                {
+                                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
+                                }
+                                $recepients[] = ['recepient_id'=>$member, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];   
+                            }
                             \DB::table('message_recepients')->insert($recepients);
                             $this->model = $message;
                         }
