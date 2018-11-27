@@ -34,7 +34,7 @@ class Chat extends Model
     {
          if($this->chat_type === 1)
          {
-             return $this->members()->whereNull('deleted_at')->withTrashed()->get()->pluck('profile');
+             return $this->members()->whereNull('deleted_at')->withTrashed()->toSql();
          }
          return null;
     }
