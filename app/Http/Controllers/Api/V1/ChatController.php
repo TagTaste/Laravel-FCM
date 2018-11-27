@@ -289,7 +289,10 @@ class ChatController extends Controller
                                 {
                                     $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
                                 }
-                                $recepients[] = ['recepient_id'=>$member, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];   
+                                else
+                                {
+                                    $recepients[] = ['recepient_id'=>$member, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];   
+                                }
                             }
                             \DB::table('message_recepients')->insert($recepients);
                             $this->model = $message;
