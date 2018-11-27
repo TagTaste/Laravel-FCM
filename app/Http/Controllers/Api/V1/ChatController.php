@@ -404,4 +404,16 @@ class ChatController extends Controller
         return $this->sendResponse();
     }
 
+    public function chatGroup (Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+
+        $this->model = Chat::select('chats.*')->join('chat_members','chat_members.chat_id','=','chats.id')
+            ->where('chat_members.profile_id','=',$profileId)->whereNotNull('chats.name')
+            ->whereNull('chat_members.exited_on')->groupBy('chats.id')->where('chats.chat_type',0)->get();
+
+        return $this->sendResponse();
+
+    }
+
 }
