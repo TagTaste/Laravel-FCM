@@ -255,6 +255,8 @@ class MessageController extends Controller
 
         $loggedInProfileId = $request->user()->profile->id;
         $messageId = $request->input('messageId');
+        \Log::info($messageId);
+        \Log::info($chatId);
         if(!$this->isChatMember($loggedInProfileId, $chatId))
         {
             return $this->sendError("This user is not part of this chat");
