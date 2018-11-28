@@ -202,7 +202,7 @@ class MessageController extends Controller
     protected function isChatMember($profileId, $chatId)
     {   
         return Chat::where('id',$chatId)->whereHas('members', function($query) use ($profileId){
-            $query->where('profile_id',$profileId)->withTrashed()->whereNull('exited_on');
+            $query->where('profile_id',$profileId)->withTrashed();
         })->exists();
     }
 

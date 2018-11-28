@@ -69,7 +69,7 @@ class CollaborateController extends Controller
      * @return Response
      */
     public function store(Request $request, $profileId)
-    {
+    {   dd("here");
         $profileId = $request->user()->profile->id;
         $inputs = $request->all();
         $inputs['profile_id'] = $profileId;

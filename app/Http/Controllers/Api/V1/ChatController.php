@@ -424,5 +424,70 @@ class ChatController extends Controller
         return $this->sendResponse();
 
     }
+    public function featureMessage(Request $request,$feature,$featureId)
+    {   
+        $model = $this->getModel($feature,$featureId);
+        if(empty($model))
+        {
+            return $this->sendError("Invalid model name or Id");
+        }
+        $inputs = $request->except(['_method','_token']);
+        $inputs['is_mailable'] = $request->has('is_mailable') ? $request->input('is_mailable') : 0;
+        $profileIds = isset($inputs['profile_id']) ? $inputs['profile_id'] : $this->sendError("Profile id cannot be null");
+        if(!is_array($profileIds))
+        {
+            $profileIds = [$profileIds];
+        }
+        $LoggedInUser = $request->user();
+        $loggedInProfileId = $LoggedInUser->profile->id;
+        $data = [];
+
+        if(isset($model->company_id)&& (!is_null($model->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$loggedInProfileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($model->profile_id != $loggedInProfileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        if($request->has('batch_id'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$request->input('batch_id'))
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_shortlisted'))
+        {
+            $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$featureId)->whereNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_rejected'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$featureId)->whereNotNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
+        $data['message'] = $inputs['message'];
+        $data['username'] = $LoggedInUser->name;
+        $data['sender_info'] = $LoggedInUser;
+        $data['model_title'] = $model->title;
+        $data['model_name'] = $feature;
+        $data['model_id'] = $model->id;
+        event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
+        $this->model = true;
+        return $this->sendResponse();
+        
+
+    }
+    private function getModel($feature,$featureId)
+    {
+        if($feature == 'jobs' || $feature == 'Jobs' || $feature == 'job' || $feature == 'Job')
+            $feature = 'Job';
+        else if($feature == 'collaborates' || $feature == 'Collaborates' || $feature == 'collaborate' || $feature == 'Collaborate')
+            $feature = 'Collaborate';
+        $class = "\\App\\" . ucwords($feature);
+        return $class::find($featureId);
+    }
 
 }
