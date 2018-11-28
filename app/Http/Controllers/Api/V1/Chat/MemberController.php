@@ -134,7 +134,7 @@ class MemberController extends Controller
             return $this->sendError("user cannot make himself admin");
         }
         foreach ($profileIds as $profileId) {
-            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$loggedInProfileId];
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
 
@@ -156,7 +156,7 @@ class MemberController extends Controller
 
         $type = 8 ;
         foreach ($profileIds as $profileId) {
-            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$loggedInProfileId];
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
 
