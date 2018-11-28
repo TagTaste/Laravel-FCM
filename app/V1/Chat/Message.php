@@ -40,6 +40,9 @@ class Message extends Model
            $message->load('profile');
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
+        self::updated(function(Model $message){
+            dd('here');
+        });
     }
     
     public function chat()
