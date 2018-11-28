@@ -38,11 +38,23 @@ class Message extends Model
 
             //is there a better way?
            $message->load('profile');
+            $members = Chat\Member::withTrashed()->where('chat_id',$message->chat_id)->whereNull('exited_on')->pluck('profile_id');
+            \App\V1\Chat\Member::where('chat_id',$message->chat_id)->onlyTrashed()->update(['deleted_at'=>null]);
+            $recepient = [];
+            foreach ($members as $profileId) {
+                if($profileId == request()->user()->profile->if)
+                {
+                    $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$message->created_at, 'read_on' => $message->created_at];
+                }
+                else
+                {
+                    $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$message->created_at, 'read_on' => null];
+                }
+            }
+            \DB::table('message_recepients')->insert($recepient);
            \Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
-        self::updated(function(Model $message){
-            dd('here');
-        });
+
     }
     
     public function chat()
