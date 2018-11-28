@@ -125,28 +125,9 @@ class MessageController extends Controller
                 'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
                 'file_meta'=>$inputs['file_meta']]);
             $messageId = $this->model->id;
-
-            if(isset($messageId))
-            {
-                $members = Chat\Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
-                \App\V1\Chat\Member::where('chat_id',$chatId)->onlyTrashed()->update(['deleted_at'=>null]);
-                $recepient = [];
-                foreach ($members as $profileId) {
-                    if($profileId == $loggedInProfileId)
-                    {
-                        $recepient[] = ['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]];
-                    }
-                    else
-                    {
-                        $recepient[] = ['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => null];
-                    }
-                }
-                \DB::table('message_recepients')->insert($recepient);
-                $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
-                if ($this->model->type == 0 ) {
-                    event(new \App\Events\Chat\V1\Message($this->model,$request->user()->profile));
-                }
-                return $this->sendResponse();
+            $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
+            if ($this->model->type == 0 ) {
+                event(new \App\Events\Chat\V1\Message($this->model,$request->user()->profile));
             }
         
         }
