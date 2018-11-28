@@ -32,7 +32,7 @@ class Chat extends Model
 
     public function getProfilesAttribute()
     {
-         if($this->chat_type === 1)
+         if($this->chat_type == 1)
          {
              return $this->members()->whereNull('exited_on')->withTrashed()->get()->pluck('profile');
          }
