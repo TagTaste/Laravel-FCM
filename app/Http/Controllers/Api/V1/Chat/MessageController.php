@@ -277,6 +277,7 @@ class MessageController extends Controller
         }
         $messageIds = Message::where('chat_id',$chatId)->where('id','<=',$messageId)->pluck('id');
         $this->model = \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->whereIn('message_id',$messageIds)->whereNull('read_on')->update(['read_on'=>$this->time]);
+        \Log::info("message read wali");
         \Log::info($this->model);
         return $this->sendResponse();
     }
