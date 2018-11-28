@@ -103,6 +103,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
+                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
                 Route::get("chatGroup",'ChatController@chatGroup');
                 Route::post("chatShareMessage",'ChatController@shareAsMessage');
                 Route::get("chatDisconnect",'ChatController@disconnect');

@@ -125,27 +125,11 @@ class MessageController extends Controller
                 'preview'=> $preview, 'signature'=>$request->input('signature'),'file'=>$inputs['file'],
                 'file_meta'=>$inputs['file_meta']]);
             $messageId = $this->model->id;
-
-            if(isset($messageId))
-            {
-                $members = Chat\Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
-                \App\V1\Chat\Member::where('chat_id',$chatId)->onlyTrashed()->update(['deleted_at'=>null]);
-                foreach ($members as $profileId) {
-                    if($profileId == $loggedInProfileId)
-                    {
-                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
-                    }
-                    else
-                    {
-                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$profileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
-                    }
-                }
-                $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
-                if ($this->model->type == 0 ) {
-                    event(new \App\Events\Chat\V1\Message($this->model,$request->user()->profile));
-                }
-                return $this->sendResponse();
+            $this->model = Message::where('id',$messageId)->where('chat_id',$chatId)->first();
+            if ($this->model->type == 0 ) {
+                event(new \App\Events\Chat\V1\Message($this->model,$request->user()->profile));
             }
+            return $this->sendResponse();
         
         }
         else
@@ -202,7 +186,7 @@ class MessageController extends Controller
     protected function isChatMember($profileId, $chatId)
     {   
         return Chat::where('id',$chatId)->whereHas('members', function($query) use ($profileId){
-            $query->where('profile_id',$profileId);
+            $query->where('profile_id',$profileId)->withTrashed();
         })->exists();
     }
 
@@ -264,7 +248,8 @@ class MessageController extends Controller
     }
 
     public function markAsRead(Request $request, $chatId)
-    {   $loggedInProfileId = $request->user()->profile->id;
+    {
+        $loggedInProfileId = $request->user()->profile->id;
         $messageId = $request->input('messageId');
         if(!$this->isChatMember($loggedInProfileId, $chatId))
         {
@@ -275,7 +260,7 @@ class MessageController extends Controller
         {
             return $this->sendError('Invalid Message Id');
         }
-        $messageIds = Message::where('chat_id',$chatId)->where('id','<=',$messageId)->pluck('id');
+        $messageIds = Message::where('chat_id',$chatId)->where('id','<=',$messageId)->whereNull('read_on')->get()->pluck('id');
         $this->model = \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->whereIn('message_id',$messageIds)->whereNull('read_on')->update(['read_on'=>$this->time]);
         return $this->sendResponse();
     }

@@ -34,11 +34,11 @@ class MemberController extends Controller
 
         if(is_null($member->exited_on))
         {
-            $this->model = Member::where('chat_id',$chatId)->whereNull('exited_on')->get();
+            $this->model = Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->get();
         }
         else
         {
-            $this->model = Member::where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->get();
+            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->whereNull('exited_on')->get();
         }
     	return $this->sendResponse();
     }
@@ -57,7 +57,7 @@ class MemberController extends Controller
     	}
     	Member::withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->update(['exited_on'=>null]);
 
-    	$memberIds = Member::where('chat_id',$chatId)->pluck('profile_id')->toArray();
+    	$memberIds = Member::withTrashed()->where('chat_id',$chatId)->pluck('profile_id')->toArray();
         foreach ($profileIds as $profileId ) {
             $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>2, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',2)->pluck('text')->first().'.'.$profileId];
 
@@ -116,17 +116,17 @@ class MemberController extends Controller
     	{
            	$profileIds = [$profileIds];
         }
-        $profileIdsExists = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->whereNotNull('exited_on')->exists();
+        $profileIdsExists = Member::withTrashed()->whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->whereNotNull('exited_on')->exists();
     	if($profileIdsExists)
         {
             return $this->sendError('This user cannot perform this action');
         }
-        $checkAdmin = Member::whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
+        $checkAdmin = Member::withTrashed()->whereIn('profile_id',$profileIds)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
         if($checkAdmin)
         {
             return $this->sendError('This user already admin');
         }
-        $this->model = $this->model->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->whereNull('exited_on')->update(['is_admin'=>1]);
+        $this->model = $this->model->withTrashed()->where('chat_id',$chatId)->whereIn('profile_id',$profileIds)->whereNull('exited_on')->update(['is_admin'=>1]);
 
 
         $type = 7 ;
@@ -134,7 +134,7 @@ class MemberController extends Controller
             return $this->sendError("user cannot make himself admin");
         }
         foreach ($profileIds as $profileId) {
-            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$loggedInProfileId];
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
 
@@ -152,11 +152,11 @@ class MemberController extends Controller
            	$profileIds = [$profileIds];
         } 
         $profileIds = array_diff($profileIds, Chat::where('id',$chatId)->pluck('profile_id')->toArray());
-    	$this->model = $this->model->where('chat_id',$chatId)->whereNull('exited_on')->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
+    	$this->model = $this->model->withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->whereIn('profile_id',$profileIds)->update(['is_admin'=>0]);
 
         $type = 8 ;
         foreach ($profileIds as $profileId) {
-            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$profileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$loggedInProfileId];
+            $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$loggedInProfileId,'type'=>$type, 'message'=>$loggedInProfileId.'.'.\DB::table('chat_message_type')->where('id',$type)->pluck('text')->first().'.'.$profileId];
             event(new \App\Events\Chat\MessageTypeEvent($messageInfo));
         }
 
@@ -169,12 +169,12 @@ class MemberController extends Controller
 
     protected function isAdmin($chatId,$profileId)
     {
-    	return Member::where('profile_id',$profileId)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
+    	return Member::withTrashed()->where('profile_id',$profileId)->where('chat_id',$chatId)->where('is_admin',1)->whereNull('exited_on')->exists();
     }
 
     protected function isMember($profileId, $chatId)
     {
-        return \DB::table('chat_members')->where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->first();
+        return \DB::table('chat_members')->withTrashed()->where('chat_id',$chatId)->where('profile_id',$profileId)->whereNull('exited_on')->first();
     }
 
     public function getMembersToAdd(Request $request, $chatId)

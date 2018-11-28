@@ -164,7 +164,7 @@ class ChatController extends Controller
     public function update(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-    	$checkAdmin = Member::where('chat_id',$id)->where('profile_id',$loggedInProfileId)
+    	$checkAdmin = Member::withTrashed()->where('chat_id',$id)->where('profile_id',$loggedInProfileId)
             ->where('is_admin',1)->whereNull('exited_on')->exists();
 
     	if(!isset($checkAdmin) || is_null($checkAdmin))
@@ -224,7 +224,7 @@ class ChatController extends Controller
             return $this->sendError("Invalid Input");
         }
     	$this->model = Chat::open($loggedInProfileId,$profileId);
-         $this->model == null ? $this->sendError('No existing chats with this user') : null;
+         $this->model == null ? $this->sendError('No existing chats with this user'): null;
          return $this->sendResponse();
     }
 
@@ -268,32 +268,16 @@ class ChatController extends Controller
                         $member = Member::insert($input);
                     }
                     $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
-                    $recepients = [];
-                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
-                    $recepients[] = ['recepient_id'=>$profileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];
-                    \DB::table('message_recepients')->insert($recepients);
-                    $this->model = $message;
+                    $this->model = true;
                 }
                 if(count($chatIds))
                 {
                     foreach ($chatIds as $chatId){
-                        $isMember = Member::where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
+                        $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
                         if($isMember)
-                        {   $members = Member::where('chat_id',$chatId)->whereNull('exited_on')->pluck('profile_id');
-                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId, '']);
-                            $recepients = [];
-                            foreach ($members as $member) {
-                                if($member == $loggedInProfileId)
-                                {
-                                    $recepients[] = ['recepient_id'=>$loggedInProfileId, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>$this->now, 'sent_on'=>$this->now];
-                                }
-                                else
-                                {
-                                    $recepients[] = ['recepient_id'=>$member, 'message_id'=>$message->id, 'chat_id'=>$chat->id, 'read_on'=>null, 'sent_on'=>$this->now];   
-                                }
-                            }
-                            \DB::table('message_recepients')->insert($recepients);
-                            $this->model = $message;
+                        {
+                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
+                            $this->model = true;
                         }
                     }
                 }
@@ -421,6 +405,71 @@ class ChatController extends Controller
 
         return $this->sendResponse();
 
+    }
+    public function featureMessage(Request $request,$feature,$featureId)
+    {   
+        $model = $this->getModel($feature,$featureId);
+        if(empty($model))
+        {
+            return $this->sendError("Invalid model name or Id");
+        }
+        $inputs = $request->except(['_method','_token']);
+        $inputs['is_mailable'] = $request->has('is_mailable') ? $request->input('is_mailable') : 0;
+        $profileIds = isset($inputs['profile_id']) ? $inputs['profile_id'] : $this->sendError("Profile id cannot be null");
+        if(!is_array($profileIds))
+        {
+            $profileIds = [$profileIds];
+        }
+        $LoggedInUser = $request->user();
+        $loggedInProfileId = $LoggedInUser->profile->id;
+        $data = [];
+
+        if(isset($model->company_id)&& (!is_null($model->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$model->company_id)->where('profile_id',$loggedInProfileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($model->profile_id != $loggedInProfileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        if($request->has('batch_id'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('batch_id',$request->input('batch_id'))
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_shortlisted'))
+        {
+            $profileIds = \DB::table('collaborate_applicants')->where('collaborate_id',$featureId)->whereNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        if($request->has('only_rejected'))
+        {
+            $profileIds = \DB::table('collaborate_batches_assign')->where('collaborate_id',$featureId)->whereNotNull('rejected_at')
+                ->get()->pluck('profile_id')->unique();
+        }
+        $data['userInfo'] = \DB::table('users')->leftjoin('profiles','users.id','=','profiles.user_id')->whereIn('profiles.id',$profileIds)->get();
+        $data['message'] = $inputs['message'];
+        $data['username'] = $LoggedInUser->name;
+        $data['sender_info'] = $LoggedInUser;
+        $data['model_title'] = $model->title;
+        $data['model_name'] = $feature;
+        $data['model_id'] = $model->id;
+        event(new \App\Events\FeatureMailEvent($data,$profileIds,$inputs));
+        $this->model = true;
+        return $this->sendResponse();
+        
+
+    }
+    private function getModel($feature,$featureId)
+    {
+        if($feature == 'jobs' || $feature == 'Jobs' || $feature == 'job' || $feature == 'Job')
+            $feature = 'Job';
+        else if($feature == 'collaborates' || $feature == 'Collaborates' || $feature == 'collaborate' || $feature == 'Collaborate')
+            $feature = 'Collaborate';
+        $class = "\\App\\" . ucwords($feature);
+        return $class::find($featureId);
     }
 
 }
