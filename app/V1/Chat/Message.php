@@ -49,7 +49,14 @@ class Message extends Model
                 }
                 else
                 {
-                    $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => null];
+                    if($message->type != 0)
+                    {
+                        $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => $time];
+                    }
+                    else
+                    {
+                        $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => null];
+                    }
                 }
             }
             \DB::table('message_recepients')->insert($recepient);
