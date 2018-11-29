@@ -248,11 +248,7 @@ class MessageController extends Controller
     }
 
     public function markAsRead(Request $request, $chatId)
-    {   
-                \Log::info("message read wali");
-        \Log::info($request->all());
-
-
+    {
         $loggedInProfileId = $request->user()->profile->id;
         $messageId = $request->input('messageId');
         if(!$this->isChatMember($loggedInProfileId, $chatId))
@@ -264,9 +260,8 @@ class MessageController extends Controller
         {
             return $this->sendError('Invalid Message Id');
         }
-        $messageIds = Message::where('chat_id',$chatId)->where('id','<=',$messageId)->pluck('id');
+        $messageIds = Message::where('chat_id',$chatId)->where('id','<=',$messageId)->whereNull('read_on')->get()->pluck('id');
         $this->model = \DB::table('message_recepients')->where('recepient_id',$loggedInProfileId)->whereIn('message_id',$messageIds)->whereNull('read_on')->update(['read_on'=>$this->time]);
-        \Log::info($this->model);
         return $this->sendResponse();
     }
 
