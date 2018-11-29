@@ -246,6 +246,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("tastingMethodology","CollaborateController@tastingMethodology");
                     Route::get("profilesOccupations","CollaborateController@profilesJobs");
                     Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("profilesCategory","CollaborateController@profilesCategory");
                     Route::get("profilesAllergens","CollaborateController@profilesAllergens");
                     Route::post("uploadGlobalNestedOption","CollaborateController@uploadGlobalNestedOption");
                     Route::post("uploadGlobalQuestion","CollaborateController@uploadGlobalQuestion");
@@ -391,11 +392,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
             Route::get("foodieType","ProfileController@foodieType");
+            Route::get("interested/collections","ProfileController@interestedCollections");
             Route::get("establishmentType","ProfileController@establishmentType");
 
-
+            Route::get("profile/getAllergens","ProfileController@getAllergens");
             Route::post("profile/addAllergens","ProfileController@addAllergens");
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
+            Route::post('profile/nestedFollow',['uses'=>'ProfileController@nestedFollow']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
@@ -411,6 +414,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             // onboarding routes
+            Route::get("onboarding/network","OnboardingController@getNetworkFollowers");
             Route::get('onboarding/skills', 'OnboardingController@skills');
             Route::get('onboarding/autocomplete/skills', 'OnboardingController@autoCompleteSkills');
 
