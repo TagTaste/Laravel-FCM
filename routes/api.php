@@ -108,6 +108,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::resource("photos","PhotoController");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
+
+
+                    //search apis new
+
+                    Route::get("discover",'SearchController@discover');
+
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                         Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
