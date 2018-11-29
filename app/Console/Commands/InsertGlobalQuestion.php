@@ -37,7 +37,7 @@ class InsertGlobalQuestion extends Command
      */
     public function handle()
     {
-$headerInfo2 =  [
+        $headerInfo2 =  [
             ['header_name'=>"INSTRUCTIONS",'header_info'=>null],
             ['header_name'=>"APPEARANCE","header_info"=>"Visual examination of the product- look for color, surface texture, evenness, uniformity etc."],
             ['header_name'=>"AROMA","header_info"=>"Aroma coming from the product can be traced to ingredients and process/es (like baking, cooking, fermentation etc.) which the product has undergone. Now smell it vigorously through your nose; at this stage, we are only assessing the aroma (odor through the nose), so please don't drink it yet. Bring the product closer to your nose and take a deep breath. Further, take short, quick and strong sniffs like how a dog sniffs. Anything that stands out as either too good or too bad, may please be highlighted in the comment box."],
