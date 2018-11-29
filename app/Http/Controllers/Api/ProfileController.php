@@ -1033,7 +1033,7 @@ class ProfileController extends Controller
 
     public function foodieType(Request $request)
     {
-        $this->model = \DB::table('foodie_type')->get();
+        $this->model = \DB::table('foodie_type')->orderBy('order')->get();
         return $this->sendResponse();
     }
 
