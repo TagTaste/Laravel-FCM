@@ -388,10 +388,12 @@ class ChatController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $status = $request->input('status');
-        if($status == 1)
-        $this->model = \Redis::sAdd("online:profile:", $profileId);
-        if($status == 0)
-        $this->model = \Redis::sRem("online:profile:", $profileId);
+        if($status == 1){
+            $this->model = \Redis::sAdd("online:profile:", $profileId);
+        }
+        if($status == 0){
+            $this->model = \Redis::sRem("online:profile:", $profileId);
+        }
         return $this->sendResponse();
     }
 

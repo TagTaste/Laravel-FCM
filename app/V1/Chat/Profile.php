@@ -14,7 +14,7 @@ class Profile extends BaseProfile
 
     protected $with = [];
 
-    protected $visible = ['id','name','image','imageUrl'];
+    protected $visible = ['id','name','image','imageUrl','handle'];
 
     protected $appends = ['name','imageUrl'];
     
