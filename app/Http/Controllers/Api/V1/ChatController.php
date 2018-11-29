@@ -230,13 +230,6 @@ class ChatController extends Controller
 
     public function shareAsMessage(Request $request)
     {
-        // $profileIds = $request->input('profileId');
-        // $chatIds = $request->input('chatId');
-        // $inputs = $request->all();
-
-        // event(new \App\Events\Chat\ShareMessage($chatIds,$profileIds,$inputs,$request->user()));
-
-        // $this->model = true;
         $loggedInProfileId = $request->user()->profile->id;
 
         $profileIds = $request->input('profileId');
@@ -279,6 +272,7 @@ class ChatController extends Controller
                         $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
                         if($isMember)
                         {
+                            \Log::info("gaziabad ka khoon ".$chatId);
                             $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
                             $this->model = true;
                         }
