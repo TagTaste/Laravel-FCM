@@ -37,49 +37,39 @@ class InsertGlobalQuestion extends Command
      */
     public function handle()
     {
-        $headerInfo2 = [['header_name'=>"INSTRUCTIONS"],
-                ['header_name'=>"APPEARANCE","header_info"=>"Observe the visual aspect of the product like it's shape, density of mass and color."],
-                ['header_name'=>"AROMA","header_info"=>"Sniff the product. If you experienced aroma, fill up this section."],
-                ['header_name'=>"TASTE","header_info"=>"Take a bite and figure out basic taste(s) you experienced."],
-                ['header_name'=>"AROMATICS","header_info"=>"Observe the smell that was released after you chewed the product."],
-                ['header_name'=>"ORAL TEXTURE","header_info"=>"Chew the product multiple times. Observe if it the product sticks to the mouth, its loose particles , the sound and after-taste."],
-                ['header_name'=>"OVERALL PRODUCT PREFERENCE","header_info"=>"Rate the overall experience of the product."],
-            ];
+        $headerInfo2 =  [
+            ['header_name'=>"INSTRUCTIONS",'header_info'=>null],
+            ['header_name'=>"APPEARANCE","header_info"=>"Visual examination of the product- look for color, surface texture, evenness, uniformity etc."],
+            ['header_name'=>"AROMA","header_info"=>"Aroma coming from the product can be traced to ingredients and process/es (like baking, cooking, fermentation etc.) which the product has undergone. Now smell it vigorously through your nose; at this stage, we are only assessing the aroma (odor through the nose), so please don't drink it yet. Bring the product closer to your nose and take a deep breath. Further, take short, quick and strong sniffs like how a dog sniffs. Anything that stands out as either too good or too bad, may please be highlighted in the comment box."],
+            ['header_name'=>"TASTE","header_info"=>"Tasting Time! Please take a bite, eat normally and assess the taste or tastes. Anything that stands out as too good or too bad, may please be highlighted in the comment box. "],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=>"Aromatics is the odour/s that you would experience inside your mouth, as you drink. Slurp noisily again, keeping your mouth closed and exhale through the nose. Try to identify the odors inside your mouth using the aroma options. Anything too good or too bad may please be highlighted in the comment box."],
+            ['header_name'=>"ORAL TEXTURE","header_info"=>"Let us assess the oral texture- please look for lip feel, first chew experience, chew down experience, swallow, and most importantly sound (whenever applicable)."],
+            ['header_name'=>"OVERALL PREFERENCE","header_info"=>"RATE the overall experience of the product on the preference."]
+        ]
+        ;
 
 
         $questions2 = '{
-
-
 	"INSTRUCTIONS": [{
-		"title": "INSTRUCTION",
-		"subtitle": "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.",
+		"title": "Instruction",
+		"subtitle": "Please follow the questionnaire and click answers that match with your observation/s. Remember, there are no right or wrong answers. In case you observe something that is not covered in the questionnaire, you are most welcome to share your additional inputs in the comments box. Any thing that stands out as either too good or too bad, may please be highlighted in the comments box.",
 		"select_type": 4
 	}],
-
-
 	"APPEARANCE": [{
-			"title": "Color and evenness of crust",
-			"select_type": 1,
+			"title": "Attributes which meet your expectation",
+			"select_type": 2,
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"option": "Light brown,Pale brown,Golden brown,Dark brown"
+			"option": "Color(Appeal),Shape (Evenness),Size,Surface texture"
 		},
 		{
-			"title": "Color of the mass",
-			"select_type": 1,
+			"title": "Attributes which need correction",
+			"select_type": 2,
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"option": "Lemon,Golden tone,Light brown,Baked brown"
-		},
-		{
-			"title": "Shape",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Even,Uneven"
+			"option": "Color(Appeal),Shape (Evenness),Size,Surface texture"
 		},
 		{
 			"title": "Overall preference",
@@ -88,23 +78,35 @@ class InsertGlobalQuestion extends Command
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": [{
-					"value": "Don\'t like",
+					"value": "Dislike Extremely",
 					"color_code": "#8C0008"
 				},
 				{
-					"value": "Can\'t say",
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
 					"color_code": "#C92E41"
 				},
 				{
-					"value": "Somewhat like",
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
 					"color_code": "#AC9000"
 				},
 				{
-					"value": "Clearly like",
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
 					"color_code": "#577B33"
 				},
 				{
-					"value": "Love it",
+					"value": "Like Extremely",
 					"color_code": "#305D03"
 				}
 			]
@@ -117,10 +119,9 @@ class InsertGlobalQuestion extends Command
 			"is_mandatory": 0
 		}
 	],
-
-
 	"AROMA": [{
 			"title": "Aroma observed",
+			"subtitle": "We have list of more than 400 aromas, grouped under 11 heads. If you select \"any other\" option please write the identified aroma in the comment box. Use the search box to access the aroma list. Please select the maximum of 4 dominant aromas.",
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 2,
@@ -137,23 +138,476 @@ class InsertGlobalQuestion extends Command
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": [{
-					"value": "Don\'t like",
+					"value": "Dislike Extremely",
 					"color_code": "#8C0008"
 				},
 				{
-					"value": "Can\'t say",
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
 					"color_code": "#C92E41"
 				},
 				{
-					"value": "Somewhat like",
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
 					"color_code": "#AC9000"
 				},
 				{
-					"value": "Clearly like",
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
 					"color_code": "#577B33"
 				},
 				{
-					"value": "Love it",
+					"value": "Like Extremely",
+					"color_code": "#305D03"
+				}
+			]
+		},
+		{
+			"title": "Comments",
+			"select_type": 3,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0
+		}
+	],
+	"TASTE": [{
+			"title": "Basic Taste",
+			"is_nested_question": 1,
+			"is_mandatory": 1,
+			"question": [{
+					"title": "Sweet",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+				},
+				{
+					"title": "Salt",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+				},
+				{
+					"title": "Sour",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "Neutral,Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
+				},
+				{
+					"title": "Bitter",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+				},
+				{
+					"title": "Umami",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+				}
+			]
+		},
+		{
+			"title": "Ayurveda Taste",
+			"select_type": 2,
+			"is_mandatory": 1,
+			"is_intensity": 1,
+			"intensity_type": 2,
+			"intensity_value": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
+			"is_nested_question": 0,
+			"option": "Astringent (Dryness),Pungent- Masala (Warm Spices),Pungent- Cool Sensation (Cool Spices),Pungent- Chilli"
+		},
+		{
+			"title": "Overall preference",
+			"select_type": 5,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": [{
+					"value": "Dislike Extremely",
+					"color_code": "#8C0008"
+				},
+				{
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
+					"color_code": "#C92E41"
+				},
+				{
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
+					"color_code": "#AC9000"
+				},
+				{
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
+					"color_code": "#577B33"
+				},
+				{
+					"value": "Like Extremely",
+					"color_code": "#305D03"
+				}
+			]
+		},
+		{
+			"title": "Comments",
+			"select_type": 3,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0
+		}
+	],
+	"AROMATICS TO FLAVORS": [{
+			"title": "Aromatics observed",
+			"subtitle": "Please mention maximum of 4 dominant aromas.",
+			"select_type": 2,
+			"is_intensity": 1,
+			"intensity_type": 2,
+			"intensity_value": "None,Very Mild,Mild,Distinct Mild,Distinct,Distinct Strong,Strong,Overwhelming",
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"is_nested_option": 1,
+			"nested_option_list": "AROMA"
+		},
+		{
+			"title": "Aftertaste",
+			"subtitle": "(Swallow the sample and assess the sensation on your tongue, inside your mouth etc) Identify a particular aftertaste in the comment box.",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "None,Pleasant,Unpleasant,Short,Long,Sufficient"
+		},
+		{
+			"title": "FLAVOR",
+			"subtitle": "As a rule of thumb, Flavor is a combination of Taste (25%) and Aromatics (75%). Congratulations! You just discovered the Flavor of the product that you are tasting.",
+			"is_nested_question": 1,
+			"is_mandatory": 1,
+			"question": [{
+				"title": "Is this Flavor profile reminding you of any inspirational Flavor trends?",
+				"select_type": 1,
+				"is_intensity": 0,
+				"is_nested_question": 0,
+				"is_mandatory": 1,
+				"option": "Wasabi,Sriracha,Smoky Barbeque,Tandoori,Kebab,Jalapeno Cheese,Chipotle,Sour cream and onion,Salsa,Pudina chutney,Creamy truffle"
+			}]
+		},
+		{
+			"title": "Overall preference",
+			"subtitle": "Share your overall preference for the Flavor (considering Aromatics and Taste together)",
+			"select_type": 5,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": [{
+					"value": "Dislike Extremely",
+					"color_code": "#8C0008"
+				},
+				{
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
+					"color_code": "#C92E41"
+				},
+				{
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
+					"color_code": "#AC9000"
+				},
+				{
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
+					"color_code": "#577B33"
+				},
+				{
+					"value": "Like Extremely",
+					"color_code": "#305D03"
+				}
+			]
+		},
+		{
+			"title": "Comments",
+			"select_type": 3,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0
+		}
+	],
+	"ORAL TEXTURE": [{
+			"title": "Surface texture",
+			"subtitle": "(Hold product between your lips)",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Smooth,Rough,Sticky on lips,Oily on lips"
+		},
+		{
+			"title": "Sound of the product",
+			"subtitle": "(Concentrate on sound it produces after the first bite and subsequent bites)",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Crispy,Crunchy,Crackly"
+		},
+		{
+			"title": "Oral Feel",
+			"subtitle": "(First chew)",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Soft,Firm,Hard,Moist,Dry,Creamy,Spongy,Runny liquid"
+		},
+		{
+			"title": "Chewing experience",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Shorter time to chew,Moderate time to chew,Longer time to chew,Melt in the mouth,"
+		},
+		{
+			"title": "After swallowing, how do you feel inside the mouth?",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Oily film,Loose particles,Sticking on tooth,Chalky,None"
+		},
+		{
+			"title": "Overall preference",
+			"select_type": 5,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": [{
+					"value": "Dislike Extremely",
+					"color_code": "#8C0008"
+				},
+				{
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
+					"color_code": "#C92E41"
+				},
+				{
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
+					"color_code": "#AC9000"
+				},
+				{
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
+					"color_code": "#577B33"
+				},
+				{
+					"value": "Like Extremely",
+					"color_code": "#305D03"
+				}
+			]
+		},
+		{
+			"title": "Comments",
+			"select_type": 3,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0
+		}
+	],
+	"OVERALL PREFERENCE": [{
+			"title": "Are all the attributes (appearance, aroma, taste, aromatics, flavor, and texture) in balance with each other?",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Yes,No"
+		},
+		{
+			"title": "If not, what is/are out of balance?",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0,
+			"option": "Appearance,Aroma,Taste,Aromatics,Flavor,Texture"
+		},
+		{
+			"title": "Is the product sample acceptable?",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Yes,No"
+		},
+		{
+			"title": "Overall Product Experience",
+			"select_type": 5,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": [{
+					"value": "Dislike Extremely",
+					"color_code": "#8C0008"
+				},
+				{
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
+					"color_code": "#C92E41"
+				},
+				{
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
+					"color_code": "#AC9000"
+				},
+				{
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
+					"color_code": "#577B33"
+				},
+				{
+					"value": "Like Extremely",
+					"color_code": "#305D03"
+				}
+			]
+		},
+		{
+			"title": "Comments",
+			"select_type": 3,
+			"is_intensity": 0,
+			"is_mandatory": 0,
+			"is_nested_question": 0
+		}
+	]
+}';
+        $data = ['name'=>'General Food','keywords'=>"General Food",'description'=>null,
+            'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
+        \DB::table('global_questions')->insert($data);
+
+
+        $headerInfo2 =   [['header_name'=>"INSTRUCTIONS"],
+            ['header_name'=>"APPEARANCE","header_info"=>"Visual examination of the sample- look for color, surface texture, fluidity, etc."],
+            ['header_name'=>"AROMA","header_info"=>"Aroma coming from the product can be traced to ingredients and process/es (like baking, cooking, fermentation etc.) which the product has undergone. Now smell it vigorously through your nose; at this stage, we are only assessing the aroma (odor through the nose), so please don't drink it yet. Bring the product closer to your nose and take a deep breath. Further, take short, quick and strong sniffs like how a dog sniffs. Anything that stands out as either too good or too bad, may please be highlighted in the comment box."],
+            ['header_name'=>"TASTE","header_info"=>"Slurp noisily and assess the taste/s. Anything too good or too bad, please highlight in the comment box at the end of the section."],
+            ['header_name'=>"AROMATICS","header_info"=>"Aromatics is the odour/s that you would experience inside your mouth, as you drink. Slurp noisily again, keeping your mouth closed and exhale through the nose. Try to identify the odors inside your mouth using the aroma options. Anything too good or too bad may please be highlighted in the comment box."],
+            ['header_name'=>"ORAL TEXTURE","header_info"=>"Let us assess the oral texture- please look for body and mouthfeel of the beverage."],
+            ['header_name'=>"OVERALL PREFERENCE","header_info"=>"RATE the overall experience of the product on the preference."]
+
+        ];
+
+
+
+        $questions2 = '{
+
+	"INSTRUCTIONS": [{
+		"title": "Instruction",
+		"subtitle": "Please follow the questionnaire and click answers that match with your observation/s. Remember, there are no right or wrong answers. In case you observe something that is not covered in the questionnaire, you are most welcome to share your additional inputs in the comments box. Any thing that stands out as either too good or too bad, may please be highlighted in the comments box.",
+		"select_type": 4
+	}],
+
+	"APPEARANCE": [{
+			"title": "Attributes which meet your expectation",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Color(Appeal),Clarity,Fluidity,Texture"
+		},
+		{
+			"title": "Attributes which need correction",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Color(Appeal),Clarity,Fluidity,Texture"
+		},
+		{
+			"title": "Overall preference",
+			"select_type": 5,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": [{
+					"value": "Dislike Extremely",
+					"color_code": "#8C0008"
+				},
+				{
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
+					"color_code": "#C92E41"
+				},
+				{
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
+					"color_code": "#AC9000"
+				},
+				{
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
+					"color_code": "#577B33"
+				},
+				{
+					"value": "Like Extremely",
 					"color_code": "#305D03"
 				}
 			]
@@ -167,6 +621,66 @@ class InsertGlobalQuestion extends Command
 		}
 	],
 
+	"AROMA": [{
+			"title": "Aroma observed",
+			"subtitle": "We have list of more than 400 aromas, grouped under 11 heads. If you select \"any other\" option please write the identified aroma in the comment box. Use the search box to access the aroma list. Please select the maximum of 4 dominant aromas.",
+			"select_type": 2,
+			"is_intensity": 1,
+			"intensity_type": 2,
+			"intensity_value": "None,Very Mild,Mild,Distinct Mild,Distinct,Distinct Strong,Strong,Overwhelming",
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"is_nested_option": 1,
+			"nested_option_list": "AROMA"
+		},
+		{
+			"title": "Overall preference",
+			"select_type": 5,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": [{
+					"value": "Dislike Extremely",
+					"color_code": "#8C0008"
+				},
+				{
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
+					"color_code": "#C92E41"
+				},
+				{
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
+					"color_code": "#AC9000"
+				},
+				{
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
+					"color_code": "#577B33"
+				},
+				{
+					"value": "Like Extremely",
+					"color_code": "#305D03"
+				}
+			]
+		},
+		{
+			"title": "Comments",
+			"select_type": 3,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0
+		}
+	],
 
 	"TASTE": [{
 			"title": "Basic Taste",
@@ -215,23 +729,6 @@ class InsertGlobalQuestion extends Command
 			]
 		},
 		{
-             "title": "Ayurveda Taste - numeric intensity",
-
-            "select_type": 2,
-
-            "is_mandatory": 1,
-
-            "is_intensity": 1,
-
-            "intensity_type": 1,
-
-            "intensity_value": 15,
-
-            "is_nested_question": 0,
-
-            "option": "Astringent (Dryness),Pungent- Masala (Warm Spices),Pungent- Cool Sensation (Cool Spices),Pungent- Chilli"
-        },
-        {
 			"title": "Ayurveda Taste",
 			"select_type": 2,
 			"is_mandatory": 1,
@@ -242,37 +739,41 @@ class InsertGlobalQuestion extends Command
 			"option": "Astringent (Dryness),Pungent- Masala (Warm Spices),Pungent- Cool Sensation (Cool Spices),Pungent- Chilli"
 		},
 		{
-			"title": "If you were to make your own chocolate what will be the combination of bitter and sweet taste",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "30% Bitter and 70% Sweet,70% Bitter and 30% Sweet,100% Bitter,15% Bitter,10% Bitter and 90% Sweet (Milk Chocolate)"
-		},
-		{
 			"title": "Overall preference",
 			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": [{
-					"value": "Don\'t like",
+					"value": "Dislike Extremely",
 					"color_code": "#8C0008"
 				},
 				{
-					"value": "Can\'t say",
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
 					"color_code": "#C92E41"
 				},
 				{
-					"value": "Somewhat like",
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
 					"color_code": "#AC9000"
 				},
 				{
-					"value": "Clearly like",
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
 					"color_code": "#577B33"
 				},
 				{
-					"value": "Love it",
+					"value": "Like Extremely",
 					"color_code": "#305D03"
 				}
 			]
@@ -286,17 +787,9 @@ class InsertGlobalQuestion extends Command
 		}
 	],
 
-
 	"AROMATICS": [{
-			"title": "Feel of baked flour",
-			"select_type": 1,
-			"is_intensity": 0,
-			"is_nested_question": 0,
-			"is_mandatory": 1,
-			"option": "Yes,No"
-		},
-		{
 			"title": "Aromatics observed",
+			"subtitle": "Please mention maximum of 4 dominant aromas.",
 			"select_type": 2,
 			"is_intensity": 1,
 			"intensity_type": 2,
@@ -307,29 +800,76 @@ class InsertGlobalQuestion extends Command
 			"nested_option_list": "AROMA"
 		},
 		{
+			"title": "Aftertaste",
+			"subtitle": "(Swallow the sample and assess the sensation on your tongue, inside your mouth etc) Identify a particular aftertaste in the comment box.",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "None,Pleasant,Unpleasant,Short,Long,Sufficient"
+		},
+
+		{
+			"title": "FLAVOR",
+			"subtitle": "As a rule of thumb, Flavor is a combination of Taste (25%) and Aromatics (75%). Congratulations! You just discovered the Flavor of the product that you are tasting.",
+			"is_nested_question": 1,
+			"is_mandatory": 1,
+			"question": [{
+					"title": "Is this Flavor profile reminding you of any inspirational Flavor trends?",
+					"subtitle": "If yes, please mention it in the comment box",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "Yes,No"
+				},
+				{
+					"title": "Is this beverage fermented?",
+					"select_type": 1,
+					"is_intensity": 0,
+					"is_nested_question": 0,
+					"is_mandatory": 1,
+					"option": "Yes,No"
+				}
+			]
+		},
+		{
 			"title": "Overall preference",
+			"subtitle": "Share your overall preference for the Flavor (considering Aromatics and Taste together)",
 			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": [{
-					"value": "Don\'t like",
+					"value": "Dislike Extremely",
 					"color_code": "#8C0008"
 				},
 				{
-					"value": "Can\'t say",
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
 					"color_code": "#C92E41"
 				},
 				{
-					"value": "Somewhat like",
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
 					"color_code": "#AC9000"
 				},
 				{
-					"value": "Clearly like",
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
 					"color_code": "#577B33"
 				},
 				{
-					"value": "Love it",
+					"value": "Like Extremely",
 					"color_code": "#305D03"
 				}
 			]
@@ -344,106 +884,29 @@ class InsertGlobalQuestion extends Command
 	],
 
 	"ORAL TEXTURE": [{
-			"title": "Rougness of mass ",
+			"title": "Body",
+			"subtitle": "Refers to the heaviness of texture",
 			"select_type": 1,
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"option": "Low,Medium,High"
+			"option": "Syrup,Full cream milk,Toned Milk,Watery,Any other"
 		},
 		{
-			"title": "Sound",
-			"is_nested_question": 0,
-			"subtitle": "Crispy- one sound event- sharp, clean, fast and high pitched,e.g., Potato chips.\nCrunchy - multiple low pitched sounds perceived as a series of small events (Grinding),e.g., Rusks.\nCrackly- bite only once without grinding, it is one sudden low pitched sound event that brittles the product, e.g., cracker biscuits; sugar crystals are crackly too",
-			"is_mandatory": 1,
+			"title": "Mouthfeel of the beverage",
 			"select_type": 2,
-			"is_intensity": 1,
-			"intensity_type": 2,
-			"intensity_value": "None,Barely detectable,Identifiable but not very intense,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-			"option": "Crispy,Crunchy,Crackly"
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Chocolatey,Earthy,Bright,Mellow,Sharp,Dry,Brisk,Complex,Delicate,Silky,Velvety,Raw,Heavy,Opulent,Biting,Astringent,Short,Frivolous,Fresh,Watery,Warm,Smooth,"
 		},
 		{
-			"title": "FIRST CHEW",
-			"is_nested_question": 1,
+			"title": "Is this beverage distilled?l",
+			"select_type": 2,
+			"is_intensity": 0,
+			"is_nested_question": 0,
 			"is_mandatory": 1,
-			"question": [{
-					"title": "Uniformity of bite",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Low,Medium,High"
-				},
-				{
-					"title": "Denseness of mass",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Low,Medium,High"
-				},
-				{
-					"title": "Crunchiness",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Low,Medium,High"
-
-				}
-			]
-		},
-		{
-			"title": "CHEWDOWN EXPERIENCE",
-			"is_nested_question": 1,
-			"is_mandatory": 1,
-			"question": [{
-					"title": "Moisture absorption",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Low,Medium,High"
-				},
-				{
-					"title": "Cohesiveness of mass",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Low,Medium,High"
-				}
-			]
-		},
-		{
-			"title": "RESIDUAL",
-			"is_nested_question": 1,
-			"is_mandatory": 1,
-			"question": [{
-					"title": "Loose particles",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Yes,No"
-				},
-				{
-					"title": "Mouthcoating / tooth stickiness",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Yes,No"
-				},
-				{
-					"title": "Dunking of rusk in tea/ milk/ coffee (4 seconds)",
-					"select_type": 1,
-					"is_intensity": 0,
-					"is_nested_question": 0,
-					"is_mandatory": 1,
-					"option": "Drops,Lumpy,Holds good"
-				}
-			]
+			"option": "Yes,No"
 		},
 		{
 			"title": "Overall preference",
@@ -452,23 +915,35 @@ class InsertGlobalQuestion extends Command
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": [{
-					"value": "Don\'t like",
+					"value": "Dislike Extremely",
 					"color_code": "#8C0008"
 				},
 				{
-					"value": "Can\'t say",
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
 					"color_code": "#C92E41"
 				},
 				{
-					"value": "Somewhat like",
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
 					"color_code": "#AC9000"
 				},
 				{
-					"value": "Clearly like",
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
 					"color_code": "#577B33"
 				},
 				{
-					"value": "Love it",
+					"value": "Like Extremely",
 					"color_code": "#305D03"
 				}
 			]
@@ -482,33 +957,66 @@ class InsertGlobalQuestion extends Command
 		}
 	],
 
-
-	"OVERALL PRODUCT PREFERENCE": [
-
+	"OVERALL PREFERENCE": [{
+			"title": "Are all the attributes (appearance, aroma, taste, aromatics, flavor, and texture) in balance with each other?",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Yes,No"
+		},
 		{
-			"title": "Full product experience",
+			"title": "If not, what is/are out of balance?",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 0,
+			"option": "Appearance,Aroma,Taste,Aromatics,Flavor,Texture"
+		},
+		{
+			"title": "Is the product sample acceptable?",
+			"select_type": 1,
+			"is_intensity": 0,
+			"is_nested_question": 0,
+			"is_mandatory": 1,
+			"option": "Yes,No"
+		},
+		{
+			"title": "Overall Preference",
 			"select_type": 5,
 			"is_intensity": 0,
 			"is_nested_question": 0,
 			"is_mandatory": 1,
 			"option": [{
-					"value": "Don\'t like",
+					"value": "Dislike Extremely",
 					"color_code": "#8C0008"
 				},
 				{
-					"value": "Can\'t say",
+					"value": "Dislike Strongly",
+					"color_code": "#D0021B"
+				},
+				{
+					"value": "Dislike Moderately",
 					"color_code": "#C92E41"
 				},
 				{
-					"value": "Somewhat like",
+					"value": "Can\'t Say",
+					"color_code": "#E27616"
+				},
+				{
+					"value": "Like Slightly",
 					"color_code": "#AC9000"
 				},
 				{
-					"value": "Clearly like",
+					"value": "Like Moderately",
+					"color_code": "#7E9B42"
+				},
+				{
+					"value": "Like Strongly",
 					"color_code": "#577B33"
 				},
 				{
-					"value": "Love it",
+					"value": "Like Extremely",
 					"color_code": "#305D03"
 				}
 			]
@@ -522,8 +1030,7 @@ class InsertGlobalQuestion extends Command
 		}
 	]
 }';
-
-        $data = ['name'=>'RUSK MULTIGRAIN Numeric','keywords'=>"RUSK MULTIGRAIN",'description'=>null,
+        $data = ['name'=>'General Beverages','keywords'=>"General Beverages",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
