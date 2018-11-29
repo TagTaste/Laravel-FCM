@@ -34,7 +34,7 @@ class OnboardingController extends Controller
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
         $profileIds = $profileIds->random($length);
-
+        $repeatProfileIds = $profileIds;
         $this->model = [];
 
         foreach ($profileIds as $key => $value)
@@ -85,7 +85,7 @@ class OnboardingController extends Controller
 
         foreach ($foundationTeamIds as $key => $value)
         {
-            if($loggedInProfileId == $value)
+            if($loggedInProfileId == $value || in_array($value,$repeatProfileIds))
             {
                 unset($foundationTeamIds[$key]);
                 continue;
@@ -112,6 +112,37 @@ class OnboardingController extends Controller
         }
         if(count($profileData))
             $this->model[] = ['title'=>'Foundation team','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
+
+        $activityBasedIds = [804,70,5555,503,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
+
+        foreach ($activityBasedIds as $key => $value)
+        {
+            if($loggedInProfileId == $value || in_array($value,$repeatProfileIds))
+            {
+                unset($activityBasedIds[$key]);
+                continue;
+            }
+            $activityBasedIds[$key] = "profile:small:".$value ;
+        }
+
+        if(count($activityBasedIds)> 0)
+        {
+            $data = \Redis::mget($activityBasedIds);
+
+        }
+        $profileData = [];
+
+        foreach($data as $key => &$profile){
+            if(is_null($profile)){
+                unset($data[$key]);
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->self = false;
+            $profileData[] = $profile;
+        }
+
         if(count($profileData))
             $this->model[] = ['title'=>'Activity Based','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
 
