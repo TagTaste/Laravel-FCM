@@ -242,7 +242,7 @@ class ChatController extends Controller
         $profileIds = $request->input('profileId');
         $chatIds = $request->input('chatId');
         $inputs = $request->all();
-
+        $this->model = false;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
                     $image = $this->getExternalImage($inputs['preview']['image'],$loggedInProfileId);
                     $s3 = \Storage::disk('s3');
@@ -258,17 +258,20 @@ class ChatController extends Controller
                 {
                     $info['preview'] = null;
                 }
-                foreach ($profileIds as $profileId) {
-                    $chat = Chat::open($loggedInProfileId, $profileId);
-                    if (!$chat) {
-                        $chat = Chat::create(['profile_id'=>$loggedInProfileId, 'chat_type'=>1]);
-                        $input = [];
-                        $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$loggedInProfileId, 'is_admin'=>1];
-                        $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$profileId, 'is_admin'=>0]; 
-                        $member = Member::insert($input);
+                if(count($profileIds))
+                {
+                    foreach ($profileIds as $profileId) {
+                        $chat = Chat::open($loggedInProfileId, $profileId);
+                        if (!$chat) {
+                            $chat = Chat::create(['profile_id'=>$loggedInProfileId, 'chat_type'=>1]);
+                            $input = [];
+                            $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$loggedInProfileId, 'is_admin'=>1];
+                            $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$profileId, 'is_admin'=>0];
+                            $member = Member::insert($input);
+                        }
+                        $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
+                        $this->model = true;
                     }
-                    $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
-                    $this->model = true;
                 }
                 if(count($chatIds))
                 {
