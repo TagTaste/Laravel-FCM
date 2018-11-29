@@ -59,6 +59,11 @@ class SearchController extends Controller
         $profile = Profile::where('id',$loggedInProfileId)->first();
         $ids = \DB::table('profile_filters')->where('key','location')->where('value',$profile->city)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
+        //interest
+        $ids = \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->get()->pluck('occupation_id');
+        $ids = \DB::table('profiles_interested_collections')->whereIn('occupation_id',$ids)->get()->pluck('profile_id');
+        $profileIds = $profileIds->merge($ids);
+
         return $profileIds;
     }
 
