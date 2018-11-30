@@ -116,7 +116,7 @@ class OnboardingController extends Controller
         if(count($profileData))
             $this->model[] = ['title'=>'FOUNDING TEAM','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
 
-        $activityBasedIds = [804,70,5555,503,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338];
+        $activityBasedIds = [804,70,5555,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
 
         foreach ($activityBasedIds as $key => $value)
         {
@@ -169,7 +169,7 @@ class OnboardingController extends Controller
         }
 //        $this->model['company'] = $companyData;
         if(count($companyData))
-            $this->model[] = ['title'=>'COMPANIES TO FOLLOW','type'=>'company','ui_type'=>1,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'COMPANIES TO FOLLOW','type'=>'company','ui_type'=>0,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)'];
 
         return $this->sendResponse();
     }
