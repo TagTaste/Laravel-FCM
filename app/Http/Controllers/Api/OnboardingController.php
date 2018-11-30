@@ -79,7 +79,7 @@ class OnboardingController extends Controller
         // ui_type = 0  is horizontal , ui_type = 1 is vertical
         // color_code = 0 white and color_code = 1 is gray
         if(count($profileData))
-            $this->model[] = ['title'=>'Your Selection','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'TAGTASTE RECOMMENDATIONS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
 
         $foundationTeamIds = [1,10,32,165,44,556,2,4,13,637,7,2245,12,6,1585,359,1467,8,1775,3379,1574,14,15,7585,1016];
 
@@ -111,9 +111,9 @@ class OnboardingController extends Controller
             $profileData[] = $profile;
         }
         if(count($profileData))
-            $this->model[] = ['title'=>'Foundation team','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
+            $this->model[] = ['title'=>'FOUNDING TEAM','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
 
-        $activityBasedIds = [804,70,5555,503,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
+        $activityBasedIds = [804,70,5555,503,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338];
 
         foreach ($activityBasedIds as $key => $value)
         {
@@ -144,7 +144,7 @@ class OnboardingController extends Controller
         }
 
         if(count($profileData))
-            $this->model[] = ['title'=>'Activity Based','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
+            $this->model[] = ['title'=>'ACTIVE & INFLUENTIAL','type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
 
 //        $this->model['activity_based'] = $profileData; // should be later
 
@@ -166,7 +166,7 @@ class OnboardingController extends Controller
         }
 //        $this->model['company'] = $companyData;
         if(count($companyData))
-            $this->model[] = ['title'=>'Company Profile','type'=>'company','ui_type'=>1,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'COMPANIES TO FOLLOW','type'=>'company','ui_type'=>1,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)'];
 
         return $this->sendResponse();
     }
