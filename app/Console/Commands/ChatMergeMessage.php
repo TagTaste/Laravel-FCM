@@ -43,7 +43,7 @@ class ChatMergeMessage extends Command
                 foreach ($chatIds as $chatId)
                 {
                     $count = 0;
-                    echo "chat id is here ".$chatId."\n";
+//                    echo "chat id is here ".$chatId."\n";
                     $checkChat = Chat::where('id',$chatId)->whereNull('name')->exists();
                     if($checkChat)
                     {
