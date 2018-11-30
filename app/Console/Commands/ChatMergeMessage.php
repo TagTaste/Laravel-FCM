@@ -61,7 +61,7 @@ class ChatMergeMessage extends Command
                             {
                                 echo "count is here ".$messageChatId->id."\n";
                                 echo$chatId->chat_id."\n";
-//                        $count = \DB::table('chat_messages')->where('chat_id',$chatId)->update(['chat_id'=>$messageChatId->id]);
+                        $count = \DB::table('chat_messages')->where('chat_id',$chatId)->update(['chat_id'=>$messageChatId->id]);
                                 echo "new count is here ".$count."\n";
                             }
                         }
