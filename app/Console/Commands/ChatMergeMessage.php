@@ -41,7 +41,7 @@ class ChatMergeMessage extends Command
                 if(count($memberIds) > 1)
                 {
                     $chatIds = \DB::table('chat_members as m1')->select('m1.chat_id')->join('chat_members as m2','m2.chat_id','=','m1.chat_id')
-                        ->where('m1.profile_id',$memberIds[0])->where('m2.profile_id',$memberIds[1])->where('m1.is_single',1)
+                        ->where('m1.profile_id',$memberIds[0])->where('m2.profile_id',$memberIds[1])->where('m1.is_single',1)->where('m2.is_single',1)
                         ->get();
                     $newChatIds = [];
                     foreach ($chatIds as $chatId)
