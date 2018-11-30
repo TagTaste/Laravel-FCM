@@ -40,22 +40,28 @@ class ChatMergeMessage extends Command
                 $memberIds = \DB::table('chat_members')->where('chat_id',$model->id)->where('is_single',1)->get()->pluck('profile_id');
                 if(count($memberIds) > 1)
                 {
-                    $chatIds = \DB::table('chat_members as m1')->join('chat_members as m2','m2.chat_id','=','m1.chat_id')
-                        ->where('m1.profile_id',$memberIds[0])->where('m2.profile_id',$memberIds[1])->where('m1.is_single',1)->where('m2.is_single',1)
-                        ->get()->pluck('m1.chat_id');
+                    $chatIds = \DB::table('chat_members as m1')->select('m1.chat_id')->join('chat_members as m2','m2.chat_id','=','m1.chat_id')
+                        ->where('m1.profile_id',$memberIds[0])->where('m2.profile_id',$memberIds[1])->where('m1.is_single',1)
+                        ->get();
+                    $newChatIds = [];
+                    foreach ($chatIds as $chatId)
+                    {
+                        $newChatIds[] = $chatId->chat_id;
+                    }
 
-                    $messageChatId = \DB::table('chat_messages')->whereIn('chat_id',$chatIds)->orderBy('created_at','desc')->first();
+                    $messageChatId = \DB::table('chat_messages')->whereIn('chat_id',$newChatIds)->orderBy('created_at','desc')->first();
                     if(count($chatIds))
                     {
                         foreach ($chatIds as $chatId)
                         {
                             $count = 1;
-                            echo "chat id is here ".$chatId."\n";
-                            $checkChat = Chat::where('id',$chatId)->whereNull('name')->exists();
+//                            echo "chat id is here ".$chatId."\n";
+                            $checkChat = Chat::where('id',$chatId->chat_id)->whereNull('name')->exists();
                             if($checkChat)
                             {
-                                echo "count is here ".$count."\n";
-//                        $count = \DB::table('chat_messages')->where('chat_id',$chatId)->update(['chat_id'=>$messageChatId]);
+                                echo "count is here ".$messageChatId->id."\n";
+                                echo$chatId->chat_id."\n";
+//                        $count = \DB::table('chat_messages')->where('chat_id',$chatId)->update(['chat_id'=>$messageChatId->id]);
                                 echo "new count is here ".$count."\n";
                             }
                         }
