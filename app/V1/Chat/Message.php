@@ -38,7 +38,7 @@ class Message extends Model
 
             //is there a better way?
            $message->load('profile');
-            $members = Chat\Member::withTrashed()->where('chat_id',$message->chat_id)->whereNull('exited_on')->pluck('profile_id');
+            $members = \App\V1\Chat\Member::withTrashed()->where('chat_id',$message->chat_id)->whereNull('exited_on')->pluck('profile_id');
             \App\V1\Chat\Member::where('chat_id',$message->chat_id)->onlyTrashed()->update(['deleted_at'=>null]);
             $recepient = [];
             $time = $message->created_at;

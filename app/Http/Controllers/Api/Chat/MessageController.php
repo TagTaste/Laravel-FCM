@@ -123,16 +123,16 @@ class MessageController extends Controller
                 $otherMemberOfChat->update($data);
             }
         }
-        foreach (Chat\Member::where('chat_id',$chatId)->pluck('profile_id') as $currentProfileId) {
-                    if($currentProfileId == $profileId)
-                    {
-                        \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$currentProfileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
-                    }
-                    else
-                    {
-                            \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$currentProfileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
-                    }
-                }
+        // foreach (Chat\Member::where('chat_id',$chatId)->pluck('profile_id') as $currentProfileId) {
+        //             if($currentProfileId == $profileId)
+        //             {
+        //                 \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$currentProfileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"], 'read_on' => $this->model["created_at"]]);
+        //             }
+        //             else
+        //             {
+        //                     \DB::table('message_recepients')->insert(['message_id'=>$messageId, 'recepient_id'=>$currentProfileId, 'chat_id'=>$chatId, 'sent_on'=>$this->model["created_at"]]);
+        //             }
+        //         }
 		event(new \App\Events\Chat\Message($this->model,$request->user()->profile));
 		return $this->sendResponse();
 	}

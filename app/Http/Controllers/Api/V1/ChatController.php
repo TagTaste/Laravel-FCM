@@ -251,6 +251,7 @@ class ChatController extends Controller
                 {
                     $info['preview'] = null;
                 }
+
                 if(count($profileIds))
                 {
                     foreach ($profileIds as $profileId) {
