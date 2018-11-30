@@ -16,6 +16,7 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
+use App\Console\Commands\ChatMergeMessage;
 use App\Console\Commands\CloseCollaborate;
 use App\Console\Commands\CollaborationQuestions;
 use App\Console\Commands\CapitalizeUserName;
@@ -176,6 +177,10 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\UpdateGlobalQuestion::class,
         CloseCollaborate::class,
+        \App\Console\Commands\FillTableRecepient::class,
+        \App\Console\Commands\FillChatType::class,
+        \App\Console\Commands\ChatFileModify::class,
+        ChatMergeMessage::class,
         CompleteTastingMail::class,
 
 
