@@ -34,7 +34,7 @@ class OnboardingController extends Controller
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
         $profileIds = $profileIds->random($length);
-        $repeatProfileIds = $profileIds;
+        $repeatProfileIds = $profileIds->toArray();
         $this->model = [];
 
         foreach ($profileIds as $key => $value)
