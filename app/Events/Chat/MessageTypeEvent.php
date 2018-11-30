@@ -2,7 +2,6 @@
 
 namespace App\Events\Chat;
 
-use App\Chat;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,27 +10,30 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Message
+class MessageTypeEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $chatId;
-    public $profile;
-    public $message;
-    public $image;
-    public $id;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Chat\Message $message, $profile)
+    public $sender;
+    public $receiver;
+    public $info;
+    public function __construct($info)
     {
-        $this->id = $message->id;
-        $this->chatId = $message->chat_id;
-        $this->message = $message->message;
-        $this->image = $message->fileUrl;
-        $this->profile = $profile;
-        $this->headerAction = $message->headerAction;
+        $this->info = $info;
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return Channel|array
+     */
+    public function broadcastOn()
+    {
+        return new PrivateChannel('channel-name');
     }
 }

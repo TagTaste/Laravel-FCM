@@ -33,7 +33,7 @@ class Chat extends Model
 
         if(isset($memberOfChat->exited_on))
         {
-            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('deleted_at')->get()->pluck('profile');
+            return $this->members()->where('profile_id','!=',request()->user()->profile->id)->where('created_at','<=',$memberOfChat->exited_on)->whereNull('exited_on')->get()->pluck('profile');
         }
         else
         {
@@ -65,12 +65,15 @@ class Chat extends Model
         if(isset($memberOfChat->exited_on))
         {
             $this->isEnabled = false;
-            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->orderBy('created_at','desc')->take(5)->get();
+            return $this->messages()->whereBetween('created_at',[$memberOfChat->created_at,$memberOfChat->exited_on])->where('type',0)->orderBy('created_at','desc')->take(5)->get();
         }
         else
         {
             $this->isEnabled = true;
-            return $this->messages()->where('created_at','>=',$memberOfChat->created_at)->orderBy('created_at','desc')->take(5)->get();
+            if(isset($memberOfChat->created_at))
+                return $this->messages()->where('created_at','>',$memberOfChat->created_at)->where('type',0)->orderBy('created_at','desc')->take(5)->get();
+            else
+                return null;
         }
     }
 
