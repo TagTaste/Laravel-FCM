@@ -59,10 +59,9 @@ class ChatMergeMessage extends Command
                             $checkChat = Chat::where('id',$chatId->chat_id)->whereNull('name')->exists();
                             if($checkChat)
                             {
-                                echo "count is here ".$messageChatId->id."\n";
-                                echo$chatId->chat_id."\n";
-                        $count = \DB::table('chat_messages')->where('chat_id',$chatId)->update(['chat_id'=>$messageChatId->id]);
-                                echo "new count is here ".$count."\n";
+                                echo "count is here ".$messageChatId->chat_id."\n";
+                                echo $chatId->chat_id."\n";
+                                \DB::table('chat_messages')->where('chat_id',$chatId)->update(['chat_id'=>$messageChatId->chat_id]);
                             }
                         }
                     }
