@@ -50,7 +50,7 @@ class ChatMergeMessage extends Command
                     }
 
                     $messageChatId = \DB::table('chat_messages')->whereIn('chat_id',$newChatIds)->orderBy('created_at','desc')->first();
-                    if(count($chatIds))
+                    if(count($chatIds) && isset($messageChatId->id))
                     {
                         foreach ($chatIds as $chatId)
                         {
