@@ -91,7 +91,7 @@ class CollaborateController extends Controller
         }
 
         $profileId = $request->user()->profile->id;
-        if($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'expired'){
+        if($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired'){
             $meta = $collaboration->getMetaFor($profileId);
             $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
             return $this->sendResponse();
