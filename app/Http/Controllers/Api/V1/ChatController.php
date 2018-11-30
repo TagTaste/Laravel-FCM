@@ -259,13 +259,13 @@ class ChatController extends Controller
                     $info['preview'] = null;
                 }
                 foreach ($profileIds as $profileId) {
-                    $chat = Chat::open($loggedInProfileId, $profileId);
+                    $chat =  \App\V1\Chat::open($loggedInProfileId, $profileId);
                     if (!$chat) {
-                        $chat = Chat::create(['profile_id'=>$loggedInProfileId, 'chat_type'=>1]);
+                        $chat =  \App\V1\Chat::create(['profile_id'=>$loggedInProfileId, 'chat_type'=>1]);
                         $input = [];
                         $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$loggedInProfileId, 'is_admin'=>1];
                         $input[] = ['chat_id'=>$chat->id, 'profile_id'=>$profileId, 'is_admin'=>0]; 
-                        $member = Member::insert($input);
+                        $member = \App\V1\Chat\Member::insert($input);
                     }
                     $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chat->id]);
                     $this->model = true;
@@ -276,7 +276,7 @@ class ChatController extends Controller
                         $isMember = Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->exists();
                         if($isMember)
                         {
-                            $message = \App\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
+                            $message = \App\V1\Chat\Message::create(['message'=>$inputs['message'], 'profile_id'=>$loggedInProfileId, 'preview'=>$info['preview'], 'chat_id'=>$chatId]);
                             $this->model = true;
                         }
                     }
@@ -389,12 +389,10 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
         $status = $request->input('status');
         if($status == 1){
-            \Log::info("this user is online".$profileId);
             $this->model = \Redis::sAdd("online:profile:", $profileId);
         }
         if($status == 0){
             $this->model = \Redis::sRem("online:profile:", $profileId);
-            \Log::info("this user is offline".$profileId);
         }
         return $this->sendResponse();
     }
