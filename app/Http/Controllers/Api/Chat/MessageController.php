@@ -37,9 +37,16 @@ class MessageController extends Controller
 	public function index(Request $request,$chatId)
 	{
         $loggedInProfileId = $request->user()->profile->id;
-
         if($this->isChatMember($loggedInProfileId, $chatId))
-        {   
+        {
+
+            $isEnabled = true;
+            $memberOfChat = Chat\Member::withTrashed()->where('chat_id',$chatId)->where('profile_id',$loggedInProfileId)->whereNull('exited_on')->first();
+            if(isset($memberOfChat->exited_on))
+            {
+                $isEnabled = false;
+            }
+
             $page = $request->input('page');
             list($skip,$take) = Paginator::paginate($page);
             $data = Message::join('message_recepients','chat_messages.id','=','message_recepients.message_id')
@@ -47,7 +54,7 @@ class MessageController extends Controller
             ->where('message_recepients.recepient_id',$loggedInProfileId)->orderBy('message_recepients.sent_on','desc')->where('type',0)->skip($skip)->take($take)->get();
             $this->model = [];
             $this->model['data'] = $data;
-            $this->model['is_enabled'] = null;
+            $this->model['is_enabled'] = $isEnabled;
             return $this->sendResponse();
         }
         else
