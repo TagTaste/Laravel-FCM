@@ -35,7 +35,7 @@
                                                             <td>
                                                                 <div>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
-                                                                        Dear {{$name}},
+                                                                        Dear {{$userName}},
 
                                                                         <br>
                                                                         <br>

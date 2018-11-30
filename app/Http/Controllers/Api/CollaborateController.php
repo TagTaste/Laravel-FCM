@@ -42,7 +42,7 @@ class CollaborateController extends Controller
 
 	public function index(Request $request)
 	{
-		$collaborations = $this->model->where('state',Collaborate::$state[0])->whereNull('deleted_at')->orderBy("created_at","desc");
+		$collaborations = $this->model->where('state',Collaborate::$state[0])->orderBy("created_at","desc");
         $filters = $request->input('filters');
         //paginate
         $page = $request->input('page');
@@ -91,7 +91,7 @@ class CollaborateController extends Controller
         }
 
         $profileId = $request->user()->profile->id;
-        if($collaboration->state == 'Active'){
+        if($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired'){
             $meta = $collaboration->getMetaFor($profileId);
             $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
             return $this->sendResponse();
@@ -604,6 +604,15 @@ class CollaborateController extends Controller
         \Log::info($data);
         \Log::info("hq");
         $this->model = \DB::table('global_nested_option')->insert($data);
+        return $this->sendResponse();
+    }
+
+    public function collaborateCloseReason()
+    {
+        $data[] = ['id'=>1,'reason'=>'Completed'];
+        $data[] = ['id'=>2,'reason'=>'Did not find enough responses for this collaboration'];
+        $data[] = ['id'=>3,'reason'=>'Other'];
+        $this->model = $data;
         return $this->sendResponse();
     }
 }

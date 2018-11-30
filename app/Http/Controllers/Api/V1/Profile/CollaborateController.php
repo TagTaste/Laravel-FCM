@@ -198,7 +198,7 @@ class CollaborateController extends Controller
         }
 //        $categories = $request->input('categories');
 //        $this->model->categories()->sync($categories);
-        if($collaborate->state == 'Expired')
+        if($collaborate->state == 'Expired'||$collaborate->state == 'Close')
         {
             $inputs['state'] = Collaborate::$state[0];
             $inputs['deleted_at'] = null;
@@ -341,7 +341,7 @@ class CollaborateController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $profileId = $request->user()->profile->id;
-        $collaborations = $this->model->where('profile_id', $profileId)->where('state',Collaborate::$state[2])->whereNull('company_id')->orderBy('deleted_at', 'desc');
+        $collaborations = $this->model->where('profile_id', $profileId)->whereIn('state',[3,5])->whereNull('company_id')->orderBy('deleted_at', 'desc');
         $this->model = [];
         $data = [];
         $this->model['count'] = $collaborations->count();
@@ -353,6 +353,24 @@ class CollaborateController extends Controller
         $this->model['collaborations'] = $data;
         return $this->sendResponse();
 
+    }
+
+    public function draft(Request $request)
+    {
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $profileId = $request->user()->profile->id;
+        $collaborations = $this->model->where('profile_id', $profileId)->where('state',Collaborate::$state[3])->whereNull('company_id')->orderBy('deleted_at', 'desc');
+        $this->model = [];
+        $data = [];
+        $this->model['count'] = $collaborations->count();
+        $collaborations = $collaborations->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        foreach ($collaborations as $collaboration) {
+            $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+        }
+        $this->model['collaborations'] = $data;
+        return $this->sendResponse();
     }
 
 }
