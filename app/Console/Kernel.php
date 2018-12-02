@@ -180,6 +180,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\FillTableRecepient::class,
         \App\Console\Commands\FillChatType::class,
         \App\Console\Commands\ChatFileModify::class,
+        \App\Console\Commands\FillUnreadCount::class,
         ChatMergeMessage::class,
         CompleteTastingMail::class,
 
