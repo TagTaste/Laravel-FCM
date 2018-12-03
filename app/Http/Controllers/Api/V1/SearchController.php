@@ -6,6 +6,7 @@ use App\Company;
 use App\SearchClient;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Collection;
 
 class SearchController extends Controller
 {
@@ -40,6 +41,11 @@ class SearchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = [];
+        $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
+        $profileIds = $profileIds->unique();
+        $length = $profileIds->count();
+
+
 
     }
 
