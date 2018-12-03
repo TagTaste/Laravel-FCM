@@ -867,7 +867,7 @@ class Profile extends Model
 
             foreach ($this->profileCompletionMandatoryField as $item)
             {
-                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count($this->{$item}) == 0)
+                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
                 {
                     $index++;
                     $remaningMandatoryItem[] = $item;
@@ -876,7 +876,7 @@ class Profile extends Model
 
             foreach ($this->profileCompletionOptionalField as $item)
             {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count($this->{$item}) == 0)
+                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
                 {
                     $index++;
                     $remaningOptionalItem[] = $item;
@@ -884,7 +884,7 @@ class Profile extends Model
             }
             foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
             {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count($this->{$item}) == 0)
+                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
                 {
                     $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
                 }
@@ -920,6 +920,11 @@ class Profile extends Model
     public function profile_specializations()
     {
         return $this->hasMany('App\Profile\Specialization');
+    }
+
+    public function profile_interested_collection()
+    {
+        return $this->hasMany('App\Profile\InterestedCollection');
     }
 
     public function profile_occupations()

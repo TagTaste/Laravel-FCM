@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Collaborate;
 
 use App\Collaborate\Review;
 use App\Collaborate\ReviewHeader;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -11,6 +12,7 @@ class ReviewController extends Controller
 {
 
     protected $model;
+    protected $now;
 
     /**
      * Create instance of controller with Model
@@ -20,10 +22,12 @@ class ReviewController extends Controller
     public function __construct(Review $model)
     {
         $this->model = $model;
+        $this->now = Carbon::now()->toDateTimeString();
     }
 
     public function reviewAnswers(Request $request, $collaborateId, $headerId)
     {
+        $this->now = Carbon::now()->toDateTimeString();
         $data = [];
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id ;
@@ -62,14 +66,16 @@ class ReviewController extends Controller
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
-                        'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId];
+                        'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId,
+                        'created_at'=>$this->now,'updated_at'=>$this->now];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
                     $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
                         'question_id'=>$questionId,'tasting_header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
-                        'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus,'value_id'=>null];
+                        'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus,'value_id'=>null,
+                        'created_at'=>$this->now,'updated_at'=>$this->now];
                 }
             }
         }

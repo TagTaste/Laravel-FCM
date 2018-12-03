@@ -103,6 +103,31 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
+                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
+                Route::get("chatGroup",'ChatController@chatGroup');
+                Route::post("chatShareMessage",'ChatController@shareAsMessage');
+                Route::get("chatDisconnect",'ChatController@disconnect');
+                Route::get("getChatId",'ChatController@getChatId');
+                Route::get("chats/search",'ChatController@chatSearch');
+                Route::get("chatRoom",'ChatController@rooms');
+                Route::post("shareAsMessage",'ChatController@shareAsMessage');
+                Route::get("chats/{chatId}/chatInfo",'ChatController@chatInfo');
+                Route::resource("chats","ChatController");
+                Route::group(['namespace'=>'Chat','prefix'=>'chats/{chatId}','as'=>'chats.'],function()
+                    {
+                        Route::get("getMembersToSearch","MemberController@getMembersToSearch");
+                        Route::get("getMembersToAdd","MemberController@getMembersToAdd");
+                        Route::post("members/addAdmin",'MemberController@addAdmin');
+                        Route::post("members/removeAdmin",'MemberController@removeAdmin');
+                        Route::delete("clearMessages",'MessageController@clearMessages');
+                        Route::post("uploadFile",'MessageController@uploadFile');
+                        Route::post("markAsRead",'MessageController@markAsRead');
+                        Route::delete("deleteChat",'MessageController@deleteChat');
+                        Route::delete("deleteMessage","MessageController@deleteMessage");
+                        Route::resource("messages","MessageController");
+                        Route::resource("members","MemberController");
+
+                    });
                 Route::get("feed",'FeedController@feed');
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");
@@ -540,6 +565,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("experiences","ExperienceController");
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
+    
+            Route::post("/uploadFiles","UploadFilesController@uploadFiles");
 
 
             Route::post("/preview",function(Request $request){

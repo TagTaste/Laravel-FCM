@@ -21,17 +21,42 @@ class Message extends Model
 
 
     public static function boot()
-    {
+    {   
         self::created(function(Model $message){
 
-            //is there a better way?
-            $message->load('profile');
-            \Redis::publish("chat." . $message->chat_id,$message->toJson());
+            $members = \App\Chat\Member::withTrashed()->where('chat_id',$message->chat_id)->whereNull('exited_on')->pluck('profile_id');
+            \App\Chat\Member::where('chat_id',$message->chat_id)->onlyTrashed()->update(['deleted_at'=>null]);
+            $recepient = [];
+            $time = $message->created_at;
+            foreach ($members as $profileId) {
+                if($profileId == request()->user()->profile->id)
+                {
+                    $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => $time];
+                }
+                else
+                {
+                    if($message->type != 0)
+                    {
+                        $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => $time];
+                    }
+                    else
+                    {
+                        $recepient[] = ['message_id'=>$message->id, 'recepient_id'=>$profileId, 'chat_id'=>$message->chat_id, 'sent_on'=>$time, 'read_on' => null];
+                    }
+                }
+            }
+            \DB::table('message_recepients')->insert($recepient);
+
+            if($message->type == 0)
+            {   
+                $message->load('profile');
+                \Redis::publish("chat." . $message->chat_id,$message->toJson());
+            }
         });
     }
     
     public function chat()
-    {
+    {   
         return $this->belongsTo(Chat::class,'chat_id');
     }
     
@@ -42,7 +67,7 @@ class Message extends Model
 
     public function getFileUrlAttribute()
     {
-        return !is_null($this->file) ? \Storage::url($this->file) : null;
+        return $this->file;
     }
 
     public function getPreviewAttribute($value)

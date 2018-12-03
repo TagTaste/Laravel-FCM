@@ -68,7 +68,7 @@ class Auth extends GetUserFromToken
         $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application');
 
-        $this->recordData($request, $response);
+        //$this->recordData($request, $response);
         return $response;
     }
     
