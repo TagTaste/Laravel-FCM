@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Company;
+use App\Recipe\Collaborate;
 use App\SearchClient;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -44,7 +45,56 @@ class SearchController extends Controller
         $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
+        $profileIds = $profileIds->random($length);
 
+        foreach ($profileIds as $key => $value)
+        {
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+        }
+        $data = [];
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        $profileData = [];
+        if(count($data))
+        {
+            foreach($data as &$profile){
+                if(is_null($profile)){
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->self = false;
+                if($profile->isFollowing)
+                    continue;
+                $profileData[] = $profile;
+            }
+        }
+        if(count($profileData))
+            $this->model[] = ['title'=>'Networking Recommendations','subtitle'=>'FROM CHEF AND FOOD SAFETY','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+
+        $specializations = \DB::table('specializations')->get();
+
+        if(count($specializations))
+            $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'profile_data','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)'];
+
+        $collaborations = Collaborate::where('state',1)->skip(0)->take(10)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
+
+
+        $collaborations = \App\Recipe\Company::whereNull('deleted_at',1)->get();
+
+        if(count($collaborations))
+            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
 
 
     }
