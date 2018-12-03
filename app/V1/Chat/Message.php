@@ -80,26 +80,6 @@ class Message extends Model
         return !is_null($this->file) ? \Storage::url($this->file) : null;
     }
 
-    // public function getPreviewAttribute($value)
-    // {
-    //     try {
-    //         $preview = json_decode($value,true);
-
-    //         if(isset($preview['image']) && !is_null($preview['image']))
-    //         {
-    //             $preview['image'] = is_null($preview['image']) ? null : \Storage::url($preview['image']);
-    //         }
-    //         return $preview;
-
-    //     } catch(\Exception $e){
-    //         \Log::error("Could not load preview image");
-    //         \Log::error($preview);
-    //         \Log::error($e->getLine());
-    //         \Log::error($e->getMessage());
-    //     }
-    //     return empty($preview) ? null : $preview;
-    // }
-
     public function getReadAttribute()
     {
         if(!\DB::table('message_recepients')->where('message_id',$this->id)->where('recepient_id','!=',request()->user()->profile->id)->exists())
