@@ -34,7 +34,12 @@ class NewMessage extends Notification
      */
     public function via($notifiable)
     {
-        return [FCMPush::class,'broadcast'];
+        $via = [];
+        if(isset($this->data->headerAction) && !empty($this->data->headerAction))
+            $via = ['broadcast'];
+        else
+            $via = [FCMPush::class,'broadcast'];
+        return $via;
     }
 
     /**
@@ -47,42 +52,44 @@ class NewMessage extends Notification
     {
         $data = [
             'action' => 'chat',
-            'profile' => isset(request()->user()->profile) ? request()->user()->profile : \App\Recipe\Profile::find($this->data->profile->id)->toArray(),
+            'profile' => isset(request()->user()->profile) ? request()->user()->profile : \App\Chat\Profile::where($this->data->profile->id)->first(),
         ];
         $chat = \DB::table('chats')->where('id',$this->data->chatId)->first();
         $data['model'] = [
             'name' => $chat->name,
             'id' => $this->data->chatId,
-            'imageUrl' => !is_null($chat->image) ? \Storage::url($chat->image) : null,
+            'imageUrl' => null,
             'message'=>['id' => $this->data->id,'image'=>$this->data->image,'content'=>$this->data->message],
-            'is_enabled'=>true
+            'is_enabled'=>true,
+            'messageType' => isset($this->data->message) && !empty($this->data->message) ? null : 'media',
+            'headerAction' => $this->data->headerAction
             ];
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-//         if(isset($chat->name)&&!empty($chat->name))
-//         {
-//             if(isset($this->data->message))
-//             {
-//                 $notification = request()->user()->name ." messaged you ".$this->data->message." on ".$chat->name." group";
-//             }
-//             else
-//             {
-//                 $notification = request()->user()->name ." messaged you on ".$chat->name." group";
+        if(isset($chat->name)&&!empty($chat->name))
+        {   
+            if(isset($this->data->message))
+            {
+                $notification = request()->user()->name ." messaged you ".$this->data->message." on ".$chat->name." group";
+            }
+            else
+            {
+                $notification = request()->user()->name ." messaged you on ".$chat->name." group";
 
-//             }
-//         }
-//         else{
-//             if(isset($this->data->message))
-//             {
-//                 $notification = request()->user()->name ." messaged you ".$this->data->message;
-//             }
-//             else
-//             {
-//                 $notification = request()->user()->name ." messaged you";
+            }
+        }
+        else{
+            if(isset($this->data->message))
+            {
+                $notification = request()->user()->name ." messaged you ".$this->data->message;
+            }
+            else
+            {
+                $notification = request()->user()->name ." messaged you";
 
-//             }
-//         }
-        $data['notification'] = null;
+            }
+        }
+        $data['notification'] = $notification;
         return $data;
     }
 }

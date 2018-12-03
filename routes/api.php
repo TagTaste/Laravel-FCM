@@ -103,6 +103,31 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
+                Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
+                Route::get("chatGroup",'ChatController@chatGroup');
+                Route::post("chatShareMessage",'ChatController@shareAsMessage');
+                Route::get("chatDisconnect",'ChatController@disconnect');
+                Route::get("getChatId",'ChatController@getChatId');
+                Route::get("chats/search",'ChatController@chatSearch');
+                Route::get("chatRoom",'ChatController@rooms');
+                Route::post("shareAsMessage",'ChatController@shareAsMessage');
+                Route::get("chats/{chatId}/chatInfo",'ChatController@chatInfo');
+                Route::resource("chats","ChatController");
+                Route::group(['namespace'=>'Chat','prefix'=>'chats/{chatId}','as'=>'chats.'],function()
+                    {
+                        Route::get("getMembersToSearch","MemberController@getMembersToSearch");
+                        Route::get("getMembersToAdd","MemberController@getMembersToAdd");
+                        Route::post("members/addAdmin",'MemberController@addAdmin');
+                        Route::post("members/removeAdmin",'MemberController@removeAdmin');
+                        Route::delete("clearMessages",'MessageController@clearMessages');
+                        Route::post("uploadFile",'MessageController@uploadFile');
+                        Route::post("markAsRead",'MessageController@markAsRead');
+                        Route::delete("deleteChat",'MessageController@deleteChat');
+                        Route::delete("deleteMessage","MessageController@deleteMessage");
+                        Route::resource("messages","MessageController");
+                        Route::resource("members","MemberController");
+
+                    });
                 Route::get("feed",'FeedController@feed');
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");
@@ -246,6 +271,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::get("tastingMethodology","CollaborateController@tastingMethodology");
                     Route::get("profilesOccupations","CollaborateController@profilesJobs");
                     Route::get("profilesSpecialization","CollaborateController@profilesSpecialization");
+                    Route::get("profilesCategory","CollaborateController@profilesCategory");
                     Route::get("profilesAllergens","CollaborateController@profilesAllergens");
                     Route::post("uploadGlobalNestedOption","CollaborateController@uploadGlobalNestedOption");
                     Route::post("uploadGlobalQuestion","CollaborateController@uploadGlobalQuestion");
@@ -391,11 +417,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::post("profile/handleAvailable", ['uses'=>'ProfileController@handleAvailable']);
 
             Route::get("foodieType","ProfileController@foodieType");
+            Route::get("interested/collections","ProfileController@interestedCollections");
             Route::get("establishmentType","ProfileController@establishmentType");
 
-
+            Route::get("profile/getAllergens","ProfileController@getAllergens");
             Route::post("profile/addAllergens","ProfileController@addAllergens");
             Route::get("profile/tagging",['uses'=>'ProfileController@tagging']);
+            Route::post('profile/nestedFollow',['uses'=>'ProfileController@nestedFollow']);
             Route::post('profile/follow',['uses'=>'ProfileController@follow']);
             Route::post('profile/unfollow',['uses'=>'ProfileController@unfollow']);
             Route::get('profile/{id}/followers',['uses'=>'ProfileController@followers']);
@@ -411,6 +439,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             // onboarding routes
+            Route::get("onboarding/network","OnboardingController@getNetworkFollowers");
             Route::get('onboarding/skills', 'OnboardingController@skills');
             Route::get('onboarding/autocomplete/skills', 'OnboardingController@autoCompleteSkills');
 
@@ -530,7 +559,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("experiences","ExperienceController");
 //            Route::resource("awards","AwardController");
 //            Route::resource("certifications","CertificationController");
-
     
             Route::post("/uploadFiles","UploadFilesController@uploadFiles");
 

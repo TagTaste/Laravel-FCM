@@ -16,9 +16,11 @@ use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
 use App\Console\Commands\CapitalizeExpertise;
+use App\Console\Commands\ChatMergeMessage;
 use App\Console\Commands\CloseCollaborate;
 use App\Console\Commands\CollaborationQuestions;
 use App\Console\Commands\CapitalizeUserName;
+use App\Console\Commands\CompleteTastingMail;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
@@ -26,6 +28,7 @@ use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
+use App\Console\Commands\RemoveDuplicateFromReviewTable;
 use App\Console\Commands\RemoveNullFcmTokens;
 use App\Console\Commands\RemoveSpecialCharsHandle;
 use App\Console\Commands\ServiceInterruption;
@@ -173,7 +176,16 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\InsertGlobalQuestion::class,
 
         \App\Console\Commands\UpdateGlobalQuestion::class,
-        CloseCollaborate::class
+        CloseCollaborate::class,
+        \App\Console\Commands\FillTableRecepient::class,
+        \App\Console\Commands\FillChatType::class,
+        \App\Console\Commands\ChatFileModify::class,
+        ChatMergeMessage::class,
+        CompleteTastingMail::class,
+        \App\Console\Commands\DeleteUsers::class,
+
+
+        RemoveDuplicateFromReviewTable::class
 
 
     ];

@@ -38,7 +38,7 @@ class SendFeatureMessage
     public function handle()
     {
         //
-        $existingChats = \App\Chat::open($this->id,$this->loggedInProfileId);
+        $existingChats = \App\V1\Chat::open($this->id,$this->loggedInProfileId);
         if(!is_null($existingChats) && $existingChats->count() > 0)
         {
             $this->model = $existingChats;
@@ -46,8 +46,8 @@ class SendFeatureMessage
         }
         else
         {
-            $chatInfo = ['name'=>null,'profile_id'=>$this->loggedInProfileId,'image'=>null];
-            $this->model = \App\Chat::create($chatInfo);
+            $chatInfo = ['name'=>null,'profile_id'=>$this->loggedInProfileId,'image'=>null, 'chat_type'=>1];
+            $this->model = \App\V1\Chat::create($chatInfo);
             $now = \Carbon\Carbon::now()->toDateTimeString();
             $member = [];
             $chatId = $this->model->id;
@@ -59,9 +59,8 @@ class SendFeatureMessage
         }
 
         $messageInfo = ['chat_id'=>$chatId,'profile_id'=>$this->loggedInProfileId,'message'=>$this->data['message']];
-        $this->model = \App\Chat\Message::create($messageInfo);
-
-        event(new \App\Events\Chat\Message($this->model,$this->loggedInProfile));
+        $this->model = \App\V1\Chat\Message::create($messageInfo);
+        event(new \App\Events\Chat\V1\Message($this->model,$this->loggedInProfile));
                  
     }
 }

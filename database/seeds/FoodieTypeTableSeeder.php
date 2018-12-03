@@ -11,15 +11,29 @@ class FoodieTypeTableSeeder extends Seeder
      */
     public function run()
     {
+        \DB::table('profiles')->whereIn('foodie_type_id',[5,6])->update(['foodie_type_id'=>null]);
         //
+        \DB::table('foodie_type')->where('id',1)->update(['order'=>8,'technical_name'=>'Pescatarian','description'=>'Has mostly vegetarian diet but eats fish and seafood as well.']);
+
+        \DB::table('foodie_type')->where('id',2)->update(['name'=>'Eggetarian','order'=>2,'technical_name'=>'Ovo Lacto Vegetarian','description'=>'Eats vegetables, fruits, eggs and dairy products but excludes meat, fish and poultry.']);
+
+        \DB::table('foodie_type')->where('id',3)->update(['name'=>'Vegetarian','order'=>1,'technical_name'=>'Lacto Vegetarian','description'=>'Eats vegetables, fruits and dairy products but excludes eggs, poultry, fish and meat.']);
+
+        \DB::table('foodie_type')->where('id',4)->update(['name'=>'Vegan','order'=>4,'technical_name'=>'Vegan','description'=>'Does not eat animal by-products (eggs, honey, dairy), fish and meat.']);
+
+        \DB::table('foodie_type')->where('id',5)->delete();
+        \DB::table('foodie_type')->where('id',6)->delete();
+
+        \DB::table('foodie_type')->where('id',7)->update(['order'=>7,'technical_name'=>'Flexitarian','description'=>'Has primarily vegetarian diet but occasionally eats meat or fish as well.']);
+
+
         $data = [];
-        $data[] = ['name'=>'Pescatarian','description'=>'Abstain from eating all meat and animal flesh with the exception of fish.'];
-        $data[] = ['name'=>'Lacto - Ovo','description'=>'Abstain from eating Pork, Poultry, Fish, Shellfish, Beef or animal flesh of any kind, but do eat eggs and dairy products.'];
-        $data[] = ['name'=>'Lacto Vegetarian','description'=>'Abstain from eating all kinds of meats, Poultry and Eggs but do eat dairy products.'];
-        $data[] = ['name'=>'Vegans','description'=>'Do not eat meat of any kind and also not eggs, dairy products or processed foods containing these or animal derived ingredients.'];
-        $data[] = ['name'=>'Raw Vegan / Raw Food Diet','description'=>'Consists of processed vegan foods that have not been heated above 115 F (46 C).'];
-        $data[] = ['name'=>'Macrobiotic Diet','description'=>'Includes unprocessed vegan foods, such as whole grains, fruits, and vegetables and occasionally allows consumption of fish.'];
-        $data[] = ['name'=>'Flexitarian','description'=>'Those who eat a vegetarian diet but occasionally eat meat.'];
+        $data[] = ['name'=>'Ovo Vegetarian','technical_name'=>'Ovo Vegetarian','order'=>3,'description'=>'Eats vegetables, fruits and eggs but excludes dairy products.'];
+        $data[] = ['name'=>'Fruitarian','technical_name'=>'Fruitarian','order'=>5,'description'=>'Eats only fruits and possibly nuts & seeds that are without animal products.'];
+        $data[] = ['name'=>'Omnivorous','technical_name'=>'Omnivorous','order'=>6,'description'=>'Eats both plant and animal-based food products.'];
+        $data[] = ['name'=>'Pollotarian','technical_name'=>'Pollotarian','order'=>9,'description'=>'Eats chicken or other poultry but excludes meat from mammals.'];
+        $data[] = ['name'=>'Pollo Pescatarian','technical_name'=>'Pollo Pescatarian','order'=>10,'description'=>'Eats both poultry and fish or seafood but excludes meat from mammals.'];
+
         \DB::table('foodie_type')->insert($data);
 
     }
