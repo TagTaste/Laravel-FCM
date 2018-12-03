@@ -44,8 +44,11 @@ class PreviewChangesMessage extends Command
             echo "message id is here ".$message->id."\n";
             $preview = $message->preview;
             $preview1 = trim($message->preview);
-            if($preview1 == "" || empty($preview1))
+            if($preview1 == "" || empty($preview1) ||$preview == "" || empty($preview))
+            {
                 \DB::table('chat_messages')->where('id',$message->id)->update(['preview'=>null]);
+
+            }
             else
             {
                 $preview = json_decode($preview);
