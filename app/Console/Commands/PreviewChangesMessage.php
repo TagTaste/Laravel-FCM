@@ -49,6 +49,10 @@ class PreviewChangesMessage extends Command
                 echo "message id is here ".$message->id."\n";
 
             }
+            else
+            {
+                echo "message id is here ".$message->id."\n";
+            }
         }
     }
 }
