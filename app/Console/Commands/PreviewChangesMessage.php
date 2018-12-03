@@ -55,7 +55,7 @@ class PreviewChangesMessage extends Command
                 }
                 else
                 {
-                    \DB::table('chat_messages')->where('id',$message->id)->update(['preview'=>null]);
+                    \DB::table('chat_messages')->where('id',$message->id)->update(['preview'=>$preview]);
                 }
             }
 
