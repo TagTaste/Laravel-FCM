@@ -43,16 +43,22 @@ class PreviewChangesMessage extends Command
         {
             echo "message id is here ".$message->id."\n";
             $preview = $message->preview;
-            $preview = json_decode($preview);
-            if(is_object($preview))
-            {
-                echo "message id is here ".$message->id."\n";
-
-            }
+            if($preview == "" || empty($preview))
+                \DB::table('chat_messages')->where('id',$message->id)->update(['preview'=>null]);
             else
             {
-//                echo "message id is here ".$message->id."\n";
+                $preview = json_decode($preview);
+                if(is_object($preview))
+                {
+                    echo "message id is here ".$message->id."\n";
+
+                }
+                else
+                {
+                    \DB::table('chat_messages')->where('id',$message->id)->update(['preview'=>null]);
+                }
             }
+
         }
     }
 }
