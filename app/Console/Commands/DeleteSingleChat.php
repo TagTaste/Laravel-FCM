@@ -47,7 +47,7 @@ class DeleteSingleChat extends Command
             if($memberCount == 1)
             {
                 echo "chat id ".$chat->id."\n";
-                \DB::table('chats')->where('id',$chat->id)->delete();
+//                \DB::table('chats')->where('id',$chat->id)->delete();
             }
             elseif($memberCount == 2)
             {
@@ -56,7 +56,7 @@ class DeleteSingleChat extends Command
             else
             {
                 echo "chat id ".$chat->id."\n";
-                \DB::table('chats')->where('id',$chat->id)->delete();
+//                \DB::table('chats')->where('id',$chat->id)->delete();
             }
         }
     }
