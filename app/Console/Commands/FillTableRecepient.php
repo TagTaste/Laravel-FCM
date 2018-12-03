@@ -44,7 +44,6 @@ class FillTableRecepient extends Command
             
             foreach ($chat_members as $member) {
                 # code...
-                if($member->profile_id != $message->profile_id)
                 \DB::table('message_recepients')->insert(['recepient_id'=>$member->profile_id, 'message_id'=>$message->id, 'sent_on'=>$message->created_at, 'chat_id'=>$message->chat_id]);
             }
         }
