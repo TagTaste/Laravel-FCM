@@ -41,7 +41,7 @@ class PreviewChangesMessage extends Command
         $messages = \DB::table('chat_messages')->whereNotNull('preview')->whereNull('deleted_at')->get();
         foreach ($messages as $message)
         {
-
+            echo "message id is here ".$message->id."\n";
             $preview = $message->preview;
             $preview = json_decode($preview);
             if(is_object($preview))
