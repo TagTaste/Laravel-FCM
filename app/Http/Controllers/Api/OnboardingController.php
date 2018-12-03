@@ -69,15 +69,6 @@ class OnboardingController extends Controller
                 $profileData[] = $profile;
             }
         }
-        foreach($data as &$profile){
-            if(is_null($profile)){
-                continue;
-            }
-            $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-            $profile->self = false;
-            $profileData[] = $profile;
-        }
         // title is header in boarding
         // type is data of item is profile or company
         // ui_type = 0  is horizontal , ui_type = 1 is vertical
