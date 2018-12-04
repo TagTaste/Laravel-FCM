@@ -232,7 +232,7 @@ class SearchController extends Controller
     public function searchSpecializationPeople(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $profileIds = \DB::table('profile_specializations')->where('profile_id','!=',$loggedInProfileId)->where('specialization_id',$id)->get()->pluck('profile_id');
+        $profileIds = \DB::table('profile_specializations')->where('specialization_id',$id)->get()->pluck('profile_id');
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
         $profileIds = $profileIds->random($length);
