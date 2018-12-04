@@ -134,7 +134,7 @@ class SearchController extends Controller
         if(count($profileData))
             $this->model[] = ['title'=>'Your Experience','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
 
-        $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
+        $profileIds = $this->getAllProfileIdsFromEducation($loggedInProfileId);
 
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
@@ -231,8 +231,11 @@ class SearchController extends Controller
 
     public function searchSpecializationPeople(Request $request, $id)
     {
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $loggedInProfileId = $request->user()->profile->id;
-        $profileIds = \DB::table('profile_specializations')->where('specialization_id',$id)->get()->pluck('profile_id');
+        $profileIds = \DB::table('profile_specializations')->where('specialization_id',$id)->skip($skip)->take($take)->get()->pluck('profile_id');
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
         $profileIds = $profileIds->random($length);
