@@ -76,8 +76,6 @@ class SearchController extends Controller
                 $profile = json_decode($profile);
                 $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                 $profile->self = false;
-                if($profile->isFollowing)
-                    continue;
                 $profileData[] = $profile;
             }
         }
@@ -125,8 +123,6 @@ class SearchController extends Controller
                 $profile = json_decode($profile);
                 $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                 $profile->self = false;
-                if($profile->isFollowing)
-                    continue;
                 $profileData[] = $profile;
             }
         }
@@ -165,8 +161,6 @@ class SearchController extends Controller
                 $profile = json_decode($profile);
                 $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                 $profile->self = false;
-                if($profile->isFollowing)
-                    continue;
                 $profileData[] = $profile;
             }
         }
