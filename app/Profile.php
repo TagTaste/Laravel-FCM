@@ -789,7 +789,7 @@ class Profile extends Model
 
     public function getMessageCountAttribute()
     {
-        return \DB::table('message_recepients')->whereNull('last_seen')->where('profile_id',request()->user()->profile->id)->distinct('chat_id')->count();
+        return \DB::table('message_recepients')->whereNull('last_seen')->where('recepient_id',request()->user()->profile->id)->distinct('chat_id')->count();
     }
 
     public function getAddPasswordAttribute()
