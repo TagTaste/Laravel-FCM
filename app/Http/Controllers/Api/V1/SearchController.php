@@ -60,6 +60,8 @@ class SearchController extends Controller
             }
             $profileIds[$key] = "profile:small:".$value ;
         }
+        if($length && !is_array($profileIds))
+            $profileIds = $profileIds->toArray();
         $data = [];
         if(count($profileIds)> 0)
         {
@@ -107,6 +109,8 @@ class SearchController extends Controller
             }
             $profileIds[$key] = "profile:small:".$value ;
         }
+        if($length && !is_array($profileIds))
+            $profileIds = $profileIds->toArray();
         $data = [];
         if(count($profileIds)> 0)
         {
@@ -145,6 +149,8 @@ class SearchController extends Controller
             }
             $profileIds[$key] = "profile:small:".$value ;
         }
+        if($length && !is_array($profileIds))
+            $profileIds = $profileIds->toArray();
         $data = [];
         if(count($profileIds)> 0)
         {
@@ -239,7 +245,7 @@ class SearchController extends Controller
             }
             $profileIds[$key] = "profile:small:".$value ;
         }
-        if($length)
+        if($length && !is_array($profileIds))
             $profileIds = $profileIds->toArray();
         $data = [];
         if(count($profileIds)> 0)

@@ -50,6 +50,9 @@ class OnboardingController extends Controller
             }
             $profileIds[$key] = "profile:small:".$value ;
         }
+        if($length && !is_array($profileIds))
+            $profileIds = $profileIds->toArray();
+
         $data = [];
         if(count($profileIds)> 0)
         {
