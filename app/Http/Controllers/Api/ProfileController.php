@@ -92,7 +92,7 @@ class ProfileController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
+    {   
         $data = $request->except(["_method","_token",'hero_image','image','resume','remove','remove_image',
             'remove_hero_image','verified_phone']);
         //proper verified.
@@ -223,6 +223,31 @@ class ProfileController extends Controller
             }
 
         }
+
+        if($request->has('interested_collection_id'))
+        {
+            $interestedCollectionIds = $request->input('interested_collection_id');
+            $interestedCollections = [];
+            if(count($interestedCollectionIds) > 0 && !empty($interestedCollectionIds) && is_array($interestedCollectionIds))
+            {
+                foreach ($interestedCollectionIds as $interestedCollectionId)
+                {
+                    $interestedCollections[] = ['profile_id'=>$loggedInProfileId,'interested_collection_id'=>$interestedCollectionId];
+                }
+                if(count($interestedCollections))
+                {
+                    \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->delete();
+                    \DB::table('profiles_interested_collections')->insert($interestedCollections);
+
+                }
+            }
+            else
+            {
+                \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->delete();
+            }
+
+        }
+
         if($request->has('cuisine_id'))
         {
             $cuisineIds = $request->input('cuisine_id');
@@ -1004,7 +1029,7 @@ class ProfileController extends Controller
 
     public function foodieType(Request $request)
     {
-        $this->model = \DB::table('foodie_type')->get();
+        $this->model = \DB::table('foodie_type')->orderBy('order')->get();
         return $this->sendResponse();
     }
 
@@ -1013,4 +1038,54 @@ class ProfileController extends Controller
         $this->model = \DB::table('establishment_types')->get();
         return $this->sendResponse();
     }
+
+    public function interestedCollections()
+    {
+        $this->model = \DB::table('interested_collections')->where('featured',1)->get();
+        return $this->sendResponse();
+    }
+
+    public function nestedFollow(Request $request)
+    {
+        $channelOwnerProfileIds = $request->input('id');
+        $this->model = false;
+        foreach ($channelOwnerProfileIds as $channelOwnerProfileId)
+        {
+            //$request->user()->profile->follow($id);
+            $channelOwner = \App\Recipe\Profile::find($channelOwnerProfileId);
+            if(!$channelOwner){
+                throw new ModelNotFoundException();
+            }
+
+            $data = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
+            $profileId = $request->user()->profile->id;
+
+            //profiles the logged in user is following
+            \Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
+
+            //profiles that are following $channelOwner
+            \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
+
+            if(!$data){
+                continue;
+            }
+            $this->model = $data;
+            event(new Follow($channelOwner, $request->user()->profile));
+
+            \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
+        }
+        if(isset($this->model) && $this->model != false)
+            $this->model = true;
+        return $this->sendResponse();
+    }
+
+    public function getAllergens(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $allergenIds = \DB::table('profiles_allergens')->where('profile_id',$loggedInProfileId)->get()->pluck('allergens_id');
+        $this->model = \DB::table('allergens')->whereIn('id',$allergenIds)->get();
+        return $this->sendResponse();
+    }
+
 }

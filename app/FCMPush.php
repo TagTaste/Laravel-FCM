@@ -30,7 +30,6 @@ class FCMPush extends Model
         $optionBuilder = new OptionsBuilder();
         $optionBuilder->setTimeToLive(60*20);
         $iosData = $data;
-
         // For Android
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
@@ -67,12 +66,12 @@ class FCMPush extends Model
         $notificationBody = isset($iosData['profile']['name']) ? $this->message($iosData['action'],$iosData['notification']) : $this->message('null');
         $notificationBuilder = new PayloadNotificationBuilder();
         $notificationBuilder->setBody($notificationBody)->setSound('default')->setBadge($notificationCount);
-//        $message = $data['profile']['name'].$this->message($data['action']);
+    //        $message = $data['profile']['name'].$this->message($data['action']);
         $notification = $notificationBuilder->build();
 
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','ios')->get()->pluck('fcm_token')->toArray();
-        if(count($token))
-        {
+        if(count($token) && !\Redis::sIsMember("online:profile:",$profileId))
+        {   
             $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
             $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
