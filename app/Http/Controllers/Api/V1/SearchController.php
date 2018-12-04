@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Company;
+use App\Education;
+use App\Profile;
+use App\Profile\Experience;
 use App\Recipe\Collaborate;
 use App\SearchClient;
 use Illuminate\Http\Request;
@@ -40,6 +43,7 @@ class SearchController extends Controller
 
     public function discover(Request $request)
     {
+
         $loggedInProfileId = $request->user()->profile->id;
         $this->model = [];
         $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
@@ -91,12 +95,91 @@ class SearchController extends Controller
             $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
 
 
-        $collaborations = \App\Recipe\Company::whereNull('deleted_at',1)->get();
+        $collaborations = \App\Recipe\Company::whereNull('deleted_at')->get();
 
         if(count($collaborations))
             $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
 
+        $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
 
+        $profileIds = $profileIds->unique();
+        $length = $profileIds->count();
+        $profileIds = $profileIds->random($length);
+
+        foreach ($profileIds as $key => $value)
+        {
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+        }
+        $data = [];
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        $profileData = [];
+        if(count($data))
+        {
+            foreach($data as &$profile){
+                if(is_null($profile)){
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->self = false;
+                if($profile->isFollowing)
+                    continue;
+                $profileData[] = $profile;
+            }
+        }
+
+        if(count($profileData))
+            $this->model[] = ['title'=>'Your Experience','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+
+        $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
+
+        $profileIds = $profileIds->unique();
+        $length = $profileIds->count();
+        $profileIds = $profileIds->random($length);
+
+        foreach ($profileIds as $key => $value)
+        {
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+        }
+        $data = [];
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        $profileData = [];
+        if(count($data))
+        {
+            foreach($data as &$profile){
+                if(is_null($profile)){
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->self = false;
+                if($profile->isFollowing)
+                    continue;
+                $profileData[] = $profile;
+            }
+        }
+        if(count($profileData))
+            $this->model[] = ['title'=>'Your Education','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+
+        return $this->sendResponse();
     }
 
 
@@ -107,14 +190,17 @@ class SearchController extends Controller
         $ids = \DB::table('profile_specializations')->where('profile_id',$loggedInProfileId)->get()->pluck('specialization_id');
         $ids = \DB::table('profile_specializations')->whereIn('specialization_id',$ids)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
+
         //job profile
         $ids = \DB::table('profile_occupations')->where('profile_id',$loggedInProfileId)->get()->pluck('occupation_id');
         $ids = \DB::table('profile_occupations')->whereIn('occupation_id',$ids)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
+
         //locations
         $profile = Profile::where('id',$loggedInProfileId)->first();
         $ids = \DB::table('profile_filters')->where('key','location')->where('value',$profile->city)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
+
         //interest
         $ids = \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->get()->pluck('occupation_id');
         $ids = \DB::table('profiles_interested_collections')->whereIn('occupation_id',$ids)->get()->pluck('profile_id');
@@ -123,6 +209,29 @@ class SearchController extends Controller
         return $profileIds;
     }
 
+    public function getAllProfileIdsFromExperience($loggedInProfileId)
+    {
+        $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
+        $profileIds = \DB::table('profile_filters')->where(function ($query) use($experiences) {
+                            for ($i = 0; $i < count($experiences); $i++){
+                                $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
+                            }
+                        })->get()->pluck('profile_id');
+        \Log::info($profileIds);
+        return $profileIds;
+    }
 
+    public function getAllProfileIdsFromEducation($loggedInProfileId)
+    {
+        $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('company');
+        $profileIds = \DB::table('profile_filters')->where(function ($query) use($educations) {
+            for ($i = 0; $i < count($educations); $i++){
+                $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
+            }
+        })->get()->pluck('profile_id');
+        \Log::info($profileIds);
+
+        return $profileIds;
+    }
 
 }
