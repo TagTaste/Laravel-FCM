@@ -226,8 +226,10 @@ class SearchController extends Controller
     public function searchSpecializationPeople(Request $request, $id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $profileIds = \DB::table('profile_specializations')->where('specialization_id',$id)->get()->pluck('profile_id');
-        $profileIds = $profileIds->unique();
+        $profileIds = new Collection();
+        $ids = \DB::table('profile_specializations')->where('specialization_id',$id)->get()->pluck('profile_id');
+        $ids = $ids->unique();
+        $profileIds = $profileIds->merge($ids);
         foreach ($profileIds as $key => $value)
         {
             if($loggedInProfileId == $value)
@@ -238,7 +240,6 @@ class SearchController extends Controller
             $profileIds[$key] = "profile:small:".$value ;
         }
         $data = [];
-        \Log::info($profileIds);
         if(count($profileIds)> 0)
         {
             $data = \Redis::mget($profileIds);
