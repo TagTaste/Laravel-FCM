@@ -41,13 +41,14 @@ class DeleteSingleChat extends Command
         //
         $chatsWithoutChatType = \App\V1\Chat::where('chat_type',1)->get();
         foreach ($chatsWithoutChatType as $chat) {
+            $member =\DB::table('chat_members')->where('chat_id',$chat->id)->update(['exited_on'=>null]);
             $member = \App\Chat\Member::where('chat_id',$chat->id)->get();
             $memberCount = $member->count();
 
             if($memberCount == 1)
             {
                 echo "chat id ".$chat->id."\n";
-                \DB::table('chats')->where('id',$chat->id)->delete();
+//                \DB::table('chats')->where('id',$chat->id)->delete();
             }
             elseif($memberCount == 2)
             {
@@ -56,7 +57,7 @@ class DeleteSingleChat extends Command
             else
             {
                 echo "chat id ".$chat->id."\n";
-                \DB::table('chats')->where('id',$chat->id)->delete();
+//                \DB::table('chats')->where('id',$chat->id)->delete();
             }
         }
     }
