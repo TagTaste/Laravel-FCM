@@ -103,7 +103,12 @@ class CompanyController extends Controller
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
         $response['tiny_photo'] = \Storage::url($path);
-        $response['meta'] = getimagesize($request->input($key));
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
