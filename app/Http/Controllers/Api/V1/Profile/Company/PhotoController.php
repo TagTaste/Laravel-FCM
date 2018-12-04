@@ -75,7 +75,7 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $data['has_tags'] = $this->hasTags($data['caption']);
-        dd($data);
+
         $this->model = $company->photos()->create($data);
         if($data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
