@@ -64,24 +64,6 @@ class Company extends BaseCompany
         return storage_path("app/" . $relativePath . "/" . $filename);
     }
 
-    public function getLogoAttribute($value)
-    {
-        return $value;
-    }
-
-    public function getHeroImageAttribute($value)
-    {
-        if(is_null($value))
-        {
-            $fileId = 14 - $this->id % 14;
-            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
-        }
-        else
-        {
-            return $value;
-        }
-    }
-
     public function getProfileIdAttribute()
     {
         return $this->user->profile->id;
