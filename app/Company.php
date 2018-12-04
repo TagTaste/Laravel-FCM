@@ -169,6 +169,7 @@ class Company extends Model
             'profileId' => $this->profileId,
             'name' => $this->name,
             'logo' => $this->logo,
+            'hero_image'=>$this->hero_image,
             'tagline' => $this->tagline,
             'city' =>$this->city,
             'logo_meta' =>$this->logo_meta,

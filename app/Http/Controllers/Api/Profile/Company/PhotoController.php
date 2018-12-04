@@ -75,7 +75,7 @@ class PhotoController extends Controller
             event(new Tag($this->model, $profile, $this->model->caption));
         }
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'image_info'=>$data['image_info'],
-            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
+            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model,$company));
     
@@ -138,7 +138,8 @@ class PhotoController extends Controller
         if(isset($data['has_tags']) && $data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
+            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
 
