@@ -227,8 +227,8 @@ class SearchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $profileIds = \DB::table('profile_specializations')->where('specialization_id',$id)->get()->pluck('profile_id');
-        \Log::info($profileIds);
         $profileIds = $profileIds->unique();
+        \Log::info($profileIds);
         foreach ($profileIds as $key => $value)
         {
             if($loggedInProfileId == $value)
