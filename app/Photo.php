@@ -146,7 +146,7 @@ class Photo extends Model implements Feedable
     
     public function company()
     {
-        return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
+        return $this->belongsToMany('App\Recipe\Company','company_photos','photo_id','company_id');
     }
     
     public function getCompany()

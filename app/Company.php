@@ -407,11 +407,6 @@ class Company extends Model
         return CompanyUser::where('company_id',$this->id)->where("user_id",$userId)->count() === 1;
     }
     
-    public function getLogoAttribute($value)
-    {
-        return $value;
-    }
-    
     public function getHeroImageAttribute($value)
     {
         if(is_null($value))
