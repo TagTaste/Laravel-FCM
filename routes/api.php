@@ -143,6 +143,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //search apis new
 
                 Route::get("search/discover",'SearchController@discover');
+                Route::get("search/specialization/{id}",'SearchController@searchSpecializationPeople');
 
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");

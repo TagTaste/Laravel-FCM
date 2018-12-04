@@ -229,4 +229,46 @@ class SearchController extends Controller
         return $profileIds;
     }
 
+    public function searchSpecializationPeople(Request $request, $id)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $profileIds = \DB::table('profile_specializations')->where('profile_id','!=',$loggedInProfileId)->where('specialization_id',$id)->get()->pluck('profile_id');
+        $profileIds = $profileIds->unique();
+        $length = $profileIds->count();
+        $profileIds = $profileIds->random($length);
+
+        foreach ($profileIds as $key => $value)
+        {
+            if($loggedInProfileId == $value)
+            {
+                unset($profileIds[$key]);
+                continue;
+            }
+            $profileIds[$key] = "profile:small:".$value ;
+        }
+        $data = [];
+        if(count($profileIds)> 0)
+        {
+            $data = \Redis::mget($profileIds);
+
+        }
+        $profileData = [];
+        if(count($data))
+        {
+            foreach($data as &$profile){
+                if(is_null($profile)){
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->self = false;
+                if($profile->isFollowing)
+                    continue;
+                $profileData[] = $profile;
+            }
+        }
+        $this->model = $profileData;
+        return $this->sendResponse();
+    }
+
 }
