@@ -197,7 +197,7 @@ class SearchController extends Controller
 
         //interest
         $ids = \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->get()->pluck('occupation_id');
-        $ids = \DB::table('profiles_interested_collections')->whereIn('occupation_id',$ids)->get()->pluck('profile_id');
+        $ids = \DB::table('profiles_interested_collections')->whereIn('interested_collection_id',$ids)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
 
         return $profileIds;
