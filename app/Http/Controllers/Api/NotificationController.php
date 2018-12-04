@@ -123,7 +123,7 @@ class NotificationController extends Controller
         }
         if($type == 'message')
         {
-            $this->model = \DB::table('chat_members')->where('profile_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
+            $this->model = \DB::table('message_recepients')->where('profile_id',$request->user()->profile->id)->update(['last_seen'=>Carbon::now()->toDateTimeString()]);
         }
 
         return $this->sendResponse();
