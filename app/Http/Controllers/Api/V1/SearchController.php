@@ -94,12 +94,6 @@ class SearchController extends Controller
         if(count($collaborations))
             $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
 
-
-        $collaborations = \App\Recipe\Company::whereNull('deleted_at')->get();
-
-        if(count($collaborations))
-            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
-
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
 
         $profileIds = $profileIds->unique();
