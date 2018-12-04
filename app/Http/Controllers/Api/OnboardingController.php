@@ -60,6 +60,7 @@ class OnboardingController extends Controller
         $profileData = [];
         if(count($data))
         {
+            $i = 0;
             foreach($data as &$profile){
                 if(is_null($profile)){
                     continue;
@@ -68,6 +69,9 @@ class OnboardingController extends Controller
                 $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                 $profile->self = false;
                 $profileData[] = $profile;
+                $i++;
+                if($i == 15)
+                    break;
             }
         }
         // title is header in boarding
