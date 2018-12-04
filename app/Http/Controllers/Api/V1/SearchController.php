@@ -87,7 +87,7 @@ class SearchController extends Controller
         $specializations = \DB::table('specializations')->get();
 
         if(count($specializations))
-            $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'profile_data','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)'];
 
         $collaborations = Collaborate::where('state',1)->skip(0)->take(10)->inRandomOrder()->get();
 
