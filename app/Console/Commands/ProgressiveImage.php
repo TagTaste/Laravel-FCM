@@ -49,7 +49,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->imageUrl);
                     $imageMeta['tiny_photo'] = \Storage::url($model->imageUrl);
-                    $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->imageUrl)];
                     $imageMeta = json_encode($imageMeta,true);
                     $model->update(['image_meta'=> $imageMeta,'image'=>\Storage::url($model->imageUrl)]);
                 }
@@ -58,7 +58,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->heroImageUrl);
                     $imageMeta['tiny_photo'] = \Storage::url($model->heroImageUrl);
-                    $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->heroImageUrl)];
                     $imageMeta = json_encode($imageMeta,true);
                     $model->update(['hero_image_meta'=> $imageMeta,'hero_image'=>\Storage::url($model->heroImageUrl)]);
                 }
@@ -73,7 +73,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->logo);
                     $imageMeta['tiny_photo'] = \Storage::url($model->logo);
-                    $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->logo)];
                     $imageMeta = json_encode($imageMeta,true);
                     $model->update(['logo_meta'=> $imageMeta,'logo'=>\Storage::url($model->logo)]);
                 }
@@ -82,7 +82,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->hero_image);
                     $imageMeta['tiny_photo'] = \Storage::url($model->hero_image);
-                    $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->hero_image)];
                     $imageMeta = json_encode($imageMeta,true);
                     $model->update(['hero_image_meta'=> $imageMeta,'hero_image'=>\Storage::url($model->hero_image)]);
                 }
@@ -99,10 +99,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->photoUrl);
                     $imageMeta['tiny_photo'] = \Storage::url($model->photoUrl);
-                    if(isset($model->image_info))
-                        $imageMeta['meta'] = $model->image_info;
-                    else
-                        $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->photoUrl)];
 
                     $imageMeta = json_encode($imageMeta,true);
                     $model->update(['image_meta'=> $imageMeta]);
@@ -120,7 +117,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->imageUrl);
                     $imageMeta['tiny_photo'] = \Storage::url($model->imageUrl);
-                    $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->imageUrl)];
 
                     $imageMeta = json_encode($imageMeta,true);
                     echo "gallery id ".$model->id ."\n";
@@ -137,7 +134,7 @@ class ProgressiveImage extends Command
                     $imageMeta = [];
                     $imageMeta['original_photo'] = \Storage::url($model->imageUrl);
                     $imageMeta['tiny_photo'] = \Storage::url($model->imageUrl);
-                    $imageMeta['meta'] = null;
+                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->imageUrl)];
 
                     $imageMeta = json_encode($imageMeta,true);
                     echo "Product id ".$model->id ."\n";
@@ -157,7 +154,7 @@ class ProgressiveImage extends Command
                         $imageMeta = [];
                         $imageMeta['original_photo'] = $image;
                         $imageMeta['tiny_photo'] = $image;
-                        $imageMeta['meta'] = null;
+                        $imageMeta['meta'] = ['tiny_photo'=>$image];
                         $image[] = $imageMeta;
                     }
                     $images = json_encode($images,true);

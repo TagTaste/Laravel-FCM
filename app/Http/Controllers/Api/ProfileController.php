@@ -131,11 +131,11 @@ class ProfileController extends Controller
 
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        $this->saveFileToData("image_meta",$path,$request,$data,"image");
+        $this->saveFileToData("image",$path,$request,$data,"image_meta");
 
         //save hero image
         $path = \App\Profile::getHeroImagePath($id);
-        $this->saveFileToData("hero_image_meta",$path,$request,$data,"hero_image");
+        $this->saveFileToData("hero_image",$path,$request,$data,"hero_image_meta");
 
         //save profile resume
 
@@ -303,8 +303,8 @@ class ProfileController extends Controller
         if($request->hasFile($key) && !is_null($extraKey)){
 
             $response = $this->saveFile($path,$request,$key);
-            $data['profile'][$key] = json_encode($response,true);
-            $data['profile'][$extraKey] = $response['original_photo'];
+            $data['profile'][$extraKey] = json_encode($response,true);
+            $data['profile'][$key] = $response['original_photo'];
         }
     }
     
@@ -319,7 +319,12 @@ class ProfileController extends Controller
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
         $response['tiny_photo'] = \Storage::url($path);
-        $response['meta'] = getimagesize($request->input($key));
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }

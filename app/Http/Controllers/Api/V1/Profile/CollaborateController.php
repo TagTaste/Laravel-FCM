@@ -78,9 +78,9 @@ class CollaborateController extends Controller
         $fields = $request->has("fields") ? $request->input('fields') : [];
 
         $imagesArray = [];
-        if ($request->has("image_meta"))
+        if ($request->has("images"))
         {
-            $images = $request->input('image_meta');
+            $images = $request->input('images');
             $i = 1;
             if(count($images) && is_array($images))
             {
@@ -163,11 +163,11 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-        unset($inputs['image_meta']);
+        unset($inputs['images']);
         $imagesArray = [];
-        if ($request->has("image_meta"))
+        if ($request->has("images"))
         {
-            $images = $request->input('image_meta');
+            $images = $request->input('images');
             $i = 1;
             if(count($images) && is_array($images))
             {

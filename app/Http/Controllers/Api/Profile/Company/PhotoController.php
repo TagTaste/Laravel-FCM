@@ -58,12 +58,12 @@ class PhotoController extends Controller
         //create the photo
         $data = $request->except(['_method','_token','company_id']);
         
-        if(!$request->hasFile('image_meta') && empty($request->input('image_meta'))){
+        if(!$request->hasFile('file') && empty($request->input('file'))){
            return $this->sendError("Photo missing.");
         }
         
         $path = Photo::getCompanyImagePath($profileId, $companyId);
-        $this->saveFileToData("image_meta",$path,$request,$data,"file");
+        $this->saveFileToData("file",$path,$request,$data,"image_meta");
         $data['image_info'] = null;
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
@@ -195,8 +195,8 @@ class PhotoController extends Controller
     {
         if($request->hasFile($key)){
             $response = $this->saveFile($path,$request,$key);
-            $data[$key] = json_encode($response,true);
-            $data[$extraKey] = $response['original_photo'];
+            $data[$extraKey] = json_encode($response,true);
+            $data[$key] = $response['original_photo'];
         }
     }
 
@@ -211,7 +211,12 @@ class PhotoController extends Controller
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
         $response['tiny_photo'] = \Storage::url($path);
-        $response['meta'] = getimagesize($request->input($key));
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }

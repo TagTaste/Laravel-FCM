@@ -40,9 +40,9 @@ class GalleryController extends Controller
     {
         $data = $request->except(['_method','_token','company_id']);
         $data['company_id'] = $companyId;
-        if($request->hasFile('image_meta')) {
+        if($request->hasFile('image')) {
             $path = Gallery::getGalleryImagePath($profileId, $companyId);
-            $this->saveFileToData("image_meta",$path,$request,$data,"image");
+            $this->saveFileToData("image",$path,$request,$data,"image_meta");
         }
         $this->model = Gallery::create($data);
         return $this->sendResponse();
@@ -85,9 +85,9 @@ class GalleryController extends Controller
     {
         $inputs = $request->except(['_method','_token','company_id','profile_id']);
         $inputs['company_id'] = $companyId;
-        if ($request->hasFile('image_meta')) {
+        if ($request->hasFile('image')) {
             $path = Gallery::getGalleryImagePath($profileId, $companyId);
-            $this->saveFileToData("image_meta",$path,$request,$inputs,"image");
+            $this->saveFileToData("image",$path,$request,$inputs,"image_meta");
         }
         $this->model = Gallery::where('id',$id)->update($inputs);
 
@@ -113,8 +113,8 @@ class GalleryController extends Controller
         if($request->hasFile($key) && !is_null($extraKey)){
 
             $response = $this->saveFile($path,$request,$key);
-            $data[$key] = json_encode($response,true);
-            $data[$extraKey] = $response['original_photo'];
+            $data[$extraKey] = json_encode($response,true);
+            $data[$key] = $response['original_photo'];
         }
     }
 
@@ -129,7 +129,12 @@ class GalleryController extends Controller
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
         $response['tiny_photo'] = \Storage::url($path);
-        $response['meta'] = getimagesize($request->input($key));
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }

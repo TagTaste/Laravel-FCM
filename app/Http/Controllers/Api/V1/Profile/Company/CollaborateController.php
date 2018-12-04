@@ -102,11 +102,11 @@ class CollaborateController extends Controller
             unset($inputs['fields']);
         }
         //save images
-        unset($inputs['image_meta']);
+        unset($inputs['images']);
         $imagesArray = [];
-        if ($request->has("image_meta"))
+        if ($request->has("images"))
         {
-            $images = $request->input('image_meta');
+            $images = $request->input('images');
             $i = 1;
             if(count($images) && is_array($images))
             {
@@ -214,11 +214,11 @@ class CollaborateController extends Controller
         if($collaborate->collaborate_type == 'collaborate')
             unset($inputs['expires_on']);
 
-        unset($inputs['image_meta']);
+        unset($inputs['images']);
         $imagesArray = [];
-        if ($request->has("image_meta"))
+        if ($request->has("images"))
         {
-            $images = $request->input('image_meta');
+            $images = $request->input('images');
             $i = 1;
             if(count($images) > 0 && !empty($images) && is_array($images))
             {
@@ -233,7 +233,10 @@ class CollaborateController extends Controller
                 $inputs['images'] = json_encode($imagesArray,true);
             }
             else
+            {
+                $inputs['image_meta'] = null;
                 $inputs['images'] = null;
+            }
         }
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";

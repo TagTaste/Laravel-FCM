@@ -61,14 +61,14 @@ class CompanyController extends Controller
             return $this->sendError("Could not create company.");
         }
 
-        if($request->hasFile('logo_meta')){
+        if($request->hasFile('logo')){
             $path = \App\Company::getLogoPath($profileId, $company->id);
-            $this->saveFileToData("logo_meta",$path,$request,$inputs,"logo");
+            $this->saveFileToData("logo",$path,$request,$inputs,"logo_meta");
         }
 
-        if($request->hasFile('hero_image_meta')){
+        if($request->hasFile('hero_image')){
             $path = \App\Company::getHeroImagePath($profileId, $company->id);
-            $this->saveFileToData("hero_image_meta",$path,$request,$inputs,"hero_image");
+            $this->saveFileToData("hero_image",$path,$request,$inputs,"hero_image_meta");
 
         }
         
@@ -87,8 +87,8 @@ class CompanyController extends Controller
         if($request->hasFile($key) && !is_null($extraKey)){
 
             $response = $this->saveFile($path,$request,$key);
-            $data[$key] = json_encode($response,true);
-            $data[$extraKey] = $response['original_photo'];
+            $data[$extraKey] = json_encode($response,true);
+            $data[$key] = $response['original_photo'];
         }
     }
 
@@ -146,25 +146,27 @@ class CompanyController extends Controller
     {
         $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
-        if($request->hasFile('logo_meta')){
+        if($request->hasFile('logo')){
             $path = \App\Company::getLogoPath($profileId, $id) ;
-            $this->saveFileToData("logo_meta",$path,$request,$inputs,"logo");
+            $this->saveFileToData("logo",$path,$request,$inputs,"logo_meta");
         }
 
-        if($request->hasFile('hero_image_meta')){
+        if($request->hasFile('hero_image')){
             $path = \App\Company::getHeroImagePath($profileId, $id);
-            $this->saveFileToData("hero_image_meta",$path,$request,$inputs,"hero_image");
+            $this->saveFileToData("hero_image",$path,$request,$inputs,"hero_image_meta");
         }
 
         //delete heroimage or image
         if($request->has("remove_logo") && $request->input('remove_logo') == 1)
         {
             $inputs['logo'] = null;
+            $inputs['logo_meta'] = null;
         }
 
         if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
         {
             $inputs['hero_image'] = null;
+            $inputs['hero_image_meta'] = null;
         }
 
         $status = \App\Company::where('id',$id)->update($inputs);

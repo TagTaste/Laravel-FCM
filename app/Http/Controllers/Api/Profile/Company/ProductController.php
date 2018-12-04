@@ -46,9 +46,9 @@ class ProductController extends Controller
         $product->name = $request->input("name");
         $product->price = $request->has("price") && !empty($request->input("price")) ? $request->input("price") : null;
         $product->category = $request->input("category");
-        if ($request->hasFile('image_meta')) {
+        if ($request->hasFile('image')) {
             $path = $product->getProductImagePath($profileid, $companyId);
-            $response = $this->saveFile($path,$request,"image_meta");
+            $response = $this->saveFile($path,$request,"image");
             $product->image = $response['original_photo'];
             $product->image_meta = json_encode($response,true);
         }
@@ -98,9 +98,9 @@ class ProductController extends Controller
         $product->name = $request->input("name");
         $product->price = $request->has("price") && !empty($request->input("price")) ? $request->input("price") : null;
         $product->category = $request->input("category");
-        if ($request->hasFile('image_meta')) {
+        if ($request->hasFile('image')) {
             $path = Product::getProductImagePath($profileid, $companyId);
-            $response = $this->saveFile($path,$request,"image_meta");
+            $response = $this->saveFile($path,$request,"image");
             $product->image = $response['original_photo'];
             $product->image_meta = json_encode($response,true);
         }
@@ -145,7 +145,12 @@ class ProductController extends Controller
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
         $response['tiny_photo'] = \Storage::url($path);
-        $response['meta'] = getimagesize($request->input($key));
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
