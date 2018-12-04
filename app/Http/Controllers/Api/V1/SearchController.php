@@ -205,26 +205,27 @@ class SearchController extends Controller
 
     public function getAllProfileIdsFromExperience($loggedInProfileId)
     {
+        $profileIds = new Collection();
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
-        $profileIds = \DB::table('profile_filters')->where(function ($query) use($experiences) {
+        $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
                                 $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
                             }
                         })->get()->pluck('profile_id');
-        \Log::info($profileIds);
+        $profileIds = $profileIds->merge($ids);
         return $profileIds;
     }
 
     public function getAllProfileIdsFromEducation($loggedInProfileId)
     {
+        $profileIds = new Collection();
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('company');
-        $profileIds = \DB::table('profile_filters')->where(function ($query) use($educations) {
+        $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
             }
         })->get()->pluck('profile_id');
-        \Log::info($profileIds);
-
+        $profileIds = $profileIds->merge($ids);
         return $profileIds;
     }
 
