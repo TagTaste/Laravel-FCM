@@ -238,12 +238,12 @@ class SearchController extends Controller
             $profileIds[$key] = "profile:small:".$value ;
         }
         $data = [];
+        \Log::info($profileIds);
         if(count($profileIds)> 0)
         {
             $data = \Redis::mget($profileIds);
 
         }
-        dd($data);
         $profileData = [];
         if(count($data))
         {
