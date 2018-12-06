@@ -36,7 +36,7 @@ class ServiceInterruptionJob
         \Mail::send('emails.serviceInterruption', ['userName'=>$this->username], function($message)
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to($this->useremail, $this->username)->subject('Interruption in the services')->attach($path);
+            $message->to($this->useremail, $this->username)->subject('Interruption in the services');
         });
     }
 }
