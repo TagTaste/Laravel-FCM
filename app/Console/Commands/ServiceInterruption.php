@@ -39,7 +39,7 @@ class ServiceInterruption extends Command
      */
     public function handle()
     {
-        User::with([])->whereNull('deleted_at')
+        User::with([])->where('id', '123')->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models) {
                 $count = 0;
                 foreach ($models as $model)
@@ -49,7 +49,7 @@ class ServiceInterruption extends Command
                     $mail = (new ServiceInterruptionJob($model->email,$model->name))->onQueue('emails');
                     \Log::info('Queueing send invitation...');
                     dispatch($mail);
-                    \Log::info("no is ".$count);
+                    echo "no is ".$count;
                 }
             });
     }
