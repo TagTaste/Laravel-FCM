@@ -33,13 +33,10 @@ class ServiceInterruptionJob
      */
     public function handle()
     {
-        \Mail::send('emails.complete-tasting-process', ['userName'=>$this->username], function($message)
+        \Mail::send('emails.serviceInterruption', ['userName'=>$this->username], function($message)
         {
-            $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to($this->useremail, $this->username)->subject('Introduction to TagTaste Taster\'s Program ')->attach($path, [
-                "as" =>"Taster/'s Docket.pdf",
-                "mime" => "application/pdf",
-            ]);
+            // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
+            $message->to($this->useremail, $this->username)->subject('Interruption in the services')->attach($path);
         });
     }
 }
