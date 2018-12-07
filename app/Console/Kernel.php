@@ -207,16 +207,16 @@ class Kernel extends ConsoleKernel
         $schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
 
         //command for redis store suggestion
-        $schedule->command("build:suggestion:collaborate")->dailyAt('00:05');
-        $schedule->command("build:suggestion:job")->dailyAt('00:15');
-        $schedule->command("build:suggestion:company")->dailyAt('00:20');
-        $schedule->command("build:suggestion:profile")->dailyAt('00:25');
+        // $schedule->command("build:suggestion:collaborate")->dailyAt('00:05');
+        // $schedule->command("build:suggestion:job")->dailyAt('00:15');
+        // $schedule->command("build:suggestion:company")->dailyAt('00:20');
+        // $schedule->command("build:suggestion:profile")->dailyAt('00:25');
 
         //command for db store suggestion
-        $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->dailyAt('01:01');
-        $schedule->command("build:suggestion:suggestiontodatabase:job")->dailyAt('02:01');
-        $schedule->command("build:suggestion:suggestiontodatabase:company")->dailyAt('03:01');
-        $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('04:01');
+        // $schedule->command("build:suggestion:suggestiontodatabase:collaborate")->dailyAt('01:01');
+        // $schedule->command("build:suggestion:suggestiontodatabase:job")->dailyAt('02:01');
+        // $schedule->command("build:suggestion:suggestiontodatabase:company")->dailyAt('03:01');
+        // $schedule->command("build:suggestion:suggestiontodatabase:profile")->dailyAt('04:01');
 
     }
 
