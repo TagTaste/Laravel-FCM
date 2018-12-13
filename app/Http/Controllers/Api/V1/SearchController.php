@@ -352,7 +352,7 @@ class SearchController extends Controller
                 $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
-                    if($dataCount > 5)
+                    if($dataCount > 4)
                         break;
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
@@ -367,7 +367,7 @@ class SearchController extends Controller
                 $this->model['company'] = $this->model['company']->toArray();
                 $companyData = [];
                 foreach($this->model['company'] as $company){
-                    if($dataCount > 5)
+                    if($dataCount > 4)
                         break;
                     $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
                     $companyData[] = $company;
@@ -380,7 +380,7 @@ class SearchController extends Controller
                 $this->model['collaborate'] = $this->model['collaborate']->toArray();
                 $collaborateData = [];
                 foreach($this->model['collaborate'] as $collaborate){
-                    if($dataCount > 5)
+                    if($dataCount > 4)
                         break;
                     $collaborateData[] = $collaborate;
                     $dataCount++;
