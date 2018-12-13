@@ -41,6 +41,42 @@ class SearchController extends Controller
     ];
 
 
+    private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
+    {
+        if(empty($ids)){
+            return false;
+        }
+        $model = isset($this->models[$type]) ? new $this->models[$type] : false;
+        if(!$model){
+            return $model;
+        }
+
+        if(!empty($filters) && isset($this->filters[$type])){
+            $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
+            if($modelIds->count()){
+                $ids = array_merge($ids,$modelIds->toArray());
+            }
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+
+        }
+
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
+        }
+
+        return $model->get();
+
+
+    }
+
+    //index = db
+    //type = table
+    //document = row
+    //field = column
+
+
     public function discover(Request $request)
     {
 
@@ -272,5 +308,109 @@ class SearchController extends Controller
         $this->model = $profileData;
         return $this->sendResponse();
     }
+
+    public function search(Request $request, $type = null)
+    {
+        $query = $request->input('q');
+        $this->model = [];
+        $finalData = [];
+        $params = [
+            'index' => "api",
+            'body' => [
+                'query' => [
+                    'query_string' => [
+                        'query' => $query
+                    ]
+                ]
+            ]
+        ];
+
+        $this->setType($type);
+
+        if($type){
+            $params['type'] = $type;
+        }
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+
+        if($response['hits']['total'] > 0){
+
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            $page = $request->input('page');
+            list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+            foreach($hits as $name => $hit){
+                $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
+            }
+
+            $profileId = $request->user()->profile->id;
+            $dataCount = 0;
+            if(isset($this->model['profile'])){
+                $this->model['profile'] = $this->model['profile']->toArray();
+                $following = \Redis::sMembers("following:profile:" . $profileId);
+                foreach($this->model['profile'] as &$profile){
+                    if($profile && isset($profile['id'])){
+                        $profile['isFollowing'] = in_array($profile['id'],$following);
+                        $profileData[] = $profile;
+                    }
+                    if($dataCount > 5)
+                        break;
+                    $dataCount++;
+                }
+                $finalData[] = ['type'=>'profile','ui_type'=>0,'item'=>$profileData,'count'=>count($this->model['profile'])];
+            }
+            $dataCount = 0;
+            if(isset($this->model['company'])){
+                $this->model['company'] = $this->model['company']->toArray();
+                $companyData = [];
+                foreach($this->model['company'] as $company){
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    $companyData[] = $company;
+                    if($dataCount > 5)
+                        break;
+                    $dataCount++;
+                }
+                $finalData[] = ['type'=>'company','ui_type'=>0,'item'=>$companyData,'count'=>count($this->model['company'])];
+            }
+            $dataCount = 0;
+            if(isset($this->model['collaborate'])){
+                $this->model['collaborate'] = $this->model['collaborate']->toArray();
+                $collaborateData = [];
+                foreach($this->model['collaborate'] as $collaborate){
+                    $collaborateData[] = $collaborate;
+                    if($dataCount > 5)
+                        break;
+                    $dataCount++;
+                }
+                $finalData[] = ['type'=>'collaborate','ui_type'=>0,'item'=>$collaborateData,'count'=>count($this->model['collaborate'])];
+            }
+            $this->model = $finalData;
+        }
+
+
+        return $this->sendResponse();
+    }
+
+    private function setType(&$type){
+        //for frontend peeps
+        switch($type){
+            case "companies":
+                $type = "company";
+                break;
+            case "recipes":
+                $type = "recipe";
+                break;
+            case "people":
+                $type = "profile";
+                break;
+            case "jobs":
+                $type = "job";
+                break;
+        }
+    }
+
 
 }
