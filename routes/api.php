@@ -143,6 +143,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //search apis new
 
                 Route::get("search/discover",'SearchController@discover');
+                Route::get("search/{type?}",'SearchController@search');
                 Route::get("search/specialization/{id}",'SearchController@searchSpecializationPeople');
 
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
@@ -380,7 +381,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //search
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
-                Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
+                Route::get("search/{type?}",'SearchController@search');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
                 Route::get("searchForApp/{type?}",'SearchController@searchForApp');
