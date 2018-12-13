@@ -155,7 +155,7 @@ class ProgressiveImage extends Command
                         $imageMeta['original_photo'] = $image;
                         $imageMeta['tiny_photo'] = $image;
                         $imageMeta['meta'] = ['tiny_photo'=>$image];
-                        $image[] = $imageMeta;
+                        $images[] = $imageMeta;
                     }
                     $images = json_encode($images,true);
                     $model->update(['image_meta'=> $images]);
