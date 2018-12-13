@@ -352,12 +352,12 @@ class SearchController extends Controller
                 $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
+                    if($dataCount > 5)
+                        break;
                     if($profile && isset($profile['id'])){
                         $profile['isFollowing'] = in_array($profile['id'],$following);
                         $profileData[] = $profile;
                     }
-                    if($dataCount > 5)
-                        break;
                     $dataCount++;
                 }
                 $finalData[] = ['type'=>'profile','ui_type'=>0,'item'=>$profileData,'count'=>count($this->model['profile'])];
@@ -367,10 +367,10 @@ class SearchController extends Controller
                 $this->model['company'] = $this->model['company']->toArray();
                 $companyData = [];
                 foreach($this->model['company'] as $company){
-                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
-                    $companyData[] = $company;
                     if($dataCount > 5)
                         break;
+                    $company['isFollowing'] = Company::checkFollowing($profileId,$company['id']);
+                    $companyData[] = $company;
                     $dataCount++;
                 }
                 $finalData[] = ['type'=>'company','ui_type'=>0,'item'=>$companyData,'count'=>count($this->model['company'])];
@@ -380,9 +380,9 @@ class SearchController extends Controller
                 $this->model['collaborate'] = $this->model['collaborate']->toArray();
                 $collaborateData = [];
                 foreach($this->model['collaborate'] as $collaborate){
-                    $collaborateData[] = $collaborate;
                     if($dataCount > 5)
                         break;
+                    $collaborateData[] = $collaborate;
                     $dataCount++;
                 }
                 $finalData[] = ['type'=>'collaborate','ui_type'=>0,'item'=>$collaborateData,'count'=>count($this->model['collaborate'])];
