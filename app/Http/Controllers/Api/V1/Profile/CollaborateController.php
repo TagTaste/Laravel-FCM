@@ -93,7 +93,7 @@ class CollaborateController extends Controller
                     $imageMeta[] = $image;
                     $i++;
                 }
-                $inputs['image_meta'] = json_encode($imageMeta,true);
+                $inputs['images_meta'] = json_encode($imageMeta,true);
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
@@ -182,7 +182,7 @@ class CollaborateController extends Controller
                     $imageMeta[] = $image;
                     $i++;
                 }
-                $inputs['image_meta'] = json_encode($imageMeta,true);
+                $inputs['images_meta'] = json_encode($imageMeta,true);
             }
             $inputs['images'] = json_encode($imagesArray,true);
 
