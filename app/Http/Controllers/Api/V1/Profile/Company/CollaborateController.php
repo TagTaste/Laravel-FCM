@@ -116,7 +116,7 @@ class CollaborateController extends Controller
                     if(is_null($image))
                         continue;
                     $imagesArray[]['image'.$i] = $image['original_photo'];
-                    $imageMeta[] = $image;
+                    $imageMeta[] = json_encode($image);
                     $i++;
                 }
                 $inputs['images_meta'] = json_encode($imageMeta,true);
