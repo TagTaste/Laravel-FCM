@@ -126,10 +126,10 @@ class SearchController extends Controller
         if(count($specializations))
             $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)'];
 
-        $collaborations = Collaborate::where('state',1)->skip(0)->take(10)->inRandomOrder()->get();
+        $collaborations = Collaborate::where('state',1)->skip(0)->take(5)->inRandomOrder()->get();
 
         if(count($collaborations))
-            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>1,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
 
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
 
