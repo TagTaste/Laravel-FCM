@@ -148,16 +148,16 @@ class ProgressiveImage extends Command
             foreach ($models as $model) {
                 if(count($model->images))
                 {
-                    $images = [];
+                    $imagesMeta = [];
                     foreach ($model->images as $image)
                     {
                         $imageMeta = [];
                         $imageMeta['original_photo'] = $image;
                         $imageMeta['tiny_photo'] = $image;
                         $imageMeta['meta'] = ['tiny_photo'=>$image];
-                        $images[] = $imageMeta;
+                        $imagesMeta[] = $imageMeta;
                     }
-                    $images = json_encode($images,true);
+                    $images = json_encode($imagesMeta,true);
                     $model->update(['images_meta'=> $images]);
                 }
                 echo "Collaborate id ".$model->id ."\n";
