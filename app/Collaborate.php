@@ -72,6 +72,8 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
+        \Log::info("here is cache");
+        \Log::info($this->images_meta);
         \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
     
     }
@@ -405,6 +407,8 @@ class Collaborate extends Model implements Feedable
             $images = json_decode($value,true);
             foreach ($images as $image)
                 $imagesMeta[] = json_encode($image);
+            \Log::info("here is image");
+            \Log::info($imagesMeta);
             return $imagesMeta;
         }
         return [];
