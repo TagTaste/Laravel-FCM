@@ -344,7 +344,7 @@ class SearchController extends Controller
 
             $page = $request->input('page');
             list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
+            \Log::info($hits);
             foreach($hits as $name => $hit){
                 $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
             }
