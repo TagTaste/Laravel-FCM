@@ -406,8 +406,8 @@ class Collaborate extends Model implements Feedable
         {
             $images = json_decode($value,true);
             foreach ($images as $image)
-//                $imagesMeta[] = json_decode($image,true);
-            return json_decode($value,true);
+                $imagesMeta[] = json_encode($image,true);
+            return $imagesMeta;
         }
         return [];
     }
