@@ -218,23 +218,23 @@ class SearchController extends Controller
     {
         $profileIds = new Collection();
         // specialization
-        $ids = \DB::table('profile_specializations')->where('profile_id',$loggedInProfileId)->get()->pluck('specialization_id');
-        $ids = \DB::table('profile_specializations')->whereIn('specialization_id',$ids)->get()->pluck('profile_id');
+        $ids = \DB::table('profile_specializations')->where('profile_id',$loggedInProfileId)->take(5)->get()->pluck('specialization_id');
+        $ids = \DB::table('profile_specializations')->whereIn('specialization_id',$ids)->take(5)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
 
         //job profile
-        $ids = \DB::table('profile_occupations')->where('profile_id',$loggedInProfileId)->get()->pluck('occupation_id');
-        $ids = \DB::table('profile_occupations')->whereIn('occupation_id',$ids)->get()->pluck('profile_id');
+        $ids = \DB::table('profile_occupations')->where('profile_id',$loggedInProfileId)->take(5)->get()->pluck('occupation_id');
+        $ids = \DB::table('profile_occupations')->whereIn('occupation_id',$ids)->take(5)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
 
         //locations
         $profile = Profile::where('id',$loggedInProfileId)->first();
-        $ids = \DB::table('profile_filters')->where('key','location')->where('value',$profile->city)->get()->pluck('profile_id');
+        $ids = \DB::table('profile_filters')->where('key','location')->where('value',$profile->city)->take(5)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
 
         //interest
-        $ids = \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->get()->pluck('occupation_id');
-        $ids = \DB::table('profiles_interested_collections')->whereIn('interested_collection_id',$ids)->get()->pluck('profile_id');
+        $ids = \DB::table('profiles_interested_collections')->where('profile_id',$loggedInProfileId)->take(5)->get()->pluck('occupation_id');
+        $ids = \DB::table('profiles_interested_collections')->whereIn('interested_collection_id',$ids)->take(5)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
 
         return $profileIds;
@@ -248,7 +248,7 @@ class SearchController extends Controller
                             for ($i = 0; $i < count($experiences); $i++){
                                 $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
                             }
-                        })->get()->pluck('profile_id');
+                        })->take(10)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         return $profileIds;
     }
@@ -261,7 +261,7 @@ class SearchController extends Controller
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
             }
-        })->get()->pluck('profile_id');
+        })->take(10)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         return $profileIds;
     }
