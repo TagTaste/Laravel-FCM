@@ -381,9 +381,10 @@ class CollaborateController extends Controller
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
         $path = "images/p/$profileId/collaborate";
-        $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        $randnum = rand(10,1000);
+        $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
         //create a tiny image
-        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $path = $path."/tiny/$randnum" . str_random(20) . ".jpg";
         $thumbnail = \Image::make($request->file('image'))->resize(50, null,function ($constraint) {
             $constraint->aspectRatio();
         })->blur(1)->stream('jpg',70);

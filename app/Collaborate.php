@@ -408,6 +408,7 @@ class Collaborate extends Model implements Feedable
             foreach ($images as $image)
                 $imagesMeta[] = json_encode($image);
             \Log::info("here is image");
+            \Log::info("collaborate id ".$this->id);
             \Log::info($imagesMeta);
             return $imagesMeta;
         }
