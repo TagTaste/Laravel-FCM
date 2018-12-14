@@ -400,7 +400,13 @@ class Collaborate extends Model implements Feedable
     public function getImagesMetaAttribute($value)
     {
         if(isset($value))
-            return json_decode($value,true);
+        {
+            $imagesMeta = [];
+            $images = json_decode($value,true);
+            foreach ($images as $image)
+                $imagesMeta[] = json_encode($image);
+            return $imagesMeta;
+        }
         return [];
     }
     
