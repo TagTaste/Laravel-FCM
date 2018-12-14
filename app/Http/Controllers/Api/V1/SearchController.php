@@ -348,7 +348,7 @@ class SearchController extends Controller
 
             $profileId = $request->user()->profile->id;
             $dataCount = 0;
-            if(isset($this->model['profile'])){
+            if(isset($this->model['profile']) && $this->model['profile']->count() > 0){
                 $this->model['profile'] = $this->model['profile']->toArray();
                 $following = \Redis::sMembers("following:profile:" . $profileId);
                 foreach($this->model['profile'] as &$profile){
@@ -363,7 +363,7 @@ class SearchController extends Controller
                 $finalData[] = ['type'=>'profile','ui_type'=>0,'item'=>$profileData,'count'=>count($this->model['profile'])];
             }
             $dataCount = 0;
-            if(isset($this->model['company'])){
+            if(isset($this->model['company']) && $this->model['company']->count() > 0){
                 $this->model['company'] = $this->model['company']->toArray();
                 $companyData = [];
                 foreach($this->model['company'] as $company){
@@ -376,8 +376,7 @@ class SearchController extends Controller
                 $finalData[] = ['type'=>'company','ui_type'=>0,'item'=>$companyData,'count'=>count($this->model['company'])];
             }
             $dataCount = 0;
-            if(isset($this->model['collaborate'])){
-                dd($this->model['collaborate']);
+            if(isset($this->model['collaborate']) && $this->model['collaborate']->count() > 0){
                 $this->model['collaborate'] = $this->model['collaborate']->toArray();
                 $collaborateData = [];
                 foreach($this->model['collaborate'] as $collaborate){
