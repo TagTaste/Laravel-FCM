@@ -46,6 +46,8 @@ class SearchController extends Controller
         if(empty($ids)){
             return false;
         }
+        \Log::info("here is type");
+        \Log::info($type);
         $model = isset($this->models[$type]) ? new $this->models[$type] : false;
         if(!$model){
             return $model;
@@ -59,7 +61,8 @@ class SearchController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
-
+        \Log::info("ids is here");
+        \Log::info($ids);
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
 
         if(null !== $skip && null !== $take){
