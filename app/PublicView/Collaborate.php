@@ -16,7 +16,7 @@ class Collaborate extends BaseCollaborate
         'description','project_commences','images',
         'duration','financials','eligibility_criteria','occassion',
         'profile_id', 'company_id','template_fields','template_id','notify','owner'
-        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile'];
+        ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile','images_meta'];
 
 
     protected $appends = ['owner' ,'images'];
@@ -66,6 +66,13 @@ class Collaborate extends BaseCollaborate
                 return $value;
         }
         return $imageArray;
+    }
+
+    public function getImagesMetaAttribute($value)
+    {
+        if(isset($value))
+            return json_decode($value,true);
+        return [];
     }
 
     public function getStateAttribute($value)
