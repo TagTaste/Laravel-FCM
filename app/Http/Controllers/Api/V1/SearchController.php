@@ -377,6 +377,7 @@ class SearchController extends Controller
             }
             $dataCount = 0;
             if(isset($this->model['collaborate'])){
+                dd($this->model['collaborate']);
                 $this->model['collaborate'] = $this->model['collaborate']->toArray();
                 $collaborateData = [];
                 foreach($this->model['collaborate'] as $collaborate){
