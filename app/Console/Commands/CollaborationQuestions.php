@@ -75,6 +75,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 $isNested = isset($item['is_nested_question']) && $item['is_nested_question'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
                 $option = isset($item['option']) ? $item['option'] : null;
+                \Log::info($option);
                 if(isset($item['select_type']))
                 {
                     $value = $item['option'];
