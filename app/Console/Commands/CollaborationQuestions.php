@@ -147,7 +147,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
 
                         if(isset($nestedOption->nested_option_list))
                         {
-                            echo $nestedOption->nested_option_list;
+//                            echo $nestedOption->nested_option_list;
                             $extra = \Db::table('global_nested_option')->where('type','like',$nestedOption->nested_option_list)->get();
                             foreach ($extra as $nested)
                             {
@@ -173,7 +173,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             echo "something wrong in nested option value";
                             return 0;
                         }
-                        print_r($extraQuestion);
+//                        print_r($extraQuestion);
                         \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
 
@@ -201,7 +201,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             $pathname =  \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->where('sequence_id',$question->sequence_id)->first();
                             \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                ->whereIn('id',$getPath)->update(['path'=>$pathname->path]);
+                                    ->whereIn('id',$getPath)->update(['path'=>$pathname->path]);
                         }
                         $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
 
