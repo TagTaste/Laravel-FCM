@@ -75,7 +75,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 $isNested = isset($item['is_nested_question']) && $item['is_nested_question'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
                 $option = isset($item['option']) ? $item['option'] : null;
-                if(isset($item['select_type']) && $item['select_type'] == 5)
+                if(isset($item['select_type']))
                 {
                     $value = $item['option'];
                     if(is_string($value))
@@ -98,14 +98,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         $option = [];
                         $i = 1;
                         foreach($value as $v){
-                            if(!isset($v['value']) || !isset($v['color_code']))
+                            if(!isset($v['value']))
                             {
                                 continue;
                             }
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
-                                'colorCode'=> $v['color_code']
+                                'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
+                                'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
+                                'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
+                                'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
                             ];
                             $i++;
                         }
