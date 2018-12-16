@@ -75,6 +75,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
       "is_nested_question": 0,
       "is_nested_option": 0,
       "is_mandatory": 1,
+      "select_type": 2,
 
       "option": [
 
