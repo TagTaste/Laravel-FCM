@@ -206,8 +206,8 @@ class ChatController extends Controller
     	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
 
     	$profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-    	$data['profile'] = \App\Recipe\Profile::whereIn('profiles.id',$profileIds)->join('users','profiles.user_id','users.id')
-            ->where('users.name','like','%'.$key.'%')->get();
+    	$data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
+            ->whereIn('profiles.id',$profileIds)->where('users.name','like','%'.$key.'%')->get();
 
         $this->model = $data;
     	return $this->sendResponse();

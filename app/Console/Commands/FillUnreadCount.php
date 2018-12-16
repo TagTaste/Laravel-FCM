@@ -39,7 +39,7 @@ class FillUnreadCount extends Command
     public function handle()
     {
         //
-        $status = \DB::table('message_recepients')->whereNull('read_on')->update(['read_on'=>\Carbon\Carbon::now()->toDateTimeString()]);
+        $status = \DB::table('message_recepients')->whereNull('last_seen')->update(['last_seen'=>\Carbon\Carbon::now()->toDateTimeString()]);
         $this->info($status);
     }
 }

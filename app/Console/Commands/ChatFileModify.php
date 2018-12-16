@@ -38,9 +38,9 @@ class ChatFileModify extends Command
     public function handle()
     {
         //
-        $messages = \DB::table('chat_messages')->where('file','NOT LIKE','%http%')->get();
+        $messages = \DB::table('chats')->get();
         foreach ($messages as $message) {
-            \App\Chat\Message::where('id',$message->id)->update(['file'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/'.$message->file]);
+            \DB::table('chats')->where('id',$message->id)->update(['image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/'.$message->image]);
         }
     }
 }
