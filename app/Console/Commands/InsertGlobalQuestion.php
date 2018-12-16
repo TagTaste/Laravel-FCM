@@ -775,7 +775,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 }';
         
-        $data = ['name'=>'Masala/ Seasoning','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'New Questionair with multiple option with different intensity','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
