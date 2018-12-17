@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterGlobalNestedOptionAddColumn extends Migration
+class AlterCollaborateTastingNestedOptionsAddColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class AlterGlobalNestedOptionAddColumn extends Migration
      */
     public function up()
     {
-        Schema::table('global_nested_option', function (Blueprint $table) {
+        Schema::table('collaborate_tasting_nested_options', function (Blueprint $table) {
             $table->boolean('is_intensity')->default(0);
 
         });
@@ -26,7 +26,7 @@ class AlterGlobalNestedOptionAddColumn extends Migration
      */
     public function down()
     {
-        Schema::table('global_nested_option', function (Blueprint $table) {
+        Schema::table('collaborate_tasting_nested_options', function (Blueprint $table) {
             $table->dropColumn('is_intensity');
         });
     }
