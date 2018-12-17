@@ -217,17 +217,59 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     $isMandatory = isset($subquestion['is_mandatory']) && $subquestion['is_mandatory'] == 1 ? 1 : 0;
                     // for sub questions
                     $option = isset($subquestion['option']) ? $subquestion['option'] : null;
-                    $value = explode(',',$option);
-                    $option = [];
-                    $i = 1;
-                    foreach($value as $v){
-                        if(is_null($v) || empty($v))
-                            continue;
-                        $option[] = [
-                            'id' => $i,
-                            'value' => $v
-                        ];
-                        $i++;
+                    if(isset($subquestion['select_type']) && !is_null($option))
+                    {
+                        $value = $subquestion['option'];
+                        if(is_string($value))
+                        {
+                            $value = explode(',',$option);
+                            $option = [];
+                            $i = 1;
+                            foreach($value as $v){
+                                if(is_null($v) || empty($v))
+                                    continue;
+                                $option[] = [
+                                    'id' => $i,
+                                    'value' => $v
+                                ];
+                                $i++;
+                            }
+                        }
+                        else
+                        {
+                            $option = [];
+                            $i = 1;
+                            foreach($value as $v){
+                                if(!isset($v['value']))
+                                {
+                                    continue;
+                                }
+                                $option[] = [
+                                    'id' => $i,
+                                    'value' => $v['value'],
+                                    'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
+                                    'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
+                                    'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
+                                    'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
+                                ];
+                                $i++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $value = explode(',',$option);
+                        $option = [];
+                        $i = 1;
+                        foreach($value as $v){
+                            if(is_null($v) || empty($v))
+                                continue;
+                            $option[] = [
+                                'id' => $i,
+                                'value' => $v
+                            ];
+                            $i++;
+                        }
                     }
                     if(count($option))
                         $subquestion['option'] = $option;
