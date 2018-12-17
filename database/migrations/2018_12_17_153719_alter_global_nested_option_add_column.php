@@ -14,7 +14,7 @@ class AlterGlobalNestedOptionAddColumn extends Migration
     public function up()
     {
         Schema::table('global_nested_option', function (Blueprint $table) {
-            $table->boolean('is_different_intensity')->default(0);
+            $table->boolean('is_intensity')->default(0);
 
         });
     }
@@ -27,7 +27,7 @@ class AlterGlobalNestedOptionAddColumn extends Migration
     public function down()
     {
         Schema::table('global_nested_option', function (Blueprint $table) {
-            $table->dropColumn('last_seen');
+            $table->dropColumn('is_intensity');
         });
     }
 }
