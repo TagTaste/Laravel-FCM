@@ -186,7 +186,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         $tr = 0;
                         foreach ($questions as $question)
                         {
-                            echo "count is ".$tr;
+                            echo "count is ".$tr."\n";
                             $checknestedIds = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                 ->where('parent_id',$question->sequence_id)->get()->pluck('id');
                             if(count($checknestedIds))
