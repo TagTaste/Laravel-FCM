@@ -98,7 +98,7 @@ class QuestionController extends Controller
                 $data->questions->parent_question_id = $data->parent_question_id;
                 $data->questions->header_type_id = $data->header_type_id;
                 $data->questions->collaborate_id = $data->collaborate_id;
-                if(isset($data->questions->is_nested_option))
+                if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1)
                 {
                     $data->questions->option = \DB::table('collaborate_tasting_nested_options')->where('header_type_id',$headerId)
                         ->where('question_id',$data->id)->where('is_active',1)->whereNull('parent_id')->get();
