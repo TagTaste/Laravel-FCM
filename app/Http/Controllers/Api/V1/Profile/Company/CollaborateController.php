@@ -158,7 +158,6 @@ class CollaborateController extends Controller
 
         if($this->model->collaborate_type != 'product-review')
         {
-            dd($this->model);
             //push to feed
             event(new NewFeedable($this->model,$company));
 
