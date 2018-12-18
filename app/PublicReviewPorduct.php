@@ -22,11 +22,11 @@ class PublicReviewPorduct extends Model
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type'];
+        'product_category','product_sub_category','type','overall_rating'];
 
     protected $appends = ['type'];
 
-    protected $with = ['product_category','product_sub_category'];
+    protected $with = ['product_category','product_sub_category','overall_rating'];
 
     public function getTypeAttribute()
     {
@@ -75,5 +75,44 @@ class PublicReviewPorduct extends Model
     {
         if(isset($value))
             return json_decode($value);
+    }
+
+    protected function getColorCode($value)
+    {
+        switch ($value) {
+            case 1:
+                return '#8C0008';
+                break;
+            case 2:
+                return '#D0021B';
+                break;
+            case 3:
+                return '#C92E41';
+                break;
+            case 4:
+                return '#E27616';
+                break;
+            case 5:
+                return '#AC9000';
+                break;
+            case 6:
+                return '#7E9B42';
+                break;
+            case 7:
+                return '#577B33';
+                break;
+            default:
+                return '#305D03';
+        }
+    }
+
+    public function getOverallRatingAttrubute()
+    {
+        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->sum('value');
+        $userCount = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->count();
+        $meta = [];
+        $meta['max_rating'] = 8;
+        $meta['overall_rating'] = $overallPreferances/$userCount;
+        $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
     }
 }
