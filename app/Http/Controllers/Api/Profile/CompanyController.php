@@ -160,7 +160,7 @@ class CompanyController extends Controller
         }
         
         $company = \App\Company::find($id);
-        return $this->model;
+        return $company;
 
         $company->addToCache();
         $this->model = $company;
