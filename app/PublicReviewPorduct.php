@@ -112,7 +112,8 @@ class PublicReviewPorduct extends Model
         $userCount = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->count();
         $meta = [];
         $meta['max_rating'] = 8;
-        $meta['overall_rating'] = $overallPreferances/$userCount;
+        $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
+        $meta['count'] = $userCount;
         $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
     }
 }
