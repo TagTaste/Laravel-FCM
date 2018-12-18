@@ -4,6 +4,7 @@ namespace App\Http\Controllers\APi;
 
 use App\PublicReviewPorduct;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\Controller;
 
 class PublicReviewProductController extends Controller
 {
