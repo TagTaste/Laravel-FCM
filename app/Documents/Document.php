@@ -32,7 +32,6 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
         foreach($document->bodyProperties as $attribute){
             $method = 'getValueOf' . $attribute;
             if(method_exists($document,$method)){
-                echo "attibute ".$attribute."\n";
                 $document->body[$attribute] = $document->$method();
                 continue;
             }
@@ -100,7 +99,6 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
      */
     public function getId()
     {
-        echo "id is here ".$this->id;
         return $this->id;
     }
     
