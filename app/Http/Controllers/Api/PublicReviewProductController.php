@@ -56,13 +56,13 @@ class PublicReviewProductController extends Controller
     public function store(Request $request)
     {
         $inputs = $request->all();
-        if(isset($inputs['images']))
+        if(isset($inputs['images_meta']))
         {
-            $images = $request->input('images');
+            $images = $request->input('images_meta');
             $imageArray = [];
             foreach ($images as $image)
                 $imageArray[] = $image;
-            $inputs['images'] = json_encode($imageArray,true);
+            $inputs['images_meta'] = json_encode($imageArray,true);
         }
         $this->model = $this->model->create($inputs);
         return $this->sendResponse();
