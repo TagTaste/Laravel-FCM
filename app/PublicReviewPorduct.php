@@ -106,7 +106,7 @@ class PublicReviewPorduct extends Model
         }
     }
 
-    public function getOverallRatingAttrubute()
+    public function getOverallRatingAttribute()
     {
         $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->sum('value');
         $userCount = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->count();
