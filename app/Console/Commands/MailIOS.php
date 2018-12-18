@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Jobs\MailIOSJob;
 
 class MailIOS extends Command
 {
@@ -40,8 +41,10 @@ class MailIOS extends Command
         //
     $profiles = \DB::table('profiles')->join('users','profiles.user_id','=','users.id')->join('app_info','profiles.id','=','app_info.profile_id')->where('app_info.platform','ios')->get();
         foreach ($profiles as $profile) {
-            $this->info($profile);
+             $mail = (new MailIOSJob($profile->email,$profile->name))->onQueue('emails');
+             dispatch($mail);
+            $this->info($profile->name);
         }
-     $this->info($profile);
+
     }
 }
