@@ -25,6 +25,7 @@ use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
+use App\Console\Commands\InsertPublicReviewQuestionair;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
@@ -188,7 +189,8 @@ class Kernel extends ConsoleKernel
         CompleteTastingMail::class,
 
 
-        RemoveDuplicateFromReviewTable::class
+        RemoveDuplicateFromReviewTable::class,
+        InsertPublicReviewQuestionair::class
 
 
     ];

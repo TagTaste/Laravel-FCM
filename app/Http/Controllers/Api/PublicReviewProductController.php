@@ -55,6 +55,11 @@ class PublicReviewProductController extends Controller
     public function store(Request $request)
     {
         $inputs = $request->all();
+        if(isset($inputs['images']))
+        {
+            $inputs['images'] = json_encode($inputs['images']);
+
+        }
         $this->model = $this->model->create($inputs);
         return $this->sendResponse();
     }
@@ -97,5 +102,16 @@ class PublicReviewProductController extends Controller
     {
         $this->model = $this->model->where('id',$id)->delete();
         return $this->sendResponse();
+    }
+
+    public function checkUuId($uuId)
+    {
+        $check = PublicReviewPorduct::where('id',$uuId)->exists();
+        if($check)
+        {
+            $uuId = str_random("32");
+            $this->checkUuId($uuId);
+        }
+        return $uuId;
     }
 }

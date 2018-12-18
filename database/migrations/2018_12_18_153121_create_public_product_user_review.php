@@ -19,14 +19,15 @@ class CreatePublicProductUserReview extends Migration
             $table->text("value");
             $table->unsignedInteger('value_id')->nullable();
             $table->unsignedInteger("leaf_id")->nullable();
+            $table->integer('select_type')->nullable();
             $table->string("intensity")->nullable();
             $table->integer("current_status")->default(0);
             $table->unsignedInteger('question_id');
             $table->foreign("question_id")->references("id")->on("public_review_questions");
             $table->unsignedInteger('header_id');
             $table->foreign("header_id")->references("id")->on("public_review_question_headers");
-            $table->unsignedInteger('public_review_product_id');
-            $table->foreign("public_review_product_id")->references("id")->on("public_review_products");
+            $table->unsignedInteger('product_id');
+//            $table->foreign("product_id")->references("id")->on("public_review_products");
             $table->unsignedInteger('profile_id');
             $table->foreign("profile_id")->references("id")->on("profiles");
             $table->timestamps();

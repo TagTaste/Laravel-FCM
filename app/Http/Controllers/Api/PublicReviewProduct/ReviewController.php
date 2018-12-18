@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\APi\PublicReviewProduct;
 
 use App\PublicReviewProduct\Review;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -23,6 +24,7 @@ class ReviewController extends Controller
     public function __construct(Review $model)
     {
         $this->model = $model;
+        $this->now = Carbon::now()->toDateTimeString();
     }
     /**
      * Display a listing of the resource.
@@ -32,7 +34,14 @@ class ReviewController extends Controller
     public function index(Request $request,$productId)
     {
         $loggedInPorfileId = $request->user()->profile->id;
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
+        $this->model = $this->model->whereNotNull('profile_id',$loggedInPorfileId)->where('select_type',3)
+            ->where('key','like','comment')->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
     }
 
     /**
@@ -51,70 +60,54 @@ class ReviewController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$productId,$headerId)
     {
-        $loggedInProfileId = $request->user()->profile->id;
-        $data = [];
-        $answers = $request->input('answer');
-        $loggedInProfileId = $request->user()->profile->id ;
-        $batchId = $request->input('batch_id');
-        if(!$request->has('batch_id'))
-        {
-            return $this->sendError("No prodcut id found");
-        }
-        $checkAssign = \DB::table('collaborate_batches_assign')->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->exists();
-
-        if(!$checkAssign)
-        {
-            return $this->sendError("Wrong product assigned");
-        }
-        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
-        $latestCurrentStatus = \Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
-        if($currentStatus == $latestCurrentStatus && $latestCurrentStatus == 3)
-        {
-            return $this->sendError("You have already completed this product");
-        }
-        \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
-        $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-            ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
-
-        if(count($answers))
-        {
-            foreach ($answers as $answer)
-            {
-                $options = isset($answer['option']) ? $answer['option'] : [];
-                $questionId = $answer['question_id'];
-                foreach ($options as $option)
-                {
-                    $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
-                    $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
-                    $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
-                    $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
-                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
-                        'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
-                        'collaborate_id'=>$collaborateId,'intensity'=>$intensity,'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
-                }
-                if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
-                {
-                    $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
-                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
-                        'profile_id'=>$loggedInProfileId,'batch_id'=>$batchId,
-                        'collaborate_id'=>$collaborateId,'intensity'=>null,'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
-                }
-            }
-        }
-        if(count($data)>0)
-        {
-            $this->model = Review::insert($data);
-            if($currentStatus == 3)
-            {
-                \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
-                    ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
-            }
-        }
-        return $this->sendResponse();
+//        $this->now = Carbon::now()->toDateTimeString();
+//        $loggedInProfileId = $request->user()->profile->id;
+//        $data = [];
+//        $answers = $request->input('answer');
+//
+//        $checkProduct = \DB::table('public_review_products')->where('id',$productId)->exists();
+//
+//        if(!$checkProduct)
+//        {
+//            return $this->sendError("Wrong product reviewing");
+//        }
+//        Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
+//            ->where('header_id',$headerId)->delete();
+//
+//        if(count($answers))
+//        {
+//            foreach ($answers as $answer)
+//            {
+//                $options = isset($answer['option']) ? $answer['option'] : [];
+//                $questionId = $answer['question_id'];
+//                foreach ($options as $option)
+//                {
+//                    $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
+//                    $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
+//                    $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
+//                    $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
+//                        'question_id'=>$questionId,'header_id'=>$headerId,
+//                        'profile_id'=>$loggedInProfileId,
+//                        'product_id'=>$productId,'intensity'=>$intensity,'current_status'=>1,'value_id'=>$valueId,
+//                        'created_at'=>$this->now,'updated_at'=>$this->now];
+//                }
+//                if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
+//                {
+//                    $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
+//                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+//                        'profile_id'=>$loggedInProfileId,
+//                        'product_id'=>$productId,'intensity'=>null,'current_status'=>1,'value_id'=>null,
+//                        'created_at'=>$this->now,'updated_at'=>$this->now];
+//                }
+//            }
+//        }
+//        if(count($data)>0)
+//        {
+//            $this->model = $this->model->create($data);
+//        }
+//        return $this->sendResponse();
     }
 
     /**
@@ -160,5 +153,69 @@ class ReviewController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function productReview(Request $request,$productId,$headerId)
+    {
+        $this->now = Carbon::now()->toDateTimeString();
+        $loggedInProfileId = $request->user()->profile->id;
+        $data = [];
+        $answers = $request->input('answer');
+
+        $checkProduct = \DB::table('public_review_products')->where('id',$productId)->exists();
+
+        if(!$checkProduct)
+        {
+            return $this->sendError("Wrong product reviewing");
+        }
+        Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
+            ->where('header_id',$headerId)->delete();
+
+        if(count($answers))
+        {
+            foreach ($answers as $answer)
+            {
+                $options = isset($answer['option']) ? $answer['option'] : [];
+                $questionId = $answer['question_id'];
+                foreach ($options as $option)
+                {
+                    $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
+                    $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
+                    $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
+                    $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
+                        'question_id'=>$questionId,'header_id'=>$headerId,
+                        'profile_id'=>$loggedInProfileId,
+                        'product_id'=>$productId,'intensity'=>$intensity,'current_status'=>1,'value_id'=>$valueId,
+                        'created_at'=>$this->now,'updated_at'=>$this->now];
+                }
+                if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
+                {
+                    $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
+                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                        'profile_id'=>$loggedInProfileId,
+                        'product_id'=>$productId,'intensity'=>null,'current_status'=>1,'value_id'=>null,
+                        'created_at'=>$this->now,'updated_at'=>$this->now];
+                }
+            }
+        }
+        if(count($data)>0)
+        {
+            $this->model = $this->model->create($data);
+        }
+        return $this->sendResponse();
+    }
+
+    public function comments(Request $request,$productId,$reviewId)
+    {
+        $model = $this->model->where('id',$reviewId)->where('product_id'.$productId)->first();
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
+        $this->model = [];
+        $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
+        $this->model['next_page'] = $page > 1 ? $page - 1 : null;
+        $this->model['count'] = $model->comments()->count();
+        $this->model['previous_page'] = count($this->model['data']) >= 10 && $page*10 < $this->model['count']  ? $page + 1 : null;
+
+        return $this->sendResponse();
     }
 }
