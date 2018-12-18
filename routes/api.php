@@ -331,6 +331,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             });
 
+            Route::resource('public-review/products', 'PublicReviewProductController');
+
+
             //photos
                 Route::resource("photos","PhotoController");
 
