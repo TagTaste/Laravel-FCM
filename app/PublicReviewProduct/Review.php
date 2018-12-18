@@ -30,6 +30,7 @@ class Review extends Model
         $meta['max_rating'] = 8;
         $meta['user_rating'] = $overallPreferance->value;
         $meta['color_code'] = $this->getColorCode($overallPreferance->value);
+        return $meta;
     }
 
     public function getCommentCountAttrubute()
