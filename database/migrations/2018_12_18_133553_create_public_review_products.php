@@ -29,7 +29,7 @@ class CreatePublicReviewProducts extends Migration
             $table->foreign("company_id")->references('id')->on('companies');
             $table->text("description")->nullable();
             $table->boolean('mark_featured')->default();
-            $table->json('images')->nullable();
+            $table->json('images_meta')->nullable();
             $table->string('video_link')->nullable();
             $table->unsignedInteger('global_question_id');
             $table->foreign("global_question_id")->references("id")->on("public_review_global_questions");
