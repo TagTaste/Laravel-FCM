@@ -164,9 +164,8 @@ class CompanyController extends Controller
         $this->model = $company;
         //update the document
         \App\Documents\Company::create($company);
-        return $this->sendResponse();
         \App\Filter\Company::addModel($company);
-
+        return $this->sendResponse();
     }
     
     
