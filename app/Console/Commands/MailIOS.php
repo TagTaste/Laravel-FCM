@@ -39,7 +39,7 @@ class MailIOS extends Command
     public function handle()
     {
         //
-    $profiles = \DB::table('profiles')->join('users','profiles.user_id','=','users.id')->join('app_info','profiles.id','=','app_info.profile_id')->where('app_info.platform','ios')->get();
+    $profiles = \DB::table('profiles')->join('users','profiles.user_id','=','users.id')->join('app_info','profiles.id','=','app_info.profile_id')->where('app_info.platform','like','ios')->distinct('app_info.profile_id')->get();
         foreach ($profiles as $profile) {
              $mail = (new MailIOSJob($profile->email,$profile->name))->onQueue('emails');
              dispatch($mail);
