@@ -24,7 +24,7 @@ class PublicReviewPorduct extends Model
         'company_name','company_logo','company_id','description','mark_featured','images','video_link','global_question_id','is_active',
         'product_category','product_sub_category','type','overall_rating'];
 
-    protected $appends = ['type','overall_rating','images'];
+    protected $appends = ['type','overall_rating'];
 
     protected $with = ['product_category','product_sub_category'];
 
@@ -52,15 +52,9 @@ class PublicReviewPorduct extends Model
 
     public function getImagesAttribute($value)
     {
-        $imageArray = [];
         if(isset($value))
         {
-            $images = json_decode($value,true);
-            foreach ($images as $image)
-            {
-                $imageArray[] = $image;
-            }
-            return $imageArray;
+            return json_decode($value,true);
         }
         return [];
     }
