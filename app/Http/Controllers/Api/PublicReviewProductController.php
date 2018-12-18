@@ -58,8 +58,11 @@ class PublicReviewProductController extends Controller
         $inputs = $request->all();
         if(isset($inputs['images']))
         {
-            $inputs['images'] = json_encode($inputs['images']);
-
+            $images = $request->input('images');
+            $imageArray = [];
+            foreach ($images as $image)
+                $imageArray[] = $image;
+            $inputs['images'] = json_encode($imageArray,true);
         }
         $this->model = $this->model->create($inputs);
         return $this->sendResponse();

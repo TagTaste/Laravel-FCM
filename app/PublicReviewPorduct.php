@@ -54,7 +54,7 @@ class PublicReviewPorduct extends Model
     {
         if(isset($value))
         {
-            return json_decode($value,true);
+            return json_decode($value);
         }
         return [];
     }
