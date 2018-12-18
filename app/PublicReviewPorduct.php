@@ -24,7 +24,7 @@ class PublicReviewPorduct extends Model
         'company_name','company_logo','company_id','description','mark_featured','images','video_link','global_question_id','is_active',
         'product_category','product_sub_category','type','overall_rating'];
 
-    protected $appends = ['type','overall_rating'];
+    protected $appends = ['type','overall_rating','images'];
 
     protected $with = ['product_category','product_sub_category'];
 
