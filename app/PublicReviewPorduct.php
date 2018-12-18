@@ -30,7 +30,14 @@ class PublicReviewPorduct extends Model
 
     public function getTypeAttribute()
     {
-        return self::$types[$this->is_vegetarian];
+        if($this->is_vegetarian == 1)
+        {
+            return ['id'=>1,'value'=>'Vegetarian'];
+        }
+        else
+        {
+            return ['id'=>2,'value'=>'Non-Vegeratrian'];
+        }
     }
 
     public function product_category()
