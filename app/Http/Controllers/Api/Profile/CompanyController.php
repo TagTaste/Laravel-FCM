@@ -159,9 +159,9 @@ class CompanyController extends Controller
             return $this->sendError("Could not update company");
         }
         
-        $this->model = \App\Company::find($id);
-        $this->model->addToCache();
-
+        $company = \App\Company::find($id);
+        $company->addToCache();
+        $this->model = $company;
         //update the document
         \App\Documents\Company::create($this->model);
         \App\Filter\Company::addModel($this->model);
