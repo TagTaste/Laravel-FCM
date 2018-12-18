@@ -160,6 +160,8 @@ class CompanyController extends Controller
         }
         
         $company = \App\Company::find($id);
+        return $this->model;
+
         $company->addToCache();
         $this->model = $company;
         //update the document
