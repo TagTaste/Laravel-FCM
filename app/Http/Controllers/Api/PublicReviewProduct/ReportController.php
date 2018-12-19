@@ -23,6 +23,12 @@ class ReportController extends Controller
         {
             return $this->sendError("Product is not available");
         }
+        $count = Review::where('product_id',$productId)->where('current_status',1)->distinct('profile_id')->count('profile_id');
+        if($count < 20)
+        {
+            $this->model = [];
+            return $this->sendError("Report is not available");
+        }
         $this->model = [];
         $this->model['title'] = 'Rating';
         $this->model['description'] = 'Following graph shows the overall preference of tasters for this product based on Appearance, Aroma, Aromatics, Taste, and Texture on an 8-point scale.';
@@ -46,7 +52,7 @@ class ReportController extends Controller
         $globalQuestionId = $product->global_question_id;
         $headers = ReviewHeader::where('global_question_id',$globalQuestionId)->where('header_selection_type',1)->get();
         $productId = $product->id;
-        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('select_type',5)->get();
+        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('current_status',1)->where('select_type',5)->get();
 
         $headerRating = [];
         foreach ($headers as $header)
@@ -116,7 +122,6 @@ class ReportController extends Controller
         if ($product === null) {
             return $this->sendError("Invalid product.");
         }
-        $profileId = $request->user()->profile->id;
 
         $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
             ->whereNull('parent_question_id')->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
@@ -157,7 +162,7 @@ class ReportController extends Controller
         $profileIds = $resp['profile_id'];
         $type = $resp['type'];
         $boolean = 'and' ;
-        $totalApplicants = \DB::table('public_product_user_review')->where('value','!=','')->where('current_status',3)->where('product_id',$productId)
+        $totalApplicants = \DB::table('public_product_user_review')->where('value','!=','')->where('current_status',1)->where('product_id',$productId)
             ->whereIn('profile_id', $profileIds, $boolean, $type)->distinct()->get(['profile_id'])->count();
         $model = [];
         foreach ($withoutNest as $data)
@@ -181,9 +186,9 @@ class ReportController extends Controller
                         $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
                         $subReports['is_nested_question'] = $item->is_nested_question;
                         $subReports['total_applicants'] = $totalApplicants;
-                        $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',3)->where('product_id',$productId)
+                        $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                        $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
                             ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                         $subAnswers[] = $subReports;
@@ -194,16 +199,16 @@ class ReportController extends Controller
                 else
                     unset($reports['nestedAnswers']);
                 $reports['total_applicants'] = $totalApplicants;
-                $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',3)->where('product_id',$productId)
+                $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                     ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Review::where('product_id',$productId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status',3)->where('header_id',$headerId)->skip(0)->take(3)->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status',1)->where('header_id',$headerId)->skip(0)->take(3)->get();
                 }
                 else
                 {
-                    $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                    $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
                         ->where('product_id',$productId)->where('question_id',$data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                 }
@@ -260,7 +265,7 @@ class ReportController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = Review::where('product_id',$productId)->where('question_id',$questionId)
-            ->where('header_id',$headerId)->where('current_status',3)->skip($skip)->take($take)->get();
+            ->where('header_id',$headerId)->where('current_status',1)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
@@ -319,7 +324,7 @@ class ReportController extends Controller
             $profileIds = $resp['profile_id'];
             $type = $resp['type'];
             $boolean = 'and' ;
-            $totalApplicants = \DB::table('public_product_user_review')->where('value','!=','')->where('current_status',3)->where('product_id',$productId)
+            $totalApplicants = \DB::table('public_product_user_review')->where('value','!=','')->where('current_status',1)->where('product_id',$productId)
                 ->whereIn('profile_id', $profileIds, $boolean, $type)->distinct()->get(['profile_id'])->count();
             $model = [];
             foreach ($withoutNest as $data)
@@ -343,9 +348,9 @@ class ReportController extends Controller
                             $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
                             $subReports['is_nested_question'] = $item->is_nested_question;
                             $subReports['total_applicants'] = $totalApplicants;
-                            $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',3)->where('product_id',$productId)
+                            $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                                 ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                            $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                            $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
                                 ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
                                 ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                             $subAnswers[] = $subReports;
@@ -356,16 +361,16 @@ class ReportController extends Controller
                     else
                         unset($reports['nestedAnswers']);
                     $reports['total_applicants'] = $totalApplicants;
-                    $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',3)->where('product_id',$productId)
+                    $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
                     if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                     {
                         $reports['answer'] = Review::where('product_id',$productId)->where('question_id',$data->id)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status',3)->where('header_id',$headerId)->skip(0)->take(3)->get();
+                            ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status',1)->where('header_id',$headerId)->skip(0)->take(3)->get();
                     }
                     else
                     {
-                        $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
+                        $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
                             ->where('product_id',$productId)->where('question_id',$data->id)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                     }
