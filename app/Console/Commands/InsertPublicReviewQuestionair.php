@@ -1486,7 +1486,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
                         foreach ($questions as $question)
                         {
-                            $checknestedIds = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)
+                            $checknestedIds = \DB::table('public_review_nested_options')->where('question_id',$x->id)
                                 ->where('global_question_id',$globalQuestion->id)
                                 ->where('parent_id',$question->sequence_id)->get()->pluck('id');
 
@@ -1507,7 +1507,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
                         foreach ($paths as $path)
                         {
-                            \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('global_question_id',$globalQuestion->id)
+                            \DB::table('public_review_nested_options')->where('question_id',$x->id)->where('global_question_id',$globalQuestion->id)
                                 ->where('id',$path->id)->update(['path'=>null]);
                         }
                     }

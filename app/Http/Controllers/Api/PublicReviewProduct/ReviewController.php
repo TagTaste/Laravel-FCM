@@ -41,7 +41,7 @@ class ReviewController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
-        $this->model = $this->model->where('product_id',$productId)->whereNotNull('profile_id',$loggedInPorfileId)->where('select_type',3)
+        $this->model = $this->model->where('product')->whereNotNull('profile_id',$loggedInPorfileId)->where('select_type',3)
             ->where('key','like','comment')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
@@ -149,7 +149,7 @@ class ReviewController extends Controller
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
                     $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
-                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                        'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId,
                         'product_id'=>$productId,'intensity'=>null,'current_status'=>1,'value_id'=>null,
                         'created_at'=>$this->now,'updated_at'=>$this->now];
@@ -203,7 +203,7 @@ class ReviewController extends Controller
             return $this->sendError("Product not found.");
         }
         $userReview = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)->orderBy('id','desc')->first();
-        if($userReview->current_status == 1)
+        if(isset($userReview) &&$userReview->current_status == 1)
         {
             return $this->sendError("User already reviewd.");
         }
@@ -224,7 +224,7 @@ class ReviewController extends Controller
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
-                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                        'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
                         'current_status'=>$currentStatus,'value_id'=>$valueId,
                         'created_at'=>$this->now,'updated_at'=>$this->now];
@@ -232,7 +232,7 @@ class ReviewController extends Controller
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
                     $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
-                        'question_id'=>$questionId,'tasting_header_id'=>$headerId,
+                        'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
                         'created_at'=>$this->now,'updated_at'=>$this->now];
