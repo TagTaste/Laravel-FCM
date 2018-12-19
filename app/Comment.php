@@ -13,6 +13,10 @@ class Comment extends Model
     protected $visible = ['name','content','id','profile_id','profileImage','created_at','has_tags','handle'];
     protected $appends = ['name','profileImage','profile_id','count','handle'];
 
+    public function review()
+    {
+        return $this->belongsToMany('App\PublicReviewProduct\Review','comments_public_review','comment_id','public_review_id')->withPivot('public_review_id');
+    }
 
     public function recipe()
     {
