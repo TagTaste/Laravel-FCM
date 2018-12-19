@@ -129,7 +129,7 @@ class PublicReviewProductController extends Controller
             $this->model[] = ['title'=>'Review and Earn TT Currency','subtitle'=>'100 POINTS ON EVERY REVIEW','item'=>$recommended,
                 'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
 
-        $categories = ProductCategory::where('is_active')->inRandomOrder()->limit(20)->get();
+        $categories = ProductCategory::where('is_active',1)->inRandomOrder()->limit(20)->get();
         if($categories->count())
             $this->model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
                 'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
