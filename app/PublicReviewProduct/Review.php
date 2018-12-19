@@ -29,7 +29,7 @@ class Review extends Model
         $meta = [];
         $meta['max_rating'] = 8;
         $meta['user_rating'] = isset($overallPreferance->value) ? $overallPreferance->value : null;
-        $meta['color_code'] = $this->getColorCode();
+        $meta['color_code'] = $this->getColorCode($meta['user_rating']);
         return $meta;
     }
 
@@ -50,6 +50,8 @@ class Review extends Model
 
     protected function getColorCode($value)
     {
+        if($value == 0 || is_null($value))
+            return null;
         switch ($value) {
             case 1:
                 return '#8C0008';

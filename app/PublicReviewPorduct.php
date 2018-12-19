@@ -73,6 +73,8 @@ class PublicReviewPorduct extends Model
 
     protected function getColorCode($value)
     {
+        if($value == 0 || is_null($value))
+            return null;
         switch ($value) {
             case 1:
                 return '#8C0008';
