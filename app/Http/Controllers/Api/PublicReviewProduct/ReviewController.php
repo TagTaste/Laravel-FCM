@@ -165,7 +165,7 @@ class ReviewController extends Controller
 
     public function comments(Request $request,$productId,$reviewId)
     {
-        $model = $this->model->where('id',$reviewId)->where('product_id'.$productId)->first();
+        $model = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $this->model = [];
