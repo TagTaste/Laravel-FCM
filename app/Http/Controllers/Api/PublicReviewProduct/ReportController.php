@@ -29,8 +29,16 @@ class ReportController extends Controller
         $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
         $this->model['chat_header'] = 'Product Experience';
         $this->model['header_rating'] = $this->getHeaderRating($product);
-
+        $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
         return $this->sendResponse();
+    }
+
+    public function getSelfReview($product,$loggedInProfileId)
+    {
+        $productId = $product->id;
+        $review = \DB::table('public_product_user_review')->where('product_id',$productId)->where('profile_id',$loggedInProfileId)
+            ->where('select_type',3)->first();
+        return isset($review->value) ?  $review->value : null;
     }
 
     public function getHeaderRating($product)
