@@ -24,11 +24,11 @@ class ReportController extends Controller
             return $this->sendError("Product is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',1)->distinct('profile_id')->count('profile_id');
-        if($count < 20)
-        {
-            $this->model = [];
-            return $this->sendError("Report is not available");
-        }
+//        if($count < 20)
+//        {
+//            $this->model = [];
+//            return $this->sendError("Report is not available");
+//        }
         $this->model = [];
         $this->model['title'] = 'Rating';
         $this->model['description'] = 'Following graph shows the overall preference of tasters for this product based on Appearance, Aroma, Aromatics, Taste, and Texture on an 8-point scale.';
