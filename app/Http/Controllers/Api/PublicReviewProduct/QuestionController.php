@@ -68,7 +68,7 @@ class QuestionController extends Controller
                     $item->questions->is_active = $item->is_active;
                     $item->questions->parent_question_id = $item->parent_question_id;
                     $item->questions->header_id = $item->header_id;
-                    $item->questions->collaborate_id = $item->collaborate_id;
+                    $item->questions->global_question_id = $item->global_question_id;
                     $data->questions->questions{$i} = $item->questions;
                     $i++;
                 }
@@ -86,7 +86,7 @@ class QuestionController extends Controller
                 $data->questions->is_active = $data->is_active;
                 $data->questions->parent_question_id = $data->parent_question_id;
                 $data->questions->header_id = $data->header_id;
-                $data->questions->collaborate_id = $data->collaborate_id;
+                $data->questions->global_question_id = $data->global_question_id;
                 if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1)
                 {
                     $data->questions->option = \DB::table('public_review_nested_options')->where('header_id',$headerId)
@@ -171,7 +171,7 @@ class QuestionController extends Controller
         if($product === null){
             return $this->sendError("Product not found.");
         }
-        $this->model['option'] = \DB::table('collaborate_tasting_nested_options')->where('question_id',$questionId)
+        $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();
         return $this->sendResponse();
     }
