@@ -20,6 +20,7 @@ class CreatePublicReviewQuestionHeaders extends Migration
             $table->unsignedInteger('global_question_id');
             $table->foreign("global_question_id")->references("id")->on("public_review_global_questions");
             $table->json('header_info')->nullable();
+            $table->integer('header_selection_type')->nullable();
             $table->timestamps();
         });
     }

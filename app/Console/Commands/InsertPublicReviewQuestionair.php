@@ -1343,7 +1343,8 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
         $globalQuestion = \DB::table('public_review_global_questions')->orderBy('id', 'desc')->first();
 
         $headerData = [];
-
+        // header_selection_type
+        // for instruction = 0  , overall preferance = 2 others = 1
         foreach ($headerInfo2 as $item)
         {
             $headerData[] = ['header_type'=>$item['header_name'],'is_active'=>1,

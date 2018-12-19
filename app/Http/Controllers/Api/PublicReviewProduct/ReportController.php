@@ -44,7 +44,7 @@ class ReportController extends Controller
     public function getHeaderRating($product)
     {
         $globalQuestionId = $product->global_question_id;
-        $headers = ReviewHeader::where('global_question_id',$globalQuestionId)->get();
+        $headers = ReviewHeader::where('global_question_id',$globalQuestionId)->where('header_selection_type',1)->get();
         $productId = $product->id;
         $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('select_type',5)->get();
 
