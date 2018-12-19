@@ -18,11 +18,12 @@ class PublicReviewPorduct extends Model
     public static $types = ['Vegetarian','Non-Vegeratrian'];
 
         protected $fillable = ['name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
-        'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id','is_active'];
+        'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id',
+            'is_active','created_at','updated_at','deleted_at'];
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating','is_reviewed'];
+        'product_category','product_sub_category','type','overall_rating','is_reviewed','created_at','updated_at','deleted_at'];
 
     protected $appends = ['type','overall_rating','is_reviewed'];
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\APi;
 
 use App\PublicReviewPorduct;
+use App\PublicReviewProduct\ProductCategory;
+use App\Recipe\Collaborate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
@@ -117,5 +119,46 @@ class PublicReviewProductController extends Controller
             $this->checkUuId($uuId);
         }
         return $uuId;
+    }
+
+    public function discover(Request $request)
+    {
+        $this->model = [];
+        $recommended = PublicReviewPorduct::where('mark_featured',1)->inRandomOrder()->limit(20)->get();
+        if($recommended->count())
+            $this->model[] = ['title'=>'Review and Earn TT Currency','subtitle'=>'100 POINTS ON EVERY REVIEW','item'=>$recommended,
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+
+        $categories = ProductCategory::where('is_active')->inRandomOrder()->limit(20)->get();
+        if($categories->count())
+            $this->model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+
+//        $categories = ProductCategory::where('is_active')->get();
+//        $this->model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$categories,
+//            'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+
+        $collaborates = Collaborate::where('state',1)->where('collaborate_type','like','product-review')->inRandomOrder()->limit(5)->get();
+        if($collaborates->count())
+            $this->model[] = ['title'=>'Private Reviews','subtitle'=>'COLLABORATION BY F&B BRANDS','item'=>$collaborates,
+                'ui_type'=>1,'color_code'=>'rgb(255, 255, 255)'];
+
+        $recently = PublicReviewPorduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(20)->get();
+        if($recently->count())
+            $this->model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+
+        return $this->sendResponse();
+    }
+
+    public function categoryProducts(Request $request, $categoryId)
+    {
+        //paginate
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        $this->model = $this->model->where('product_category_id',$categoryId)->where('is_active',1)->skip($skip)->take($take)->get();
+
+        return $this->sendResponse();
     }
 }
