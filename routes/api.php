@@ -348,7 +348,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                 //collaborate comments
                 Route::get('reviews/{reviewId}/comments',"ReviewController@comments");
-                Route::post('comments',"ReviewController@commentsPost");
+                Route::post('reviews/{reviewId}/comments',"ReviewController@commentsPost");
 
                 //get review
                 Route::get("reviews","ReviewController@index");
