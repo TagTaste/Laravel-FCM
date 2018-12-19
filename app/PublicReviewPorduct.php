@@ -22,9 +22,9 @@ class PublicReviewPorduct extends Model
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating'];
+        'product_category','product_sub_category','type','overall_rating','is_reviewd'];
 
-    protected $appends = ['type','overall_rating'];
+    protected $appends = ['type','overall_rating','is_reviewd'];
 
     protected $with = ['product_category','product_sub_category'];
 
@@ -110,5 +110,11 @@ class PublicReviewPorduct extends Model
         $meta['count'] = $userCount;
         $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
         return $meta;
+    }
+
+    public function getIsReviewedAttribute()
+    {
+        $loggedInProfileId = request()->user()->profile->id;
+        return \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$loggedInProfileId)->where('current_status',1)->exists();
     }
 }
