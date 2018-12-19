@@ -28,7 +28,7 @@ class Review extends Model
         $overallPreferance = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',5)->first();
         $meta = [];
         $meta['max_rating'] = 8;
-        $meta['user_rating'] = $overallPreferance->value;
+        $meta['user_rating'] = isset($overallPreferance->value) ? $overallPreferance->value : null;
         $meta['color_code'] = $this->getColorCode();
         return $meta;
     }
