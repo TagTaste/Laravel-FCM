@@ -122,7 +122,6 @@ class QuestionController extends Controller
             return $this->sendError("Product not found.");
         }
 
-        $answers = [];
         if(is_null($id))
         {
             $this->model['question'] = \DB::select("SELECT B.* FROM public_review_nested_options as A , 
@@ -136,29 +135,29 @@ class QuestionController extends Controller
                 ->where('global_question_id',$product->global_question_id)->where('id',$id)->first();
             $this->model['question'] = \DB::table('public_review_nested_options')->where('is_active',1)->where('question_id',$questionId)
                 ->where('global_question_id',$product->global_question_id)->where('parent_id',$squence->sequence_id)->get();
-            $leafIds = $this->model['question']->pluck('id');
-            $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$product->id)
-                ->where('header_id',$headerId)->whereIn('leaf_id',$leafIds)
-                ->where('question_id',$questionId)->get()->groupBy('question_id');
-            foreach ($answerModels as $answerModel)
-            {
-                $data = [];
-                $comment = null;
-                foreach ($answerModel as $item)
-                {
-                    if($item->key == 'comment')
-                    {
-                        $comment = $item->value;
-                        continue;
-                    }
-                    $questionId = $item->question_id;
-                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
-                }
-                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
-            }
+//            $leafIds = $this->model['question']->pluck('id');
+//            $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$product->id)
+//                ->where('header_id',$headerId)->whereIn('leaf_id',$leafIds)
+//                ->where('question_id',$questionId)->get()->groupBy('question_id');
+//            foreach ($answerModels as $answerModel)
+//            {
+//                $data = [];
+//                $comment = null;
+//                foreach ($answerModel as $item)
+//                {
+//                    if($item->key == 'comment')
+//                    {
+//                        $comment = $item->value;
+//                        continue;
+//                    }
+//                    $questionId = $item->question_id;
+//                    $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
+//                }
+//                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+//            }
         }
 
-        $this->model['answer'] = $answers;
+//        $this->model['answer'] = $answers;
         return $this->sendResponse();
 
     }
