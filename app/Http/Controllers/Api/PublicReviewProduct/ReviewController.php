@@ -166,6 +166,10 @@ class ReviewController extends Controller
     public function comments(Request $request,$productId,$reviewId)
     {
         $model = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
+        if($model == null)
+        {
+            return $this->sendError("review is not available");
+        }
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $this->model = [];
@@ -179,13 +183,17 @@ class ReviewController extends Controller
 
     public function commentsPost(Request $request,$productId,$reviewId)
     {
+        $review = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
+        if($review == null)
+        {
+            return $this->sendError("review is not available");
+        }
         $comment = new Comment();
 
         $comment->content = $request->input("content");
         $comment->user_id = $request->user()->id;
         $comment->save();
 
-        $review = Review::where('product_id',$productId)->where('id',$reviewId)->first();
         $review->comments()->attach($comment->id);
 
         $this->model = $comment;
