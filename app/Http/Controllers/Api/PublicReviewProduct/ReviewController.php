@@ -168,6 +168,7 @@ class ReviewController extends Controller
         $model = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
         if($model == null)
         {
+            $this->model = [];
             return $this->sendError("review is not available");
         }
         $page = $request->input('page') ? intval($request->input('page')) : 1;
@@ -186,6 +187,8 @@ class ReviewController extends Controller
         $review = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
         if($review == null)
         {
+            $this->model = [];
+
             return $this->sendError("review is not available");
         }
         $comment = new Comment();
