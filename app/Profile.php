@@ -48,11 +48,11 @@ class Profile extends Model
         'cuisines','allergens','interested_collections'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
-        'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
+        'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'keywords', 'expertise', 'experience', 'education'];
     private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','about','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
 
     public static function boot()
     {
