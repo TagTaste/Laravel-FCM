@@ -12,11 +12,11 @@ class Review extends Model
         'product_id','profile_id','intensity','current_status','created_at','updated_at'];
 
     protected $visible = ['id','key','value','leaf_id','question_id','header_id','select_type','product_id','profile_id',
-        'intensity','current_status','created_at','updated_at','profile','userRating','commentCount','review'];
+        'intensity','current_status','created_at','updated_at','profile','UserReview','commentCount','review'];
 
     protected $with = ['profile'];
 
-    protected $appends = ['userRating','commentCount','review'];
+    protected $appends = ['UserReview','commentCount','review'];
 
     public function profile()
     {
