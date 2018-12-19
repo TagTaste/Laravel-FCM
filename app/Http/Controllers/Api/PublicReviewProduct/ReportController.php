@@ -225,9 +225,21 @@ class ReportController extends Controller
                 $model[] = $reports;
             }
         }
-        $this->model = $model;
-
+        $this->model['users_review'] = $model;
+        $this->model['users_rating'] = $this->getUsersRating($productId,$headerId);
         return $this->sendResponse();
+    }
+
+    public function getUsersRating($productId,$headerId)
+    {
+        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('value');
+        $userCount = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->count();
+        $meta = [];
+        $meta['max_rating'] = 8;
+        $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
+        $meta['count'] = $userCount;
+        $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+        return $meta;
     }
 
     public function getFilterProfileIds($filters)
