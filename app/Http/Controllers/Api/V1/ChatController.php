@@ -29,7 +29,7 @@ class ChatController extends Controller
         $page = $request->input('page');
         list($skip,$take) = Paginator::paginate($page);
        $this->model = Chat::whereHas('members',function($query) use ($profileId) {
-       $query->where('profile_id',$profileId);
+       $query->where('profile_id',$profileId)->whereNull('deleted_at');
        })->leftJoin(\DB::raw('(SELECT chat_id, MAX(sent_on) as sent_on, recepient_id FROM message_recepients GROUP BY chat_id, recepient_id)
        message_recepients'),function($join) use ($profileId){
        $join->on('chats.id','=','message_recepients.chat_id')->where('message_recepients.recepient_id',$profileId);
@@ -206,8 +206,8 @@ class ChatController extends Controller
     	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
 
     	$profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-    	$data['profile'] = \App\Recipe\Profile::whereIn('profiles.id',$profileIds)->join('users','profiles.user_id','users.id')
-            ->where('users.name','like','%'.$key.'%')->get();
+    	$data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
+            ->whereIn('profiles.id',$profileIds)->where('users.name','like','%'.$key.'%')->get();
 
         $this->model = $data;
     	return $this->sendResponse();

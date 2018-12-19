@@ -82,7 +82,7 @@ class ChatController extends Controller
             //     }
             // }
         }
-        $inputs['chat_type'] = 0;
+        $inputs['chat_type'] = $request->input('isSingle') == 1 ? 1 : 0;
         $this->model = \App\Chat::create($inputs);
         if($request->hasFile("image")){
             $imageName = str_random("32") . ".jpg";
