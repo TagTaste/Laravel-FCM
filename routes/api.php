@@ -331,6 +331,38 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             });
 
+            Route::group(['namespace'=>'PublicReviewProduct','prefix'=>'public-review/products/{productId}','as'=>'collaborate.'],function(){
+
+                //reports
+                Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");
+                Route::get("batches/{id}/reportPdf","BatchController@reportPdf");
+                Route::get("reportSummary","BatchController@reportSummary");
+                Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
+                Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
+
+                //filter for dashboard of product review
+                Route::get("dashboard/filters","BatchController@filters");
+                Route::get("batches/hutCsv","BatchController@allHutCsv");
+                Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
+
+                Route::get("reportSummary","BatchController@reportSummary");
+
+                // api for product-review tasting
+                Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
+                Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
+                Route::post("headers/{headerId}/review","ReviewController@reviewAnswers");
+                Route::get("headers/{id}","QuestionController@reviewQuestions");
+                Route::get("headers","QuestionController@headers");
+
+
+                //collaborate comments
+                Route::get('reviews/{reviewId}/comments',"ReviewController@comments");
+                Route::post('comments',"ReviewController@commentsPost");
+
+                //get review
+                Route::get("reviews","ReviewController@index");
+
+            });
             Route::resource('public-review/products', 'PublicReviewProductController');
 
 
