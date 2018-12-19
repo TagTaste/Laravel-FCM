@@ -23,7 +23,7 @@ class Review extends Model
         return $this->belongsTo(\App\Recipe\Profile::class);
     }
 
-    public function getUserReviewAttrubute()
+    public function getUserReviewAttribute()
     {
         $overallPreferance = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',5)->first();
         $meta = [];
@@ -33,7 +33,7 @@ class Review extends Model
         return $meta;
     }
 
-    public function getCommentCountAttrubute()
+    public function getCommentCountAttribute()
     {
         return \DB::table('comments_public_review')->where('public_review_id',$this->id)->count();
     }
