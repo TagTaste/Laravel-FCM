@@ -41,7 +41,7 @@ class ReviewController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
-        $this->model = $this->model->where('product_id',$productId)->whereNotNull('profile_id',$loggedInPorfileId)->where('select_type',3)
+        $this->model = $this->model->where('product_id',$productId)->where('profile_id',$loggedInPorfileId)->where('select_type',3)
             ->where('key','like','comment')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
