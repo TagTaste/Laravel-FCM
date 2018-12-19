@@ -62,7 +62,11 @@ Anything too good or too bad observed please highlight in the comment box at the
 
         $data = ['name'=>'Masala/ Seasoning','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
+
         \DB::table('public_review_global_questions')->insert($data);
+
+        \DB::table('public_review_question_headers')->insert($headerInfo2);
+
 
 
 
