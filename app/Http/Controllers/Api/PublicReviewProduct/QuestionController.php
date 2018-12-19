@@ -67,7 +67,7 @@ class QuestionController extends Controller
                     $item->questions->is_mandatory = $item->is_mandatory;
                     $item->questions->is_active = $item->is_active;
                     $item->questions->parent_question_id = $item->parent_question_id;
-                    $item->questions->header_type_id = $item->header_type_id;
+                    $item->questions->header_id = $item->header_id;
                     $item->questions->collaborate_id = $item->collaborate_id;
                     $data->questions->questions{$i} = $item->questions;
                     $i++;
@@ -85,7 +85,7 @@ class QuestionController extends Controller
                 $data->questions->is_mandatory = $data->is_mandatory;
                 $data->questions->is_active = $data->is_active;
                 $data->questions->parent_question_id = $data->parent_question_id;
-                $data->questions->header_type_id = $data->header_type_id;
+                $data->questions->header_id = $data->header_id;
                 $data->questions->collaborate_id = $data->collaborate_id;
                 if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1)
                 {
