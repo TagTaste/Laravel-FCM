@@ -223,11 +223,12 @@ class ReviewController extends Controller
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
+                    $selectType = isset($option['select_type']) && is_null($option['select_type']) ? $option['select_type'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
                         'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
@@ -235,7 +236,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType];
                 }
             }
         }
