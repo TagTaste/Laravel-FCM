@@ -257,7 +257,7 @@ class ReviewController extends Controller
             if($currentStatus == 1)
             {
                 Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
-                    ->where('header_id',$headerId)->update(['current_status'=>$currentStatus]);
+                    ->update(['current_status'=>$currentStatus]);
             }
         }
         return $this->sendResponse();
