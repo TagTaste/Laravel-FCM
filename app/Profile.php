@@ -731,6 +731,7 @@ class Profile extends Model
     public function getAddressAttribute($value)
     {
         if (!empty($value)) {
+            return $value;
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
@@ -751,7 +752,7 @@ class Profile extends Model
     public function getPhoneAttribute($value)
     {
         if (!empty($value)) {
-
+            return $value;
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;
