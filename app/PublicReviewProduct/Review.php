@@ -12,23 +12,22 @@ class Review extends Model
         'product_id','profile_id','intensity','current_status','created_at','updated_at'];
 
     protected $visible = ['id','key','value','leaf_id','question_id','header_id','select_type','product_id','profile_id',
-        'intensity','current_status','created_at','updated_at','profile','UserReview','commentCount','review'];
+        'intensity','current_status','created_at','updated_at','profile','review_meta','commentCount','review_comment'];
 
     protected $with = ['profile'];
 
-    protected $appends = ['UserReview','commentCount','review'];
+    protected $appends = ['review_meta','commentCount','review_comment'];
 
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
     }
 
-    public function getUserReviewAttribute()
+    public function getReviewMetaAttribute()
     {
-        $overallPreferance = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',5)->first();
         $meta = [];
         $meta['max_rating'] = 8;
-        $meta['user_rating'] = isset($overallPreferance->value) ? $overallPreferance->value : null;
+        $meta['user_rating'] = isset($this->value) ? $this->value : null;
         $meta['color_code'] = $this->getColorCode($meta['user_rating']);
         return $meta;
     }
@@ -38,9 +37,11 @@ class Review extends Model
         return \DB::table('comments_public_review')->where('public_review_id',$this->id)->count();
     }
 
-    public function getReviewAttribute()
+    public function getReviewCommentAttribute()
     {
-        return $this->value;
+        $comment = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',3)->first();
+
+        return $comment->value;
     }
 
     public function comments()

@@ -48,8 +48,8 @@ class ReviewController extends Controller
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
         \Log::info("header id ".$header->id);
-        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)->where('select_type',5)
-            ->where('key','like','comment')->skip($skip)->take($take)->get();
+        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+            ->where('select_type',5)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
