@@ -5,6 +5,7 @@ namespace App\Http\Controllers\APi\PublicReviewProduct;
 use App\Comment;
 use App\PublicReviewPorduct;
 use App\PublicReviewProduct\Review;
+use App\PublicReviewProduct\ReviewHeader;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -37,11 +38,17 @@ class ReviewController extends Controller
     public function index(Request $request,$productId)
     {
         $loggedInPorfileId = $request->user()->profile->id;
+        $product = PublicReviewPorduct::where('id',$productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Product is not available");
+        }
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
 
-        $this->model = $this->model->where('product_id',$productId)->where('profile_id',$loggedInPorfileId)->where('select_type',3)
+        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)->where('select_type',5)
             ->where('key','like','comment')->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
