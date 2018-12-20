@@ -229,12 +229,12 @@ class ReviewController extends Controller
             {
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
+                $selectType = isset($answer['select_type']) && is_null($answer['select_type']) ? $answer['select_type'] : null;
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
-                    $selectType = isset($option['select_type']) && is_null($option['select_type']) ? $option['select_type'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,

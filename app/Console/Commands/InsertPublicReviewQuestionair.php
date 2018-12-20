@@ -1581,8 +1581,8 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
                         'questions'=>json_encode($subquestion,true),'parent_question_id'=>$x->id,
                         'header_id'=>$headerId,'is_mandatory'=>$isMandatory,'is_active'=>1,'global_question_id'=>$globalQuestion->id];
                     \Log::info("question sub ");
-                    \Log::info($data);
-                    Questions::create($data);
+                    \Log::info($subData);
+                    Questions::create($subData);
 
                 }
             }
