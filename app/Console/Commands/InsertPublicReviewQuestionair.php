@@ -1347,7 +1347,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
         // for instruction = 0  , overall preferance = 2 others = 1
         foreach ($headerInfo2 as $item)
         {
-            $headerData[] = ['header_type'=>$item['header_name'],'is_active'=>1,
+            $headerData[] = ['header_type'=>$item['header_name'],'is_active'=>1,'header_selection_type'=>$item['header_selection_type'],
                 'global_question_id'=>$globalQuestion->id,'header_info'=>isset($item['header_info']) ? json_encode($item['header_info']) : null];
         }
         \Log::info($headerData);
