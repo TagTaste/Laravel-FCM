@@ -34,7 +34,6 @@ class OnboardingController extends Controller
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
         $profileIds = $profileIds->random($length);
-
         if($profileIds->count() > 0)
             $repeatProfileIds = $profileIds->toArray();
         else
