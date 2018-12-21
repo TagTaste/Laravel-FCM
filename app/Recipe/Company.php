@@ -10,7 +10,7 @@ class Company extends BaseCompany
     protected $fillable = [];
 
     protected $visible = ['id', 'name', 'about', 'logo', 'hero_image', 'tagline', 'created_at', 'speciality', 'profileId', 'handle', 'city',
-        'isFollowing','style_logo', 'style_hero_image', 'company_id','is_admin','is_premium'];
+        'isFollowing','style_logo', 'style_hero_image', 'company_id','is_admin','is_premium','logo_meta', 'hero_image_meta'];
 
     protected $appends = ['profileId','is_admin','isFollowing','company_id'];
 
@@ -62,29 +62,6 @@ class Company extends BaseCompany
             return $relativePath;
         }
         return storage_path("app/" . $relativePath . "/" . $filename);
-    }
-
-    public function getLogoAttribute($value)
-    {
-        try{
-            return !is_null($value) ? \Storage::url($value) : null;
-        } catch (\Exception $e){
-            \Log::warning("Couldn't get logo for company" . $this->id);
-            \Log::warning($e->getMessage());
-        }
-    }
-
-    public function getHeroImageAttribute($value)
-    {
-        if(is_null($value))
-        {
-            $fileId = 14 - $this->id % 14;
-            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
-        }
-        else
-        {
-            return \Storage::url($value);
-        }
     }
 
     public function getProfileIdAttribute()

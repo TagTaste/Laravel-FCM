@@ -21,7 +21,8 @@ class Profile extends BaseProfile
         'city',
         'country',
         'current',
-        'handle'
+        'handle',
+        "image_meta","hero_image_meta"
     ];
     
     protected $appends = ['current', 'name', 'imageUrl'];

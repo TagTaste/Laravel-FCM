@@ -35,10 +35,10 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
                 $document->body[$attribute] = $document->$method();
                 continue;
             }
-            
+
             $document->body[$attribute] = $model->{$attribute};
         }
-        
+
         //fire the event.
         try {
             $document->fire();
