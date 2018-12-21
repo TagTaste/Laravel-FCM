@@ -21,7 +21,7 @@ class Profile extends Model
         'ingredients', 'favourite_moments', 'verified', 'youtube_channel', 'followers', 'following', 'user_id', 'created_at',
         'pincode', 'handle', 'expertise', //a.k.a spokenLanguages
         'keywords', 'city', 'country', 'resume', 'email_private', 'address_private', 'phone_private', 'dob_private', 'affiliations',
-        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete'
+        'style_image', 'style_hero_image', 'otp', 'verified_phone', 'onboarding_step','gender','foodie_type_id','onboarding_complete',"image_meta","hero_image_meta"
     ];
 
     //if you add a relation here, make sure you remove it from
@@ -39,7 +39,8 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
         'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
-        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections','onboarding_complete'];
+        'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
+        'onboarding_complete',"image_meta","hero_image_meta"];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
@@ -48,11 +49,11 @@ class Profile extends Model
         'cuisines','allergens','interested_collections'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
-        'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'about', 'keywords', 'expertise', 'experience', 'education'];
+        'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'keywords', 'expertise', 'experience', 'education'];
     private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
 
-    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','about','verified_phone','profile_occupations'];
+    private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
 
     public static function boot()
     {
@@ -189,7 +190,6 @@ class Profile extends Model
     public function getDobAttribute($value)
     {
         if (!empty($value)) {
-
             if(request()->user()->profile->id == $this->id)
             {
                 return date("d-m-Y", strtotime($value));
@@ -351,26 +351,13 @@ class Profile extends Model
     //specific to API
     public function getImageUrlAttribute()
     {
-        try {
-            return !is_null($this->image) ? \Storage::url($this->image) : null;
-        } catch (\Exception $e){
-            \Log::warning("Could not get image for profile:" . $this->id);
-        }
+        return $this->image;
     }
 
     //specific to API
     public function getHeroImageUrlAttribute()
     {
-        if(is_null($this->hero_image))
-        {
-            $fileId = 14 - $this->id % 14;
-            return "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/app/bannerImage/".$fileId.".jpg";
-        }
-        else
-        {
-            return \Storage::url($this->hero_image);
-        }
-
+        return $this->hero_image;
     }
 
     //$followsId is following $this profile
@@ -751,7 +738,6 @@ class Profile extends Model
     public function getPhoneAttribute($value)
     {
         if (!empty($value)) {
-
             if(request()->user()->profile->id == $this->id)
             {
                 return $value;

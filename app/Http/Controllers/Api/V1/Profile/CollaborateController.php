@@ -81,6 +81,7 @@ class CollaborateController extends Controller
         if ($request->has("images"))
         {
             $images = $request->input('images');
+            $imageMeta = [];
             $i = 1;
             if(count($images) && is_array($images))
             {
@@ -88,9 +89,11 @@ class CollaborateController extends Controller
                 {
                     if(is_null($image))
                         continue;
-                    $imagesArray[]['image'.$i] = $image;
+                    $imagesArray[]['image'.$i] = $image['original_photo'];
+                    $imageMeta[] = $image;
                     $i++;
                 }
+                $inputs['images_meta'] = json_encode($imageMeta,true);
             }
         }
         $inputs['images'] = json_encode($imagesArray,true);
@@ -167,6 +170,7 @@ class CollaborateController extends Controller
         if ($request->has("images"))
         {
             $images = $request->input('images');
+            $imageMeta = [];
             $i = 1;
             if(count($images) && is_array($images))
             {
@@ -174,9 +178,11 @@ class CollaborateController extends Controller
                 {
                     if(is_null($image))
                         continue;
-                    $imagesArray[]['image'.$i] = $image;
+                    $imagesArray[]['image'.$i] = $image['original_photo'];
+                    $imageMeta[] = $image;
                     $i++;
                 }
+                $inputs['images_meta'] = json_encode($imageMeta,true);
             }
             $inputs['images'] = json_encode($imagesArray,true);
 

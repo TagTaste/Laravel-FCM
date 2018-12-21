@@ -13,9 +13,9 @@ class Gallery extends Model
 {
     protected $table = 'company_galleries';
 
-    protected $fillable = ['name','description','image' ,'company_id'];
+    protected $fillable = ['name','description','image' ,'company_id','image_meta'];
 
-    protected $visible = ['id','name', 'description' ,'company_id','imageUrl'];
+    protected $visible = ['id','name', 'description','image' ,'company_id','imageUrl','image_meta'];
 
     protected $appends = ['imageUrl'];
 
@@ -29,7 +29,7 @@ class Gallery extends Model
 
     public function getImageUrlAttribute()
     {
-        return !is_null($this->image) ? \Storage::url($this->image) : null;
+        return $this->image;
     }
 
 }

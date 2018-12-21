@@ -38,6 +38,7 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $product = PublicReviewPorduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
@@ -106,7 +107,7 @@ class QuestionController extends Controller
 
         $this->model = [];
         $this->model['question'] = $model;
-//        $this->model['answer'] = $this->userAnswer($loggedInProfileId,$productId,$headerId);
+        $this->model['answer'] = $this->userAnswer($loggedInProfileId,$productId,$headerId);
         return $this->sendResponse();
     }
 
@@ -175,10 +176,10 @@ class QuestionController extends Controller
         return $this->sendResponse();
     }
 
-    public function userAnswer($loggedInProfileId,$collaborateId,$batchId,$id)
+    public function userAnswer($loggedInProfileId,$productId,$headerId)
     {
-        $answerModels = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
-            ->where('batch_id',$batchId)->where('tasting_header_id',$id)->get()->groupBy('question_id');
+        $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
+            ->where('header_id',$headerId)->get()->groupBy('question_id');
         $answers = [];
         foreach ($answerModels as $answerModel)
         {
@@ -188,6 +189,7 @@ class QuestionController extends Controller
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
+                $selectType = $item->select_type;
                 if($item->key == 'comment')
                 {
                     $comment = $item->value;
@@ -197,7 +199,7 @@ class QuestionController extends Controller
             }
             if(!is_null($comment) && !empty($comment))
             {
-                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment];
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment,'select_type'=>$selectType];
             }
             else
             {

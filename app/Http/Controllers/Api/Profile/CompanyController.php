@@ -62,24 +62,14 @@ class CompanyController extends Controller
         }
 
         if($request->hasFile('logo')){
-            //image
-//            $imageName = str_random(32) . ".jpg";
-//            $path = \App\Company::getLogoPath($profileId, $company->id);
-//            $inputs['logo'] = $request->file('logo')->storeAs($path, $imageName,['visibility'=>'public']);
-    
-            //store thumbnail
-            $path = \App\Company::getLogoPath($profileId, $company->id) . "/" . str_random(20) . ".jpg";
-            $thumbnail = \Image::make($request->file('logo'))->resize(180, null,function ($constraint) {
-                $constraint->aspectRatio();
-            })->stream('jpg',70);
-            \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-            $inputs['logo'] = $path;
+            $path = \App\Company::getLogoPath($profileId, $company->id);
+            $this->saveFileToData("logo",$path,$request,$inputs,"logo_meta");
         }
 
         if($request->hasFile('hero_image')){
-            $heroImageName = str_random(32) . ".jpg";
             $path = \App\Company::getHeroImagePath($profileId, $company->id);
-            $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
+            $this->saveFileToData("hero_image",$path,$request,$inputs,"hero_image_meta");
+
         }
         
         if($company->isDirty()){
@@ -90,6 +80,39 @@ class CompanyController extends Controller
     
         $this->model = $company;
         return $this->sendResponse();
+    }
+
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
+    {
+        if($request->hasFile($key) && !is_null($extraKey)){
+
+            $response = $this->saveFile($path,$request,$key);
+            $data[$extraKey] = json_encode($response,true);
+            $data[$key] = $response['original_photo'];
+        }
+    }
+
+    private function saveFile($path,&$request,$key)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        return $response;
     }
     
     /**
@@ -129,29 +152,26 @@ class CompanyController extends Controller
         $inputs = $request->except(['_method','_token','remove_logo','remove_hero_image']);
 
         if($request->hasFile('logo')){
-            $path = \App\Company::getLogoPath($profileId, $id) . "/" . str_random(20) . ".jpg";
-            $thumbnail = \Image::make($request->file('logo'))->resize(180, null,function ($constraint) {
-                $constraint->aspectRatio();
-            })->stream('jpg',70);
-            \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-            $inputs['logo'] = $path;
+            $path = \App\Company::getLogoPath($profileId, $id) ;
+            $this->saveFileToData("logo",$path,$request,$inputs,"logo_meta");
         }
 
         if($request->hasFile('hero_image')){
-            $heroImageName = str_random(32) . ".jpg";
             $path = \App\Company::getHeroImagePath($profileId, $id);
-            $inputs['hero_image'] = $request->file('hero_image')->storeAs($path,$heroImageName,['visibility'=>'public']);
+            $this->saveFileToData("hero_image",$path,$request,$inputs,"hero_image_meta");
         }
 
         //delete heroimage or image
         if($request->has("remove_logo") && $request->input('remove_logo') == 1)
         {
             $inputs['logo'] = null;
+            $inputs['logo_meta'] = null;
         }
 
         if($request->has("remove_hero_image") && $request->input('remove_hero_image') == 1)
         {
             $inputs['hero_image'] = null;
+            $inputs['hero_image_meta'] = null;
         }
 
         $status = \App\Company::where('id',$id)->update($inputs);
@@ -159,13 +179,12 @@ class CompanyController extends Controller
             return $this->sendError("Could not update company");
         }
         
-        $this->model = \App\Company::find($id);
-        $this->model->addToCache();
-
+        $company = \App\Company::find($id);
+        $company->addToCache();
+        $this->model = $company;
         //update the document
-        \App\Documents\Company::create($this->model);
-        \App\Filter\Company::addModel($this->model);
-
+        \App\Documents\Company::create($company);
+        \App\Filter\Company::addModel($company);
         return $this->sendResponse();
     }
     

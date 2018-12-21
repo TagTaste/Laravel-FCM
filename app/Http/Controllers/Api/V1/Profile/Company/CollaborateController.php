@@ -108,15 +108,18 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
+            $imageMeta = [];
             if(count($images) && is_array($images))
             {
                 foreach ($images as $image)
                 {
                     if(is_null($image))
                         continue;
-                    $imagesArray[]['image'.$i] = $image;
+                    $imagesArray[]['image'.$i] = $image['original_photo'];
+                    $imageMeta[] = $image;
                     $i++;
                 }
+                $inputs['images_meta'] = json_encode($imageMeta,true);
             }
             $inputs['images'] = json_encode($imagesArray,true);
         }
@@ -219,19 +222,25 @@ class CollaborateController extends Controller
         {
             $images = $request->input('images');
             $i = 1;
+            $imageMeta = [];
             if(count($images) > 0 && !empty($images) && is_array($images))
             {
                 foreach ($images as $image)
                 {
                     if(is_null($image))
                         continue;
-                    $imagesArray[]['image'.$i] = $image;
+                    $imagesArray[]['image'.$i] = $image['original_photo'];
+                    $imageMeta[] = $image;
                     $i++;
                 }
+                $inputs['images_meta'] = json_encode($imageMeta,true);
                 $inputs['images'] = json_encode($imagesArray,true);
             }
             else
+            {
+                $inputs['images_meta'] = null;
                 $inputs['images'] = null;
+            }
         }
         if($request->hasFile('file1')){
             $relativePath = "images/p/$profileId/collaborate";
