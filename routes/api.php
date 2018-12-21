@@ -103,6 +103,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
+
+
+
+
                 Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
                 Route::get("chatGroup",'ChatController@chatGroup');
                 Route::post("chatShareMessage",'ChatController@shareAsMessage');
@@ -128,11 +132,26 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                         Route::resource("members","MemberController");
 
                     });
+
+
+
                 Route::get("feed",'FeedController@feed');
+
+
+
+
+                //search apis new
+
+                Route::get("search/discover",'SearchController@discover');
+                Route::get("search/{type?}",'SearchController@search');
+                Route::get("search/specialization/{id}",'SearchController@searchSpecializationPeople');
+
                 Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function(){
                     Route::resource("photos","PhotoController");
                     Route::get("collaborate/draft","CollaborateController@draft");
                     Route::resource("collaborate","CollaborateController");
+
+
                     Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
                         Route::post("collaborate/{id}/scopeOfReview","CollaborateController@scopeOfReview");
                         Route::post("collaborate/{id}/uploadQuestion","CollaborateController@uploadQuestion");
@@ -363,7 +382,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //search
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
-                Route::get("search/{type?}",'SearchController@search')->middleware('search.save');
+                Route::get("search/{type?}",'SearchController@search');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
                 Route::get("searchForApp/{type?}",'SearchController@searchForApp');
