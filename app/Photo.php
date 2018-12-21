@@ -22,7 +22,7 @@ class Photo extends Model implements Feedable
     
     protected $fillable = ['caption','file','privacy_id','payload_id','image_info','image_meta'];
 
-    protected $visible = ['id','caption','photoUrl','likeCount',
+    protected $visible = ['id','caption','photoUrl','likeCount','file',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
         'owner','nextPhotoId','previousPhotoId','image_info','image_meta'];

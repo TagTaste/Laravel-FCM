@@ -15,7 +15,7 @@ class Gallery extends Model
 
     protected $fillable = ['name','description','image' ,'company_id','image_meta'];
 
-    protected $visible = ['id','name', 'description' ,'company_id','imageUrl','image_meta'];
+    protected $visible = ['id','name', 'description','image' ,'company_id','imageUrl','image_meta'];
 
     protected $appends = ['imageUrl'];
 
