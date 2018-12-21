@@ -184,7 +184,11 @@ class CollaborateController extends Controller
                 }
                 $inputs['images_meta'] = json_encode($imageMeta,true);
             }
-            $inputs['images'] = json_encode($imagesArray,true);
+            else
+            {
+                $inputs['images_meta'] = null;
+                $inputs['images'] = null;
+            }
 
         }
 
