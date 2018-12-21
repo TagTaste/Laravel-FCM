@@ -232,9 +232,9 @@ class ReviewController extends Controller
 
         if(count($answers))
         {
-            \Log::info($answers);
             foreach ($answers as $answer)
             {
+                \Log::info($answer);
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
