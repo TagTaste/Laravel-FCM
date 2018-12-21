@@ -13,7 +13,6 @@ class CreateProductCategories extends Migration
      */
     public function up()
     {
-
         Schema::drop('product_categories');
 
         Schema::create("product_categories",function(Blueprint $table){

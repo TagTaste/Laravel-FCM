@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Document implements Arrayable, CreatesDocument, SearchDocument
 {
-    public $index = 'apitest';
+    public $index = 'api';
     public $type;
     public $id;
     public $body = [];
@@ -37,7 +37,6 @@ class Document implements Arrayable, CreatesDocument, SearchDocument
             }
             $document->body[$attribute] = $model->{$attribute};
         }
-        \Log::info($document);
         //fire the event.
         try {
             $document->fire();

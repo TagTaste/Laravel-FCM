@@ -38,7 +38,7 @@
                                                                         Dear {{$userName}}
                                                                         <br>
                                                                         <br>
-                                                                        Please be advised that the platform will be under maintainance from 5:00 PM to 6:30 PM IST on October 27th, 2018. This period of downtime is scheduled for necessary updates to be applied to the network servers. We apologise for the inconvenience that this may cause.
+                                                                        Please be advised that the platform will be under maintainance from 8:00 AM to 1:00 PM IST on December 6th, 2018. This period of downtime is scheduled for necessary updates to be applied to the network servers. We apologise for the inconvenience that this may cause.
                                                                         <br>
                                                                         <br>
                                                                         Regards,
