@@ -117,36 +117,36 @@ class ProgressiveImage extends Command
 //
 //            }
 //        });
-        Photo::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
-            foreach ($models as $model) {
-                if(isset($model->file) && !is_null($model->file))
-                {
-                    $image = $model->file;
-                    $image = str_replace('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/https%3A//s3.ap-south-1.amazonaws.com/static3.tagtaste.com','https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com',$image);
-                    $model->update(['file'=>$image]);
-                }
-                echo "photo id ".$model->id ."\n";
-
-                $model->addToCache();
-
-            }
-        });
-        Company\Gallery::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
-            foreach ($models as $model) {
-                if(isset($model->image) && !is_null($model->image))
-                {
+//        Photo::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
+//            foreach ($models as $model) {
+//                if(isset($model->file) && !is_null($model->file))
+//                {
+//                    $image = $model->file;
+//                    $image = str_replace('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/https%3A//s3.ap-south-1.amazonaws.com/static3.tagtaste.com','https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com',$image);
+//                    $model->update(['file'=>$image]);
+//                }
+//                echo "photo id ".$model->id ."\n";
+//
+//                $model->addToCache();
+//
+//            }
+//        });
+//        Company\Gallery::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
+//            foreach ($models as $model) {
+//                if(isset($model->image) && !is_null($model->image))
+//                {
 //                    $imageMeta = [];
 //                    $imageMeta['original_photo'] = \Storage::url($model->imageUrl);
 //                    $imageMeta['tiny_photo'] = \Storage::url($model->imageUrl);
 //                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->imageUrl)];
 //
 //                    $imageMeta = json_encode($imageMeta,true);
-                    echo "gallery id ".$model->id ."\n";
-
-                    $model->update(['image'=> \Storage::url($model->image)]);
-                }
-            }
-        });
+//                    echo "gallery id ".$model->id ."\n";
+//
+//                    $model->update(['image'=> \Storage::url($model->image)]);
+//                }
+//            }
+//        });
 //
 //        Company\Product::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
 //            foreach ($models as $model) {
