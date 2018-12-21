@@ -642,7 +642,7 @@ class CollaborateController extends Controller
         $randnum = rand(10,1000);
         //create a tiny image
         $path = $path."/brand_logo/$randnum";
-        $thumbnail = \Image::make($request->file('image'))->resize(640, null,function ($constraint) {
+        $thumbnail = \Image::make($request->file('image'))->resize(320, null,function ($constraint) {
             $constraint->aspectRatio();
         })->blur(1)->stream('jpg',70);
         \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
