@@ -260,6 +260,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     Route::post("collaborate/{id}/apply","CollaborateController@apply");
                     Route::resource("collaborate/{collaborateId}/fields",'CollaborationFieldController');
                     Route::post("uploadImage","CollaborateController@uploadImageCollaborate");
+                    Route::post("uploadBrandLogo","CollaborateController@uploadBrandLogo");
                     Route::delete("deleteImages","CollaborateController@deleteImages");
                     Route::resource("collaborate","CollaborateController");
 

@@ -53,6 +53,8 @@ class Company extends Model
         'affiliations',
         'style_logo',
         'style_hero_image',
+        'logo_meta',
+        'hero_image_meta'
     ];
     
     protected $visible = [
@@ -103,7 +105,8 @@ class Company extends Model
         'style_hero_image',
         'company_id',
         'is_premium',
-
+        'logo_meta',
+        'hero_image_meta'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
@@ -166,8 +169,11 @@ class Company extends Model
             'profileId' => $this->profileId,
             'name' => $this->name,
             'logo' => $this->logo,
+            'hero_image'=>$this->hero_image,
             'tagline' => $this->tagline,
-            'city' =>$this->city
+            'city' =>$this->city,
+            'logo_meta' =>$this->logo_meta,
+            'hero_image_meta' =>$this->hero_image_meta
         ];
         \Redis::set("company:small:" . $this->id,json_encode($data));
     }
@@ -402,16 +408,6 @@ class Company extends Model
         return CompanyUser::where('company_id',$this->id)->where("user_id",$userId)->count() === 1;
     }
     
-    public function getLogoAttribute($value)
-    {
-        try{
-            return !is_null($value) ? \Storage::url($value) : null;
-        } catch (\Exception $e){
-            \Log::warning("Couldn't get logo for company" . $this->id);
-            \Log::warning($e->getMessage());
-        }
-    }
-    
     public function getHeroImageAttribute($value)
     {
         if(is_null($value))
@@ -421,7 +417,7 @@ class Company extends Model
         }
         else
         {
-            return \Storage::url($value);
+            return $value;
         }
     }
     

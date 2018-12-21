@@ -20,12 +20,12 @@ class Photo extends Model implements Feedable
     
     use IdentifiesOwner, CachedPayload;
     
-    protected $fillable = ['caption','file','privacy_id','payload_id','image_info'];
+    protected $fillable = ['caption','file','privacy_id','payload_id','image_info','image_meta'];
 
     protected $visible = ['id','caption','photoUrl','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','image_info'];
+        'owner','nextPhotoId','previousPhotoId','image_info','image_meta'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -74,7 +74,8 @@ class Photo extends Model implements Feedable
     
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),'updated_at'=>$this->updated_at->toDateTimeString()];
+        $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),
+            'updated_at'=>$this->updated_at->toDateTimeString(),'image_meta'=>$this->image_meta];
         \Redis::set("photo:" . $this->id,json_encode($data));
     }
     
@@ -131,11 +132,7 @@ class Photo extends Model implements Feedable
     
     public function getPhotoUrlAttribute()
     {
-        if($this->profile_id) {
-            return !is_null($this->file) ? \Storage::url($this->file) : null;
-        }
-        
-        return !is_null($this->file) ? \Storage::url($this->file) : null;
+        return $this->file;
     }
     
     public function profile()
@@ -149,7 +146,7 @@ class Photo extends Model implements Feedable
     
     public function company()
     {
-        return $this->belongsToMany('App\Company','company_photos','photo_id','company_id');
+        return $this->belongsToMany('App\Recipe\Company','company_photos','photo_id','company_id');
     }
     
     public function getCompany()
