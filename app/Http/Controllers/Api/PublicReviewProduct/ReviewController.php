@@ -232,13 +232,12 @@ class ReviewController extends Controller
 
         if(count($answers))
         {
+            \Log::info($answers);
             foreach ($answers as $answer)
             {
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
-                \Log::info("question id ".$questionId);
-                \Log::info("select type ".$selectType);
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
