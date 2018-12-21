@@ -44,23 +44,26 @@ class ProgressiveImage extends Command
     {
         Profile::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
-                if(isset($model->imageUrl) && !is_null($model->imageUrl))
+                if(isset($model->image) && !is_null($model->image))
                 {
                     $imageMeta = [];
-                    $imageMeta['original_photo'] = $model->imageUrl;
-                    $imageMeta['tiny_photo'] = $model->imageUrl;
-                    $imageMeta['meta'] = ['tiny_photo'=>$model->imageUrl];
+                    $imageMeta['original_photo'] = $model->image;
+                    $imageMeta['tiny_photo'] = $model->image;
+                    $imageMeta['meta'] = ['tiny_photo'=>$model->image];
                     $imageMeta = json_encode($imageMeta,true);
                     $model->update(['image_meta'=> $imageMeta]);
                 }
-                if(isset($model->heroImageUrl) && !is_null($model->heroImageUrl))
+                if(isset($model->hero_image) && !is_null($model->hero_image))
                 {
+                    $heroImage = $model->hero_image;
+                    $heroImage = str_replace('https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/https%3A//s3.ap-south-1.amazonaws.com/static3.tagtaste.com','https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com',$heroImage);
+                    \Log::info($heroImage);
                     $imageMeta = [];
-                    $imageMeta['original_photo'] = $model->heroImageUrl;
-                    $imageMeta['tiny_photo'] = $model->heroImageUrl;
-                    $imageMeta['meta'] = ['tiny_photo'=>$model->heroImageUrl];
+                    $imageMeta['original_photo'] = $heroImage;
+                    $imageMeta['tiny_photo'] = $heroImage;
+                    $imageMeta['meta'] = ['tiny_photo'=>$heroImage];
                     $imageMeta = json_encode($imageMeta,true);
-                    $model->update(['hero_image_meta'=> $imageMeta,'hero_image'=>$model->heroImageUrl]);
+                    $model->update(['hero_image_meta'=> $imageMeta,'hero_image'=>$heroImage]);
                 }
                 echo "profile id ".$model->id ."\n";
                 $model->addToCache();
