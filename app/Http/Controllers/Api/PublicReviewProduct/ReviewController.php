@@ -5,6 +5,7 @@ namespace App\Http\Controllers\APi\PublicReviewProduct;
 use App\Comment;
 use App\PublicReviewPorduct;
 use App\PublicReviewProduct\Review;
+use App\PublicReviewProduct\ReviewHeader;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
@@ -37,12 +38,17 @@ class ReviewController extends Controller
     public function index(Request $request,$productId)
     {
         $loggedInPorfileId = $request->user()->profile->id;
+        $product = PublicReviewPorduct::where('id',$productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Product is not available");
+        }
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
-        $this->model = $this->model->where('product_id',$productId)->where('profile_id',$loggedInPorfileId)->where('select_type',3)
-            ->where('key','like','comment')->skip($skip)->take($take)->get();
+        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+            ->where('select_type',5)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
     }
@@ -174,10 +180,10 @@ class ReviewController extends Controller
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $this->model = [];
-        $this->model['data'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
+        $this->model['comments'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
         $this->model['next_page'] = $page > 1 ? $page - 1 : null;
         $this->model['count'] = $model->comments()->count();
-        $this->model['previous_page'] = count($this->model['data']) >= 10 && $page*10 < $this->model['count']  ? $page + 1 : null;
+        $this->model['previous_page'] = count($this->model['comments']) >= 10 && $page*10 < $this->model['count']  ? $page + 1 : null;
 
         return $this->sendResponse();
     }
@@ -229,12 +235,12 @@ class ReviewController extends Controller
             {
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
+                $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
-                    $selectType = isset($option['select_type']) && is_null($option['select_type']) ? $option['select_type'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
@@ -257,7 +263,7 @@ class ReviewController extends Controller
             if($currentStatus == 1)
             {
                 Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
-                    ->where('header_id',$headerId)->update(['current_status'=>$currentStatus]);
+                    ->update(['current_status'=>$currentStatus]);
             }
         }
         return $this->sendResponse();

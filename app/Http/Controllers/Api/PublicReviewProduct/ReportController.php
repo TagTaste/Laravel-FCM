@@ -63,7 +63,7 @@ class ReportController extends Controller
             {
                 if($overallPreferance->header_id == $header->id)
                 {
-                    $headerRatingSum += $overallPreferance->value;
+                    $headerRatingSum += $overallPreferance->leaf_id;
                     $userCount++;
                 }
             }

@@ -127,12 +127,12 @@ class PublicReviewProductController extends Controller
         $recommended = PublicReviewPorduct::where('mark_featured',1)->inRandomOrder()->limit(20)->get();
         if($recommended->count())
             $this->model[] = ['title'=>'Review and Earn TT Currency','subtitle'=>'100 POINTS ON EVERY REVIEW','item'=>$recommended,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product'];
 
         $categories = ProductCategory::where('is_active',1)->inRandomOrder()->limit(20)->get();
         if($categories->count())
             $this->model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'category'];
 
 //        $categories = ProductCategory::where('is_active')->get();
 //        $this->model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$categories,
@@ -141,12 +141,12 @@ class PublicReviewProductController extends Controller
         $collaborates = Collaborate::where('state',1)->where('collaborate_type','like','product-review')->inRandomOrder()->limit(5)->get();
         if($collaborates->count())
             $this->model[] = ['title'=>'Private Reviews','subtitle'=>'COLLABORATION BY F&B BRANDS','item'=>$collaborates,
-                'ui_type'=>1,'color_code'=>'rgb(255, 255, 255)'];
+                'ui_type'=>2,'color_code'=>'rgb(255, 255, 255)','type'=>'collaborate'];
 
         $recently = PublicReviewPorduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(20)->get();
         if($recently->count())
             $this->model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product'];
 
         return $this->sendResponse();
     }
