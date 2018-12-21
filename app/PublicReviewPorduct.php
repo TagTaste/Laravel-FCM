@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\PublicReviewProduct\Review;
+use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
