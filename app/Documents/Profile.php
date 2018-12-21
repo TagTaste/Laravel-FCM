@@ -11,10 +11,10 @@ class Profile extends Document
         return $this->model->education()->select('college')->get()->pluck('college')->toArray();
     }
 
-    public function getValueOfCompany()
-    {
-        return $this->model->experience()->select('company')->get()->pluck('company')->toArray();
-    }
+//    public function getValueOfCompany()
+//    {
+//        return $this->model->experience()->select('company')->get()->pluck('company')->toArray();
+//    }
 
 //    public function getValueOfOccupation()
 //    {
