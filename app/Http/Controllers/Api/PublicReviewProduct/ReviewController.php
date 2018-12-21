@@ -234,7 +234,6 @@ class ReviewController extends Controller
         {
             foreach ($answers as $answer)
             {
-                \Log::info($answer);
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
