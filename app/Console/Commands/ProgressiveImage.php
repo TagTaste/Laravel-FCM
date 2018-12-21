@@ -144,13 +144,17 @@ class ProgressiveImage extends Command
             }
         });
 
-        Collaborate::where('state',2)->orderBy('id')->chunk(100, function ($models) {
+        Collaborate::orderBy('id')->chunk(100, function ($models) {
             foreach ($models as $model) {
                 if(count($model->images))
                 {
                     $imagesMeta = [];
                     foreach ($model->images as $image)
                     {
+                        if(!isset($image))
+                        {
+                            continue;
+                        }
                         $imageMeta = [];
                         $imageMeta['original_photo'] = $image;
                         $imageMeta['tiny_photo'] = $image;
