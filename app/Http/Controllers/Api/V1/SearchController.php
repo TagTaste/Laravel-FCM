@@ -119,17 +119,17 @@ class SearchController extends Controller
             }
         }
         if(count($profileData))
-            $this->model[] = ['title'=>'Suggested People','subtitle'=>'','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'Suggested People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $specializations = \DB::table('specializations')->get();
 
         if(count($specializations))
-            $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
+            $this->model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
 
         $collaborations = Collaborate::where('state',1)->skip(0)->take(5)->inRandomOrder()->get();
 
         if(count($collaborations))
-            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'Collaborations','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
 
@@ -169,46 +169,46 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $this->model[] = ['title'=>'Your Experience','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'People You Might Know','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
-        $profileIds = $this->getAllProfileIdsFromEducation($loggedInProfileId);
-
-        $profileIds = $profileIds->unique();
-        $length = $profileIds->count();
-        $profileIds = $profileIds->random($length);
-
-        foreach ($profileIds as $key => $value)
-        {
-            if($loggedInProfileId == $value)
-            {
-                unset($profileIds[$key]);
-                continue;
-            }
-            $profileIds[$key] = "profile:small:".$value ;
-        }
-        if($length && !is_array($profileIds))
-            $profileIds = $profileIds->toArray();
-        $data = [];
-        if(count($profileIds)> 0)
-        {
-            $data = \Redis::mget($profileIds);
-
-        }
-        $profileData = [];
-        if(count($data))
-        {
-            foreach($data as &$profile){
-                if(is_null($profile)){
-                    continue;
-                }
-                $profile = json_decode($profile);
-                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-                $profile->self = false;
-                $profileData[] = $profile;
-            }
-        }
-        if(count($profileData))
-            $this->model[] = ['title'=>'Your Education','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+//        $profileIds = $this->getAllProfileIdsFromEducation($loggedInProfileId);
+//
+//        $profileIds = $profileIds->unique();
+//        $length = $profileIds->count();
+//        $profileIds = $profileIds->random($length);
+//
+//        foreach ($profileIds as $key => $value)
+//        {
+//            if($loggedInProfileId == $value)
+//            {
+//                unset($profileIds[$key]);
+//                continue;
+//            }
+//            $profileIds[$key] = "profile:small:".$value ;
+//        }
+//        if($length && !is_array($profileIds))
+//            $profileIds = $profileIds->toArray();
+//        $data = [];
+//        if(count($profileIds)> 0)
+//        {
+//            $data = \Redis::mget($profileIds);
+//
+//        }
+//        $profileData = [];
+//        if(count($data))
+//        {
+//            foreach($data as &$profile){
+//                if(is_null($profile)){
+//                    continue;
+//                }
+//                $profile = json_decode($profile);
+//                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+//                $profile->self = false;
+//                $profileData[] = $profile;
+//            }
+//        }
+//        if(count($profileData))
+//            $this->model[] = ['title'=>'Your Education','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
 
         return $this->sendResponse();
     }
@@ -249,6 +249,13 @@ class SearchController extends Controller
                                 $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
                             }
                         })->take(10)->get()->pluck('profile_id');
+        $profileIds = $profileIds->merge($ids);
+        $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
+        $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
+            for ($i = 0; $i < count($educations); $i++){
+                $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
+            }
+        })->take(10)->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         return $profileIds;
     }
