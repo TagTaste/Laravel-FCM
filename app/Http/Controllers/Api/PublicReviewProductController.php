@@ -96,7 +96,7 @@ class PublicReviewProductController extends Controller
     {
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
-        $this->model = \App\PublicReviewPorduct::where('id',$id)->first();
+        $this->model = \App\PublicReviewProduct::where('id',$id)->first();
         \App\Filter\Product::addModel($this->model);
         return $this->sendResponse();
     }
@@ -197,7 +197,7 @@ class PublicReviewProductController extends Controller
         $products = \App\Filter\Product::getModelIds($filters);
         $this->model['data'] = [];
         $this->model = ['count'=>count($products)];
-        $products = \App\PublicReviewPorduct::whereIn('id',$products)->skip($skip)->take($take)->get()->toArray();
+        $products = \App\PublicReviewProduct::whereIn('id',$products)->skip($skip)->take($take)->get()->toArray();
         foreach ($products as $product) {
             $this->model['data'][] = $product;
         }
