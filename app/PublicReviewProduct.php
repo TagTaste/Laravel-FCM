@@ -2,11 +2,13 @@
 
 namespace App;
 
+use App\PublicReviewProduct\Review;
+use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
-class PublicReviewPorduct extends Model
+class PublicReviewProduct extends Model
 {
 
     use SoftDeletes;
@@ -105,8 +107,9 @@ class PublicReviewPorduct extends Model
 
     public function getOverallRatingAttribute()
     {
-        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->sum('value');
-        $userCount = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('select_type',5)->count();
+        $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
+        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
+        $userCount = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
         $meta = [];
         $meta['max_rating'] = 8;
         $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\PublicReviewPorduct;
+use App\PublicReviewProduct;
 use App\PublicReviewProduct\ProductCategory;
 use App\Recipe\Collaborate;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class PublicReviewProductController extends Controller
     /**
      * Variable to model
      *
-     * @var PublicReviewPorduct
+     * @var PublicReviewProduct
      */
     protected $model;
 
@@ -22,7 +22,7 @@ class PublicReviewProductController extends Controller
      *
      * @return void
      */
-    public function __construct(PublicReviewPorduct $model)
+    public function __construct(PublicReviewProduct $model)
     {
         $this->model = $model;
     }
@@ -115,7 +115,7 @@ class PublicReviewProductController extends Controller
 
     public function checkUuId($uuId)
     {
-        $check = PublicReviewPorduct::where('id',$uuId)->exists();
+        $check = PublicReviewProduct::where('id',$uuId)->exists();
         if($check)
         {
             $uuId = str_random("32");
@@ -127,7 +127,7 @@ class PublicReviewProductController extends Controller
     public function discover(Request $request)
     {
         $this->model = [];
-        $recommended = PublicReviewPorduct::where('mark_featured',1)->inRandomOrder()->limit(20)->get();
+        $recommended = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(20)->get();
         if($recommended->count())
             $this->model[] = ['title'=>'Review and Earn TT Currency','subtitle'=>'100 POINTS ON EVERY REVIEW','item'=>$recommended,
                 'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product'];
@@ -146,7 +146,7 @@ class PublicReviewProductController extends Controller
             $this->model[] = ['title'=>'Private Reviews','subtitle'=>'COLLABORATION BY F&B BRANDS','item'=>$collaborates,
                 'ui_type'=>2,'color_code'=>'rgb(255, 255, 255)','type'=>'collaborate'];
 
-        $recently = PublicReviewPorduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(20)->get();
+        $recently = PublicReviewProduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(20)->get();
         if($recently->count())
             $this->model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
                 'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product'];

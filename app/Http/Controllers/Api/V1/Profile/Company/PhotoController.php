@@ -64,18 +64,13 @@ class PhotoController extends Controller
         //create the photo
         $data = $request->except(['_method','_token','company_id']);
         
-        if(!$request->hasFile('file') && empty($request->input('file)'))){
+        if(!$request->hasFile('file') && empty($request->input('file'))){
            return $this->sendError("Photo missing.");
         }
-        
-        $imageName = str_random(32) . ".jpg";
-        $data['file'] = $request->file('file')->storeAs(Photo::getCompanyImagePath($profileId, $companyId), $imageName,['visibility'=>'public']);;
-        $imageInfo = getimagesize($request->input('file'));
+
+        $path = Photo::getCompanyImagePath($profileId, $companyId);
+        $this->saveFileToData("file",$path,$request,$data,"image_meta");
         $data['image_info'] = null;
-        if(isset($imageInfo))
-        {
-            $data['image_info'] = json_encode($imageInfo,true);
-        }
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
@@ -86,7 +81,7 @@ class PhotoController extends Controller
             event(new Tag($this->model, $profile, $this->model->caption));
         }
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'image_info'=>$data['image_info'],
-            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
+            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model,$company));
     
@@ -149,7 +144,8 @@ class PhotoController extends Controller
         if(isset($data['has_tags']) && $data['has_tags']){
             event(new Tag($this->model, $profile, $this->model->caption));
         }
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
+            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
 
@@ -200,5 +196,37 @@ class PhotoController extends Controller
             return response()->file($file);
         
         }
+    }
+
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
+    {
+        if($request->hasFile($key)){
+            $response = $this->saveFile($path,$request,$key);
+            $data[$extraKey] = json_encode($response,true);
+            $data[$key] = $response['original_photo'];
+        }
+    }
+
+    private function saveFile($path,&$request,$key)
+    {
+        $imageName = str_random("32") . ".jpg";
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        return $response;
     }
 }

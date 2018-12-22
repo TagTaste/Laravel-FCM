@@ -128,14 +128,14 @@ class ProfileController extends Controller
             $name = ucwords($name);
             $request->user()->update(['name'=>trim($name)]);
         }
-        
+
         //save profile image
         $path = \App\Profile::getImagePath($id);
-        $this->saveFileToData("image",$path,$request,$data);
-        
+        $this->saveFileToData("image",$path,$request,$data,"image_meta");
+
         //save hero image
         $path = \App\Profile::getHeroImagePath($id);
-        $this->saveFileToData("hero_image",$path,$request,$data);
+        $this->saveFileToData("hero_image",$path,$request,$data,"hero_image_meta");
 
         //save profile resume
 
@@ -298,31 +298,33 @@ class ProfileController extends Controller
         return $this->sendResponse();
     }
     
-    private function saveFileToData($key,$path,&$request,&$data)
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
     {
-        if($request->hasFile($key)){
-    
-            $data['profile'][$key] = $this->saveFile($path,$request,$key);
-            
-//            if($key == 'image'){
-//                //create a thumbnail
-//                $path = $path . "/" . str_random(20) . ".jpg";
-//                $thumbnail = \Image::make($request->file('image'))->resize(180, null,function ($constraint) {
-//                    $constraint->aspectRatio();
-//                })->stream('jpg',70);
-//                \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-//                $data['profile']['image'] = $path;
-//            } else {
-//                $data['profile'][$key] = $this->saveFile($path,$request,$key);
-//            }
+        if($request->hasFile($key) && !is_null($extraKey)){
+
+            $response = $this->saveFile($path,$request,$key);
+            $data['profile'][$extraKey] = json_encode($response,true);
+            $data['profile'][$key] = $response['original_photo'];
         }
     }
     
     private function saveFile($path,&$request,$key)
     {
-        
         $imageName = str_random("32") . ".jpg";
-        $response = $request->file($key)->storeAs($path,$imageName,['visibility'=>'public']);
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }

@@ -39,17 +39,17 @@ class Auth extends GetUserFromToken
         }
 
         if (! $token = $this->auth->setRequest($request)->getToken()) {
-            return $this->respond('tymon.jwt.absent', 'token_not_provided', 400);
+            return $this->respond('tymon.jwt.absent', 'token_not_provided', 401);
         }
 
         try {
             $user = $this->auth->authenticate($token);
         } catch (TokenExpiredException $e) {
-            return response()->json(['error'=>'token_expired'], $e->getStatusCode());
+            return response()->json(['error'=>'token_expired'], 401);
         } catch (TokenInvalidException $e) {
-            return response()->json(['error'=>'token_invalid'], $e->getStatusCode());
+            return response()->json(['error'=>'token_invalid'], 401);
         } catch (JWTException $e) {
-            return response()->json(['error'=>'token_absent'], $e->getStatusCode());
+            return response()->json(['error'=>'token_absent'], 401);
         }
 
         if (! $user) {

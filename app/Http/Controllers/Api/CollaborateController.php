@@ -380,8 +380,26 @@ class CollaborateController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
-        $relativePath = "images/p/$profileId/collaborate";
-        $this->model = \Storage::url($request->file("image")->storeAs($relativePath, $imageName,['visibility'=>'public']));
+        $path = "images/p/$profileId/collaborate";
+        $randnum = rand(10,1000);
+        $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/$randnum" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file('image'))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $meta = getimagesize($request->input('image'));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $this->model = $response;
         return $this->sendResponse();
 
     }
@@ -615,4 +633,26 @@ class CollaborateController extends Controller
         $this->model = $data;
         return $this->sendResponse();
     }
+
+    public function uploadBrandLogo(Request $request)
+    {
+        $profileId = $request->user()->profile->id;
+        $imageName = str_random("32") . ".jpg";
+        $path = "images/p/$profileId/collaborate";
+        $randnum = rand(10,1000);
+        //create a tiny image
+        $path = $path."/brand_logo/$randnum";
+        $thumbnail = \Image::make($request->file('image'))->resize(320, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response = \Storage::url($path);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $this->model = $response;
+        return $this->sendResponse();
+
+    }
+
 }

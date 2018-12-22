@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\APi\PublicReviewProduct;
 
-use App\PublicReviewPorduct;
+use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Carbon\Carbon;
@@ -18,7 +18,7 @@ class ReportController extends Controller
 
     public function reportSummary(Request $request,$productId)
     {
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
             return $this->sendError("Product is not available");
@@ -117,7 +117,7 @@ class ReportController extends Controller
     
     public function reports(Request $request,$productId,$headerId)
     {
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
 
         if ($product === null) {
             return $this->sendError("Invalid product.");
@@ -256,7 +256,7 @@ class ReportController extends Controller
 
     public function comments(Request $request,$productId,$headerId,$questionId)
     {
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
             return $this->sendError("Product is not available");
@@ -272,7 +272,7 @@ class ReportController extends Controller
 
     public function reportPdf(Request $request,$productId)
     {
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         $globalQuestionId = $product->global_question_id;
         if ($product === null) {
             return $this->sendError("Invalid product.");
