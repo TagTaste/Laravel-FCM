@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\APi;
+namespace App\Http\Controllers\Api;
 
 use App\PublicReviewPorduct;
 use App\PublicReviewProduct\ProductCategory;
@@ -56,7 +56,7 @@ class PublicReviewProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {   
         $inputs = $request->all();
         if(isset($inputs['images_meta']))
         {
@@ -67,6 +67,7 @@ class PublicReviewProductController extends Controller
             $inputs['images_meta'] = json_encode($imageArray,true);
         }
         $this->model = $this->model->create($inputs);
+        \App\Filter\Product::addModel($this->model);
         return $this->sendResponse();
     }
 
@@ -95,6 +96,8 @@ class PublicReviewProductController extends Controller
     {
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
+        $this->model = \App\PublicReviewPorduct::where('id',$id)->first();
+        \App\Filter\Product::addModel($this->model);
         return $this->sendResponse();
     }
 
@@ -161,4 +164,44 @@ class PublicReviewProductController extends Controller
 
         return $this->sendResponse();
     }
+
+    public function getFilters(Request $request)
+    {
+        $this->model = \App\Filter::getFilters("product");
+        return $this->sendResponse();
+    }
+
+    public function all(Request $request)
+    {
+        $filters = $request->input('filters');
+        $models = $this->model->whereNull('deleted_at')->orderBy('created_at','asc');
+        $this->model = ['count' => $models->count()];
+        $this->model['data'] = [];
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        
+        $models = $models->skip($skip)->take($take);
+        if(empty($filters))
+        {
+            $products = $models->get();
+            if($products->count())
+            {
+                foreach ($products as $product) {
+                    $temp = $product->toArray();
+                    $this->model['data'][] = $temp;  
+                }
+            }
+            return $this->sendResponse();
+
+        }
+        $products = \App\Filter\Product::getModelIds($filters);
+        $this->model['data'] = [];
+        $this->model = ['count'=>count($products)];
+        $products = \App\PublicReviewPorduct::whereIn('id',$products)->skip($skip)->take($take)->get()->toArray();
+        foreach ($products as $product) {
+            $this->model['data'][] = $product;
+        }
+        return $this->sendResponse();
+    }
+
 }
