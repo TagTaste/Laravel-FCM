@@ -393,7 +393,7 @@ class SearchController extends Controller
                     $collaborateData[] = $collaborate;
                     $dataCount++;
                 }
-                $finalData[] = ['type'=>'collaborate','ui_type'=>0,'item'=>$collaborateData,'count'=>count($this->model['collaborate'])];
+                $finalData[] = ['type'=>'collaborate','ui_type'=>1,'item'=>$collaborateData,'count'=>count($this->model['collaborate'])];
             }
             $this->model = $finalData;
         }
