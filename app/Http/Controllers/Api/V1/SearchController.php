@@ -368,7 +368,7 @@ class SearchController extends Controller
                     }
                     $dataCount++;
                 }
-                $finalData[] = ['type'=>'profile','ui_type'=>1,'item'=>$profileData,'count'=>count($this->model['profile'])];
+                $finalData[] = ['type'=>'profile','ui_type'=>2,'item'=>$profileData,'count'=>count($this->model['profile'])];
             }
             $dataCount = 0;
             if(isset($this->model['company']) && $this->model['company']->count() > 0){
@@ -381,7 +381,7 @@ class SearchController extends Controller
                     $companyData[] = $company;
                     $dataCount++;
                 }
-                $finalData[] = ['type'=>'company','ui_type'=>1,'item'=>$companyData,'count'=>count($this->model['company'])];
+                $finalData[] = ['type'=>'company','ui_type'=>2,'item'=>$companyData,'count'=>count($this->model['company'])];
             }
             $dataCount = 0;
             if(isset($this->model['collaborate']) && $this->model['collaborate']->count() > 0){
@@ -393,7 +393,7 @@ class SearchController extends Controller
                     $collaborateData[] = $collaborate;
                     $dataCount++;
                 }
-                $finalData[] = ['type'=>'collaborate','ui_type'=>1,'item'=>$collaborateData,'count'=>count($this->model['collaborate'])];
+                $finalData[] = ['type'=>'collaborate','ui_type'=>2,'item'=>$collaborateData,'count'=>count($this->model['collaborate'])];
             }
             $this->model = $finalData;
         }
