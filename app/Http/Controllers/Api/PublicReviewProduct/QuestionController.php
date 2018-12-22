@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\PublicReviewProduct;
 
 use App\Collaborate;
-use App\PublicReviewPorduct;
+use App\PublicReviewProduct;
 use App\PublicReviewProduct\Questions;
 use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
@@ -29,7 +29,7 @@ class QuestionController extends Controller
 
     public function headers(Request $request, $id)
     {
-        $product = PublicReviewPorduct::where('id',$id)->first();
+        $product = PublicReviewProduct::where('id',$id)->first();
         $this->model = ReviewHeader::where('is_active',1)->where('global_question_id',$product->global_question_id)
             ->orderBy('id')->get();
 
@@ -39,7 +39,7 @@ class QuestionController extends Controller
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
         }
@@ -117,7 +117,7 @@ class QuestionController extends Controller
         $value = $request->input('value');
         $id = $request->has('id') ? $request->input('id') : null;
         $this->model = [];
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         $answers = [];
         if($product === null){
             return $this->sendError("Product not found.");
@@ -169,7 +169,7 @@ class QuestionController extends Controller
     {
         $this->model = [];
         $term = $request->input('term');
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
         }

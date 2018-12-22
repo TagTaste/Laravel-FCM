@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\APi\PublicReviewProduct;
 
 use App\Comment;
-use App\PublicReviewPorduct;
+use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Carbon\Carbon;
@@ -38,7 +38,7 @@ class ReviewController extends Controller
     public function index(Request $request,$productId)
     {
         $loggedInPorfileId = $request->user()->profile->id;
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
             return $this->sendError("Product is not available");
@@ -215,7 +215,7 @@ class ReviewController extends Controller
         $data = [];
         $answers = $request->input('answer');
         $loggedInProfileId = $request->user()->profile->id ;
-        $product = PublicReviewPorduct::where('id',$productId)->first();
+        $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
         }

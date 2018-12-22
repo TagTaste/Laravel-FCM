@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
-class PublicReviewPorduct extends Model
+class PublicReviewProduct extends Model
 {
 
     use SoftDeletes;
