@@ -119,17 +119,17 @@ class SearchController extends Controller
             }
         }
         if(count($profileData))
-            $this->model[] = ['title'=>'Networking Recommendations','subtitle'=>'FROM CHEF AND FOOD SAFETY','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Suggested People','subtitle'=>'','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $specializations = \DB::table('specializations')->get();
 
         if(count($specializations))
-            $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Explore in Specializations','subtitle'=>'LENSES FOR THE F&B INDUSTRY','type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
 
         $collaborations = Collaborate::where('state',1)->skip(0)->take(5)->inRandomOrder()->get();
 
         if(count($collaborations))
-            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Collaborate','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
 
@@ -169,7 +169,7 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $this->model[] = ['title'=>'Your Experience','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Your Experience','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $profileIds = $this->getAllProfileIdsFromEducation($loggedInProfileId);
 
@@ -208,7 +208,7 @@ class SearchController extends Controller
             }
         }
         if(count($profileData))
-            $this->model[] = ['title'=>'Your Education','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
+            $this->model[] = ['title'=>'Your Education','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
 
         return $this->sendResponse();
     }
@@ -256,7 +256,7 @@ class SearchController extends Controller
     public function getAllProfileIdsFromEducation($loggedInProfileId)
     {
         $profileIds = new Collection();
-        $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('company');
+        $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
