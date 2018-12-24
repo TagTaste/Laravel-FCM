@@ -40,6 +40,7 @@ class CurrentStatusReview extends Command
     {
         \DB::table('collaborate_batches_assign')->orderBy('collaborate_id')->chunk(100, function ($models) {
             foreach ($models as $model) {
+                echo "batch id is ".$model->batch_id." profile id ".$model->profile_id."\n";
                 \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,0);
                 if($model->begin_tasting == 1)
                 {
@@ -49,7 +50,7 @@ class CurrentStatusReview extends Command
                     ->where('profile_id',$model->profile_id)->first();
                 if(isset($currentStatus->current_status))
                 {
-                    echo "profile id ".$model->profile_id." batch id ".$model->batch_id." current status .".$currentStatus->current_status."\n";
+//                    echo "profile id ".$model->profile_id." batch id ".$model->batch_id." current status .".$currentStatus->current_status."\n";
                     if($currentStatus->current_status == 3)
                     {
                         \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,3);
@@ -59,7 +60,7 @@ class CurrentStatusReview extends Command
                         \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,2);
                     }
                 }
-                echo "batch_id ".$model->batch_id." profile_id ".$model->profile_id ." current status ".\Redis::get("current_status:batch:$model->batch_id:profile:$model->profile_id")."\n";
+//                echo "batch_id ".$model->batch_id." profile_id ".$model->profile_id ." current status ".\Redis::get("current_status:batch:$model->batch_id:profile:$model->profile_id")."\n";
             }
         });;
     }
