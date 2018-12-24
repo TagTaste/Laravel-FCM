@@ -205,7 +205,7 @@ class QuestionController extends Controller
             }
             else
             {
-                $answers[] = ['question_id'=>$questionId,'option'=>$data];
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'select_type'=>$selectType];
 
             }
         }
