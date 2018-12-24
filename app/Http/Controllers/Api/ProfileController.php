@@ -376,7 +376,7 @@ class ProfileController extends Controller
         }
         if($channelOwnerProfileId == $request->user()->profile->id)
         {
-            $this->sendError("You can not follow yourself.");
+            return $this->sendError("You can not follow yourself.");
         }
         $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
         $profileId = $request->user()->profile->id;
