@@ -119,14 +119,21 @@ class SearchController extends Controller
             }
         }
         if(count($profileData))
-            $this->model[] = ['title'=>'People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'Suggested People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $specializations = \DB::table('specializations')->get();
 
         if(count($specializations))
             $this->model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
 
-        $companyIds = \App\Recipe\Company::whereNull('deleted_at')->take(15)->inRandomOrder()->get()->pluck('id');
+        $collaborations = Collaborate::where('state',1)->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $this->model[] = ['title'=>'Collaborations','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+
+        $companyIds = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get()->pluck('id');
 
         $companyData = [];
         foreach($companyIds as &$companyId)
@@ -145,14 +152,8 @@ class SearchController extends Controller
         }
 //        $this->model['company'] = $companyData;
         if(count($companyData))
-            $this->model[] = ['title'=>'Companies','type'=>'company','ui_type'=>0,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>0,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
-
-
-        $collaborations = Collaborate::where('state',1)->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $this->model[] = ['title'=>'Collaborations','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
 
@@ -192,7 +193,7 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $this->model[] = ['title'=>'People You Might Know','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'People you might know','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 //        $profileIds = $this->getAllProfileIdsFromEducation($loggedInProfileId);
 //
