@@ -133,14 +133,9 @@ class SearchController extends Controller
 
 
 
-        $companyIds = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get()->pluck('id');
-
+        $companyData = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get();
+        $data = $companyData;
         $companyData = [];
-        foreach($companyIds as &$companyId)
-        {
-            $companyId = "company:small:" . $companyId;
-        }
-        $data = \Redis::mget($companyIds);
         foreach($data as $key => &$company){
             if(is_null($company)){
                 unset($data[$key]);
@@ -153,6 +148,39 @@ class SearchController extends Controller
 //        $this->model['company'] = $companyData;
         if(count($companyData))
             $this->model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>0,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+        $activityBasedIds = [804,70,5555,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
+
+        foreach ($activityBasedIds as $key => $value)
+        {
+            if($loggedInProfileId == $value)
+            {
+                unset($activityBasedIds[$key]);
+                continue;
+            }
+            $activityBasedIds[$key] = "profile:small:".$value ;
+        }
+
+        if(count($activityBasedIds)> 0)
+        {
+            $data = \Redis::mget($activityBasedIds);
+
+        }
+        $profileData = [];
+
+        foreach($data as $key => &$profile){
+            if(is_null($profile)){
+                unset($data[$key]);
+                continue;
+            }
+            $profile = json_decode($profile);
+            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->self = false;
+            $profileData[] = $profile;
+        }
+
+        if(count($profileData))
+            $this->model[] = ['title'=>'ACTIVE & INFLUENTIAL','type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
 
 
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
