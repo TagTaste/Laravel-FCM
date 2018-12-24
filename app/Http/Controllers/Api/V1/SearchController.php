@@ -180,7 +180,7 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $this->model[] = ['title'=>'ACTIVE & INFLUENTIAL','type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
+            $this->model[] = ['title'=>'Active & Influential','type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)'];
 
 
         $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
