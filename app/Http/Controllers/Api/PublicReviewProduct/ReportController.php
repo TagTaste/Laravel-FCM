@@ -239,10 +239,12 @@ class ReportController extends Controller
     {
         $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
         $userCount = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->count();
+        $oberallPreferanceUserCount = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
         $meta = [];
         $meta['max_rating'] = 8;
-        $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
+        $meta['overall_rating'] = $oberallPreferanceUserCount > 0 ? $overallPreferances/$oberallPreferanceUserCount : 0.00;
         $meta['count'] = $userCount;
+        $meta['overall_preferance_user_count'] = $oberallPreferanceUserCount;
         $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
         return $meta;
     }
