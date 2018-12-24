@@ -379,6 +379,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource('public-review/products', 'PublicReviewProductController');
             Route::get('public-review/filters','PublicReviewProductController@getFilters');
             Route::get('public-review/all','PublicReviewProductController@all');
+            Route::get('public-review/search', 'PublicReviewProductController@searchProduct');
 
 
             //photos

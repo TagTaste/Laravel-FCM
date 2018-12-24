@@ -204,4 +204,11 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
+    public function searchProduct(Request $request)
+    {
+        $key = $request->input('q');
+        $this->model = $this->model->where('name', 'like','%'.$key.'%')->orderBy('name','asc')->get();
+        return $this->sendResponse();
+    }
+
 }
