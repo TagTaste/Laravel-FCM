@@ -41,7 +41,7 @@ class Review extends Model
     {
         $comment = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',3)->first();
 
-        return $comment->value;
+        return isset($comment->value) ? $comment->value : null;
     }
 
     public function comments()
