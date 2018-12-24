@@ -237,7 +237,7 @@ class ReportController extends Controller
 
     public function getUsersRating($productId,$headerId)
     {
-        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('value');
+        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
         $userCount = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->count();
         $meta = [];
         $meta['max_rating'] = 8;
