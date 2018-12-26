@@ -300,7 +300,8 @@ class SearchController extends Controller
         $filters = [];
         foreach ($experiences as $experience)
         {
-            $filters['experience'][] = $experience;
+            if(!in_array($experience,$filters['experience']))
+                $filters['experience'][] = $experience;
         }
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
@@ -311,7 +312,8 @@ class SearchController extends Controller
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
         foreach ($educations as $education)
         {
-            $filters['education'][] = $education;
+            if(!in_array($education,$filters['education']))
+                $filters['education'][] = $education;
         }
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
