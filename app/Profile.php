@@ -942,7 +942,7 @@ class Profile extends Model
         return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
     }
 
-    public function getFbInfo()
+    public function getFbInfoAttribute()
     {
         return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
     }
