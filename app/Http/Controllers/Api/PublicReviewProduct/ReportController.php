@@ -149,7 +149,7 @@ class ReportController extends Controller
                     $item->questions->is_active = $item->is_active;
                     $item->questions->parent_question_id = $item->parent_question_id;
                     $item->questions->header_id = $item->header_id;
-                    $item->questions->collaborate_id = $item->collaborate_id;
+                    $item->questions->product_id = $item->product_id;
                     $data->questions->questions{$i} = $item->questions;
                     $i++;
                 }
@@ -313,7 +313,7 @@ class ReportController extends Controller
                         $item->questions->is_active = $item->is_active;
                         $item->questions->parent_question_id = $item->parent_question_id;
                         $item->questions->header_id = $item->header_id;
-                        $item->questions->collaborate_id = $item->collaborate_id;
+                        $item->questions->product_id = $item->product_id;
                         $data->questions->questions{$i} = $item->questions;
                         $i++;
                     }
