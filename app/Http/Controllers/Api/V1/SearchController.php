@@ -416,7 +416,14 @@ class SearchController extends Controller
             list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
             foreach($hits as $name => $hit){
-                $this->model[$name] = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
+                $searched = $this->getModels($name,$hit->pluck('_id')->toArray(),$request->input('filters'),$skip,$take);
+                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                $suggested = collect([]);
+                if(!empty($suggestions)){
+                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                }
+
+                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
 
             $profileId = $request->user()->profile->id;
@@ -484,6 +491,53 @@ class SearchController extends Controller
                 break;
         }
     }
+
+    private function filterSuggestions(&$term,$type = null,$skip,$take)
+    {
+
+        $suggestions = [];
+
+        if(null === $type || "profile" === $type){
+            $profiles = \DB::table("profiles")->select("profiles.id")
+                ->join("users",'users.id','=','profiles.user_id')
+                ->where("users.name",'like',"%$term%")
+                ->whereNull('users.deleted_at')
+                ->skip($skip)
+                ->take($take)
+                ->get();
+
+            if(count($profiles)){
+                foreach($profiles as $profile){
+                    $profile->type = "profile";
+                    $suggestions[] = (array) $profile;
+                }
+            }
+
+        }
+
+        if(null === $type || "company" === $type){
+            $companies = \DB::table("companies")->whereNull('companies.deleted_at')
+                ->select("companies.id")
+                ->join("profiles",'companies.user_id','=','profiles.user_id')
+                ->where("name",'like',"%$term%")
+                ->whereNull('profiles.deleted_at')
+                ->whereNull('companies.deleted_at')
+                ->skip($skip)
+                ->take($take)
+                ->get();
+
+            if(count($companies)){
+                foreach($companies as $company){
+                    $company->type = "company";
+                    $suggestions[] = (array) $company;
+                }
+            }
+        }
+
+
+        return $suggestions;
+    }
+
 
 
 }
