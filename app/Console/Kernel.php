@@ -185,6 +185,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\FillUnreadCount::class,
         \App\Console\Commands\DeleteSingleChat::class,
         \App\Console\Commands\PreviewChangesMessage::class,
+        \App\Console\Commands\MailIOS::class,
 
         ChatMergeMessage::class,
         CompleteTastingMail::class,
