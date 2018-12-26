@@ -299,7 +299,7 @@ class SearchController extends Controller
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
         $filters = [];
         $filters['key'][] = 'experience';
-        $filters[]= ['key'=>'experience','value'=>$experiences];
+        $filters[]= ['key'=>'experience','value'=>array_unique($experiences->toArray())];
 
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
@@ -308,7 +308,7 @@ class SearchController extends Controller
                         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
-        $filters[]= ['key'=>'education','value'=>$educations];
+        $filters[]= ['key'=>'education','value'=>array_unique($educations->toArray())];
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
