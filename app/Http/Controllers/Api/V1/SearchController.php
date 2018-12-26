@@ -183,8 +183,9 @@ class SearchController extends Controller
             $this->model[] = ['title'=>'Active & Influential','type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)'];
 
 
-        $profileIds = $this->getAllProfileIdsFromExperience($loggedInProfileId);
-
+        $data = $this->getAllProfileIdsFromExperience($loggedInProfileId);
+        $profileIds = $data['profileIds'];
+        $filters = $data['filters'];
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
         $profileIds = $profileIds->random($length);
@@ -221,7 +222,7 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $this->model[] = ['title'=>'People you might know','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $this->model[] = ['title'=>'People you might know','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1,'filters'=>$filters];
 
 //        $profileIds = $this->getAllProfileIdsFromEducation($loggedInProfileId);
 //
@@ -296,6 +297,11 @@ class SearchController extends Controller
     {
         $profileIds = new Collection();
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
+        $filters = [];
+        foreach ($experiences as $experience)
+        {
+            $filters['experience'][] = $experience;
+        }
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
                                 $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
@@ -303,13 +309,18 @@ class SearchController extends Controller
                         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
+        foreach ($educations as $education)
+        {
+            $filters['education'][] = $education;
+        }
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
             }
         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
-        return $profileIds;
+
+        return ['profileIds'=>$profileIds,'filters'=>$filters];
     }
 
     public function getAllProfileIdsFromEducation($loggedInProfileId)
