@@ -298,7 +298,6 @@ class SearchController extends Controller
         $profileIds = new Collection();
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
         $filters = [];
-        $filters['key'][] = 'experience';
         $filters[]= ['key'=>'experience','value'=>array_unique($experiences->toArray())];
 
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
