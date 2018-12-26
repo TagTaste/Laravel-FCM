@@ -298,6 +298,7 @@ class SearchController extends Controller
         $profileIds = new Collection();
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
         $filters = [];
+        $filters['experience'] = [];
         foreach ($experiences as $experience)
         {
             if(!in_array($experience,$filters['experience']))
@@ -310,6 +311,7 @@ class SearchController extends Controller
                         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
+        $filters['education'] = [];
         foreach ($educations as $education)
         {
             if(!in_array($education,$filters['education']))
