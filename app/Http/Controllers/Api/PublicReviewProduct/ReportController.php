@@ -156,7 +156,7 @@ class ReportController extends Controller
             }
         }
 
-        //filters data
+        //filters data and bht bekar likha hua h so isko thik krne me bht time lagega and time h nhi so sorry :(
         $filters = $request->input('filters');
         $resp = $this->getFilterProfileIds($filters);
         $profileIds = $resp['profile_id'];
@@ -188,10 +188,36 @@ class ReportController extends Controller
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->where('current_status',1)
+                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
                             ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-                        $subAnswers[] = $subReports;
+                        $options = isset($data->questions->option) ? $data->questions->option : [];
+                        foreach ($answers as &$answer)
+                        {
+                            $value = [];
+                            foreach ($options as $option)
+                            {
+                                if($option->id == $answer->leaf_id && $option->is_intensity == 1)
+                                {
+                                    $answerIntensity = $answer->intensity;
+                                    $answerIntensity = explode(",",$answerIntensity);
+                                    $questionIntensity = $option->intensity_value;
+                                    $questionIntensity = explode(",",$questionIntensity);
+                                    foreach ($questionIntensity as $x)
+                                    {
+                                        $count = 0;
+                                        foreach ($answerIntensity as $y)
+                                        {
+                                            if($y == $x)
+                                                $count++;
+                                        }
+                                        $value[] = ['value'=>$x,'count'=>$count];
+                                    }
+                                }
+                            }
+                            $answer->intensity = $value;
+                        }
+                        $subAnswers[] = $answers;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
 
@@ -208,9 +234,37 @@ class ReportController extends Controller
                 }
                 else
                 {
-                    $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->where('current_status',1)
+                    $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
                         ->where('product_id',$productId)->where('question_id',$data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                    $options = isset($data->questions->option) ? $data->questions->option : [];
+                    foreach ($answers as &$answer)
+                    {
+                        $value = [];
+                        foreach ($options as $option)
+                        {
+                            if($option->id == $answer->leaf_id && $option->is_intensity == 1 || $option->select_type == 5)
+                            {
+                                $answerIntensity = $answer->intensity;
+                                $answerIntensity = explode(",",$answerIntensity);
+                                $questionIntensity = $option->intensity_value;
+                                $questionIntensity = explode(",",$questionIntensity);
+                                foreach ($questionIntensity as $x)
+                                {
+                                    $count = 0;
+                                    foreach ($answerIntensity as $y)
+                                    {
+                                        if($y == $x)
+                                            $count++;
+                                    }
+                                    $value[] = ['value'=>$x,'count'=>$count];
+                                }
+                            }
+                        }
+                        $answer->intensity = $value;
+                    }
+
+                    $reports['answer'] = $answers;
                 }
 
                 if(isset($data->questions->is_nested_option))
