@@ -188,9 +188,9 @@ class ReportController extends Controller
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
+                        $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->where('current_status',1)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
                         $subAnswers[] = $subReports;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
@@ -208,9 +208,9 @@ class ReportController extends Controller
                 }
                 else
                 {
-                    $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
+                    $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->where('current_status',1)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
                 }
 
                 if(isset($data->questions->is_nested_option))
@@ -412,9 +412,9 @@ class ReportController extends Controller
     public function getAnswer(Request $request,$productId,$headerId,$questionId,$optionId)
     {
         $option = $request->input('q');
-        $this->model = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
+        $this->model = \DB::table('public_product_user_review')->select('intensity',\DB::raw('count(*) as total'))->where('current_status',1)
             ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId)->where('value','like',$option)
-            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('intensity')->get();
+            ->orderBy('total','DESC')->groupBy('intensity')->get();
         return $this->sendResponse();
     }
 }
