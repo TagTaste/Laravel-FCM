@@ -40,7 +40,6 @@ class SearchController extends Controller
     
     private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
     {
-        \Log::info($ids);
         if(empty($ids)){
             return false;
         }
@@ -338,6 +337,8 @@ class SearchController extends Controller
                 }
                 if($suggested->count() > 0)
                     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                else
+                    $this->model[$name] = $searched;
             }
 
 
