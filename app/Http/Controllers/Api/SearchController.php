@@ -20,7 +20,9 @@ class SearchController extends Controller
         'company' => \App\Recipe\Company::class,
         'companies' => \App\Recipe\Company::class,
         'job' => \App\Recipe\Job::class,
-        'jobs' => \App\Recipe\Job::class
+        'jobs' => \App\Recipe\Job::class,
+        'product' => \App\PublicReviewProduct::class
+
     ];
     
     private $filters = [
@@ -32,7 +34,8 @@ class SearchController extends Controller
         'company' => \App\Filter\Company::class,
         'companies' => \App\Filter\Company::class,
         'job' => \App\Filter\Job::class,
-        'jobs' => \App\Filter\Job::class
+        'jobs' => \App\Filter\Job::class,
+        'product' => \App\Filter\PublicReviewProduct::class
     ];
     
     private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
