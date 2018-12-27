@@ -40,6 +40,7 @@ class SearchController extends Controller
     
     private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
     {
+        \Log::info($ids);
         if(empty($ids)){
             return false;
         }
@@ -329,6 +330,7 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 $suggested = collect([]);
                 if(!empty($suggestions)){
@@ -336,8 +338,6 @@ class SearchController extends Controller
                 }
                 if($suggested->count() > 0)
                     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
-
-                \Log::info($this->model[$name]);
             }
 
 
@@ -435,8 +435,12 @@ class SearchController extends Controller
 
             if(isset($this->model['product']))
             {
-                $productIds = $this->model['product']->pluck('id');
-                $this->model['product'] = PublicReviewProduct::where('id',$productIds)->get();
+                $products = $this->model['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model['product'] = $products;
             }
 
             return $this->sendResponse();
