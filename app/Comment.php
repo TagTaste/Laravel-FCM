@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Comment extends Model
 {
     use SoftDeletes, GetTags;
-    protected $visible = ['name','content','id','profile_id','profileImage','created_at','has_tags','handle'];
-    protected $appends = ['name','profileImage','profile_id','count','handle'];
+    protected $visible = ['name','content','id','profile_id','profileImage','created_at','has_tags','handle','profile_image_meta'];
+    protected $appends = ['name','profileImage','profile_id','count','handle','profile_image_meta'];
 
 
     public function recipe()
@@ -42,6 +42,11 @@ class Comment extends Model
     public function getProfileImageAttribute()
     {
         return $this->user->profile->imageUrl;
+    }
+
+    public function getProfileImageMetaAttribute()
+    {
+        return $this->user->profile->image_meta;
     }
 
     public function getHandleAttribute()

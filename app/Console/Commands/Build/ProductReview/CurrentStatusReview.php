@@ -38,29 +38,29 @@ class CurrentStatusReview extends Command
      */
     public function handle()
     {
-        \DB::table('collaborate_batches_assign')->orderBy('collaborate_id')->chunk(100, function ($models) {
-            foreach ($models as $model) {
-                \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,0);
-                if($model->begin_tasting == 1)
-                {
-                    \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,1);
-                }
-                $currentStatus = \DB::table('collaborate_tasting_user_review')->where('batch_id',$model->batch_id)
-                    ->where('profile_id',$model->profile_id)->first();
-                if(isset($currentStatus->current_status))
-                {
-                    echo "profile id ".$model->profile_id." batch id ".$model->batch_id." current status .".$currentStatus->current_status."\n";
-                    if($currentStatus->current_status == 3)
-                    {
-                        \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,3);
-                    }
-                    else
-                    {
-                        \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,2);
-                    }
-                }
-                echo "batch_id ".$model->batch_id." profile_id ".$model->profile_id ." current status ".\Redis::get("current_status:batch:$model->batch_id:profile:$model->profile_id")."\n";
+        $models = \DB::table('collaborate_batches_assign')->get();
+        foreach ($models as $model)
+        {
+            echo "batch id is ".$model->batch_id." profile id ".$model->profile_id."\n";
+            \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,0);
+            if($model->begin_tasting == 1)
+            {
+                \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,1);
             }
-        });;
+            $currentStatus = \DB::table('collaborate_tasting_user_review')->where('batch_id',$model->batch_id)
+                ->where('profile_id',$model->profile_id)->first();
+            if(isset($currentStatus->current_status))
+            {
+//                    echo "profile id ".$model->profile_id." batch id ".$model->batch_id." current status .".$currentStatus->current_status."\n";
+                if($currentStatus->current_status == 3)
+                {
+                    \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,3);
+                }
+                else
+                {
+                    \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,2);
+                }
+            }
+        }
     }
 }

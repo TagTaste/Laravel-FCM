@@ -26,6 +26,7 @@ use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\ProfileDelete;
+use App\Console\Commands\ProgressiveImage;
 use App\Console\Commands\RegisterCompanyFromGoogle;
 use App\Console\Commands\RegisterFromGoogle;
 use App\Console\Commands\RemoveDuplicateFromReviewTable;
@@ -177,20 +178,24 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\UpdateGlobalQuestion::class,
         CloseCollaborate::class,
+
         \App\Console\Commands\FillTableRecepient::class,
         \App\Console\Commands\FillChatType::class,
         \App\Console\Commands\ChatFileModify::class,
         \App\Console\Commands\FillUnreadCount::class,
         \App\Console\Commands\DeleteSingleChat::class,
         \App\Console\Commands\PreviewChangesMessage::class,
+        \App\Console\Commands\MailIOS::class,
 
         ChatMergeMessage::class,
         CompleteTastingMail::class,
         \App\Console\Commands\DeleteUsers::class,
 
 
-        RemoveDuplicateFromReviewTable::class
+        RemoveDuplicateFromReviewTable::class,
 
+        //Progressive image
+        ProgressiveImage::class
 
     ];
 

@@ -40,11 +40,13 @@ class PhotoController extends Controller
         $this->model = ['data'=>$this->model,'count'=>$count];
         return $this->sendResponse();
     }
-    
-    private function saveFileToData($key,$path,&$request,&$data)
+
+    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
     {
         if($request->hasFile($key)){
-            $data[$key] = $this->saveFile($path,$request,$key);
+            $response = $this->saveFile($path,$request,$key);
+            $data[$extraKey] = json_encode($response,true);
+            $data[$key] = $response['original_photo'];
         }
     }
     
@@ -63,13 +65,12 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
-        $imageInfo = getimagesize($request->input('file'));
         $data['image_info'] = null;
         if(isset($imageInfo))
         {
             $data['image_info'] = json_encode($imageInfo,true);
         }
-        $this->saveFileToData("file",$path,$request,$data);
+        $this->saveFileToData("file",$path,$request,$data,"image_meta");
         $data['has_tags'] = $this->hasTags($data['caption']);
         $photo = Photo::create($data);
         if(!$photo){
@@ -78,7 +79,7 @@ class PhotoController extends Controller
         
         $res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
         $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'image_info'=>$data['image_info'],
-            'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString()];
+            'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         
         \Redis::set("photo:" . $photo->id,json_encode($data));
         
@@ -99,11 +100,24 @@ class PhotoController extends Controller
         }
         return $this->sendResponse();
     }
-    
+
     private function saveFile($path,&$request,$key)
     {
         $imageName = str_random("32") . ".jpg";
-        $response = $request->file($key)->storeAs($path,$imageName,['visibility'=>'public']);
+        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
+        //create a tiny image
+        $path = $path."/tiny/" . str_random(20) . ".jpg";
+        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response['tiny_photo'] = \Storage::url($path);
+        $meta = getimagesize($request->input($key));
+        $response['meta']['width'] = $meta[0];
+        $response['meta']['height'] = $meta[1];
+        $response['meta']['mime'] = $meta['mime'];
+        $response['meta']['size'] = null;
+        $response['meta']['tiny_photo'] = $response['tiny_photo'];
         if(!$response){
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
@@ -149,7 +163,7 @@ class PhotoController extends Controller
             $data['privacy_id'] = 1;
         }
         $path = Photo::getProfileImagePath($profileId);
-        $this->saveFileToData("file",$path,$request,$data);
+        $this->saveFileToData("file",$path,$request,$data,"image_meta");
         $data['has_tags'] = $this->hasTags($data['caption']);
         $inputs = $data;
         unset($inputs['has_tags']);
@@ -159,7 +173,8 @@ class PhotoController extends Controller
             event(new Tag($this->model, $request->user()->profile, $this->model->caption));
         }
         
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
+        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
+            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
         \Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
 
