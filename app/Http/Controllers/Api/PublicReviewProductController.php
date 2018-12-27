@@ -181,46 +181,6 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
-    public function all(Request $request)
-    {
-        $filters = $request->input('filters');
-        $models = $this->model->whereNull('deleted_at')->orderBy('created_at','asc');
-        $this->model = ['count' => $models->count()];
-        $this->model['data'] = [];
-        $page = $request->input('page');
-        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        
-        $models = $models->skip($skip)->take($take);
-        if(empty($filters))
-        {
-            $products = $models->get();
-            if($products->count())
-            {
-                foreach ($products as $product) {
-                    $temp = $product->toArray();
-                    $this->model['data'][] = $temp;  
-                }
-            }
-            return $this->sendResponse();
-
-        }
-        $products = \App\Filter\PublicReviewProduct::getModelIds($filters);
-        $this->model['data'] = [];
-        $this->model = ['count'=>count($products)];
-        $products = \App\PublicReviewProduct::whereIn('id',$products)->skip($skip)->take($take)->get()->toArray();
-        foreach ($products as $product) {
-            $this->model['data'][] = $product;
-        }
-        return $this->sendResponse();
-    }
-
-    public function searchProduct(Request $request)
-    {
-        $key = $request->input('q');
-        $this->model = $this->model->where('name', 'like','%'.$key.'%')->orderBy('name','asc')->get();
-        return $this->sendResponse();
-    }
-
     /**
      * @param $productId
      * @return \Illuminate\Http\JsonResponse
@@ -232,15 +192,13 @@ class PublicReviewProductController extends Controller
         {
             return $this->sendError("Invalid Product Id");
         }
-        else{
-                $filter['Sub Category'][] = $product['product_sub_category']['name'];
-                $filter['Category'][] = $product['product_category']['name'];
-                $filter['By Brand'][] = $product['brand_name'];
-                $filter['By Company'][] = $product['company_name'];
-                $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
-                $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
-                return $this->sendResponse();
-        }
+        $filter['Sub Category'][] = $product['product_sub_category']['name'];
+        $filter['Category'][] = $product['product_category']['name'];
+        $filter['By Brand'][] = $product['brand_name'];
+        $filter['By Company'][] = $product['company_name'];
+        $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
+        $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+        return $this->sendResponse();
     }
 
 }
