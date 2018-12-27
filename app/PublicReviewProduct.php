@@ -48,11 +48,11 @@ class PublicReviewProduct extends Model
     {
         if($this->is_vegetarian == 1)
         {
-            return ['id'=>1,'value'=>'Vegetarian'];
+            return ['id'=>1,'value'=>'Vegetarian','image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/public-review/kind_vegeratian_icon.png'];
         }
         else
         {
-            return ['id'=>2,'value'=>'Non-Vegeratrian'];
+            return ['id'=>2,'value'=>'Non-Vegeratrian','https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/public-review/kind_non_vegeratian_icon.png'];
         }
     }
 
