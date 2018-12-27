@@ -42,7 +42,7 @@ class Product extends Command
         \App\PublicReviewProduct::whereNull('deleted_at')->chunk(200,function($models){
             foreach($models as $model){
                 // new \App\Cached\Filter\Profile($model);
-                \App\Filter\Product::addModel($model);
+                \App\Filter\PublicReviewProduct::addModel($model);
             }
         });
     }

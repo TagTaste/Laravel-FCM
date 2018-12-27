@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\PublicReviewProduct;
 use App\SearchClient;
 use Illuminate\Http\Request;
 
@@ -201,6 +202,20 @@ class SearchController extends Controller
                 }
             }
         }
+
+        if(null == $type || "product" === $type)
+        {
+            $products = \DB::table('products')->where('name', 'like','%'.$term.'%')->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
+                ->take($take)
+                ->get();
+
+            if(count($products)){
+                foreach($products as $product){
+                    $product->type = "company";
+                    $suggestions[] = (array) $product;
+                }
+            }
+        }
     
     
         return $suggestions;
@@ -356,6 +371,12 @@ class SearchController extends Controller
                 }
 
             }
+
+            if(isset($this->model['product']))
+            {
+                $productIds = $this->model['product']->pluck('id');
+                $this->model['product'] = PublicReviewProduct::where('id',$productIds)->get();
+            }
             
             return $this->sendResponse();
 
@@ -396,26 +417,6 @@ class SearchController extends Controller
                 }
             }
 
-//            if(isset($this->model['job']))
-//            {
-//                $jobs = $this->model['job'];
-//                $data = [];
-//                foreach($jobs as $job){
-//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-//                }
-//                $this->model['job'] = $data;
-//            }
-
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $this->model['recipe'] = [];
-                foreach($recipes as $recipe){
-                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-
-            }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -424,6 +425,12 @@ class SearchController extends Controller
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
 
+            }
+
+            if(isset($this->model['product']))
+            {
+                $productIds = $this->model['product']->pluck('id');
+                $this->model['product'] = PublicReviewProduct::where('id',$productIds)->get();
             }
 
             return $this->sendResponse();

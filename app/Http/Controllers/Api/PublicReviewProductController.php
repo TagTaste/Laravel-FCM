@@ -40,7 +40,7 @@ class PublicReviewProductController extends Controller
         $filters = $request->input('filters');
         if(!empty($filters))
         {
-            $productIds =  \App\Filter\Product::getModelIds($filters,$skip,$take);
+            $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
 
             $this->model = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
 
@@ -77,7 +77,7 @@ class PublicReviewProductController extends Controller
             $inputs['images_meta'] = json_encode($imageArray,true);
         }
         $this->model = $this->model->create($inputs);
-        \App\Filter\Product::addModel($this->model);
+        \App\Filter\PublicReviewProduct::addModel($this->model);
         return $this->sendResponse();
     }
 
@@ -107,7 +107,7 @@ class PublicReviewProductController extends Controller
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
         $this->model = \App\PublicReviewProduct::where('id',$id)->first();
-        \App\Filter\Product::addModel($this->model);
+        \App\Filter\PublicReviewProduct::addModel($this->model);
         return $this->sendResponse();
     }
 
@@ -177,7 +177,7 @@ class PublicReviewProductController extends Controller
 
     public function getFilters(Request $request)
     {
-        $this->model = \App\Filter::getFilters("product");
+        $this->model = \App\Filter::getFilters("publicReviewProduct");
         return $this->sendResponse();
     }
 
@@ -204,7 +204,7 @@ class PublicReviewProductController extends Controller
             return $this->sendResponse();
 
         }
-        $products = \App\Filter\Product::getModelIds($filters);
+        $products = \App\Filter\PublicReviewProduct::getModelIds($filters);
         $this->model['data'] = [];
         $this->model = ['count'=>count($products)];
         $products = \App\PublicReviewProduct::whereIn('id',$products)->skip($skip)->take($take)->get()->toArray();
