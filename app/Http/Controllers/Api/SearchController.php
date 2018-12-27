@@ -329,12 +329,12 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-                \Log::info($searched);
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 $suggested = collect([]);
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
+                \Log::info($suggested);
                 $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
 
