@@ -40,13 +40,13 @@ class Profile extends Model
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
         'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta"];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections'];
+        'cuisines','allergens','interested_collections','fb_info'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country', 'facebook_url', 'linkedin_url', 'keywords', 'expertise', 'experience', 'education'];
@@ -190,6 +190,7 @@ class Profile extends Model
     public function getDobAttribute($value)
     {
         if (!empty($value)) {
+            return $value;
             if(request()->user()->profile->id == $this->id)
             {
                 return date("d-m-Y", strtotime($value));
@@ -939,6 +940,11 @@ class Profile extends Model
     {
         $interestedCollectionIds =  \DB::table('profiles_interested_collections')->where('profile_id',request()->user()->profile->id)->get()->pluck('interested_collection_id');
         return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
+    }
+
+    public function getFbInfoAttribute()
+    {
+        return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
     }
 }
 

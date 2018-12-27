@@ -140,26 +140,26 @@ class PublicReviewProductController extends Controller
         $recommended = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(20)->get();
         if($recommended->count())
             $this->model[] = ['title'=>'Review and Earn TT Currency','subtitle'=>'100 POINTS ON EVERY REVIEW','item'=>$recommended,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product'];
+                'ui_type'=>3,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+
+        //        $categories = ProductCategory::where('is_active')->get();
+        $this->model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$recommended,
+            'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $categories = ProductCategory::where('is_active',1)->inRandomOrder()->limit(20)->get();
         if($categories->count())
             $this->model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'category'];
-
-//        $categories = ProductCategory::where('is_active')->get();
-//        $this->model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$categories,
-//            'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)'];
-
-        $collaborates = Collaborate::where('state',1)->where('collaborate_type','like','product-review')->inRandomOrder()->limit(5)->get();
-        if($collaborates->count())
-            $this->model[] = ['title'=>'Private Reviews','subtitle'=>'COLLABORATION BY F&B BRANDS','item'=>$collaborates,
-                'ui_type'=>2,'color_code'=>'rgb(255, 255, 255)','type'=>'collaborate'];
+                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
         $recently = PublicReviewProduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(20)->get();
         if($recently->count())
             $this->model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product'];
+                'ui_type'=>2,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+
+        $collaborates = Collaborate::where('state',1)->where('collaborate_type','like','product-review')->inRandomOrder()->limit(5)->get();
+        if($collaborates->count())
+            $this->model[] = ['title'=>'Private Reviews','subtitle'=>'COLLABORATION BY F&B BRANDS','item'=>$collaborates,
+                'ui_type'=>2,'color_code'=>'rgb(255, 255, 255)','type'=>'collaborate','is_see_more'=>1];
 
         return $this->sendResponse();
     }

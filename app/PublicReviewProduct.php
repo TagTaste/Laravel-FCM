@@ -134,7 +134,7 @@ class PublicReviewProduct extends Model
         }
 
         return null;
-]    }
+    }
 
     public function getIsReviewedAttribute()
     {

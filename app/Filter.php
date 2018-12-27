@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Filter extends Model
 {
-    private static $maxFilters = 6;
+    private static $maxFilters = 8;
     protected $primaryKey = null;
     public $separator = ',';
     public static $cacheKey = null;
