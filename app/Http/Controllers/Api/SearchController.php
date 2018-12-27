@@ -336,6 +336,8 @@ class SearchController extends Controller
                 }
                 if($suggested->count() > 0)
                     $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+
+                \Log::info($this->model[$name]);
             }
 
 
@@ -374,10 +376,12 @@ class SearchController extends Controller
 
             if(isset($this->model['product']))
             {
-                \Log::info($this->model['product']);
-                $productIds = $this->model['product']->pluck('id');
-                \Log::info($productIds);
-                $this->model['product'] = PublicReviewProduct::where('id',$productIds)->get();
+                $products = $this->model['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model['product'] = $products;
             }
             
             return $this->sendResponse();
