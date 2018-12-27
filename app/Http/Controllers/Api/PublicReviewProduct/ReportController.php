@@ -243,7 +243,7 @@ class ReportController extends Controller
                         $value = [];
                         foreach ($options as $option)
                         {
-                            if($option->id == $answer->leaf_id && $option->is_intensity == 1 || $option->select_type == 5)
+                            if($option->id == $answer->leaf_id && $option->is_intensity == 1 || $data->questions->select_type == 5)
                             {
                                 $answerIntensity = $answer->intensity;
                                 $answerIntensity = explode(",",$answerIntensity);
