@@ -117,8 +117,9 @@ class PublicReviewProduct extends Model
             $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
             $meta['count'] = $userCount;
             $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+            return $meta;
         }
-        return $meta;
+        return null;
     }
 
     public function getIsReviewedAttribute()
