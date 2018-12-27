@@ -16,7 +16,7 @@ class PublicReviewProduct extends Filter {
 
     public static $relatedColumn = 'product_id';
 
-    public static $filterOrder = ['By Brand','By Company','Category','Sub Category','PublicReviewProduct Type'];
+    public static $filterOrder = ['By Brand','By Company','Category','Sub Category','Product Type'];
 
     public function getis_vegetarianattribute(&$model)
     {
