@@ -52,9 +52,9 @@ class ReviewController extends Controller
             ->where('select_type',5);
 
         if($request->has('rating_low'))
-            $this->model = $this->model->orderBy('leaf_id', 'DESC')->skip($skip)->take($take)->get();
-        else if($request->has('rating_high'))
             $this->model = $this->model->orderBy('leaf_id', 'ASC')->skip($skip)->take($take)->get();
+        else if($request->has('rating_high'))
+            $this->model = $this->model->orderBy('leaf_id', 'DESC')->skip($skip)->take($take)->get();
         else
             $this->model = $this->model->orderBy('updated_at',$sortBy)->skip($skip)->take($take)->get();
 
