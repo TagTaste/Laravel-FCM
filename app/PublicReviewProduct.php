@@ -108,13 +108,16 @@ class PublicReviewProduct extends Model
     public function getOverallRatingAttribute()
     {
         $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
-        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
-        $userCount = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
         $meta = [];
-        $meta['max_rating'] = 8;
-        $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
-        $meta['count'] = $userCount;
-        $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+        if(!is_null($header))
+        {
+            $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
+            $userCount = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
+            $meta['max_rating'] = 8;
+            $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
+            $meta['count'] = $userCount;
+            $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+        }
         return $meta;
     }
 
