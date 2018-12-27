@@ -409,5 +409,12 @@ class ReportController extends Controller
 
     }
 
-
+    public function getAnswer(Request $request,$productId,$headerId,$questionId,$optionId)
+    {
+        $option = $request->input('q');
+        $this->model = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
+            ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId)->where('value','like',$option)
+            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('intensity')->get();
+        return $this->sendResponse();
+    }
 }

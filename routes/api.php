@@ -356,6 +356,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 //reports
                 Route::get("reportPdf","ReportController@reportPdf");
                 Route::get("reportSummary","ReportController@reportSummary");
+                Route::get("headers/{headerId}/questions/{questionId}/option/{optionId}/getAnswer","ReportController@getAnswer");
                 Route::get("headers/{headerId}/reports","ReportController@reports");
                 Route::get("headers/{headerId}/questions/{questionId}/comments","ReportController@comments");
 
