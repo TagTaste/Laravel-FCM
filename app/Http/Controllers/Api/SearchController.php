@@ -689,7 +689,7 @@ class SearchController extends Controller
 
     }
 
-    public function productFilterSearch()
+    public function productFilterSearch(Request $request, $type = null)
     {
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
