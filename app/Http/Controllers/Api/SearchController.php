@@ -347,27 +347,6 @@ class SearchController extends Controller
                     $this->model['company'][] = $company;
                 }
             }
-
-//            if(isset($this->model['job']))
-//            {
-//                $jobs = $this->model['job'];
-//                $data = [];
-//                foreach($jobs as $job){
-//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-//                }
-//                $this->model['job'] = $data;
-//            }
-
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $this->model['recipe'] = [];
-                foreach($recipes as $recipe){
-                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-
-            }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];

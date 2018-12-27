@@ -31,6 +31,19 @@ class PublicReviewProduct extends Model
 
     protected $with = ['product_category','product_sub_category'];
 
+    public static function boot()
+    {
+        self::created(function($model){
+            \App\Documents\PublicReviewProduct::create($model);
+        });
+
+        self::updated(function($model){
+            //update the search
+            \App\Documents\PublicReviewProduct::create($model);
+
+        });
+    }
+
     public function getTypeAttribute()
     {
         if($this->is_vegetarian == 1)

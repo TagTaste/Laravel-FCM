@@ -37,6 +37,16 @@ class PublicReviewProductController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
+        $filters = $request->input('filters');
+        if(!empty($filters))
+        {
+            $productIds =  \App\Filter\Product::getModelIds($filters,$skip,$take);
+
+            $this->model = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+
+            return $this->sendResponse();
+        }
+
         $this->model = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
@@ -201,13 +211,6 @@ class PublicReviewProductController extends Controller
         foreach ($products as $product) {
             $this->model['data'][] = $product;
         }
-        return $this->sendResponse();
-    }
-
-    public function searchProduct(Request $request)
-    {
-        $key = $request->input('q');
-        $this->model = $this->model->where('name', 'like','%'.$key.'%')->orderBy('name','asc')->get();
         return $this->sendResponse();
     }
 

@@ -16,9 +16,9 @@ class CreateTableProductFilters extends Migration
         Schema::create('product_filters', function(Blueprint $table){
             $table->string('key');
             $table->string("value");
-            $table->integer("public_review_id")->unsigned();
+            $table->integer("product_id")->unsigned();
             $table->increments('id');
-            $table->foreign('public_review_id')->references('id')->on('public_review_products')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('public_review_products')->onDelete('cascade');
         });
     }
 
@@ -29,6 +29,6 @@ class CreateTableProductFilters extends Migration
      */
     public function down()
     {
-        Schema::dropTable("public_review_products");
+        Schema::drop("product_filters");
     }
 }
