@@ -334,8 +334,8 @@ class SearchController extends Controller
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
-                \Log::info($suggested);
-                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                if($suggested->count() > 0)
+                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
             }
 
 
@@ -374,7 +374,9 @@ class SearchController extends Controller
 
             if(isset($this->model['product']))
             {
+                \Log::info($this->model['product']);
                 $productIds = $this->model['product']->pluck('id');
+                \Log::info($productIds);
                 $this->model['product'] = PublicReviewProduct::where('id',$productIds)->get();
             }
             
