@@ -139,7 +139,7 @@ class PublicReviewProductController extends Controller
         $this->model = [];
         $recommended = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(20)->get();
         if($recommended->count())
-            $this->model[] = ['title'=>'Review and Earn TT Currency','subtitle'=>'100 POINTS ON EVERY REVIEW','item'=>$recommended,
+            $this->model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
                 'ui_type'=>3,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
         //        $categories = ProductCategory::where('is_active')->get();
