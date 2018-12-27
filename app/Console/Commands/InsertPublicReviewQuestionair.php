@@ -38,15 +38,15 @@ class InsertPublicReviewQuestionair extends Command
      */
     public function handle()
     {
-        $headerInfo2 = [
+        $headerInfo2 = $headerInfo2 = [
 
-            ['header_name'=>"INSTRUCTIONS"],
-
-
-            ['header_name'=>"APPEARANCE","header_info"=>"Visual examination of the product- look for color, presentation, size and texture of the product."],
+            ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>0],
 
 
-            ['header_name'=>"AROMA","header_info"=>"Aroma coming from the product can be traced to ingredients and process/es (like baking, cooking, fermentation etc.) which the product has undergone. Now smell it vigorously through your nose; at this stage, we are only assessing the aroma (odor through the nose), so please don't take a bite yet. Bring the product closer to your nose and take a deep breath. Further, take short, quick and strong sniffs like how a dog sniffs. "],
+            ['header_name'=>"APPEARANCE","header_info"=>"Visual examination of the product- look for color, presentation, size and texture of the product.",'header_selection_type'=>1],
+
+
+            ['header_name'=>"AROMA","header_info"=>"Aroma coming from the product can be traced to ingredients and process/es (like baking, cooking, fermentation etc.) which the product has undergone. Now smell it vigorously through your nose; at this stage, we are only assessing the aroma (odor through the nose), so please don't take a bite yet. Bring the product closer to your nose and take a deep breath. Further, take short, quick and strong sniffs like how a dog sniffs. ",'header_selection_type'=>1],
 
 
 
@@ -54,16 +54,16 @@ class InsertPublicReviewQuestionair extends Command
 
 What is Umami?
 
-When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste."],
+When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste.",'header_selection_type'=>1],
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=>"Aromatics is different from the aroma, it is about experiencing odor/s inside the mouth, as you eat. Please take a bite again, eat normally, keeping your mouth closed and exhale through the nose. Identify the odours inside your mouth using the aroma/aromatics list"],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=>"Aromatics is different from the aroma, it is about experiencing odor/s inside the mouth, as you eat. Please take a bite again, eat normally, keeping your mouth closed and exhale through the nose. Identify the odours inside your mouth using the aroma/aromatics list",'header_selection_type'=>1],
 
 
-            ['header_name'=>"TEXTURE","header_info"=>"Let us assess the (oral) texture- please look for lip feel, first chew experience, chew down experience, swallow, and most importantly sound (whenever applicable)."],
+            ['header_name'=>"TEXTURE","header_info"=>"Let us assess the (oral) texture- please look for lip feel, first chew experience, chew down experience, swallow, and most importantly sound (whenever applicable).",'header_selection_type'=>1],
 
 
-            ['header_name'=>"OVERALL PRODUCT EXPERIENCE","header_info"=>"RATE the overall experience of the product on the preference scale."]
+            ['header_name'=>"OVERALL PRODUCT EXPERIENCE","header_info"=>"RATE the overall experience of the product on the preference scale.",'header_selection_type'=>2]
 
 
         ];
@@ -300,7 +300,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 		{
 
-			"title": "Identify the observed Aroma. Please mention a maximum of 2 dominant aromas.",
+			"title": "WITH INTENSITY -Identify the observed Aroma. Please mention a maximum of 2 dominant aromas.",
 
 			"subtitle": "We have a list of aromas/ aromatics, grouped under different heads. If you select \"any other \" option please write the identified aromas. Use the search box to find any aroma/aromatics from the list.",
 
@@ -321,7 +321,25 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 			"nested_option_list": "AROMA"
 
 		},
+		{
 
+			"title": "WITHOUT INTENSITY -Identify the observed Aroma. Please mention a maximum of 2 dominant aromas.",
+
+			"subtitle": "We have a list of aromas/ aromatics, grouped under different heads. If you select \"any other \" option please write the identified aromas. Use the search box to find any aroma/aromatics from the list.",
+
+			"select_type": 2,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"is_nested_option": 1,
+
+			"nested_option_list": "AROMA"
+
+		},
 		{
 
 			"title": "Overall preference",
@@ -411,7 +429,6 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 		{
 
 			"title": "Basic Taste",
-
 			"is_nested_question": 0,
 			"is_intensity": 1,
 			"is_nested_option": 0,
@@ -469,11 +486,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 			"title": "Ayurveda Taste",
 
 			"select_type": 2,
-			"is_intensity": 1,
+			"is_intensity": 0,
 			"is_mandatory": 1,
-
 			"is_nested_question": 0,
-
 			"is_nested_option": 0,
 
 			"option": [
@@ -486,10 +501,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 				},
 				{
 					"value": "Pungent (Spices/ Garlic)",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
-
+					"is_intensity": 0
 				},
 				{
 					"value": "Pungent Cool Sensation (Mint)",
@@ -668,7 +680,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 					"title": "Did you experience any Flavors?",
 
-					"select_type": 1,
+					"subtitle": "Congratulations! You just discovered the flavor/s of the product that you are tasting.1",
+
+					"select_type": 2,
 
 					"is_intensity": 0,
 
@@ -680,8 +694,11 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 						{
 							"value": "No Flavor",
-							"is_intensity": 0
-
+							"is_intensity": 1,
+							"intensity_type": 2,
+							"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
+							"is_nested_question": 0,
+							"is_nested_option": 0
 						},
 						{
 							"value": "Can\'t say",
@@ -689,7 +706,11 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 						},
 						{
 							"value": "Desirable Flavor",
-							"is_intensity": 0
+							"is_intensity": 1,
+							"intensity_type": 2,
+							"intensity_value": "Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
+							"is_nested_question": 0,
+							"is_nested_option": 0
 
 						},
 						{
@@ -699,11 +720,48 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 					]
 
+				},
+				{
+					"title": "Testing 2",
+					"subtitle": "Congratulations! You just discovered the flavor/s of the product that you are tasting.2",
+					"select_type": 1,
+
+					"is_intensity": 0,
+
+					"is_nested_question": 0,
+
+					"is_mandatory": 1,
+
+					"option": [
+
+						{
+							"value": "Test 1",
+							"is_intensity": 1,
+							"intensity_type": 2,
+							"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
+							"is_nested_question": 0,
+							"is_nested_option": 0
+						},
+						{
+							"value": "Desirable Flavor",
+							"is_intensity": 1,
+							"intensity_type": 2,
+							"intensity_value": "Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
+							"is_nested_question": 0,
+							"is_nested_option": 0
+
+						},
+						{
+							"value": "Undesirable Flavor",
+							"is_intensity": 0
+						}
+
+					]
 
 				},
 				{
 					"title": "Was the observed flavor natural or any of the trending inspirational flavors. Please select the relevant options.",
-
+					"subtitle": "Congratulations! You just discovered the flavor/s of the product that you are tasting.3",
 					"select_type": 2,
 
 					"is_intensity": 0,
@@ -774,6 +832,47 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 					]
 
+				},
+				{
+					"title": "New added for testing - If you felt fruity , please tick",
+					"select_type": 2,
+					"is_intensity": 1,
+					"is_nested": 0,
+					"is_mandatory": 1,
+                                         "is_nested_question": 0,
+					"option": [
+
+						{
+							"value": "Vegetal",
+            	"is_intensity": 1,
+					"intensity_type": 1,
+										"intensity_value": "15"
+
+						},
+						{
+						  
+							"value": "Spices",
+								"is_intensity": 1,
+					"intensity_type": 1,
+										"intensity_value": "15"
+
+						},
+						{
+							"value": "Fruits",
+								"is_intensity": 1,
+					"intensity_type": 1,
+										"intensity_value": "15"
+
+
+						},
+						{
+							"value": "Nuts",
+								"is_intensity": 1,
+				       	"intensity_type": 1,
+										"intensity_value": "15"
+
+						}
+					]
 				}
 
 			]
@@ -941,6 +1040,36 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 					"is_intensity": 1,
 					"intensity_type": 2,
 					"intensity_value": "Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
+					"is_nested_question": 0,
+					"is_nested_option": 0
+
+				}
+
+			]
+
+		},
+		{
+
+			"title": "Same intensity scale in all options - Sound of the product (Concentrate on the sound it produces after the first bite and subsequent bites)",
+			"select_type": 1,
+			"is_nested_question": 0,
+			"is_intensity": 1,
+			"is_mandatory": 1,
+			"option": [
+
+				{
+					"value": "Other Crispy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
+					"is_nested_question": 0,
+					"is_nested_option": 0
+				},
+				{
+					"value": "Other Crunchy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
 					"is_nested_question": 0,
 					"is_nested_option": 0
 
@@ -1450,7 +1579,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
-                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description];
+                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOption->is_intensity];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -1462,7 +1591,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
                                     'is_active'=>$nested->is_active, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,
-                                    'description'=>$description];
+                                    'description'=>$description,'is_intensity'=>$nestedOption->is_intensity];
                             }
                         }
                         else

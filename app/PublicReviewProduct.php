@@ -132,12 +132,13 @@ class PublicReviewProduct extends Model
             $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
             return $meta;
         }
-        return ;
-    }
+
+        return null;
+]    }
 
     public function getIsReviewedAttribute()
     {
         $loggedInProfileId = request()->user()->profile->id;
-        return \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$loggedInProfileId)->where('current_status',1)->exists();
+        return \DB::table('public_product_user_review')->where('product_id',$this->id)->where('profile_id',$loggedInProfileId)->where('current_status',1)->exists();
     }
 }
