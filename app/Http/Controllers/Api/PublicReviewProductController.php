@@ -214,4 +214,33 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
+    public function searchProduct(Request $request)
+    {
+        $key = $request->input('q');
+        $this->model = $this->model->where('name', 'like','%'.$key.'%')->orderBy('name','asc')->get();
+        return $this->sendResponse();
+    }
+
+    /**
+     * @param $productId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function similarProducts($productId)
+    {
+        $product = $this->model->where('id', $productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Invalid Product Id");
+        }
+        else{
+                $filter['Sub Category'][] = $product['product_sub_category']['name'];
+                $filter['Category'][] = $product['product_category']['name'];
+                $filter['By Brand'][] = $product['brand_name'];
+                $filter['By Company'][] = $product['company_name'];
+                $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
+                $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+                return $this->sendResponse();
+        }
+    }
+
 }

@@ -54,7 +54,6 @@ class Filter extends Model
         if($value){
             $filter = $filter->where('value',$value);
         }
-        
         return $filter->delete();
     }
     
