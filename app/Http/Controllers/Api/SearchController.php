@@ -56,7 +56,6 @@ class SearchController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
-        \Log::info($ids);
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
         
         if(null !== $skip && null !== $take){
@@ -330,7 +329,7 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-    
+                \Log::info($searched);
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 $suggested = collect([]);
                 if(!empty($suggestions)){
