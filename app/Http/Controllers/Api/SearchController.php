@@ -206,12 +206,11 @@ class SearchController extends Controller
         if(null == $type || "product" === $type)
         {
             $products = \DB::table('products')->where('name', 'like','%'.$term.'%')->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
-                ->take($take)
-                ->get();
+                ->take($take)->get();
 
             if(count($products)){
                 foreach($products as $product){
-                    $product->type = "company";
+                    $product->type = "product";
                     $suggestions[] = (array) $product;
                 }
             }
