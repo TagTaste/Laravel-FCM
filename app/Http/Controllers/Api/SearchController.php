@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\PublicReviewProduct;
 use App\SearchClient;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,9 @@ class SearchController extends Controller
         'company' => \App\Recipe\Company::class,
         'companies' => \App\Recipe\Company::class,
         'job' => \App\Recipe\Job::class,
-        'jobs' => \App\Recipe\Job::class
+        'jobs' => \App\Recipe\Job::class,
+        'product' => \App\PublicReviewProduct::class
+
     ];
     
     private $filters = [
@@ -31,7 +34,8 @@ class SearchController extends Controller
         'company' => \App\Filter\Company::class,
         'companies' => \App\Filter\Company::class,
         'job' => \App\Filter\Job::class,
-        'jobs' => \App\Filter\Job::class
+        'jobs' => \App\Filter\Job::class,
+        'product' => \App\Filter\PublicReviewProduct::class
     ];
     
     private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
@@ -52,7 +56,6 @@ class SearchController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
-        
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
         
         if(null !== $skip && null !== $take){
@@ -201,6 +204,19 @@ class SearchController extends Controller
                 }
             }
         }
+
+        if(null == $type || "product" === $type)
+        {
+            $products = \DB::table('products')->where('name', 'like','%'.$term.'%')->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
+                ->take($take)->get();
+
+            if(count($products)){
+                foreach($products as $product){
+                    $product->type = "product";
+                    $suggestions[] = (array) $product;
+                }
+            }
+        }
     
     
         return $suggestions;
@@ -313,14 +329,16 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-    
+
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 $suggested = collect([]);
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
-                
-                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                if($suggested->count() > 0)
+                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                else
+                    $this->model[$name] = $searched;
             }
 
 
@@ -347,27 +365,6 @@ class SearchController extends Controller
                     $this->model['company'][] = $company;
                 }
             }
-
-//            if(isset($this->model['job']))
-//            {
-//                $jobs = $this->model['job'];
-//                $data = [];
-//                foreach($jobs as $job){
-//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-//                }
-//                $this->model['job'] = $data;
-//            }
-
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $this->model['recipe'] = [];
-                foreach($recipes as $recipe){
-                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-
-            }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -376,6 +373,16 @@ class SearchController extends Controller
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
 
+            }
+
+            if(isset($this->model['product']))
+            {
+                $products = $this->model['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model['product'] = $products;
             }
             
             return $this->sendResponse();
@@ -417,26 +424,6 @@ class SearchController extends Controller
                 }
             }
 
-//            if(isset($this->model['job']))
-//            {
-//                $jobs = $this->model['job'];
-//                $data = [];
-//                foreach($jobs as $job){
-//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-//                }
-//                $this->model['job'] = $data;
-//            }
-
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $this->model['recipe'] = [];
-                foreach($recipes as $recipe){
-                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-
-            }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -445,6 +432,16 @@ class SearchController extends Controller
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
 
+            }
+
+            if(isset($this->model['product']))
+            {
+                $products = $this->model['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model['product'] = $products;
             }
 
             return $this->sendResponse();

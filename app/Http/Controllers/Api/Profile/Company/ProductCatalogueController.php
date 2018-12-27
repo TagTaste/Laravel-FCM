@@ -118,7 +118,7 @@ class ProductCatalogueController extends Controller
 
         if(count($temp)==0)
         {
-            return $this->sendError("Product Column is compulsory in xls sheet.");
+            return $this->sendError("PublicReviewProduct Column is compulsory in xls sheet.");
         }
 //        create new catalogue products
         try{

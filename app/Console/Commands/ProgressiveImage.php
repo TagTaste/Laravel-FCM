@@ -148,7 +148,7 @@ class ProgressiveImage extends Command
 //            }
 //        });
 //
-//        Company\Product::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
+//        Company\PublicReviewProduct::whereNull('deleted_at')->orderBy('id')->chunk(100, function ($models) {
 //            foreach ($models as $model) {
 //                if(isset($model->imageUrl) && !is_null($model->imageUrl))
 //                {
@@ -158,7 +158,7 @@ class ProgressiveImage extends Command
 //                    $imageMeta['meta'] = ['tiny_photo'=>\Storage::url($model->imageUrl)];
 //
 //                    $imageMeta = json_encode($imageMeta,true);
-//                    echo "Product id ".$model->id ."\n";
+//                    echo "PublicReviewProduct id ".$model->id ."\n";
 //
 //                    $model->update(['image_meta'=> $imageMeta]);
 //                }

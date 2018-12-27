@@ -21,7 +21,7 @@ class ReportController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
-            return $this->sendError("Product is not available");
+            return $this->sendError("PublicReviewProduct is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',1)->distinct('profile_id')->count('profile_id');
 //        if($count < 20)
@@ -33,7 +33,7 @@ class ReportController extends Controller
         $this->model['title'] = 'Rating';
         $this->model['description'] = 'Following graph shows the overall preference of tasters for this product based on Appearance, Aroma, Aromatics, Taste, and Texture on an 8-point scale.';
         $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
-        $this->model['chat_header'] = 'Product Experience';
+        $this->model['chat_header'] = 'PublicReviewProduct Experience';
         $this->model['header_rating'] = $this->getHeaderRating($product);
         $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
         return $this->sendResponse();
@@ -261,7 +261,7 @@ class ReportController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
-            return $this->sendError("Product is not available");
+            return $this->sendError("PublicReviewProduct is not available");
         }
         //paginate
         $page = $request->input('page');

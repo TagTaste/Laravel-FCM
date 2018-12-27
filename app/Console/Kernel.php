@@ -70,6 +70,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\Job::class,
         \App\Console\Commands\Build\Search\Profile::class,
         \App\Console\Commands\Build\Search\Recipe::class,
+        \App\Console\Commands\Build\Search\Product::class,
         
         //Meta
             //Collab
@@ -89,6 +90,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Filters\Job::class,
         \App\Console\Commands\Build\Filters\Collaboration::class,
         \App\Console\Commands\Build\Filters\Recipe::class,
+        \App\Console\Commands\Build\Filters\Product::class,
         //command for temporary
         \App\Console\Commands\DateFixCompany::class,
         //for date fixes delete after run commands
@@ -190,6 +192,7 @@ class Kernel extends ConsoleKernel
 
         ChatMergeMessage::class,
         CompleteTastingMail::class,
+        //\App\Console\Commands\DeleteUsers::class,
 
 
         RemoveDuplicateFromReviewTable::class,

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\APi;
+namespace App\Http\Controllers\Api;
 
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\ProductCategory;
@@ -37,6 +37,16 @@ class PublicReviewProductController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
+        $filters = $request->input('filters');
+        if(!empty($filters))
+        {
+            $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
+
+            $this->model = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+
+            return $this->sendResponse();
+        }
+
         $this->model = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
 
         return $this->sendResponse();
@@ -56,7 +66,7 @@ class PublicReviewProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {   
         $inputs = $request->all();
         if(isset($inputs['images_meta']))
         {
@@ -67,6 +77,7 @@ class PublicReviewProductController extends Controller
             $inputs['images_meta'] = json_encode($imageArray,true);
         }
         $this->model = $this->model->create($inputs);
+        \App\Filter\PublicReviewProduct::addModel($this->model);
         return $this->sendResponse();
     }
 
@@ -95,6 +106,8 @@ class PublicReviewProductController extends Controller
     {
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
+        $this->model = \App\PublicReviewProduct::where('id',$id)->first();
+        \App\Filter\PublicReviewProduct::addModel($this->model);
         return $this->sendResponse();
     }
 
@@ -161,4 +174,31 @@ class PublicReviewProductController extends Controller
 
         return $this->sendResponse();
     }
+
+    public function getFilters(Request $request)
+    {
+        $this->model = \App\Filter::getFilters("publicReviewProduct");
+        return $this->sendResponse();
+    }
+
+    /**
+     * @param $productId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function similarProducts($productId)
+    {
+        $product = $this->model->where('id', $productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Invalid Product Id");
+        }
+        $filter['Sub Category'][] = $product['product_sub_category']['name'];
+        $filter['Category'][] = $product['product_category']['name'];
+        $filter['By Brand'][] = $product['brand_name'];
+        $filter['By Company'][] = $product['company_name'];
+        $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
+        $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+        return $this->sendResponse();
+    }
+
 }

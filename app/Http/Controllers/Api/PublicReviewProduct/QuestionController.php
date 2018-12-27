@@ -41,7 +41,7 @@ class QuestionController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
-            return $this->sendError("Product not found.");
+            return $this->sendError("PublicReviewProduct not found.");
         }
         $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
             ->whereNull('parent_question_id')->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
@@ -120,7 +120,7 @@ class QuestionController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         $answers = [];
         if($product === null){
-            return $this->sendError("Product not found.");
+            return $this->sendError("PublicReviewProduct not found.");
         }
 
         if(is_null($id))
@@ -171,7 +171,7 @@ class QuestionController extends Controller
         $term = $request->input('term');
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
-            return $this->sendError("Product not found.");
+            return $this->sendError("PublicReviewProduct not found.");
         }
         $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();

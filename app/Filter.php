@@ -54,7 +54,6 @@ class Filter extends Model
         if($value){
             $filter = $filter->where('value',$value);
         }
-        
         return $filter->delete();
     }
     
@@ -77,7 +76,7 @@ class Filter extends Model
     }
     
     public static function addModel($model)
-    {
+    {   
         $self = new static;
         $self::removeAllKeys($model->id);
         foreach($self->csv as $label => $filter){
@@ -86,7 +85,6 @@ class Filter extends Model
             }
             $method = "get{$filter}attribute";
             $value = null;
-            
             if(method_exists($self,$method)){
                 $value = $self->$method($model) ;
             } elseif(isset($model->{$filter})){

@@ -374,6 +374,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("reviews","ReviewController@index");
 
             });
+
+
+            Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
+            Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
+
             Route::get("public-review/discover/products","PublicReviewProductController@discover");
             Route::get("public-review/category/{id}/products","PublicReviewProductController@categoryProducts");
             Route::resource('public-review/products', 'PublicReviewProductController');
@@ -609,7 +614,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //            Route::resource("certifications","CertificationController");
     
             Route::post("/uploadFiles","UploadFilesController@uploadFiles");
-
 
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');

@@ -490,7 +490,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
 
 	"OVERALL PREFERENCE": [{
 
-		"title": "Overall Product Preference",
+		"title": "Overall PublicReviewProduct Preference",
 
 		"select_type": 5,
 
@@ -784,7 +784,7 @@ class GlobalQuestionUploadTableSeeder extends Seeder
   ],
   "OVERALL PREFERENCE": [
     {
-      "title": "Overall Product Preference",
+      "title": "Overall PublicReviewProduct Preference",
       "select_type": 5,
       "is_intensity": 0,
       "is_nested_question": 0,

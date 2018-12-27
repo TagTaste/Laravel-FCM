@@ -41,7 +41,7 @@ class ReviewController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
-            return $this->sendError("Product is not available");
+            return $this->sendError("PublicReviewProduct is not available");
         }
         //paginate
         $page = $request->input('page');
@@ -217,7 +217,7 @@ class ReviewController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
-            return $this->sendError("Product not found.");
+            return $this->sendError("PublicReviewProduct not found.");
         }
         $userReview = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)->orderBy('id','desc')->first();
         if(isset($userReview) &&$userReview->current_status == 1)
