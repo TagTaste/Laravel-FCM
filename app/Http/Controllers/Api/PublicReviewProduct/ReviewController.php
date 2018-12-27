@@ -45,16 +45,16 @@ class ReviewController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $sortBy = $request->has('sortBy') ? $request->input('sortBy') : 'DESC';
+        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
         $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
         $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
         $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
             ->where('select_type',5)->orderBy('updated_at',$sortBy);
 
         if($request->has('rating_low'))
-            $this->model = $this->model->orderBy('leaf_id', 'ASC')->skip($skip)->take($take)->get();
-        else if($request->has('rating_high'))
             $this->model = $this->model->orderBy('leaf_id', 'DESC')->skip($skip)->take($take)->get();
+        else if($request->has('rating_high'))
+            $this->model = $this->model->orderBy('leaf_id', 'ASC')->skip($skip)->take($take)->get();
         else
             $this->model = $this->model->skip($skip)->take($take)->get();
 
