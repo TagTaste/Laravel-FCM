@@ -689,6 +689,95 @@ class SearchController extends Controller
 
     }
 
+    public function productFilterSearch()
+    {
+        $query = $request->input('q');
+        $profileId = $request->user()->profile->id;
+        $params = [
+            'index' => "api",
+            'body' => [
+                'query' => [
+                    'query_string' => [
+                        'query' => $query
+                    ]
+                ]
+            ]
+        ];
 
+        $this->setType($type);
+
+        if($type){
+            $params['type'] = $type;
+        }
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+        $this->model = [];
+        $item = [];
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        if($response['hits']['total'] > 0){
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            foreach($hits as $name => $hit){
+                $item[$name] = [];
+                $ids = $hit->pluck('_id')->toArray();
+                $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+
+                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                $suggested = collect([]);
+                if(!empty($suggestions)){
+                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                }
+                if($suggested->count() > 0)
+                    $item[$name] = $searched->merge($suggested)->sortBy('name');
+                else
+                    $item[$name] = $searched;
+            }
+
+
+            if(isset($item['product']))
+            {
+                $products = $item['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model = $products;
+            }
+
+            return $this->sendResponse();
+
+        }
+
+        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+
+        if($suggestions && $suggestions->count()){
+//            if(!array_key_exists($type,$this->model)){
+//                $this->model[$type] = [];
+//            }
+            $item[$type] = $suggestions->toArray();
+        }
+
+        if(!empty($item)){
+            if(isset($item['product']))
+            {
+                $products = $item['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model = $products;
+            }
+
+            return $this->sendResponse();
+        }
+        $this->model = [];
+        $this->messages = ['Nothing found.'];
+        return $this->sendResponse();
+    }
 
 }

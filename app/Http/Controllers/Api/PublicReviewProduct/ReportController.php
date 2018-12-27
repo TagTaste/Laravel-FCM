@@ -237,13 +237,14 @@ class ReportController extends Controller
                     $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
                         ->where('product_id',$productId)->where('question_id',$data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
                         $value = [];
                         foreach ($options as $option)
                         {
-                            if($option->id == $answer->leaf_id && $option->is_intensity == 1 || $data->questions->select_type == 5)
+                            if($option->id == $answer->leaf_id && ($option->is_intensity == 1 && $data->questions->select_type != 5))
                             {
                                 $answerIntensity = $answer->intensity;
                                 $answerIntensity = explode(",",$answerIntensity);
@@ -260,6 +261,10 @@ class ReportController extends Controller
                                     $value[] = ['value'=>$x,'count'=>$count];
                                 }
                             }
+//                            else if($data->questions->select_type == 5)
+//                            {
+//
+//                            }
                         }
                         $answer->intensity = $value;
                     }
