@@ -192,7 +192,9 @@ class ReportController extends Controller
                         $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
                             ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-                        $options = isset($data->questions->option) ? $data->questions->option : [];
+
+                        $options = isset($item->option) ? $item->option : [];
+
                         foreach ($answers as &$answer)
                         {
                             $value = [];
