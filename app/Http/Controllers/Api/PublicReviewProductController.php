@@ -41,7 +41,7 @@ class PublicReviewProductController extends Controller
         $type = 'product';
         $query = $request->input('q');
         $profileId = $request->user()->profile->id;
-        if(!isset($query) && is_null($query))
+        if(isset($query) && !is_null($query) && !empty($query))
         {
             return $this->getSearchData($request,$query,$type);
         }
