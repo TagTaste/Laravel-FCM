@@ -198,28 +198,52 @@ class ReportController extends Controller
                             $value = [];
                             foreach ($options as $option)
                             {
-                                if($option->id == $answer->leaf_id && $option->is_intensity == 1)
+                                if($option->id == $answer->leaf_id)
                                 {
-                                    $answerIntensity = $answer->intensity;
-                                    $answerIntensity = explode(",",$answerIntensity);
-                                    $questionIntensity = $option->intensity_value;
-                                    $questionIntensity = explode(",",$questionIntensity);
-                                    foreach ($questionIntensity as $x)
+                                    if($option->is_intensity == 1 && $option->intensity_type == 2)
                                     {
-                                        $count = 0;
-                                        foreach ($answerIntensity as $y)
+                                        $answerIntensity = $answer->intensity;
+                                        $answerIntensity = explode(",",$answerIntensity);
+                                        $questionIntensity = $option->intensity_value;
+                                        $questionIntensity = explode(",",$questionIntensity);
+                                        foreach ($questionIntensity as $x)
                                         {
-                                            if($y == $x)
-                                                $count++;
+                                            $count = 0;
+                                            foreach ($answerIntensity as $y)
+                                            {
+                                                if($y == $x)
+                                                    $count++;
+                                            }
+                                            $value[] = ['value'=>$x,'count'=>$count];
                                         }
-                                        $value[] = ['value'=>$x,'count'=>$count];
                                     }
+                                    else if($option->is_intensity == 1 && $option->intensity_type == 1)
+                                    {
+                                        $answerIntensity = $answer->intensity;
+                                        $answerIntensity = explode(",",$answerIntensity);
+                                        $questionIntensityValue = $option->intensity_value;
+                                        $questionIntensity = [];
+                                        for($i = 1; $i <=$questionIntensityValue ; $i++)
+                                        {
+                                            $questionIntensity[] = $i;
+                                        }
+                                        foreach ($questionIntensity as $x)
+                                        {
+                                            $count = 0;
+                                            foreach ($answerIntensity as $y)
+                                            {
+                                                if($y == $x)
+                                                    $count++;
+                                            }
+                                            $value[] = ['value'=>$x,'count'=>$count];
+                                        }
+                                    }
+                                    $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                    $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                    $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
                                 }
                             }
                             $answer->intensity = $value;
-                            $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
-                            $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
-                            $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
                         }
                         $subReports['answer'] = $answers;
                         $subAnswers[] = $subReports;
@@ -250,28 +274,54 @@ class ReportController extends Controller
                         $value = [];
                         foreach ($options as $option)
                         {
-                            if($option->id == $answer->leaf_id && ($option->is_intensity == 1 && $data->questions->select_type != 5))
+                            if($option->id == $answer->leaf_id)
                             {
-                                $answerIntensity = $answer->intensity;
-                                $answerIntensity = explode(",",$answerIntensity);
-                                $questionIntensity = $option->intensity_value;
-                                $questionIntensity = explode(",",$questionIntensity);
-                                foreach ($questionIntensity as $x)
+                                if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 2)
                                 {
-                                    $count = 0;
-                                    foreach ($answerIntensity as $y)
+                                    $answerIntensity = $answer->intensity;
+                                    $answerIntensity = explode(",",$answerIntensity);
+                                    $questionIntensity = $option->intensity_value;
+                                    $questionIntensity = explode(",",$questionIntensity);
+                                    foreach ($questionIntensity as $x)
                                     {
-                                        if($y == $x)
-                                            $count++;
+                                        $count = 0;
+                                        foreach ($answerIntensity as $y)
+                                        {
+                                            if($y == $x)
+                                                $count++;
+                                        }
+                                        $value[] = ['value'=>$x,'count'=>$count];
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count];
                                 }
+                                else if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 1)
+                                {
+                                    $answerIntensity = $answer->intensity;
+                                    $answerIntensity = explode(",",$answerIntensity);
+                                    $questionIntensityValue = $option->intensity_value;
+                                    $questionIntensity = [];
+                                    for($i = 1; $i <= $questionIntensityValue ; $i++)
+                                    {
+                                        $questionIntensity[] = $i;
+                                    }
+                                    foreach ($questionIntensity as $x)
+                                    {
+                                        $count = 0;
+                                        foreach ($answerIntensity as $y)
+                                        {
+                                            if($y == $x)
+                                                $count++;
+                                        }
+                                        $value[] = ['value'=>$x,'count'=>$count];
+                                    }
+                                }
+                                $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
                             }
+
                         }
                         $answer->intensity = $value;
-                        $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
-                        $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
-                        $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+
                     }
 
                     $reports['answer'] = $answers;
