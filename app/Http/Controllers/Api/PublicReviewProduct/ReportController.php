@@ -186,6 +186,7 @@ class ReportController extends Controller
                         $subReports['subtitle'] = isset($item->subtitle) ? $item->subtitle : null;
                         $subReports['is_nested_question'] = $item->is_nested_question;
                         $subReports['total_applicants'] = $totalApplicants;
+                        $subReports['select_type'] = isset($item->questions->select_type) ? $item->questions->select_type : null;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
                         $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
@@ -216,6 +217,9 @@ class ReportController extends Controller
                                 }
                             }
                             $answer->intensity = $value;
+                            $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                            $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                            $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
                         }
                         $subReports['answer'] = $answers;
                         $subAnswers[] = $subReports;
@@ -228,6 +232,7 @@ class ReportController extends Controller
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',1)->where('product_id',$productId)
                     ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
+                $reports['select_type'] = isset($data->questions->select_type) ? $data->questions->select_type : null;
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Review::where('product_id',$productId)->where('question_id',$data->id)
@@ -264,6 +269,9 @@ class ReportController extends Controller
                             }
                         }
                         $answer->intensity = $value;
+                        $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                        $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                        $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
                     }
 
                     $reports['answer'] = $answers;
