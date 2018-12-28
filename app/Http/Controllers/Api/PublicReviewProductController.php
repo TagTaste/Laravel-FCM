@@ -252,16 +252,16 @@ class PublicReviewProductController extends Controller
                 else
                     $this->model[$name] = $searched;
             }
+            $productData = [];
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
                 foreach ($products as &$product)
                 {
                     $product->overall_rating = $product->getOverallRatingAttribute();
+                    $productData[] = $product;
                 }
-                $this->model['product'] = $products;
             }
-            $productData = $this->model['product'];
             $this->model = [];
             $this->model = $productData;
             return $this->sendResponse();
@@ -279,16 +279,16 @@ class PublicReviewProductController extends Controller
         }
 
         if(!empty($this->model)){
+            $productData = [];
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
                 foreach ($products as &$product)
                 {
                     $product->overall_rating = $product->getOverallRatingAttribute();
+                    $productData[] = $product;
                 }
-                $this->model['product'] = $products;
             }
-            $productData = $this->model['product'];
             $this->model = [];
             $this->model = $productData;
             return $this->sendResponse();
