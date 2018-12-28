@@ -7,6 +7,7 @@ use App\PublicReviewProduct\ProductCategory;
 use App\Recipe\Collaborate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use App\SearchClient;
 
 class PublicReviewProductController extends Controller
 {
@@ -37,6 +38,13 @@ class PublicReviewProductController extends Controller
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
+        $type = 'product';
+        $query = $request->input('q');
+        $profileId = $request->user()->profile->id;
+        if(!isset($query) && is_null($query))
+        {
+            return $this->getSearchData($request,$query,$type);
+        }
         $filters = $request->input('filters');
         if(!empty($filters))
         {
@@ -200,5 +208,138 @@ class PublicReviewProductController extends Controller
         $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
         return $this->sendResponse();
     }
+
+    public function getSearchData($request,$query,$type)
+    {
+        $params = [
+            'index' => "api",
+            'body' => [
+                'query' => [
+                    'query_string' => [
+                        'query' => $query
+                    ]
+                ]
+            ]
+        ];
+
+        if($type){
+            $params['type'] = $type;
+        }
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+        $this->model = [];
+
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        if($response['hits']['total'] > 0){
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            foreach($hits as $name => $hit){
+                $this->model[$name] = [];
+                $ids = $hit->pluck('_id')->toArray();
+                $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+
+                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                $suggested = collect([]);
+                if(!empty($suggestions)){
+                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                }
+                if($suggested->count() > 0)
+                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                else
+                    $this->model[$name] = $searched;
+            }
+            if(isset($this->model['product']))
+            {
+                $products = $this->model['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model['product'] = $products;
+            }
+            $productData = $this->model['product'];
+            $this->model = [];
+            $this->model = $productData;
+            return $this->sendResponse();
+
+        }
+
+        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+
+        if($suggestions && $suggestions->count()){
+//            if(!array_key_exists($type,$this->model)){
+//                $this->model[$type] = [];
+//            }
+            $this->model[$type] = $suggestions->toArray();
+        }
+
+        if(!empty($this->model)){
+            if(isset($this->model['product']))
+            {
+                $products = $this->model['product'];
+                foreach ($products as &$product)
+                {
+                    $product->overall_rating = $product->getOverallRatingAttribute();
+                }
+                $this->model['product'] = $products;
+            }
+            $productData = $this->model['product'];
+            $this->model = [];
+            $this->model = $productData;
+            return $this->sendResponse();
+        }
+        $this->model = [];
+        $this->messages = ['Nothing found.'];
+        return $this->sendResponse();
+    }
+
+    private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
+    {
+        if(empty($ids)){
+            return false;
+        }
+        $model = new PublicReviewProduct();
+
+        if(!empty($filters) && isset($this->filters[$type])){
+            $modelIds = \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
+            if($modelIds->count()){
+                $ids = array_merge($ids,$modelIds->toArray());
+            }
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+
+        }
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
+        }
+
+        return $model->get();
+
+
+    }
+
+    private function filterSuggestions(&$term,$type = null,$skip,$take)
+    {
+
+        $suggestions = [];
+        $products = \DB::table('products')->where('name', 'like','%'.$term.'%')->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
+            ->take($take)->get();
+
+        if(count($products)){
+            foreach($products as $product){
+                $product->type = "product";
+                $suggestions[] = (array) $product;
+            }
+        }
+        return $suggestions;
+    }
+
+
 
 }

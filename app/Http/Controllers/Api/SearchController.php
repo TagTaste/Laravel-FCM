@@ -290,6 +290,9 @@ class SearchController extends Controller
             case "jobs":
                 $type = "job";
                 break;
+            case "products";
+                $type = "product";
+                break;
         }
     }
 
