@@ -415,7 +415,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //search
-                Route::get("filterSearch/product",'SearchController@productFilterSearch');
+//                Route::get("filterSearch/product",'SearchController@productFilterSearch');
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
 
                 Route::get("search/{type?}",'SearchController@search');

@@ -217,7 +217,8 @@ class ReportController extends Controller
                             }
                             $answer->intensity = $value;
                         }
-                        $subAnswers[] = $answers;
+                        $subReports['answer'] = $answers;
+                        $subAnswers[] = $subReports;
                     }
                     $reports['nestedAnswers'] = $subAnswers;
 
@@ -261,10 +262,6 @@ class ReportController extends Controller
                                     $value[] = ['value'=>$x,'count'=>$count];
                                 }
                             }
-//                            else if($data->questions->select_type == 5)
-//                            {
-//
-//                            }
                         }
                         $answer->intensity = $value;
                     }
