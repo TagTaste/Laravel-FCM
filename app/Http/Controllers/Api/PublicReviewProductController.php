@@ -152,7 +152,7 @@ class PublicReviewProductController extends Controller
 
         //        $categories = ProductCategory::where('is_active')->get();
         $this->model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$recommended,
-            'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
         $categories = ProductCategory::where('is_active',1)->inRandomOrder()->limit(20)->get();
         if($categories->count())
