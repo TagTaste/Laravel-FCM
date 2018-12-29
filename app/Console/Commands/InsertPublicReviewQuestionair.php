@@ -38,15 +38,15 @@ class InsertPublicReviewQuestionair extends Command
      */
     public function handle()
     {
-        $headerInfo2 = $headerInfo2 = [
+        $headerInfo2 = $headerInfo2 = $headerInfo2 = [
 
-            ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>0],
-
-
-            ['header_name'=>"APPEARANCE","header_info"=>"Visual examination of the product- look for color, presentation, size and texture of the product.",'header_selection_type'=>1],
+            ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>"0"],
 
 
-            ['header_name'=>"AROMA","header_info"=>"Aroma coming from the product can be traced to ingredients and process/es (like baking, cooking, fermentation etc.) which the product has undergone. Now smell it vigorously through your nose; at this stage, we are only assessing the aroma (odor through the nose), so please don't take a bite yet. Bring the product closer to your nose and take a deep breath. Further, take short, quick and strong sniffs like how a dog sniffs. ",'header_selection_type'=>1],
+            ['header_name'=>"APPEARANCE","header_info"=>"Examine the product and assess the questions outlined below.",'header_selection_type'=>"1"],
+
+
+            ['header_name'=>"AROMA","header_info"=>"Aroma/s arising from the product can be traced to the ingredients and the process/es (like baking, cooking, fermentation etc.), which the product has undergone. Now bring the product closer to your nose and take a deep breath. You may also try taking 3-4 short, quick and strong sniffs, like how a dog sniffs. At this stage, we are only assessing the aroma/s (odor/s through the nose), so please don't take a bite yet. ",'header_selection_type'=>"1"],
 
 
 
@@ -54,20 +54,19 @@ class InsertPublicReviewQuestionair extends Command
 
 What is Umami?
 
-When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste.",'header_selection_type'=>1],
+When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste.",'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=>"Aromatics is different from the aroma, it is about experiencing odor/s inside the mouth, as you eat. Please take a bite again, eat normally, keeping your mouth closed and exhale through the nose. Identify the odours inside your mouth using the aroma/aromatics list",'header_selection_type'=>1],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=>"Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together. Usually, taste has a lesser contribution and aromatics on the other hand has a greater contribution towards the development of flavor. You have already identified the taste and now in this section, you will be identifying aromatics.Unlike aromas, aromatics are the odors that reach the sensors of the nose from inside the mouth ( reverse action).Reverse Action - As we eat with our mouth closed, food releases odors. These odors are sensed by us as they travel to the back of the throat and then turn up towards the sensors of the nose.Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the Odor/s inside the mouth using the same aroma list that you have already used to identify odor/s under the aroma section.",'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"TEXTURE","header_info"=>"Let us assess the (oral) texture- please look for lip feel, first chew experience, chew down experience, swallow, and most importantly sound (whenever applicable).",'header_selection_type'=>1],
+            ['header_name'=>"TEXTURE","header_info"=>"We have covered taste and odor/s (inside and outside the mouth). Now it is the turn of ‘feel’ inside the mouth. ‘Feel’ starts when the food comes in contact with the mouth; the ‘feel’ changes as the food is processed inside the mouth because of chewing (Applied Pressure) and the ‘feel’ may even last after the food has been swallowed. Foods when chewed may make SOUND (like chips), give us joy (like creamy foods), pain (like sticky foods) or even disgust for some (like rubbery foods -mushroom). Texture (mouthfeel) is all about the joy we get from what we eat.",'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"OVERALL PRODUCT EXPERIENCE","header_info"=>"RATE the overall experience of the product on the preference scale.",'header_selection_type'=>2]
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=>"Consider all the attributes like Appearance, Aroma, Taste, Aromatics, Flavor, Texture and rate the overall experience of the product on the preference scale.",'header_selection_type'=>"2"]
 
 
         ];
-
 
         $questions2 = '{
 
@@ -77,7 +76,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			"title": "Instruction",
 
-			"subtitle": "Please follow the questionnaire and click answers that match with your observation/s. Remember, there are no right or wrong answers. In case you observe something that is not covered in the questionnaire, you are most welcome to share your additional inputs in the comments box.\n Anything that stands out as either too good or too bad, may please be highlighted in the comments box.",
+			"subtitle": "Prerequisite- If a product involves cooking (like instant noodles) or mixing (like packaged bhelpuri), the taster must follow the instructions fully as mentioned on the packet.  Please follow the questionnaire and click answers that match with your observation/s. Remember, there are no right or wrong answers.\n Anything that stands out as either too good or too bad, may please be highlighted in the comments box.",
 
 			"select_type": 4
 
@@ -86,7 +85,33 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 	],
 
 	"APPEARANCE": [
+{
 
+			"title": "Was the product served at the ideal (appropriate) temperature? You may take a single bite to assess the serving temperature.",
+
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+			"option": [
+
+				{
+
+					"value": "Yes",
+					"is_intensity": 0
+				},
+				{
+					"value": "No",
+					"is_intensity": 0
+
+				}
+
+			]
+
+		},
 		{
 
 			"title": "How is the color of the product",
@@ -121,7 +146,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 		{
 
-			"title": "Did you like the presentation of the product (like shape, plating etc)",
+			"title": "How is the visual texture of the product?",
 
 			"select_type": 1,
 
@@ -131,67 +156,6 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			"is_mandatory": 1,
 
-			"option": [
-
-				{
-
-					"value": "Impressive",
-					"is_intensity": 0
-				},
-				{
-					"value": "Average",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Below average",
-					"is_intensity": 0
-				}
-
-			]
-		},
-		{
-
-			"title": "Assess the portion size of the product",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-
-			"option": [
-
-				{
-
-					"value": "Generous",
-					"is_intensity": 0
-				},
-				{
-					"value": "Adequate",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Inadequate",
-					"is_intensity": 0
-				}
-
-			]
-		},
-		{
-
-			"title": "How is the texture of the product",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
 			"option": [
 
 				{
@@ -205,12 +169,59 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 				},
 				{
-					"value": "Creamy",
+					"value": "Lumpy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Sticky",
+					"is_intensity": 0
+				},
+				{
+					"value": "Soft",
+					"is_intensity": 0
+				},
+				{
+					"value": "Hard",
+					"is_intensity": 0
+				},
+				{
+					"value": "Tender",
+					"is_intensity": 0
+				},
+				{
+					"value": "Stringy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Chewy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Chunky",
+					"is_intensity": 0
+				},
+				{
+					"value": "Crusty",
+					"is_intensity": 0
+				},
+				{
+					"value": "Dry",
+					"is_intensity": 0
+				},
+				{
+					"value": "Oily",
+					"is_intensity": 0
+				},
+				{
+					"value": "Mushy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Rubbery",
 					"is_intensity": 0
 				}
 
 			]
-
 		},
 		{
 
@@ -300,9 +311,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 		{
 
-			"title": "WITH INTENSITY -Identify the observed Aroma. Please mention a maximum of 2 dominant aromas.",
+			"title": "Which all aromas did you observe? It is normal to experience multiple aromas.",
 
-			"subtitle": "We have a list of aromas/ aromatics, grouped under different heads. If you select \"any other \" option please write the identified aromas. Use the search box to find any aroma/aromatics from the list.",
+			"subtitle": "Some aromas are easy to identify. Use the search box to locate such aromas. If you can\'t find the aroma/s identified by you through the search box, then please select \"äny other\" option and mention it the comment box. Mostly however, aromas seem to be familiar but sometimes it is difficult to recall their name. In such a case, you can explore the global list of the aromas. In this list, the aromas are grouped under various heads.",
 
 			"select_type": 2,
 
@@ -318,28 +329,12 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			"is_nested_option": 1,
 
-			"nested_option_list": "AROMA"
+			"nested_option_list": "AROMA",
+			
+			"nested_option_title": "AROMA"
 
 		},
-		{
 
-			"title": "WITHOUT INTENSITY -Identify the observed Aroma. Please mention a maximum of 2 dominant aromas.",
-
-			"subtitle": "We have a list of aromas/ aromatics, grouped under different heads. If you select \"any other \" option please write the identified aromas. Use the search box to find any aroma/aromatics from the list.",
-
-			"select_type": 2,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-
-			"is_nested_option": 1,
-
-			"nested_option_list": "AROMA"
-
-		},
 		{
 
 			"title": "Overall preference",
@@ -429,8 +424,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 		{
 
 			"title": "Basic Taste",
+
 			"is_nested_question": 0,
-			"is_intensity": 1,
+			"is_intensity": 0,
 			"is_nested_option": 0,
 			"is_mandatory": 1,
 			"select_type": 2,
@@ -471,10 +467,8 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 				},
 				{
-					"value": "No Basic Taste",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+					"value": "Basic Taste Absent",
+					"is_intensity": 0
 
 				}
 
@@ -488,7 +482,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 			"select_type": 2,
 			"is_intensity": 0,
 			"is_mandatory": 1,
+
 			"is_nested_question": 0,
+
 			"is_nested_option": 0,
 
 			"option": [
@@ -501,7 +497,10 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 				},
 				{
 					"value": "Pungent (Spices/ Garlic)",
-					"is_intensity": 0
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+
 				},
 				{
 					"value": "Pungent Cool Sensation (Mint)",
@@ -517,10 +516,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
 				},
 				{
-					"value": "No Ayurveda Taste",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense"
+					"value": "Ayurveda Taste Absent",
+					"is_intensity": 0
+	
 				}
 
 			]
@@ -615,9 +613,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 		{
 
-			"title": "Identify the Aromatics observed. Please mention a maximum of 2 dominant aromatics.",
+			"title": "Which all aromatics did you observe? It is normal to experience multiple aromatics.",
 
-			"subtitle": "We have a list of aromas/ aromatics, grouped under different heads. If you select \"any other\" option please write the identified aromatics. Use the search box to find any  aroma/aromatics from the list.",
+			"subtitle": "Some aromaticss are easy to identify. Use the search box to locate such aromatics. If you can\'t find the aromatic/s identified by you through the search box, then please select \"äny other\" option and mention it the comment box. Mostly however, aromatics seem to be familiar but sometimes it is difficult to recall their name. In such a case, you can explore the global list of the aromatics. In this list aromatics are grouped under various heads.",
 
 			"select_type": 2,
 
@@ -633,7 +631,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			"is_nested_option": 1,
 
-			"nested_option_list": "AROMA"
+			"nested_option_list": "AROMA",
+			
+		    "nested_option_title": "AROMA"
 
 		},
 
@@ -663,222 +663,43 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			]
 		},
+{
 
-		{
+			"title": "How was the flavor experienced by you?",
 
-			"title": "FLAVOR",
+			"select_type": 1,
 
-			"subtitle": "As a rule of thumb, Flavor is a combination of Taste (25%) and Aromatics (75%). Congratulations! You just discovered the flavor/s of the product that you are tasting.",
+			"is_intensity": 0,
 
-			"is_nested_question": 1,
+			"is_nested_question": 0,
 
 			"is_mandatory": 1,
 
-			"question": [
+			"option": [
 
 				{
-
-					"title": "Did you experience any Flavors?",
-
-					"subtitle": "Congratulations! You just discovered the flavor/s of the product that you are tasting.1",
-
-					"select_type": 2,
-
-					"is_intensity": 0,
-
-					"is_nested_question": 0,
-
-					"is_mandatory": 1,
-
-					"option": [
-
-						{
-							"value": "No Flavor",
-							"is_intensity": 1,
-							"intensity_type": 2,
-							"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-							"is_nested_question": 0,
-							"is_nested_option": 0
-						},
-						{
-							"value": "Can\'t say",
-							"is_intensity": 0
-						},
-						{
-							"value": "Desirable Flavor",
-							"is_intensity": 1,
-							"intensity_type": 2,
-							"intensity_value": "Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
-							"is_nested_question": 0,
-							"is_nested_option": 0
-
-						},
-						{
-							"value": "Undesirable Flavor",
-							"is_intensity": 0
-						}
-
-					]
-
+					"value": "Natural and pleasant",
+					"is_intensity": 0
+        },
+				{
+					"value": "Natural but unpleasant",
+					"is_intensity": 0
 				},
 				{
-					"title": "Testing 2",
-					"subtitle": "Congratulations! You just discovered the flavor/s of the product that you are tasting.2",
-					"select_type": 1,
-
-					"is_intensity": 0,
-
-					"is_nested_question": 0,
-
-					"is_mandatory": 1,
-
-					"option": [
-
-						{
-							"value": "Test 1",
-							"is_intensity": 1,
-							"intensity_type": 2,
-							"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-							"is_nested_question": 0,
-							"is_nested_option": 0
-						},
-						{
-							"value": "Desirable Flavor",
-							"is_intensity": 1,
-							"intensity_type": 2,
-							"intensity_value": "Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
-							"is_nested_question": 0,
-							"is_nested_option": 0
-
-						},
-						{
-							"value": "Undesirable Flavor",
-							"is_intensity": 0
-						}
-
-					]
-
+					"value": "Artificial but pleasant",
+					"is_intensity": 0
 				},
 				{
-					"title": "Was the observed flavor natural or any of the trending inspirational flavors. Please select the relevant options.",
-					"subtitle": "Congratulations! You just discovered the flavor/s of the product that you are tasting.3",
-					"select_type": 2,
-
-					"is_intensity": 0,
-
-					"is_nested_question": 0,
-
-					"is_mandatory": 0,
-					"option": [
-
-						{
-							"value": "Natural",
-							"is_intensity": 0
-
-						},
-						{
-							"value": "Wasabi",
-							"is_intensity": 0
-						},
-						{
-							"value": "Sriracha",
-							"is_intensity": 0
-
-						},
-						{
-							"value": "Smoky Barbeque",
-							"is_intensity": 0
-						},
-						{
-							"value": "Tandoori",
-							"is_intensity": 0
-
-						},
-						{
-							"value": "Kebab",
-							"is_intensity": 0
-						},
-						{
-							"value": "Jalapeno Cheese",
-							"is_intensity": 0
-
-						},
-						{
-							"value": "Chipotle",
-							"is_intensity": 0
-						},
-						{
-							"value": "Sour cream and onion",
-							"is_intensity": 0
-
-						},
-						{
-							"value": "Salsa",
-							"is_intensity": 0
-						},
-						{
-							"value": "Pudina chutney",
-							"is_intensity": 0
-
-						},
-						{
-							"value": "Creamy truffle",
-							"is_intensity": 0
-						},
-						{
-							"value": "Any other",
-							"is_intensity": 0
-						}
-
-					]
-
+					"value": "Artificial and unpleasant",
+					"is_intensity": 0
 				},
 				{
-					"title": "New added for testing - If you felt fruity , please tick",
-					"select_type": 2,
-					"is_intensity": 1,
-					"is_nested": 0,
-					"is_mandatory": 1,
-                                         "is_nested_question": 0,
-					"option": [
-
-						{
-							"value": "Vegetal",
-            	"is_intensity": 1,
-					"intensity_type": 1,
-										"intensity_value": "15"
-
-						},
-						{
-						  
-							"value": "Spices",
-								"is_intensity": 1,
-					"intensity_type": 1,
-										"intensity_value": "15"
-
-						},
-						{
-							"value": "Fruits",
-								"is_intensity": 1,
-					"intensity_type": 1,
-										"intensity_value": "15"
-
-
-						},
-						{
-							"value": "Nuts",
-								"is_intensity": 1,
-				       	"intensity_type": 1,
-										"intensity_value": "15"
-
-						}
-					]
+					"value": "Bland",
+					"is_intensity": 0
 				}
 
 			]
-
 		},
-
 		{
 
 			"title": "Overall preference",
@@ -969,7 +790,42 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 		{
 
-			"title": "Please put the product in your mouth and assess. Remember not to eat or chew at this stage.",
+			"title": "Take a single bite and pause. What kind of sound did you hear?",
+
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [
+
+				{
+					"value": "Crispy",
+					"is_intensity": 0
+
+				},
+				{
+					"value": "Crunchy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Crackly",
+					"is_intensity": 0
+
+				},
+				{
+					"value": "No sound ",
+					"is_intensity": 0
+				}
+			]
+		},
+
+		{
+
+			"title": "Now start chewing the product for 3-4 times and pause. How is the texture of the product?",
 
 			"select_type": 2,
 
@@ -982,118 +838,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 			"option": [
 
 				{
-					"value": "Moist",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Dry",
-					"is_intensity": 0
-				},
-				{
-					"value": "Creamy",
-					"is_intensity": 0
-
-				},
-				{
 					"value": "Spongy",
-					"is_intensity": 0
-				},
-				{
-					"value": "Runny liquid",
-					"is_intensity": 0
-
-				}
-			]
-		},
-
-		{
-
-			"title": "Sound of the product (Concentrate on the sound it produces after the first bite and subsequent bites)",
-
-			"select_type": 1,
-
-			"is_nested_question": 0,
-			"is_intensity": 1,
-			"is_mandatory": 1,
-			"option": [
-
-				{
-					"value": "Crispy",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-					"is_nested_question": 0,
-					"is_nested_option": 0
-				},
-				{
-					"value": "Crunchy",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-					"is_nested_question": 0,
-					"is_nested_option": 0
-
-				},
-				{
-					"value": "Crackly",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
-					"is_nested_question": 0,
-					"is_nested_option": 0
-
-				}
-
-			]
-
-		},
-		{
-
-			"title": "Same intensity scale in all options - Sound of the product (Concentrate on the sound it produces after the first bite and subsequent bites)",
-			"select_type": 1,
-			"is_nested_question": 0,
-			"is_intensity": 1,
-			"is_mandatory": 1,
-			"option": [
-
-				{
-					"value": "Other Crispy",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-					"is_nested_question": 0,
-					"is_nested_option": 0
-				},
-				{
-					"value": "Other Crunchy",
-					"is_intensity": 1,
-					"intensity_type": 2,
-					"intensity_value": "Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
-					"is_nested_question": 0,
-					"is_nested_option": 0
-
-				}
-
-			]
-
-		},
-
-		{
-
-			"title": "Please put the product again in your mouth, chew 3-4 times, pause and assess.",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-			"option": [
-
-				{
-					"value": "Soft",
 					"is_intensity": 0
 
 				},
@@ -1102,19 +847,61 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 					"is_intensity": 0
 				},
 				{
-					"value": "Hard",
+					"value": "Lumpy",
 					"is_intensity": 0
 
+				},
+				{
+					"value": "Sticky",
+					"is_intensity": 0
+				},
+				{
+					"value": "Soft",
+					"is_intensity": 0
+				},
+				{
+					"value": "Hard",
+					"is_intensity": 0
+				},
+				{
+					"value": "Tender",
+					"is_intensity": 0
+				},
+				{
+					"value": "Stringy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Chewy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Chunky",
+					"is_intensity": 0
+				},
+				{
+					"value": "Dry",
+					"is_intensity": 0
+				},
+				{
+					"value": "Oily",
+					"is_intensity": 0
+				},
+				{
+					"value": "Mushy",
+					"is_intensity": 0
+				},
+				{
+					"value": "Rubbery",
+					"is_intensity": 0
 				}
 			]
+		
 
 		},
+    {
 
-		{
-
-			"title": "Chew down",
-
-			"subtitle": "Take a bite again, chew it for 8-10 times to make a pulp. Now assess the time taken to make a pulp.",
+			"title": "Did you feel anything left inside the mouth even after swallowing the product?",
 
 			"select_type": 1,
 
@@ -1125,67 +912,18 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 			"is_mandatory": 1,
 
 			"option": [
-
 				{
-					"value": "Shorter time to chew",
+					"value": "Yes",
 					"is_intensity": 0
 
 				},
 				{
-					"value": "Moderate time to chew",
+					"value": "No",
 					"is_intensity": 0
-				},
-				{
-					"value": "Longer time to chew",
-					"is_intensity": 0
-
 				}
 			]
-
 		},
-
-		{
-
-			"title": "After swallowing, how do you feel inside the mouth?",
-
-			"select_type": 2,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-			"option": [
-
-				{
-					"value": "Oily film",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Loose particles",
-					"is_intensity": 0
-				},
-				{
-					"value": "Sticking on tooth",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Chalky",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "None",
-					"is_intensity": 0
-
-				}
-			]
-
-		},
-
-		{
+    {
 
 			"title": "Overall preference",
 
@@ -1269,104 +1007,11 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 	],
 
-	"OVERALL PRODUCT EXPERIENCE": [
-
+	"PRODUCT EXPERIENCE": [
+	  
 		{
 
-			"title": "Are all the attributes (appearance, aroma, taste, aromatics to flavor and texture) in balance with each other?",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-
-			"option": [
-
-				{
-					"value": "Yes",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "No",
-					"is_intensity": 0
-				}
-			]
-
-		},
-
-		{
-
-			"title": "If not, what is/are out of balance?",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 0,
-
-			"option": [
-
-				{
-					"value": "Appearance",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Aroma",
-					"is_intensity": 0
-				},
-				{
-					"value": "Taste",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "Aromatics to Flavor",
-					"is_intensity": 0
-				},
-				{
-					"value": "Texture",
-					"is_intensity": 0
-				}
-			]
-		},
-
-		{
-
-			"title": "Is the product sample acceptable?",
-
-			"select_type": 1,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-
-			"option": [
-
-				{
-					"value": "Yes",
-					"is_intensity": 0
-
-				},
-				{
-					"value": "No",
-					"is_intensity": 0
-				}
-			]
-
-		},
-
-		{
-
-			"title": "Overall PublicReviewProduct Experience",
+			"title": "Overall Product Experience",
 
 			"select_type": 5,
 
@@ -1464,7 +1109,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 }';
 
-        $data = ['name'=>'try - 1','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'nested option with title variable','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);

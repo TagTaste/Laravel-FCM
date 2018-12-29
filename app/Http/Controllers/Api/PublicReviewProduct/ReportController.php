@@ -42,8 +42,9 @@ class ReportController extends Controller
     public function getSelfReview($product,$loggedInProfileId)
     {
         $productId = $product->id;
-        $review = \DB::table('public_product_user_review')->where('product_id',$productId)->where('profile_id',$loggedInProfileId)
-            ->where('select_type',3)->first();
+        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+        $review = Review::where('product_id',$productId)->where('header_id',$header->id)->where('profile_id',$loggedInProfileId)
+            ->where('select_type',5)->first();
         return isset($review->value) ?  $review->value : null;
     }
 
