@@ -34,14 +34,14 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
+                                                                    <br>
+                                                                    <img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year">
+                                                                    <br>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
                                                                         Dear {{$userName}}
                                                                         <br>
                                                                         <br>
-                                                                        <img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year">
-                                                                        <br>
-                                                                        <br>
-                                                                        Tagtaste wishes you all a Happy New Year full of peace, laughter, prosperity and health. Thank you for being a part of TagTaste this year, we truly appreciate having you in our community.
+                                                                        Wishing you and your family a very happy and prosperous new year 2019. Thank you for your love and continued support in building one of the strongest communities of food professionals and enthusiasts across the world.
                                                                         <br>
                                                                         <br>
                                                                         Regards,
