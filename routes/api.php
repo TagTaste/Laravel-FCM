@@ -582,7 +582,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
     
             Route::post("/uploadFiles","UploadFilesController@uploadFiles");
 
-
             Route::post("/preview",function(Request $request){
                 $url = $request->input('url');
                 $tags = \App\Preview::get($url);
