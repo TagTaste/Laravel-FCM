@@ -49,7 +49,7 @@ class ServiceInterruption extends Command
                     $mail = (new ServiceInterruptionJob($model->email,$model->name))->onQueue('emails');
                     \Log::info('Queueing send invitation...');
                     dispatch($mail);
-                    echo "no is ".$count;
+                    echo "no is ".$count." user id ".$model->id."\n";
                 }
             });
     }
