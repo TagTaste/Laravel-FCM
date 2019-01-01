@@ -35,7 +35,7 @@
                                                             <td>
                                                                 <div>
                                                                     <br>
-                                                                    <img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year">
+                                                                    <div style="text-align: center;"><img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year"></div>
                                                                     <br>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
                                                                         Dear {{$userName}}
