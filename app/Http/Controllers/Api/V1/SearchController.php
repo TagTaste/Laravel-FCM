@@ -86,7 +86,8 @@ class SearchController extends Controller
         $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
-        $profileIds = $profileIds->random($length);
+        if($length)
+            $profileIds = $profileIds->random($length);
 
         foreach ($profileIds as $key => $value)
         {
@@ -188,7 +189,8 @@ class SearchController extends Controller
         $filters = $data['filters'];
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
-        $profileIds = $profileIds->random($length);
+        if($length)
+            $profileIds = $profileIds->random($length);
 
         foreach ($profileIds as $key => $value)
         {
@@ -340,7 +342,8 @@ class SearchController extends Controller
         $profileIds = \DB::table('profile_specializations')->where('specialization_id',$id)->skip($skip)->take($take)->get()->pluck('profile_id');
         $profileIds = $profileIds->unique();
         $length = $profileIds->count();
-        $profileIds = $profileIds->random($length);
+        if($length)
+            $profileIds = $profileIds->random($length);
         foreach ($profileIds as $key => $value)
         {
             if($loggedInProfileId == $value)

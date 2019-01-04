@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            Interruption in the services
+                                            Happy New Year 2019!
                                         </div>
                                     </td>
                                 </tr>
@@ -34,11 +34,14 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
+                                                                    <br>
+                                                                    <div style="text-align: center;"><img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year"></div>
+                                                                    <br>
                                                                     <p style="font-size: 14px;color: #181818;margin:0px">
                                                                         Dear {{$userName}}
                                                                         <br>
                                                                         <br>
-                                                                        Please be advised that the platform will be under maintainance from 8:00 AM to 1:00 PM IST on December 6th, 2018. This period of downtime is scheduled for necessary updates to be applied to the network servers. We apologise for the inconvenience that this may cause.
+                                                                        Wishing you and your family a very happy and prosperous new year 2019. Thank you for your love and continued support in building one of the strongest communities of food professionals and enthusiasts across the world.
                                                                         <br>
                                                                         <br>
                                                                         Regards,
