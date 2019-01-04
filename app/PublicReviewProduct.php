@@ -129,9 +129,9 @@ class PublicReviewProduct extends Model
             $userCount = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
             $meta = [];
             $meta['max_rating'] = 8;
-            $meta['overall_rating'] = $userCount > 3 ? $overallPreferances/$userCount : null;
+            $meta['overall_rating'] = $userCount >= 3 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
-            $meta['color_code'] = $userCount > 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            $meta['color_code'] = $userCount >= 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
             return $meta;
         }
 
