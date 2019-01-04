@@ -26,8 +26,8 @@ class CreatePublicProductUserReview extends Migration
             $table->foreign("question_id")->references("id")->on("public_review_questions");
             $table->unsignedInteger('header_id');
             $table->foreign("header_id")->references("id")->on("public_review_question_headers");
-            $table->unsignedInteger('product_id');
-//            $table->foreign("product_id")->references("id")->on("public_review_products");
+            $table->uuid("product_id")->nullable();
+            $table->foreign('product_id')->references('id')->on('public_review_products')->onDelete('cascade');
             $table->unsignedInteger('profile_id');
             $table->foreign("profile_id")->references("id")->on("profiles");
             $table->timestamps();
