@@ -31,7 +31,7 @@ class ReportController extends Controller
             $this->model['description'] = 'Not enought people have reviewed this product to generate a visual representation of the overall product experience.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
-            return $this->sendError("Report is not available");
+            return $this->sendResponse();
         }
         $this->model = [];
         $this->model['title'] = 'Sensorial Ratings';
