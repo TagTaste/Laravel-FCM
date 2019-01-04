@@ -38,7 +38,7 @@ class InsertPublicReviewQuestionair extends Command
      */
     public function handle()
     {
-        $headerInfo2 = $headerInfo2 = $headerInfo2 = [
+        $headerInfo2 = $headerInfo2 = $headerInfo2 = $headerInfo2 = [
 
             ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>"0"],
 
@@ -67,7 +67,6 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 
         ];
-
         $questions2 = '{
 
 	"INSTRUCTIONS": [
@@ -329,9 +328,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			"is_nested_option": 1,
 
-			"nested_option_list": "AROMA",
-			
-			"nested_option_title": "AROMA"
+			"nested_option_list": "AROMA"
 
 		},
 
@@ -631,9 +628,7 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 			"is_nested_option": 1,
 
-			"nested_option_list": "AROMA",
-			
-		    "nested_option_title": "AROMA"
+			"nested_option_list": "AROMA"
 
 		},
 
@@ -1107,7 +1102,9 @@ When the taste causes continuous secretion of saliva; taste is felt on the entir
 
 	]
 
-}';
+}
+
+';
 
         $data = ['name'=>'nested option with title variable','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
