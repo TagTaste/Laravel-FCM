@@ -14,7 +14,8 @@ class CreatePublicReviewProducts extends Migration
     public function up()
     {
         Schema::create("public_review_products",function(Blueprint $table){
-            $table->increments('id');
+//            $table->increments('id');
+            $table->uuid('id')->primary();
             $table->string("name")->nullable();
             $table->boolean('is_vegetarian')->default(0);
             $table->integer("product_category_id")->unsigned();

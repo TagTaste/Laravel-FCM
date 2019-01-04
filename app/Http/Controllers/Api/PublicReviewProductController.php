@@ -7,6 +7,7 @@ use App\PublicReviewProduct\ProductCategory;
 use App\Recipe\Collaborate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Webpatser\Uuid\Uuid;
 use App\SearchClient;
 
 class PublicReviewProductController extends Controller
@@ -76,6 +77,7 @@ class PublicReviewProductController extends Controller
     public function store(Request $request)
     {   
         $inputs = $request->all();
+        $inputs['id'] = (string) Uuid::generate(4);
         if(isset($inputs['images_meta']))
         {
             $images = $request->input('images_meta');
