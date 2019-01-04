@@ -23,6 +23,7 @@ class CreatePublicReviewNestedOptions extends Migration
             $table->boolean("is_active")->default(1);
             $table->boolean("is_nested_option")->default(0);
             $table->string("path")->nullable();
+            $table->boolean('is_intensity')->default(1);
             $table->unsignedInteger('global_question_id');
             $table->foreign("global_question_id")->references("id")->on("public_review_global_questions");
             $table->unsignedInteger('header_id');

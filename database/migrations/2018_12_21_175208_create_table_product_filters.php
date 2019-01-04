@@ -14,10 +14,10 @@ class CreateTableProductFilters extends Migration
     public function up()
     {
         Schema::create('product_filters', function(Blueprint $table){
+            $table->increments('id');
             $table->string('key');
             $table->string("value");
             $table->integer("product_id")->unsigned();
-            $table->increments('id');
             $table->foreign('product_id')->references('id')->on('public_review_products')->onDelete('cascade');
         });
     }
