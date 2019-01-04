@@ -13,6 +13,8 @@ class PublicReviewProduct extends Model
 
     use SoftDeletes;
 
+    public $incrementing = false;
+
     protected $table = 'public_review_products';
 
     protected $dates = ['deleted_at'];

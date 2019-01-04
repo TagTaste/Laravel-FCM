@@ -17,7 +17,7 @@ class CreateTableProductFilters extends Migration
             $table->increments('id');
             $table->string('key');
             $table->string("value");
-            $table->integer("product_id")->unsigned();
+            $table->uuid("product_id")->nullable();
             $table->foreign('product_id')->references('id')->on('public_review_products')->onDelete('cascade');
         });
     }
