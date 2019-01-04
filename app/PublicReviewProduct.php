@@ -127,16 +127,12 @@ class PublicReviewProduct extends Model
         {
             $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
-            if($userCount >= 3)
-            {
-                $meta = [];
-                $meta['max_rating'] = 8;
-                $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
-                $meta['count'] = $userCount;
-                $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
-                return $meta;
-            }
-
+            $meta = [];
+            $meta['max_rating'] = 8;
+            $meta['overall_rating'] = $userCount > 3 ? $overallPreferances/$userCount : null;
+            $meta['count'] = $userCount;
+            $meta['color_code'] = $userCount > 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            return $meta;
         }
 
         return null;
