@@ -24,16 +24,19 @@ class ReportController extends Controller
             return $this->sendError("PublicReviewProduct is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',1)->distinct('profile_id')->count('profile_id');
-//        if($count < 20)
-//        {
-//            $this->model = [];
-//            return $this->sendError("Report is not available");
-//        }
+        if($count < 3)
+        {
+            $this->model = [];
+            $this->model['title'] = 'Sensorial Ratings';
+            $this->model['description'] = 'Not enought people have reviewed this product to generate a visual representation of the overall product experience.';
+            $this->model['header_rating'] = null;
+            $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
+            return $this->sendError("Report is not available");
+        }
         $this->model = [];
-        $this->model['title'] = 'Rating';
+        $this->model['title'] = 'Sensorial Ratings';
         $this->model['description'] = 'Following graph shows the overall preference of tasters for this product based on Appearance, Aroma, Aromatics, Taste, and Texture on an 8-point scale.';
-        $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
-        $this->model['chat_header'] = 'PublicReviewProduct Experience';
+//        $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
         $this->model['header_rating'] = $this->getHeaderRating($product);
         $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
         return $this->sendResponse();
