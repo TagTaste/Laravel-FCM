@@ -28,7 +28,7 @@ class Review extends Model
         $meta = [];
         $meta['max_rating'] = 8;
         $meta['user_rating'] = isset($this->leaf_id) ? $this->leaf_id : null;
-        $meta['color_code'] = $this->getColorCode($meta['user_rating']);
+        $meta['color_code'] = $this->getColorCode(floor($meta['user_rating']));
         return $meta;
     }
 

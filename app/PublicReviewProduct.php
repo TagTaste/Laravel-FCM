@@ -131,7 +131,7 @@ class PublicReviewProduct extends Model
             $meta['max_rating'] = 8;
             $meta['overall_rating'] = $userCount > 0 ? $overallPreferances/$userCount : 0.00;
             $meta['count'] = $userCount;
-            $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+            $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
             return $meta;
         }
 

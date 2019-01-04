@@ -81,7 +81,7 @@ class ReportController extends Controller
         $meta['max_rating'] = 8;
         $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
         $meta['count'] = $userCount;
-        $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+        $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
         return $meta;
     }
 
@@ -362,7 +362,7 @@ class ReportController extends Controller
         $meta['overall_rating'] = $oberallPreferanceUserCount > 0 ? $overallPreferances/$oberallPreferanceUserCount : 0.00;
         $meta['count'] = $userCount;
         $meta['overall_preferance_user_count'] = $oberallPreferanceUserCount;
-        $meta['color_code'] = $this->getColorCode($meta['overall_rating']);
+        $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
         return $meta;
     }
 
