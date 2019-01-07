@@ -15,7 +15,7 @@ class CreateModuleVersions extends Migration
     {
         Schema::create("module_versions",function(Blueprint $table){
             $table->increments('id');
-            $table->string("name")->nullable();
+            $table->string("module_name")->nullable();
             $table->string('compatible_version');
             $table->string('latest_version')->nullable();
             $table->string('platform');
