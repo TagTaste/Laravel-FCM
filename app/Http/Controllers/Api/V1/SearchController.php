@@ -300,26 +300,36 @@ class SearchController extends Controller
         $profileIds = new Collection();
         $experiencesData = [];
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
+        foreach ($experiences as $experience)
+        {
+            \Log::info($experience);
+            $experiencesData[] = $experience;
+        }
+        \Log::info($experiencesData);
+        $filters = [];
+        $filters[]= ['key'=>'experience','value'=>array_unique($experiencesData)];
+
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
-                                $experiencesData[] = $experiences[$i];
                                 $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
                             }
                         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
-        $filters = [];
-        \Log::info($experiencesData);
-        $filters[]= ['key'=>'experience','value'=>array_unique($experiencesData)];
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
         $educationsData = [];
+        foreach ($educations as $education)
+        {
+            $educationsData[] = $education;
+        }
+        \Log::info($educationsData);
+        $filters[]= ['key'=>'education','value'=>array_unique($educationsData)];
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
-                $educationsData[] = $educations[$i];
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
             }
         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
-        $filters[]= ['key'=>'education','value'=>array_unique($educationsData)];
+
         return ['profileIds'=>$profileIds,'filters'=>$filters];
     }
 
