@@ -1284,7 +1284,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 					"intensity_type": 2,
 
-					"intensity_value": "None,Barely Acidic,Mildly Acidic,Moderately Acidic,Strongly Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
+					"intensity_value": "None,Barely detectable,Identifiable but not very intense ,Slightly intense,Moderately intense,Intense,Very intense,Extremely intense",
 
 					"is_nested_question": 0,
 
@@ -1812,7 +1812,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 }';
 
-        $data = ['name'=>'nested option with title variable','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'generic','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
