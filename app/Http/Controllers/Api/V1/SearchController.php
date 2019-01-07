@@ -302,12 +302,11 @@ class SearchController extends Controller
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
         foreach ($experiences as $experience)
         {
-            \Log::info($experience);
-            $experiencesData[] = $experience;
+            if(!array_key_exists($experience, $experiencesData))
+                $experiencesData[] = $experience;
         }
-        \Log::info($experiencesData);
         $filters = [];
-        $filters[]= ['key'=>'experience','value'=>array_unique($experiencesData)];
+        $filters[]= ['key'=>'experience','value'=>$experiencesData];
 
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
@@ -319,10 +318,10 @@ class SearchController extends Controller
         $educationsData = [];
         foreach ($educations as $education)
         {
-            $educationsData[] = $education;
+            if(!array_key_exists($education, $educationsData))
+                $educationsData[] = $education;
         }
-        \Log::info($educationsData);
-        $filters[]= ['key'=>'education','value'=>array_unique($educationsData)];
+        $filters[]= ['key'=>'education','value'=>$educationsData];
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
