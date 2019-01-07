@@ -14,20 +14,22 @@ class ModuleVersionSeederTable extends Seeder
         $data = [];
 
         //for android
-        $data[] = ['name'=>'Home','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
-        $data[] = ['name'=>'Explore','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
-        $data[] = ['name'=>'Reviews','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
-        $data[] = ['name'=>'Chat','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
-        $data[] = ['name'=>'Settings','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
-        $data[] = ['name'=>'Overall','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
+        $data[] = ['module_name'=>'Home','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
+        $data[] = ['module_name'=>'Explore','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
+        $data[] = ['module_name'=>'Reviews','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
+        $data[] = ['module_name'=>'Chat','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
+        $data[] = ['module_name'=>'Settings','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
+        $data[] = ['module_name'=>'Overall','compatible_version'=>'42','latest_version'=>'42','platform'=>'android'];
 
         //for ios
-        $data[] = ['name'=>'Home','compatible_version'=>'42','latest_version'=>'42','platform'=>'ios'];
-        $data[] = ['name'=>'Explore','compatible_version'=>'42','latest_version'=>'42','platform'=>'ios'];
-        $data[] = ['name'=>'Reviews','compatible_version'=>'42','latest_version'=>'42','platform'=>'ios'];
-        $data[] = ['name'=>'Chat','compatible_version'=>'42','latest_version'=>'42','platform'=>'ios'];
-        $data[] = ['name'=>'Settings','compatible_version'=>'42','latest_version'=>'42','platform'=>'ios'];
-        $data[] = ['name'=>'Overall','compatible_version'=>'42','latest_version'=>'42','platform'=>'ios'];
+        $data[] = ['module_name'=>'Home','compatible_version'=>'3.0.1','latest_version'=>'3.0.1','platform'=>'ios'];
+        $data[] = ['module_name'=>'Explore','compatible_version'=>'3.0.1','latest_version'=>'3.0.1','platform'=>'ios'];
+        $data[] = ['module_name'=>'Reviews','compatible_version'=>'3.0.1','latest_version'=>'3.0.1','platform'=>'ios'];
+        $data[] = ['module_name'=>'Chat','compatible_version'=>'3.0.1','latest_version'=>'3.0.1','platform'=>'ios'];
+        $data[] = ['module_name'=>'Settings','compatible_version'=>'3.0.1','latest_version'=>'3.0.1','platform'=>'ios'];
+        $data[] = ['module_name'=>'Overall','compatible_version'=>'3.0.1','latest_version'=>'3.0.1','platform'=>'ios'];
+
+        \DB::table('module_versions')->insert($data);
 
     }
 }

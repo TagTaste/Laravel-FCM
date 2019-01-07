@@ -42,4 +42,16 @@ class VersionController extends Controller
         return response()->json($version);
     }
 
+    public function iosModuleVersion(Request $request)
+    {
+        $data = \DB::table('module_versions')->where('platform','ios')->get();
+        return response()->json($data);
+    }
+
+    public function androidModuleVersion(Request $request)
+    {
+        $data = \DB::table('module_versions')->where('platform','android')->get();
+        return response()->json($data);
+    }
+
 }
