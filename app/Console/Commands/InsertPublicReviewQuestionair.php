@@ -110,7 +110,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "How is the color of the product",
+			"title": "How is the color of the product?",
 
 
 			"select_type": 1,
@@ -166,7 +166,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 			"title": "How is the visual texture of the product?",
 
 
-			"select_type": 1,
+			"select_type": 2,
 
 
 			"is_intensity": 0,
@@ -327,7 +327,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Overall preference",
+			"title": "Overall preference of Appearance",
 
 
 			"select_type": 5,
@@ -456,7 +456,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Which all aromas did you observe? It is normal to experience multiple aromas.",
+			"title": "Which all aromas did you observe?",
 
 
 			"subtitle": "Some aromas are easy to identify. Use the search box to locate such aromas. If you can\'t find the aromas identified by you through the search box, then please select \"Any other\" option and mention it the comment box. Mostly however, aromas seem to be familiar but sometimes it is difficult to recall their name. In such a case, you can explore the global list of the aromas. In this list, the aromas are grouped under various heads.",
@@ -492,7 +492,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Overall preference",
+			"title": "Overall preference of Aroma",
 
 
 			"select_type": 5,
@@ -621,7 +621,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Basic Taste",
+			"title": "Select the Basic Tastes that you observed.",
 
 
 			"is_nested_question": 0,
@@ -703,7 +703,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 				{
 
-					"value": "Basic Taste Absent",
+					"value": "No Basic Taste",
 
 					"is_intensity": 0
 
@@ -719,7 +719,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 		{
 
-			"title": "Ayurveda Taste",
+			"title": "Select the Ayurvedic Tastes that you observed.",
 
 
 			"select_type": 2,
@@ -790,7 +790,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 				{
 
-					"value": "No Ayurveda Taste",
+					"value": "No Ayurvedic Taste",
 
 					"is_intensity": 0
 
@@ -808,7 +808,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Overall preference",
+			"title": "Overall preference of Taste",
 
 
 			"select_type": 5,
@@ -937,7 +937,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Which all aromatics did you observe? It is normal to experience multiple aromatics.",
+			"title": "Which all aromatics did you observe?",
 
 
 			"subtitle": "Some aromaticss are easy to identify. Use the search box to locate such aromatics. If you can\'t find the aromatic/s identified by you through the search box, then please select \"Any other\" option and mention it the comment box. Mostly however, aromatics seem to be familiar but sometimes it is difficult to recall their name. In such a case, you can explore the global list of the aromatics. In this list aromatics are grouped under various heads.",
@@ -973,7 +973,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "After swallowing the food did you feel the presence of any aftertaste",
+			"title": "After swallowing the food, how was the presence of the aftertaste?",
 
 
 			"select_type": 1,
@@ -1047,7 +1047,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 				{
 
-					"value": "Natural & Pleasant",
+					"value": "Natural & pleasant",
 
 					"is_intensity": 0
 
@@ -1072,7 +1072,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 				{
 
-					"value": "Artificial & Unpleasant",
+					"value": "Artificial & unpleasant",
 
 					"is_intensity": 0
 
@@ -1095,7 +1095,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Overall preference (Aromatics)",
+			"title": "Overall preference of Aromatics",
 
 
 
@@ -1459,7 +1459,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Did you feel anything left inside the mouth even after swallowing the product?",
+			"title": "Did you feel anything left inside the mouth after swallowing the product?",
 
 
 			"select_type": 2,
@@ -1537,7 +1537,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Overall preference",
+			"title": "Overall preference of Texture",
 
 
 			"select_type": 5,
@@ -1666,7 +1666,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 		{
 
 
-			"title": "Overall Product Preference",
+			"title": "Overall product preference",
 
 
 			"select_type": 5,
