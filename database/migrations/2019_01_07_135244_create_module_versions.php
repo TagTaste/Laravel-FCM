@@ -13,12 +13,13 @@ class CreateModuleVersions extends Migration
      */
     public function up()
     {
-        Schema::create("interested_pivot_sub_category",function(Blueprint $table){
-            $table->integer("interested_collection_id")->unsigned();
-            $table->integer("product_sub_category_id")->unsigned();
-
-            $table->foreign("interested_collection_id")->references('id')->on('interested_collections');
-            $table->foreign("product_sub_category_id")->references('id')->on('product_sub_categories');
+        Schema::create("module_versions",function(Blueprint $table){
+            $table->increments('id');
+            $table->string("name")->nullable();
+            $table->string('compatible_version');
+            $table->string('latest_version')->nullable();
+            $table->string('platform');
+            $table->timestamps();
         });
     }
 
@@ -29,6 +30,6 @@ class CreateModuleVersions extends Migration
      */
     public function down()
     {
-        Schema::drop('interested_pivot_sub_category');
+        Schema::drop('module_versions');
     }
 }
