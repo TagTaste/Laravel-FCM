@@ -637,7 +637,7 @@ class BatchController extends Controller
             $excel->sheet('First sheet', function($sheet) use($profiles, $columns, $batchInfo,$collaborateId) {
                 $sheet->setOrientation('landscape');
                 $sheet->row(1,array("Collaboration Link - "."https://www.tagtaste.com/collaborate/".$collaborateId));
-                $sheet->row(2,array("Product Name - ".$batchInfo->name));
+                $sheet->row(2,array("PublicReviewProduct Name - ".$batchInfo->name));
                 $sheet->row(3,$columns);
                 $index = 4;
                 foreach ($profiles as $key => $value) {

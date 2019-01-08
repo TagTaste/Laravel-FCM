@@ -9,16 +9,19 @@ class ProductCategoryTableSeeder extends Seeder {
 
     public function run()
     {
-//        $data = [];
-//        $data[] = ['name'=>'Beverage','is_active'=>1];
-//        $data[] = ['name'=>'Food','is_active'=>1];
-//        $data[] = ['name'=>'Fruits','is_active'=>1];
-//        $data[] = ['name'=>'Vegetables','is_active'=>1];
-//        $data[] = ['name'=>'Protein','is_active'=>1];
-//        $data[] = ['name'=>'Dairy','is_active'=>1];
-//        $data[] = ['name'=>'Any Other','is_active'=>1];
-//
-//        \DB::table('product_categories')->insert($data);
+        $data = [];
+        $data[] = ['name'=>'Fast Food','is_active'=>1];
+        $data[] = ['name'=>'Bakery','is_active'=>1];
+        $data[] = ['name'=>'Confectionery','is_active'=>1];
+        $data[] = ['name'=>'Beverages','is_active'=>1];
+        $data[] = ['name'=>'Breakfast Cereal','is_active'=>1];
+        $data[] = ['name'=>'Condiments','is_active'=>1];
+        $data[] = ['name'=>'Dairy','is_active'=>1];
+        $data[] = ['name'=>'Poultry Cereal','is_active'=>1];
+        $data[] = ['name'=>'Tea','is_active'=>1];
+        $data[] = ['name'=>'Processed Foods','is_active'=>1];
+
+        \DB::table('product_categories')->insert($data);
     }
 
 }

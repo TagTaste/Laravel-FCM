@@ -25,6 +25,7 @@ use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
+use App\Console\Commands\InsertPublicReviewQuestionair;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\ProgressiveImage;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -69,6 +70,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\Job::class,
         \App\Console\Commands\Build\Search\Profile::class,
         \App\Console\Commands\Build\Search\Recipe::class,
+        \App\Console\Commands\Build\Search\Product::class,
         
         //Meta
             //Collab
@@ -88,6 +90,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Filters\Job::class,
         \App\Console\Commands\Build\Filters\Collaboration::class,
         \App\Console\Commands\Build\Filters\Recipe::class,
+        \App\Console\Commands\Build\Filters\Product::class,
         //command for temporary
         \App\Console\Commands\DateFixCompany::class,
         //for date fixes delete after run commands
@@ -193,6 +196,9 @@ class Kernel extends ConsoleKernel
 
 
         RemoveDuplicateFromReviewTable::class,
+
+        InsertPublicReviewQuestionair::class,
+
 
         //Progressive image
         ProgressiveImage::class

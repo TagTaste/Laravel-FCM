@@ -23,7 +23,8 @@
         "php-amqplib/php-amqplib": "v2.7.0",
         "spatie/laravel-image-optimizer": "^1.1",
         "intervention/image": "^2.4",
-        "barryvdh/laravel-dompdf": "^0.8.2"
+        "barryvdh/laravel-dompdf": "^0.8.2",
+        "webpatser/laravel-uuid": "2.*"
     },
 
     "require-dev": {
