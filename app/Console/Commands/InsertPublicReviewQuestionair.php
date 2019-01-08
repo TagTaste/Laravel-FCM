@@ -1799,7 +1799,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "Comments",
 
-			"place_holder": "Please write about product",
+			"placeholder": "Please write about product",
 
 
 			"select_type": 3,
