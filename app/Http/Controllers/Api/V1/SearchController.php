@@ -534,6 +534,15 @@ class SearchController extends Controller
         return $suggestions;
     }
 
-
-
+    public function explore(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $model = [];
+        // ui type data
+        // 1 -
+        $chefOfTheWeekProfileId = 664;
+        $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
+        $data = ['profile'=>$chefOfTheWeekProfile,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius."];
+        $model[] = ['title'=>"Chef of the Week", "subtitle"=>null, "type"=>"profile","item"=>$data,"ui_type"=>4];
+    }
 }
