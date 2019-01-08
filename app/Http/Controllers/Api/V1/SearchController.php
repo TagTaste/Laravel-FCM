@@ -628,7 +628,7 @@ class SearchController extends Controller
             $model[] = ['title'=>'ACTIVE & INFLUENTIAL','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
 
 
-        $weekOfTheCompanyId = 664;
+        $weekOfTheCompanyId = 12;
         $weekOfTheCompany = \Redis::get('company:small:' . $weekOfTheCompanyId);
         $data = json_decode($weekOfTheCompany);
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
