@@ -363,6 +363,7 @@ class ReportController extends Controller
                             $nestedOption = \DB::table('public_review_nested_options')->where('header_id',$headerId)
                                 ->where('question_id',$data->id)->where('id',$item->leaf_id)->where('value','like',$item->value)->first();
                             $item->path = isset($nestedOption->path) ? $nestedOption->path : null;
+                            $item->is_intensity = isset($nestedOption->is_intensity) ? $nestedOption->is_intensity : null;
                         }
                     }
                 }
