@@ -18,6 +18,13 @@ class ReviewHeader extends Model
     public function getHeaderInfoAttribute($value)
     {
         if(isset($value))
-            return $value;
+        {
+            $value = json_decode($value,true);
+            $images = isset($value->images) ? $value->images : [];
+            $imageValues = [];
+            foreach ($images as $image)
+                $imageValues[] = $image;
+            return ['text'=> isset($value->text) ? $value->text : null,"images"=>$imageValues , "video_link"=>isset($value->video_link) ? $value->video_link : null ];
+        }
     }
 }
