@@ -23,7 +23,10 @@ class ReviewHeader extends Model
             $images = isset($value['images']) ? $value['images'] : [];
             $imageValues = [];
             foreach ($images as $image)
+            {
+                \Log::info($image);
                 $imageValues[] = $image;
+            }
             return ['text'=> isset($value['text']) ? $value['text'] : null,"images"=>$imageValues , "video_link"=>isset($value['video_link']) ? $value['video_link'] : null ];
         }
     }
