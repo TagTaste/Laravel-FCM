@@ -642,6 +642,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::post('apk_version', 'VersionController@setAndroidVersion');
             Route::get('ios_version', 'VersionController@getIosVersion');
             Route::post('ios_version', 'VersionController@setIosVersion');
+            Route::get("ios_module_version","VersionController@getIosModuleVersion");
+            Route::get("android_module_version","VersionController@getAndroidModuleVersion");
+            Route::post("ios_module_version/{id}","VersionController@postIosModuleVersion");
+            Route::post("android_module_version/{id}","VersionController@postAndroidModuleVersion");
+
 
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
