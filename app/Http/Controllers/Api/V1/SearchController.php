@@ -565,7 +565,7 @@ class SearchController extends Controller
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
         $item = [$data];
         $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. 
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$item,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
@@ -605,7 +605,7 @@ class SearchController extends Controller
             }
         }
         if(count($profileData))
-            $model[] = ['title'=>'Suggested People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $model[] = ['title'=>'Suggested People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         $activityBasedIds = [804,70,5555,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
 
@@ -638,7 +638,7 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $model[] = ['title'=>'ACTIVE & INFLUENTIAL','subtitle'=>null,'type'=>'profile','ui_type'=>1,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+            $model[] = ['title'=>'ACTIVE & INFLUENTIAL','subtitle'=>null,'type'=>'profile','ui_type'=>3,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
 
 
         $weekOfTheCompanyId = 55;
@@ -666,52 +666,58 @@ class SearchController extends Controller
         }
 //        $this->model['company'] = $companyData;
         if(count($companyData))
-            $model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>0,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         if(count($companyData))
-            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>1,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
         $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
 
         if(count($collaborations))
-            $model[] = ['title'=>'Collaborations','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $model[] = ['title'=>'Collaborations','subtitle'=>'BUSINESS OPPORTUNITIES FOR YOU ','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
         $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
 
         if(count($collaborations))
-            $model[] = ['title'=>'Collaborations','subtitle'=>'Product Review ','type'=>'private - collaborate','ui_type'=>2,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $model[] = ['title'=>'Collaborations','subtitle'=>'Product Review ','type'=>'private - collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
         $recommended = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(10)->get();
         if($recommended->count())
             $model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
-                'ui_type'=>3,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+                'ui_type'=>9,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
         //        $categories = ProductCategory::where('is_active')->get();
         $model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$recommended,
-            'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+            'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
         $recently = PublicReviewProduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(10)->get();
         if($recently->count())
             $model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
-                'ui_type'=>2,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+                'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
         $weekOfTheCategory = ["Name"=>"Ice Cream","type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png"];
         $model[] = ['title'=>"Category of Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. 
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         $categories = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
         if($categories->count())
             $model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
-                'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+
+        $recommended = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(6)->get();
+        if($recommended->count())
+            $model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
+                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
         $specializations = \DB::table('specializations')->get();
 
         if(count($specializations))
-            $model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
+            $model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
+
 
         $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
         if(isset($fbFriends->fb_friends) )
@@ -750,7 +756,7 @@ class SearchController extends Controller
         }
 
         if(count($profileData))
-            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
 
 
         $this->model = $model;
