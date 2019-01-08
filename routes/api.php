@@ -141,7 +141,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
                 //search apis new
-
+                Route::get("search/explore","SearchController@explore");
                 Route::get("search/discover",'SearchController@discover');
                 Route::get("search/{type?}",'SearchController@search');
                 Route::get("search/specialization/{id}",'SearchController@searchSpecializationPeople');
@@ -351,6 +351,41 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             });
 
+            Route::group(['namespace'=>'PublicReviewProduct','prefix'=>'public-review/products/{productId}','as'=>'collaborate.'],function(){
+
+                //reports
+                Route::get("reportPdf","ReportController@reportPdf");
+                Route::get("reportSummary","ReportController@reportSummary");
+                Route::get("headers/{headerId}/questions/{questionId}/option/{optionId}","ReportController@getAnswer");
+                Route::get("headers/{headerId}/reports","ReportController@reports");
+                Route::get("headers/{headerId}/questions/{questionId}/comments","ReportController@comments");
+
+                // api for product-review tasting
+                Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
+                Route::get("headers/{id}/question/{questionId}","QuestionController@getNestedQuestions");
+                Route::post("headers/{headerId}/review","ReviewController@reviewAnswers");
+                Route::get("headers/{id}","QuestionController@reviewQuestions");
+                Route::get("headers","QuestionController@headers");
+
+                //collaborate comments
+                Route::get('reviews/{reviewId}/comments',"ReviewController@comments");
+                Route::post('reviews/{reviewId}/comments',"ReviewController@commentsPost");
+
+                //get review
+                Route::get("reviews","ReviewController@index");
+
+            });
+
+
+            Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
+            Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
+
+            Route::get("public-review/discover/products","PublicReviewProductController@discover");
+            Route::get("public-review/category/{id}/products","PublicReviewProductController@categoryProducts");
+            Route::post("uploadImageProduct","PublicReviewProductController@uploadImageProduct");
+            Route::resource('public-review/products', 'PublicReviewProductController');
+
+
             //photos
                 Route::resource("photos","PhotoController");
 
@@ -381,7 +416,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             //search
+//                Route::get("filterSearch/product",'SearchController@productFilterSearch');
                 Route::get("filterSearch/{type?}",'SearchController@filterSearch');
+
                 Route::get("search/{type?}",'SearchController@search');
                 Route::get("autocomplete/filter/{model}/{key}",'SearchController@filterAutoComplete');
                 Route::get("autocomplete",'SearchController@autocomplete');
