@@ -18,6 +18,7 @@ class ReviewHeader extends Model
     public function getHeaderInfoAttribute($value)
     {
         if(isset($value))
+            \Log::info($value);
             return json_decode($value,true);
     }
 }
