@@ -563,8 +563,9 @@ class SearchController extends Controller
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+        $item = [$data];
         $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. 
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$item,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
@@ -646,6 +647,7 @@ class SearchController extends Controller
         if(!is_null($data))
         {
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+            $data = [$data];
             $model[] = ['title'=>"Company in Focus", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. 
                   Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"company","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
         }
@@ -698,10 +700,10 @@ class SearchController extends Controller
 
         $weekOfTheCategory = ["Name"=>"Ice Cream","type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png"];
         $model[] = ['title'=>"Category of Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. 
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"company","item"=>$weekOfTheCategory,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
-        $categories = ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
+        $categories = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
         if($categories->count())
             $model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
                 'ui_type'=>0,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
