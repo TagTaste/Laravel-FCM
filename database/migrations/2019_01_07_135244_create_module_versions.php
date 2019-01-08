@@ -19,6 +19,8 @@ class CreateModuleVersions extends Migration
             $table->string('compatible_version');
             $table->string('latest_version')->nullable();
             $table->string('platform');
+            $table->text("title")->nullable();
+            $table->text("description")->nullable();
             $table->timestamps();
         });
     }
