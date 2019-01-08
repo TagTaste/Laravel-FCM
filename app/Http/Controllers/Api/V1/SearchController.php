@@ -298,9 +298,15 @@ class SearchController extends Controller
     public function getAllProfileIdsFromExperience($loggedInProfileId)
     {
         $profileIds = new Collection();
+        $experiencesData = [];
         $experiences = Experience::where('profile_id',$loggedInProfileId)->get()->pluck('company');
+        foreach ($experiences as $experience)
+        {
+            if(!array_key_exists($experience, $experiencesData))
+                $experiencesData[] = $experience;
+        }
         $filters = [];
-        $filters[]= ['key'=>'experience','value'=>array_unique($experiences->toArray())];
+        $filters[]= ['key'=>'experience','value'=>$experiencesData];
 
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
                             for ($i = 0; $i < count($experiences); $i++){
@@ -309,7 +315,13 @@ class SearchController extends Controller
                         })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
-        $filters[]= ['key'=>'education','value'=>array_unique($educations->toArray())];
+        $educationsData = [];
+        foreach ($educations as $education)
+        {
+            if(!array_key_exists($education, $educationsData))
+                $educationsData[] = $education;
+        }
+        $filters[]= ['key'=>'education','value'=>$educationsData];
         $ids = \DB::table('profile_filters')->where(function ($query) use($educations) {
             for ($i = 0; $i < count($educations); $i++){
                 $query->orwhere('value', 'like',  '%' . $educations[$i] .'%');
