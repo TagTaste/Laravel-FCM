@@ -44,30 +44,30 @@ class VersionController extends Controller
 
     public function getIosModuleVersion(Request $request)
     {
-        $data = \DB::table('module_versions')->where('platform','ios')->get();
-        return response()->json($data);
+        $this->model = \DB::table('module_versions')->where('platform','ios')->get();
+        return $this->sendResponse();
     }
 
     public function getAndroidModuleVersion(Request $request)
     {
-        $data = \DB::table('module_versions')->where('platform','android')->get();
-        return response()->json($data);
+        $this->model = \DB::table('module_versions')->where('platform','android')->get();
+        return $this->sendResponse();
     }
 
     public function postIosModuleVersion(Request $request, $id)
     {
         $compatibleVersion = $request->input('compatible_version');
         $latestVersion = $request->input('latest_version');
-        $data = \DB::table('module_versions')->where('id',$id)->where('platform','ios')->update(['compatible_version'=>$compatibleVersion,'latest_version'=>$latestVersion]);
-        return response()->json($data);
+        $this->model = \DB::table('module_versions')->where('id',$id)->where('platform','ios')->update(['compatible_version'=>$compatibleVersion,'latest_version'=>$latestVersion]);
+        return $this->sendResponse();
     }
 
     public function postAndroidModuleVersion(Request $request, $id)
     {
         $compatibleVersion = $request->input('compatible_version');
         $latestVersion = $request->input('latest_version');
-        $data = \DB::table('module_versions')->where('id',$id)->where('platform','android')->update(['compatible_version'=>$compatibleVersion,'latest_version'=>$latestVersion]);
-        return response()->json($data);
+        $this->model = \DB::table('module_versions')->where('id',$id)->where('platform','android')->update(['compatible_version'=>$compatibleVersion,'latest_version'=>$latestVersion]);
+        return $this->sendResponse();
     }
 
 }
