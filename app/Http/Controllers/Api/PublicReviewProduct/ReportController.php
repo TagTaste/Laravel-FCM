@@ -294,6 +294,8 @@ class ReportController extends Controller
                                 }
                                 $value[] = ['value'=>$x,'count'=>$count];
                             }
+                            $answer->intensity_value = $data->questions->intensity_value;
+                            $answer->intensity_type = $data->questions->intensity_type;
                         }
                         else
                         {
