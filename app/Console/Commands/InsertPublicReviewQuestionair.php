@@ -1822,7 +1822,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'latest generic','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
