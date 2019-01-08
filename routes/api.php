@@ -141,6 +141,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
                 //search apis new
+                Route::get("public-review/explore","SearchController@explore");
                 Route::get("search/explore","SearchController@explore");
                 Route::get("search/discover",'SearchController@discover');
                 Route::get("search/{type?}",'SearchController@search');
