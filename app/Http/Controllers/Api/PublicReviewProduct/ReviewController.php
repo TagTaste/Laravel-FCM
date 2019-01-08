@@ -127,55 +127,55 @@ class ReviewController extends Controller
         //
     }
 
-    public function productReview(Request $request,$productId,$headerId)
-    {
-        $this->now = Carbon::now()->toDateTimeString();
-        $loggedInProfileId = $request->user()->profile->id;
-        $data = [];
-        $answers = $request->input('answer');
-
-        $checkProduct = \DB::table('public_review_products')->where('id',$productId)->exists();
-
-        if(!$checkProduct)
-        {
-            return $this->sendError("Wrong product reviewing");
-        }
-        Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
-            ->where('header_id',$headerId)->delete();
-
-        if(count($answers))
-        {
-            foreach ($answers as $answer)
-            {
-                $options = isset($answer['option']) ? $answer['option'] : [];
-                $questionId = $answer['question_id'];
-                foreach ($options as $option)
-                {
-                    $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
-                    $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
-                    $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
-                    $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
-                        'question_id'=>$questionId,'header_id'=>$headerId,
-                        'profile_id'=>$loggedInProfileId,
-                        'product_id'=>$productId,'intensity'=>$intensity,'current_status'=>1,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
-                }
-                if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
-                {
-                    $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
-                        'question_id'=>$questionId,'header_id'=>$headerId,
-                        'profile_id'=>$loggedInProfileId,
-                        'product_id'=>$productId,'intensity'=>null,'current_status'=>1,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now];
-                }
-            }
-        }
-        if(count($data)>0)
-        {
-            $this->model = $this->model->create($data);
-        }
-        return $this->sendResponse();
-    }
+//    public function productReview(Request $request,$productId,$headerId)
+//    {
+//        $this->now = Carbon::now()->toDateTimeString();
+//        $loggedInProfileId = $request->user()->profile->id;
+//        $data = [];
+//        $answers = $request->input('answer');
+//
+//        $checkProduct = \DB::table('public_review_products')->where('id',$productId)->exists();
+//
+//        if(!$checkProduct)
+//        {
+//            return $this->sendError("Wrong product reviewing");
+//        }
+//        Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
+//            ->where('header_id',$headerId)->delete();
+//
+//        if(count($answers))
+//        {
+//            foreach ($answers as $answer)
+//            {
+//                $options = isset($answer['option']) ? $answer['option'] : [];
+//                $questionId = $answer['question_id'];
+//                foreach ($options as $option)
+//                {
+//                    $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
+//                    $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
+//                    $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
+//                    $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
+//                        'question_id'=>$questionId,'header_id'=>$headerId,
+//                        'profile_id'=>$loggedInProfileId,
+//                        'product_id'=>$productId,'intensity'=>$intensity,'current_status'=>1,'value_id'=>$valueId,
+//                        'created_at'=>$this->now,'updated_at'=>$this->now];
+//                }
+//                if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
+//                {
+//                    $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
+//                        'question_id'=>$questionId,'header_id'=>$headerId,
+//                        'profile_id'=>$loggedInProfileId,
+//                        'product_id'=>$productId,'intensity'=>null,'current_status'=>1,'value_id'=>null,
+//                        'created_at'=>$this->now,'updated_at'=>$this->now];
+//                }
+//            }
+//        }
+//        if(count($data)>0)
+//        {
+//            $this->model = $this->model->create($data);
+//        }
+//        return $this->sendResponse();
+//    }
 
     public function comments(Request $request,$productId,$reviewId)
     {
@@ -228,11 +228,11 @@ class ReviewController extends Controller
             return $this->sendError("PublicReviewProduct not found.");
         }
         $userReview = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)->orderBy('id','desc')->first();
-        if(isset($userReview) &&$userReview->current_status == 1)
+        if(isset($userReview) && $userReview->current_status == 2)
         {
             return $this->sendError("User already reviewd.");
         }
-        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 0;
+        $currentStatus = $request->has('current_status') ? $request->input('current_status') : 1;
 
         $this->model = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
             ->where('header_id',$headerId)->delete();
@@ -268,7 +268,7 @@ class ReviewController extends Controller
         if(count($data)>0)
         {
             $this->model = Review::insert($data);
-            if($currentStatus == 1)
+            if($currentStatus == 2)
             {
                 Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
                     ->update(['current_status'=>$currentStatus]);

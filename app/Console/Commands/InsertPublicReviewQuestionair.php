@@ -38,47 +38,36 @@ class InsertPublicReviewQuestionair extends Command
      */
     public function handle()
     {
+
+
         $headerInfo2 = [
 
-
-            ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>"0"],
-
-
-
-            ['header_name'=>"APPEARANCE","header_info"=>"Examine the product and assess the questions outlined below.",'header_selection_type'=>"1"],
+            ['header_name' => "INSTRUCTIONS", 'header_selection_type' => "0"],
 
 
 
-            ['header_name'=>"AROMA","header_info"=>"Aroma(s) arising from the product can be traced to the ingredients and the process(es) (like baking, cooking, fermentation etc.), which the product has undergone. Now bring the product closer to your nose and take a deep breath. You may also try taking 3-4 short, quick and strong sniffs, like how a dog sniffs. At this stage, we are only assessing the aroma(s) (odor(s) through the nose), so please don't take a bite yet.",'header_selection_type'=>"1"],
+            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product and assess the questions outlined below.", "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], "video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"], 'header_selection_type' => "1"],
+
+
+
+            ['header_name' => "AROMA", "header_info" => ["text" => "Aroma(s) arising from the product can be traced to the ingredients and the process(es) (like baking, cooking, fermentation etc.), which the product has undergone. Now bring the product closer to your nose and take a deep breath. You may also try taking 3-4 short, quick and strong sniffs, like how a dog sniffs. At this stage, we are only assessing the aroma(s) (odor(s) through the nose), so please don't take a bite yet.", "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], "video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"], 'header_selection_type' => "1"],
 
 
 
 
-            ['header_name'=>"TASTE","header_info"=>"Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. 
-
-What is Umami?
-
-When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste.",'header_selection_type'=>"1"],
+            ['header_name' => "TASTE", "header_info" => ["text" => "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste", "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], "video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"], 'header_selection_type' => "1"],
 
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=>"You have already identified the taste and now in this section, you will be identifying aromatics.
-
-Unlike aromas, aromatics are the odors that reach the sensors of the nose from inside the mouth ( reverse action).
-
-Reverse Action - As we eat with our mouth closed, food releases odors. These odors are sensed by us as they travel to the back of the throat and then turn up towards the sensors of the nose.
-
-Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the Odor/s inside the mouth using the same aroma list that you have already used to identify odor/s under the aroma section.",'header_selection_type'=>"1"],
+            ['header_name' => "AROMATICS TO FLAVORS", "header_info" => ["text" => "You have already identified the taste and now in this section, you will be identifying aromatics. Unlike aromas, aromatics are the odors that reach the sensors of the nose from inside the mouth ( reverse action). Reverse Action - As we eat with our mouth closed, food releases odors. These odors are sensed by us as they travel to the back of the throat and then turn up towards the sensors of the nose. Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the Odor/s inside the mouth using the same aroma list that you have already used to identify odor/s under the aroma section.", "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], "video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"], 'header_selection_type' => "1"],
 
 
 
-            ['header_name'=>"TEXTURE","header_info"=>"We have covered taste and odor/s (inside and outside the mouth). Now it is the turn of ‘feel’ inside the mouth. ‘Feel’ starts when the food comes in contact with the mouth; the ‘feel’ changes as the food is processed inside the mouth because of chewing (Applied Pressure) and the ‘feel’ may even last after the food has been swallowed. Foods when chewed may make SOUND (like chips), give us joy (like creamy foods), pain (like sticky foods) or even disgust for some (like rubbery foods -mushroom). Texture (mouthfeel) is all about the joy we get from what we eat.",'header_selection_type'=>"1"],
+            ['header_name' => "TEXTURE", "header_info" => ["text" => "We have covered taste and odor/s (inside and outside the mouth). Now it is the turn of ‘feel’ inside the mouth. ‘Feel’ starts when the food comes in contact with the mouth; the ‘feel’ changes as the food is processed inside the mouth because of chewing (Applied Pressure) and the ‘feel’ may even last after the food has been swallowed. Foods when chewed may make SOUND (like chips), give us joy (like creamy foods), pain (like sticky foods) or even disgust for some (like rubbery foods -mushroom). Texture (mouthfeel) is all about the joy we get from what we eat.", "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], "video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"], 'header_selection_type' => "1"],
 
 
 
-            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=>"Consider all the attributes like Appearance, Aroma, Taste, Aromatics, Flavor, Texture and rate the overall experience of the product on the preference scale.",'header_selection_type'=>"2"]
-
-
+            ['header_name' => "PRODUCT EXPERIENCE", "header_info" => ["text" => "Consider all the attributes like Appearance, Aroma, Taste, Aromatics, Flavor, Texture and rate the overall experience of the product on the preference scale.", "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], "video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"], 'header_selection_type' => "2"]
 
         ];
         $questions2 = '{
@@ -95,7 +84,10 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 			"subtitle": "Disclaimer- We have assumed that the product has been consumed at the ideal temperature.\nPlease follow the questionnaire and click answers that match with your observation/s. Remember, there are no right or wrong answers.\nAnything that stands out as either too good or too bad, may please be highlighted in the comments box.",
 
 
-			"select_type": 4
+			"select_type": 4,
+
+
+			"question_info": "An instruction is an order given to a computer processor by a computer program. ... used in carrying out the instruction, or the location in computer memory of data. ... (Healthcare Information and Management Systems Society)"
 
 
 		}
@@ -154,7 +146,9 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+
+			"question_info": "Human physical appearance is the outward phenotype or look of human beings. There are .... Tools. What links here · Related changes · Upload file · Special pages · Permanent link · Page information · Wikidata item"
 
 
 		},
@@ -320,7 +314,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical appearance"
 
 		},
 
@@ -441,7 +436,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical appearance"
 
 
 		}
@@ -483,7 +479,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 			"is_nested_option": 1,
 
 
-			"nested_option_list": "AROMA"
+			"nested_option_list": "AROMA",
+			"question_info": "Human physical Aroma"
 
 
 		},
@@ -606,7 +603,9 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical Aroma"
+
 
 
 		}
@@ -711,7 +710,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical Aroma"
 
 
 		},
@@ -799,7 +799,9 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical Ayurvedic"
+
 
 
 		},
@@ -922,7 +924,9 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical Ayurvedic"
+
 
 
 		}
@@ -964,7 +968,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 			"is_nested_option": 1,
 
 
-			"nested_option_list": "AROMA"
+			"nested_option_list": "AROMA",
+			"question_info": "Human physical Aromatics"
 
 
 		},
@@ -1017,7 +1022,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical Aromatics"
 
 		},
 
@@ -1088,7 +1094,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 				}
 
 
-			]
+			],
+			"question_info": "Human physical Aromatics"
 
 		},
 
@@ -1528,7 +1535,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 				}
 
-			]
+			],
+			"question_info": "Human physical Aromatics"
 
 
 		},
@@ -1791,6 +1799,8 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 			"title": "Comments",
 
+			"placeholder": "Please write about product",
+
 
 			"select_type": 3,
 
@@ -1812,7 +1822,7 @@ Please take a bite again, eat normally, keeping your MOUTH CLOSED and EXHALE THR
 
 }';
 
-        $data = ['name'=>'generic','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'latest generic','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);

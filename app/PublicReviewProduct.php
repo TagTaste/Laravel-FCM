@@ -23,15 +23,15 @@ class PublicReviewProduct extends Model
 
         protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id',
-            'is_active','created_at','updated_at','deleted_at'];
+            'is_active','created_at','updated_at','deleted_at','keywords'];
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating','is_reviewed','created_at','updated_at','deleted_at'];
+        'product_category','product_sub_category','type','overall_rating','current_status','created_at','updated_at','deleted_at','keywords'];
 
-    protected $appends = ['type','overall_rating','is_reviewed'];
+    protected $appends = ['type','overall_rating','current_status'];
 
-    protected $with = ['product_category','product_sub_category'];
+    protected $with = ['product_category','product_sub_category']; // remove category and sub category
 
     public static function boot()
     {
@@ -138,9 +138,22 @@ class PublicReviewProduct extends Model
         return null;
     }
 
-    public function getIsReviewedAttribute()
+    public function getCurrentStatusAttribute()
     {
+        //bad me change krna h
         $loggedInProfileId = request()->user()->profile->id;
-        return \DB::table('public_product_user_review')->where('product_id',$this->id)->where('profile_id',$loggedInProfileId)->where('current_status',1)->exists();
+        $currentStatus = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('profile_id',$loggedInProfileId)->where('current_status',2)->exists();
+        if($currentStatus)
+            return 2;
+        $currentStatus = \DB::table('public_product_user_review')->where('product_id',$this->id)->where('profile_id',$loggedInProfileId)->where('current_status',1)->exists();
+        if($currentStatus)
+            return 1;
+        return 0;
+    }
+
+    public function getKeywordsAttribute($value)
+    {
+        $keywords = explode(",",$value);
+        return \DB::table('public_review_keywords')->whereIn('id',$keywords)->get();
     }
 }
