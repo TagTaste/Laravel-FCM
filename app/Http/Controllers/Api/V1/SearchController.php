@@ -712,8 +712,10 @@ class SearchController extends Controller
             $model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
 
         $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
-        $profileIds = explode(",",$fbFriends);
-
+        if(isset($fbFriends->fb_friends) )
+            $profileIds = explode(",",$fbFriends->fb_friends);
+        else
+            $profileIds = [];
         foreach ($profileIds as $key => $value)
         {
             if($loggedInProfileId == $value)
