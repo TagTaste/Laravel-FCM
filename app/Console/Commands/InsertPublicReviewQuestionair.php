@@ -87,7 +87,11 @@ class InsertPublicReviewQuestionair extends Command
 			"select_type": 4,
 
 
-			"question_info": "An instruction is an order given to a computer processor by a computer program. ... used in carrying out the instruction, or the location in computer memory of data. ... (Healthcare Information and Management Systems Society)"
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		}
@@ -148,7 +152,11 @@ class InsertPublicReviewQuestionair extends Command
 
 			],
 
-			"question_info": "Human physical appearance is the outward phenotype or look of human beings. There are .... Tools. What links here · Related changes · Upload file · Special pages · Permanent link · Page information · Wikidata item"
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		},
@@ -315,8 +323,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			],
-			"question_info": "Human physical appearance"
-
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 		},
 
 		{
@@ -437,8 +448,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			],
-			"question_info": "Human physical appearance"
-
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 		}
 
@@ -480,8 +494,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"nested_option_list": "AROMA",
-			"question_info": "Human physical Aroma"
-
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 		},
 
@@ -604,8 +621,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			],
-			"question_info": "Human physical Aroma"
-
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		}
@@ -711,7 +731,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			],
-			"question_info": "Human physical Aroma"
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		},
@@ -800,8 +824,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			],
-			"question_info": "Human physical Ayurvedic"
-
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		},
@@ -925,7 +952,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			],
-			"question_info": "Human physical Ayurvedic"
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 
@@ -969,7 +1000,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"nested_option_list": "AROMA",
-			"question_info": "Human physical Aromatics"
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		},
@@ -1022,8 +1057,7 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
-			],
-			"question_info": "Human physical Aromatics"
+			]
 
 		},
 
@@ -1094,8 +1128,7 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
-			],
-			"question_info": "Human physical Aromatics"
+			]
 
 		},
 
@@ -1536,7 +1569,11 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 			],
-			"question_info": "Human physical Aromatics"
+			"question_info": {
+				"text": "Take a bite, eat normally and assess the taste/s and its intensity as mentioned in the section. What is Umami? When the taste causes continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth and has a long lasting aftertaste",
+				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
+				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
+			}
 
 
 		},
@@ -1822,7 +1859,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'latest generic','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'new latest generic','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
