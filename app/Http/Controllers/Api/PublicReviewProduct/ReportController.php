@@ -205,7 +205,7 @@ class ReportController extends Controller
                         $subReports['select_type'] = isset($item->questions->select_type) ? $item->questions->select_type : null;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
+                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
                             ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
 
@@ -282,7 +282,7 @@ class ReportController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',1)
+                    $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
                         ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
 
@@ -507,7 +507,7 @@ class ReportController extends Controller
                             $subReports['total_applicants'] = $totalApplicants;
                             $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
                                 ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                            $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
+                            $subReports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',2)
                                 ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
                                 ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                             $subAnswers[] = $subReports;
@@ -527,7 +527,7 @@ class ReportController extends Controller
                     }
                     else
                     {
-                        $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',1)
+                        $reports['answer'] = \DB::table('public_product_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',2)
                             ->where('product_id',$productId)->where('question_id',$data->id)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
                     }
