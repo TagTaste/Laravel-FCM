@@ -392,9 +392,9 @@ class ReportController extends Controller
 
     public function getUsersRating($productId,$headerId)
     {
-        $overallPreferances = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
-        $userCount = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->count();
-        $oberallPreferanceUserCount = \DB::table('public_product_user_review')->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
+        $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
+        $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->count();
+        $oberallPreferanceUserCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
         $meta = [];
         $meta['max_rating'] = 8;
         $meta['overall_rating'] = $oberallPreferanceUserCount > 0 ? $overallPreferances/$oberallPreferanceUserCount : 0.00;
