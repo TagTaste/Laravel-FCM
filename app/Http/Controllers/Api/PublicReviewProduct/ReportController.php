@@ -127,10 +127,22 @@ class ReportController extends Controller
             return $this->sendError("Invalid product.");
         }
 
-        $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
-            ->whereNull('parent_question_id')->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
-        $withNested = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
-            ->whereNotNull('parent_question_id')->where('is_active',1)->where('header_id',$headerId)->orderBy('id')->get();
+        $headerInfo = ReviewHeader::where('id',$headerId)->first();
+
+        if($headerInfo->header_selection_type == 1)
+        {
+            $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
+                ->whereNull('parent_question_id')->where('questions->select_type','!=',5)->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
+            $withNested = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
+                ->whereNotNull('parent_question_id')->where('questions->select_type','!=',5)->where('is_active',1)->where('header_id',$headerId)->orderBy('id')->get();
+        }
+        else
+        {
+            $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
+                ->whereNull('parent_question_id')->where('questions->select_type','!=',3)->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
+            $withNested = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
+                ->whereNotNull('parent_question_id')->where('questions->select_type','!=',3)->where('is_active',1)->where('header_id',$headerId)->orderBy('id')->get();
+        }
 
         foreach ($withoutNest as &$data)
         {
