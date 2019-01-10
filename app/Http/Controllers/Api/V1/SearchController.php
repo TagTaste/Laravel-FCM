@@ -711,8 +711,8 @@ class SearchController extends Controller
 
         $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
         if($recommended->count())
-            $model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
-                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
+                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
         $specializations = \DB::table('specializations')->get();
 
