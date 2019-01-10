@@ -708,7 +708,7 @@ class SearchController extends Controller
             $model[] = ['title'=>'Categories','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
                 'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
-        $recommended = PublicReviewProduct\ProductCategory::where('mark_featured',1)->inRandomOrder()->limit(6)->get();
+        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
         if($recommended->count())
             $model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
                 'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
