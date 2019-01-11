@@ -46,7 +46,7 @@ class ReviewController extends Controller
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $take = 5;
-        $skip = ($page - 1) * 10;
+        $skip = ($page - 1) * 5;
         $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
         $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
         $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
