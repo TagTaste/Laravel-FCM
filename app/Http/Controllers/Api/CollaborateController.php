@@ -621,7 +621,7 @@ class CollaborateController extends Controller
         }
         \Log::info($data);
         \Log::info("hq");
-        $this->model = \DB::table('global_nested_option')->insert($data);
+        $this->model = \DB::table('public_review_global_nested_option')->insert($data);
         return $this->sendResponse();
     }
 
