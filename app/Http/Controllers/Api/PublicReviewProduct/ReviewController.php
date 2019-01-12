@@ -219,6 +219,20 @@ class ReviewController extends Controller
         return $this->sendResponse();
     }
 
+    public function commentsDelete(Request $request, $productId,$reviewId,$commentId){
+        $review = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
+        if($review == null)
+        {
+            $this->model = [];
+
+            return $this->sendError("review is not available");
+        }
+        $this->now = Carbon::now()->toDateTimeString();
+        $this->model = $review->comments()->where('id',$commentId)->update(['deleted_at'=>$this->now]);
+        return $this->sendResponse();
+
+    }
+
     public function reviewAnswers(Request $request, $productId, $headerId)
     {
         $this->now = Carbon::now()->toDateTimeString();
