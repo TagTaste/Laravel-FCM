@@ -13,4 +13,10 @@ class ReviewHeader extends Model {
 
     protected $visible = ['header_type','is_active','collaborate_id','header_info'];
 
+    public function getHeaderInfoAttribute($value)
+    {
+        if(isset($value))
+            return json_decode($value,true);
+    }
+
 }
