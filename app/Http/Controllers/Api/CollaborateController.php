@@ -618,7 +618,7 @@ class CollaborateController extends Controller
         {
             $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active'],'description'=>$item['description']];
         }
-        $this->model = \DB::table('public_review_global_nested_option')->insert($data);
+        $this->model = \DB::table('global_nested_option')->insert($data);
         return $this->sendResponse();
     }
 
