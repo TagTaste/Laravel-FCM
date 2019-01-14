@@ -400,7 +400,7 @@ class PublicReviewProductController extends Controller
 
             foreach ($item as $datum)
             {
-                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+                if(is_null($datum['categories']))
                     break;
                 $extra[] = $datum;
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
