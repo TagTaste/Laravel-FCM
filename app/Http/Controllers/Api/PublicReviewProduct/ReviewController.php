@@ -7,11 +7,14 @@ use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Carbon\Carbon;
+use App\Traits\CheckTags;
+use App\Events\Actions\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 
 class ReviewController extends Controller
 {
+    use CheckTags;
     /**
      * Variable to model
      *
@@ -208,14 +211,22 @@ class ReviewController extends Controller
             return $this->sendError("review is not available");
         }
         $comment = new Comment();
-
-        $comment->content = $request->input("content");
+        $content = htmlentities($request->input("content"), ENT_QUOTES, 'UTF-8', false);
+        $comment->content = $content;
         $comment->user_id = $request->user()->id;
+        $comment->has_tags = $this->hasTags($content);
         $comment->save();
 
         $review->comments()->attach($comment->id);
 
+        event(new \App\Events\Actions\Comment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
+
+        if($comment->has_tags){
+            event(new Tag($review,$request->user()->profile,$comment->content, null, null, null, $comment));
+        }
+
         $this->model = $comment;
+
         return $this->sendResponse();
     }
 
@@ -260,6 +271,7 @@ class ReviewController extends Controller
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
+
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
@@ -269,15 +281,24 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
                         'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null];
+                }
+                if(isset($answer['meta']) && is_null($answer['meta']) && !empty($answer['meta']))
+                {
+                    $data[] = ['key'=>"authenticity_check",'value'=>null,'leaf_id'=>0,
+                        'question_id'=>$questionId,'header_id'=>$headerId,
+                        'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
+                        'current_status'=>$currentStatus,'value_id'=>null,
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta']];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
+
                     $data[] = ['key'=>"comment",'value'=>$answer['comment'],'leaf_id'=>0,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null];
                 }
             }
         }
@@ -290,6 +311,26 @@ class ReviewController extends Controller
                     ->update(['current_status'=>$currentStatus]);
             }
         }
+        return $this->sendResponse();
+    }
+
+    public function uploadImage(Request $request, $productId)
+    {
+        $profileId = $request->user()->profile->id;
+        $imageName = str_random("32") . ".jpg";
+        $path = "images/public-review/products/$productId/profile/$profileId";
+        $randnum = rand(10,1000);
+        //create a tiny image
+        $path = $path."/brand_logo/$randnum";
+        $thumbnail = \Image::make($request->file('image'))->resize(320, null,function ($constraint) {
+            $constraint->aspectRatio();
+        })->blur(1)->stream('jpg',70);
+        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+        $response = \Storage::url($path);
+        if(!$response){
+            throw new \Exception("Could not save image " . $imageName . " at " . $path);
+        }
+        $this->model = $response;
         return $this->sendResponse();
     }
 

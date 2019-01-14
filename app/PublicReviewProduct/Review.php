@@ -80,6 +80,10 @@ class Review extends Model
         }
     }
 
+    public function getMetaAttribute($value)
+    {
+        $meta = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',6)->first();
 
-
+        return isset($meta->meta) ? $meta->meta : null;
+    }
 }
