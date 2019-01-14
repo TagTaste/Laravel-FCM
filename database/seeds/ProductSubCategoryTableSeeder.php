@@ -77,7 +77,7 @@ class ProductSubCategoryTableSeeder extends Seeder
         $data[] = ["name"=>"Orthodox","is_active"=>1];
         $data[] = ["name"=>"Tissanes","is_active"=>1];
         $data[] = ["name"=>"Pulses","is_active"=>1];
-        $data[] = ["name"=>"Instant Food'","is_active"=>1];
+        $data[] = ["name"=>"Instant Food","is_active"=>1];
 
         \DB::table("product_sub_categories")->insert($data);
     }
