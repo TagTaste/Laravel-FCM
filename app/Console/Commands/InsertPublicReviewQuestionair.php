@@ -88,6 +88,16 @@ All the tastes except Umami are self-explanatory. When you experience an Umami t
 		}
 
 	],
+	"Your Food Shot": [{
+			"title": "Take a selfie with the product",
+
+			"subtitle": "This will act as a social proof that you did taste.",
+
+			"select_type": 6
+
+		}
+
+	],
 
 	"APPEARANCE": [
 
