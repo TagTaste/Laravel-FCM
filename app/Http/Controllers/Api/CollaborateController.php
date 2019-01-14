@@ -587,8 +587,8 @@ class CollaborateController extends Controller
             $fullpath = $request->file->store('temp', 'local');
             \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
                 $data = $reader->toArray();
-                \Log::info($data);
             })->get();
+            \Log::info($data);
             if(empty($data)){
                 return $this->sendError("Empty file uploaded.");
             }
