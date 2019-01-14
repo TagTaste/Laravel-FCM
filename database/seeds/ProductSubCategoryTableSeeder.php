@@ -23,8 +23,10 @@ class ProductSubCategoryTableSeeder extends Seeder
         $data[] = ["name"=>"Tequila","is_active"=>1];
         $data[] = ["name"=>"Scotch","is_active"=>1];
         $data[] = ["name"=>"Bread","is_active"=>1];
+        $data[] = ["name"=>"Confectionery","is_active"=>1];
         $data[] = ["name"=>"Salty Food","is_active"=>1];
         $data[] = ["name"=>"Soft Drinks","is_active"=>1];
+        $data[] = ["name"=>"Coffee","is_active"=>1];
         $data[] = ["name"=>"Energy Drinks","is_active"=>1];
         $data[] = ["name"=>"Juices","is_active"=>1];
         $data[] = ["name"=>"Malt Drinks","is_active"=>1];
@@ -66,6 +68,7 @@ class ProductSubCategoryTableSeeder extends Seeder
         $data[] = ["name"=>"Egg","is_active"=>1];
         $data[] = ["name"=>"Canned Food","is_active"=>1];
         $data[] = ["name"=>"Dehydrated Food","is_active"=>1];
+        $data[] = ["name"=>"Frozen Food","is_active"=>1];
         $data[] = ["name"=>"Vegetables","is_active"=>1];
         $data[] = ["name"=>"Fruits","is_active"=>1];
         $data[] = ["name"=>"Salty Snacks","is_active"=>1];
