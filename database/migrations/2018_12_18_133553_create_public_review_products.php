@@ -33,6 +33,7 @@ class CreatePublicReviewProducts extends Migration
             $table->json('images_meta')->nullable();
             $table->string('video_link')->nullable();
             $table->string("keywords")->nullable();
+            $table->boolean("is_authenticity_check")->default(0);
             $table->unsignedInteger('global_question_id');
             $table->foreign("global_question_id")->references("id")->on("public_review_global_questions");
             $table->boolean("is_active")->default(0);
