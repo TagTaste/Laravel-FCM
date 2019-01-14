@@ -21,6 +21,7 @@ class CreatePublicReviewGlobalNestedOption extends Migration
             $table->integer('parent_id')->nullable();
             $table->string('value')->nullable();
             $table->boolean('is_active');
+            $table->boolean('is_intensity')->default(1);
             $table->text('description')->nullable();
             $table->timestamps();
         });

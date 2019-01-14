@@ -9,10 +9,10 @@ class Review extends Model
     protected $table = 'public_product_user_review';
 
     protected $fillable = ['key','value','leaf_id','question_id','header_id','select_type',
-        'product_id','profile_id','intensity','current_status','created_at','updated_at'];
+        'product_id','profile_id','intensity','current_status','created_at','updated_at','meta'];
 
     protected $visible = ['id','key','value','leaf_id','question_id','header_id','select_type','product_id','profile_id',
-        'intensity','current_status','created_at','updated_at','profile','review_meta','comment_count','review_comment'];
+        'intensity','current_status','created_at','updated_at','profile','review_meta','comment_count','review_comment','meta'];
 
     protected $with = ['profile'];
 

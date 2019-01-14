@@ -187,7 +187,7 @@ class InsertPublicReviewQuestionair extends Command
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
-                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOption->is_intensity];
+                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -199,7 +199,7 @@ class InsertPublicReviewQuestionair extends Command
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
                                     'is_active'=>$nested->is_active, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,
-                                    'description'=>$description,'is_intensity'=>$nestedOption->is_intensity];
+                                    'description'=>$description,'is_intensity'=>$nested->is_intensity];
                             }
                         }
                         else
