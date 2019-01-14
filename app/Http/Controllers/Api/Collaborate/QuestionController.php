@@ -28,7 +28,7 @@ class QuestionController extends Controller
 
     public function headers(Request $request, $id)
     {
-        $this->model = \DB::table('collaborate_tasting_header')->where('is_active',1)->where('collaborate_id',$id)->orderBy('id')->get();
+        $this->model = ReviewHeader::where('is_active',1)->where('collaborate_id',$id)->orderBy('id')->get();
 
         return $this->sendResponse();
     }
