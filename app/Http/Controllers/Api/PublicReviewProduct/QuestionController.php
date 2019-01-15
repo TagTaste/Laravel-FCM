@@ -197,6 +197,7 @@ class QuestionController extends Controller
             $comment = null;
             $questionId = null;
             $meta = null;
+            \Log:info($answerModel);
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
@@ -213,7 +214,7 @@ class QuestionController extends Controller
                 }
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
             }
-            if((!is_null($comment) && !empty($comment)) || !is_null($meta) && !empty($meta))
+            if((!is_null($comment) && !empty($comment)) || (!is_null($meta) && !empty($meta)))
             {
                 $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment,'select_type'=>$selectType,'meta'=>$meta];
             }
