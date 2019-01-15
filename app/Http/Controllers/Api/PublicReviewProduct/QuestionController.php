@@ -190,6 +190,7 @@ class QuestionController extends Controller
     {
         $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
             ->where('header_id',$headerId)->get()->groupBy('question_id');
+        \Log::info($answerModels);
         $answers = [];
         foreach ($answerModels as $answerModel)
         {
@@ -197,7 +198,6 @@ class QuestionController extends Controller
             $comment = null;
             $questionId = null;
             $meta = null;
-            \Log::info($answerModel);
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
