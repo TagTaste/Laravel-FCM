@@ -197,7 +197,7 @@ class QuestionController extends Controller
             $comment = null;
             $questionId = null;
             $meta = null;
-            \Log:info($answerModel);
+            \Log::info($answerModel);
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
