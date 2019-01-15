@@ -249,6 +249,7 @@ class ReviewController extends Controller
         $this->now = Carbon::now()->toDateTimeString();
         $data = [];
         $answers = $request->input('answer');
+        \Log::info($answers);
         $loggedInProfileId = $request->user()->profile->id ;
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
@@ -285,7 +286,6 @@ class ReviewController extends Controller
                 }
                 if(isset($answer['meta']) && is_null($answer['meta']) && !empty($answer['meta']))
                 {
-                    \Log::info($answer['meta']);
                     $data[] = ['key'=>"authenticity_check",'value'=>null,'leaf_id'=>0,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
