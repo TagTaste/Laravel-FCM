@@ -62,11 +62,13 @@ class PublicReviewProductController extends Controller
         }
 
         $products = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
-        $this->model = [];
+        $data = [];
+
         foreach($products as $product){
             $meta = $product->getMetaFor($profileId);
-            $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+            $data[] = ['product'=>$product,'meta'=>$meta];
         }
+        $this->model = $data;
         return $this->sendResponse();
 
     }
