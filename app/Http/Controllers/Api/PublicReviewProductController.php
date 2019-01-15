@@ -372,9 +372,8 @@ class PublicReviewProductController extends Controller
 
     public function createFilters(Request $request)
     {
-        \Log::info("here");
         $id = $request->input('uuid');
-        \Log::info($id);
+        \Log::info($request->all());
         $this->model = $this->model->where('id',$id)->first();
         \Log::info($this->model);
         \App\Filter\PublicReviewProduct::addModel($this->model);
