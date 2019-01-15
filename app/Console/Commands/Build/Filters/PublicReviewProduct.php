@@ -4,7 +4,7 @@ namespace App\Console\Commands\Build\Filters;
 
 use Illuminate\Console\Command;
 
-class Product extends Command
+class PublicReviewProduct extends Command
 {
     /**
      * The name and signature of the console command.

@@ -44,20 +44,29 @@ class PublicReviewProductController extends Controller
         $profileId = $request->user()->profile->id;
         if(isset($query) && !is_null($query) && !empty($query))
         {
-            return $this->getSearchData($request,$query,$type);
+            return $this->getSearchData($request,$query,$type,$profileId);
         }
         $filters = $request->input('filters');
         if(!empty($filters))
         {
             $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
 
-            $this->model = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $this->model = [];
+            foreach($products as $product){
+                $meta = $product->getMetaFor($profileId);
+                $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+            }
 
             return $this->sendResponse();
         }
 
-        $this->model = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
-
+        $products = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
+        $this->model = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($profileId);
+            $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+        }
         return $this->sendResponse();
 
     }
@@ -99,8 +108,8 @@ class PublicReviewProductController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $this->model = $this->model->whereNull('deleted_at')->where('id',$id)->first();
-
+        $product = $this->model->whereNull('deleted_at')->where('id',$id)->first();
+        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
         return $this->sendResponse();
 
     }
@@ -116,7 +125,8 @@ class PublicReviewProductController extends Controller
     {
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
-        $this->model = \App\PublicReviewProduct::where('id',$id)->first();
+        $product = \App\PublicReviewProduct::where('id',$id)->first();
+        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
         \App\Filter\PublicReviewProduct::addModel($this->model);
         return $this->sendResponse();
     }
@@ -179,8 +189,13 @@ class PublicReviewProductController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
-        $this->model = $this->model->where('product_category_id',$categoryId)->where('is_active',1)->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        $products = $this->model->where('product_category_id',$categoryId)->where('is_active',1)->skip($skip)->take($take)->get();
+        $this->model = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($profileId);
+            $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+        }
 
         return $this->sendResponse();
     }
@@ -195,7 +210,7 @@ class PublicReviewProductController extends Controller
      * @param $productId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function similarProducts($productId)
+    public function similarProducts(Request $request, $productId)
     {
         $product = $this->model->where('id', $productId)->first();
         if($product == null)
@@ -206,12 +221,18 @@ class PublicReviewProductController extends Controller
         $filter['Category'][] = $product['product_category']['name'];
         $filter['By Brand'][] = $product['brand_name'];
         $filter['By Company'][] = $product['company_name'];
+        $profileId = $request->user()->profile->id;
         $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
-        $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+        $products = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+        $this->model = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($profileId);
+            $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+        }
         return $this->sendResponse();
     }
 
-    public function getSearchData($request,$query,$type)
+    public function getSearchData($request,$query,$type,$profileId)
     {
         $params = [
             'index' => "api",
@@ -254,18 +275,15 @@ class PublicReviewProductController extends Controller
                 else
                     $this->model[$name] = $searched;
             }
-            $productData = [];
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
-                foreach ($products as &$product)
-                {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
-                    $productData[] = $product;
+                $this->model = [];
+                foreach($products as $product){
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
                 }
             }
-            $this->model = [];
-            $this->model = $productData;
             return $this->sendResponse();
 
         }
@@ -281,18 +299,15 @@ class PublicReviewProductController extends Controller
         }
 
         if(!empty($this->model)){
-            $productData = [];
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
-                foreach ($products as &$product)
-                {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
-                    $productData[] = $product;
+                $this->model = [];
+                foreach($products as $product){
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
                 }
             }
-            $this->model = [];
-            $this->model = $productData;
             return $this->sendResponse();
         }
         $this->model = [];

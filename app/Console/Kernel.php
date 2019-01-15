@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Search\Job::class,
         \App\Console\Commands\Build\Search\Profile::class,
         \App\Console\Commands\Build\Search\Recipe::class,
-        \App\Console\Commands\Build\Search\Product::class,
+        \App\Console\Commands\Build\Search\PublicReviewProduct::class,
         
         //Meta
             //Collab
@@ -90,7 +90,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Filters\Job::class,
         \App\Console\Commands\Build\Filters\Collaboration::class,
         \App\Console\Commands\Build\Filters\Recipe::class,
-        \App\Console\Commands\Build\Filters\Product::class,
+        \App\Console\Commands\Build\Filters\PublicReviewProduct::class,
         //command for temporary
         \App\Console\Commands\DateFixCompany::class,
         //for date fixes delete after run commands

@@ -29,21 +29,29 @@ class PublicReviewProduct extends Model
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
         'product_category','product_sub_category','type','overall_rating','current_status','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
 
-    protected $appends = ['type','overall_rating','current_status'];
+    protected $appends = ['type'];
 
     protected $with = ['product_category','product_sub_category']; // remove category and sub category
 
     public static function boot()
     {
         self::created(function($model){
+            $model->addToCache();
             \App\Documents\PublicReviewProduct::create($model);
         });
 
         self::updated(function($model){
+            $model->addToCache();
             //update the search
             \App\Documents\PublicReviewProduct::create($model);
 
         });
+    }
+
+    public function addToCache()
+    {
+        \Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+
     }
 
     public function getTypeAttribute()
@@ -155,5 +163,13 @@ class PublicReviewProduct extends Model
     {
         $keywords = explode(",",$value);
         return \DB::table('public_review_keywords')->whereIn('id',$keywords)->get();
+    }
+
+    public function getMetaFor(int $profileId) : array
+    {
+        $meta = [];
+        $meta['overall_rating'] = $this->getOverallRatingAttribute();
+        $meta['current_status'] = $this->getCurrentStatusAttribute();
+        return $meta;
     }
 }

@@ -352,7 +352,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             });
 
-            Route::group(['namespace'=>'PublicReviewProduct','prefix'=>'public-review/products/{productId}','as'=>'collaborate.'],function(){
+            Route::group(['namespace'=>'Product','prefix'=>'public-review/products/{productId}','as'=>'collaborate.'],function(){
 
                 //reports
                 Route::get("reportPdf","ReportController@reportPdf");
