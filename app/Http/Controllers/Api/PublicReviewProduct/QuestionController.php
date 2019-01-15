@@ -196,6 +196,7 @@ class QuestionController extends Controller
             $data = [];
             $comment = null;
             $questionId = null;
+            $meta = null;
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
@@ -205,15 +206,20 @@ class QuestionController extends Controller
                     $comment = $item->value;
                     continue;
                 }
+                if($item->select_type == 6)
+                {
+                    $meta = $item->meta;
+                    continue;
+                }
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
             }
-            if(!is_null($comment) && !empty($comment))
+            if((!is_null($comment) && !empty($comment)) || !is_null($meta) && !empty($meta))
             {
-                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment,'select_type'=>$selectType];
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment,'select_type'=>$selectType,'meta'=>$meta];
             }
             else
             {
-                $answers[] = ['question_id'=>$questionId,'option'=>$data,'select_type'=>$selectType];
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'select_type'=>$selectType,'meta'=>$meta];
 
             }
         }
