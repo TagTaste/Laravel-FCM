@@ -18,7 +18,7 @@ class PublicReviewProductController extends Controller
      * @var PublicReviewProduct
      */
     protected $model;
-
+    protected $now;
     /**
      * Create instance of controller with Model
      *
@@ -27,6 +27,7 @@ class PublicReviewProductController extends Controller
     public function __construct(PublicReviewProduct $model)
     {
         $this->model = $model;
+        $this->now = \Carbon\Carbon::now()->toDateTimeString();
     }
     /**
      * Display a listing of the resource.
