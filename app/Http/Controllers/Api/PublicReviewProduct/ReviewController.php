@@ -285,11 +285,13 @@ class ReviewController extends Controller
                 }
                 if(isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta']))
                 {
-                    $data[] = ['key'=>"authenticity_check",'value'=>"meta",'leaf_id'=>0,
+                    $x = ['key'=>"authenticity_check",'value'=>"meta",'leaf_id'=>0,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
                         'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta']];
+                    $data[] = $x;
+                    \Lopg::info($x);
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
