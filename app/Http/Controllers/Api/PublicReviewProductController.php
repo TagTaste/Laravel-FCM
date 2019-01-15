@@ -52,12 +52,13 @@ class PublicReviewProductController extends Controller
             $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
 
             $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
-            $this->model = [];
+            $data = [];
+
             foreach($products as $product){
                 $meta = $product->getMetaFor($profileId);
-                $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+                $data[] = ['product'=>$product,'meta'=>$meta];
             }
-
+            $this->model = $data;
             return $this->sendResponse();
         }
 
