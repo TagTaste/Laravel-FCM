@@ -188,8 +188,6 @@ class QuestionController extends Controller
 
     public function userAnswer($loggedInProfileId,$productId,$headerId)
     {
-        \Log::info($productId);
-        \Log::info($headerId);
         $answerModels = Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
             ->where('header_id',$headerId)->get()->groupBy('question_id');
         $answers = [];
