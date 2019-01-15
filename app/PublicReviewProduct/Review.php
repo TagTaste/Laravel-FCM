@@ -34,7 +34,7 @@ class Review extends Model
 
     public function getCommentCountAttribute()
     {
-        return \DB::table('comments_public_review')->where('public_review_id',$this->id)->count();
+        return $this->comments()->count();
     }
 
     public function getReviewCommentAttribute()
