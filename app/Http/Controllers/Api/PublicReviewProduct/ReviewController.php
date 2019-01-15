@@ -291,7 +291,7 @@ class ReviewController extends Controller
                         'current_status'=>$currentStatus,'value_id'=>null,
                         'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta']];
                     $data[] = $x;
-                    \Lopg::info($x);
+                    \Log::info($x);
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
