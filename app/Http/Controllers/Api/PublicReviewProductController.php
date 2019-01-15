@@ -373,7 +373,9 @@ class PublicReviewProductController extends Controller
     public function createFilters(Request $request)
     {
         $id = $request->input('uuid');
+        \Log::info($id);
         $this->model = $this->model->where('id',$id)->first();
+        \Log::info($this->model);
         \App\Filter\PublicReviewProduct::addModel($this->model);
         $this->model->update(['updated_at'=>$this->now]);
         return $this->sendResponse();
