@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Events\Actions\Share;
 use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
+use App\PublicReviewProduct;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
@@ -27,8 +29,8 @@ class ShareController extends Controller
         $modelName = strtolower($modelName);
         
         $this->setColumn($modelName);
-        
-        
+
+
         $sharedModel = $this->getModel($modelName, $id);
         
         if (!$sharedModel) {
@@ -48,7 +50,7 @@ class ShareController extends Controller
         if ($exists) {
             return $this->sendError("You have already shared this.");
         }
-        
+
         $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
             'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         
@@ -127,6 +129,56 @@ class ShareController extends Controller
         return $this->sendResponse();
 
     }
-    
-    
+
+    public function productStore(Request $request, $id)
+    {
+        $modelName = 'product';
+        $modelName = strtolower($modelName);
+
+        $this->setColumn($modelName);
+
+
+        $sharedModel = PublicReviewProduct::where('id',$id)->whereNull('deleted_at')->where('is_active',1)->first();
+
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        //$sharedModel->additionalPayload = ['sharedBy'=>'profile:small:' . $loggedInProfileId,'shared'=>$modelName . ":" . $id];
+
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+
+        $share = new $class();
+        $exists = $share->where('profile_id', $loggedInProfileId)
+            ->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
+
+        if ($exists) {
+            return $this->sendError("You have already shared this.");
+        }
+        $share->profile_id = $loggedInProfileId;
+        $share->product_id = $sharedModel->id;
+        $share->privacy_id = $request->input('privacy_id');
+        $share->created_at = Carbon::now()->toDateTimeString();
+        $share->updated_at = Carbon::now()->toDateTimeString();
+//        $this->model = $share->insert(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
+//            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
+        $share->save();
+        $this->model = $share;
+        $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
+            $modelName => "public-review/product" . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
+        ];
+
+        $this->model->relatedKey = [];
+
+        //push to feed
+        event(new NewFeedable($this->model, $request->user()->profile));
+
+        //add model subscriber
+        event(new Create($this->model,$request->user()->profile));
+
+        return $this->sendResponse();
+    }
+
 }

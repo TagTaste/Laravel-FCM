@@ -64,7 +64,6 @@ class PublicReviewProductController extends Controller
 
         $products = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
         $data = [];
-
         foreach($products as $product){
             $meta = $product->getMetaFor($profileId);
             $data[] = ['product'=>$product,'meta'=>$meta];
@@ -98,8 +97,9 @@ class PublicReviewProductController extends Controller
                 $imageArray[] = $image;
             $inputs['images_meta'] = json_encode($imageArray,true);
         }
-        $this->model = $this->model->create($inputs);
-        \App\Filter\PublicReviewProduct::addModel($this->model);
+        $product = $this->model->create($inputs);
+        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
+        \App\Filter\PublicReviewProduct::addModel($product);
         return $this->sendResponse();
     }
 
@@ -130,7 +130,7 @@ class PublicReviewProductController extends Controller
         $this->model = $this->model->where('id',$id)->update($inputs);
         $product = \App\PublicReviewProduct::where('id',$id)->first();
         $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
-        \App\Filter\PublicReviewProduct::addModel($this->model);
+        \App\Filter\PublicReviewProduct::addModel($product);
         return $this->sendResponse();
     }
 
@@ -197,7 +197,7 @@ class PublicReviewProductController extends Controller
         $this->model = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($profileId);
-            $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+            $this->model[] = ['product'=>$product,'meta'=>$meta];
         }
 
         return $this->sendResponse();
@@ -230,7 +230,7 @@ class PublicReviewProductController extends Controller
         $this->model = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($profileId);
-            $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+            $this->model[] = ['product'=>$product,'meta'=>$meta];
         }
         return $this->sendResponse();
     }
@@ -284,7 +284,7 @@ class PublicReviewProductController extends Controller
                 $this->model = [];
                 foreach($products as $product){
                     $meta = $product->getMetaFor($profileId);
-                    $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+                    $this->model[] = ['product'=>$product,'meta'=>$meta];
                 }
             }
             return $this->sendResponse();
@@ -308,7 +308,7 @@ class PublicReviewProductController extends Controller
                 $this->model = [];
                 foreach($products as $product){
                     $meta = $product->getMetaFor($profileId);
-                    $this->model['data'][] = ['product'=>$product,'meta'=>$meta];
+                    $this->model[] = ['product'=>$product,'meta'=>$meta];
                 }
             }
             return $this->sendResponse();
@@ -360,11 +360,11 @@ class PublicReviewProductController extends Controller
         return $suggestions;
     }
 
-    public function uploadImageProduct(Request $request)
+    public function uploadImageProduct(Request $request,$productId)
     {
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
-        $path = "images/p/$profileId/collaborate";
+        $path = "images/product/$productId/review/$profileId";
         $randnum = rand(10,1000);
         $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
         //create a tiny image
