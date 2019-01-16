@@ -18,7 +18,7 @@ class ShareController extends Controller
     
     private function getModel(&$modelName, &$id)
     {
-        $class = "\\App\\" . ucwords($modelName);
+        $class = "\\App\\" . ucfirst ($modelName);
         return $class::where('id',$id)->whereNull('deleted_at')->first();
     }
     

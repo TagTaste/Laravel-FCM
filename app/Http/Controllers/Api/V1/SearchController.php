@@ -704,7 +704,7 @@ class SearchController extends Controller
             $meta = $product->getMetaFor($loggedInProfileId);
             $recently[] = ['product'=>$product,'meta'=>$meta];
         }
-        if($recently->count())
+        if(count ($recently) != 0)
             $model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
                 'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
