@@ -138,7 +138,7 @@ class ShareController extends Controller
         $this->setColumn($modelName);
 
 
-        $sharedModel = PublicReviewProduct::where('id',$id)->first();
+        $sharedModel = PublicReviewProduct::where('id',$id)->whereNull('deleted_at')->where('is_active',1)->first();
 
         if (!$sharedModel) {
             return $this->sendError("Nothing found for given Id.");
