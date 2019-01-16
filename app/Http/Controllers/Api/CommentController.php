@@ -4,6 +4,7 @@ use App\Comment;
 use App\CompanyUser;
 use App\Events\Actions\Tag;
 use App\Events\Update;
+use App\PublicReviewProduct\Review;
 use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -21,7 +22,8 @@ class CommentController extends Controller {
         'photo_share' => \App\Shareable\Photo::class,
 //        'job_share' => \App\Shareable\Occupation::class,
         'recipe_share' => \App\Shareable\Recipe::class,
-        'shoutout_share' => \App\Shareable\Shoutout::class
+        'shoutout_share' => \App\Shareable\Shoutout::class,
+        'review' =>Review::class
     ];
     
     private function getModel(&$modelName, &$modelId){
