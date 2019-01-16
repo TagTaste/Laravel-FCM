@@ -194,7 +194,7 @@ class ShareController extends Controller
         if (!$this->model) {
             return $this->sendError("Model not found.");
         }
-        Payload::where("payload->product","public-review/product:".$this->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+        Payload::where('id',$this->model->payload_id)->where("payload->product","public-review/product:".$this->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
         $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
