@@ -96,6 +96,7 @@ class Action extends Notification implements ShouldQueue
         if($preference->push_value) {
             $via[] = FCMPush::class;
         }
+        \Log::info($via);
         return $via;
     }
 
