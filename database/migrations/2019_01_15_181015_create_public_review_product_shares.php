@@ -16,7 +16,7 @@ class CreatePublicReviewProductShares extends Migration
         Schema::create('public_review_product_shares',function(Blueprint $table){
             $table->increments('id');
             $table->unsignedInteger('profile_id');
-            $table->unsignedInteger('product_id');
+            $table->uuid('product_id');
             $table->unsignedInteger('payload_id')->nullable();
             $table->integer('privacy_id')->unsigned();
             $table->foreign('profile_id')->references("id")->on("profiles")->onDelete('cascade');

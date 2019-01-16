@@ -24,7 +24,7 @@ class Product extends Share
         });
     }
 
-    public function publicreviewproduct()
+    public function product()
     {
         return $this->belongsTo(\App\PublicReviewProduct::class,'product_id');
     }
