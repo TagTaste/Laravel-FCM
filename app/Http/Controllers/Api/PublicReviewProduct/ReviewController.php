@@ -218,7 +218,6 @@ class ReviewController extends Controller
         $comment->save();
 
         $review->comments()->attach($comment->id);
-        \Log::info('here');
         event(new \App\Events\Actions\Comment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
 
         if($comment->has_tags){
