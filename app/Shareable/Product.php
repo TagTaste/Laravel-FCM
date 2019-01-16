@@ -49,7 +49,7 @@ class Product extends Share
 
     public function getOverallRatingAttribute($product)
     {
-        $header = Review::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+        $header = PublicReviewProduct\ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
         if($header != null)
         {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$product->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
