@@ -360,11 +360,11 @@ class PublicReviewProductController extends Controller
         return $suggestions;
     }
 
-    public function uploadImageProduct(Request $request)
+    public function uploadImageProduct(Request $request,$productId)
     {
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
-        $path = "images/p/$profileId/collaborate";
+        $path = "images/product/$productId/review/$profileId";
         $randnum = rand(10,1000);
         $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
         //create a tiny image
