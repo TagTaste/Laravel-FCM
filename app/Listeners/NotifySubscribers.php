@@ -50,7 +50,6 @@ class NotifySubscribers
             $adminProfiles = Profile::whereIn('id', $ids)->get();
             $profiles->merge($adminProfiles);
         }
-        \Log::info("here");
         Notification::send($profiles, new $class($model,$modelId,$event->action));
     }
 }
