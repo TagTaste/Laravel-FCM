@@ -178,8 +178,6 @@ class ShareController extends Controller
         //add model subscriber
         event(new Create($this->model,$request->user()->profile));
 
-        event(new Share($this->model,$request->user()->profile));
-
         return $this->sendResponse();
     }
 
