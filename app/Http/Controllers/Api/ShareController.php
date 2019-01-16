@@ -18,7 +18,11 @@ class ShareController extends Controller
     
     private function getModel(&$modelName, &$id)
     {
-        $class = "\\App\\" . ucfirst ($modelName);
+        if($modelName == 'product')
+            $class = "\\App\\" . ucfirst ("PublicReviewProduct");
+        else
+            $class = "\\App\\" . ucfirst ($modelName);
+        \Log::info($class);
         return $class::where('id',$id)->whereNull('deleted_at')->first();
     }
     
@@ -27,8 +31,6 @@ class ShareController extends Controller
         $modelName = strtolower($modelName);
         
         $this->setColumn($modelName);
-        
-        
         $sharedModel = $this->getModel($modelName, $id);
         
         if (!$sharedModel) {
