@@ -18,7 +18,7 @@ class PublicReviewProductController extends Controller
      * @var PublicReviewProduct
      */
     protected $model;
-
+    protected $now;
     /**
      * Create instance of controller with Model
      *
@@ -27,6 +27,7 @@ class PublicReviewProductController extends Controller
     public function __construct(PublicReviewProduct $model)
     {
         $this->model = $model;
+        $this->now = \Carbon\Carbon::now()->toDateTimeString();
     }
     /**
      * Display a listing of the resource.
@@ -384,6 +385,15 @@ class PublicReviewProductController extends Controller
             throw new \Exception("Could not save image " . $imageName . " at " . $path);
         }
         $this->model = $response;
+        return $this->sendResponse();
+    }
+
+    public function createFilters(Request $request)
+    {
+        $id = $request->input('uuid');
+        $this->model = $this->model->where('id',$id)->first();
+        \App\Filter\PublicReviewProduct::addModel($this->model);
+        $this->model->update(['updated_at'=>$this->now]);
         return $this->sendResponse();
     }
 
