@@ -1034,6 +1034,7 @@ All the tastes except Umami are self-explanatory. When you experience an Umami t
 
 				},
 
+
 				{
 
 					"value": "Like Moderately",
@@ -1041,6 +1042,7 @@ All the tastes except Umami are self-explanatory. When you experience an Umami t
 					"color_code": "#7E9B42"
 
 				},
+
 
 				{
 
@@ -1050,9 +1052,11 @@ All the tastes except Umami are self-explanatory. When you experience an Umami t
 
 				}
 
+
 			]
 
 		},
+
 
 		{
 
@@ -1061,6 +1065,7 @@ All the tastes except Umami are self-explanatory. When you experience an Umami t
 			"select_type": 3,
 
 			"is_intensity": 0,
+
 
 			"is_mandatory": 0,
 
