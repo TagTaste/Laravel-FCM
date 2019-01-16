@@ -50,7 +50,8 @@ class ShareController extends Controller
         if ($exists) {
             return $this->sendError("You have already shared this.");
         }
-        
+        \Log::info(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
+            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
             'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         
