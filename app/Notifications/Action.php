@@ -51,12 +51,12 @@ class Action extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        return $via;
 
-        if($this->view && view()->exists($this->view)){
-            //$via[] = 'mail';
 
-        }
+//        if($this->view && view()->exists($this->view)){
+//            $via[] = 'mail';
+//
+//        }
 
         $preference = null;
 
@@ -92,9 +92,9 @@ class Action extends Notification
             $via[] = 'broadcast';
             $via[] = 'database';
         }
-        if($preference->email_value && $this->view && view()->exists($this->view)) {
-            $via[] = 'mail';
-        }
+        //if($preference->email_value && $this->view && view()->exists($this->view)) {
+            //$via[] = 'mail';
+        //}
         if($preference->push_value) {
             $via[] = FCMPush::class;
         }
