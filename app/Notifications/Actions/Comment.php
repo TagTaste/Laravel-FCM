@@ -32,7 +32,7 @@ class Comment extends Action
 
     public function toMail($notifiable)
     {
-        if($this->model != 'review') {
+        if($this->modelName != 'review') {
 
             $langKey = $this->data->action.':'.$this->modelName;
 
