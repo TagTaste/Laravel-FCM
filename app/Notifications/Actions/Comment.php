@@ -25,6 +25,7 @@ class Comment extends Action
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";
         $this->notification = $this->sub;
+        \Log::info("here is comment");
 
     }
 
