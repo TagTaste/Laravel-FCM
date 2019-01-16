@@ -21,6 +21,9 @@ class Actions
     {
         $modelId = $event->model->id;
         $model = get_class($event->model);
+        \Log::info($model);
+        \Log::info($modelId);
+        \Log::info($event->who['id']);
         $profilesIds = Profile::select('profiles.*')
             ->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
             ->where('model_subscribers.model','=',$model)
