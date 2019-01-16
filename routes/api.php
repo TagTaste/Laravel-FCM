@@ -386,7 +386,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("public-review/category/{id}/products","PublicReviewProductController@categoryProducts");
             Route::post("uploadImageProduct","PublicReviewProductController@uploadImageProduct");
             Route::post("public-review/uploadGlobalNestedOption","PublicReviewProductController@uploadGlobalNestedOption");
-            Route::post("public-review/products/{id}/uploadImageProduct","PublicReviewProductController@uploadImage");
+            Route::post("public-review/products/{id}/uploadImageProduct","PublicReviewProductController@uploadImageProduct");
             Route::resource('public-review/products', 'PublicReviewProductController');
 
 
