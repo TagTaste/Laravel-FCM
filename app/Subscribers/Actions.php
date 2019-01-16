@@ -53,9 +53,6 @@ class Actions
             return;
         }
         $class = "\App\Notifications\Actions\\" . ucwords($event->action);
-        \Log::info($event->action);
-        \Log::info($profiles);
-        \Log::info($event);
         Notification::send($profiles, new $class($event));
     }
     
