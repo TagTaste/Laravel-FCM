@@ -21,7 +21,6 @@ class Comment extends Action
     
     public function __construct($event)
     {
-        \Log::info("here");
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";

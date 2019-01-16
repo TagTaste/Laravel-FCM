@@ -13,7 +13,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Crypt;
 
-class Action extends Notification implements ShouldQueue
+class Action extends Notification
 {
     use GetTags, Queueable;
     
@@ -34,7 +34,6 @@ class Action extends Notification implements ShouldQueue
 //    public function __construct($model, $modelId, $content = null, $image = null, $action = null)
     public function __construct($event)
     {
-        \Log::info("then here");
         $this->data = $event;
         $this->model = $event->model;
         $this->modelName = strtolower(class_basename($event->model));
