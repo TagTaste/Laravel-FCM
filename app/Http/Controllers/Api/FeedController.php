@@ -103,6 +103,8 @@ class FeedController extends Controller
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
                 $model = $model::with([])->where('id',$payload->model_id)->first();
+                \Log::info(method_exists($model, 'getMetaFor'));
+                \Log::info($model);
                 if($model !== null && method_exists($model, 'getMetaFor')){
                     $data['meta'] = $model->getMetaFor($profileId);
                 }
