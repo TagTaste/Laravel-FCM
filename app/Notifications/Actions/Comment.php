@@ -25,12 +25,12 @@ class Comment extends Action
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";
         $this->notification = $this->sub;
+        \Log::info($this->modelName);
 
     }
 
     public function toMail($notifiable)
     {
-        \Log::info($this->modelName);
         $langKey = $this->data->action.':'.$this->modelName;
 
         // owner or subscriber
