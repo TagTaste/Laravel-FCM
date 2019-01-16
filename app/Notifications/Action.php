@@ -52,7 +52,7 @@ class Action extends Notification
     {
         $via = ['database',FCMPush::class,'broadcast'];
         if($this->view && view()->exists($this->view)){
-            $via[] = 'mail';
+            //$via[] = 'mail';
 
         }
 
