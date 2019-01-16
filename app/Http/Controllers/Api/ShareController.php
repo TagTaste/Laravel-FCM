@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\Actions\Share;
+use App\Events\DeleteFeedable;
 use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\PublicReviewProduct;
@@ -179,6 +180,24 @@ class ShareController extends Controller
         event(new Create($this->model,$request->user()->profile));
 
         return $this->sendResponse();
+    }
+
+    public function productShareDelete(Request $request,$id)
+    {
+        $modelName = 'product';
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+        $this->setColumn($modelName);
+        $loggedInId = $request->user()->profile->id;
+        $this->model = $class::where($this->column, $id)->where('profile_id', $loggedInId)->whereNull('deleted_at')->first();
+
+        if (!$this->model) {
+            return $this->sendError("Model not found.");
+        }
+        event(new DeleteFeedable($this->model));
+
+        $this->model = $this->model->delete() ? true : false;
+        return $this->sendResponse();
+
     }
 
 }
