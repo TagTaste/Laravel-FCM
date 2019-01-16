@@ -8,6 +8,7 @@ use App\Events\Actions\Comment;
 use App\Events\Actions\Like;
 use App\ModelSubscriber;
 use App\Notify\Profile;
+use App\PublicReviewProduct\Review;
 use Illuminate\Support\Facades\Notification;
 
 class Actions
@@ -21,9 +22,6 @@ class Actions
     {
         $modelId = $event->model->id;
         $model = get_class($event->model);
-        \Log::info($model);
-        \Log::info($modelId);
-        \Log::info($event->who['id']);
         $profilesIds = Profile::select('profiles.*')
             ->join('model_subscribers','model_subscribers.profile_id','=','profiles.id')
             ->where('model_subscribers.model','=',$model)
@@ -41,6 +39,11 @@ class Actions
             if(count($companyAdminIds)){
                 $profilesIds = $profilesIds->merge($companyAdminIds);
             }
+        }
+        if($model == 'App\PublicReviewProduct\Review')
+        {
+            $reviewProfileIds = Review::where('id',$modelId)->first()->pluck('profile_id');
+            $profilesIds = $profilesIds->merge($reviewProfileIds);
         }
         $profiles = Profile::whereIn('id',$profilesIds)->get();
 
