@@ -29,4 +29,9 @@ class Product extends Share
         return $this->belongsTo(\App\PublicReviewProduct::class,'product_id');
     }
 
+    public function getRelatedKey()
+    {
+        return [];
+    }
+
 }

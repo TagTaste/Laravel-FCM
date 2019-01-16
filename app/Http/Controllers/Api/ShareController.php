@@ -6,6 +6,7 @@ use App\Events\Actions\Share;
 use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\PublicReviewProduct;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ShareController extends Controller
@@ -156,14 +157,20 @@ class ShareController extends Controller
         if ($exists) {
             return $this->sendError("You have already shared this.");
         }
-        $this->model = $share->create(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
-            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
-
+        $share->profile_id = $loggedInProfileId;
+        $share->product_id = $sharedModel->id;
+        $share->privacy_id = $request->input('privacy_id');
+        $share->created_at = Carbon::now()->toDateTimeString();
+        $share->updated_at = Carbon::now()->toDateTimeString();
+//        $this->model = $share->insert(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
+//            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
+        $share->save();
+        $this->model = $share;
         $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
             $modelName => "public-review/product" . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
         ];
 
-        $this->model->relatedKey = null;
+        $this->model->relatedKey = [];
 
         //push to feed
         event(new NewFeedable($this->model, $request->user()->profile));
