@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Channel\Payload;
 use App\Events\Actions\Share;
 use App\Events\DeleteFeedable;
 use App\Events\Model\Subscriber\Create;
@@ -193,7 +194,7 @@ class ShareController extends Controller
         if (!$this->model) {
             return $this->sendError("Model not found.");
         }
-        event(new DeleteFeedable($this->model));
+        Payload::where("payload->product","public-review/product:".$this->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
         $this->model = $this->model->delete() ? true : false;
         return $this->sendResponse();
