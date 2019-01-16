@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\APi\PublicReviewProduct;
+namespace App\Http\Controllers\Api\PublicReviewProduct;
 
 use App\Comment;
 use App\PublicReviewProduct;
