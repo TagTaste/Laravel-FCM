@@ -162,7 +162,6 @@ class Action extends Notification implements ShouldQueue
         }
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-        \Log::info($data);
 
         return $data;
     }

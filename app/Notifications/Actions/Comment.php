@@ -99,7 +99,6 @@ class Comment extends Action
         }
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-        \Log::info($data);
         return $data;
     }
 }
