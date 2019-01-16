@@ -44,6 +44,7 @@ class Product extends Share
         $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
+        $meta['current_status'] = $this->getCurrentStatusAttribute($product,$profileId);
         return $meta;
     }
 
@@ -63,6 +64,18 @@ class Product extends Share
         }
 
         return null;
+    }
+
+    public function getCurrentStatusAttribute($product,$profileId)
+    {
+        //bad me change krna h
+        $currentStatus = \DB::table('public_product_user_review')->where('product_id',$product->id)->where('profile_id',$profileId)->where('current_status',2)->exists();
+        if($currentStatus)
+            return 2;
+        $currentStatus = \DB::table('public_product_user_review')->where('product_id',$product->id)->where('profile_id',$profileId)->where('current_status',1)->exists();
+        if($currentStatus)
+            return 1;
+        return 0;
     }
 
     protected function getColorCode($value)
