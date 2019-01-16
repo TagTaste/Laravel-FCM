@@ -2,6 +2,7 @@
 
 namespace App\Shareable;
 
+use App\Channel\Payload;
 use App\PeopleLike;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
@@ -32,6 +33,11 @@ class Product extends Share
     public function product()
     {
         return $this->belongsTo(\App\PublicReviewProduct::class,'product_id');
+    }
+
+    public function payload()
+    {
+        return $this->belongsTo(Payload::class,'payload_id');
     }
 
     public function getRelatedKey()
