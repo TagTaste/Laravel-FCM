@@ -21,7 +21,7 @@ class ReportController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
-            return $this->sendError("PublicReviewProduct is not available");
+            return $this->sendError("Product is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',2)->distinct('profile_id')->count('profile_id');
         if($count < 3)
@@ -416,7 +416,7 @@ class ReportController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product == null)
         {
-            return $this->sendError("PublicReviewProduct is not available");
+            return $this->sendError("Product is not available");
         }
         //paginate
         $page = $request->input('page');

@@ -10,7 +10,7 @@ class PublicReviewProduct extends Filter {
     
 //    protected $csv = ['brand_name','company_name'];
 
-    protected $strings = ['PublicReviewProduct Type'=>'is_vegetarian','By Brand'=>'brand_name','By Company'=>'company_name'];
+    protected $strings = ['Product Type'=>'is_vegetarian','By Brand'=>'brand_name','By Company'=>'company_name'];
 
     protected $models = ['Category'=>'product_category.name','Sub Category'=>'product_sub_category.name'];
 

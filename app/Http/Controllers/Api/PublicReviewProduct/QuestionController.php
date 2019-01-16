@@ -30,8 +30,16 @@ class QuestionController extends Controller
     public function headers(Request $request, $id)
     {
         $product = PublicReviewProduct::where('id',$id)->first();
-        $this->model = ReviewHeader::where('is_active',1)->where('global_question_id',$product->global_question_id)
+        if($product == null)
+        {
+            return $this->sendError("No product exists");
+        }
+        if($product->is_authenticity_check)
+            $this->model = ReviewHeader::where('is_active',1)->where('global_question_id',$product->global_question_id)
             ->orderBy('id')->get();
+        else
+            $this->model = ReviewHeader::where('header_selection_type','!=',3)->where('is_active',1)->where('global_question_id',$product->global_question_id)
+                ->orderBy('id')->get();
 
         return $this->sendResponse();
     }
@@ -41,7 +49,7 @@ class QuestionController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
-            return $this->sendError("PublicReviewProduct not found.");
+            return $this->sendError("Product not found.");
         }
         $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
             ->whereNull('parent_question_id')->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
@@ -120,7 +128,7 @@ class QuestionController extends Controller
         $product = PublicReviewProduct::where('id',$productId)->first();
         $answers = [];
         if($product === null){
-            return $this->sendError("PublicReviewProduct not found.");
+            return $this->sendError("Product not found.");
         }
 
         if(is_null($id))
@@ -171,7 +179,7 @@ class QuestionController extends Controller
         $term = $request->input('term');
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
-            return $this->sendError("PublicReviewProduct not found.");
+            return $this->sendError("Product not found.");
         }
         $this->model['option'] = \DB::table('public_review_nested_options')->where('question_id',$questionId)
             ->where('global_question_id',$product->global_question_id)->where('is_active',1)->where('value','like',"%$term%")->get();
@@ -188,6 +196,7 @@ class QuestionController extends Controller
             $data = [];
             $comment = null;
             $questionId = null;
+            $meta = null;
             foreach ($answerModel as $item)
             {
                 $questionId = $item->question_id;
@@ -197,15 +206,20 @@ class QuestionController extends Controller
                     $comment = $item->value;
                     continue;
                 }
+                if($item->select_type == 6)
+                {
+                    $meta = $item->meta;
+                    continue;
+                }
                 $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
             }
-            if(!is_null($comment) && !empty($comment))
+            if((!is_null($comment) && !empty($comment)) || (!is_null($meta) && !empty($meta)))
             {
-                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment,'select_type'=>$selectType];
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'comment'=>$comment,'select_type'=>$selectType,'meta'=>$meta];
             }
             else
             {
-                $answers[] = ['question_id'=>$questionId,'option'=>$data,'select_type'=>$selectType];
+                $answers[] = ['question_id'=>$questionId,'option'=>$data,'select_type'=>$selectType,'meta'=>$meta];
 
             }
         }

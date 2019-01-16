@@ -22,6 +22,7 @@ class CreatePublicProductUserReview extends Migration
             $table->integer('select_type')->nullable();
             $table->string("intensity")->nullable();
             $table->integer("current_status")->default(0);
+            $table->json('meta')->nullable();
             $table->unsignedInteger('question_id');
             $table->foreign("question_id")->references("id")->on("public_review_questions");
             $table->unsignedInteger('header_id');

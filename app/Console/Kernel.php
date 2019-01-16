@@ -12,6 +12,7 @@ use App\Console\Commands\Build\Cache\Following;
 use App\Console\Commands\Build\Cache\Job;
 use App\Console\Commands\Build\Cache\Photo;
 use App\Console\Commands\Build\Cache\Profiles;
+use App\Console\Commands\Build\Cache\PublicReviewProduct;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
@@ -64,13 +65,14 @@ class Kernel extends ConsoleKernel
         Job::class,
         Share::class,
         SettingChanges::class,
+        PublicReviewProduct::class,
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
         \App\Console\Commands\Build\Search\Company::class,
         \App\Console\Commands\Build\Search\Job::class,
         \App\Console\Commands\Build\Search\Profile::class,
         \App\Console\Commands\Build\Search\Recipe::class,
-        \App\Console\Commands\Build\Search\Product::class,
+        \App\Console\Commands\Build\Search\PublicReviewProduct::class,
         
         //Meta
             //Collab
@@ -90,7 +92,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Build\Filters\Job::class,
         \App\Console\Commands\Build\Filters\Collaboration::class,
         \App\Console\Commands\Build\Filters\Recipe::class,
-        \App\Console\Commands\Build\Filters\Product::class,
+        \App\Console\Commands\Build\Filters\PublicReviewProduct::class,
         //command for temporary
         \App\Console\Commands\DateFixCompany::class,
         //for date fixes delete after run commands

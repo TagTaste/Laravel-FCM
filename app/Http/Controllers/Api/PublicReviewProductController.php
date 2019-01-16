@@ -45,20 +45,31 @@ class PublicReviewProductController extends Controller
         $profileId = $request->user()->profile->id;
         if(isset($query) && !is_null($query) && !empty($query))
         {
-            return $this->getSearchData($request,$query,$type);
+            return $this->getSearchData($request,$query,$type,$profileId);
         }
         $filters = $request->input('filters');
         if(!empty($filters))
         {
             $productIds =  \App\Filter\PublicReviewProduct::getModelIds($filters,$skip,$take);
 
-            $this->model = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $products = $this->model->whereIn('id',$productIds)->where('is_active',1)->get();
+            $data = [];
 
+            foreach($products as $product){
+                $meta = $product->getMetaFor($profileId);
+                $data[] = ['product'=>$product,'meta'=>$meta];
+            }
+            $this->model = $data;
             return $this->sendResponse();
         }
 
-        $this->model = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
-
+        $products = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
+        $data = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($profileId);
+            $data[] = ['product'=>$product,'meta'=>$meta];
+        }
+        $this->model = $data;
         return $this->sendResponse();
 
     }
@@ -87,8 +98,9 @@ class PublicReviewProductController extends Controller
                 $imageArray[] = $image;
             $inputs['images_meta'] = json_encode($imageArray,true);
         }
-        $this->model = $this->model->create($inputs);
-        \App\Filter\PublicReviewProduct::addModel($this->model);
+        $product = $this->model->create($inputs);
+        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
+        \App\Filter\PublicReviewProduct::addModel($product);
         return $this->sendResponse();
     }
 
@@ -100,8 +112,8 @@ class PublicReviewProductController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $this->model = $this->model->where('is_active',1)->where('id',$id)->first();
-
+        $product = $this->model->whereNull('deleted_at')->where('id',$id)->first();
+        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
         return $this->sendResponse();
 
     }
@@ -117,8 +129,9 @@ class PublicReviewProductController extends Controller
     {
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
-        $this->model = \App\PublicReviewProduct::where('id',$id)->first();
-        \App\Filter\PublicReviewProduct::addModel($this->model);
+        $product = \App\PublicReviewProduct::where('id',$id)->first();
+        $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
+        \App\Filter\PublicReviewProduct::addModel($product);
         return $this->sendResponse();
     }
 
@@ -180,8 +193,13 @@ class PublicReviewProductController extends Controller
         //paginate
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-
-        $this->model = $this->model->where('product_category_id',$categoryId)->where('is_active',1)->skip($skip)->take($take)->get();
+        $profileId = $request->user()->profile->id;
+        $products = $this->model->where('product_category_id',$categoryId)->where('is_active',1)->skip($skip)->take($take)->get();
+        $this->model = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($profileId);
+            $this->model[] = ['product'=>$product,'meta'=>$meta];
+        }
 
         return $this->sendResponse();
     }
@@ -196,7 +214,7 @@ class PublicReviewProductController extends Controller
      * @param $productId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function similarProducts($productId)
+    public function similarProducts(Request $request, $productId)
     {
         $product = $this->model->where('id', $productId)->first();
         if($product == null)
@@ -207,12 +225,18 @@ class PublicReviewProductController extends Controller
         $filter['Category'][] = $product['product_category']['name'];
         $filter['By Brand'][] = $product['brand_name'];
         $filter['By Company'][] = $product['company_name'];
+        $profileId = $request->user()->profile->id;
         $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
-        $this->model = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+        $products = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(10)->get();
+        $this->model = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($profileId);
+            $this->model[] = ['product'=>$product,'meta'=>$meta];
+        }
         return $this->sendResponse();
     }
 
-    public function getSearchData($request,$query,$type)
+    public function getSearchData($request,$query,$type,$profileId)
     {
         $params = [
             'index' => "api",
@@ -255,18 +279,15 @@ class PublicReviewProductController extends Controller
                 else
                     $this->model[$name] = $searched;
             }
-            $productData = [];
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
-                foreach ($products as &$product)
-                {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
-                    $productData[] = $product;
+                $this->model = [];
+                foreach($products as $product){
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model[] = ['product'=>$product,'meta'=>$meta];
                 }
             }
-            $this->model = [];
-            $this->model = $productData;
             return $this->sendResponse();
 
         }
@@ -282,18 +303,15 @@ class PublicReviewProductController extends Controller
         }
 
         if(!empty($this->model)){
-            $productData = [];
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
-                foreach ($products as &$product)
-                {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
-                    $productData[] = $product;
+                $this->model = [];
+                foreach($products as $product){
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model[] = ['product'=>$product,'meta'=>$meta];
                 }
             }
-            $this->model = [];
-            $this->model = $productData;
             return $this->sendResponse();
         }
         $this->model = [];
@@ -343,11 +361,11 @@ class PublicReviewProductController extends Controller
         return $suggestions;
     }
 
-    public function uploadImageProduct(Request $request)
+    public function uploadImageProduct(Request $request,$productId)
     {
         $profileId = $request->user()->profile->id;
         $imageName = str_random("32") . ".jpg";
-        $path = "images/p/$profileId/collaborate";
+        $path = "images/product/$productId/review/$profileId";
         $randnum = rand(10,1000);
         $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
         //create a tiny image
@@ -379,5 +397,53 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
+    public function uploadGlobalNestedOption(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/public-review/products/global/nested/option";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $questions = [];
+        $extra = [];
+        foreach ($data as $item)
+        {
+
+            foreach ($item as $datum)
+            {
+                if(is_null($datum['parent_id'])||is_null($datum['categories']))
+                    break;
+                $extra[] = $datum;
+                $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
+                $active = isset($datum['is_active']) ? $datum['is_active'] : 1;
+                $description = isset($datum['description']) ? $datum['description'] : null;
+                $questions[] = ["s_no"=>$datum['sequence_id'],'parent_id'=>$parentId,'value'=>$datum['categories'],'type'=>'AROMA','is_active'=>$active,'description'=>$description,'is_intensity'=>$datum['is_intensity']];
+            }
+        }
+        $data = [];
+        foreach ($questions as $item)
+        {
+            $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active'],'description'=>$item['description'],'is_intensity'=>$item['is_intensity']];
+        }
+        $this->model = \DB::table('public_review_global_nested_option')->insert($data);
+        return $this->sendResponse();
+    }
 
 }

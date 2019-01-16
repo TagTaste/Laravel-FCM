@@ -684,8 +684,13 @@ class SearchController extends Controller
             $model[] = ['title'=>'Collaborations','subtitle'=>'Product Review ','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
-        $recommended = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(10)->get();
-        if($recommended->count())
+        $products = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(10)->get();
+        $recommended = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($loggedInProfileId);
+            $recommended[] = ['product'=>$product,'meta'=>$meta];
+        }
+        if(count($recommended))
             $model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
                 'ui_type'=>9,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
@@ -693,8 +698,13 @@ class SearchController extends Controller
         $model[] = ['title'=>'Based on your Interest','subtitle'=>'DARK CHOCOLATE, WINE AND 2 OTHERS','item'=>$recommended,
             'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
-        $recently = PublicReviewProduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(10)->get();
-        if($recently->count())
+        $products = PublicReviewProduct::where('mark_featured',1)->orderBy('updated_at','desc')->limit(10)->get();
+        $recently = [];
+        foreach($products as $product){
+            $meta = $product->getMetaFor($loggedInProfileId);
+            $recently[] = ['product'=>$product,'meta'=>$meta];
+        }
+        if(count ($recently) != 0)
             $model[] = ['title'=>'Newly Added Products','subtitle'=>'BE THE FIRST ONE TO REVIEW','item'=>$recently,
                 'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 

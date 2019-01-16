@@ -187,8 +187,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             //share
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
+                Route::post("share/product/{id}",'ShareController@productStore');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
                 Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
+                Route::delete("share/product/{id}",'ShareController@productShareDelete');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
 
@@ -385,6 +387,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("public-review/discover/products","PublicReviewProductController@discover");
             Route::get("public-review/category/{id}/products","PublicReviewProductController@categoryProducts");
             Route::post("uploadImageProduct","PublicReviewProductController@uploadImageProduct");
+            Route::post("public-review/uploadGlobalNestedOption","PublicReviewProductController@uploadGlobalNestedOption");
+            Route::post("public-review/products/{id}/uploadImageProduct","PublicReviewProductController@uploadImageProduct");
             Route::resource('public-review/products', 'PublicReviewProductController');
             Route::post('public-review/createFilters',"PublicReviewProductController@createFilters");
 

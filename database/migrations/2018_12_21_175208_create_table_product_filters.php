@@ -18,7 +18,7 @@ class CreateTableProductFilters extends Migration
             $table->string('key');
             $table->string("value");
             $table->uuid("product_id")->nullable();
-w        });
+        });
     }
 
     /**

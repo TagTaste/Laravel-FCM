@@ -9,10 +9,10 @@ class Review extends Model
     protected $table = 'public_product_user_review';
 
     protected $fillable = ['key','value','leaf_id','question_id','header_id','select_type',
-        'product_id','profile_id','intensity','current_status','created_at','updated_at'];
+        'product_id','profile_id','intensity','current_status','created_at','updated_at','meta'];
 
     protected $visible = ['id','key','value','leaf_id','question_id','header_id','select_type','product_id','profile_id',
-        'intensity','current_status','created_at','updated_at','profile','review_meta','comment_count','review_comment'];
+        'intensity','current_status','created_at','updated_at','profile','review_meta','comment_count','review_comment','meta'];
 
     protected $with = ['profile'];
 
@@ -34,7 +34,7 @@ class Review extends Model
 
     public function getCommentCountAttribute()
     {
-        return \DB::table('comments_public_review')->where('public_review_id',$this->id)->count();
+        return $this->comments()->count();
     }
 
     public function getReviewCommentAttribute()
@@ -80,6 +80,10 @@ class Review extends Model
         }
     }
 
+    public function getMetaAttribute($value)
+    {
+        $meta = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',6)->first();
 
-
+        return isset($meta->meta) ? json_decode($meta->meta,true) : null;
+    }
 }

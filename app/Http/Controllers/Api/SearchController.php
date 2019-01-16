@@ -381,11 +381,12 @@ class SearchController extends Controller
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
+                $this->model['product'] = [];
                 foreach ($products as &$product)
                 {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
                 }
-                $this->model['product'] = $products;
             }
             
             return $this->sendResponse();
@@ -440,11 +441,12 @@ class SearchController extends Controller
             if(isset($this->model['product']))
             {
                 $products = $this->model['product'];
+                $this->model['product'] = [];
                 foreach ($products as &$product)
                 {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
                 }
-                $this->model['product'] = $products;
             }
 
             return $this->sendResponse();
@@ -744,11 +746,14 @@ class SearchController extends Controller
             if(isset($item['product']))
             {
                 $products = $item['product'];
+                $productData = [];
+                $this->model['product'] = [];
                 foreach ($products as &$product)
                 {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
+                    $meta = $product->getMetaFor($profileId);
+                    $productData[] = ['product'=>$product,'meta'=>$meta];
                 }
-                $this->model = $products;
+                $this->model = $productData;
             }
 
             return $this->sendResponse();
@@ -769,11 +774,14 @@ class SearchController extends Controller
             if(isset($item['product']))
             {
                 $products = $item['product'];
+                $productData = [];
+                $this->model['product'] = [];
                 foreach ($products as &$product)
                 {
-                    $product->overall_rating = $product->getOverallRatingAttribute();
+                    $meta = $product->getMetaFor($profileId);
+                    $productData[] = ['product'=>$product,'meta'=>$meta];
                 }
-                $this->model = $products;
+                $this->model = $productData;
             }
 
             return $this->sendResponse();
