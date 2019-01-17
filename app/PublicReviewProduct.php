@@ -172,4 +172,24 @@ class PublicReviewProduct extends Model
         $meta['current_status'] = $this->getCurrentStatusAttribute();
         return $meta;
     }
+
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
+        $data['title'] = substr($this->name,0,65);
+        $data['description'] = substr($this->description,0,155);
+        $data['ogTitle'] = substr($this->name,0,65);
+        $data['ogDescription'] = substr($this->description,0,155);
+        $images = isset($this->images_meta) ? $this->images_meta[0]->meta->tiny_photo : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
+        $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
+        $data['ogUrl'] = env('APP_URL').'/public-review/products/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/public-review/products/'.$this->id;
+
+        return $data;
+
+    }
+
 }
