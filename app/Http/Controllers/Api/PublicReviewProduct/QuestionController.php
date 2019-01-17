@@ -101,10 +101,10 @@ class QuestionController extends Controller
                     $data->questions->option = \DB::table('public_review_nested_options')->where('header_id',$headerId)
                         ->where('question_id',$data->id)->where('is_active',1)->whereNull('parent_id')->get();
                 }
-                if($data->questions->title == 'INSTRUCTION' || $data->questions->title == 'INSTRUCTIONS' || $data->questions->title == 'Instruction' || $data->questions->title == 'Instructions')
-                {
-                    $data->questions->subtitle = "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.";
-                }
+//                if($data->questions->title == 'INSTRUCTION' || $data->questions->title == 'INSTRUCTIONS' || $data->questions->title == 'Instruction' || $data->questions->title == 'Instructions')
+//                {
+//                    $data->questions->subtitle = "Please follow the questionnaire and select the answers that are closest to what you sensed during product tasting. Remember, there are no right or wrong answers.";
+//                }
                 $model[] = $data->questions;
             }
             else
