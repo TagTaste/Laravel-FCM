@@ -88,7 +88,7 @@ class Deeplink
                     'shareTypeID' =>            $this->share_id,
                     'isShared' =>               $this->shared,
 
-                    'profileID' =>              $data['owner'],
+                    'profileID' =>              isset($data['owner']) ? $data['owner'] : null,
 
                 ],
             ],
