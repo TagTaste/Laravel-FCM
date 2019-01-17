@@ -114,6 +114,7 @@ class PublicReviewProductController extends Controller
         $product = $this->model->whereNull('deleted_at')->where('id',$id)->first();
         if($product == null)
         {
+            $this->model = [];
             return $this->sendError("Product is not available");
         }
         $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
@@ -135,6 +136,7 @@ class PublicReviewProductController extends Controller
         $product = \App\PublicReviewProduct::where('id',$id)->first();
         if($product == null)
         {
+            $this->model = [];
             return $this->sendError("Product is not available");
         }
         $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
