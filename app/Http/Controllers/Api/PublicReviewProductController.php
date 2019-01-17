@@ -113,6 +113,11 @@ class PublicReviewProductController extends Controller
     public function show(Request $request,$id)
     {
         $product = $this->model->whereNull('deleted_at')->where('id',$id)->first();
+        if($product == null)
+        {
+            $this->model = [];
+            return $this->sendError("Product is not available");
+        }
         $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
         return $this->sendResponse();
 
@@ -130,6 +135,11 @@ class PublicReviewProductController extends Controller
         $inputs = $request->all();
         $this->model = $this->model->where('id',$id)->update($inputs);
         $product = \App\PublicReviewProduct::where('id',$id)->first();
+        if($product == null)
+        {
+            $this->model = [];
+            return $this->sendError("Product is not available");
+        }
         $this->model = ['product'=>$product,'meta'=>$product->getMetaFor($request->user()->profile->id)];
         \App\Filter\PublicReviewProduct::addModel($product);
         return $this->sendResponse();

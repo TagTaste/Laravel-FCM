@@ -376,7 +376,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete('reviews/{reviewId}/comments/{commentId}',"ReviewController@commentsDelete");
 
                 //get review
+                Route::get("reviews/{id}","ReviewController@show");
                 Route::get("reviews","ReviewController@index");
+
 
             });
 
