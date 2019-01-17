@@ -99,6 +99,8 @@ class Deeplink
     private function getModel(&$modelName, &$id)
     {
         $class = "\\App\\" . ucwords($modelName);
+        if($modelName == 'product')
+            $class = "\\App\\" . "PublicReviewProduct";
         return $class::find($id);
     }
 
