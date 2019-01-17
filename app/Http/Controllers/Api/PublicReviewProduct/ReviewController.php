@@ -93,9 +93,18 @@ class ReviewController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($productId,$reviewId)
     {
-        //
+        $product = PublicReviewProduct::where('id',$productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Product is not available");
+        }
+        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+            ->where('select_type',5)->first();
+
+        return $this->sendResponse();
     }
 
     /**
