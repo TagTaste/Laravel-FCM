@@ -118,7 +118,7 @@ class Deeplink
                 case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
                 case 'company':     return env('APP_URL')."/company/$modelId";
-                case 'product':     return env('APP_URL').'/public-review/products/'.$modelId;
+                case 'product':     return env('APP_URL').'/public-review/'.$modelId;
             }
         }
     }
