@@ -51,7 +51,7 @@ class Product extends BasePublicReviewProduct
         return $meta;
     }
 
-    public function getUserReview()
+    public function getUserReviewAttribute()
     {
         $header = BasePublicReviewProduct\ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
         return BasePublicReviewProduct\Review::where('product_id',$this->id)->where('header_id',$header->id)
