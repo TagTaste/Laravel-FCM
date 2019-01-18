@@ -44,6 +44,7 @@ class InsertPublicReviewQuestionair extends Command
 
             ['header_name' => "INSTRUCTIONS", 'header_selection_type' => "0"],
 
+            ['header_name' => "Your Food Shot", 'header_selection_type' => "3"],
 
 
 
@@ -100,6 +101,20 @@ class InsertPublicReviewQuestionair extends Command
 				"images": ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],
 				"video_link": "https://www.youtube.com/watch?v=HCjNJDNzw8Y"
 			}
+		}
+
+	],
+
+	"Your Food Shot": [
+
+		{
+
+			"title": "Take a selfie with the product",
+
+			"subtitle": "This will act as a social proof that you did taste.",
+
+			"select_type": 6
+
 		}
 
 	],
@@ -1077,7 +1092,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'Live generic questions','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'Live generic questions with selfie','keywords'=>"Masala/ Seasoning",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
