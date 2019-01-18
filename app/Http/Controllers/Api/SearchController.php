@@ -268,7 +268,10 @@ class SearchController extends Controller
     public function filterAutoComplete(Request $request,$model,$key)
     {
         $term = $request->input('term');
-        $filter = "\\App\\Filter\\" . ucfirst($model);
+        if($model == 'public-review/products' || $model == 'product')
+            $filter = "\\App\\Filter\\" . "PublicReviewProduct";
+        else
+            $filter = "\\App\\Filter\\" . ucfirst($model);
         $this->model = $filter::selectRaw('distinct value')->where('key','like',$key)->where('value','like',"%$term%")
             ->take(20)
             ->get();
