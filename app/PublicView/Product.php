@@ -13,11 +13,12 @@ class Product extends BasePublicReviewProduct
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating','current_status','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
+        'product_category','product_sub_category','type','overall_rating','current_status','created_at','updated_at','deleted_at','keywords',
+        'is_authenticity_check','user_review'];
 
 
 
-    protected $appends = ['type'];
+    protected $appends = ['type','user_review'];
 
     protected $with = ['product_category','product_sub_category'];
 
@@ -48,6 +49,13 @@ class Product extends BasePublicReviewProduct
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute();
         return $meta;
+    }
+
+    public function getUserReview()
+    {
+        $header = BasePublicReviewProduct\ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
+        return BasePublicReviewProduct\Review::where('product_id',$this->id)->where('header_id',$header->id)
+            ->where('select_type',5)->orderBy('updated_at','DESC')->skip(0)->take(10)->get();
     }
 
 }
