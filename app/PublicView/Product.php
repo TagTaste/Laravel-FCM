@@ -55,7 +55,7 @@ class Product extends BasePublicReviewProduct
     {
         $header = BasePublicReviewProduct\ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
         return BasePublicReviewProduct\Review::where('product_id',$this->id)->where('header_id',$header->id)
-            ->where('select_type',5)->orderBy('updated_at','DESC')->skip(0)->take(10)->get();
+            ->where('select_type',5)->orderBy('updated_at','DESC')->skip(0)->take(5)->get();
     }
 
 }
