@@ -196,7 +196,7 @@ class ShareController extends Controller
         }
         $this->model = $this->model->delete() ? true : false;
         if($this->model)
-            Payload::where("payload->product","public-review/product:".$this->model->product_id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+            Payload::where("payload->product","public-review/product:".$id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         return $this->sendResponse();
 
     }
