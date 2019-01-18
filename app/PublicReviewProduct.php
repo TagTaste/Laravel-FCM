@@ -182,7 +182,7 @@ class PublicReviewProduct extends Model
         $data['description'] = substr($this->description,0,155);
         $data['ogTitle'] = substr($this->name,0,65);
         $data['ogDescription'] = substr($this->description,0,155);
-        $images = isset($this->images_meta[0]->meta->original_photo) ? $this->images_meta[0]->meta->original_photo : null;
+        $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
         $data['ogUrl'] = env('APP_URL').'/public-review/'.$this->id;
