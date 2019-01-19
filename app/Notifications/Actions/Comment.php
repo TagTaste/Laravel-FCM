@@ -33,7 +33,6 @@ class Comment extends Action
     public function toMail($notifiable)
     {
         if($this->modelName != 'review') {
-            \Log::info("here");
             $langKey = $this->data->action.':'.$this->modelName;
 
             // owner or subscriber
