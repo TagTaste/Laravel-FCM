@@ -42,4 +42,32 @@ class VersionController extends Controller
         return response()->json($version);
     }
 
+    public function getIosModuleVersion(Request $request)
+    {
+        $this->model = \DB::table('module_versions')->where('platform','ios')->get();
+        return $this->sendResponse();
+    }
+
+    public function getAndroidModuleVersion(Request $request)
+    {
+        $this->model = \DB::table('module_versions')->where('platform','android')->get();
+        return $this->sendResponse();
+    }
+
+    public function postIosModuleVersion(Request $request, $id)
+    {
+        $compatibleVersion = $request->input('compatible_version');
+        $latestVersion = $request->input('latest_version');
+        $this->model = \DB::table('module_versions')->where('id',$id)->where('platform','ios')->update(['compatible_version'=>$compatibleVersion,'latest_version'=>$latestVersion]);
+        return $this->sendResponse();
+    }
+
+    public function postAndroidModuleVersion(Request $request, $id)
+    {
+        $compatibleVersion = $request->input('compatible_version');
+        $latestVersion = $request->input('latest_version');
+        $this->model = \DB::table('module_versions')->where('id',$id)->where('platform','android')->update(['compatible_version'=>$compatibleVersion,'latest_version'=>$latestVersion]);
+        return $this->sendResponse();
+    }
+
 }

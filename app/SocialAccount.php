@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SocialAccount extends Model
 {
 //    use SoftDeletes;
-    protected $fillable = ['user_id','provider_user_id','provider','profile_type_id','access_token'];
+    protected $fillable = ['user_id','provider_user_id','provider','profile_type_id','access_token','fb_friends'];
 
     protected $dates = ['deleted_at'];
 

@@ -956,10 +956,14 @@ class ProfileController extends Controller
         $user_ids = \DB::table('social_accounts')->whereIn('provider_user_id',$usersProviderIds)->get()->pluck('user_id');
         //dd($profile_ids);
         $profiles = \App\Recipe\Profile::whereIn('user_id',$user_ids)->get();
+        $fbFriends = "";
         foreach ($profiles as &$profile)
         {
+            $fbFriends = $profile->id.",".$fbFriends;
             $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
+        \DB::table('social_accounts')->where('provider_user_id',$loggedInUserProviderId)
+            ->where('user_id',$request->user()->id)->update(['fb_friends'=>$fbFriends]);
         $this->model = $profiles;
         return $this->sendResponse();
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\PublicReviewProduct;
 use App\SearchClient;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,9 @@ class SearchController extends Controller
         'company' => \App\Recipe\Company::class,
         'companies' => \App\Recipe\Company::class,
         'job' => \App\Recipe\Job::class,
-        'jobs' => \App\Recipe\Job::class
+        'jobs' => \App\Recipe\Job::class,
+        'product' => \App\PublicReviewProduct::class
+
     ];
     
     private $filters = [
@@ -31,7 +34,8 @@ class SearchController extends Controller
         'company' => \App\Filter\Company::class,
         'companies' => \App\Filter\Company::class,
         'job' => \App\Filter\Job::class,
-        'jobs' => \App\Filter\Job::class
+        'jobs' => \App\Filter\Job::class,
+        'product' => \App\Filter\PublicReviewProduct::class
     ];
     
     private function getModels($type, $ids = [], $filters = [],$skip = null ,$take = null)
@@ -52,7 +56,6 @@ class SearchController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
-        
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
         
         if(null !== $skip && null !== $take){
@@ -201,6 +204,19 @@ class SearchController extends Controller
                 }
             }
         }
+
+        if(null == $type || "product" === $type)
+        {
+            $products = \DB::table('products')->where('name', 'like','%'.$term.'%')->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
+                ->take($take)->get();
+
+            if(count($products)){
+                foreach($products as $product){
+                    $product->type = "product";
+                    $suggestions[] = (array) $product;
+                }
+            }
+        }
     
     
         return $suggestions;
@@ -252,7 +268,10 @@ class SearchController extends Controller
     public function filterAutoComplete(Request $request,$model,$key)
     {
         $term = $request->input('term');
-        $filter = "\\App\\Filter\\" . ucfirst($model);
+        if($model == 'public-review/products' || $model == 'product')
+            $filter = "\\App\\Filter\\" . "PublicReviewProduct";
+        else
+            $filter = "\\App\\Filter\\" . ucfirst($model);
         $this->model = $filter::selectRaw('distinct value')->where('key','like',$key)->where('value','like',"%$term%")
             ->take(20)
             ->get();
@@ -273,6 +292,9 @@ class SearchController extends Controller
                 break;
             case "jobs":
                 $type = "job";
+                break;
+            case "products";
+                $type = "product";
                 break;
         }
     }
@@ -313,14 +335,16 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-    
+
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 $suggested = collect([]);
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
-                
-                $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                if($suggested->count() > 0)
+                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                else
+                    $this->model[$name] = $searched;
             }
 
 
@@ -347,27 +371,6 @@ class SearchController extends Controller
                     $this->model['company'][] = $company;
                 }
             }
-
-//            if(isset($this->model['job']))
-//            {
-//                $jobs = $this->model['job'];
-//                $data = [];
-//                foreach($jobs as $job){
-//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-//                }
-//                $this->model['job'] = $data;
-//            }
-
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $this->model['recipe'] = [];
-                foreach($recipes as $recipe){
-                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-
-            }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -376,6 +379,17 @@ class SearchController extends Controller
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
 
+            }
+
+            if(isset($this->model['product']))
+            {
+                $products = $this->model['product'];
+                $this->model['product'] = [];
+                foreach ($products as &$product)
+                {
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
+                }
             }
             
             return $this->sendResponse();
@@ -417,26 +431,6 @@ class SearchController extends Controller
                 }
             }
 
-//            if(isset($this->model['job']))
-//            {
-//                $jobs = $this->model['job'];
-//                $data = [];
-//                foreach($jobs as $job){
-//                    $data[] = ['job' => $job, 'meta' => $job->getMetaFor($profileId)];
-//                }
-//                $this->model['job'] = $data;
-//            }
-
-            if(isset($this->model['recipe']))
-            {
-                $recipes = $this->model['recipe'];
-                $this->model['recipe'] = [];
-                foreach($recipes as $recipe){
-                    $this->model['recipe'][] = ['recipe' => $recipe, 'meta' => $recipe->getMetaFor($profileId)];
-                }
-
-            }
-
             if(isset($this->model['collaborate']))
             {
                 $collaborates = $this->model['collaborate'];
@@ -445,6 +439,17 @@ class SearchController extends Controller
                     $this->model['collaborate'][] = ['collaboration' => $collaborate, 'meta' => $collaborate->getMetaFor($profileId)];
                 }
 
+            }
+
+            if(isset($this->model['product']))
+            {
+                $products = $this->model['product'];
+                $this->model['product'] = [];
+                foreach ($products as &$product)
+                {
+                    $meta = $product->getMetaFor($profileId);
+                    $this->model['product'][] = ['product'=>$product,'meta'=>$meta];
+                }
             }
 
             return $this->sendResponse();
@@ -692,6 +697,101 @@ class SearchController extends Controller
 
     }
 
+    public function productFilterSearch(Request $request, $type = null)
+    {
+        $query = $request->input('q');
+        $profileId = $request->user()->profile->id;
+        $params = [
+            'index' => "api",
+            'body' => [
+                'query' => [
+                    'query_string' => [
+                        'query' => $query
+                    ]
+                ]
+            ]
+        ];
 
+        $this->setType($type);
+
+        if($type){
+            $params['type'] = $type;
+        }
+        $client = SearchClient::get();
+
+        $response = $client->search($params);
+        $this->model = [];
+        $item = [];
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+
+        if($response['hits']['total'] > 0){
+            $hits = collect($response['hits']['hits']);
+            $hits = $hits->groupBy("_type");
+
+            foreach($hits as $name => $hit){
+                $item[$name] = [];
+                $ids = $hit->pluck('_id')->toArray();
+                $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
+
+                $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
+                $suggested = collect([]);
+                if(!empty($suggestions)){
+                    $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
+                }
+                if($suggested->count() > 0)
+                    $item[$name] = $searched->merge($suggested)->sortBy('name');
+                else
+                    $item[$name] = $searched;
+            }
+
+
+            if(isset($item['product']))
+            {
+                $products = $item['product'];
+                $productData = [];
+                $this->model['product'] = [];
+                foreach ($products as &$product)
+                {
+                    $meta = $product->getMetaFor($profileId);
+                    $productData[] = ['product'=>$product,'meta'=>$meta];
+                }
+                $this->model = $productData;
+            }
+
+            return $this->sendResponse();
+
+        }
+
+        $suggestions = $this->filterSuggestions($query,$type,$skip,$take);
+        $suggestions = $this->getModels($type,array_pluck($suggestions,'id'));
+
+        if($suggestions && $suggestions->count()){
+//            if(!array_key_exists($type,$this->model)){
+//                $this->model[$type] = [];
+//            }
+            $item[$type] = $suggestions->toArray();
+        }
+
+        if(!empty($item)){
+            if(isset($item['product']))
+            {
+                $products = $item['product'];
+                $productData = [];
+                $this->model['product'] = [];
+                foreach ($products as &$product)
+                {
+                    $meta = $product->getMetaFor($profileId);
+                    $productData[] = ['product'=>$product,'meta'=>$meta];
+                }
+                $this->model = $productData;
+            }
+
+            return $this->sendResponse();
+        }
+        $this->model = [];
+        $this->messages = ['Nothing found.'];
+        return $this->sendResponse();
+    }
 
 }

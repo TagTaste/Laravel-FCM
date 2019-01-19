@@ -88,7 +88,7 @@ class Deeplink
                     'shareTypeID' =>            $this->share_id,
                     'isShared' =>               $this->shared,
 
-                    'profileID' =>              $data['owner'],
+                    'profileID' =>              isset($data['owner']) ? $data['owner'] : null,
 
                 ],
             ],
@@ -99,6 +99,8 @@ class Deeplink
     private function getModel(&$modelName, &$id)
     {
         $class = "\\App\\" . ucwords($modelName);
+        if($modelName == 'product')
+            $class = "\\App\\" . "PublicReviewProduct";
         return $class::find($id);
     }
 
@@ -116,6 +118,7 @@ class Deeplink
                 case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
                 case 'company':     return env('APP_URL')."/company/$modelId";
+                case 'product':     return env('APP_URL').'/public-review/'.$modelId;
             }
         }
     }

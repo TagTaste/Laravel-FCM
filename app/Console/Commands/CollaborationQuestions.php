@@ -56,10 +56,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
         foreach ($data as &$datum)
         {
             $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
-            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>$headerInfo,'collaborate_id'=>$collaborateId];
+            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>isset($headerInfo) ? json_encode($headerInfo,true) : null,'collaborate_id'=>$collaborateId];
         }
-        \Log::info("header is here ");
-        \Log::info($header);
         Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
         {
@@ -75,7 +73,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                 $isNested = isset($item['is_nested_question']) && $item['is_nested_question'] == 1 ? 1 : 0;
                 $isMandatory = isset($item['is_mandatory']) && $item['is_mandatory'] == 1 ? 1 : 0;
                 $option = isset($item['option']) ? $item['option'] : null;
-                if(isset($item['select_type']) && $item['select_type'] == 5)
+                if(isset($item['select_type']) && !is_null($option))
                 {
                     $value = $item['option'];
                     if(is_string($value))
@@ -98,14 +96,17 @@ class CollaborationQuestions extends Command implements ShouldQueue
                         $option = [];
                         $i = 1;
                         foreach($value as $v){
-                            if(!isset($v['value']) || !isset($v['color_code']))
+                            if(!isset($v['value']))
                             {
                                 continue;
                             }
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
-                                'colorCode'=> $v['color_code']
+                                'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
+                                'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
+                                'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
+                                'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
                             ];
                             $i++;
                         }
@@ -144,14 +145,14 @@ class CollaborationQuestions extends Command implements ShouldQueue
 
                         if(isset($nestedOption->nested_option_list))
                         {
-                            echo $nestedOption->nested_option_list;
+//                            echo $nestedOption->nested_option_list;
                             $extra = \Db::table('global_nested_option')->where('type','like',$nestedOption->nested_option_list)->get();
                             foreach ($extra as $nested)
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>1,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOption->is_intensity];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -162,7 +163,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOption->is_intensity];
                             }
                         }
                         else
@@ -170,7 +171,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
                             echo "something wrong in nested option value";
                             return 0;
                         }
-                        print_r($extraQuestion);
+//                        print_r($extraQuestion);
                         \DB::table('collaborate_tasting_nested_options')->insert($extraQuestion);
 
 
@@ -182,23 +183,22 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 ->where('id',$path->id)->update(['path'=>$path->value]);
                         }
                         $questions = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->get();
-
+                        $tr = 0;
                         foreach ($questions as $question)
                         {
-                            $checknested = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                ->where('parent_id',$question->sequence_id)->exists();
-
-                            if($checknested)
+                            echo "count is ".$tr."\n";
+                            $checknestedIds = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                ->where('parent_id',$question->sequence_id)->get()->pluck('id');
+                            if(count($checknestedIds))
                             {
+                                $pathname =  \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                    ->where('sequence_id',$question->sequence_id)->first();
+                                \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
+                                    ->whereIn('id',$checknestedIds)->update(['path'=>$pathname->path]);
                                 \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
                                     ->where('id',$question->id)->update(['is_nested_option'=>1]);
                             }
-                            $getPath = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                ->where('parent_id',$question->sequence_id)->get()->pluck('id');
-                            $pathname =  \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                ->where('sequence_id',$question->sequence_id)->first();
-                            \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)
-                                ->whereIn('id',$getPath)->update(['path'=>$pathname->path]);
+                            $tr++;
                         }
                         $paths = \DB::table('collaborate_tasting_nested_options')->where('question_id',$x->id)->where('collaborate_id',$collaborateId)->whereNull('parent_id')->get();
 
@@ -217,17 +217,59 @@ class CollaborationQuestions extends Command implements ShouldQueue
                     $isMandatory = isset($subquestion['is_mandatory']) && $subquestion['is_mandatory'] == 1 ? 1 : 0;
                     // for sub questions
                     $option = isset($subquestion['option']) ? $subquestion['option'] : null;
-                    $value = explode(',',$option);
-                    $option = [];
-                    $i = 1;
-                    foreach($value as $v){
-                        if(is_null($v) || empty($v))
-                            continue;
-                        $option[] = [
-                            'id' => $i,
-                            'value' => $v
-                        ];
-                        $i++;
+                    if(isset($subquestion['select_type']) && !is_null($option))
+                    {
+                        $value = $subquestion['option'];
+                        if(is_string($value))
+                        {
+                            $value = explode(',',$option);
+                            $option = [];
+                            $i = 1;
+                            foreach($value as $v){
+                                if(is_null($v) || empty($v))
+                                    continue;
+                                $option[] = [
+                                    'id' => $i,
+                                    'value' => $v
+                                ];
+                                $i++;
+                            }
+                        }
+                        else
+                        {
+                            $option = [];
+                            $i = 1;
+                            foreach($value as $v){
+                                if(!isset($v['value']))
+                                {
+                                    continue;
+                                }
+                                $option[] = [
+                                    'id' => $i,
+                                    'value' => $v['value'],
+                                    'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
+                                    'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
+                                    'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
+                                    'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
+                                ];
+                                $i++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $value = explode(',',$option);
+                        $option = [];
+                        $i = 1;
+                        foreach($value as $v){
+                            if(is_null($v) || empty($v))
+                                continue;
+                            $option[] = [
+                                'id' => $i,
+                                'value' => $v
+                            ];
+                            $i++;
+                        }
                     }
                     if(count($option))
                         $subquestion['option'] = $option;
