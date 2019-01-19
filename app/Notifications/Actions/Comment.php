@@ -24,45 +24,49 @@ class Comment extends Action
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";
+        if($this->model == 'review')
+            $this->sub = $this->data->who['name'] ." commented on your review";
         $this->notification = $this->sub;
 
     }
 
     public function toMail($notifiable)
     {
-        $langKey = $this->data->action.':'.$this->modelName;
+        if($this->modelName != 'review') {
+            $langKey = $this->data->action.':'.$this->modelName;
 
-        // owner or subscriber
-        $langKey = $notifiable->id == $this->model->profile_id ? $langKey.':owner' : $langKey.':subscriber';
+            // owner or subscriber
+            $langKey = $notifiable->id == $this->model->profile_id ? $langKey.':owner' : $langKey.':subscriber';
 
-        if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
-            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
-            $langKey = $langKey.':shared';
-        } else {
-            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
-            $langKey = $langKey.':original';
-        }
-
-        $langKey = $langKey.':title';
-        $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
-        $this->allData['title'] = $this->sub;
-        if(view()->exists($this->view)){
-            $action = $this->data->action;
-            $profileId = $notifiable->id;
-            $model = $this->modelName;
-            if($this->model->company_id != null)
-            {
-                $companyId = $this->model->company_id;
-                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
+                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
+                $langKey = $langKey.':shared';
+            } else {
+                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
+                $langKey = $langKey.':original';
             }
-            else{
-                $companyId = null;
-                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+
+            $langKey = $langKey.':title';
+            $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
+            $this->allData['title'] = $this->sub;
+            if(view()->exists($this->view)){
+                $action = $this->data->action;
+                $profileId = $notifiable->id;
+                $model = $this->modelName;
+                if($this->model->company_id != null)
+                {
+                    $companyId = $this->model->company_id;
+                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+                }
+                else{
+                    $companyId = null;
+                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+                }
+                $unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encrypted;
+                return (new MailMessage())->subject($this->sub)->view(
+                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
+                );
             }
-            $unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encrypted;
-            return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content), 'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
-            );
         }
     }
 
@@ -94,7 +98,6 @@ class Comment extends Action
         }
 
         $data['created_at'] = Carbon::now()->toDateTimeString();
-
         return $data;
     }
 }

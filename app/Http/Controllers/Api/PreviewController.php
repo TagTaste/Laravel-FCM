@@ -10,7 +10,10 @@ class PreviewController extends Controller
 {
     private function getModel(&$modelName, &$id)
     {
-        $class = "\\App\\" . ucwords($modelName);
+        if($modelName == 'product')
+            $class = "\\App\\" . "PublicReviewProduct";
+        else
+            $class = "\\App\\" . ucwords($modelName);
         return $class::find($id);
     }
     

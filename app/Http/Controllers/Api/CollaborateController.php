@@ -306,7 +306,7 @@ class CollaborateController extends Controller
 
     public function applications(Request $request, $id)
     {
-        $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->first();
+        $collaborate = $this->model->where('id',$id)->where('state','!=',Collaborate::$state[1])->where('profile_id',$request->user()->profile->id)->first();
 
         if ($collaborate === null) {
             return $this->sendError("Invalid Collaboration Project.");
@@ -607,7 +607,6 @@ class CollaborateController extends Controller
                 if(is_null($datum['parent_id'])||is_null($datum['categories']))
                     break;
                 $extra[] = $datum;
-                \Log::info("hq1");
                 $parentId = $datum['parent_id'] == 0 ? null : $datum['parent_id'];
                 $active = isset($datum['is_active']) ? $datum['is_active'] : 1;
                 $description = isset($datum['description']) ? $datum['description'] : null;
@@ -619,8 +618,6 @@ class CollaborateController extends Controller
         {
             $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active'],'description'=>$item['description']];
         }
-        \Log::info($data);
-        \Log::info("hq");
         $this->model = \DB::table('global_nested_option')->insert($data);
         return $this->sendResponse();
     }
