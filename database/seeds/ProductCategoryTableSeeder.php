@@ -27,6 +27,7 @@ class ProductCategoryTableSeeder extends Seeder {
         $data[] = ['name'=>'Tea','is_active'=>1, 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-categories/Category+Images/15.png'];
         $data[] = ['name'=>'Legumes','is_active'=>1, 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-categories/Category+Images/16.png'];
         $data[] = ['name'=>'Ready Meals','is_active'=>1, 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-categories/Category+Images/17.png'];
+        $data[] = ['name'=>'Confectionery','is_active'=>1, 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/product-categories/Category+Images/18.png'];
 
 
         \DB::table('product_categories')->insert($data);

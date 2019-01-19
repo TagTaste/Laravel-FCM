@@ -58,7 +58,7 @@ class ProductSubCategoryTableSeeder extends Seeder
         $data[] = ["name"=>"Cream","is_active"=>1];
         $data[] = ["name"=>"Milk","is_active"=>1];
         $data[] = ["name"=>"Margarine","is_active"=>1];
-        $data[] = ["name"=>"Yoghurt","is_active"=>1];
+        $data[] = ["name"=>"Yogurt","is_active"=>1];
         $data[] = ["name"=>"Dairy","is_active"=>1];
         $data[] = ["name"=>"Desserts","is_active"=>1];
         $data[] = ["name"=>"Rice","is_active"=>1];
