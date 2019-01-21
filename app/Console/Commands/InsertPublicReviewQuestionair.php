@@ -52,33 +52,33 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are only assessing the aromas (odors through the nose), so please don't drink it yet. Now bring the product closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"TASTE","header_info"=> ["text" => "Slurp noisily and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. \bUmami\b taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."] ,'header_selection_type'=>"1"],
-
-
-
- ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Slurp noisily again, keeping your \bMOUTH CLOSED\b and \bEXHALE THROUGH THE NOSE\b. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
+            ['header_name'=>"TASTE","header_info"=> ["text" => "Take a bite and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. \bUmami\b taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."] ,'header_selection_type'=>"1"],
 
 
 
-
- ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the \bTexture (Feel)\b now. FEEL starts when the product comes in contact with the mouth and it may even last after the product has been swallowed. Texture (mouthfeel) is all about the joy we get from what we drink."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat the product normally with your \bMOUTH CLOSED\b and \bEXHALE THROUGH THE NOSE\b. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
 
- ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the \bTexture (Feel)\b now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is eaten; and it may even last after the product is swallowed. Product may make sound (add on chips/nuts), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
 
 
-];
+
+            ['header_name'=>"PRODUCT EXPERIENCE",'header_selection_type'=>"2"]
+
+
+
+        ];
 
         $questions2 = '{
 
 
-"INSTRUCTIONS": [
+	"INSTRUCTIONS": [
 
 
 		{
@@ -86,7 +86,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "INSTRUCTION",
 
-			"subtitle": "\bWelcome to the Product Review!\b\n\nIf a product involves stirring, shaking etc. (like cold coffee) then the taster must follow the instructions fully, as mentioned on the packaging. To review, follow the questionnaire and select the answers that match with your observations. Please note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+			"subtitle": "\bWelcome to the Product Review!\b\n\nTo review, follow the questionnaire and select the answers that match with your observations. Please note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 
 
@@ -100,7 +100,7 @@ class InsertPublicReviewQuestionair extends Command
 
 	],
 
-"Your Food Shot": [
+	"Your Food Shot": [
 
 		{
 
@@ -125,7 +125,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "What was the serving temperature of the product?",
 
-     "subtitle": "You may also touch the product to assess the serving temperature.",
+			"subtitle": "You may also touch the product to assess the serving temperature.",
 
 
 			"select_type": 1,
@@ -146,7 +146,7 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [
 
 
-        {
+				{
 
 
 
@@ -238,11 +238,11 @@ class InsertPublicReviewQuestionair extends Command
 
 		},
 
-{
+		{
 
 
 
-			"title": "How was the visual impression (color and hue) of the product?",
+			"title": "How was the visual impression (color and sheen) of the product?",
 
 
 			"select_type": 2,
@@ -263,7 +263,7 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [
 
 
-        {
+				{
 
 
 
@@ -280,6 +280,18 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "Bright",
+
+
+					"is_intensity": 0
+
+
+				},
+
+				{
+
+
+
+					"value": "Shiny",
 
 
 					"is_intensity": 0
@@ -343,7 +355,7 @@ class InsertPublicReviewQuestionair extends Command
 
 		},
 
-    {
+		{
 
 
 
@@ -375,7 +387,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Silky",
+					"value": "Oily",
 
 
 					"is_intensity": 0
@@ -387,45 +399,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Frothy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Bubbly",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-
-					"value": "Sediments",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Pulpy",
+					"value": "Soft",
 
 
 					"is_intensity": 0
@@ -438,7 +412,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Syrupy",
+					"value": "Tender",
 
 
 					"is_intensity": 0
@@ -451,7 +425,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Water Separated",
+					"value": "Lumpy",
 
 
 					"is_intensity": 0
@@ -463,32 +437,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Slushy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-				{
-
-
-
-					"value": "Weak",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Strong",
+					"value": "Mushy",
 
 
 					"is_intensity": 0
@@ -501,10 +450,99 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Light",
+					"value": "Smooth",
 
 
 					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+
+					"value": "Sticky",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Crispy",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Rubbery",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Chewy",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Stringy",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+
+					"value": "Firm",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Dry",
+
+
+					"is_intensity": 0
+
 
 
 				}
@@ -679,7 +717,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"subtitle": "Directly use the search box to select the aromas that you observed or follow the category based aroma list. In case you can\'t find the observed aromas, select \bAny other\b and if unable to sense any aromas at all, then select  \bAbsent\b.",
+			"subtitle": "Directly use the search box to select the aromas that you observed or follow the category based aroma list. In case you can\'t find the observed aromas, select \bAny other\b and if unable to sense any aromas at all, then select \bAbsent\b.",
 
 
 
@@ -713,9 +751,9 @@ class InsertPublicReviewQuestionair extends Command
 
 			"nested_option_list": "AROMA",
 
-     
 
-      "nested_option_title": "AROMAS"
+
+			"nested_option_title": "AROMAS"
 
 
 		},
@@ -1009,7 +1047,7 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
-				
+
 
 
 
@@ -1133,7 +1171,7 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-					
+
 
 
 				}
@@ -1147,7 +1185,7 @@ class InsertPublicReviewQuestionair extends Command
 		},
 
 
-{
+		{
 
 
 
@@ -1340,9 +1378,9 @@ class InsertPublicReviewQuestionair extends Command
 			"is_nested_option": 1,
 
 
-      "nested_option_title": "AROMATICS",
+			"nested_option_title": "AROMATICS",
 
-    	"nested_option_list": "AROMA"
+			"nested_option_list": "AROMA"
 
 
 
@@ -1429,10 +1467,10 @@ class InsertPublicReviewQuestionair extends Command
 			"title": "How was the flavor experience?",
 
 
-      "subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+			"subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
 
 
-			
+
 
 			"select_type": 1,
 
@@ -1677,15 +1715,104 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-{
+		{
 
 
 
-			"title": "How was the mouthfeel of the product?",
+			"title": "Take a single bite and pause. What kind of sound did you hear?",
+
+
+			"subtitle": "\bCrispy\b: One sharp, clean, fast, and high pitched sound. Ex. Chips.\n\bCrunchy\b: Multiple low pitched crushing sounds perceived as a series of small events. Ex. Rusks.\n\bCrackly\n: One sudden low pitched sound that brittles the product. Ex. Puffed rice.",
 
 
 
-			"select_type": 2,
+			"select_type": 1,
+
+
+
+			"is_nested_question": 0,
+
+
+			"is_intensity": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+				{
+
+
+					"value": "Crispy",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Crunchy",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Crackly",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "No Sound",
+
+
+					"is_intensity": 0
+
+
+
+				}
+
+
+
+			]
+
+
+
+		},
+
+		{
+
+
+
+			"title": "How fast did product melt-in-the-mouth?",
+
+
+
+			"select_type": 1,
 
 
 
@@ -1707,7 +1834,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Refreshing",
+					"value": "Doesn\'t Melt",
 
 
 					"is_intensity": 0
@@ -1720,7 +1847,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Watery",
+					"value": "Melts Slowly",
 
 
 					"is_intensity": 0
@@ -1732,31 +1859,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Juicy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Creamy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-				{
-
-
-					"value": "Super Smooth",
+					"value": "Melts Moderately",
 
 
 					"is_intensity": 0
@@ -1769,78 +1872,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Chewy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-				{
-
-
-					"value": "Chunky",
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Syrupy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-				{
-
-
-					"value": "Tingly",
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Popping",
-
-
-					"is_intensity": 0
-
-
-
-				},
-				
-				{
-
-
-					"value": "Foamy",
-
-
-					"is_intensity": 0
-
-
-
-				},
-				{
-
-
-					"value": "Milky",
+					"value": "Melts Quickly",
 
 
 					"is_intensity": 0
@@ -1848,6 +1880,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
+
 
 
 			]
@@ -1886,7 +1919,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Yes",
+					"value": "Oily Film",
 
 
 					"is_intensity": 0
@@ -1899,7 +1932,45 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "No",
+					"value": "Loose Particles",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Sticking on Tooth",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Chalky",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "No Residue",
 
 
 					"is_intensity": 0
@@ -2064,7 +2135,7 @@ class InsertPublicReviewQuestionair extends Command
 
 	"PRODUCT EXPERIENCE": [
 
-	  {
+		{
 
 
 
@@ -2195,7 +2266,7 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-				},{
+				}, {
 
 
 					"value": "Texture",
@@ -2215,7 +2286,7 @@ class InsertPublicReviewQuestionair extends Command
 		},
 
 
-{
+		{
 
 
 
@@ -2367,9 +2438,9 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "Comments",
 
-      
 
-      "placeholder": "Share feedback in your own words…",
+
+			"placeholder": "Share feedback in your own words…",
 
 
 			"select_type": 3,
@@ -2398,7 +2469,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_beverage_v1','keywords'=>"generic_beverage_v1",'description'=>null,
+        $data = ['name'=>'generic_semi_solid_food_v1','keywords'=>"generic_semi_solid_food_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
