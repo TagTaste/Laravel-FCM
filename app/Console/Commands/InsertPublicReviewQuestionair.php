@@ -59,21 +59,20 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat the product normally with your \bMOUTH CLOSED\b and \bEXHALE THROUGH THE NOSE\b. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Chew the product multiple times with your \bMOUTH CLOSED\b and \bEXHALE THROUGH THE NOSE\b. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
 
-            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the \bTexture (Feel)\b now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is eaten; and it may even last after the product is swallowed. Product may make sound (add on chips/nuts), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the \bTexture (Feel)\b now. FEEL starts when the product is put inside the mouth; Feel changes when the product is chewed; and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
 
 
 
-            ['header_name'=>"PRODUCT EXPERIENCE",'header_selection_type'=>"2"]
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
-
-        ];
+];
 
         $questions2 = '{
 
@@ -86,7 +85,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "INSTRUCTION",
 
-			"subtitle": "\bWelcome to the Product Review!\b\n\nTo review, follow the questionnaire and select the answers that match with your observations. Please note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+			"subtitle": "\bWelcome to the Product Review!\b\n\nIf the product involves cooking (like instant noodles) or mixing (like packaged bhelpuri), you must follow the instructions fully, as mentioned on the packaging. To review, follow the questionnaire and select the answers that match with your observations. Please note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 
 
@@ -113,7 +112,6 @@ class InsertPublicReviewQuestionair extends Command
 		}
 
 	],
-
 
 	"APPEARANCE": [
 
@@ -222,7 +220,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Steaming Hot",
+					"value": "Burning Hot",
 
 
 					"is_intensity": 0
@@ -484,6 +482,29 @@ class InsertPublicReviewQuestionair extends Command
 
 				},
 
+
+				{
+
+
+					"value": "Crusty",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+					"value": "Chunky",
+
+
+					"is_intensity": 0
+
+
+				},
+
 				{
 
 
@@ -543,6 +564,18 @@ class InsertPublicReviewQuestionair extends Command
 
 					"is_intensity": 0
 
+
+
+				},
+
+
+				{
+
+
+					"value": "Hard",
+
+
+					"is_intensity": 0
 
 
 				}
@@ -717,7 +750,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"subtitle": "Directly use the search box to select the aromas that you observed or follow the category based aroma list. In case you can\'t find the observed aromas, select \bAny other\b and if unable to sense any aromas at all, then select \bAbsent\b.",
+			"subtitle": "Directly use the search box to select the aromas that you observed or follow the category based aroma list. In case you can\'t find the observed aromas, select \bAny other\b and if unable to sense any aromas at all, then select  \bAbsent\b.",
 
 
 
@@ -1347,7 +1380,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"subtitle": "Directly use the search box to select the aromatics that you observed or follow the category based aromatics list. In case you can\'t find the observed aromatics, select \bAny other\b and if unable to sense any aromatics at all, then select \bAbsent\b.",
+			"subtitle": "Directly use the search box to select the aromatics that you observed or follow the category based aromatics list. In case you can\'t find the observed aromatics, select \bAny other\b and if unable to sense any aromatics at all, then select  \bAbsent\b.",
 
 
 
@@ -1722,7 +1755,7 @@ class InsertPublicReviewQuestionair extends Command
 			"title": "Take a single bite and pause. What kind of sound did you hear?",
 
 
-			"subtitle": "\bCrispy\b: One sharp, clean, fast, and high pitched sound. Ex. Chips.\n\bCrunchy\b: Multiple low pitched crushing sounds perceived as a series of small events. Ex. Rusks.\n\bCrackly\n: One sudden low pitched sound that brittles the product. Ex. Puffed rice.",
+			"subtitle": "\bCrispy\b: One sharp, clean, fast, and high pitched sound. Ex. Chips.\n\bCrunchy\b: Multiple low pitched crushing sounds perceived as a series of small events. Ex. Rusks.\n\bCrackly\b: One sudden low pitched sound that brittles the product. Ex. Puffed rice.",
 
 
 
@@ -1804,15 +1837,17 @@ class InsertPublicReviewQuestionair extends Command
 
 		},
 
+
+
 		{
 
 
 
-			"title": "How fast did product melt-in-the-mouth?",
+			"title": "Chew the product 3-4 times and pause. How was the texture of the product?",
 
 
 
-			"select_type": 1,
+			"select_type": 2,
 
 
 
@@ -1834,7 +1869,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Doesn\'t Melt",
+					"value": "Oily",
 
 
 					"is_intensity": 0
@@ -1847,7 +1882,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Melts Slowly",
+					"value": "Soft",
 
 
 					"is_intensity": 0
@@ -1859,7 +1894,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Melts Moderately",
+					"value": "Tender",
 
 
 					"is_intensity": 0
@@ -1872,7 +1907,134 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Melts Quickly",
+					"value": "Lumpy",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Mushy",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Spongy",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Sticky",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Chunky",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Rubbery",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Chewy",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Stringy",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Firm",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Dry",
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Hard",
 
 
 					"is_intensity": 0
@@ -1882,12 +2044,12 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
-
 			]
 
 
 
 		},
+
 
 		{
 
@@ -1977,11 +2139,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
+
+
 			]
 
 
 
 		},
+
+
 
 		{
 
@@ -2469,7 +2635,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_semi_solid_food_v1','keywords'=>"generic_semi_solid_food_v1",'description'=>null,
+        $data = ['name'=>'generic_food_v1','keywords'=>"generic_food_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
