@@ -50,7 +50,7 @@ class Product extends Share
         $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
-        $meta['current_status'] = $this->getCurrentStatusAttribute($product,$profileId);
+        $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
         return $meta;
     }
 
