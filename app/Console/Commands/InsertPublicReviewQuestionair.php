@@ -2398,7 +2398,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'Live generic questions with selfie','keywords'=>"Masala/ Seasoning",'description'=>null,
+        $data = ['name'=>'generic_beverage_v1','keywords'=>"generic_beverage_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
