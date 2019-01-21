@@ -66,8 +66,15 @@ class Payload extends Model
                             {
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getMetaFor();
-//                                $additionalMeta['overall_rating'] = json_encode($meta['overall_rating'],true);
+                                $overallrating = json_encode($meta['overall_rating'],true);
+                                $additionalMeta['overall_rating'] = ":{";
+                                foreach ($overallrating as $key => $value)
+                                {
+                                    $additionalMeta['overall_rating'] .= "\"$key\":\"$value\"";
+                                }
+                                $additionalMeta['overall_rating'] .= "}";
                                 $additionalMeta['current_status'] = $meta['current_status'];
+                                \Log::info($additionalMeta);
                             }
                         }
                         //separate with comma
@@ -83,7 +90,6 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            \Log::info($key);
                             $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
