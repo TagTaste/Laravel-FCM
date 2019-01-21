@@ -1090,7 +1090,8 @@ class SearchController extends Controller
             $meta = $product->getMetaFor($loggedInProfileId);
             $recommended[] = ['product'=>$product,'meta'=>$meta];
         }
-        $model[] = ['title'=>'Products you\'d like to Review','subtitle'=>'Based on your interests','item'=>$recommended,
+        if(count($recommended))
+            $model[] = ['title'=>'Products you\'d like to Review','subtitle'=>'Based on your interests','item'=>$recommended,
             'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 
