@@ -45,7 +45,7 @@ class Product extends Share
         return [];
     }
 
-    public function getMetaFor(int $profileId) : array
+    public function getMetaFor() : array
     {
         $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
         $meta = [];
