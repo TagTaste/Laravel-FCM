@@ -27,15 +27,15 @@ class ReportController extends Controller
         if($count < 3)
         {
             $this->model = [];
-            $this->model['title'] = 'Sensorial Ratings';
-            $this->model['description'] = 'Not enough people have reviewed this product to generate a visual representation of the overall product experience.';
+            $this->model['title'] = 'Sensogram';
+            $this->model['description'] = 'Not enough people have reviewed this product to generate a summary chart.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
             return $this->sendResponse();
         }
         $this->model = [];
         $this->model['title'] = 'Sensorial Ratings';
-        $this->model['description'] = 'Following graph shows the overall preference of tasters for this product based on Appearance, Aroma, Aromatics, Taste, and Texture on an 8-point scale.';
+        $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
 //        $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
         $this->model['header_rating'] = $this->getHeaderRating($product);
         $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
