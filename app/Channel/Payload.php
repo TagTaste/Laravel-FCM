@@ -62,13 +62,14 @@ class Payload extends Model
                         if($name === 'sharedBy'){
                             $additionalMeta['sharedAt'] = $this->created_at;
                             //bad me change krna h jald bazi me likha hua h
-//                            if($this->getType() == 'product')
-//                            {
-//                                $product = Product::where('id',$this->model_id)->first();
-//                                $meta = $product->getMetaFor();
-//                                $additionalMeta['overall_rating'] = json_encode($meta['overall_rating'],true);
-//                                $additionalMeta['current_status'] = json_encode($meta['current_status'],true);
-//                            }
+                            if($this->getType() == 'product')
+                            {
+                                $product = Product::where('id',$this->model_id)->first();
+                                $meta = $product->getMetaFor();
+                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
+                                $additionalMeta['current_status'] = $meta['current_status'];
+                                \Log::info($additionalMeta);
+                            }
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
