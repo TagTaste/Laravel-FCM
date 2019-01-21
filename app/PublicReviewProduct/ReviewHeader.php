@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ReviewHeader extends Model
 {
 
-    //header_selection_type instruction = 0,OVERALL PRODUCT EXPERIENCE = 2 , remainig = 1
+    //header_selection_type instruction = 0,OVERALL PRODUCT EXPERIENCE = 2 , remainig = 1, 3 for selfi
 
     protected $table = 'public_review_question_headers';
 
