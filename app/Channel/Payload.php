@@ -81,7 +81,6 @@ class Payload extends Model
                                     $additionalMeta['overall_rating'] = null;
                                 }
                                 $additionalMeta['current_status'] = $meta['current_status'];
-                                \Log::info($additionalMeta);
                             }
                         }
                         //separate with comma
@@ -97,6 +96,7 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
+                            \Log::info($key);
                             $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
