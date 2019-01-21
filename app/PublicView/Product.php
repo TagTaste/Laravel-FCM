@@ -30,7 +30,7 @@ class Product extends BasePublicReviewProduct
         }
         else
         {
-            return ['id'=>2,'value'=>'Non-Vegeratrian','https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/public-review/kind_non_vegeratian_icon.png'];
+            return ['id'=>2,'value'=>'Non-Vegeratrian','image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/public-review/kind_non_vegeratian_icon.png'];
         }
     }
 
