@@ -61,14 +61,14 @@ class Payload extends Model
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
                         if($name === 'sharedBy'){
                             $additionalMeta['sharedAt'] = $this->created_at;
-                            //bad me change krna h jald bazi me likha hua h
-//                            if($this->getType() == 'product')
-//                            {
-//                                $product = Product::where('id',$this->model_id)->first();
-//                                $meta = $product->getMetaFor();
-//                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
-//                                $additionalMeta['current_status'] = $meta['current_status'];
-//                            }
+//                            bad me change krna h jald bazi me likha hua h
+                            if($this->getType() == 'product')
+                            {
+                                $product = Product::where('id',$this->model_id)->first();
+                                $meta = $product->getMetaFor();
+//                                $additionalMeta['overall_rating'] = json_encode($meta['overall_rating'],true);
+                                $additionalMeta['current_status'] = $meta['current_status'];
+                            }
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
@@ -83,7 +83,7 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            \Log::info($value);
+                            \Log::info($key);
                             $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
