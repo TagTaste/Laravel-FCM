@@ -86,4 +86,16 @@ class Review extends Model
 
         return isset($meta->meta) ? json_decode($meta->meta,true) : null;
     }
+
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->caption,
+            'image' => $this->photoUrl,
+            'type' => 'product',
+            'product_id'=>$this->product_id
+            ];
+    }
 }
