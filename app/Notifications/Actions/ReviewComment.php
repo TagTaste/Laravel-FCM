@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Crypt;
 
 class ReviewComment extends Action
 {
-//    use HasPreviewContent;
     public $view;
     public $sub;
     public $notification;
