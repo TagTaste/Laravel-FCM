@@ -17,12 +17,22 @@ class Tag extends Action
     public $sub;
     public $notification;
 
+
     public function __construct($event)
     {
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." mentioned you in a post";
         $this->notification = $this->data->who['name'] . " tagged you in a post.";
+        if($this->modelName == 'review')
+        {
+            if(method_exists($this->model,'getNotificationContent')){
+                $this->allData = $this->model->getNotificationContent();
+                $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
+
+            }
+            $this->sub = $this->data->who['name'] . " tagged you in a comment on review of ".$this->allData['title'];
+        }
     }
 
     public function toMail($notifiable)
