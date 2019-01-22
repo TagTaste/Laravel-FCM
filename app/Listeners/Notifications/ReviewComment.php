@@ -26,13 +26,12 @@ class ReviewComment
      */
     public function handle(ReviewCommentEvent $event)
     {
-        $userId = $event->model->user_id;
-        if(!$userId){
+        $profileId = $event->model->profile_id;
+        if(!$profileId){
             \Log::warning(get_class($event->model) . " doesn't have profile defined. Can't send notification.");
             return;
         }
-        \Log::info("here is notification");
-        $profile = Profile::where('user_id',$userId)->first();
+        $profile = Profile::where('id',$profileId)->first();
         Notification::send($profile, new \App\Notifications\Actions\ReviewComment($event));
     }
 }
