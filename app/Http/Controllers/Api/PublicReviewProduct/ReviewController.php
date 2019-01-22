@@ -225,9 +225,9 @@ class ReviewController extends Controller
         $comment->user_id = $request->user()->id;
         $comment->has_tags = $this->hasTags($content);
         $comment->save();
+        $review->comments()->attach($comment->id);
         if($review->profile_id != $request->user()->profile->id)
         {
-            $review->comments()->attach($comment->id);
             event(new \App\Events\Actions\ReviewComment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
 
         }
