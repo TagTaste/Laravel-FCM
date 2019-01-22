@@ -37,7 +37,6 @@ class Tag
         }
         
         $profiles = collect($profiles);
-        \Log::info($profiles->pluck('id'));
         $profiles = Profile::whereIn('id',$profiles->pluck('id'))->get();
 
         if($profiles->count() === 0){
