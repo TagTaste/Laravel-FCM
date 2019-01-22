@@ -22,12 +22,10 @@ class ReviewComment extends Action
         $this->sub = $this->data->who['name'] ." commented on your review";
         if(method_exists($this->model,'getNotificationContent')){
             $this->allData = $this->model->getNotificationContent();
-            $this->sub = $this->data->who['name'] ." commented on your review ".$this->allData['title'];
+            $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
 
         }
         $this->notification = $this->sub;
-        \Log::info("here is sub ".$this->sub);
-
     }
 
     public function toMail($notifiable)
