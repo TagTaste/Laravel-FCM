@@ -1054,7 +1054,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Astringent(Dryness)",
+					"value": "Astringent (Dryness)",
 
 
 					"is_intensity": 1,
