@@ -2,11 +2,9 @@
 
 namespace App\Recipe;
 
-use App\CollaborateCategory;
-use Storage;
-use App\Collaborate as BaseCollaborate;
+use App\PublicReviewProduct as BasePublicReviewProduct;
 
-class PublicReviewProduct extends BaseCollaborate
+class PublicReviewProduct extends BasePublicReviewProduct
 {
     protected $fillable = [];
 
