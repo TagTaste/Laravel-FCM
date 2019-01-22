@@ -27,7 +27,7 @@ class Review extends Model
     public function getReviewMetaAttribute()
     {
         $meta = [];
-        $question = \DB::table('public_review_questions')->where('header_id',$this->header_id)->where('questions->"$.select_type"',5)->first();
+        $question = \DB::table('public_review_questions')->where('header_id',$this->header_id)->where('questions->select_type',5)->first();
         $option = isset($question->questions->option) ? $question->questions->option : [];
         $meta['max_rating'] = count($option);
         $meta['user_rating'] = isset($this->leaf_id) ? $this->leaf_id : null;

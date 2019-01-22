@@ -81,7 +81,7 @@ class ReportController extends Controller
     protected function getRatingMeta($userCount,$headerRatingSum,$headerId)
     {
         $meta = [];
-        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->"$.select_type"',5)->first();
+        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->select_type',5)->first();
         $option = isset($question->questions->option) ? $question->questions->option : [];
         $meta['max_rating'] = count($option);
         $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
@@ -397,7 +397,7 @@ class ReportController extends Controller
         $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
         $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->count();
         $overallPreferanceUserCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
-        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->"$.select_type"',5)->first();
+        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->select_type',5)->first();
         $option = isset($question->questions->option) ? $question->questions->option : [];
         $meta = [];
         $meta['max_rating'] = count($option);
