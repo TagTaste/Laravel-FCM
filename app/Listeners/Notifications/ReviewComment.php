@@ -26,6 +26,7 @@ class ReviewComment
      */
     public function handle(ReviewCommentEvent $event)
     {
+        \Log::info($event->model);
         $profileId = $event->model->profile_id;
         \Log::info("profile id ". $profileId);
         if(!$profileId){
