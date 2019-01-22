@@ -39,7 +39,7 @@ class PublicReviewProduct extends Command
     {
         \DB::table("product_filters")->delete();
 
-        \App\PublicReviewProduct::whereNull('deleted_at')->chunk(200,function($models){
+        \App\PublicReviewProduct::whereNull('deleted_at')->where('is_active',1)->chunk(200,function($models){
             foreach($models as $model){
                 // new \App\Cached\Filter\Profile($model);
                 \App\Filter\PublicReviewProduct::addModel($model);

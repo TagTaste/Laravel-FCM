@@ -37,7 +37,7 @@ class PublicReviewProduct extends Command
      */
     public function handle()
     {
-        \App\PublicReviewProduct::whereNull('deleted_at')->chunk(100,function($models){
+        \App\PublicReviewProduct::whereNull('deleted_at')->where('is_active',1)->chunk(100,function($models){
             foreach($models as $model){
                 if(!isset($model->id))
                     continue;
