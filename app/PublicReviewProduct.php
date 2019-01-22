@@ -136,7 +136,7 @@ class PublicReviewProduct extends Model
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
             $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
-            \Log::info($question->questions->option);
+            \Log::info($question->questions->questions->questions->option);
             $option = isset($question->questions->option) ? $question->questions->option : [];
             $meta = [];
             $meta['max_rating'] = count($option);
