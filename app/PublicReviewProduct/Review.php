@@ -28,7 +28,8 @@ class Review extends Model
     {
         $meta = [];
         $question = \DB::table('public_review_questions')->where('header_id',$this->header_id)->where('questions->select_type',5)->first();
-        $option = isset($question->questions->option) ? $question->questions->option : [];
+        $question = json_decode($question->questions);
+        $option = isset($question->option) ? $question->option : [];
         $meta['max_rating'] = count($option);
         $meta['user_rating'] = isset($this->leaf_id) ? $this->leaf_id : null;
         $meta['color_code'] = $this->getColorCode(floor($meta['user_rating']));
