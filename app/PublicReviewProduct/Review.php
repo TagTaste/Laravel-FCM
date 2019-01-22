@@ -2,6 +2,7 @@
 
 namespace App\PublicReviewProduct;
 
+use App\Recipe\PublicReviewProduct;
 use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
@@ -89,13 +90,15 @@ class Review extends Model
 
     public function getNotificationContent()
     {
+        $product = PublicReviewProduct::where('id',$this->product_id)->first();
         return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->caption,
-            'image' => $this->photoUrl,
             'type' => 'product',
-            'product_id'=>$this->product_id
+            'product_id'=>$this->product_id,
+            'title' => $product->name,
+            'image' => isset($this->images_meta[0]->meta->tiny_photo) ? $this->images_meta[0]->meta->tiny_photo : null
             ];
     }
 }
