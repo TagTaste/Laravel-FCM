@@ -27,38 +27,41 @@ class Tag extends Action
 
     public function toMail($notifiable)
     {
-        $langKey = $this->data->action;
+        if($this->modelName != 'review')
+        {
+            $langKey = $this->data->action;
 
-        $langKey = isset($this->data->actionModel) ? $langKey.':'.strtolower(class_basename($this->data->actionModel)) : $langKey.':'.$this->modelName;
+            $langKey = isset($this->data->actionModel) ? $langKey.':'.strtolower(class_basename($this->data->actionModel)) : $langKey.':'.$this->modelName;
 
-        if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
-            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
-        } else {
-            $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
-        }
-
-        $langKey = $langKey.':title';
-        $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
-        $this->allData['title'] = $this->sub;
-        $this->notification = $this->sub;
-
-        if(view()->exists($this->view)){
-            $action = $this->data->action;
-            $profileId = $notifiable->id;
-            $model = $this->modelName;
-            if($this->model->company_id != null)
-            {
-                $companyId = $this->model->company_id;
-                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+            if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
+                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
+            } else {
+                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
             }
-            else{
-                $companyId = null;
-                $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+
+            $langKey = $langKey.':title';
+            $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
+            $this->allData['title'] = $this->sub;
+            $this->notification = $this->sub;
+
+            if(view()->exists($this->view)){
+                $action = $this->data->action;
+                $profileId = $notifiable->id;
+                $model = $this->modelName;
+                if($this->model->company_id != null)
+                {
+                    $companyId = $this->model->company_id;
+                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+                }
+                else{
+                    $companyId = null;
+                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+                }
+                $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
+                return (new MailMessage())->subject($this->sub)->view(
+                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
+                );
             }
-            $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
-            return (new MailMessage())->subject($this->sub)->view(
-                $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
-            );
         }
     }
 
