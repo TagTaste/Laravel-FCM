@@ -27,7 +27,6 @@ class ReviewComment
     public function handle(ReviewCommentEvent $event)
     {
         $profileId = $event->model->profile_id;
-        \Log::info("here is");
         if(!$profileId){
             \Log::warning(get_class($event->model) . " doesn't have profile defined. Can't send notification.");
             return;

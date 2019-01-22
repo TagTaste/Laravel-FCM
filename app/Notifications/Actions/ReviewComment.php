@@ -17,8 +17,6 @@ class ReviewComment extends Action
 
     public function __construct($event)
     {
-        \Log::info("here is sub ");
-
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your review";
