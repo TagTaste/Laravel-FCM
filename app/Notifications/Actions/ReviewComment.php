@@ -27,6 +27,7 @@ class ReviewComment extends Action
 
         }
         $this->notification = $this->sub;
+        \Log::info("here is sub ".$this->sub);
 
     }
 
