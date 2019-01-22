@@ -1120,8 +1120,8 @@ class SearchController extends Controller
 
         $categories = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
         if($categories->count())
-            $model[] = ['title'=>'Explore by Category','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
-                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+            $model[] = ['title'=>'Explore by Category','subtitle'=>null,'item'=>$categories,
+                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
 
 
 
