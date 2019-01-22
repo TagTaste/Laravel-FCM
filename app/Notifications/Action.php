@@ -51,8 +51,11 @@ class Action extends Notification
     public function via($notifiable)
     {
         $via = ['database',FCMPush::class,'broadcast'];
-        return $via;
 
+        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
+        {
+            return $via;
+        }
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
 
