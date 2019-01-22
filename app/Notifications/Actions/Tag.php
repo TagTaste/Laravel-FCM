@@ -25,7 +25,7 @@ class Tag extends Action
         $this->sub = $this->data->who['name'] ." mentioned you in a post";
         $this->notification = $this->data->who['name'] . " tagged you in a post.";
         \Log::info($this->allData);
-        if($this->modelName == 'review')
+        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
         {
             $this->sub = $this->data->who['name'] . " tagged you in a comment on review of ".$this->allData['title'];
         }

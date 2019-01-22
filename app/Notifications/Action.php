@@ -40,8 +40,6 @@ class Action extends Notification
         if(method_exists($this->model,'getNotificationContent')){
             $this->allData = $this->model->getNotificationContent();
         }
-        \Log::info($event->actionModel);
-
     }
 
     /**
