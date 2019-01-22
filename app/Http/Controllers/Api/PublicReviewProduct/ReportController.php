@@ -34,7 +34,7 @@ class ReportController extends Controller
             return $this->sendResponse();
         }
         $this->model = [];
-        $this->model['title'] = 'Sensorial Ratings';
+        $this->model['title'] = 'Sensogram';
         $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
 //        $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
         $this->model['header_rating'] = $this->getHeaderRating($product);
@@ -71,17 +71,19 @@ class ReportController extends Controller
                     $userCount++;
                 }
             }
-            $headerRating[] = ['header_type'=>$header->header_type,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum)];
+            $headerRating[] = ['header_type'=>$header->header_type,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$header->id)];
         }
 
         return $headerRating;
 
     }
 
-    protected function getRatingMeta($userCount,$headerRatingSum)
+    protected function getRatingMeta($userCount,$headerRatingSum,$headerId)
     {
         $meta = [];
-        $meta['max_rating'] = 8;
+        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->"$.select_type"',5)->first();
+        $option = isset($question->questions->option) ? $question->questions->option : [];
+        $meta['max_rating'] = count($option);
         $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
         $meta['count'] = $userCount;
         $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
@@ -394,12 +396,14 @@ class ReportController extends Controller
     {
         $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
         $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->count();
-        $oberallPreferanceUserCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
+        $overallPreferanceUserCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
+        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->"$.select_type"',5)->first();
+        $option = isset($question->questions->option) ? $question->questions->option : [];
         $meta = [];
-        $meta['max_rating'] = 8;
-        $meta['overall_rating'] = $oberallPreferanceUserCount > 0 ? $overallPreferances/$oberallPreferanceUserCount : 0.00;
+        $meta['max_rating'] = count($option);
+        $meta['overall_rating'] = $overallPreferanceUserCount > 0 ? $overallPreferances/$overallPreferanceUserCount : 0.00;
         $meta['count'] = $userCount;
-        $meta['overall_preferance_user_count'] = $oberallPreferanceUserCount;
+        $meta['overall_preferance_user_count'] = $overallPreferanceUserCount;
         $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
         return $meta;
     }
