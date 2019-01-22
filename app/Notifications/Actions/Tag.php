@@ -24,13 +24,9 @@ class Tag extends Action
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." mentioned you in a post";
         $this->notification = $this->data->who['name'] . " tagged you in a post.";
+        \Log::info($this->allData);
         if($this->modelName == 'review')
         {
-            if(method_exists($this->model,'getNotificationContent')){
-                $this->allData = $this->model->getNotificationContent();
-                $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
-
-            }
             $this->sub = $this->data->who['name'] . " tagged you in a comment on review of ".$this->allData['title'];
         }
     }
