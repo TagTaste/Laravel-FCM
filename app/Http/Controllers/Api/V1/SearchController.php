@@ -1104,12 +1104,12 @@ class SearchController extends Controller
 
         /* ui type = 12 is start */
 
-//        $weekOfTheCategory = [];
-//        $weekOfTheCategory[] = ["Name"=>"Ice Cream","type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png"];
-//        $model[] = ['title'=>"Category of Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-//                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
-//
-//
+        $weekOfTheCategory = [12];
+        $weekOfTheCategory[] = ["Name"=>"Ice Cream","type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
+        $model[] = ['title'=>"Category of Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
+
         /* ui type = 12 is end */
 
 
@@ -1162,10 +1162,10 @@ class SearchController extends Controller
 
         /* ui type = 14 is start */
 
-//        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
-//        if($recommended->count())
-//            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
-//                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
+        if($recommended->count())
+            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
+                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
 
         /* ui type = 14 is end */

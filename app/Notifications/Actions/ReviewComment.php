@@ -25,6 +25,7 @@ class ReviewComment extends Action
             $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
 
         }
+        $this->data->action = "comment";
         $this->notification = $this->sub;
     }
 
