@@ -226,6 +226,7 @@ class ReviewController extends Controller
         $comment->has_tags = $this->hasTags($content);
         $comment->save();
         \Log::info("profile id ". $review->profile_id);
+        \Log::info("login id ".$request->user()->profile->id);
         if($review->profile_id != $request->user()->profile->id)
         {
             $review->comments()->attach($comment->id);
