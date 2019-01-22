@@ -24,55 +24,60 @@ class Tag extends Action
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." mentioned you in a post";
         $this->notification = $this->data->who['name'] . " tagged you in a post.";
-        \Log::info($this->allData);
-        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
-        {
-            $this->sub = $this->data->who['name'] . " tagged you in a comment on review of ".$this->allData['title'];
-        }
     }
 
     public function toMail($notifiable)
     {
-//        if($this->modelName != 'review')
-//        {
-//            $langKey = $this->data->action;
-//
-//            $langKey = isset($this->data->actionModel) ? $langKey.':'.strtolower(class_basename($this->data->actionModel)) : $langKey.':'.$this->modelName;
-//
-//            if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
-//                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
-//            } else {
-//                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
-//            }
-//
-//            $langKey = $langKey.':title';
-//            $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
-//            $this->allData['title'] = $this->sub;
-//            $this->notification = $this->sub;
-//
-//            if(view()->exists($this->view)){
-//                $action = $this->data->action;
-//                $profileId = $notifiable->id;
-//                $model = $this->modelName;
-//                if($this->model->company_id != null)
-//                {
-//                    $companyId = $this->model->company_id;
-//                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
-//                }
-//                else{
-//                    $companyId = null;
-//                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
-//                }
-//                $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
-//                return (new MailMessage())->subject($this->sub)->view(
-//                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
-//                );
-//            }
-//        }
+        if($this->modelName != 'review')
+        {
+            $langKey = $this->data->action;
+
+            $langKey = isset($this->data->actionModel) ? $langKey.':'.strtolower(class_basename($this->data->actionModel)) : $langKey.':'.$this->modelName;
+
+            if(isset($this->allData['shared']) && $this->allData['shared'] == true) {
+                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id'], true, $this->allData['share_id']);
+            } else {
+                $this->allData['url'] = Deeplink::getShortLink($this->modelName, $this->allData['id']);
+            }
+
+            $langKey = $langKey.':title';
+            $this->sub = __('mails.'.$langKey, ['name' => $this->data->who['name']]);
+            $this->allData['title'] = $this->sub;
+            $this->notification = $this->sub;
+
+            if(view()->exists($this->view)){
+                $action = $this->data->action;
+                $profileId = $notifiable->id;
+                $model = $this->modelName;
+                if($this->model->company_id != null)
+                {
+                    $companyId = $this->model->company_id;
+                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+                }
+                else{
+                    $companyId = null;
+                    $encrypted = Crypt::encryptString($this->settingId."/".$profileId."/".$companyId);
+                }
+                $unsubscribeLink = env('APP_URL')."/api/settingUpdate/unsubscribe/?k=".$encrypted;
+                return (new MailMessage())->subject($this->sub)->view(
+                    $this->view, ['data' => $this->data,'model'=>$this->allData,'notifiable'=>$notifiable, 'comment'=> $this->getContent($this->data->content),'content'=>$this->getContent($this->allData['content']),'unsubscribeLink'=>$unsubscribeLink]
+                );
+            }
+        }
+
     }
 
     public function toArray($notifiable)
     {
+
+        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
+        {
+            if($notifiable->id == $this->model->profile_id)
+                $this->notification = $this->data->who['name'] . " tagged you in a comment on your review of ".$this->allData['title'];
+            else
+                $this->notification = $this->data->who['name'] . " tagged you in a comment on review of ".$this->allData['title'];
+        }
+
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
