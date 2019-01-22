@@ -37,7 +37,6 @@ class Action
         $this->image = $image;
         $this->content = $content;
         $this->actionModel = $actionModel;
-        \Log::info($this->actionModel);
     }
 
     public function getModelName(){
