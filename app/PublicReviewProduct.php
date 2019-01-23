@@ -27,7 +27,7 @@ class PublicReviewProduct extends Model
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating','current_status','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
+        'product_category','product_sub_category','type','overall_rating','current_status','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
 
     protected $appends = ['type'];
 
@@ -147,6 +147,12 @@ class PublicReviewProduct extends Model
         }
 
         return null;
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->distinct('profile_id')->get()->count();
+
     }
 
     public function getCurrentStatusAttribute()
