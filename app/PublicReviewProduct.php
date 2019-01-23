@@ -151,7 +151,7 @@ class PublicReviewProduct extends Model
 
     public function getReviewCountAttribute()
     {
-        return \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->distinct('profile_id')->get()->count();
+        return \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->distinct('profile_id')->count();
 
     }
 
