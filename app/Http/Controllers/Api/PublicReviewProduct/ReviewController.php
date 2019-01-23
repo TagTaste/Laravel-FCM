@@ -226,15 +226,12 @@ class ReviewController extends Controller
         $comment->has_tags = $this->hasTags($content);
         $comment->save();
         $review->comments()->attach($comment->id);
-        if($review->profile_id != $request->user()->profile->id)
+        if($comment->has_tags){
+            event(new Tag($review,$request->user()->profile,$comment->content, null, null, null, $comment));
+        }
+        else if($review->profile_id == $request->user()->profile->id)
         {
-            if($comment->has_tags){
-                event(new Tag($review,$request->user()->profile,$comment->content, null, null, null, $comment));
-            }
-            else
-            {
-                event(new \App\Events\Actions\ReviewComment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
-            }
+            event(new \App\Events\Actions\ReviewComment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
         }
 
         $this->model = $comment;
