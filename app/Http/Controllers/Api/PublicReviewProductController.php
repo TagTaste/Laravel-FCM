@@ -64,6 +64,9 @@ class PublicReviewProductController extends Controller
         }
 
         $products = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
+        $products = $products->sortBy(function($product){
+            return $product->overall_rating;
+        });
         $data = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($profileId);
