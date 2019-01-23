@@ -64,7 +64,7 @@ class PublicReviewProductController extends Controller
         }
 
         $products = $this->model->where('is_active',1)->skip($skip)->take($take)->get();
-        $products = $products->sortBy(function($product){
+        $products = $products->sortByDesc(function($product){
             return $product->overall_rating;
         });
         $data = [];
