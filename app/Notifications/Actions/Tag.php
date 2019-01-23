@@ -69,8 +69,6 @@ class Tag extends Action
 
     public function toArray($notifiable)
     {
-        \Log::info($this->allData['type']);
-        \Log::info("here");
         if(isset($this->allData['type']) && $this->allData['type'] == 'product')
         {
             if($notifiable->id == $this->model->profile_id)

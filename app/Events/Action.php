@@ -6,6 +6,7 @@ use App\Company;
 use App\ModelSubscriber;
 use App\Profile;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -14,7 +15,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Action
+class Action implements ShouldQueue
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     
