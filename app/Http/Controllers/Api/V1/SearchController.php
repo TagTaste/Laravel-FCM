@@ -901,97 +901,97 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 7;
-        $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
-        $data = json_decode($chefOfTheWeekProfile);
-        $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
-        $item = [$data];
-        $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+//        $chefOfTheWeekProfileId = 7;
+//        $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
+//        $data = json_decode($chefOfTheWeekProfile);
+//        $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+//        $item = [$data];
+//        $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+//                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         /* ui type = 1 is end */
 
 
         /* ui type = 2 is start */
-
-        $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
-        $profileIds = $profileIds->unique();
-        $length = $profileIds->count();
-        if($length)
-            $profileIds = $profileIds->random($length);
-
-        foreach ($profileIds as $key => $value)
-        {
-            if($loggedInProfileId == $value)
-            {
-                unset($profileIds[$key]);
-                continue;
-            }
-            $profileIds[$key] = "profile:small:".$value ;
-        }
-        if($length && !is_array($profileIds))
-            $profileIds = $profileIds->toArray();
-        $data = [];
-        if(count($profileIds)> 0)
-        {
-            $data = \Redis::mget($profileIds);
-
-        }
-        $profileData = [];
-        if(count($data))
-        {
-            foreach($data as &$profile){
-                if(is_null($profile)){
-                    continue;
-                }
-                $profile = json_decode($profile);
-                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-                $profile->self = false;
-                $profileData[] = $profile;
-            }
-        }
-        if(count($profileData))
-            $model[] = ['title'=>'Recommendations','subtitle'=>'Based on your background & interests','type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+//
+//        $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
+//        $profileIds = $profileIds->unique();
+//        $length = $profileIds->count();
+//        if($length)
+//            $profileIds = $profileIds->random($length);
+//
+//        foreach ($profileIds as $key => $value)
+//        {
+//            if($loggedInProfileId == $value)
+//            {
+//                unset($profileIds[$key]);
+//                continue;
+//            }
+//            $profileIds[$key] = "profile:small:".$value ;
+//        }
+//        if($length && !is_array($profileIds))
+//            $profileIds = $profileIds->toArray();
+//        $data = [];
+//        if(count($profileIds)> 0)
+//        {
+//            $data = \Redis::mget($profileIds);
+//
+//        }
+//        $profileData = [];
+//        if(count($data))
+//        {
+//            foreach($data as &$profile){
+//                if(is_null($profile)){
+//                    continue;
+//                }
+//                $profile = json_decode($profile);
+//                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+//                $profile->self = false;
+//                $profileData[] = $profile;
+//            }
+//        }
+//        if(count($profileData))
+//            $model[] = ['title'=>'Recommendations','subtitle'=>'Based on your background & interests','type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         /* ui type = 2 is end */
 
 
         /* ui type = 3 is start */
 
-
-        $activityBasedIds = [804,70,5555,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
-
-        foreach ($activityBasedIds as $key => $value)
-        {
-            if($loggedInProfileId == $value)
-            {
-                unset($activityBasedIds[$key]);
-                continue;
-            }
-            $activityBasedIds[$key] = "profile:small:".$value ;
-        }
-
-        if(count($activityBasedIds)> 0)
-        {
-            $data = \Redis::mget($activityBasedIds);
-
-        }
-        $profileData = [];
-
-        foreach($data as $key => &$profile){
-            if(is_null($profile)){
-                unset($data[$key]);
-                continue;
-            }
-            $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-            $profile->self = false;
-            $profileData[] = $profile;
-        }
-
-        if(count($profileData))
-            $model[] = ['title'=>'Active & Influential','subtitle'=>null,'type'=>'profile','ui_type'=>3,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+//
+//        $activityBasedIds = [804,70,5555,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787];
+//
+//        foreach ($activityBasedIds as $key => $value)
+//        {
+//            if($loggedInProfileId == $value)
+//            {
+//                unset($activityBasedIds[$key]);
+//                continue;
+//            }
+//            $activityBasedIds[$key] = "profile:small:".$value ;
+//        }
+//
+//        if(count($activityBasedIds)> 0)
+//        {
+//            $data = \Redis::mget($activityBasedIds);
+//
+//        }
+//        $profileData = [];
+//
+//        foreach($data as $key => &$profile){
+//            if(is_null($profile)){
+//                unset($data[$key]);
+//                continue;
+//            }
+//            $profile = json_decode($profile);
+//            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+//            $profile->self = false;
+//            $profileData[] = $profile;
+//        }
+//
+//        if(count($profileData))
+//            $model[] = ['title'=>'Active & Influential','subtitle'=>null,'type'=>'profile','ui_type'=>3,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
 
 
         /* ui type = 3 is end */
@@ -1000,16 +1000,16 @@ class SearchController extends Controller
         /* ui type = 4 is start */
 
 
-        $weekOfTheCompanyId = 55;
-        $weekOfTheCompany = \Redis::get('company:small:' . $weekOfTheCompanyId);
-        $data = json_decode($weekOfTheCompany);
-        if(!is_null($data))
-        {
-            $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
-            $data = [$data];
-            $model[] = ['title'=>"Company in Focus", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"company","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
-        }
+//        $weekOfTheCompanyId = 55;
+//        $weekOfTheCompany = \Redis::get('company:small:' . $weekOfTheCompanyId);
+//        $data = json_decode($weekOfTheCompany);
+//        if(!is_null($data))
+//        {
+//            $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+//            $data = [$data];
+//            $model[] = ['title'=>"Company in Focus", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+//                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"company","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+//        }
 
         /* ui type = 4 is end */
 
@@ -1018,20 +1018,20 @@ class SearchController extends Controller
         /* ui type = 5 is end */
 
 
-        $companyData = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get();
-        $data = $companyData;
-        $companyData = [];
-        foreach($data as $key => &$company){
-            if(is_null($company)){
-                unset($data[$key]);
-                continue;
-            }
-            $company = json_decode($company);
-            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
-            $companyData[] = $company;
-        }
-        if(count($companyData))
-            $model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+//        $companyData = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get();
+//        $data = $companyData;
+//        $companyData = [];
+//        foreach($data as $key => &$company){
+//            if(is_null($company)){
+//                unset($data[$key]);
+//                continue;
+//            }
+//            $company = json_decode($company);
+//            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+//            $companyData[] = $company;
+//        }
+//        if(count($companyData))
+//            $model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
         /* ui type = 5 is end */
@@ -1040,8 +1040,8 @@ class SearchController extends Controller
         /* ui type = 6 is start */
 
 
-        if(count($companyData))
-            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+//        if(count($companyData))
+//            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
         /* ui type = 6 is end */
@@ -1050,10 +1050,10 @@ class SearchController extends Controller
 
         /* ui type = 7 is start */
 
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations','subtitle'=>'Interesting opportunities for you','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+//        $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+//
+//        if(count($collaborations))
+//            $model[] = ['title'=>'Collaborations','subtitle'=>'Interesting opportunities for you','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
         /* ui type = 7 is end */
@@ -1106,8 +1106,8 @@ class SearchController extends Controller
 
         $weekOfTheCategory = [18];
         $item = [];
-        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
-        $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
+        $model[] = ['title'=>"Category of eek", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
                   Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.",
             "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
@@ -1119,8 +1119,8 @@ class SearchController extends Controller
 
 
         /* ui type = 13 is start */
-
-        $categories = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
+        $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
+        $categories = PublicReviewProduct\ProductCategory::whereIn('id',$categoryIds)->where('is_active',1)->inRandomOrder()->get();
         if($categories->count())
             $model[] = ['title'=>'Explore by Category','subtitle'=>null,'item'=>$categories,
                 'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
@@ -1179,12 +1179,12 @@ class SearchController extends Controller
         /* ui type = 15 is start */
 
 
-        $specializations = \DB::table('specializations')->get();
-
-        if(count($specializations))
-            $model[] = ['title'=>'Explore by Specialization','subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
-
-
+//        $specializations = \DB::table('specializations')->get();
+//
+//        if(count($specializations))
+//            $model[] = ['title'=>'Explore by Specialization','subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
+//
+//
 
         /* ui type = 15 is end */
 
