@@ -147,6 +147,8 @@ class Action extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        \Log::info($this->allData['type']);
+
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
