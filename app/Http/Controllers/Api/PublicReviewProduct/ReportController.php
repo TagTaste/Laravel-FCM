@@ -28,7 +28,7 @@ class ReportController extends Controller
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';
-            $this->model['description'] = 'Not enough people have reviewed this product to generate a summary chart.';
+            $this->model['description'] = 'Not enough people have reviewed this product to generate sensogram.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
             return $this->sendResponse();
@@ -230,7 +230,7 @@ class ReportController extends Controller
                                             $count = 0;
                                             foreach ($answerIntensity as $y)
                                             {
-                                                if($y == $x)
+                                                if($this->checkValue($x,$y))
                                                     $count++;
                                             }
                                             $value[] = ['value'=>$x,'count'=>$count];
@@ -298,12 +298,11 @@ class ReportController extends Controller
                             $questionIntensity = explode(",",$questionIntensity);
                             foreach ($questionIntensity as $x)
                             {
+
                                 $count = 0;
                                 foreach ($answerIntensity as $y)
                                 {
-                                    \Log::info("here is x ".$y);
-                                    \Log::info("here is x ".$x);
-                                    if($y == $x)
+                                    if($this->checkValue($x,$y))
                                         $count++;
                                 }
                                 $value[] = ['value'=>$x,'count'=>$count];
@@ -328,7 +327,7 @@ class ReportController extends Controller
                                             $count = 0;
                                             foreach ($answerIntensity as $y)
                                             {
-                                                if($y == $x)
+                                                if($this->checkValue($x,$y))
                                                     $count++;
                                             }
                                             $value[] = ['value'=>$x,'count'=>$count];
@@ -576,5 +575,12 @@ class ReportController extends Controller
             ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId)->where('value','like',$option)
             ->orderBy('total','DESC')->groupBy('intensity')->get();
         return $this->sendResponse();
+    }
+
+    private function checkValue($a,$b)
+    {
+        if($a == $b || $a == " ".$b || " ".$a == $b)
+            return 1;
+        return 0;
     }
 }
