@@ -2,6 +2,7 @@
 
 namespace App\PublicReviewProduct;
 
+use App\Recipe\PublicReviewProduct;
 use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
@@ -26,7 +27,10 @@ class Review extends Model
     public function getReviewMetaAttribute()
     {
         $meta = [];
-        $meta['max_rating'] = 8;
+        $question = \DB::table('public_review_questions')->where('header_id',$this->header_id)->where('questions->select_type',5)->first();
+        $question = isset($question->questions) ? json_decode($question->questions) : null;
+        $option = isset($question->option) ? $question->option : [];
+        $meta['max_rating'] = count($option);
         $meta['user_rating'] = isset($this->leaf_id) ? $this->leaf_id : null;
         $meta['color_code'] = $this->getColorCode(floor($meta['user_rating']));
         return $meta;
@@ -85,5 +89,19 @@ class Review extends Model
         $meta = \DB::table('public_product_user_review')->where('product_id',$this->product_id)->where('profile_id',$this->profile_id)->where('select_type',6)->first();
 
         return isset($meta->meta) ? json_decode($meta->meta,true) : null;
+    }
+
+    public function getNotificationContent()
+    {
+        $product = PublicReviewProduct::where('id',$this->product_id)->first();
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->id,
+            'content' => $this->caption,
+            'type' => 'product',
+            'product_id'=>$this->product_id,
+            'title' => $product->name,
+            'image' => isset($this->images_meta[0]->meta->tiny_photo) ? $this->images_meta[0]->meta->tiny_photo : null
+            ];
     }
 }

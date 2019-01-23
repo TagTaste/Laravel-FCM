@@ -45,12 +45,12 @@ class Product extends Share
         return [];
     }
 
-    public function getMetaFor(int $profileId) : array
+    public function getMetaFor() : array
     {
         $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
-        $meta['current_status'] = $this->getCurrentStatusAttribute($product,$profileId);
+        $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
         return $meta;
     }
 
@@ -61,8 +61,11 @@ class Product extends Share
         {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$product->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$product->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
+            $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
+            $question = json_decode($question->questions);
+            $option = isset($question->option) ? $question->option : [];
             $meta = [];
-            $meta['max_rating'] = 8;
+            $meta['max_rating'] = count($option);
             $meta['overall_rating'] = $userCount >= 3 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
             $meta['color_code'] = $userCount >= 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;

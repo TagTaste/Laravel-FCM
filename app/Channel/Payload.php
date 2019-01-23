@@ -3,6 +3,8 @@
 namespace App\Channel;
 
 use App\Channel;
+use App\PublicReviewProduct;
+use App\Shareable\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -59,6 +61,27 @@ class Payload extends Model
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
                         if($name === 'sharedBy'){
                             $additionalMeta['sharedAt'] = $this->created_at;
+//                            bad me change krna h jald bazi me likha hua h
+//                            if($this->getType() == 'product')
+//                            {
+//                                $product = Product::where('id',$this->model_id)->first();
+//                                $meta = $product->getMetaFor();
+//                                $overallrating = json_encode($meta['overall_rating'],true);
+//                                if(is_null($overallrating))
+//                                {
+//                                    $additionalMeta['overall_rating'] = ":{";
+//                                    foreach ($overallrating as $key => $value)
+//                                    {
+//                                        $additionalMeta['overall_rating'] .= "\"$key\":\"$value\"";
+//                                    }
+//                                    $additionalMeta['overall_rating'] .= "}";
+//                                }
+//                                else
+//                                {
+//                                    $additionalMeta['overall_rating'] = null;
+//                                }
+//                                $additionalMeta['current_status'] = $meta['current_status'];
+//                            }
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
@@ -81,7 +104,6 @@ class Payload extends Model
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
-            
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
             

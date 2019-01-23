@@ -48,8 +48,6 @@ class PublicReviewKeywordTableSeeder extends Seeder
         $data[] = ['key'=>'keywords','value'=>'Carbonated Drink'];
         $data[] = ['key'=>'keywords','value'=>'Noodles'];
 
-        $data[] = ['key'=>'keywords','value'=>'Category'];
-        $data[] = ['key'=>'keywords','value'=>'Sub-Category'];
         \DB::table('public_review_keywords')->insert($data);
     }
 }

@@ -24,7 +24,7 @@ class Comment extends Action
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";
-        if($this->model == 'review')
+        if($this->modelName == 'review')
             $this->sub = $this->data->who['name'] ." commented on your review";
         $this->notification = $this->sub;
 

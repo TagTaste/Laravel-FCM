@@ -563,13 +563,12 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 664;
+        $chefOfTheWeekProfileId = 7;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
         $item = [$data];
-        $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. 
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+        $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Ashok comes from the land of Rajasthan whose food heritage is influenced by both the war-like lifestyles of its inhabitants and the availability of ingredients in that arid region. His palate is most receptive when the food is cooked by soaking meat with spicey masalas, chapati, and coal in an underground pit of Thar desert. Follow him for updates on such exquisite recipes and much more.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         /* ui type = 1 is end */
@@ -690,7 +689,7 @@ class SearchController extends Controller
             $companyData[] = $company;
         }
         if(count($companyData))
-            $model[] = ['title'=>'Companies to Follow','type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            $model[] = ['title'=>'Companies to follow','type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         /* ui type = 5 is end */
 
@@ -1090,7 +1089,8 @@ class SearchController extends Controller
             $meta = $product->getMetaFor($loggedInProfileId);
             $recommended[] = ['product'=>$product,'meta'=>$meta];
         }
-        $model[] = ['title'=>'Products you\'d like to Review','subtitle'=>'Based on your interests','item'=>$recommended,
+        if(count($recommended))
+            $model[] = ['title'=>'Products you\'d like to review','subtitle'=>'Based on your interests','item'=>$recommended,
             'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 
@@ -1104,12 +1104,14 @@ class SearchController extends Controller
 
         /* ui type = 12 is start */
 
-//        $weekOfTheCategory = [];
-//        $weekOfTheCategory[] = ["Name"=>"Ice Cream","type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png"];
-//        $model[] = ['title'=>"Category of Week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-//                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.", "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
-//
-//
+        $weekOfTheCategory = [18];
+        $item = [];
+        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"type"=>"category","description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
+        $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.",
+            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
+
         /* ui type = 12 is end */
 
 
@@ -1120,8 +1122,8 @@ class SearchController extends Controller
 
         $categories = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
         if($categories->count())
-            $model[] = ['title'=>'Explore by Category','subtitle'=>'LENSES FOR THE F&B INDUSTRY','item'=>$categories,
-                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+            $model[] = ['title'=>'Explore by Category','subtitle'=>null,'item'=>$categories,
+                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
 
 
 
@@ -1162,10 +1164,10 @@ class SearchController extends Controller
 
         /* ui type = 14 is start */
 
-//        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
-//        if($recommended->count())
-//            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
-//                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
+        if($recommended->count())
+            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
+                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
 
 
         /* ui type = 14 is end */

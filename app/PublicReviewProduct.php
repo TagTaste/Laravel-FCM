@@ -27,7 +27,7 @@ class PublicReviewProduct extends Model
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating','current_status','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
+        'product_category','product_sub_category','type','overall_rating','current_status','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
 
     protected $appends = ['type'];
 
@@ -135,8 +135,11 @@ class PublicReviewProduct extends Model
         {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
+            $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();
+            $question = json_decode($question->questions);
+            $option = isset($question->option) ? $question->option : [];
             $meta = [];
-            $meta['max_rating'] = 8;
+            $meta['max_rating'] = count($option);
             $meta['overall_rating'] = $userCount >= 3 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
             $meta['color_code'] = $userCount >= 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
@@ -144,6 +147,12 @@ class PublicReviewProduct extends Model
         }
 
         return null;
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->distinct('profile_id')->get()->count();
+
     }
 
     public function getCurrentStatusAttribute()

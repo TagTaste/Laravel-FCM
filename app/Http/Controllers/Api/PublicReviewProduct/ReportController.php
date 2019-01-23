@@ -27,15 +27,15 @@ class ReportController extends Controller
         if($count < 3)
         {
             $this->model = [];
-            $this->model['title'] = 'Sensorial Ratings';
-            $this->model['description'] = 'Not enough people have reviewed this product to generate a visual representation of the overall product experience.';
+            $this->model['title'] = 'Sensogram';
+            $this->model['description'] = 'Not enough people have reviewed this product to generate sensogram.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
             return $this->sendResponse();
         }
         $this->model = [];
-        $this->model['title'] = 'Sensorial Ratings';
-        $this->model['description'] = 'Following graph shows the overall preference of tasters for this product based on Appearance, Aroma, Aromatics, Taste, and Texture on an 8-point scale.';
+        $this->model['title'] = 'Sensogram';
+        $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
 //        $this->model['info'] = ['text'=>'this is text','link'=>null,'images'=>[]];
         $this->model['header_rating'] = $this->getHeaderRating($product);
         $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
@@ -71,17 +71,20 @@ class ReportController extends Controller
                     $userCount++;
                 }
             }
-            $headerRating[] = ['header_type'=>$header->header_type,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum)];
+            $headerRating[] = ['header_type'=>$header->header_type,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$header->id)];
         }
 
         return $headerRating;
 
     }
 
-    protected function getRatingMeta($userCount,$headerRatingSum)
+    protected function getRatingMeta($userCount,$headerRatingSum,$headerId)
     {
         $meta = [];
-        $meta['max_rating'] = 8;
+        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->select_type',5)->first();
+        $question = json_decode($question->questions);
+        $option = isset($question->option) ? $question->option : [];
+        $meta['max_rating'] = count($option);
         $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
         $meta['count'] = $userCount;
         $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
@@ -173,13 +176,12 @@ class ReportController extends Controller
         }
 
         //filters data and bht bekar likha hua h so isko thik krne me bht time lagega and time h nhi so sorry :(
-        $filters = $request->input('filters');
-        $resp = $this->getFilterProfileIds($filters);
-        $profileIds = $resp['profile_id'];
-        $type = $resp['type'];
-        $boolean = 'and' ;
-        $totalApplicants = \DB::table('public_product_user_review')->where('value','!=','')->where('current_status',2)->where('product_id',$productId)
-            ->whereIn('profile_id', $profileIds, $boolean, $type)->distinct()->get(['profile_id'])->count();
+//        $filters = $request->input('filters');
+//        $resp = $this->getFilterProfileIds($filters);
+//        $profileIds = $resp['profile_id'];
+//        $type = $resp['type'];
+//        $boolean = 'and' ;
+        $totalApplicants = \DB::table('public_product_user_review')->where('value','!=','')->where('current_status',2)->where('product_id',$productId)->distinct()->get(['profile_id'])->count();
         $model = [];
         foreach ($withoutNest as $data)
         {
@@ -204,11 +206,10 @@ class ReportController extends Controller
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['select_type'] = isset($item->questions->select_type) ? $item->questions->select_type : null;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
+                            ->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
                         $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->where('product_id',$productId)->where('question_id',$item->id)
+                            ->where('product_id',$productId)->where('question_id',$item->id)
                             ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-
                         $options = isset($item->option) ? $item->option : [];
 
                         foreach ($answers as &$answer)
@@ -229,7 +230,7 @@ class ReportController extends Controller
                                             $count = 0;
                                             foreach ($answerIntensity as $y)
                                             {
-                                                if($y == $x)
+                                                if($this->checkValue($x,$y))
                                                     $count++;
                                             }
                                             $value[] = ['value'=>$x,'count'=>$count];
@@ -273,19 +274,18 @@ class ReportController extends Controller
                     unset($reports['nestedAnswers']);
                 $reports['total_applicants'] = $totalApplicants;
                 $reports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
-                    ->whereIn('profile_id', $profileIds, $boolean, $type)->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
+                    ->where('question_id',$data->id)->distinct()->get(['profile_id'])->count();
                 $reports['select_type'] = isset($data->questions->select_type) ? $data->questions->select_type : null;
                 if(isset($data->questions->select_type) && $data->questions->select_type == 3)
                 {
                     $reports['answer'] = Review::where('product_id',$productId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->where('current_status',2)->where('header_id',$headerId)->skip(0)->take(3)->get();
+                        ->where('current_status',2)->where('header_id',$headerId)->skip(0)->take(3)->get();
                 }
                 else
                 {
                     $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
@@ -298,10 +298,11 @@ class ReportController extends Controller
                             $questionIntensity = explode(",",$questionIntensity);
                             foreach ($questionIntensity as $x)
                             {
+
                                 $count = 0;
                                 foreach ($answerIntensity as $y)
                                 {
-                                    if($y == $x)
+                                    if($this->checkValue($x,$y))
                                         $count++;
                                 }
                                 $value[] = ['value'=>$x,'count'=>$count];
@@ -326,7 +327,7 @@ class ReportController extends Controller
                                             $count = 0;
                                             foreach ($answerIntensity as $y)
                                             {
-                                                if($y == $x)
+                                                if($this->checkValue($x,$y))
                                                     $count++;
                                             }
                                             $value[] = ['value'=>$x,'count'=>$count];
@@ -394,12 +395,15 @@ class ReportController extends Controller
     {
         $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->sum('leaf_id');
         $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->count();
-        $oberallPreferanceUserCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
+        $overallPreferanceUserCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)->where('header_id',$headerId)->where('select_type',5)->count();
+        $question = \DB::table('public_review_questions')->where('header_id',$headerId)->where('questions->select_type',5)->first();
+        $question = isset($question->questions) ? json_decode($question->questions) : null;
+        $option = isset($question->option) ? $question->option : [];
         $meta = [];
-        $meta['max_rating'] = 8;
-        $meta['overall_rating'] = $oberallPreferanceUserCount > 0 ? $overallPreferances/$oberallPreferanceUserCount : 0.00;
+        $meta['max_rating'] = count($option);
+        $meta['overall_rating'] = $overallPreferanceUserCount > 0 ? $overallPreferances/$overallPreferanceUserCount : 0.00;
         $meta['count'] = $userCount;
-        $meta['overall_preferance_user_count'] = $oberallPreferanceUserCount;
+        $meta['overall_preferance_user_count'] = $overallPreferanceUserCount;
         $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
         return $meta;
     }
@@ -571,5 +575,12 @@ class ReportController extends Controller
             ->where('product_id',$productId)->where('question_id',$questionId)->where('leaf_id',$optionId)->where('value','like',$option)
             ->orderBy('total','DESC')->groupBy('intensity')->get();
         return $this->sendResponse();
+    }
+
+    private function checkValue($a,$b)
+    {
+        if($a == $b || $a == " ".$b || " ".$a == $b)
+            return 1;
+        return 0;
     }
 }

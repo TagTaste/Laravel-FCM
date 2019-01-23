@@ -54,6 +54,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Actions\InvitationAcceptForReview' => ['App\Listeners\Notifications\InvitationAcceptForReview'],
         'App\Events\Actions\InvitationRejectForReview' => ['App\Listeners\Notifications\InvitationRejectForReview'],
 
+        'App\Events\Actions\ReviewComment' => ['App\Listeners\Notifications\ReviewComment'],
+
+
 
         'App\Events\Actions\CompleteTasting' => ['App\Listeners\Notifications\CompleteTasting'],
 

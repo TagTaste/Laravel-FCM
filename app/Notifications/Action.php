@@ -13,7 +13,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Crypt;
 
-class Action extends Notification implements ShouldQueue
+class Action extends Notification
 {
     use GetTags, Queueable;
     
@@ -52,7 +52,10 @@ class Action extends Notification implements ShouldQueue
     {
         $via = ['database',FCMPush::class,'broadcast'];
 
-
+        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
+        {
+            return $via;
+        }
         if($this->view && view()->exists($this->view)){
             $via[] = 'mail';
 
