@@ -1142,7 +1142,7 @@ class SearchController extends Controller
             $recently[] = ['product'=>$product,'meta'=>$meta];
         }
         if(count ($recently) != 0)
-            $model[] = ['title'=>'Newly Added','subtitle'=>'Be the first one to Review','item'=>$recently,
+            $model[] = ['title'=>'Newly Added','subtitle'=>'Be the first one to review','item'=>$recently,
                 'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 

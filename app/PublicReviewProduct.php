@@ -140,9 +140,9 @@ class PublicReviewProduct extends Model
             $option = isset($question->option) ? $question->option : [];
             $meta = [];
             $meta['max_rating'] = count($option);
-            $meta['overall_rating'] = $userCount >= 3 ? $overallPreferances/$userCount : null;
+            $meta['overall_rating'] = $userCount >= 10 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
-            $meta['color_code'] = $userCount >= 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            $meta['color_code'] = $userCount >= 10 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
             return $meta;
         }
 
