@@ -553,12 +553,6 @@ class SearchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $model = [];
-        // ui type data
-        // 0 - horizontal with crousal
-        // 1 - vertical with crousal
-        // 2 - vertical without crousal
-        // 3 single item data
-        // 4
 
 
         /* ui type = 1 is start */
@@ -891,12 +885,20 @@ class SearchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $model = [];
-        // ui type data
-        // 0 - horizontal with crousal
-        // 1 - vertical with crousal
-        // 2 - vertical without crousal
-        // 3 single item data
-        // 4
+
+
+
+        /* ui type = 12 is start */
+
+        $weekOfTheCategory = [18];
+        $item = [];
+        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
+        $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.",
+            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
+
+        /* ui type = 12 is end */
 
 
         /* ui type = 1 is start */
@@ -1065,7 +1067,7 @@ class SearchController extends Controller
         /* ui type = 9 is start */
 
 
-        $products = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(10)->get();
+        $products = PublicReviewProduct::where('mark_featured',1)->where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
         $recommended = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($loggedInProfileId);
@@ -1083,7 +1085,7 @@ class SearchController extends Controller
 
         /* ui type = 10 is start */
 
-        $products = PublicReviewProduct::where('is_active',1)->where('mark_featured',1)->inRandomOrder()->limit(10)->get();
+        $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
         $recommended = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($loggedInProfileId);
@@ -1097,22 +1099,6 @@ class SearchController extends Controller
 
         /* ui type = 10 is end */
 
-
-
-
-
-
-        /* ui type = 12 is start */
-
-        $weekOfTheCategory = [18];
-        $item = [];
-        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
-        $model[] = ['title'=>"Category of eek", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.",
-            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
-
-
-        /* ui type = 12 is end */
 
 
 
@@ -1135,7 +1121,7 @@ class SearchController extends Controller
 
         /* ui type = 11 is start */
 
-        $products = PublicReviewProduct::where('is_active',1)->orderBy('updated_at','desc')->limit(10)->get();
+        $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->orderBy('updated_at','desc')->limit(10)->get();
         $recently = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($loggedInProfileId);
@@ -1163,8 +1149,8 @@ class SearchController extends Controller
 
 
         /* ui type = 14 is start */
-
-        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
+        $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
+        $recommended = PublicReviewProduct\ProductCategory::whereIn('id',$categoryIds)->where('is_active',1)->inRandomOrder()->limit(6)->get();
         if($recommended->count())
             $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
                 'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
