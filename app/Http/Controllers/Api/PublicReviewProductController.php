@@ -242,10 +242,10 @@ class PublicReviewProductController extends Controller
         $profileId = $request->user()->profile->id;
         $similar= \App\Filter\PublicReviewProduct::getModelIds($filter)->toArray ();
         if(count($similar) >= 3){
-            $products = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(5)->get();
+            $products = \App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(3)->get();
         }
         else{
-            $products = \App\PublicReviewProduct::where('id','!=',$productId)->skip(0)->take(5-count($similar))->get();
+            $products = \App\PublicReviewProduct::where('id','!=',$productId)->skip(0)->take(3-count($similar))->get();
             $products = $products->merge(\App\PublicReviewProduct::whereIn('id',$similar)->where('id','!=',$productId)->skip(0)->take(count($similar))->get());
         }
         $this->model = [];
