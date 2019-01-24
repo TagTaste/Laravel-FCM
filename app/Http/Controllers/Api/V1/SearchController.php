@@ -562,7 +562,7 @@ class SearchController extends Controller
         $data = json_decode($chefOfTheWeekProfile);
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
         $item = [$data];
-        $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Ashok comes from the land of Rajasthan whose food heritage is influenced by both the war-like lifestyles of its inhabitants and the availability of ingredients in that arid region. His palate is most receptive when the food is cooked by soaking meat with spicey masalas, chapati, and coal in an underground pit of Thar desert. Follow him for updates on such exquisite recipes and much more.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+        $model[] = ['title'=>"Active & Influential", "subtitle"=>null,"description"=>"Ashok comes from the land of Rajasthan whose food heritage is influenced by both the war-like lifestyles of its inhabitants and the availability of ingredients in that arid region. His palate is most receptive when the food is cooked by soaking meat with spicey masalas, chapati, and coal in an underground pit of Thar desert. Follow him for updates on such exquisite recipes and much more.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         /* ui type = 1 is end */
@@ -892,7 +892,7 @@ class SearchController extends Controller
 
         $weekOfTheCategory = [18];
         $item = [];
-        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
+        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.jpg"];
         $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>null,
             "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
