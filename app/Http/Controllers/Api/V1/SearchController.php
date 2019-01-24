@@ -890,12 +890,12 @@ class SearchController extends Controller
 
         /* ui type = 12 is start */
 
-        $weekOfTheCategory = [18];
-        $item = [];
-        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.jpg"];
-        $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>null,
-            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
-
+//        $weekOfTheCategory = [18];
+//        $item = [];
+//        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.jpg"];
+//        $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>null,
+//            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+//
 
         /* ui type = 12 is end */
 
@@ -1148,12 +1148,12 @@ class SearchController extends Controller
 
 
         /* ui type = 14 is start */
-        $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
-        $recommended = PublicReviewProduct\ProductCategory::whereIn('id',$categoryIds)->where('is_active',1)->inRandomOrder()->limit(6)->get();
-        if($recommended->count())
-            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
-                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
-
+//        $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
+//        $recommended = PublicReviewProduct\ProductCategory::whereIn('id',$categoryIds)->where('is_active',1)->inRandomOrder()->limit(6)->get();
+//        if($recommended->count())
+//            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
+//                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
+//
 
         /* ui type = 14 is end */
 
