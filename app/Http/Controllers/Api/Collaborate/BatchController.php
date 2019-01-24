@@ -415,7 +415,7 @@ class BatchController extends Controller
                                             $count = 0;
                                             foreach ($answerIntensity as $y)
                                             {
-                                                if($y == $x)
+                                                if($this->checkValue($x,$y))
                                                     $count++;
                                             }
                                             $value[] = ['value'=>$x,'count'=>$count];
@@ -486,7 +486,7 @@ class BatchController extends Controller
                                 $count = 0;
                                 foreach ($answerIntensity as $y)
                                 {
-                                    if($y == $x)
+                                    if($this->checkValue($x,$y))
                                         $count++;
                                 }
                                 $value[] = ['value'=>$x,'count'=>$count];
@@ -511,7 +511,7 @@ class BatchController extends Controller
                                             $count = 0;
                                             foreach ($answerIntensity as $y)
                                             {
-                                                if($y == $x)
+                                                if($this->checkValue($x,$y))
                                                     $count++;
                                             }
                                             $value[] = ['value'=>$x,'count'=>$count];
@@ -1326,5 +1326,12 @@ class BatchController extends Controller
         $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
         $this->model = \Storage::url($resp);
         return $this->sendResponse();
+    }
+
+    private function checkValue($a,$b)
+    {
+        if($a == $b || $a == " ".$b || " ".$a == $b)
+            return 1;
+        return 0;
     }
 }

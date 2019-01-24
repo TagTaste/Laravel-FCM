@@ -27,9 +27,9 @@ class PublicReviewProduct extends Model
 
     protected $visible = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link','global_question_id','is_active',
-        'product_category','product_sub_category','type','overall_rating','current_status','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
+        'product_category','product_sub_category','type','review_count','created_at','updated_at','deleted_at','keywords','is_authenticity_check'];
 
-    protected $appends = ['type'];
+    protected $appends = ['type','review_count'];
 
     protected $with = ['product_category','product_sub_category']; // remove category and sub category
 
@@ -140,9 +140,9 @@ class PublicReviewProduct extends Model
             $option = isset($question->option) ? $question->option : [];
             $meta = [];
             $meta['max_rating'] = count($option);
-            $meta['overall_rating'] = $userCount >= 3 ? $overallPreferances/$userCount : null;
+            $meta['overall_rating'] = $userCount >= 10 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
-            $meta['color_code'] = $userCount >= 3 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            $meta['color_code'] = $userCount >= 10 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
             return $meta;
         }
 
@@ -151,7 +151,7 @@ class PublicReviewProduct extends Model
 
     public function getReviewCountAttribute()
     {
-        return \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->distinct('profile_id')->get()->count();
+        return \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->count(\DB::raw('DISTINCT profile_id'));
 
     }
 
