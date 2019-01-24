@@ -169,7 +169,7 @@ class UserController extends Controller
         if(isset($socialiteUser['remove'])&&$socialiteUser['remove'] == 1)
         {
             $this->model = SocialAccount::where('user_id',$request->user()->id)->where('provider',$provider)->delete();
-            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>null]);
+            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>null,'is_'.$provider.'_connected'=>0]);
             return $this->sendResponse();
         }
 
@@ -184,7 +184,7 @@ class UserController extends Controller
         else
         {
             $socialiteUserLink = isset($socialiteUser['user']['link']) ? $socialiteUser['user']['link']:(isset($socialiteUser['user']['publicProfileUrl']) ? $socialiteUser['user']['publicProfileUrl'] : null);
-            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>$socialiteUserLink]);
+            \App\Profile::where('id',$request->user()->profile->id)->update([$provider.'_url'=>$socialiteUserLink,'is_'.$provider.'_connected'=>1]);
             return $this->sendError("Already link ".$provider." with our platform");
         }
 
