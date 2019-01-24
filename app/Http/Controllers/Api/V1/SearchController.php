@@ -833,45 +833,10 @@ class SearchController extends Controller
 
         /* ui type = 16 is start */
 
-//        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
-//        if(isset($fbFriends->fb_friends) )
-//            $profileIds = explode(",",$fbFriends->fb_friends);
-//        else
-//            $profileIds = [];
-//        foreach ($profileIds as $key => $value)
-//        {
-//            if($loggedInProfileId == $value)
-//            {
-//                unset($profileIds[$key]);
-//                continue;
-//            }
-//            $profileIds[$key] = "profile:small:".$value ;
-//        }
-//        if($length && !is_array($profileIds))
-//            $profileIds = $profileIds->toArray();
-//        $data = [];
-//        if(count($profileIds)> 0)
-//        {
-//            $data = \Redis::mget($profileIds);
-//
-//        }
-//        $profileData = [];
-//        if(count($data))
-//        {
-//            foreach($data as &$profile){
-//                if(is_null($profile)){
-//                    continue;
-//                }
-//                $profile = json_decode($profile);
-//                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-//                $profile->self = false;
-//                $profileData[] = $profile;
-//            }
-//        }
-//
-//        if(count($profileData))
-//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
-//
+
+        if(count($profileData))
+            $model[] = ['title'=>'See your facebook friend','subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
+
 
         /* ui type = 16 is end */
 
@@ -1178,7 +1143,23 @@ class SearchController extends Controller
 
         /* ui type = 16 is start */
 
-//        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
+
+//
+//        if(count($profileData))
+//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+//
+
+        /* ui type = 16 is end */
+
+
+        $this->model = $model;
+
+        return $this->sendResponse();
+    }
+
+
+
+    //        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
 //        if(isset($fbFriends->fb_friends) )
 //            $profileIds = explode(",",$fbFriends->fb_friends);
 //        else
@@ -1213,19 +1194,5 @@ class SearchController extends Controller
 //                $profileData[] = $profile;
 //            }
 //        }
-//
-//        if(count($profileData))
-//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
-//
-
-        /* ui type = 16 is end */
-
-
-        $this->model = $model;
-
-        return $this->sendResponse();
-    }
-
-
 
 }
