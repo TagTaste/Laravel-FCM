@@ -28,7 +28,7 @@ class ReportController extends Controller
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';
-            $this->model['description'] = 'Not enough people have reviewed this product to generate a sensogram.';
+            $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
             return $this->sendResponse();

@@ -37,6 +37,7 @@ use App\Console\Commands\RemoveSpecialCharsHandle;
 use App\Console\Commands\ServiceInterruption;
 use App\Console\Commands\SetPlatformAndroid;
 use App\Console\Commands\ShoutoutPreviewUpdate;
+use App\Console\Commands\SocialConnectedAddFlag;
 use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -203,7 +204,11 @@ class Kernel extends ConsoleKernel
 
 
         //Progressive image
-        ProgressiveImage::class
+        ProgressiveImage::class,
+
+
+        //update social connection
+        SocialConnectedAddFlag::class
 
     ];
 
