@@ -1047,6 +1047,19 @@ class SearchController extends Controller
 
 
 
+
+        /* ui type = 8 is start */
+
+
+        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+        /* ui type = 8 is end */
+
+
         /* ui type = 10 is start */
 
         $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
@@ -1064,19 +1077,6 @@ class SearchController extends Controller
         /* ui type = 10 is end */
 
 
-
-
-
-        /* ui type = 8 is start */
-
-
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
-
-
-        /* ui type = 8 is end */
 
 
 
