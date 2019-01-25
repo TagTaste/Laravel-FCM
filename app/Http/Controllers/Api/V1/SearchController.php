@@ -834,8 +834,8 @@ class SearchController extends Controller
         /* ui type = 16 is start */
 
 
-        if(count($profileData))
-            $model[] = ['title'=>'See your facebook friend','subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
+//        if(count($profileData))
+//            $model[] = ['title'=>'See your facebook friend','subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
 
 
         /* ui type = 16 is end */
@@ -1067,6 +1067,19 @@ class SearchController extends Controller
 
 
 
+        /* ui type = 8 is start */
+
+
+        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+        /* ui type = 8 is end */
+
+
+
 
         /* ui type = 13 is start */
         $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
@@ -1099,17 +1112,6 @@ class SearchController extends Controller
         /* ui type = 11 is end */
 
 
-
-        /* ui type = 8 is start */
-
-
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
-
-
-        /* ui type = 8 is end */
 
 
         /* ui type = 14 is start */
