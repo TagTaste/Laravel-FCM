@@ -562,7 +562,7 @@ class SearchController extends Controller
         $data = json_decode($chefOfTheWeekProfile);
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
         $item = [$data];
-        $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Chef Veena Arora leads culinary excellence at Imperial Hotel. Driven by instinct this home chef turned National Award-Winning Chef loves experimenting in the kitchen to churn out different menus for different seasons. Her expertise in South East Asian cuisines and her understanding of spices are simply par excellence.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+        $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Chef Veena Arora leads culinary excellence at Imperial Hotel. Driven by natural instincts, this home chef  turned National award-winning chef loves experimenting in the kitchen to churn out different menus for different seasons. Her expertise in the South East Asian cuisines and her understanding of spices are simply par excellence.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         /* ui type = 1 is end */
