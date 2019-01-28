@@ -16,7 +16,7 @@ class CreateTableReviewTime extends Migration
         //
         Schema::create('review_timings', function(Blueprint $table){
            $table->unsignedInteger('profile_id');
-           $table->unsignedInteger('product_id');
+           $table->string('product_id');
            $table->timestamps();
         });
     }
