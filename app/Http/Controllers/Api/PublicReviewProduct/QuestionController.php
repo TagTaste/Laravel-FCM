@@ -51,13 +51,11 @@ class QuestionController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $exists = \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
-        \Log::info($exists);
         if($exists){
             \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
         }
         else{
             \DB::table('review_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
-            \Log::info($this->now);
         }
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
