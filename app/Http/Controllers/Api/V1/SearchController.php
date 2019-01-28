@@ -557,12 +557,12 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 7;
+        $chefOfTheWeekProfileId = 5405;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
         $item = [$data];
-        $model[] = ['title'=>"Active & Influential", "subtitle"=>null,"description"=>"Ashok comes from the land of Rajasthan whose food heritage is influenced by both the war-like lifestyles of its inhabitants and the availability of ingredients in that arid region. His palate is most receptive when the food is cooked by soaking meat with spicey masalas, chapati, and coal in an underground pit of Thar desert. Follow him for updates on such exquisite recipes and much more.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+        $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Chef Veena Arora leads culinary excellence at Imperial Hotel. Driven by natural instincts, this home chef  turned National award-winning chef loves experimenting in the kitchen to churn out different menus for different seasons. Her expertise in the South East Asian cuisines and her understanding of spices are simply par excellence.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
         /* ui type = 1 is end */
@@ -833,45 +833,10 @@ class SearchController extends Controller
 
         /* ui type = 16 is start */
 
-//        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
-//        if(isset($fbFriends->fb_friends) )
-//            $profileIds = explode(",",$fbFriends->fb_friends);
-//        else
-//            $profileIds = [];
-//        foreach ($profileIds as $key => $value)
-//        {
-//            if($loggedInProfileId == $value)
-//            {
-//                unset($profileIds[$key]);
-//                continue;
-//            }
-//            $profileIds[$key] = "profile:small:".$value ;
-//        }
-//        if($length && !is_array($profileIds))
-//            $profileIds = $profileIds->toArray();
-//        $data = [];
-//        if(count($profileIds)> 0)
-//        {
-//            $data = \Redis::mget($profileIds);
-//
-//        }
-//        $profileData = [];
-//        if(count($data))
-//        {
-//            foreach($data as &$profile){
-//                if(is_null($profile)){
-//                    continue;
-//                }
-//                $profile = json_decode($profile);
-//                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-//                $profile->self = false;
-//                $profileData[] = $profile;
-//            }
-//        }
-//
+
 //        if(count($profileData))
-//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
-//
+//            $model[] = ['title'=>'See your facebook friend','subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
+
 
         /* ui type = 16 is end */
 
@@ -1082,6 +1047,19 @@ class SearchController extends Controller
 
 
 
+
+        /* ui type = 8 is start */
+
+
+        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+        /* ui type = 8 is end */
+
+
         /* ui type = 10 is start */
 
         $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
@@ -1135,17 +1113,6 @@ class SearchController extends Controller
 
 
 
-        /* ui type = 8 is start */
-
-
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
-
-
-        /* ui type = 8 is end */
-
 
         /* ui type = 14 is start */
 //        $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
@@ -1178,7 +1145,23 @@ class SearchController extends Controller
 
         /* ui type = 16 is start */
 
-//        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
+
+//
+//        if(count($profileData))
+//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+//
+
+        /* ui type = 16 is end */
+
+
+        $this->model = $model;
+
+        return $this->sendResponse();
+    }
+
+
+
+    //        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
 //        if(isset($fbFriends->fb_friends) )
 //            $profileIds = explode(",",$fbFriends->fb_friends);
 //        else
@@ -1213,19 +1196,5 @@ class SearchController extends Controller
 //                $profileData[] = $profile;
 //            }
 //        }
-//
-//        if(count($profileData))
-//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
-//
-
-        /* ui type = 16 is end */
-
-
-        $this->model = $model;
-
-        return $this->sendResponse();
-    }
-
-
 
 }
