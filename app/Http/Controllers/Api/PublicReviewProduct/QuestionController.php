@@ -49,6 +49,7 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $exists = \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
         \Log::info($exists);
         if($exists){
@@ -58,7 +59,6 @@ class QuestionController extends Controller
             \DB::table('review_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
             \Log::info($this->now);
         }
-        $loggedInProfileId = $request->user()->profile->id;
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
