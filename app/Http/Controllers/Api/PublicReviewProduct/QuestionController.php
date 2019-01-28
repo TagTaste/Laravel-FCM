@@ -32,7 +32,7 @@ class QuestionController extends Controller
 
     public function headers(Request $request, $id)
     {
-        \Log::info("here");
+        \Log::info($request->all());
         $product = PublicReviewProduct::where('id',$id)->first();
         if($product == null)
         {

@@ -317,6 +317,7 @@ class ReviewController extends Controller
             if($currentStatus == 2)
             {
                 \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
+                \Log::info("submit");
                 Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
                     ->update(['current_status'=>$currentStatus]);
             }
