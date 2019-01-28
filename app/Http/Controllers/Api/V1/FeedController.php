@@ -15,6 +15,11 @@ class FeedController extends Controller
     public function feed(Request $request)
     {
         $page = $request->input('page');
+        if($page > 20)
+        {
+            $this->errors[] = 'No more feed';
+            return $this->sendResponse();
+        }
         list($skip,$take) = Paginator::paginate($page);
         
         $profileId = $request->user()->profile->id;

@@ -192,7 +192,7 @@ class ProfileController extends Controller
 
         $loggedInProfileId = $request->user()->profile->id;
 
-        if(isset($data['profile']['occupation_id']) && !is_null($data['profile']['occupation_id']))
+        if(isset($data['profile']['occupation_id']) && !is_null($data['profile']['occupation_id']) && $data['profile']['occupation_id'] != 0)
         {
             $jobs = ['profile_id'=>$loggedInProfileId,'occupation_id'=>$data['profile']['occupation_id']];
             Profile\Occupation::where('profile_id',$loggedInProfileId)->delete();

@@ -491,6 +491,7 @@ class BatchController extends Controller
                                 }
                                 $value[] = ['value'=>$x,'count'=>$count];
                             }
+                            $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
                             $answer->intensity_value = $data->questions->intensity_value;
                             $answer->intensity_type = $data->questions->intensity_type;
                         }
