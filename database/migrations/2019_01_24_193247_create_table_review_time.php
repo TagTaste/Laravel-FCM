@@ -31,6 +31,6 @@ class CreateTableReviewTime extends Migration
     public function down()
     {
         //
-        Schema::drop('review_timings');
+        Schema::drop('public_review_user_timings');
     }
 }
