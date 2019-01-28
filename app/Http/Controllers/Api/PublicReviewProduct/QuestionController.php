@@ -32,7 +32,6 @@ class QuestionController extends Controller
 
     public function headers(Request $request, $id)
     {
-        \Log::info($request->all());
         $product = PublicReviewProduct::where('id',$id)->first();
         if($product == null)
         {
@@ -50,6 +49,15 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
+        $exists = \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
+        \Log::info($exists);
+        if($exists){
+            \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
+        }
+        else{
+            \DB::table('review_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
+            \Log::info($this->now);
+        }
         $loggedInProfileId = $request->user()->profile->id;
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
@@ -125,17 +133,7 @@ class QuestionController extends Controller
 
     public function getNestedQuestions(Request $request, $productId, $headerId, $questionId)
     {
-        \Log::info("there");
         $loggedInProfileId = $request->user()->profile->id;
-        $exists = \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
-        \Log::info($exists);
-        if($exists){
-            \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
-        }
-        else{
-            \DB::table('review_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
-            \Log::info($this->now);
-        }
         $value = $request->input('value');
         $id = $request->has('id') ? $request->input('id') : null;
         $this->model = [];
