@@ -131,6 +131,7 @@ class QuestionController extends Controller
         }
         else{
             \DB::table('review_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
+            console.log($this->now);
         }
         $value = $request->input('value');
         $id = $request->has('id') ? $request->input('id') : null;
