@@ -130,7 +130,7 @@ class QuestionController extends Controller
             \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
         }
         else{
-            \DB::table('review_timings')->insert(['created_at'=>$this->now]);
+            \DB::table('review_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
         }
         $value = $request->input('value');
         $id = $request->has('id') ? $request->input('id') : null;
