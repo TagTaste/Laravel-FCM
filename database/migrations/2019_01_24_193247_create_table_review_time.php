@@ -14,9 +14,11 @@ class CreateTableReviewTime extends Migration
     public function up()
     {
         //
-        Schema::create('review_timings', function(Blueprint $table){
+        Schema::create('public_review_user_timings', function(Blueprint $table){
            $table->unsignedInteger('profile_id');
-           $table->string('product_id');
+           $table->uuid('product_id');
+            $table->foreign('profile_id')->references("id")->on("profiles")->onDelete('cascade');
+            $table->foreign('product_id')->references("id")->on("public_review_products")->onDelete('cascade');
            $table->timestamps();
         });
     }
