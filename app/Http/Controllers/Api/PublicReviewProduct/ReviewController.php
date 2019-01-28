@@ -316,6 +316,7 @@ class ReviewController extends Controller
             $this->model = Review::insert($data);
             if($currentStatus == 2)
             {
+                \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
                 Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
                     ->update(['current_status'=>$currentStatus]);
             }
