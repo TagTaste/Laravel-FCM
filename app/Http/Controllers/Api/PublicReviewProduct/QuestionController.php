@@ -9,11 +9,13 @@ use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Carbon\Carbon;
 
 class QuestionController extends Controller
 {
 
     protected $model;
+    protected $now;
 
     /**
      * Create instance of controller with Model
@@ -23,6 +25,7 @@ class QuestionController extends Controller
     public function __construct(Questions $model)
     {
         $this->model = $model;
+        $this->now = Carbon::now()->toDateTimeString();
     }
 
 
@@ -122,6 +125,13 @@ class QuestionController extends Controller
     public function getNestedQuestions(Request $request, $productId, $headerId, $questionId)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        $exists = \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
+        if($exists){
+            \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
+        }
+        else{
+            \DB::table('review_timings')->insert(['created_at'=>$this->now]);
+        }
         $value = $request->input('value');
         $id = $request->has('id') ? $request->input('id') : null;
         $this->model = [];
