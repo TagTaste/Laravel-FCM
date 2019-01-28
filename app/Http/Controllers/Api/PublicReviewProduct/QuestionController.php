@@ -32,6 +32,7 @@ class QuestionController extends Controller
 
     public function headers(Request $request, $id)
     {
+        \Log::info("here");
         $product = PublicReviewProduct::where('id',$id)->first();
         if($product == null)
         {
@@ -124,6 +125,7 @@ class QuestionController extends Controller
 
     public function getNestedQuestions(Request $request, $productId, $headerId, $questionId)
     {
+        \Log::info("there");
         $loggedInProfileId = $request->user()->profile->id;
         $exists = \DB::table('review_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
         \Log::info($exists);
