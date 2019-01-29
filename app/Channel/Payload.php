@@ -70,7 +70,7 @@ class Payload extends Model
                                 \Log::info($overallrating);
                                 if(!is_null($overallrating))
                                 {
-                                    $additionalMeta['overall_rating'] = ":{";
+                                    $additionalMeta['overall_rating'] = "{";
                                     foreach ($overallrating as $key => $value)
                                     {
                                         $additionalMeta['overall_rating'] .= "\"$key\":\"$value\"";
