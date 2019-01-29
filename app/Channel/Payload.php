@@ -104,6 +104,7 @@ class Payload extends Model
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
+                \Log::info($jsonPayload);
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
             
