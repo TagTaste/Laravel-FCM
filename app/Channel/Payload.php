@@ -66,6 +66,7 @@ class Payload extends Model
                             {
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getFeedMeta();
+                                \Log::info($meta['overall_rating']);
                                 $additionalMeta['overall_rating'] = $meta['overall_rating'];
                                 $additionalMeta['current_status'] = $meta['current_status'];
                             }
@@ -84,7 +85,10 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            $jsonPayload .= "\"$key\":\"$value\",";
+                            if($key == count( $additionalMeta ) - 1)
+                                $jsonPayload .= "\"$key\":\"$value\",";
+                            else
+                                $jsonPayload .= "\"$key\":\"$value\",";
                         }
                     $jsonPayload .= "}";
                 }
@@ -92,7 +96,6 @@ class Payload extends Model
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
-                \Log::info($jsonPayload);
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
             

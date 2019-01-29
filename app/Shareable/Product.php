@@ -122,8 +122,16 @@ class Product extends Share
     {
         $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
         $meta = [];
-        $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
+        $overRating = $this->getOverallRatingAttribute($product);
         $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        if(is_null($overRating))
+            $metaString = null;
+        else
+        {
+            $metaString = '{"max_rating":'.$overRating['max_rating'].
+                ',"overall_rating":'.$overRating['overall_rating'].',"count":'.$overRating['count'].',"color_code":'.$overRating['color_code'].'}';
+        }
+        $meta['overall_rating'] = $metaString;
         return $meta;
     }
 
