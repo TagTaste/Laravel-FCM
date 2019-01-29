@@ -82,6 +82,7 @@ class Payload extends Model
                                 }
                                 $additionalMeta['current_status'] = $meta['current_status'];
                             }
+                            \Log::info($additionalMeta);
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
