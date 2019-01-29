@@ -65,16 +65,8 @@ class Payload extends Model
                             if($this->getType() == 'product')
                             {
                                 $product = Product::where('id',$this->model_id)->first();
-                                $meta = $product->getMetaFor();
-                                $overRating = $meta['overall_rating'];
-                                if(is_null($overRating))
-                                    $additionalMeta['overall_rating'] = null;
-                                else
-                                {
-                                    $additionalMeta['overall_rating'] = "{'max_rating':".$overRating['max_rating'].
-                                        ",'overall_rating':".$overRating['overall_rating'].",'count':".$overRating['count'].",'color_code':".$overRating['color_code']."}";
-                                }
-                                \Log::info($additionalMeta['overall_rating']);
+                                $meta = $product->getFeedMeta();
+                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
                                 $additionalMeta['current_status'] = $meta['current_status'];
                             }
                             \Log::info($additionalMeta);
