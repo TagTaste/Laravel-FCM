@@ -66,7 +66,7 @@ class Payload extends Model
                             {
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getMetaFor();
-                                $overallrating = json_encode($meta['overall_rating'],true);
+                                $overallrating = $meta['overall_rating'];
                                 \Log::info($overallrating);
                                 if(!is_null($overallrating))
                                 {
