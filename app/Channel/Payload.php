@@ -96,7 +96,7 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            $jsonPayload .= "\"$key\":\"$value\"";
+                            $jsonPayload .= "\"$key\":\"$value\",";
                         }
                     $jsonPayload .= "}";
                 }
