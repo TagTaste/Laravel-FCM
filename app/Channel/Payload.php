@@ -86,7 +86,7 @@ class Payload extends Model
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
                             if($key == count( $additionalMeta ) - 1)
-                                $jsonPayload .= "\"$key\":\"$value\",";
+                                $jsonPayload .= "\"$key\":\"$value\"";
                             else
                                 $jsonPayload .= "\"$key\":\"$value\",";
                         }
