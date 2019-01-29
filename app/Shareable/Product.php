@@ -128,12 +128,13 @@ class Product extends Share
             $metaString = null;
         else
         {
-            $meta['overall_rating'] = "";
+            $meta['overall_rating'] = "{";
             foreach($overRating as $key => $value){
                 if($key == count( $overRating ) - 1)
                     $meta['overall_rating'] .= "\"$key\":\"$value\"";
                 else
                     $meta['overall_rating'] .= "\"$key\":\"$value\",";
+                $meta['overall_rating'] = "}";
             }
         }
         return $meta;
