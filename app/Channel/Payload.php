@@ -76,7 +76,7 @@ class Payload extends Model
                                     {
                                         $additionalMeta['overall_rating'] .= "$key : $value ,";
                                     }
-                                    $additionalMeta['overall_rating'] = "}";
+                                    $additionalMeta['overall_rating'] .= "}";
                                 }
                                 \Log::info($additionalMeta['overall_rating']);
                                 $additionalMeta['current_status'] = $meta['current_status'];
