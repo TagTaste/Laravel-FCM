@@ -66,20 +66,7 @@ class Payload extends Model
                             {
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getMetaFor();
-                                $overallrating = $meta['overall_rating'];
-                                if(!is_null($overallrating))
-                                {
-                                    $additionalMeta['overall_rating'] = "{";
-                                    foreach ($overallrating as $key => $value)
-                                    {
-                                        $additionalMeta['overall_rating'] .= "\"$key\":\"$value\"";
-                                    }
-                                    $additionalMeta['overall_rating'] .= "}";
-                                }
-                                else
-                                {
-                                    $additionalMeta['overall_rating'] = null;
-                                }
+                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
                                 $additionalMeta['current_status'] = $meta['current_status'];
                             }
                         }
