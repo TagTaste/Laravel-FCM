@@ -134,8 +134,8 @@ class Product extends Share
                     $meta['overall_rating'] .= "\"$key\":\"$value\"";
                 else
                     $meta['overall_rating'] .= "\"$key\":\"$value\",";
-                $meta['overall_rating'] .= "}";
             }
+            $meta['overall_rating'] .= "}";
         }
         return $meta;
     }
