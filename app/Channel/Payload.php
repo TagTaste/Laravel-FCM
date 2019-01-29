@@ -71,12 +71,8 @@ class Payload extends Model
                                     $additionalMeta['overall_rating'] = null;
                                 else
                                 {
-                                    $additionalMeta['overall_rating'] = "{";
-                                    foreach ($overRating as $key => $value)
-                                    {
-                                        $additionalMeta['overall_rating'] .= "$key : $value ,";
-                                    }
-                                    $additionalMeta['overall_rating'] .= "}";
+                                    $additionalMeta['overall_rating'] = "{'max_rating':".$overRating['max_rating'].
+                                        ",'overall_rating':".$overRating['overall_rating'].",'count':".$overRating['count'].",'color_code':".$overRating['color_code']."}";
                                 }
                                 \Log::info($additionalMeta['overall_rating']);
                                 $additionalMeta['current_status'] = $meta['current_status'];
