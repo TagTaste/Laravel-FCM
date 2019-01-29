@@ -66,11 +66,9 @@ class Payload extends Model
                             {
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getFeedMeta();
-                                \Log::info($meta['overall_rating']);
-                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
                                 $additionalMeta['current_status'] = $meta['current_status'];
+                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
                             }
-                            \Log::info($additionalMeta);
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
@@ -85,8 +83,11 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            if($key == count( $additionalMeta ) - 1)
+                            if($key == "overall_rating")
+                            {
+                                $value = json_decode($value,true);
                                 $jsonPayload .= "\"$key\":\"$value\"";
+                            }
                             else
                                 $jsonPayload .= "\"$key\":\"$value\",";
                         }

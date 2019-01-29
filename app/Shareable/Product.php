@@ -130,10 +130,11 @@ class Product extends Share
         {
             $meta['overall_rating'] = "{";
             foreach($overRating as $key => $value){
-                if($key == count( $overRating ) - 1)
+                if($key == "color_code")
                     $meta['overall_rating'] .= "\"$key\":\"$value\"";
                 else
                     $meta['overall_rating'] .= "\"$key\":\"$value\",";
+
             }
             $meta['overall_rating'] .= "}";
         }
