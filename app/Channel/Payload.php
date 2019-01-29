@@ -66,12 +66,22 @@ class Payload extends Model
                             {
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getMetaFor();
-                                \Log::info($meta['overall_rating']);
-                                $meta['overall_rating'] = implode(' ', array_values($meta['overall_rating']));
-                                \Log::info($meta['overall_rating']);
-                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
+                                $overRating = $meta['overall_rating'];
+                                if(is_null($overRating))
+                                    $additionalMeta['overall_rating'] = null;
+                                else
+                                {
+                                    $additionalMeta['overall_rating'] = "{";
+                                    foreach ($overRating as $key => $value)
+                                    {
+                                        $additionalMeta['overall_rating'] .= "$key : $value ,";
+                                    }
+                                    $additionalMeta['overall_rating'] = "}";
+                                }
+                                \Log::info($additionalMeta['overall_rating']);
                                 $additionalMeta['current_status'] = $meta['current_status'];
                             }
+                            \Log::info($additionalMeta);
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
