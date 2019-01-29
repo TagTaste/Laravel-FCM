@@ -67,7 +67,6 @@ class Payload extends Model
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getMetaFor();
                                 $overallrating = $meta['overall_rating'];
-                                \Log::info($overallrating);
                                 if(!is_null($overallrating))
                                 {
                                     $additionalMeta['overall_rating'] = "{";
@@ -83,7 +82,6 @@ class Payload extends Model
                                 }
                                 $additionalMeta['current_status'] = $meta['current_status'];
                             }
-                            \Log::info($additionalMeta);
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
@@ -98,8 +96,6 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            \Log::info($key);
-                            \Log::info($value);
                             $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
