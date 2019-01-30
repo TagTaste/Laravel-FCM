@@ -179,8 +179,8 @@
                             $totalApplicants = (isset($nestedAnswer['total_applicants'])) ? $nestedAnswer['total_applicants'] : 0;
                             $totalAnswers = (isset($nestedAnswer['total_answers'])) ? $nestedAnswer['total_answers'] : 0;
                             $nestedQuestionIndex = $loop->index + 1;
-                            $isIntensity = (isset($nestedQuestion) && isset($nestedQuestion->is_intensity)) ? $nestedQuestion->is_intensity : 0;
-                            $intensityType = (isset($nestedQuestion) && isset($nestedQuestion->intensity_type)) ? $nestedQuestion->intensity_type : null;
+                            $isIntensity = isset($nestedAnswer->is_intensity) ? $answer->is_intensity : null;
+                            $intensityType = isset($nestedAnswer->intensity_type) ? $answer->intensity_type : null;
                             $isComment = (isset($nestedQuestion) && isset($nestedQuestion->selected_type)) ? $nestedQuestion->selected_type == 3 : false;
                         @endphp
                         <div>
@@ -249,9 +249,10 @@
                                 $answerTitle = $answer->value;
                                 $answerTotal = $answer->total;
                                 $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
-                                $isIntensity = $answer->intensity;
                                 $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
                                 $percentToShow = number_format($percent, 1);
+                                $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
+                                $intensityType = isset($answer->intensity_type) ? $answer->intensity_type : null;
                             @endphp
                             <div class="pr-answer-row">
                                 <div class="pr-answer-container">
