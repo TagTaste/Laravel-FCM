@@ -1260,7 +1260,7 @@ class BatchController extends Controller
                     $reports['subtitle'] = $data->subtitle;
                     $reports['is_nested_question'] = $data->is_nested_question;
                     $reports['question'] = $data->questions ;
-                    if(isset($data->questions->is_nested_question) && $data->questions->is_nested_question == 1)
+                    if($data->questions->is_nested_question == 1)
                     {
                         $subAnswers = [];
                         foreach ($data->questions->questions as $item)
@@ -1273,9 +1273,64 @@ class BatchController extends Controller
                             $subReports['total_applicants'] = $totalApplicants;
                             $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                                 ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                            $subReports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
-                                ->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                                ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
+                            $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")
+                                ->where('current_status',3)->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
+                                ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+
+                            $options = isset($item->option) ? $item->option : [];
+                            foreach ($answers as &$answer)
+                            {
+                                $value = [];
+                                foreach ($options as $option)
+                                {
+                                    if($option->id == $answer->leaf_id)
+                                    {
+                                        if($option->is_intensity == 1 && $option->intensity_type == 2)
+                                        {
+                                            $answerIntensity = $answer->intensity;
+                                            $answerIntensity = explode(",",$answerIntensity);
+                                            $questionIntensity = $option->intensity_value;
+                                            $questionIntensity = explode(",",$questionIntensity);
+                                            foreach ($questionIntensity as $x)
+                                            {
+                                                $count = 0;
+                                                foreach ($answerIntensity as $y)
+                                                {
+                                                    if($this->checkValue($x,$y))
+                                                        $count++;
+                                                }
+                                                $value[] = ['value'=>$x,'count'=>$count];
+                                            }
+                                        }
+                                        else if($option->is_intensity == 1 && $option->intensity_type == 1)
+                                        {
+                                            $answerIntensity = $answer->intensity;
+                                            $answerIntensity = explode(",",$answerIntensity);
+                                            $questionIntensityValue = $option->intensity_value;
+                                            $questionIntensity = [];
+                                            for($i = 1; $i <=$questionIntensityValue ; $i++)
+                                            {
+                                                $questionIntensity[] = $i;
+                                            }
+                                            foreach ($questionIntensity as $x)
+                                            {
+                                                $count = 0;
+                                                foreach ($answerIntensity as $y)
+                                                {
+                                                    if($y == $x)
+                                                        $count++;
+                                                }
+                                                $value[] = ['value'=>$x,'count'=>$count];
+                                            }
+                                        }
+                                        $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                        $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                        $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+                                    }
+                                }
+                                $answer->intensity = $value;
+                            }
+                            $subReports['answer'] = $answers;
                             $subAnswers[] = $subReports;
                         }
                         $reports['nestedAnswers'] = $subAnswers;
@@ -1293,9 +1348,88 @@ class BatchController extends Controller
                     }
                     else
                     {
-                        $reports['answer'] = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value','intensity',\DB::raw('count(*) as total'))->where('current_status',3)
-                            ->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','intensity')->get();
+                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                            ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
+                            ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+
+                        $options = isset($data->questions->option) ? $data->questions->option : [];
+                        foreach ($answers as &$answer)
+                        {
+                            $value = [];
+                            if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
+                            {
+                                $answerIntensity = $answer->intensity;
+                                $answerIntensity = explode(",",$answerIntensity);
+                                $questionIntensity = $data->questions->intensity_value;
+                                $questionIntensity = explode(",",$questionIntensity);
+                                foreach ($questionIntensity as $x)
+                                {
+                                    $count = 0;
+                                    foreach ($answerIntensity as $y)
+                                    {
+                                        if($this->checkValue($x,$y))
+                                            $count++;
+                                    }
+                                    $value[] = ['value'=>$x,'count'=>$count];
+                                }
+                                $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
+                                $answer->intensity_value = $data->questions->intensity_value;
+                                $answer->intensity_type = $data->questions->intensity_type;
+                            }
+                            else
+                            {
+                                foreach ($options as $option)
+                                {
+                                    if($option->id == $answer->leaf_id)
+                                    {
+                                        if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 2)
+                                        {
+                                            $answerIntensity = $answer->intensity;
+                                            $answerIntensity = explode(",",$answerIntensity);
+                                            $questionIntensity = $option->intensity_value;
+                                            $questionIntensity = explode(",",$questionIntensity);
+                                            foreach ($questionIntensity as $x)
+                                            {
+                                                $count = 0;
+                                                foreach ($answerIntensity as $y)
+                                                {
+                                                    if($this->checkValue($x,$y))
+                                                        $count++;
+                                                }
+                                                $value[] = ['value'=>$x,'count'=>$count];
+                                            }
+                                        }
+                                        else if($option->is_intensity == 1 && $data->questions->select_type != 5 && $option->intensity_type == 1)
+                                        {
+                                            $answerIntensity = $answer->intensity;
+                                            $answerIntensity = explode(",",$answerIntensity);
+                                            $questionIntensityValue = $option->intensity_value;
+                                            $questionIntensity = [];
+                                            for($i = 1; $i <= $questionIntensityValue ; $i++)
+                                            {
+                                                $questionIntensity[] = $i;
+                                            }
+                                            foreach ($questionIntensity as $x)
+                                            {
+                                                $count = 0;
+                                                foreach ($answerIntensity as $y)
+                                                {
+                                                    if($y == $x)
+                                                        $count++;
+                                                }
+                                                $value[] = ['value'=>$x,'count'=>$count];
+                                            }
+                                        }
+                                        $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                        $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                        $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+                                    }
+                                }
+                            }
+                            $answer->intensity = $value;
+                        }
+                        $reports['answer'] = $answers;
+
                     }
 
                     if(isset($data->questions->is_nested_option))
@@ -1325,7 +1459,7 @@ class BatchController extends Controller
         file_put_contents($name,$pdf);
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
-        $this->model = \Storage::url($resp);
+        $this->model =   \Storage::url($resp);
         return $this->sendResponse();
     }
 

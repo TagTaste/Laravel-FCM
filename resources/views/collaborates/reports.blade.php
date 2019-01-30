@@ -179,8 +179,6 @@
                             $totalApplicants = (isset($nestedAnswer['total_applicants'])) ? $nestedAnswer['total_applicants'] : 0;
                             $totalAnswers = (isset($nestedAnswer['total_answers'])) ? $nestedAnswer['total_answers'] : 0;
                             $nestedQuestionIndex = $loop->index + 1;
-                            $isIntensity = (isset($nestedQuestion) && isset($nestedQuestion->is_intensity)) ? $nestedQuestion->is_intensity : 0;
-                            $intensityType = (isset($nestedQuestion) && isset($nestedQuestion->intensity_type)) ? $nestedQuestion->intensity_type : null;
                             $isComment = (isset($nestedQuestion) && isset($nestedQuestion->selected_type)) ? $nestedQuestion->selected_type == 3 : false;
                         @endphp
                         <div>
@@ -192,16 +190,24 @@
                                 @endif
                             </p>
                         </div>
-                        @if ($isIntensity == 0)
-                            @if ($isComment == false)
-                                @foreach($answers as $answer)
-                                    @php
-                                        $answerTitle = $answer->value;
-                                        $answerTotal = $answer->total;
-                                        $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
-                                        $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
-                                        $percentToShow = number_format($percent, 1);
-                                    @endphp
+                        @if ($isComment == false)
+                            @foreach($answers as $answer)
+                                @php
+                                    $answerTitle = $answer->value;
+                                    $answerTotal = $answer->total;
+                                    $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
+                                    $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
+                                    $percentToShow = number_format($percent, 1);
+                                    $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
+                                    $intensityType = isset($answer->intensity_type) ? $answer->intensity_type : null;
+                                @endphp
+                                @if (isset($isIntensity) && $isIntensity == 1)
+                                    @if ($intensityType == 1)
+                                        @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
+                                    @elseif($intensityType == 2)
+                                        @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
+                                    @endif
+                                @else
                                     <div class="pr-answer-row">
                                         <div class="pr-answer-container">
                                             <div class="active" style="width: {{$percent}}%;"></div>
@@ -215,22 +221,15 @@
                                             <p class="pr-report-helper-text">{{$answerTotal}} {{$responseTextSuffix}} ({{$percentToShow}}%)</p>
                                         </div>
                                     </div>
-                                @endforeach
-                            @endif
-                        @else
-                            @if ($intensityType == 1)
-                                @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
-                            @else
-                                @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
-                            @endif
+                                @endif
+                            @endforeach
                         @endif
+
                     @endforeach
                 </div>
             @else
                 {{-- If not nested questions --}}
                 @php
-                    $isIntensity = isset($questions->is_intensity) ? $questions->is_intensity : null;
-                    $intensityType = isset($questions->intensity_type) ? $questions->intensity_type : null;
                     $totalAnswers = $headerData['total_answers'];
                     $totalApplicants = $headerData['total_applicants'];
                     $isComment = $questions->select_type == 3;
@@ -242,17 +241,24 @@
                         (Please check the website for all the comments)
                     @endif
                 </p>
-                @if ($isIntensity == 0)
-                    @if ($isComment == false)
-                        @foreach ($answers as $answer)
-                            @php
-                                $answerTitle = $answer->value;
-                                $answerTotal = $answer->total;
-                                $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
-                                $isIntensity = $answer->intensity;
-                                $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
-                                $percentToShow = number_format($percent, 1);
-                            @endphp
+                @if ($isComment == false)
+                    @foreach ($answers as $answer)
+                        @php
+                            $answerTitle = $answer->value;
+                            $answerTotal = $answer->total;
+                            $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
+                            $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
+                            $percentToShow = number_format($percent, 1);
+                            $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
+                            $intensityType = isset($answer->intensity_type) ? $answer->intensity_type : null;
+                        @endphp
+                        @if (isset($isIntensity) && $isIntensity == 1)
+                            @if ($intensityType == 1)
+                                @include('collaborates.reports-numeric-intensity', ['currentAnswer' => $answer, 'totalAnswers' => $totalAnswers])
+                            @elseif($intensityType == 2)
+                                @include('collaborates.reports-textual-intensity', ['currentAnswer' => $answer, 'totalAnswers' => $totalAnswers])
+                            @endif
+                        @else
                             <div class="pr-answer-row">
                                 <div class="pr-answer-container">
                                     <div class="active" style="width: {{$percent}}%;"></div>
@@ -266,14 +272,8 @@
                                     <p class="pr-report-helper-text">{{$answerTotal}} {{$responseTextSuffix}} ({{$percentToShow}}%)</p>
                                 </div>
                             </div>
-                        @endforeach
-                    @endif
-                @else
-                    @if ($intensityType == 1)
-                        @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
-                    @else
-                        @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
-                    @endif
+                        @endif
+                    @endforeach
                 @endif
             @endif
         </div>
