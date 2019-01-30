@@ -61,10 +61,11 @@ class Payload extends Model
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
                         if($name === 'sharedBy'){
                             $additionalMeta['sharedAt'] = $this->created_at;
-
+                            $isExtraMeta = 0;
 //                            bad me change krna h jald bazi me likha hua h only for public review sharing product
                             if($this->getType() == 'product')
                             {
+                                $isExtraMeta = 1;
                                 $product = Product::where('id',$this->model_id)->first();
                                 $meta = $product->getMetaFor();
                                 $additionalMeta['current_status'] = $meta['current_status'];
@@ -86,15 +87,16 @@ class Payload extends Model
                         foreach($additionalMeta as $key => $value){
                             if($key == "overall_rating") // for public review sharing add meta
                                 $jsonPayload = $this->addOverAllRatingPublicReviewShareProduct($jsonPayload,$value);
-                            else
+                            else if($isExtraMeta)
                                 $jsonPayload .= "\"$key\":\"$value\",";
+                            else
+                                $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
                 }
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
-                \Log::info($jsonPayload);
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
             
