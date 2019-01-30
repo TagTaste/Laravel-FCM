@@ -62,26 +62,13 @@ class Payload extends Model
                         if($name === 'sharedBy'){
                             $additionalMeta['sharedAt'] = $this->created_at;
 //                            bad me change krna h jald bazi me likha hua h
-//                            if($this->getType() == 'product')
-//                            {
-//                                $product = Product::where('id',$this->model_id)->first();
-//                                $meta = $product->getMetaFor();
-//                                $overallrating = json_encode($meta['overall_rating'],true);
-//                                if(is_null($overallrating))
-//                                {
-//                                    $additionalMeta['overall_rating'] = ":{";
-//                                    foreach ($overallrating as $key => $value)
-//                                    {
-//                                        $additionalMeta['overall_rating'] .= "\"$key\":\"$value\"";
-//                                    }
-//                                    $additionalMeta['overall_rating'] .= "}";
-//                                }
-//                                else
-//                                {
-//                                    $additionalMeta['overall_rating'] = null;
-//                                }
-//                                $additionalMeta['current_status'] = $meta['current_status'];
-//                            }
+                            if($this->getType() == 'product')
+                            {
+                                $product = Product::where('id',$this->model_id)->first();
+                                $meta = $product->getFeedMeta();
+                                $additionalMeta['current_status'] = $meta['current_status'];
+                                $additionalMeta['overall_rating'] = $meta['overall_rating'];
+                            }
                         }
                         //separate with comma
                         if($index<$numberOfCachedItems-1){
@@ -96,14 +83,20 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            $jsonPayload .= "\"$key\":\"$value\"";
+                            if($key == "overall_rating")
+                            {
+                                $value = json_decode($value,true);
+                                $jsonPayload .= "\"$key\":\"$value\"";
+                            }
+                            else
+                                $jsonPayload .= "\"$key\":\"$value\",";
                         }
                     $jsonPayload .= "}";
                 }
-                
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
+                \Log::info($jsonPayload);
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
             

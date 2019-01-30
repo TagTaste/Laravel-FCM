@@ -118,4 +118,27 @@ class Product extends Share
         }
     }
 
+    public function getFeedMeta()
+    {
+        $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
+        $meta = [];
+        $overRating = $this->getOverallRatingAttribute($product);
+        $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        if(is_null($overRating))
+            $metaString = null;
+        else
+        {
+            $meta['overall_rating'] = "{";
+            foreach($overRating as $key => $value){
+                if($key == "color_code")
+                    $meta['overall_rating'] .= "\"$key\":\"$value\"";
+                else
+                    $meta['overall_rating'] .= "\"$key\":\"$value\",";
+
+            }
+            $meta['overall_rating'] .= "}";
+        }
+        return $meta;
+    }
+
 }
