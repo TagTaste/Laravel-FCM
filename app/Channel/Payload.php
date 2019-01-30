@@ -65,7 +65,7 @@ class Payload extends Model
                             if($this->getType() == 'product')
                             {
                                 $product = Product::where('id',$this->model_id)->first();
-                                $meta = $product->getFeedMeta();
+                                $meta = $product->getMetaFor();
                                 $additionalMeta['current_status'] = $meta['current_status'];
                                 $additionalMeta['overall_rating'] = $meta['overall_rating'];
                             }
@@ -85,13 +85,28 @@ class Payload extends Model
                         foreach($additionalMeta as $key => $value){
                             if($key == "overall_rating")
                             {
-                                $value = json_decode($value,true);
-                                $jsonPayload .= "\"$key\":\"$value\"";
+                                $jsonPayload .= ",\"overall_rating\":{";
+                                $overall = "\"overall_rating\":{";
+                                foreach($value as $index => $item){
+                                    if($key == "color_code")
+                                    {
+                                        $jsonPayload .= "\"$index\":\"$item\"";
+                                        $overall .= "\"$index\":\"$item\"";
+                                    }
+                                    else
+                                    {
+                                        $jsonPayload .= "\"$index\":\"$item\",";
+                                        $overall .= "\"$index\":\"$item\",";
+                                    }
+                                }
+                                $jsonPayload .= "}";
+                                $overall .= "}";
                             }
                             else
                                 $jsonPayload .= "\"$key\":\"$value\",";
                         }
                     $jsonPayload .= "}";
+                        \Log::info($overall);
                 }
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
