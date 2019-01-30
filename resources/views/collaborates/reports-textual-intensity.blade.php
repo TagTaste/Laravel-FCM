@@ -1,4 +1,3 @@
-@foreach($answers as $currentAnswer)
     @php
         $path = isset($currentAnswer->path) ? $currentAnswer->path : null;
         $answerTitle = $currentAnswer->value;
@@ -41,4 +40,3 @@
             </div>
         @endforeach
     </div>
-@endforeach

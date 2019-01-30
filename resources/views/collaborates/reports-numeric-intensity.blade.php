@@ -1,16 +1,15 @@
-@foreach($answers as $currentAnswer)
+{{--@foreach($answers as $currentAnswer)--}}
     @php
         $path = isset($currentAnswer->path) ? $currentAnswer->path : null;
         $answerTitle = $currentAnswer->value;
-        $percent = $currentAnswer->percent;
         $finalTotal = $currentAnswer->total;
         $avgIntensity = 0;
         foreach($currentAnswer->intensity as $intensity) {
-            $avgIntensity += $intensity->value * $intensity->count;
+            $avgIntensity += $intensity['value'] * $intensity['count'];
         }
         $avgIntensity = round($avgIntensity, 1);
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
-        $percent = round(($currentAnswer->total /$totalAnswers) *100);
+        $percent = round(($currentAnswer->total/$totalAnswers) *100);
     @endphp
     <div class="pr-answer-row">
         <div class="pr-answer-container">
@@ -34,4 +33,4 @@
             <p class="pr-report-helper-text">{{$finalTotal}} {{$prResponseSuffix}} ({{$percent}}%)</p>
         </div>
     </div>
-@endforeach
+{{--@endforeach--}}
