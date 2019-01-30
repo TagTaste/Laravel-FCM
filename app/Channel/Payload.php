@@ -85,18 +85,16 @@ class Payload extends Model
                         foreach($additionalMeta as $key => $value){
                             if($key == "overall_rating")
                             {
-                                $jsonPayload .= ",\"overall_rating\":{";
+                                $jsonPayload .= "\"overall_rating\":{";
                                 $overall = "\"overall_rating\":{";
                                 foreach($value as $index => $item){
-                                    if($key == "color_code")
+                                    if($index == "color_code")
                                     {
                                         $jsonPayload .= "\"$index\":\"$item\"";
-                                        $overall .= "\"$index\":\"$item\"";
                                     }
                                     else
                                     {
                                         $jsonPayload .= "\"$index\":\"$item\",";
-                                        $overall .= "\"$index\":\"$item\",";
                                     }
                                 }
                                 $jsonPayload .= "}";
@@ -106,7 +104,6 @@ class Payload extends Model
                                 $jsonPayload .= "\"$key\":\"$value\",";
                         }
                     $jsonPayload .= "}";
-                        \Log::info($overall);
                 }
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
