@@ -86,19 +86,14 @@ class Payload extends Model
                             if($key == "overall_rating")
                             {
                                 $jsonPayload .= "\"overall_rating\":{";
-                                $overall = "\"overall_rating\":{";
                                 foreach($value as $index => $item){
                                     if($index == "color_code")
-                                    {
                                         $jsonPayload .= "\"$index\":\"$item\"";
-                                    }
+
                                     else
-                                    {
                                         $jsonPayload .= "\"$index\":\"$item\",";
-                                    }
                                 }
                                 $jsonPayload .= "}";
-                                $overall .= "}";
                             }
                             else
                                 $jsonPayload .= "\"$key\":\"$value\",";
