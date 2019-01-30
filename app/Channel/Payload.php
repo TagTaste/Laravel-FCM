@@ -85,7 +85,7 @@ class Payload extends Model
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
                             if($key == "overall_rating") // for public review sharing add meta
-                                $this->addOverAllRatingPublicReviewShareProduct($jsonPayload,$value);
+                                $jsonPayload = $this->addOverAllRatingPublicReviewShareProduct($jsonPayload,$value);
                             else
                                 $jsonPayload .= "\"$key\":\"$value\",";
                         }
