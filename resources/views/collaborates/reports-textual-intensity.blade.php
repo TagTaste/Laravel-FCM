@@ -4,7 +4,7 @@
         $intensities = $currentAnswer->intensity;
         $finalTotal = $currentAnswer->total;
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
-        $percent = round(($currentAnswer->total/$totalAnswers)*100);
+        $percent = number_format(floor(($currentAnswer->total/$totalAnswers)*100), 1);
     @endphp
     <div class="pr-answer-row">
         <div class="pr-answer-container">
