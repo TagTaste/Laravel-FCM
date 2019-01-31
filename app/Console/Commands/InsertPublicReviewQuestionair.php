@@ -2381,7 +2381,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_beverage_v1 - with bold text','keywords'=>"generic_food_v1",'description'=>null,
+        $data = ['name'=>'for testing with bold and line break tags','keywords'=>"generic_food_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
