@@ -61,11 +61,13 @@ class Payload extends Model
                         $jsonPayload .= "\"{$name}\":"  . $objects[$index];
                         if($name === 'sharedBy'){
                             $additionalMeta['sharedAt'] = $this->created_at;
-//                            bad me change krna h jald bazi me likha hua h
+                            $isExtraMeta = 0;
+//                            bad me change krna h jald bazi me likha hua h only for public review sharing product
                             if($this->getType() == 'product')
                             {
+                                $isExtraMeta = 1;
                                 $product = Product::where('id',$this->model_id)->first();
-                                $meta = $product->getFeedMeta();
+                                $meta = $product->getMetaFor();
                                 $additionalMeta['current_status'] = $meta['current_status'];
                                 $additionalMeta['overall_rating'] = $meta['overall_rating'];
                             }
@@ -83,20 +85,18 @@ class Payload extends Model
                 if(!empty($additionalMeta)){
                     $jsonPayload .= ",\"meta\":{";
                         foreach($additionalMeta as $key => $value){
-                            if($key == "overall_rating")
-                            {
-                                $value = json_decode($value,true);
-                                $jsonPayload .= "\"$key\":\"$value\"";
-                            }
-                            else
+                            if($key == "overall_rating") // for public review sharing add meta
+                                $jsonPayload = $this->addOverAllRatingPublicReviewShareProduct($jsonPayload,$value);
+                            else if($isExtraMeta)
                                 $jsonPayload .= "\"$key\":\"$value\",";
+                            else
+                                $jsonPayload .= "\"$key\":\"$value\"";
                         }
                     $jsonPayload .= "}";
                 }
                 $jsonPayload .= ",\"type\":\"" . $this->getType() ."\"";
                 //end json
                 $jsonPayload .= "}";
-                \Log::info($jsonPayload);
             //publish
             \Redis::publish($this->channel->name, $jsonPayload);
             
@@ -117,5 +117,19 @@ class Payload extends Model
     public function setPayloadAttribute($data)
     {
         $this->attributes['payload'] = json_encode($data);
+    }
+
+    private function addOverAllRatingPublicReviewShareProduct($jsonPayload,$value)
+    {
+        $jsonPayload .= "\"overall_rating\":{";
+        foreach($value as $index => $item){
+            if($index == "color_code")
+                $jsonPayload .= "\"$index\":\"$item\"";
+
+            else
+                $jsonPayload .= "\"$index\":\"$item\",";
+        }
+        $jsonPayload .= "}";
+        return $jsonPayload;
     }
 }

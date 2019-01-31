@@ -195,7 +195,7 @@
                                 @php
                                     $answerTitle = $answer->value;
                                     $answerTotal = $answer->total;
-                                    $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
+                                    $percent = $totalAnswers === 0 ? 0 : floor($answerTotal/$totalApplicants*100);
                                     $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
                                     $percentToShow = number_format($percent, 1);
                                     $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
@@ -203,9 +203,9 @@
                                 @endphp
                                 @if (isset($isIntensity) && $isIntensity == 1)
                                     @if ($intensityType == 1)
-                                        @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
+                                        @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalApplicants])
                                     @elseif($intensityType == 2)
-                                        @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalAnswers])
+                                        @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalApplicants])
                                     @endif
                                 @else
                                     <div class="pr-answer-row">
@@ -246,7 +246,7 @@
                         @php
                             $answerTitle = $answer->value;
                             $answerTotal = $answer->total;
-                            $percent = $totalAnswers === 0 ? 0 : $answerTotal/$totalAnswers*100;
+                            $percent = $totalAnswers == 0 ? 0 : floor($answerTotal/$totalApplicants*100);
                             $responseTextSuffix = $answerTotal === 1 ? ' Response' : ' Responses';
                             $percentToShow = number_format($percent, 1);
                             $isIntensity = isset($answer->is_intensity) ? $answer->is_intensity : null;
@@ -254,9 +254,9 @@
                         @endphp
                         @if (isset($isIntensity) && $isIntensity == 1)
                             @if ($intensityType == 1)
-                                @include('collaborates.reports-numeric-intensity', ['currentAnswer' => $answer, 'totalAnswers' => $totalAnswers])
+                                @include('collaborates.reports-numeric-intensity', ['currentAnswer' => $answer, 'totalAnswers' => $totalApplicants])
                             @elseif($intensityType == 2)
-                                @include('collaborates.reports-textual-intensity', ['currentAnswer' => $answer, 'totalAnswers' => $totalAnswers])
+                                @include('collaborates.reports-textual-intensity', ['currentAnswer' => $answer, 'totalAnswers' => $totalApplicants])
                             @endif
                         @else
                             <div class="pr-answer-row">
