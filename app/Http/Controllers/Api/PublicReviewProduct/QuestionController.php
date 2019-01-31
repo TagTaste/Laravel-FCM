@@ -29,7 +29,6 @@ class QuestionController extends Controller
     }
 
 
-
     public function headers(Request $request, $id)
     {
         $product = PublicReviewProduct::where('id',$id)->first();
@@ -37,12 +36,8 @@ class QuestionController extends Controller
         {
             return $this->sendError("No product exists");
         }
-        if($product->is_authenticity_check)
-            $this->model = ReviewHeader::where('is_active',1)->where('global_question_id',$product->global_question_id)
+        $this->model = ReviewHeader::where('is_active',1)->where('global_question_id',$product->global_question_id)
             ->orderBy('id')->get();
-        else
-            $this->model = ReviewHeader::where('header_selection_type','!=',3)->where('is_active',1)->where('global_question_id',$product->global_question_id)
-                ->orderBy('id')->get();
 
         return $this->sendResponse();
     }
