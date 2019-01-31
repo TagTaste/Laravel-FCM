@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\ProductCategory;
 use App\Recipe\Collaborate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Webpatser\Uuid\Uuid;
@@ -463,6 +464,21 @@ class PublicReviewProductController extends Controller
             $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active'],'description'=>$item['description'],'is_intensity'=>$item['is_intensity']];
         }
         $this->model = \DB::table('public_review_global_nested_option')->insert($data);
+        return $this->sendResponse();
+    }
+
+    public function productSuggestion(Request $request)
+    {
+        $productName = $request->input('product_name');
+        if(is_null($productName))
+        {
+            $this->model = [];
+            return $this->sendError("Please enter product name");
+        }
+        $productLink = $request->input('product_link');
+        $profileId = $request->user()->profile->id;
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now]);
         return $this->sendResponse();
     }
 

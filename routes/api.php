@@ -382,7 +382,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             });
 
-
+            Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
             Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
             Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
 
