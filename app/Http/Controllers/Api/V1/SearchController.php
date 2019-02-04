@@ -553,23 +553,20 @@ class SearchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $model = [];
-        // ui type data
-        // 0 - horizontal with crousal
-        // 1 - vertical with crousal
-        // 2 - vertical without crousal
-        // 3 single item data
-        // 4
 
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 7;
+        $chefOfTheWeekProfileId = 5555;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
-        $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
-        $item = [$data];
-        $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Ashok comes from the land of Rajasthan whose food heritage is influenced by both the war-like lifestyles of its inhabitants and the availability of ingredients in that arid region. His palate is most receptive when the food is cooked by soaking meat with spicey masalas, chapati, and coal in an underground pit of Thar desert. Follow him for updates on such exquisite recipes and much more.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+        if(!is_null($data))
+        {
+            $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+            $item = [$data];
+            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Bitten by the Culinary bug, Akshay changed careers from the IT industry to Hospitality. His love, interest, and experience in the art of cooking make him an expert in tasting a varied set of products. He loves new product development and thrives in constraints. He is right now honing Indian cuisine at ITC and taking to the next generation of guests. Follow Akshay to get industry updates and interesting insights about Culinary Arts.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
+        }
 
         /* ui type = 1 is end */
 
@@ -839,45 +836,10 @@ class SearchController extends Controller
 
         /* ui type = 16 is start */
 
-//        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
-//        if(isset($fbFriends->fb_friends) )
-//            $profileIds = explode(",",$fbFriends->fb_friends);
-//        else
-//            $profileIds = [];
-//        foreach ($profileIds as $key => $value)
-//        {
-//            if($loggedInProfileId == $value)
-//            {
-//                unset($profileIds[$key]);
-//                continue;
-//            }
-//            $profileIds[$key] = "profile:small:".$value ;
-//        }
-//        if($length && !is_array($profileIds))
-//            $profileIds = $profileIds->toArray();
-//        $data = [];
-//        if(count($profileIds)> 0)
-//        {
-//            $data = \Redis::mget($profileIds);
-//
-//        }
-//        $profileData = [];
-//        if(count($data))
-//        {
-//            foreach($data as &$profile){
-//                if(is_null($profile)){
-//                    continue;
-//                }
-//                $profile = json_decode($profile);
-//                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-//                $profile->self = false;
-//                $profileData[] = $profile;
-//            }
-//        }
-//
+
 //        if(count($profileData))
-//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
-//
+//            $model[] = ['title'=>'See your facebook friend','subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
+
 
         /* ui type = 16 is end */
 
@@ -891,12 +853,19 @@ class SearchController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $model = [];
-        // ui type data
-        // 0 - horizontal with crousal
-        // 1 - vertical with crousal
-        // 2 - vertical without crousal
-        // 3 single item data
-        // 4
+
+
+
+        /* ui type = 12 is start */
+
+//        $weekOfTheCategory = [18];
+//        $item = [];
+//        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.jpg"];
+//        $model[] = ['title'=>"Category of week", "subtitle"=>null,"description"=>null,
+//            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+//
+
+        /* ui type = 12 is end */
 
 
         /* ui type = 1 is start */
@@ -1065,7 +1034,7 @@ class SearchController extends Controller
         /* ui type = 9 is start */
 
 
-        $products = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(10)->get();
+        $products = PublicReviewProduct::where('mark_featured',1)->where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
         $recommended = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($loggedInProfileId);
@@ -1081,9 +1050,22 @@ class SearchController extends Controller
 
 
 
+
+        /* ui type = 8 is start */
+
+
+        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+        /* ui type = 8 is end */
+
+
         /* ui type = 10 is start */
 
-        $products = PublicReviewProduct::where('is_active',1)->where('mark_featured',1)->inRandomOrder()->limit(10)->get();
+        $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
         $recommended = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($loggedInProfileId);
@@ -1097,22 +1079,6 @@ class SearchController extends Controller
 
         /* ui type = 10 is end */
 
-
-
-
-
-
-        /* ui type = 12 is start */
-
-        $weekOfTheCategory = [18];
-        $item = [];
-        $item[] = ['id'=>18,"name"=>"Confectionery","is_active"=>1,"description"=>null,"image"=>"https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/weekelyImage/category_of_week.png"];
-        $model[] = ['title'=>"Category of eek", "subtitle"=>null,"description"=>"Maecenas faucibus mollis interdum. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
-                  Maecenas sed diam eget risus varius blandit sit amet non magna.Maecenas sed diam eget risus varius.",
-            "type"=>"category","item"=>$item,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
-
-
-        /* ui type = 12 is end */
 
 
 
@@ -1135,7 +1101,7 @@ class SearchController extends Controller
 
         /* ui type = 11 is start */
 
-        $products = PublicReviewProduct::where('is_active',1)->orderBy('updated_at','desc')->limit(10)->get();
+        $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->orderBy('updated_at','desc')->limit(10)->get();
         $recently = [];
         foreach($products as $product){
             $meta = $product->getMetaFor($loggedInProfileId);
@@ -1150,25 +1116,14 @@ class SearchController extends Controller
 
 
 
-        /* ui type = 8 is start */
-
-
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations - Product Reviews','subtitle'=>'Sensoral Reviews sponsored by companies','type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
-
-
-        /* ui type = 8 is end */
-
 
         /* ui type = 14 is start */
-
-        $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
-        if($recommended->count())
-            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
-                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
-
+//        $categoryIds = PublicReviewProduct::with([])->where('is_active',1)->whereNull('deleted_at')->get()->pluck('product_category_id');
+//        $recommended = PublicReviewProduct\ProductCategory::whereIn('id',$categoryIds)->where('is_active',1)->inRandomOrder()->limit(6)->get();
+//        if($recommended->count())
+//            $model[] = ['title'=>'Featured Category','subtitle'=>'Products in focus this week','item'=>$recommended,
+//                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>0];
+//
 
         /* ui type = 14 is end */
 
@@ -1193,7 +1148,23 @@ class SearchController extends Controller
 
         /* ui type = 16 is start */
 
-//        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
+
+//
+//        if(count($profileData))
+//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+//
+
+        /* ui type = 16 is end */
+
+
+        $this->model = $model;
+
+        return $this->sendResponse();
+    }
+
+
+
+    //        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
 //        if(isset($fbFriends->fb_friends) )
 //            $profileIds = explode(",",$fbFriends->fb_friends);
 //        else
@@ -1228,19 +1199,5 @@ class SearchController extends Controller
 //                $profileData[] = $profile;
 //            }
 //        }
-//
-//        if(count($profileData))
-//            $model[] = ['title'=>'Facebook Friend','subtitle'=>null,'type'=>'profile','ui_type'=>16,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
-//
-
-        /* ui type = 16 is end */
-
-
-        $this->model = $model;
-
-        return $this->sendResponse();
-    }
-
-
 
 }

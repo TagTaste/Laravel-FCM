@@ -24,11 +24,11 @@ class ReportController extends Controller
             return $this->sendError("Product is not available");
         }
         $count = Review::where('product_id',$productId)->where('current_status',2)->distinct('profile_id')->count('profile_id');
-        if($count < 3)
+        if($count < 10)
         {
             $this->model = [];
             $this->model['title'] = 'Sensogram';
-            $this->model['description'] = 'Not enough people have reviewed this product to generate a sensogram.';
+            $this->model['description'] = 'The following chart depicts the Tasters’ overall product preference and attribute-wise rating on a 7-point scale.';
             $this->model['header_rating'] = null;
             $this->model['self_review'] = $this->getSelfReview($product,$request->user()->profile->id);
             return $this->sendResponse();
@@ -307,6 +307,7 @@ class ReportController extends Controller
                                 }
                                 $value[] = ['value'=>$x,'count'=>$count];
                             }
+                            $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
                             $answer->intensity_value = $data->questions->intensity_value;
                             $answer->intensity_type = $data->questions->intensity_type;
                         }

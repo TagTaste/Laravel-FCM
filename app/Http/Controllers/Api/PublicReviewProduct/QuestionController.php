@@ -9,11 +9,13 @@ use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+use Carbon\Carbon;
 
 class QuestionController extends Controller
 {
 
     protected $model;
+    protected $now;
 
     /**
      * Create instance of controller with Model
@@ -23,6 +25,7 @@ class QuestionController extends Controller
     public function __construct(Questions $model)
     {
         $this->model = $model;
+        $this->now = Carbon::now()->toDateTimeString();
     }
 
 
@@ -47,6 +50,10 @@ class QuestionController extends Controller
     public function reviewQuestions(Request $request, $productId, $headerId)
     {
         $loggedInProfileId = $request->user()->profile->id;
+        $exists = \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->exists();
+        if(!$exists){
+            \DB::table('public_review_user_timings')->insert(['profile_id'=>$loggedInProfileId,'product_id'=>$productId,'created_at'=>$this->now]);
+        }
         $product = PublicReviewProduct::where('id',$productId)->first();
         if($product === null){
             return $this->sendError("Product not found.");
