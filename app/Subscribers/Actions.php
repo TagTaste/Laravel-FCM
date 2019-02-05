@@ -78,6 +78,8 @@ class Actions
     
     public function subscribe($events)
     {
+        \Log::info("listen");
+
         $events->listen(
             [
 //                Like::class,

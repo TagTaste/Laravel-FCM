@@ -17,7 +17,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class Action
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+//    use Dispatchable, InteractsWithSockets, SerializesModels;
     
     public $model;
     public $who;
