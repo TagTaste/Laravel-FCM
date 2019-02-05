@@ -44,6 +44,7 @@ class Actions
             $reviewProfileIds = Review::where('id',$modelId)->first()->pluck('profile_id');
             $profilesIds = $profilesIds->merge($reviewProfileIds);
         }
+        \Log::info($profilesIds);
         $profiles = Profile::whereIn('id',$profilesIds)->get();
 
         //send notification
