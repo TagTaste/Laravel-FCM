@@ -81,6 +81,13 @@ class Comment extends Action
      */
     public function toArray($notifiable)
     {
+        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
+        {
+            if($notifiable->id == $this->model->profile_id)
+                $this->notification = $this->data->who['name'] . " tagged you in a comment on your review of ".$this->allData['title'];
+            else
+                $this->notification = $this->data->who['name'] . " tagged you in a comment on review of ".$this->allData['title'];
+        }
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
