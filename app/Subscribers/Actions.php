@@ -15,7 +15,6 @@ class Actions
 {
     public function notifySubscribers($event)
     {
-        \Log::info("in fun");
         ModelSubscriber::updateSubscriberTimestamp($event->model,$event->model->id,$event->who['id']);
     }
     
@@ -30,7 +29,6 @@ class Actions
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get()->pluck('id');
-
 
         // Adding company admins
         if($event->model->company_id){

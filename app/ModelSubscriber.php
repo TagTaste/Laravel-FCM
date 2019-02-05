@@ -17,8 +17,6 @@ class ModelSubscriber extends Model
             ->where('model_id',$modelId)
             ->where('profile_id',$profileId)
             ->first();
-        \Log::info("subscribter");
-        \Log::info($subscriber);
         if(!$subscriber){
             //add new subscriber
             $subscriber = \App\ModelSubscriber::create(
