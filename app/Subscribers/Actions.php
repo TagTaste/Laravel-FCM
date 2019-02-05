@@ -42,7 +42,7 @@ class Actions
         }
         if($model == 'App\PublicReviewProduct\Review')
         {
-            $reviewProfileIds = Review::where('id',$modelId)->first()->pluck('profile_id');
+            $reviewProfileIds = Review::where('id',$modelId)->get()->pluck('profile_id');
             \Log::info($reviewProfileIds);
             $profilesIds = $profilesIds->merge($reviewProfileIds);
         }
