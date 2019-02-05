@@ -29,7 +29,6 @@ class Actions
             ->where('model_subscribers.profile_id','!=',$event->who['id'])
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get()->pluck('id');
-        \Log::info($profilesIds);
 
         // Adding company admins
         if($event->model->company_id){
@@ -43,10 +42,9 @@ class Actions
         if($model == 'App\PublicReviewProduct\Review')
         {
             $reviewProfileIds = Review::where('id',$modelId)->get()->pluck('profile_id');
-            \Log::info($reviewProfileIds);
-            $profilesIds = $profilesIds->merge($reviewProfileIds);
+            if($event->who['id'] != $reviewProfileIds[0])
+                $profilesIds = $profilesIds->merge($reviewProfileIds);
         }
-        \Log::info($profilesIds);
         $profiles = Profile::whereIn('id',$profilesIds)->get();
 
         //send notification
