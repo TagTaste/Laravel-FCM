@@ -40,6 +40,8 @@ class Actions
                 $profilesIds = $profilesIds->merge($companyAdminIds);
             }
         }
+        \Log::info($profilesIds);
+        \Log::info($modelId);
         if($model == 'App\PublicReviewProduct\Review')
         {
             $reviewProfileIds = Review::where('id',$modelId)->first()->pluck('profile_id');
