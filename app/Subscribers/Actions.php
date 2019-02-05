@@ -15,6 +15,7 @@ class Actions
 {
     public function notifySubscribers($event)
     {
+        \Log::info("in fun");
         ModelSubscriber::updateSubscriberTimestamp($event->model,$event->model->id,$event->who['id']);
     }
     
@@ -78,7 +79,6 @@ class Actions
     
     public function subscribe($events)
     {
-        \Log::info("listen");
 
         $events->listen(
             [
