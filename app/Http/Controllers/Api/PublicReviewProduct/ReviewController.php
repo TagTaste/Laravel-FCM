@@ -231,7 +231,7 @@ class ReviewController extends Controller
         }
         else if($review->profile_id == $request->user()->profile->id)
         {
-            event(new \App\Events\Actions\ReviewComment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
+            event(new \App\Events\Actions\Comment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
         }
 
         $this->model = $comment;

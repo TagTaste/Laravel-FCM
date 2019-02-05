@@ -24,15 +24,18 @@ class Comment extends Action
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";
-        if($this->modelName == 'review')
-            $this->sub = $this->data->who['name'] ." commented on your review";
+        if(method_exists($this->model,'getNotificationContent')){
+            $this->allData = $this->model->getNotificationContent();
+            $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
+
+        }
         $this->notification = $this->sub;
 
     }
 
     public function toMail($notifiable)
     {
-        if($this->modelName != 'review') {
+        if(isset($this->allData['type']) && $this->allData['type'] != 'product'){
             $langKey = $this->data->action.':'.$this->modelName;
 
             // owner or subscriber
