@@ -24,15 +24,18 @@ class Comment extends Action
         parent::__construct($event);
         $this->view = 'emails.'.$this->data->action;
         $this->sub = $this->data->who['name'] ." commented on your post";
-        if($this->modelName == 'review')
-            $this->sub = $this->data->who['name'] ." commented on your review";
+        if(method_exists($this->model,'getNotificationContent')){
+            $this->allData = $this->model->getNotificationContent();
+            $this->sub = $this->data->who['name'] ." commented on your review of ".$this->allData['title'];
+
+        }
         $this->notification = $this->sub;
 
     }
 
     public function toMail($notifiable)
     {
-        if($this->modelName != 'review') {
+        if(isset($this->allData['type']) && $this->allData['type'] != 'product'){
             $langKey = $this->data->action.':'.$this->modelName;
 
             // owner or subscriber
@@ -78,6 +81,13 @@ class Comment extends Action
      */
     public function toArray($notifiable)
     {
+        if(isset($this->allData['type']) && $this->allData['type'] == 'product')
+        {
+            if($notifiable->id == $this->model->profile_id)
+                $this->notification = $this->data->who['name'] . " commented on your review of ".$this->allData['title'];
+            else
+                $this->notification = $this->data->who['name'] . " commented on review of ".$this->allData['title'];
+        }
         $data = [
             'action' => $this->data->action,
             'profile' => isset(request()->user()->profile) ? request()->user()->profile : $this->data->who,
