@@ -309,9 +309,6 @@ class ReportController extends Controller
                                     }
                                     $value[] = ['value'=>$x,'count'=>$count];
                                 }
-                                $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
-                                $answer->intensity_value = $data->questions->intensity_value;
-                                $answer->intensity_type = $data->questions->intensity_type;
                             }
                             else if($data->questions->intensity_type == 1)
                             {
@@ -333,10 +330,10 @@ class ReportController extends Controller
                                     }
                                     $value[] = ['value'=>$x,'count'=>$count];
                                 }
-                                $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
-                                $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
-                                $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
                             }
+                            $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
+                            $answer->intensity_value = $data->questions->intensity_value;
+                            $answer->intensity_type = $data->questions->intensity_type;
                         }
                         else
                         {
