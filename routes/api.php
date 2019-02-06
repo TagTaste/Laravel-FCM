@@ -357,6 +357,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::group(['namespace'=>'PublicReviewProduct','prefix'=>'public-review/products/{productId}','as'=>'collaborate.'],function(){
 
                 //reports
+                Route::get("headers/reports","ReportController@reportHeaders");
                 Route::get("reportPdf","ReportController@reportPdf");
                 Route::get("reportSummary","ReportController@reportSummary");
                 Route::get("headers/{headerId}/questions/{questionId}/option/{optionId}","ReportController@getAnswer");
@@ -382,7 +383,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             });
 
-
+            Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
             Route::get('public-review/products/filters','PublicReviewProductController@getFilters');
             Route::get('public-review/similarProducts/{productId}', 'PublicReviewProductController@similarProducts');
 

@@ -15,9 +15,9 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Action implements ShouldQueue
+class Action
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+//    use Dispatchable, InteractsWithSockets, SerializesModels;
     
     public $model;
     public $who;

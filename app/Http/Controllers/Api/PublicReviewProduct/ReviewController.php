@@ -229,9 +229,9 @@ class ReviewController extends Controller
         if($comment->has_tags){
             event(new Tag($review,$request->user()->profile,$comment->content, null, null, null, $comment));
         }
-        else if($review->profile_id == $request->user()->profile->id)
+        else
         {
-            event(new \App\Events\Actions\ReviewComment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
+            event(new \App\Events\Actions\Comment($review,$request->user()->profile, $comment->content, null, null, null, $comment));
         }
 
         $this->model = $comment;

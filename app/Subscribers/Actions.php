@@ -30,7 +30,6 @@ class Actions
             ->whereNull('muted_on')
             ->whereNull('model_subscribers.deleted_at')->get()->pluck('id');
 
-
         // Adding company admins
         if($event->model->company_id){
             $companyAdminIds = CompanyUser::where('company_id',$event->model->company_id)
@@ -42,8 +41,9 @@ class Actions
         }
         if($model == 'App\PublicReviewProduct\Review')
         {
-            $reviewProfileIds = Review::where('id',$modelId)->first()->pluck('profile_id');
-            $profilesIds = $profilesIds->merge($reviewProfileIds);
+            $reviewProfileIds = Review::where('id',$modelId)->get()->pluck('profile_id');
+            if($event->who['id'] != $reviewProfileIds[0])
+                $profilesIds = $profilesIds->merge($reviewProfileIds);
         }
         $profiles = Profile::whereIn('id',$profilesIds)->get();
 
@@ -78,6 +78,7 @@ class Actions
     
     public function subscribe($events)
     {
+
         $events->listen(
             [
 //                Like::class,
