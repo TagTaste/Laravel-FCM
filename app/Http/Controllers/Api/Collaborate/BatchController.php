@@ -477,23 +477,51 @@ class BatchController extends Controller
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                         {
-                            $answerIntensity = $answer->intensity;
-                            $answerIntensity = explode(",",$answerIntensity);
-                            $questionIntensity = $data->questions->intensity_value;
-                            $questionIntensity = explode(",",$questionIntensity);
-                            foreach ($questionIntensity as $x)
+                            if($data->questions->intensity_type == 2)
                             {
-                                $count = 0;
-                                foreach ($answerIntensity as $y)
+                                $answerIntensity = $answer->intensity;
+                                $answerIntensity = explode(",",$answerIntensity);
+                                $questionIntensity = $data->questions->intensity_value;
+                                $questionIntensity = explode(",",$questionIntensity);
+                                foreach ($questionIntensity as $x)
                                 {
-                                    if($this->checkValue($x,$y))
-                                        $count++;
+
+                                    $count = 0;
+                                    foreach ($answerIntensity as $y)
+                                    {
+                                        if($this->checkValue($x,$y))
+                                            $count++;
+                                    }
+                                    $value[] = ['value'=>$x,'count'=>$count];
                                 }
-                                $value[] = ['value'=>$x,'count'=>$count];
+                                $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
+                                $answer->intensity_value = $data->questions->intensity_value;
+                                $answer->intensity_type = $data->questions->intensity_type;
                             }
-                            $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
-                            $answer->intensity_value = $data->questions->intensity_value;
-                            $answer->intensity_type = $data->questions->intensity_type;
+                            else if($data->questions->intensity_type == 1)
+                            {
+                                $answerIntensity = $answer->intensity;
+                                $answerIntensity = explode(",",$answerIntensity);
+                                $questionIntensityValue = $data->questions->intensity_value;
+                                $questionIntensity = [];
+                                for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                {
+                                    $questionIntensity[] = $i;
+                                }
+                                foreach ($questionIntensity as $x)
+                                {
+                                    $count = 0;
+                                    foreach ($answerIntensity as $y)
+                                    {
+                                        if($y == $x)
+                                            $count++;
+                                    }
+                                    $value[] = ['value'=>$x,'count'=>$count];
+                                }
+                                $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+                            }
                         }
                         else
                         {
@@ -1358,23 +1386,51 @@ class BatchController extends Controller
                             $value = [];
                             if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                             {
-                                $answerIntensity = $answer->intensity;
-                                $answerIntensity = explode(",",$answerIntensity);
-                                $questionIntensity = $data->questions->intensity_value;
-                                $questionIntensity = explode(",",$questionIntensity);
-                                foreach ($questionIntensity as $x)
+                                if($data->questions->intensity_type == 2)
                                 {
-                                    $count = 0;
-                                    foreach ($answerIntensity as $y)
+                                    $answerIntensity = $answer->intensity;
+                                    $answerIntensity = explode(",",$answerIntensity);
+                                    $questionIntensity = $data->questions->intensity_value;
+                                    $questionIntensity = explode(",",$questionIntensity);
+                                    foreach ($questionIntensity as $x)
                                     {
-                                        if($this->checkValue($x,$y))
-                                            $count++;
+
+                                        $count = 0;
+                                        foreach ($answerIntensity as $y)
+                                        {
+                                            if($this->checkValue($x,$y))
+                                                $count++;
+                                        }
+                                        $value[] = ['value'=>$x,'count'=>$count];
                                     }
-                                    $value[] = ['value'=>$x,'count'=>$count];
+                                    $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
+                                    $answer->intensity_value = $data->questions->intensity_value;
+                                    $answer->intensity_type = $data->questions->intensity_type;
                                 }
-                                $answer->is_intensity = isset($data->questions->is_intensity) ? $data->questions->is_intensity : null;
-                                $answer->intensity_value = $data->questions->intensity_value;
-                                $answer->intensity_type = $data->questions->intensity_type;
+                                else if($data->questions->intensity_type == 1)
+                                {
+                                    $answerIntensity = $answer->intensity;
+                                    $answerIntensity = explode(",",$answerIntensity);
+                                    $questionIntensityValue = $data->questions->intensity_value;
+                                    $questionIntensity = [];
+                                    for($i = 1; $i <=(int)$questionIntensityValue ; $i++)
+                                    {
+                                        $questionIntensity[] = $i;
+                                    }
+                                    foreach ($questionIntensity as $x)
+                                    {
+                                        $count = 0;
+                                        foreach ($answerIntensity as $y)
+                                        {
+                                            if($y == $x)
+                                                $count++;
+                                        }
+                                        $value[] = ['value'=>$x,'count'=>$count];
+                                    }
+                                    $answer->is_intensity = isset($option->is_intensity) ? $option->is_intensity : null;
+                                    $answer->intensity_value = isset($option->intensity_value) ? $option->intensity_value : null;
+                                    $answer->intensity_type = isset($option->intensity_type) ? $option->intensity_type : null;
+                                }
                             }
                             else
                             {
