@@ -19,6 +19,7 @@ class CreateProductSuggestions extends Migration
             $table->string('product_name');
             $table->string('product_link')->nullable();
             $table->boolean('is_live')->default(0);
+            $table->string('image')->nullable();
             $table->unsignedInteger('profile_id');
             $table->foreign('profile_id')->references("id")->on("profiles");
             $table->timestamps();

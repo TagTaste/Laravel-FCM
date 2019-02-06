@@ -475,10 +475,16 @@ class PublicReviewProductController extends Controller
             $this->model = [];
             return $this->sendError("Please enter product name");
         }
+        $image = null;
+        if($request->hasFile('image'))
+        {
+            $imageName = str_random("32") . ".jpg";
+            $image = \Storage::url($request->file('image')->storeAs("images/product-suggestion",$imageName,['visibility'=>'public']));
+        }
         $productLink = $request->input('product_link');
         $profileId = $request->user()->profile->id;
         $now = Carbon::now()->toDateTimeString();
-        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now]);
+        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
         return $this->sendResponse();
     }
 
