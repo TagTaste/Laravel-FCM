@@ -483,8 +483,9 @@ class PublicReviewProductController extends Controller
         }
         $productLink = $request->input('product_link');
         $profileId = $request->user()->profile->id;
+        $brandName = $request->input('brand_name');
         $now = Carbon::now()->toDateTimeString();
-        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
+        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'brand_name'=>$brandName,'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
         return $this->sendResponse();
     }
 

@@ -18,6 +18,7 @@ class CreateProductSuggestions extends Migration
             $table->increments('id');
             $table->string('product_name');
             $table->string('product_link')->nullable();
+            $table->string('brand_name')->nullable();
             $table->boolean('is_live')->default(0);
             $table->string('image')->nullable();
             $table->unsignedInteger('profile_id');
