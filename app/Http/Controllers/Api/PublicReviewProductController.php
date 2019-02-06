@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\ProductSuggestion;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\ProductCategory;
 use App\Recipe\Collaborate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Webpatser\Uuid\Uuid;
@@ -463,6 +465,36 @@ class PublicReviewProductController extends Controller
             $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active'],'description'=>$item['description'],'is_intensity'=>$item['is_intensity']];
         }
         $this->model = \DB::table('public_review_global_nested_option')->insert($data);
+        return $this->sendResponse();
+    }
+
+    public function productSuggestion(Request $request)
+    {
+        $productName = $request->input('product_name');
+        if(is_null($productName))
+        {
+            $this->model = [];
+            return $this->sendError("Please enter product name");
+        }
+        $image = null;
+        if($request->hasFile('image'))
+        {
+            $imageName = str_random("32") . ".jpg";
+            $image = \Storage::url($request->file('image')->storeAs("images/product-suggestion",$imageName,['visibility'=>'public']));
+        }
+        $productLink = $request->input('product_link');
+        $profileId = $request->user()->profile->id;
+        $brandName = $request->input('brand_name');
+        $now = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'brand_name'=>$brandName,
+            'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
+        $productDeatils = \DB::table('product_suggestions')->orderBy('updated_at', 'desc')->first();
+        if($this->model)
+        {
+            $mail = (new ProductSuggestion($productDeatils))->onQueue('emails');
+            \Log::info('Queueing send invitation...');
+            dispatch($mail);
+        }
         return $this->sendResponse();
     }
 

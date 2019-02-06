@@ -16,6 +16,27 @@ use Illuminate\Http\File;
 class ReportController extends Controller
 {
 
+
+    public function reportHeaders(Request $request, $id)
+    {
+        $product = PublicReviewProduct::where('id',$id)->first();
+        if($product == null)
+        {
+            return $this->sendError("No product exists");
+        }
+        $header = ReviewHeader::where('header_selection_type','=',2)->where('is_active',1)->where('global_question_id',$product->global_question_id)
+            ->orderBy('id')->first();
+        $questions = PublicReviewProduct\Questions::where('header_id',$header->id)->whereNotIn('questions->select_type',[3,5])->get();
+        if(is_null($questions) || empty($questions) || $questions->count() == 0)
+            $this->model = ReviewHeader::where('is_active',1)->whereIn('header_selection_type',[1])->where('global_question_id',$product->global_question_id)
+                ->orderBy('id')->get();
+        else
+            $this->model = ReviewHeader::where('is_active',1)->whereIn('header_selection_type',[1,2])->where('global_question_id',$product->global_question_id)
+                ->orderBy('id')->get();
+
+        return $this->sendResponse();
+    }
+
     public function reportSummary(Request $request,$productId)
     {
         $product = PublicReviewProduct::where('id',$productId)->first();
@@ -142,9 +163,9 @@ class ReportController extends Controller
         else
         {
             $withoutNest = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
-                ->whereNull('parent_question_id')->where('questions->select_type','!=',3)->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
+                ->whereNull('parent_question_id')->whereNotIn('questions->select_type',[3,5])->where('header_id',$headerId)->where('is_active',1)->orderBy('id')->get();
             $withNested = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)
-                ->whereNotNull('parent_question_id')->where('questions->select_type','!=',3)->where('is_active',1)->where('header_id',$headerId)->orderBy('id')->get();
+                ->whereNotNull('parent_question_id')->where('questions->select_type',[3,5])->where('is_active',1)->where('header_id',$headerId)->orderBy('id')->get();
         }
 
         foreach ($withoutNest as &$data)
