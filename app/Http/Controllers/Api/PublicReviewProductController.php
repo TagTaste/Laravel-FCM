@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\ProductSuggestion;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\ProductCategory;
 use App\Recipe\Collaborate;
@@ -485,7 +486,15 @@ class PublicReviewProductController extends Controller
         $profileId = $request->user()->profile->id;
         $brandName = $request->input('brand_name');
         $now = Carbon::now()->toDateTimeString();
-        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'brand_name'=>$brandName,'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
+        $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'brand_name'=>$brandName,
+            'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
+        $productDeatils = \DB::table('product_suggestions')->orderBy('updated_at', 'desc')->first();
+        if($this->model)
+        {
+            $mail = (new ProductSuggestion($productDeatils))->onQueue('emails');
+            \Log::info('Queueing send invitation...');
+            dispatch($mail);
+        }
         return $this->sendResponse();
     }
 
