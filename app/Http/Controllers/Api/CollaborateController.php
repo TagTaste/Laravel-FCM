@@ -420,9 +420,11 @@ class CollaborateController extends Controller
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
-            ->get()->pluck('collaborate_id');
-        $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
+//        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
+//            ->get()->pluck('collaborate_id');
+        $collaborates = \App\Recipe\Collaborate::join('collaborate_batches_assign','collaborate_batches_assign.collaborate_id','=','collaborates.id')
+            ->where('collaborate_batches_assign.profile_id',$loggedInProfileId)->where('collaborate_batches_assign.begin_tasting',1)
+            ->orderBy('collaborate_batches_assign.updated_at')->get()->toArray();
         foreach ($collaborates as &$collaborate)
         {
             $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
