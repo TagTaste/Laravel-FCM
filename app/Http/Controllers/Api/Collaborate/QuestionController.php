@@ -35,7 +35,7 @@ class QuestionController extends Controller
 
     public function reviewQuestions(Request $request, $collaborateId, $id)
     {
-        $collaborate = Collaborate::where('id',$collaborateId)->first();
+        $collaborate = Collaborate::where('state',Collaborate::$state[0])->where('id',$collaborateId)->first();
         if($collaborate === null){
             return $this->sendError("Collaboration not found.");
         }

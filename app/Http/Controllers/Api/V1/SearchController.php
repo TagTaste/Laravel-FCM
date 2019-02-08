@@ -557,14 +557,14 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 5555;
+        $chefOfTheWeekProfileId = 44;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
         {
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
-            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Bitten by the Culinary bug, Akshay changed careers from the IT industry to Hospitality. His love, interest, and experience in the art of cooking make him an expert in tasting a varied set of products. He loves new product development and thrives in constraints. He is right now honing Indian cuisine at ITC and taking to the next generation of guests. Follow Akshay to get industry updates and interesting insights about Culinary Arts.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Bill Marchetti started working at the tender age of 13 in a small family hotel in San Benedetto del Tronto on Italy’s Adriatic coast, he later on migrated to Australia and made his name as Specialist Italian Chef. He is a recipient of \"Insegna del Ristorante Italiano\", an international award given by the Italian Government to recognize true and authentic Italian Restaurants worldwide. Bill is known in India for his exemplary work at ITC Hotels and Spaghetti Kitchen; he is currently the culinary lead at Farm Land, one of India’s trendsetting charcuteries. Bill’s knowledge of meat is par excellence and he will soon be hosting classes for young chefs and students.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
         }
 

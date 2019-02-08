@@ -420,11 +420,19 @@ class CollaborateController extends Controller
     public function userBatches(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
-            ->get()->pluck('collaborate_id');
-        $collaborates = \App\Recipe\Collaborate::whereIn('id',$collaborateIds)->get()->toArray();
-        foreach ($collaborates as &$collaborate)
+//        $collaborateIds = \DB::table('collaborate_batches_assign')->where('profile_id',$loggedInProfileId)->where('begin_tasting',1)
+//            ->get()->pluck('collaborate_id');
+        $collaborates = \App\Recipe\Collaborate::join('collaborate_batches_assign','collaborate_batches_assign.collaborate_id','=','collaborates.id')
+            ->where('collaborate_batches_assign.profile_id',$loggedInProfileId)->where('collaborate_batches_assign.begin_tasting',1)
+            ->orderBy('collaborate_batches_assign.created_at','desc')->get()->toArray();
+        $collaborateIds = [];
+        $data = [];
+        foreach ($collaborates as $key=> &$collaborate)
         {
+            if(in_array($collaborate['id'],$collaborateIds))
+            {
+                continue;
+            }
             $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
             $count = count($batchIds);
             if($count)
@@ -446,9 +454,11 @@ class CollaborateController extends Controller
                     }
                 }
             }
+            $collaborateIds[] = $collaborate['id'];
             $collaborate['batches'] = $count > 0 ? $batches : [];
+            $data[] = $collaborate;
         }
-        $this->model = $collaborates;
+        $this->model = $data;
 
         return $this->sendResponse();
     }
