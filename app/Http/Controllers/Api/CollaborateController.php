@@ -488,7 +488,7 @@ class CollaborateController extends Controller
 
     public function profilesSpecialization()
     {
-        $this->model = \DB::table('specializations')->get();
+        $this->model = \DB::table('specializations')->orderBy("order","ASC")->get();
         return $this->sendResponse();
     }
 
