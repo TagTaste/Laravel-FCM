@@ -23,17 +23,17 @@ class SpecializationsTableSeeder extends Seeder
         $data[] = ['name'=>'Food Photographer', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/photographer.png', 'order'=>12];
 
         \DB::table('specializations')->insert($data);
-        \DB::table('specialization')->where('id',1)->update(['name'=>'Chef', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/chef.png', 'order'=>1]);
-        \DB::table('specialization')->where('id',2)->update(['name'=>'Researcher', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/researcher.png', 'order'=>14]);
-        \DB::table('specialization')->where('id',3)->update(['name'=>'Food Technologist', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/food_technologies.png', 'order'=>15]);
-        \DB::table('specialization')->where('id',4)->update(['name'=>'Beverage Expert', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/beverage_expert.png', 'order'=>2]);
-        \DB::table('specialization')->where('id',5)->update(['name'=>'Nutritionist', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/nutritionist.png', 'order'=>3]);
-        \DB::table('specialization')->where('id',6)->update(['name'=>'Purchase Manager', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/purchase_manager.png', 'order'=>4]);
-        \DB::table('specialization')->where('id',7)->update(['name'=>'F&B Taster', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/f%26b_taster.png', 'order'=>7]);
-        \DB::table('specialization')->where('id',8)->update(['name'=>'Food Safety', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/food_safety.png', 'order'=>16]);
-        \DB::table('specialization')->where('id',9)->update(['name'=>'Farmer', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/farmer.png', 'order'=>5]);
-        \DB::table('specialization')->where('id',10)->update(['name'=>'Flavorist', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/flavorists.png', 'order'=>6]);
-        \DB::table('specialization')->where('id',11)->update(['name'=>'Equipment', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/equipment.png', 'order'=>20]);
-        \DB::table('specialization')->where('id',12)->update(['order'=>21]);
+        \DB::table('specializations')->where('id',1)->update(['name'=>'Chef', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/chef.png', 'order'=>1]);
+        \DB::table('specializations')->where('id',2)->update(['name'=>'Researcher', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/researcher.png', 'order'=>14]);
+        \DB::table('specializations')->where('id',3)->update(['name'=>'Food Technologist', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/food_technologies.png', 'order'=>15]);
+        \DB::table('specializations')->where('id',4)->update(['name'=>'Beverage Expert', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/beverage_expert.png', 'order'=>2]);
+        \DB::table('specializations')->where('id',5)->update(['name'=>'Nutritionist', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/nutritionist.png', 'order'=>3]);
+        \DB::table('specializations')->where('id',6)->update(['name'=>'Purchase Manager', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/purchase_manager.png', 'order'=>4]);
+        \DB::table('specializations')->where('id',7)->update(['name'=>'F&B Taster', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/f%26b_taster.png', 'order'=>7]);
+        \DB::table('specializations')->where('id',8)->update(['name'=>'Food Safety', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/food_safety.png', 'order'=>16]);
+        \DB::table('specializations')->where('id',9)->update(['name'=>'Farmer', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/farmer.png', 'order'=>5]);
+        \DB::table('specializations')->where('id',10)->update(['name'=>'Flavorist', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/flavorists.png', 'order'=>6]);
+        \DB::table('specializations')->where('id',11)->update(['name'=>'Equipment', 'image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/specialization/equipment.png', 'order'=>20]);
+        \DB::table('specializations')->where('id',12)->update(['order'=>21]);
     }
 }
