@@ -12,13 +12,15 @@
                             <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
                                    border-collapse="collapse">
 
-                                Product Name - {{$productDeatils->product_name}}
+                                Product Name - {{$product_name}}
                                 <br>
-                                Product Link - {{$productDeatils->product_link}}
+                                Product Link - <a href="{{$product_link}}">{{$product_link}}</a>
                                 <br>
-                                Product Brand - {{$productDeatils->brand_name}}
+                                Product Brand - {{$brand_name}}
                                 <br>
-                                Profile Id - {{$productDeatils->profile_id}}
+                                Profile Id - <a href="https://www.tagtaste.com/profile/{{$profile_id}}">{{$profile_id}}</a>
+                                <br>
+                                Image Link - <a href="{{$image}}"><img src="{{$image}}" style="height: 300px; width: 300px; object-fit: cover;" /></a>
 
                                 @include("emails.footer.download")
                                 @include("emails.footer.footer")
