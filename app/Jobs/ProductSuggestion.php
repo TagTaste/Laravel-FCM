@@ -32,7 +32,7 @@ class ProductSuggestion implements ShouldQueue
     public function handle()
     {
         $data = ['product_name'=>$this->productDetails->product_name,'product_link'=>$this->productDetails->product_link,
-            'brand_name'=>$this->productDetails->brand_name,'profile_id'=>$this->productDetails->profile_id];
+            'brand_name'=>$this->productDetails->brand_name,'profile_id'=>$this->productDetails->profile_id,'image'=>$this->productDetails->image];
         \Mail::send('emails.productSuggestion',$data , function($message)
         {
             $message->to('newproducts@tagtaste.com', 'Product Suggestion')->subject('New Products Suggest!');
