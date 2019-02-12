@@ -20,11 +20,11 @@ class ProductSuggestion implements ShouldQueue
      *
      * @return void
      */
-    public $productDeatils;
+    public $productDetails;
 
-    public function __construct($productDeatils)
+    public function __construct($productDetails)
     {
-        $this->productDeatils = $productDeatils;
+        $this->productDetails = $productDetails;
     }
 
     /**
@@ -34,10 +34,10 @@ class ProductSuggestion implements ShouldQueue
      */
     public function handle()
     {
-        \Mail::send('emails.productSuggestion', ['productDeatils'=>$this->productDeatils], function($message)
+        \Mail::send('emails.productSuggestion', ['productDetails'=>$this->productDetails], function($message)
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to('sarvada@tagtaste.com', $this->productDeatils)->subject('New Products Suggest!');
+            $message->to('sarvada@tagtaste.com', $this->productDetails)->subject('New Products Suggest!');
         });
     }
 }

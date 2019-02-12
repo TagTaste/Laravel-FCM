@@ -12,13 +12,13 @@
                             <table width="550" align="center" border="0" cellspacing="0" cellpadding="0"
                                    border-collapse="collapse">
 
-                                Product Name - {{$productDeatils->product_name}}
+                                Product Name - {{$productDetails->product_name}}
                                 <br>
-                                Product Link - {{$productDeatils->product_link}}
+                                Product Link - {{$productDetails->product_link}}
                                 <br>
-                                Product Brand - {{$productDeatils->brand_name}}
+                                Product Brand - {{$productDetails->brand_name}}
                                 <br>
-                                Profile Id - {{$productDeatils->profile_id}}
+                                Profile Id - {{$productDetails->profile_id}}
 
                                 @include("emails.footer.download")
                                 @include("emails.footer.footer")

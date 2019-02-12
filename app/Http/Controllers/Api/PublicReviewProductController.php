@@ -488,14 +488,14 @@ class PublicReviewProductController extends Controller
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('product_suggestions')->insert(['product_name'=>$productName,'brand_name'=>$brandName,
             'product_link'=>$productLink,'profile_id'=>$profileId,'created_at'=>$now,'updated_at'=>$now,'image'=>$image]);
-        $productDeatils = \DB::table('product_suggestions')->orderBy('updated_at', 'desc')->first();
+        $productDetails = \DB::table('product_suggestions')->orderBy('updated_at', 'desc')->first();
         if($this->model)
         {
-            $mail = (new ProductSuggestion($productDeatils))->onQueue('emails');
+            $mail = (new ProductSuggestion($productDetails))->onQueue('emails');
             \Log::info('Queueing send invitation...');
             dispatch($mail);
         }
-        $this->model = $productDeatils;
+        $this->model = $productDetails;
         return $this->sendResponse();
     }
 
