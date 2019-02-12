@@ -2,16 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Profile;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
+//use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class ProductSuggestion implements ShouldQueue
+class ProductSuggestion
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
