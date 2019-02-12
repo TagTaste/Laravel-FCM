@@ -2,9 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Profile;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,11 +17,11 @@ class ProductSuggestion implements ShouldQueue
      *
      * @return void
      */
-    public $productDeatils;
+    public $productDetails;
 
-    public function __construct($productDeatils)
+    public function __construct($productDetails)
     {
-        $this->productDeatils = $productDeatils;
+        $this->productDetails = $productDetails;
     }
 
     /**
@@ -34,10 +31,11 @@ class ProductSuggestion implements ShouldQueue
      */
     public function handle()
     {
-        \Mail::send('emails.productSuggestion', ['productDeatils'=>$this->productDeatils], function($message)
+        $data = ['product_name'=>$this->productDetails->product_name,'product_link'=>$this->productDetails->product_link,
+            'brand_name'=>$this->productDetails->brand_name,'profile_id'=>$this->productDetails->profile_id];
+        \Mail::send('emails.productSuggestion',$data , function($message)
         {
-            // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to('newproducts@tagtaste.com', $this->productDeatils)->subject('New Products Suggest!');
+            $message->to('newproducts@tagtaste.com', 'Product Suggestion')->subject('New Products Suggest!');
         });
     }
 }
