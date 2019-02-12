@@ -35,7 +35,7 @@ class ProductSuggestion
             'brand_name'=>$this->productDetails->brand_name,'profile_id'=>$this->productDetails->profile_id,'image'=>$this->productDetails->image];
         \Mail::send('emails.productSuggestion',$data , function($message)
         {
-            $message->to('newproducts@tagtaste.com', 'Product Suggestion')->subject('New Products Suggest!');
+            $message->to(env('PRODUCT_SUGGESTION_MAIL'), 'Product Suggestion')->subject('New Products Suggest!');
         });
     }
 }
