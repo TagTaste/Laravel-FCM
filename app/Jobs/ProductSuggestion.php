@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class ProductSuggestion implements ShouldQueue
+class ProductSuggestion
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
