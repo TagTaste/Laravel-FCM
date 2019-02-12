@@ -203,9 +203,9 @@
                                 @endphp
                                 @if (isset($isIntensity) && $isIntensity == 1)
                                     @if ($intensityType == 1)
-                                        @include('collaborates.reports-numeric-intensity', ['answers' => $answers, 'totalAnswers' => $totalApplicants])
+                                        @include('collaborates.reports-numeric-intensity', ['currentAnswer' => $answers, 'totalAnswers' => $totalApplicants])
                                     @elseif($intensityType == 2)
-                                        @include('collaborates.reports-textual-intensity', ['answers' => $answers, 'totalAnswers' => $totalApplicants])
+                                        @include('collaborates.reports-textual-intensity', ['currentAnswer' => $answers, 'totalAnswers' => $totalApplicants])
                                     @endif
                                 @else
                                     <div class="pr-answer-row">
