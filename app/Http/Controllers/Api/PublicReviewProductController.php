@@ -495,6 +495,7 @@ class PublicReviewProductController extends Controller
             \Log::info('Queueing send invitation...');
             dispatch($mail);
         }
+        $this->model = $productDeatils;
         return $this->sendResponse();
     }
 

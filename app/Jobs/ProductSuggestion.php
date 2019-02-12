@@ -37,7 +37,7 @@ class ProductSuggestion implements ShouldQueue
         \Mail::send('emails.productSuggestion', ['productDeatils'=>$this->productDeatils], function($message)
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to('ashok@tagtaste.com', $this->productDeatils)->subject('New Products Suggest!');
+            $message->to('tanvi@tagtaste.com', $this->productDeatils)->subject('New Products Suggest!');
         });
     }
 }
