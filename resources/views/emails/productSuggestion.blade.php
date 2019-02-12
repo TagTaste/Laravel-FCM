@@ -14,11 +14,13 @@
 
                                 Product Name - {{$product_name}}
                                 <br>
-                                Product Link - {{$product_link}}
+                                Product Link - <a href="{{$product_link}}">{{$product_link}}</a>
                                 <br>
                                 Product Brand - {{$brand_name}}
                                 <br>
-                                Profile Id - {{$profile_id}}
+                                Profile Id - <a href="https://www.tagtaste.com/profile/{{$profile_id}}">{{$profile_id}}</a>
+                                <br>
+                                Image Link - <a href="{{$image}}"><img src="{{$image}}" style="height: 300px; width: 300px; object-fit: cover;" /></a>
 
                                 @include("emails.footer.download")
                                 @include("emails.footer.footer")
