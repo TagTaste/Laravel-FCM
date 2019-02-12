@@ -5,10 +5,10 @@ namespace App\Jobs;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-//use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class ProductSuggestion
+class ProductSuggestion implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -35,8 +35,7 @@ class ProductSuggestion
             'brand_name'=>$this->productDetails->brand_name,'profile_id'=>$this->productDetails->profile_id];
         \Mail::send('emails.productSuggestion',$data , function($message)
         {
-            // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to('sarvada@tagtaste.com', 'Product Suggestion')->subject('New Products Suggest!');
+            $message->to('newproducts@tagtaste.com', 'Product Suggestion')->subject('New Products Suggest!');
         });
     }
 }
