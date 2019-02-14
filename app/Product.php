@@ -12,7 +12,7 @@ class Product extends Model
 
 	static $imagePath = 'app/product_images/';
 
-	public static $types = ['Vegetarian','Non-Vegeratrian', 'Vegan'];
+	public static $types = ['Vegetarian','Non-Vegetarian', 'Vegan'];
 
 	public static $modes = ['Frozen','Fresh'];
 

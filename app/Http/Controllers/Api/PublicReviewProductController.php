@@ -415,7 +415,7 @@ class PublicReviewProductController extends Controller
         $id = $request->input('uuid');
         $this->model = $this->model->where('id',$id)->first();
         \App\Filter\PublicReviewProduct::addModel($this->model);
-        $this->model->update(['updated_at'=>$this->now]);
+        $this->model->update(['updated_at'=>$this->now,'is_authenticity_check'=>1]);
         return $this->sendResponse();
     }
 
