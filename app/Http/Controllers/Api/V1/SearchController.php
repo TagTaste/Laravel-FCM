@@ -126,7 +126,7 @@ class SearchController extends Controller
         if(count($profileData))
             $this->model[] = ['title'=>'Suggested People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
-        $specializations = \DB::table('specializations')->get();
+        $specializations = \DB::table('specializations')->orderBy("order","ASC")->get();
 
         if(count($specializations))
             $this->model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
