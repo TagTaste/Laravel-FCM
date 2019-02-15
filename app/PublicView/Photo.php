@@ -62,10 +62,10 @@ class Photo extends BasePhoto
     public function getPhotoUrlAttribute()
     {
         if($this->profile_id) {
-            return !is_null($this->file) ? \Storage::url($this->file) : null;
+            return !is_null($this->file) ? $this->file : null;
         }
 
-        return !is_null($this->file) ? \Storage::url($this->file) : null;
+        return !is_null($this->file) ? $this->file : null;
     }
 
     public function profile()

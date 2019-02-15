@@ -93,7 +93,7 @@ class Company extends BaseCompany
     public function getLogoAttribute($value)
     {
         try{
-            return !is_null($value) ? \Storage::url($value) : null;
+            return !is_null($value) ? $value : null;
         } catch (\Exception $e){
             \Log::warning("Couldn't get logo for company" . $this->id);
             \Log::warning($e->getMessage());
@@ -103,7 +103,7 @@ class Company extends BaseCompany
     public function getHeroImageAttribute($value)
     {
         try {
-            return !is_null($value) ? \Storage::url($value) : null;
+            return !is_null($value) ? $value : null;
 
         } catch (\Exception $e){
             \Log::warning("Couldn't get hero image for company" . $this->id);
