@@ -822,7 +822,7 @@ class SearchController extends Controller
         /* ui type = 15 is start */
 
 
-        $specializations = \DB::table('specializations')->get();
+        $specializations = \DB::table('specializations')->orderBy("order","ASC")->get();
 
         if(count($specializations))
             $model[] = ['title'=>'Explore by Specialization','subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
