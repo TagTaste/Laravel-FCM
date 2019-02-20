@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Channel\Payload;
 use App\Strategies\Paginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class FeedController extends Controller
 {
@@ -93,7 +94,7 @@ class FeedController extends Controller
             $cached = json_decode($payload->payload, true);
 
             foreach($cached as $name => $key){
-                $cachedData = \Redis::get($key);
+                $cachedData = Redis::get($key);
                 if(!$cachedData){
                     \Log::warning("could not get from $key");
                 }

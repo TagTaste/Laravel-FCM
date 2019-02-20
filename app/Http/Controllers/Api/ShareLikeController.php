@@ -6,6 +6,7 @@ use App\Events\Actions\Like;
 use App\PeopleLike;
 use Illuminate\Http\Request;
 use App\Shareable\Sharelikable;
+use Illuminate\Support\Facades\Redis;
 
 class ShareLikeController extends Controller
 {
@@ -39,13 +40,13 @@ class ShareLikeController extends Controller
     	$columnName = $model.'_share_id';
 
     	$key = "meta:{$model}Share:likes:$modelId";
-        $exists = \Redis::sIsMember($key,$profileId);
+        $exists = Redis::sIsMember($key,$profileId);
     	if($exists)
     	{
-    	    \Redis::sRem($key,$profileId);
+    	    Redis::sRem($key,$profileId);
     		$sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::sCard($key);
+            $this->model['likeCount'] = Redis::sCard($key);
             $peopleLike = new PeopleLike();
             $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "{$model}Share",request()->user()->profile->id);
     		return $this->sendResponse();
@@ -56,10 +57,10 @@ class ShareLikeController extends Controller
     	$models->$columnName = $modelId;
     	$models->save();
     	
-    	\Redis::sAdd($key,$profileId);
+    	Redis::sAdd($key,$profileId);
     	
         $this->model['liked'] = true;
-        $this->model['likeCount'] = \Redis::sCard($key);
+        $this->model['likeCount'] = Redis::sCard($key);
         $peopleLike = new PeopleLike();
         $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "{$model}Share",request()->user()->profile->id);
         

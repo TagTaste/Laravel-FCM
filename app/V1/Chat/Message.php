@@ -4,6 +4,7 @@ namespace App\V1\Chat;
 
 use App\V1\Chat;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class Message extends Model
 {
@@ -60,7 +61,7 @@ class Message extends Model
                 }
             }
             \DB::table('message_recepients')->insert($recepient);
-           \Redis::publish("chat." . $message->chat_id,$message->toJson());
+           Redis::publish("chat." . $message->chat_id,$message->toJson());
         });
 
     }
@@ -210,11 +211,11 @@ class Message extends Model
             $data = [];
             if(isset($action[2]) && isset($action[0]) && !is_null($action[2]) && !is_null($action[0]))
             {
-                $data = ['actionTakenBy'=> json_decode(\Redis::get("profile:small:".$action[0])),'actionedOn'=>json_decode(\Redis::get("profile:small:".$action[2]))] ;
+                $data = ['actionTakenBy'=> json_decode(Redis::get("profile:small:".$action[0])),'actionedOn'=>json_decode(Redis::get("profile:small:".$action[2]))] ;
             }
             else if(isset($action[0]) && !is_null($action[0]))
             {
-                $data = ['actionTakenBy' => json_decode(\Redis::get("profile:small:".$action[0]))];
+                $data = ['actionTakenBy' => json_decode(Redis::get("profile:small:".$action[0]))];
             }
             return ['actionAbleProfiles'=>$data,'action'=>$this->type];
         }

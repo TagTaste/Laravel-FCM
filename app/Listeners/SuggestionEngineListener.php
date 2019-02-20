@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\SuggestionEngineEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Redis;
 
 class SuggestionEngineListener
 {
@@ -41,15 +42,15 @@ class SuggestionEngineListener
                 $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('profile_id');
                 foreach ($x as $y)
                 {
-                    if(!\Redis::sIsMember('following:profile:'.$event->modelData->id, $y))
+                    if(!Redis::sIsMember('following:profile:'.$event->modelData->id, $y))
                     {
-                        \Redis::sAdd('suggested:profile:'.$event->modelData->id,$y);
+                        Redis::sAdd('suggested:profile:'.$event->modelData->id,$y);
                         $modelIds[] = $y;
                     }
                 }
             }
             //get existing similar profile ids
-            $profileids = \Redis::sMembers('suggested:profile:'.$event->modelData->id);
+            $profileids = Redis::sMembers('suggested:profile:'.$event->modelData->id);
             $profileidsCsv = '';
             $index = 0;
             foreach ($profileids as $profileid)
@@ -70,15 +71,15 @@ class SuggestionEngineListener
                 $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
                 foreach ($x as $y)
                 {
-                    if(!\Redis::sIsMember('following:profile:'.$event->modelData->id, "company".$y))
+                    if(!Redis::sIsMember('following:profile:'.$event->modelData->id, "company".$y))
                     {
-                        \Redis::sAdd('suggested:company:'.$event->modelData->id,$y);
+                        Redis::sAdd('suggested:company:'.$event->modelData->id,$y);
                         $modelIds[] = $y;
                     }
                 }
             }
             //get existing similar profile ids
-            $profileids = \Redis::sMembers('suggested:company:'.$event->modelData->id);
+            $profileids = Redis::sMembers('suggested:company:'.$event->modelData->id);
             $profileidsCsv = '';
             $index = 0;
             foreach ($profileids as $profileid)
@@ -103,13 +104,13 @@ class SuggestionEngineListener
                     $hasApplied = \DB::table('applications')->where('job_id',$y)->where('profile_id',$event->modelData->id)->exists();
                     if(!$hasApplied)
                     {
-                        \Redis::sAdd('suggested:job:'.$event->modelData->id,$y);
+                        Redis::sAdd('suggested:job:'.$event->modelData->id,$y);
                         $modelIds[] = $y;
                     }
                 }
             }
             //get existing similar profile ids
-            $jobIds = \Redis::sMembers('suggested:job:'.$event->modelData->id);
+            $jobIds = Redis::sMembers('suggested:job:'.$event->modelData->id);
             $jobIdsCsc = '';
             $index = 0;
             foreach ($jobIds as $jobId)
@@ -131,11 +132,11 @@ class SuggestionEngineListener
                 $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('collaborate_id');
                 foreach ($x as $y)
                 {
-                    \Redis::sAdd('suggested:collaborate:'.$event->modelData->id,$y);
+                    Redis::sAdd('suggested:collaborate:'.$event->modelData->id,$y);
                 }
             }
             //get existing similar profile ids
-            $collaborateIds = \Redis::sMembers('suggested:collaborate:'.$event->modelData->id);
+            $collaborateIds = Redis::sMembers('suggested:collaborate:'.$event->modelData->id);
             $collaborateIdsCsc = '';
             $index = 0;
             foreach ($collaborateIds as $collaborateId)
@@ -160,15 +161,15 @@ class SuggestionEngineListener
                 $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('profile_id');
                 foreach ($x as $y)
                 {
-                    if(!\Redis::sIsMember('following:profile:'.$event->modelData->id, $y))
+                    if(!Redis::sIsMember('following:profile:'.$event->modelData->id, $y))
                     {
-                        \Redis::sAdd('suggested:profile:'.$event->modelData->id,$y);
+                        Redis::sAdd('suggested:profile:'.$event->modelData->id,$y);
                         $modelIds[] = $y;
                     }
                 }
             }
             //get existing similar profile ids
-            $profileids = \Redis::sMembers('suggested:profile:'.$event->modelData->id);
+            $profileids = Redis::sMembers('suggested:profile:'.$event->modelData->id);
             $profileidsCsv = '';
             $index = 0;
             foreach ($profileids as $profileid)
@@ -181,13 +182,13 @@ class SuggestionEngineListener
 
             if($index < 20)
             {
-                $profileids = \Redis::sMembers('following:profile:'.$event->modelData->id);
+                $profileids = Redis::sMembers('following:profile:'.$event->modelData->id);
 
                 $profileids = \DB::table('profiles')->select('id')->whereNotIn('id',$profileids)->whereNull('deleted_at')->inRandomOrder()->take(20 - $index)->get();
 
                 foreach ($profileids as $profileid)
                 {
-                    \Redis::sAdd('suggested:profile:'. $event->modelData->id,$profileid->id);
+                    Redis::sAdd('suggested:profile:'. $event->modelData->id,$profileid->id);
                     $profileidsCsv = $profileid->id.','.$profileidsCsv;
                 }
             }
@@ -204,16 +205,16 @@ class SuggestionEngineListener
                 $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
                 foreach ($x as $y)
                 {
-                    if(!\Redis::sIsMember('following:profile:'.$event->modelData->id, "company".$y))
+                    if(!Redis::sIsMember('following:profile:'.$event->modelData->id, "company".$y))
                     {
-                        \Redis::sAdd('suggested:company:'.$event->modelData->id,$y);
+                        Redis::sAdd('suggested:company:'.$event->modelData->id,$y);
                         $modelIds[] = $y;
                     }
                 }
             }
             echo "profile id ".$event->modelData->id ."\n";
             //get existing similar company ids
-            $companiesIds = \Redis::sMembers('suggested:company:'.$event->modelData->id);
+            $companiesIds = Redis::sMembers('suggested:company:'.$event->modelData->id);
             $companiesIdsCsv = '';
             $index = 0;
             foreach ($companiesIds as $companiesId)
@@ -225,7 +226,7 @@ class SuggestionEngineListener
             }
             if($index < 20)
             {
-                $ids = \Redis::sMembers('following:profile:'.$event->modelData->id);
+                $ids = Redis::sMembers('following:profile:'.$event->modelData->id);
                 $companiesIds = [];
                 foreach ($ids as $id)
                 {
@@ -256,14 +257,14 @@ class SuggestionEngineListener
                     $hasApplied = \DB::table('applications')->where('job_id',$y)->where('profile_id',$event->modelData->id)->exists();
                     if(!$hasApplied)
                     {
-                        \Redis::sAdd('suggested:job:'.$event->modelData->id,$y);
+                        Redis::sAdd('suggested:job:'.$event->modelData->id,$y);
                         $modelIds[] = $y;
                     }
                 }
             }
             echo "profile id ".$event->modelData->id ."\n";
             //get existing similar company ids
-            $jobIds = \Redis::sMembers('suggested:job:'.$event->modelData->id);
+            $jobIds = Redis::sMembers('suggested:job:'.$event->modelData->id);
             $jobIdsCsc = '';
             $index = 0;
             foreach ($jobIds as $jobId)
@@ -305,12 +306,12 @@ class SuggestionEngineListener
                 $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('collaborate_id');
                 foreach ($x as $y)
                 {
-                    \Redis::sAdd('suggested:collaborate:'.$event->modelData->id,$y);
+                    Redis::sAdd('suggested:collaborate:'.$event->modelData->id,$y);
                 }
             }
             echo "profile id ".$event->modelData->id ."\n";
             //get existing similar collaborate ids
-            $collaborateIds = \Redis::sMembers('suggested:collaborate:'.$event->modelData->id);
+            $collaborateIds = Redis::sMembers('suggested:collaborate:'.$event->modelData->id);
             $collaborateIdsCsc = '';
             $index = 0;
             foreach ($collaborateIds as $collaborateId)

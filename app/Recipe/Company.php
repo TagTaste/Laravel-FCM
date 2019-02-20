@@ -4,6 +4,7 @@ namespace App\Recipe;
 
 use Storage;
 use App\Company as BaseCompany;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends BaseCompany
 {
@@ -75,7 +76,7 @@ class Company extends BaseCompany
     }
     public function isFollowing($followerProfileId = null)
     {
-        return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
+        return Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
 
     public function getIsAdminAttribute()

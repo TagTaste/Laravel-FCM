@@ -7,7 +7,7 @@
  */
 
 namespace App;
-
+use Illuminate\Support\Facades\Redis;
 
 class Deeplink
 {
@@ -33,12 +33,12 @@ class Deeplink
     public static function getShortLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-//        if(!\Redis::exists($key)) {
+//        if(!Redis::exists($key)) {
 //            $self = new self($modelName, $modelId, $isShared, $share_id);
 //            $deeplink = $self->getDeeplinkUrl();
-//            \Redis::set($key,json_encode($deeplink));
+//            Redis::set($key,json_encode($deeplink));
 //        }
-//        return (json_decode(\Redis::get($key)))->url;
+//        return (json_decode(Redis::get($key)))->url;
 
         $self = new self($modelName, $modelId, $isShared, $share_id);
         return $self->getDeeplinkUrl()->url;
@@ -47,8 +47,8 @@ class Deeplink
     public static function getLongLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-//        if(\Redis::exists($key)) {
-//            return (json_decode(\Redis::get($key)))->url;
+//        if(Redis::exists($key)) {
+//            return (json_decode(Redis::get($key)))->url;
 //        }
         $url = 'https://tagtaste.app.link/?modelName='.$modelName.'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId, $isShared, $share_id)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId).'&shareTypeID='.$share_id.'&isShared='.$isShared;
         return $url;

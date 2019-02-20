@@ -11,9 +11,10 @@
 |
 */
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Redis;
 
 Route::get('/redis',function(){
-    //\Redis::publish('notifications', json_encode(['foo' => 'bar']));
+    //Redis::publish('notifications', json_encode(['foo' => 'bar']));
     event(new \App\Events\TestEvent(str_random(32)));
 });
 Route::get('/', function () {

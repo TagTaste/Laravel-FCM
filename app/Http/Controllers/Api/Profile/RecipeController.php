@@ -12,6 +12,7 @@ use App\RecipeLike;
 use App\RecipeRating;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class RecipeController extends Controller
 {
@@ -333,20 +334,20 @@ class RecipeController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $key = "meta:recipe:likes:" . $id;
-        $recipeLike = \Redis::sIsMember($key,$profileId);
+        $recipeLike = Redis::sIsMember($key,$profileId);
         $this->model = [];
         if ($recipeLike) {
             RecipeLike::where('profile_id', $profileId)->where('recipe_id', $id)->delete();
-            \Redis::sRem($key,$profileId);
+            Redis::sRem($key,$profileId);
             $this->model['liked'] = false;
         } else {
             RecipeLike::insert(['profile_id' => $profileId, 'recipe_id' => $id]);
-            \Redis::sAdd($key,$profileId);
+            Redis::sAdd($key,$profileId);
             $this->model['liked'] = true;
             $recipe = Recipe::find($id);
             event(new Like($recipe, $request->user()->profile));
         }
-        $this->model['likeCount'] = \Redis::sCard($key);
+        $this->model['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $this->model['peopleLiked'] = $peopleLike->peopleLike($id, "recipe",request()->user()->profile->id);

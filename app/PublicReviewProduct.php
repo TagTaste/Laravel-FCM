@@ -6,6 +6,7 @@ use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 
 class PublicReviewProduct extends Model
@@ -50,7 +51,7 @@ class PublicReviewProduct extends Model
 
     public function addToCache()
     {
-        \Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+        Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
 
     }
 

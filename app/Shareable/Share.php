@@ -9,6 +9,7 @@ use App\Privacy;
 use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Share extends Model implements CommentNotification
 {
@@ -43,7 +44,7 @@ class Share extends Model implements CommentNotification
     public function addToCache()
     {
         $model = class_basename($this);
-        \Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
+        Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
     }
     
     public function payload()
@@ -81,9 +82,9 @@ class Share extends Model implements CommentNotification
         $name = strtolower(class_basename($this));
         $key  =  "shared:$name:" . $this->id;
         
-        if(!\Redis::exists($key))
+        if(!Redis::exists($key))
         {
-            \Redis::set($key,$this->toJson());
+            Redis::set($key,$this->toJson());
         }
         return [$name => $key];
     }

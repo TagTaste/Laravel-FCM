@@ -7,6 +7,7 @@ use App\PublicView\Collaborate;
 use App\Traits\GetTags;
 use App\Traits\HasPreviewContent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PublicViewController extends Controller
 {
@@ -87,7 +88,7 @@ class PublicViewController extends Controller
         }
 
         $this->model['shared'] = $sharedModel;
-        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
+        $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $sharedModel->profile_id));
         $this->model['type'] = $modelName;
         $this->model[$modelName] = $model;
         $this->model['meta']= $sharedModel->getMetaForPublic();

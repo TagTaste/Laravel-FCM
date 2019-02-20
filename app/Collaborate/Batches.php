@@ -4,6 +4,7 @@ namespace App\Collaborate;
 
 use App\Recipe\Collaborate;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 
 class Batches extends Model {
@@ -38,13 +39,13 @@ class Batches extends Model {
         $data = ['id'=>$this->id,'name'=>$this->name,'notes'=>$this->notes,'allergens'=>$this->allergens,'instruction'=>$this->instruction,
             'color_id'=>$this->color_id,'collaborate_id'=>$this->collaborate_id,'color'=>$this->color,
             'created_at'=>isset($this->created_at) ? $this->created_at->toDateTimeString() : null ,'updated_at'=>isset($this->updated_at) ? $this->updated_at->toDateTimeString() : null];
-        \Redis::set("batch:" . $this->id,json_encode($data));
+        Redis::set("batch:" . $this->id,json_encode($data));
 
     }
 
     public function removeFromCache()
     {
-        \Redis::del("batch:" . $this->id);
+        Redis::del("batch:" . $this->id);
     }
 
     public function getColorAttribute()

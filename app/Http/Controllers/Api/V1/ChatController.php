@@ -9,6 +9,7 @@ use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Redis;
 
 class ChatController extends Controller
 {
@@ -205,7 +206,7 @@ class ChatController extends Controller
     		$query->where('profile_id',$loggedInProfileId)->withTrashed();
     	})->where('name','like','%'.$key.'%')->where('chat_type',0)->get();
 
-    	$profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+    	$profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
     	$data['profile'] = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')
             ->whereIn('profiles.id',$profileIds)->where('users.name','like','%'.$key.'%')->get();
 
@@ -386,10 +387,10 @@ class ChatController extends Controller
         $profileId = $request->user()->profile->id;
         $status = $request->input('status');
         if($status == 1){
-            $this->model = \Redis::sAdd("online:profile:", $profileId);
+            $this->model = Redis::sAdd("online:profile:", $profileId);
         }
         if($status == 0){
-            $this->model = \Redis::sRem("online:profile:", $profileId);
+            $this->model = Redis::sRem("online:profile:", $profileId);
         }
         return $this->sendResponse();
     }

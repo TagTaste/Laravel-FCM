@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Redis;
 
 class CompanyController extends Controller
 {
@@ -203,10 +203,10 @@ class CompanyController extends Controller
         Subscriber::where("channel_name","like","company%$id")->delete();
     
         //remove from following profiles
-        $followers = \Redis::smembers("followers:company:$id");
+        $followers = Redis::smembers("followers:company:$id");
         if(count($followers)){
             foreach($followers as $profileId){
-                \Redis::sRem("following:profile:$profileId",$id);
+                Redis::sRem("following:profile:$profileId",$id);
             }
         }
         
@@ -221,8 +221,8 @@ class CompanyController extends Controller
         
         
         //remove from cache
-        \Redis::del("company:small:" . $id);
-        \Redis::del("followers:company:$id");
+        Redis::del("company:small:" . $id);
+        Redis::del("followers:company:$id");
     
     
         return $this->sendResponse();
@@ -272,12 +272,12 @@ class CompanyController extends Controller
         $profileId = $request->user()->profile->id;
     
         //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, "company.$id");
+        Redis::sAdd("following:profile:" . $profileId, "company.$id");
     
         //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:" . $id, $profileId);
+        Redis::sAdd("followers:company:" . $id, $profileId);
 
-        \Redis::sRem('suggested:company:'.$profileId,$id);
+        Redis::sRem('suggested:company:'.$profileId,$id);
         
         return $this->sendResponse();
     }
@@ -296,10 +296,10 @@ class CompanyController extends Controller
         }
         $profileId = $request->user()->profile->id;
         //companies the logged in user is following
-        \Redis::sRem("following:profile:" . $profileId, "company.$id");
+        Redis::sRem("following:profile:" . $profileId, "company.$id");
     
         //profiles that are following $channelOwner
-        \Redis::sRem("followers:company:" . $id, $profileId);
+        Redis::sRem("followers:company:" . $id, $profileId);
         return $this->sendResponse();
     }
 
@@ -351,7 +351,7 @@ class CompanyController extends Controller
     public function followers(Request $request, $profileId, $id)
     {
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:company:".$id);
+        $profileIds = Redis::SMEMBERS("followers:company:".$id);
         $this->model['count'] = count($profileIds);
         $data = [];
         $page = $request->has('page') ? $request->input('page') : 1;
@@ -364,7 +364,7 @@ class CompanyController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         foreach($data as &$profile){
@@ -372,7 +372,7 @@ class CompanyController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
         $this->model['profile'] = $data;
         return $this->sendResponse();
