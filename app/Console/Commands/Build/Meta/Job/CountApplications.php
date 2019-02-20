@@ -6,6 +6,7 @@ use App\Application;
 use App\Collaboration\Collaborator;
 use App\Profile;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class CountApplications extends Command
 {
