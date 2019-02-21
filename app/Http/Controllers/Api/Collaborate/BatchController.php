@@ -1519,4 +1519,120 @@ class BatchController extends Controller
             return 1;
         return 0;
     }
+
+    public function getHeaderWeight(Request $request, $collaborateId)
+    {
+        $profileId = $request->user()->profile->id;
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $filters = $request->input('filters');
+        $resp = $this->getFilterProfileIds($filters,$collaborateId);
+        $profileIds = $resp['profile_id'];
+        $type = $resp['type'];
+        $boolean = 'and' ;
+        $questionIds = Collaborate\Questions::select('id')->where('collaborate_id',$collaborateId)->where('questions->select_type',5)->get()->pluck('id');
+        $overAllPreferences = \DB::table('collaborate_tasting_user_review')->select('tasting_header_id','question_id','leaf_id','batch_id','value',\DB::raw('count(*) as total'))->where('current_status',3)
+            ->where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereIn('question_id',$questionIds)
+            ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
+
+        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->orderBy('id')->get();
+
+        $model = [];
+        $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
+        foreach ($headers as $header)
+        {
+            $data = [];
+            if($header->header_type == 'INSTRUCTIONS')
+                continue;
+            $data['header_type'] = $header->header_type;
+            $data['id'] = $header->id;
+            foreach ($batches as $batch)
+            {
+                $item  = [];
+                $item['batch_info'] = $batch;
+                $totalValue = 0;
+                $totalReview = 0;
+                foreach ($overAllPreferences as $overAllPreference)
+                {
+
+                    if($header->id == $overAllPreference->tasting_header_id && $batch->id == $overAllPreference->batch_id)
+                    {
+                        $totalReview = $totalReview + $overAllPreference->total;
+                        $totalValue = $totalValue + $overAllPreference->leaf_id * $overAllPreference->total;
+                    }
+                }
+                if($totalValue && $totalReview)
+                    $item['overAllPreference'] = number_format((float)($totalValue/$totalReview), 2, '.', '');
+                else
+                    $item['overAllPreference'] = "0.00";
+
+                $data['batches'][] = $item;
+            }
+            $model[] = $data;
+        }
+        $weight = \DB::table('collaborate_report_weight_assign')->where('collaborate_id',$collaborateId)->first();
+        if(isset($weight) && !is_null($weight) && isset($weight->header_weight))
+            $weight->header_weight = json_decode($weight->header_weight,true);
+        else
+            $weight = null;
+        $this->model = ['summary'=>$model,'weight'=>$weight];
+        return $this->sendResponse();
+    }
+
+    public function storeHeaderWeight(Request $request, $collaborateId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $time = Carbon::now()->toDateTimeString();
+        $checkBatch = \DB::table('collaborate_report_weight_assign')->where('collaborate_id',$collaborateId)->first();
+        if(is_null($checkBatch))
+        {
+            if(!$request->has('header_weight'))
+            {
+                $this->model = [];
+                return $this->sendError('Please enter correct header wise weight');
+            }
+            \DB::table('collaborate_report_weight_assign')->insert(['collaborate_id'=>$collaborateId,'profile_id'=>$request->user()->profile->id,
+                'header_weight'=>$request->input('header_weight'),'created_at'=>$time,'updated_at'=>$time]);
+        }
+        else
+        {
+            \DB::table('collaborate_report_weight_assign')->where('collaborate_id',$collaborateId)->update(['profile_id'=>$request->user()->profile->id,
+                'header_weight'=>$request->input('header_weight'),'updated_at'=>$time]);
+        }
+        $this->model = \DB::table('collaborate_report_weight_assign')->where('collaborate_id',$collaborateId)->first();
+        $this->model->header_weight = json_decode($this->model->header_weight,true);
+        return $this->sendResponse();
+    }
+
 }

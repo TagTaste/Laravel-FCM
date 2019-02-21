@@ -24,13 +24,86 @@ class QuestionController extends Controller
         $this->model = $model;
     }
 
-
-
     public function headers(Request $request, $id)
     {
         $this->model = ReviewHeader::where('is_active',1)->where('collaborate_id',$id)->orderBy('id')->get();
 
         return $this->sendResponse();
+    }
+
+    public function reportHeader(Request $request,$collaborateId,$batchId)
+    {
+        $this->model = $this->getHeaderRating($collaborateId,$batchId);
+        return $this->sendResponse();
+    }
+
+    private function getHeaderRating($collaborateId,$batchId)
+    {
+        $headers = ReviewHeader::where('collaborate_id',$collaborateId)->skip(1)->take(10)->get();
+//        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->get();
+
+        $headerRating = [];
+        foreach ($headers as $header)
+        {
+            $userCount = 0;
+            $headerRatingSum = 0;
+            $question = Questions::where('header_type_id',$header->id)->where('questions->select_type',5)->first();
+            $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->where('question_id',$question->id)->get();
+            foreach ($overallPreferances as $overallPreferance)
+            {
+                if($overallPreferance->tasting_header_id == $header->id)
+                {
+                    $headerRatingSum += $overallPreferance->leaf_id;
+                    $userCount++;
+                }
+            }
+            $headerRating[] = ['header_info'=>$header,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$question)];
+        }
+
+        return $headerRating;
+    }
+
+    protected function getRatingMeta($userCount,$headerRatingSum,$question)
+    {
+        $meta = [];
+        $question = json_decode($question->questions);
+        $option = isset($question->option) ? $question->option : [];
+        $meta['max_rating'] = count($option);
+        $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
+        $meta['count'] = $userCount;
+        $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
+        return $meta;
+    }
+
+    protected function getColorCode($value)
+    {
+        if($value == 0 || is_null($value))
+            return null;
+        switch ($value) {
+            case 1:
+                return '#8C0008';
+                break;
+            case 2:
+                return '#D0021B';
+                break;
+            case 3:
+                return '#C92E41';
+                break;
+            case 4:
+                return '#E27616';
+                break;
+            case 5:
+                return '#AC9000';
+                break;
+            case 6:
+                return '#7E9B42';
+                break;
+            case 7:
+                return '#577B33';
+                break;
+            default:
+                return '#305D03';
+        }
     }
 
     public function reviewQuestions(Request $request, $collaborateId, $id)
