@@ -373,6 +373,11 @@ class ApplicantController extends Controller
         $address = json_decode($applierAddress,true);
         $city = $address['city'];
         $profile = Profile::where('id',$loggedInProfileId)->first();
+        if(!isset($profile->ageRange) || is_null($profile->ageRange) || !isset($profile->gender) || is_null($profile->gender))
+        {
+            $this->model = null;
+            return $this->sendError("Please fill mandatory feild.");
+        }
         $now = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('collaborate_applicants')->where('collaborate_id',$id)
             ->where('profile_id',$loggedInProfileId)->update(['shortlisted_at'=>$now,'rejected_at'=>null,'message'=>$request->input('message'),
