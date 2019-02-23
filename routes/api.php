@@ -318,10 +318,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");
                 Route::get("batches/{id}/reportPdf","BatchController@reportPdf");
                 Route::get("reportSummary","BatchController@reportSummary");
+                Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
+                Route::get("getHeaderWeight","BatchController@getHeaderWeight");
+                Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");
 
-                    //filter for dashboard of product review
+
+                //filter for dashboard of product review
                 Route::get("dashboard/filters","BatchController@filters");
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
