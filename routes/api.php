@@ -169,6 +169,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
 
+            // faq question answer api
+            Route::get('faqs','');
+
+
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
