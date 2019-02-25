@@ -557,14 +557,14 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 44;
+        $chefOfTheWeekProfileId = 357;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
         {
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
-            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Bill Marchetti started working at the tender age of 13 in a small family hotel in San Benedetto del Tronto on Italy’s Adriatic coast, he later on migrated to Australia and made his name as Specialist Italian Chef. He is a recipient of \"Insegna del Ristorante Italiano\", an international award given by the Italian Government to recognize true and authentic Italian Restaurants worldwide. Bill is known in India for his exemplary work at ITC Hotels and Spaghetti Kitchen; he is currently the culinary lead at Farm Land, one of India’s trendsetting charcuteries. Bill’s knowledge of meat is par excellence and he will soon be hosting classes for young chefs and students.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Kunwar Rani Kulsum Begum was born into The Royal Salar Jung Family of Hyderabad. She is a keeper of some treasured recipes which only a select few are privy to. It was only after getting married into the Nawab of Lucknow's family, that the Begum started appreciating the Hyderabadi way of cooking. The tried and tested dishes of the Salar Jung family soon became a rage in Lucknow. Soon thereafter ITC Hotels provided her with an opportunity to roll out the best of Hyderabadi cuisine across their hotels. She is by far the best living Chef of Hyderabadi Cuisine in the world and is now an independent culinary thought-leader and would love to guide the TagTaste community.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
         }
 
