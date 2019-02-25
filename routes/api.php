@@ -170,8 +170,10 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             // faq question answer api
-            Route::get('faqs','');
-
+            Route::get('categoriesQuestionAnswer','FaqsController@categoriesQuestionAnswer');
+            Route::get('allCategories','FaqsController@allCategories');
+            Route::post('storeCategories','FaqsController@storeCategories');
+            Route::resource('faqs','FaqsController');
 
 
             //chat

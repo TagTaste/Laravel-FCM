@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Faqs;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class FaqsController extends Controller
@@ -85,6 +86,17 @@ class FaqsController extends Controller
     public function allCategories()
     {
         $this->model = \DB::table('faq_categories')->get();
+        return $this->sendResponse();
+    }
+
+    public function storeCategories(Request $request)
+    {
+        $inputs = [];
+        $inputs['name'] = $request->input('name');
+        $inputs['description'] = $request->input('description');
+        $inputs['created_at'] = Carbon::now()->toDateTimeString();
+        $inputs['updated_at'] = Carbon::now()->toDateTimeString();
+        $this->model = \DB::table('faq_categories')->input($inputs);
         return $this->sendResponse();
     }
 }
