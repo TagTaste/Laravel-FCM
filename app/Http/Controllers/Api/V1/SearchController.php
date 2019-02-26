@@ -557,14 +557,14 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 357;
+        $chefOfTheWeekProfileId = 4728;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
         {
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
-            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Kunwar Rani Kulsum Begum was born into The Royal Salar Jung Family of Hyderabad. She is a keeper of some treasured recipes which only a select few are privy to. It was only after getting married into the Nawab of Lucknow's family, that the Begum started appreciating the Hyderabadi way of cooking. The tried and tested dishes of the Salar Jung family soon became a rage in Lucknow. Soon thereafter ITC Hotels provided her with an opportunity to roll out the best of Hyderabadi cuisine across their hotels. She is by far the best living Chef of Hyderabadi Cuisine in the world and is now an independent culinary thought-leader and would love to guide the TagTaste community.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Dr. Binod K Maitin is one of India’s most respected beverage experts. He retired from United Spirits (Diageo) in 2013 as Chief Technology Officer and Member of their Management Committee. He is a Ph.D. in Analytical Chemistry from the Queen’s University of Belfast, UK. Dr. Maitin’s experience in beverage sensory science is globally rated as par excellence. He is currently an independent consultant, committed to supporting emerging entrepreneurs. TagTaste is proud to have him as our partner and mentor; he will be hosting a sensory workshop at ICF’s upcoming summit in Delhi NCR on the 18th of March.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
         }
 
