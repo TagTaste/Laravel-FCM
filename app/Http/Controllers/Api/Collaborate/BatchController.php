@@ -607,7 +607,7 @@ class BatchController extends Controller
             }
         }
         $meta = $this->getRatingMeta($userCount,$headerRatingSum,$question);
-        $this->model = ['header_report'=>$model,'header_meta'=>$meta];
+        $this->model = ['report'=>$model,'meta'=>$meta];
 
         return $this->sendResponse();
     }
