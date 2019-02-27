@@ -766,6 +766,7 @@ class BatchController extends Controller
             $data = ['gender'=>$gender,'age'=>$age,'city'=>$city];
         }
         $this->model = $data;
+        return $this->sendResponse();
     }
 
     public function comments(Request $request, $collaborateId, $batchId, $headerId, $questionId)
