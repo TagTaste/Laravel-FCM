@@ -327,6 +327,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                 //filter for dashboard of product review
                 Route::get("dashboard/filters","BatchController@filters");
+                Route::get("dashboard/report/filters","BatchController@reportFilters");
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
 
