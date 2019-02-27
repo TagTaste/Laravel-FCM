@@ -597,7 +597,7 @@ class BatchController extends Controller
         $userCount = 0;
         $headerRatingSum = 0;
         $question = Collaborate\Questions::where('header_type_id',$headerId)->where('questions->select_type',5)->first();
-        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->where('question_id',            $question->id)->get();
+        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->where('question_id',$question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
         foreach ($overallPreferances as $overallPreferance)
         {
             if($overallPreferance->tasting_header_id == $headerId)
