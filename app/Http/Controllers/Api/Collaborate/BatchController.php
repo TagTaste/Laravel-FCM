@@ -594,7 +594,20 @@ class BatchController extends Controller
                 $model[] = $reports;
             }
         }
-        $this->model = $model;
+        $userCount = 0;
+        $headerRatingSum = 0;
+        $question = Collaborate\Questions::where('header_type_id',$headerId)->where('questions->select_type',5)->first();
+        $overallPreferances = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('current_status',3)->where('question_id',$question->id)->whereIn('profile_id', $profileIds, $boolean, $type)->get();
+        foreach ($overallPreferances as $overallPreferance)
+        {
+            if($overallPreferance->tasting_header_id == $headerId)
+            {
+                $headerRatingSum += $overallPreferance->leaf_id;
+                $userCount++;
+            }
+        }
+        $meta = $this->getRatingMeta($userCount,$headerRatingSum,$question);
+        $this->model = ['report'=>$model,'meta'=>$meta];
 
         return $this->sendResponse();
     }
@@ -714,6 +727,46 @@ class BatchController extends Controller
 
         return $this->sendResponse();
 
+    }
+
+    public function reportFilters(Request $request, $collaborateId)
+    {
+        $filters = $request->input('filter');
+
+        $gender = ['Male','Female','Other'];
+        $age = ['< 18','18 - 35','35 - 55','55 - 70','> 70'];
+        $currentStatus = [0,1,2,3];
+        $applicants = \DB::table('collaborate_applicants')->where('collaborate_id',$collaborateId)->get();
+        $city = [];
+        foreach ($applicants as $applicant)
+        {
+            if(isset($applicant->city))
+            {
+                if(!in_array($applicant->city,$city))
+                    $city[] = $applicant->city;
+            }
+        }
+        $data = [];
+        if(count($filters))
+        {
+            foreach ($filters as $filter)
+            {
+                if($filter == 'gender')
+                    $data['gender'] = $gender;
+                if($filter == 'age')
+                    $data['age'] = $age;
+                if($filter == 'city')
+                    $data['city'] = $city;
+                if($filter == 'current_status')
+                    $data['current_status'] = $currentStatus;
+            }
+        }
+        else
+        {
+            $data = ['gender'=>$gender,'age'=>$age,'city'=>$city];
+        }
+        $this->model = $data;
+        return $this->sendResponse();
     }
 
     public function comments(Request $request, $collaborateId, $batchId, $headerId, $questionId)
@@ -1551,7 +1604,7 @@ class BatchController extends Controller
             ->where('collaborate_id',$collaborateId)->whereIn('profile_id', $profileIds, $boolean, $type)->whereIn('question_id',$questionIds)
             ->orderBy('tasting_header_id','ASC')->orderBy('batch_id','ASC')->orderBy('leaf_id','ASC')->groupBy('tasting_header_id','question_id','leaf_id','value','batch_id')->get();
 
-        $batches = \DB::table('collaborate_batches')->where('collaborate_id',$collaborateId)->orderBy('id')->get();
+        $batches = Collaborate\Batches::where('collaborate_id',$collaborateId)->orderBy('id')->get();
 
         $model = [];
         $headers = Collaborate\ReviewHeader::where('collaborate_id',$collaborateId)->get();
@@ -1634,6 +1687,49 @@ class BatchController extends Controller
         $this->model = \DB::table('collaborate_report_weight_assign')->where('collaborate_id',$collaborateId)->first();
         $this->model->header_weight = json_decode($this->model->header_weight,true);
         return $this->sendResponse();
+    }
+
+    protected function getRatingMeta($userCount,$headerRatingSum,$question)
+    {
+        $meta = [];
+        $question = json_decode($question->questions);
+        $option = isset($question->option) ? $question->option : [];
+        $meta['max_rating'] = count($option);
+        $meta['overall_rating'] = $userCount > 0 ? $headerRatingSum/$userCount : 0.00;
+        $meta['count'] = $userCount;
+        $meta['color_code'] = $this->getColorCode(floor($meta['overall_rating']));
+        return $meta;
+    }
+
+    protected function getColorCode($value)
+    {
+        if($value == 0 || is_null($value))
+            return null;
+        switch ($value) {
+            case 1:
+                return '#8C0008';
+                break;
+            case 2:
+                return '#D0021B';
+                break;
+            case 3:
+                return '#C92E41';
+                break;
+            case 4:
+                return '#E27616';
+                break;
+            case 5:
+                return '#AC9000';
+                break;
+            case 6:
+                return '#7E9B42';
+                break;
+            case 7:
+                return '#577B33';
+                break;
+            default:
+                return '#305D03';
+        }
     }
 
 }

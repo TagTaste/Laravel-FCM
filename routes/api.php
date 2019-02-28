@@ -327,6 +327,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
                 //filter for dashboard of product review
                 Route::get("dashboard/filters","BatchController@filters");
+                Route::get("dashboard/report/filters","BatchController@reportFilters");
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
 
@@ -341,6 +342,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
+                Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");
                 Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
