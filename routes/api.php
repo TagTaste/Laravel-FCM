@@ -342,6 +342,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
+                Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");
                 Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
