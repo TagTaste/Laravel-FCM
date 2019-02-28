@@ -615,6 +615,17 @@ class SearchController extends Controller
         /* ui type = 2 is end */
 
 
+        /* ui type = 7 is start */
+
+        $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $model[] = ['title'=>'Collaborations','subtitle'=>'Interesting opportunities for you','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+        /* ui type = 7 is end */
+
+
         /* ui type = 3 is start */
 
 
@@ -701,16 +712,6 @@ class SearchController extends Controller
         /* ui type = 6 is end */
 
 
-
-        /* ui type = 7 is start */
-
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations','subtitle'=>'Interesting opportunities for you','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
-
-
-        /* ui type = 7 is end */
 
 
         /* ui type = 8 is start */
