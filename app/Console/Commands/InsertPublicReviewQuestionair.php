@@ -38,10 +38,11 @@ class InsertPublicReviewQuestionair extends Command
      */
     public function handle()
     {
-        $headerInfo2 = [
+        $headerInfo2 = $headerInfo2 = [
+
+
 
             ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>"0"],
-
 
             ['header_name' => "Your Food Shot", 'header_selection_type' => "3"],
 
@@ -49,24 +50,40 @@ class InsertPublicReviewQuestionair extends Command
             ['header_name'=>"APPEARANCE","header_info"=> ["text" => "Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are only assessing the aromas (odors through the nose), so please don't drink it yet. Now bring the product closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"TASTE","header_info"=> ["text" => "Slurp noisily and assess the tastes.\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."] ,'header_selection_type'=>"1"],
+            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Slurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product comes in contact with the mouth and it may even last after the product has been swallowed. Texture (mouthfeel) is all about the joy we get from what we drink."],'header_selection_type'=>"1"],
+            ['header_name'=>"TASTE","header_info"=> ["text" => "Take a bite and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Acidity, Aftertaste, Flavor and Body; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
+
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Chew the product multiple times with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
-];
+
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+
+
+
+
+
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
+
+
+
+        ];
 
         $questions2 = '{
+
+
+
+
+
+
 	"INSTRUCTIONS": [
 
 
@@ -75,21 +92,24 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "INSTRUCTION",
+			"title": "Instruction",
 
 
-			"subtitle": "Welcome to the Product Review!\n\nIf a product involves stirring, shaking etc. (like cold coffee) then the taster must follow the instructions fully, as mentioned on the packaging. To review, follow the questionnaire and select the answers that match with your observations. Please note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+
+			"subtitle": "Welcome to the Product Review!\n\nTo review, follow the questionnaire and select the answers that match with your observations. Please note that you are reviewing the product and NOT the package. Please click (i) on every screen/page for guidance related to questions.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+
 
 
 			"select_type": 4
+
 
 
 		}
 
 
 
-
 	],
+
 
 
 	"Your Food Shot": [
@@ -113,8 +133,12 @@ class InsertPublicReviewQuestionair extends Command
 	],
 
 
-	"APPEARANCE": [
 
+
+
+
+
+	"APPEARANCE": [
 
 
 
@@ -122,16 +146,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"title": "What is the serving temperature of the product?",
 
-
-			"subtitle": "You may also take a sip to assess the serving temperature.",
-
+			"subtitle": "You may also touch to assess the serving temperature.",
 
 
 			"select_type": 1,
-
 
 
 
@@ -139,9 +159,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_nested_question": 0,
-
 
 
 
@@ -153,7 +171,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
+
 				{
+
+
+
 
 
 
@@ -169,8 +194,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-				{
 
+				{
 
 
 
@@ -182,11 +207,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
+
 				},
 
 
-				{
 
+				{
 
 
 
@@ -201,12 +230,12 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
+
 				{
 
 
 
-
-					"value": "Room Temperature",
+					"value": "Room temperature",
 
 
 
@@ -215,7 +244,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
 
 
 				{
@@ -230,10 +258,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 				},
-
-
 
 				{
 
@@ -250,11 +275,12 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
+
 				{
 
 
 
-					"value": "Steaming Hot",
+					"value": "Steaming hot",
 
 
 
@@ -266,26 +292,22 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			]
-
 
 
 
 		},
 
-
 		{
 
 
 
+			"title": "A good burger generally is a stack of multiple parts laid out in the following sequence. Has this sequence been followed in your burger?",
 
-			"title": "How is the visual impression (color and hue) of the product?",
+			"subtitle": "Bun (toasted), Condiments (Mustard or Ketchup), Pickle, Patty, Cheese (melting), Tomato, Lettuce, Sliced Onion, Condiments (Mayo), Top Bun (toasted)",
 
 
-
-			"select_type": 2,
-
+			"select_type": 1,
 
 
 
@@ -293,9 +315,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_nested_question": 0,
-
 
 
 
@@ -307,20 +327,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-				{
 
 
-
-
-					"value": "Dull",
-
-
-
-					"is_intensity": 0
-
-
-
-				},
 
 
 				{
@@ -328,23 +336,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Bright",
 
 
 
-					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Light",
+					"value": "Yes",
 
 
 
@@ -360,39 +355,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Dark",
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Artificial",
-
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-
-					"value": "Natural",
+					"value": "No",
 
 
 
@@ -404,27 +367,20 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			]
-
 
 
 
 		},
 
-
 		{
 
 
 
-
-			"title": "How is the visual texture of the product?",
-
-
+			"title": "Select options that are relevant for your burger.",
 
 
 			"select_type": 2,
-
 
 
 
@@ -432,14 +388,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_nested_question": 0,
 
 
 
-
 			"is_mandatory": 1,
-
 
 
 
@@ -448,12 +401,18 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
 
 
 
 
-					"value": "Silky",
+
+
+
+					"value": "Silghtly toasted bun",
 
 
 
@@ -469,24 +428,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Frothy",
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Bubbly",
+					"value": "Crispy pickle",
 
 
 
@@ -496,14 +438,15 @@ class InsertPublicReviewQuestionair extends Command
 
 				},
 
-
-
 				{
 
 
 
 
-					"value": "Sediments",
+
+
+
+					"value": "Loosely packed & juicy patty",
 
 
 
@@ -519,12 +462,153 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Syrupy",
+					"value": "Crispy patty",
 
 
 
 					"is_intensity": 0
 
+
+
+				},
+
+				{
+
+
+
+					"value": "Cheese with melting edges",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Fresh tomatoes",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Fresh lettuce",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Crispy looking onion",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Appetizing mayo / sauce",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "None of the above",
+
+
+
+					"is_intensity": 0
+
+
+
+				}
+
+
+			]
+
+
+
+		},
+
+		{
+
+
+
+			"title": "How joyful is your experience of holding (tactile senses) the burger?",
+
+			"subtitle": "Hold a burger with both your hands.",
+
+
+			"select_type": 1,
+
+
+
+			"is_intensity": 0,
+
+
+
+			"is_nested_question": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
+			"option": [
+
+
+
+
+
+
+
+				{
+
+
+
+
+
+
+
+					"value": "Messy but fun",
+
+
+
+					"is_intensity": 0
 
 
 
@@ -536,7 +620,25 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Water Separated",
+					"value": "Messy without fun",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+
+
+
+
+					"value": "Clean and boring",
 
 
 
@@ -552,41 +654,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
-					"value": "Weak",
-
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Strong",
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Light",
+					"value": "Clean and fun",
 
 
 
@@ -606,7 +674,155 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 		{
+
+
+
+			"title": "While holding the burger, what do you observe?",
+
+			"subtitle": "If you select \"Any other\" then please mention it in the comment box at the end of the questionnaire.",
+
+
+			"select_type": 2,
+
+
+
+			"is_intensity": 0,
+
+
+
+			"is_nested_question": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
+			"option": [
+
+
+
+
+
+
+
+				{
+
+
+
+
+
+
+
+					"value": "Everything is fine",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+
+				{
+
+
+
+					"value": "Toppings slipping out",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+
+
+
+
+					"value": "Cheese dripping",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+
+				{
+
+
+
+					"value": "Soggy bun",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Crumbling bun",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+
+
+
+
+					"value": "Any other",
+
+
+
+					"is_intensity": 0
+
+
+
+				}
+
+
+
+			]
+
+
+
+		},
+
+
+
+
+		{
+
+
+
 
 
 
@@ -616,7 +832,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"select_type": 5,
+
+
+
 
 
 
@@ -626,12 +848,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
 
 
 
 
+
+
+
 			"is_mandatory": 1,
+
+
+
 
 
 
@@ -641,7 +872,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -651,7 +888,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#8C0008"
+
+
+
 
 
 
@@ -661,6 +904,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -670,7 +916,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -680,6 +932,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -689,7 +944,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -699,7 +960,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -709,7 +976,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#E27616"
+
+
+
 
 
 
@@ -719,7 +992,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -729,7 +1008,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#AC9000"
+
+
+
 
 
 
@@ -739,7 +1024,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -749,7 +1040,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#7E9B42"
+
+
+
 
 
 
@@ -759,7 +1056,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -769,7 +1072,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#305D03"
+
+
+
 
 
 
@@ -779,7 +1088,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			]
+
+
+
 
 
 
@@ -789,7 +1104,16 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
 	],
+
+
+
+
+
+
+
 
 
 
@@ -798,19 +1122,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		{
 
 
 
-
-			"title": "What all aromas did you observe?",
-
+			"title": "What all aromas have you sensed?",
 
 
 
-			"subtitle": "Directly use the search box to select the aromatics that you have observed or follow the category based aromatics list. In case you can\'t find the observed aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\".",
-
+			"subtitle": "Directly use the search box to select the aromas that you have observed or follow the category based aroma list. In case you can\'t find the observed aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
 
 
 
@@ -818,9 +1138,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_intensity": 1,
-
 
 
 
@@ -828,9 +1146,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
-
 
 
 
@@ -838,9 +1154,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_mandatory": 1,
-
 
 
 
@@ -848,14 +1162,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
-			"nested_option_list": "AROMA",
-
+			"nested_option_title": "AROMAS",
 
 
 
-
-			"nested_option_title": "AROMAS"
+			"nested_option_list": "AROMA"
 
 
 
@@ -863,8 +1174,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		{
+
+
+
 
 
 
@@ -874,7 +1187,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"select_type": 5,
+
+
+
 
 
 
@@ -884,7 +1203,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
+
+
+
 
 
 
@@ -894,12 +1219,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"option": [
 
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -909,7 +1243,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#8C0008"
+
+
+
 
 
 
@@ -919,6 +1259,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -928,7 +1271,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -938,6 +1287,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -947,7 +1299,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -957,7 +1315,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -967,7 +1331,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#E27616"
+
+
+
 
 
 
@@ -977,7 +1347,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -987,7 +1363,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#AC9000"
+
+
+
 
 
 
@@ -997,7 +1379,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1007,7 +1395,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#7E9B42"
+
+
+
 
 
 
@@ -1017,7 +1411,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1027,7 +1427,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#305D03"
+
+
+
 
 
 
@@ -1037,7 +1443,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			]
+
+
+
 
 
 
@@ -1046,8 +1458,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 	],
+
+
+
 
 
 
@@ -1056,9 +1470,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		{
-
 
 
 
@@ -1091,7 +1503,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1133,8 +1551,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
 
 
 				},
@@ -1186,6 +1602,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				},
 
 
@@ -1211,6 +1630,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				},
 
 
@@ -1227,10 +1649,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 				}
-
-
 
 
 
@@ -1241,9 +1660,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		},
-
 
 
 
@@ -1251,8 +1668,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Which Ayurvedic tastes have you sensed?",
 
+
+
+
+			"title": "Which Ayurvedic tastes have you sensed?",
 
 
 
@@ -1269,7 +1689,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
+
+
+
 
 
 
@@ -1279,7 +1705,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"option": [
+
+
+
 
 
 
@@ -1329,6 +1761,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				},
 
 
@@ -1350,6 +1785,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"intensity_value": "Barely Detectable, Weak, Mild, Moderate, Intense, Very Intense, Extremely Intense"
+
+
+
 
 
 
@@ -1403,129 +1841,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			]
-
-
-
-
-		},
-
-		{
-
-
-
-			"title": "How acidic is the coffee?",
-
-			"subtitle": "Coffee without acids is \"flat\" and with acids can be \"bright with a pop\" or undesirably \"sour\".",
-
-
-
-			"select_type": 1,
-
-
-
-			"is_intensity": 0,
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_nested_option": 0,
-
-
-
-
-			"option": [
-
-
-
-
-				{
-
-
-
-					"value": "Bright",
-
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Winey",
-
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Lime (Sour)",
-
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Fermented",
-
-
-
-					"is_intensity": 0
-
-
-
-				},
-
-
-
-				{
-
-
-
-					"value": "Flat",
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
 
 
 
@@ -1533,11 +1848,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		},
 
 
+
 		{
+
+
+
 
 
 
@@ -1547,7 +1865,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"select_type": 5,
+
+
+
 
 
 
@@ -1557,12 +1881,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
 
 
 
 
+
+
+
 			"is_mandatory": 1,
+
+
+
 
 
 
@@ -1572,7 +1905,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1582,7 +1921,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#8C0008"
+
+
+
 
 
 
@@ -1592,6 +1937,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -1601,7 +1949,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -1611,6 +1965,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -1620,7 +1977,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -1630,7 +1993,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1640,7 +2009,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#E27616"
+
+
+
 
 
 
@@ -1650,7 +2025,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1660,7 +2041,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#AC9000"
+
+
+
 
 
 
@@ -1670,7 +2057,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1680,7 +2073,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#7E9B42"
+
+
+
 
 
 
@@ -1690,7 +2089,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -1700,7 +2105,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#305D03"
+
+
+
 
 
 
@@ -1710,7 +2121,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			]
+
+
+
 
 
 
@@ -1718,10 +2135,7 @@ class InsertPublicReviewQuestionair extends Command
 		}
 
 
-
-
 	],
-
 
 
 
@@ -1729,14 +2143,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		{
 
 
 
-
-			"title": "What all aromatics did you observe?",
-
+			"title": "What all aromatics have you sensed?",
 
 
 
@@ -1744,9 +2155,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"select_type": 2,
-
 
 
 
@@ -1754,14 +2163,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"intensity_type": 2,
 
 
 
-
-			"intensity_value": "Barely Detectable, Weak, Mild, Moderate, Intense, Very Intense, Extremely Intense",
-
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
 
 
@@ -1769,9 +2175,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_mandatory": 1,
-
 
 
 
@@ -1782,14 +2186,12 @@ class InsertPublicReviewQuestionair extends Command
 			"nested_option_title": "AROMATICS",
 
 
+
 			"nested_option_list": "AROMA"
 
 
 
-
 		},
-
-
 
 
 		{
@@ -1797,8 +2199,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Ingest the product. How is the aftertaste?",
 
+
+
+			"title": "Swallow the product. How is the aftertaste?",
 
 
 
@@ -1806,8 +2210,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_intensity": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
 
 
 
@@ -1817,12 +2227,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"is_mandatory": 1,
+
+
+
+			"is_nested_option": 0,
+
+
+
 
 
 
 
 			"option": [
+
+
+
 
 
 
@@ -1836,7 +2255,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 0
-
 
 
 
@@ -1855,7 +2273,6 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-
 				},
 
 
@@ -1864,7 +2281,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Can\'t Say",
+					"value": "Can\'t say",
 
 
 
@@ -1873,7 +2290,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
-
 
 
 
@@ -1888,8 +2304,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "What is the length of the aftertaste?",
 
+
+
+			"title": "What is the length of the aftertaste?",
 
 
 
@@ -1897,8 +2315,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_intensity": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
 
 
 
@@ -1908,12 +2332,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"is_mandatory": 1,
+
+
+
+			"is_nested_option": 0,
+
+
+
 
 
 
 
 			"option": [
+
+
+
 
 
 
@@ -1930,7 +2363,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 				},
 
 
@@ -1944,7 +2376,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 0
-
 
 
 				},
@@ -1981,37 +2412,39 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			]
 
 
 
 		},
 
-
-
 		{
 
 
 
 
-			"title": "How is the flavor experience?",
 
 
 
-			"subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+			"title": "Which components of the burger are contributing more towards making the flavor experience better?",
 
 
 
+			"subtitle": "Please mark maximum of three top components.",
 
 
-
-			"select_type": 1,
-
+			"select_type": 2,
 
 
 
 			"is_intensity": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
 
 
 
@@ -2021,7 +2454,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"is_mandatory": 1,
+
+
+
+			"is_nested_option": 0,
+
+
+
 
 
 
@@ -2031,20 +2470,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-				{
-
-
-
-					"value": "Natural & pleasant",
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
 
 
 
@@ -2052,7 +2477,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Natural but unpleasant",
+					"value": "Bun",
 
 
 
@@ -2068,12 +2493,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Artificial but pleasant",
+					"value": "Pickle",
 
 
 
 					"is_intensity": 0
-
 
 
 				},
@@ -2084,7 +2508,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Artificial & unpleasant",
+					"value": "Patty",
 
 
 
@@ -2092,16 +2516,97 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 				},
-
-
 
 				{
 
 
 
-					"value": "Bland",
+					"value": "Cheese",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Tomato",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Lettuce",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Onion",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Condiments",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Any other",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "None",
 
 
 
@@ -2113,7 +2618,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			]
 
 
@@ -2125,15 +2629,22 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "How would you express your coffee experience?",
 
 
-			"select_type": 1,
 
+			"title": "Which components of the burger are clashing to the overall flavor of the burger?",
+
+
+
+			"select_type": 2,
 
 
 
 			"is_intensity": 0,
+
+
+
+			"is_mandatory": 0,
 
 
 
@@ -2143,7 +2654,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"is_mandatory": 1,
+
+
+
+			"is_nested_option": 0,
+
+
+
 
 
 
@@ -2153,20 +2670,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-				{
-
-
-
-					"value": "Enjoyably Bitter",
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
 
 
 
@@ -2174,7 +2677,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Sharp (High kick)",
+					"value": "Bun",
 
 
 
@@ -2190,12 +2693,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Bright (Medium kick)",
+					"value": "Pickle",
 
 
 
 					"is_intensity": 0
-
 
 
 				},
@@ -2206,7 +2708,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Mellow (Low kick)",
+					"value": "Patty",
 
 
 
@@ -2214,16 +2716,69 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 				},
-
-
 
 				{
 
 
 
-					"value": "Milky",
+					"value": "Cheese",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Tomato",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Lettuce",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Onion",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Condiments",
 
 
 
@@ -2248,6 +2803,7 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
+
 			]
 
 
@@ -2255,7 +2811,12 @@ class InsertPublicReviewQuestionair extends Command
 		},
 
 
+
+
 		{
+
+
+
 
 
 
@@ -2264,8 +2825,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"select_type": 5,
+
+
+
 
 
 
@@ -2275,7 +2838,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
+
+
+
 
 
 
@@ -2285,12 +2854,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"option": [
 
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2300,7 +2878,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#8C0008"
+
+
+
 
 
 
@@ -2310,6 +2894,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -2319,7 +2906,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -2329,6 +2922,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -2338,7 +2934,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -2348,7 +2950,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2358,7 +2966,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#E27616"
+
+
+
 
 
 
@@ -2368,7 +2982,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2378,7 +2998,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#AC9000"
+
+
+
 
 
 
@@ -2388,7 +3014,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2398,7 +3030,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#7E9B42"
+
+
+
 
 
 
@@ -2408,7 +3046,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2418,7 +3062,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#305D03"
+
+
+
 
 
 
@@ -2428,7 +3078,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			]
+
+
+
 
 
 
@@ -2437,8 +3093,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 	],
+
+
+
 
 
 
@@ -2446,27 +3104,108 @@ class InsertPublicReviewQuestionair extends Command
 	"TEXTURE": [
 
 
+		{
+
+			"title": "Take a single bite (with all the components of the burger) and pause. Which prominent sound do you hear?",
+
+			"subtitle": "Crispy: One sharp, clean, fast, and high pitched sound. Ex. Chips.\nCrunchy: Multiple low pitched crushing sounds perceived as a series of small events. Ex. Rusks.\nCrackly: One sudden low pitched sound that brittles the product. Ex. Puffed rice.",
+
+			"select_type": 1,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"is_intensity": 0,
+
+			"option": [
+
+
+
+				{
+
+					"value": "Crispy",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+				{
+
+					"value": "Crunchy",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+				{
+
+					"value": "Crackly",
+
+					"is_intensity": 1,
+
+					"intensity_type": 2,
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+				{
+
+					"value": "No Sound",
+
+					"is_intensity": 0
+
+
+
+				}
+
+
+
+			]
+
+		},
+
 
 
 		{
 
 
 
+			"title": "Which components in your burger are fresh?",
 
-			"title": "How is the mouthfeel of the product?",
-
+			"subtitle": "Sound is an evidence of freshness. Relate frehsness to the sound made by the components present in your burger. If you select \'Any other\', then please mention it in Comment Box.",
 
 
 			"select_type": 2,
 
 
 
+			"is_intensity": 0,
+
+
 
 			"is_nested_question": 0,
-
-
-
-			"is_intensity": 0,
 
 
 
@@ -2479,11 +3218,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
 
 
 
-					"value": "Refreshing",
+					"value": "Crispy Pickle",
 
 
 
@@ -2503,12 +3245,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Smooth",
+					"value": "Crunchy Patty",
 
 
 
 					"is_intensity": 0
-
 
 
 
@@ -2520,12 +3261,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Foamy",
+					"value": "Crispy Lettuce",
 
 
 
 					"is_intensity": 0
-
 
 
 
@@ -2537,12 +3277,25 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Chunky (Add ons)",
+					"value": "Crispy Onion",
 
 
 
 					"is_intensity": 0
 
+
+
+				},
+
+				{
+
+
+
+					"value": "Crispy Wafer",
+
+
+
+					"is_intensity": 0
 
 
 
@@ -2560,6 +3313,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+				},
+
+
+
+				{
+
+
+
+					"value": "None",
+
+
+
+					"is_intensity": 0
+
+
 
 				}
 
@@ -2569,20 +3337,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		},
-
-
-
 
 		{
 
 
 
-
-			"title": "How would you describe body and smoothness of the coffee?",
-
-			"subtitle": "Body refers to the heaviness of texture of the brewed coffee.\nSmoothness is the result of levels of fat suspended in the coffee.",
+			"title": "How much force is needed to bite through the entire burger (top to bottom)?",
 
 
 
@@ -2590,14 +3351,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_intensity": 0,
 
 
 
-
 			"is_nested_question": 0,
-
 
 
 
@@ -2610,16 +3368,87 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
 
 
 
-					"value": "Water",
+					"value": "Normal Force",
 
 
 
 					"is_intensity": 0
 
+
+				},
+
+
+
+				{
+
+
+
+					"value": "Extra Force",
+
+
+
+
+
+					"is_intensity": 0
+
+				}
+
+
+
+			]
+
+
+
+		},
+
+		{
+
+
+
+			"title": "How does the Patty feel inside your mouth?",
+
+
+
+			"select_type": 1,
+
+
+
+			"is_intensity": 0,
+
+
+
+			"is_nested_question": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
+			"option": [
+
+
+
+
+
+
+
+				{
+
+
+
+					"value": "Oily",
+
+
+
+					"is_intensity": 0
 
 
 
@@ -2631,7 +3460,25 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Skim milk",
+					"value": "Juicy",
+
+
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Tender",
+
+
 
 
 
@@ -2647,12 +3494,27 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Syrup",
+					"value": "Loosely packed",
 
 
 
 					"is_intensity": 0
 
+
+
+				},
+
+				{
+
+
+
+					"value": "Dense",
+
+
+
+
+
+					"is_intensity": 0
 
 
 
@@ -2664,13 +3526,61 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Whole milk",
+					"value": "Dry (Saliva absored)",
 
 
 
 					"is_intensity": 0
 
 
+
+				}
+
+
+
+			]
+
+
+
+		},
+
+		{
+
+
+
+			"title": "Take a bite again of the entire burger. In your opnion, which of the following components are contributing prominently towards juiciness?",
+
+
+			"subtitle": " If you select \"Any other\", then please mention it in Comment Box.",
+
+			"select_type": 1,
+
+
+
+			"is_intensity": 0,
+
+
+
+			"is_nested_question": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
+			"option": [
+
+
+				{
+
+
+
+					"value": "Pickles",
+
+
+
+					"is_intensity": 0
 
 
 				},
@@ -2681,12 +3591,58 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Creamy",
+					"value": "Patty",
+
+
 
 
 
 					"is_intensity": 0
 
+
+
+				},
+
+				{
+
+
+
+					"value": "Cheese",
+
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+
+				{
+
+
+
+					"value": "Veggies",
+
+
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Condiments",
+
+
+
+					"is_intensity": 0
 
 
 				},
@@ -2701,30 +3657,41 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
 					"is_intensity": 0
 
+
+
+				},
+
+				{
+
+
+
+					"value": "Absence of juiciness",
+
+
+
+
+
+					"is_intensity": 0
 
 
 
 				}
 
-
 			]
-
 
 
 
 		},
 
-
-
 		{
 
 
 
-
-			"title": "Do you feel anything left inside the mouth after ingesting the product?",
-
+			"title": "Did you feel anything left inside the mouth after swallowing the product?",
 
 
 
@@ -2732,14 +3699,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_intensity": 0,
 
 
 
-
 			"is_nested_question": 0,
-
 
 
 
@@ -2751,17 +3715,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 				{
 
 
 
-					"value": "Yes",
+					"value": "Oily film",
 
 
 
 					"is_intensity": 0
-
 
 
 
@@ -2773,7 +3735,57 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "No",
+					"value": "Loose particles",
+
+
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Sticking on tooth",
+
+
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+				{
+
+
+
+					"value": "Chalky",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+
+				{
+
+
+
+					"value": "No residue",
+
+
 
 
 
@@ -2783,16 +3795,11 @@ class InsertPublicReviewQuestionair extends Command
 
 				}
 
-
-
 			]
 
 
 
-
 		},
-
-
 
 
 		{
@@ -2804,8 +3811,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"select_type": 5,
+
+
+
 
 
 
@@ -2815,7 +3824,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
+
+
+
 
 
 
@@ -2825,12 +3840,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"option": [
 
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2840,7 +3864,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#8C0008"
+
+
+
 
 
 
@@ -2850,6 +3880,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -2859,7 +3892,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -2869,6 +3908,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -2878,7 +3920,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -2888,7 +3936,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2898,7 +3952,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#E27616"
+
+
+
 
 
 
@@ -2908,7 +3968,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2918,7 +3984,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#AC9000"
+
+
+
 
 
 
@@ -2928,7 +4000,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2938,7 +4016,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#7E9B42"
+
+
+
 
 
 
@@ -2948,7 +4032,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -2958,7 +4048,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#305D03"
+
+
+
 
 
 
@@ -2968,7 +4064,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			]
+
+
+
 
 
 
@@ -2977,8 +4079,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 	],
+
+
+
+
+
+
+
 
 
 
@@ -2986,8 +4094,8 @@ class InsertPublicReviewQuestionair extends Command
 	"PRODUCT EXPERIENCE": [
 
 
-		{
 
+		{
 
 
 
@@ -2995,9 +4103,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"select_type": 1,
-
 
 
 
@@ -3005,9 +4111,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_nested_question": 0,
-
 
 
 
@@ -3016,6 +4120,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"option": [
+
+
+
 
 
 
@@ -3029,6 +4136,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 0
+
+
+
 
 
 
@@ -3052,17 +4162,19 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
-
 			]
-
 
 
 
 		},
 
 
-		{
 
+
+
+
+
+		{
 
 
 
@@ -3070,9 +4182,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"select_type": 2,
-
 
 
 
@@ -3080,9 +4190,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_nested_question": 0,
-
 
 
 
@@ -3095,15 +4203,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
 
 
 
-					"value": "Acidity",
+					"value": "Appearance",
 
 
 
 					"is_intensity": 0
+
+
+
 
 
 
@@ -3116,27 +4230,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Aftertaste",
+					"value": "Aroma",
 
 
 
 					"is_intensity": 0
-
-
-
-				},
-
-
-				{
-
-
-
-					"value": "Flavor",
-
-
-
-					"is_intensity": 0
-
 
 
 
@@ -3148,11 +4246,51 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Body",
+					"value": "Taste",
 
 
 
 					"is_intensity": 0
+
+
+
+
+
+
+
+				},
+
+
+
+				{
+
+
+
+					"value": "Aromatics to Flavors",
+
+
+
+					"is_intensity": 0
+
+
+
+				},
+
+
+
+				{
+
+
+
+					"value": "Texture",
+
+
+
+					"is_intensity": 0
+
+
+
+
 
 
 
@@ -3160,8 +4298,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			]
 
+
+
+
+			]
 
 
 
@@ -3174,12 +4315,17 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"title": "Overall product preference",
 
 
 
-
 			"select_type": 5,
+
+
+
 
 
 
@@ -3189,7 +4335,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"is_nested_question": 0,
+
+
+
 
 
 
@@ -3199,12 +4351,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			"option": [
 
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -3214,7 +4375,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#8C0008"
+
+
+
 
 
 
@@ -3224,6 +4391,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -3233,7 +4403,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -3243,6 +4419,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
+
+
+
 
 
 
@@ -3252,7 +4431,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#C92E41"
+
+
+
 
 
 
@@ -3262,7 +4447,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -3272,7 +4463,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#E27616"
+
+
+
 
 
 
@@ -3282,7 +4479,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -3292,7 +4495,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#AC9000"
+
+
+
 
 
 
@@ -3302,7 +4511,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -3312,7 +4527,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#7E9B42"
+
+
+
 
 
 
@@ -3322,7 +4543,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 				{
+
+
+
 
 
 
@@ -3332,7 +4559,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 					"color_code": "#305D03"
+
+
+
 
 
 
@@ -3342,7 +4575,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+
+
 			]
+
+
+
 
 
 
@@ -3351,15 +4590,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 		{
 
 
 
-
 			"title": "Comments",
-
-
 
 
 
@@ -3371,9 +4606,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_intensity": 0,
-
 
 
 
@@ -3381,9 +4614,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 			"is_nested_question": 0
-
 
 
 
@@ -3391,15 +4622,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
 	]
-
 
 
 
 }';
 
-        $data = ['name'=>'generic_coffee_v1','keywords'=>"generic_coffee_v1",'description'=>null,
+        $data = ['name'=>'generic_burger_v1','keywords'=>"generic_burger_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
