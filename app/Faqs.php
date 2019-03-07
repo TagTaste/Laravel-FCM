@@ -13,6 +13,8 @@ class Faqs extends Model
 
     protected $with = ['faq_category'];
 
+    protected $table = 'faqs_question_answer';
+
     public function faq_category()
     {
         return \DB::table('faq_categories')->where('id','faq_category_id')->first();
