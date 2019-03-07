@@ -96,7 +96,7 @@ class FaqsController extends Controller
         $inputs['description'] = $request->input('description');
         $inputs['created_at'] = Carbon::now()->toDateTimeString();
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
-        $this->model = \DB::table('faq_categories')->input($inputs);
+        $this->model = \DB::table('faq_categories')->insert($inputs);
         return $this->sendResponse();
     }
 }
