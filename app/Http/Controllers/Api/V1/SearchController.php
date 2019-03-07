@@ -1318,8 +1318,7 @@ class SearchController extends Controller
             /* ui type = 4 is start */
 
         $chefOfTheWeekCompanyData = \DB::table('constant_variable_model')->where('ui_type',4)->where('model_name','company')->where('is_active',1)->first();
-        $weekOfTheCompanyId = (int)$chefOfTheWeekCompanyData->model_id;
-        $weekOfTheCompanyId = isset($weekOfTheCompanyId) ? $weekOfTheCompanyId : 55;
+        $weekOfTheCompanyId = isset($chefOfTheWeekCompanyData->model_id) ? (int)$chefOfTheWeekCompanyData->model_id : 55;
         $weekOfTheCompany = Redis::get('company:small:' . $weekOfTheCompanyId);
         $data = json_decode($weekOfTheCompany);
         if(!is_null($data))
