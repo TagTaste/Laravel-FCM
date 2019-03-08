@@ -1221,7 +1221,7 @@ class SearchController extends Controller
             $subtitle = isset($chefOfTheWeekProfileData->data_json->subtitle) ? $chefOfTheWeekProfileData->data_json->subtitle : null ;
             $description = isset($chefOfTheWeekProfileData->data_json->description) ? $chefOfTheWeekProfileData->data_json->description : null ;
 
-            $model[] = ['title'=>$title, "subtitle"=>$subtitle,"description"=>$description, "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0,'order'=>$chefOfTheWeekProfileData->order];
+            $model[] = ['title'=>$title, "subtitle"=>$subtitle,"description"=>$description, "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
         }
 
@@ -1272,7 +1272,7 @@ class SearchController extends Controller
             $title = isset($recommendationProfileData->data_json->title) ? $recommendationProfileData->data_json->title : "Recommendations";
             $subtitle = isset($recommendationProfileData->data_json->subtitle) ? $recommendationProfileData->data_json->subtitle : null ;
             if(count($profileData))
-                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
             /* ui type = 2 is end */
 
@@ -1314,7 +1314,7 @@ class SearchController extends Controller
         $title = isset($chefOfTheWeekProfileData->data_json->title) ? $chefOfTheWeekProfileData->data_json->title : 'Active & Influential' ;
 
         if(count($profileData))
-            $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'profile','ui_type'=>3,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+            $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'profile','ui_type'=>3,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
 
 
             /* ui type = 3 is end */
@@ -1335,7 +1335,7 @@ class SearchController extends Controller
             $subtitle = isset($chefOfTheWeekCompanyData->data_json->subtitle) ? $chefOfTheWeekCompanyData->data_json->subtitle : null ;
             $description = isset($chefOfTheWeekCompanyData->data_json->description) ? $chefOfTheWeekCompanyData->data_json->description : null ;
             $data = [$data];
-            $model[] = ['title'=>$title, "subtitle"=>$subtitle,"description"=>$description, "type"=>"company","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0,'order'=>$chefOfTheWeekProfileData->order];
+            $model[] = ['title'=>$title, "subtitle"=>$subtitle,"description"=>$description, "type"=>"company","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
         }
 
             /* ui type = 4 is end */
@@ -1360,7 +1360,7 @@ class SearchController extends Controller
             }
             $title = isset($companiesToFollow->data_json->title) ? $companiesToFollow->data_json->title : "Companies to follow" ;
             if(count($companyData))
-                $model[] = ['title'=>$title,'type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                $model[] = ['title'=>$title,'type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
             /* ui type = 5 is end */
 
@@ -1369,7 +1369,7 @@ class SearchController extends Controller
 
 
         if(count($companyData))
-            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
             /* ui type = 6 is end */
@@ -1385,7 +1385,7 @@ class SearchController extends Controller
             $title = isset($collaborationData->data_json->title) ? $collaborationData->data_json->title : "Collaborations" ;
             $subtitle = isset($collaborationData->data_json->subtitle) ? $collaborationData->data_json->subtitle : null ;
             if(count($collaborations))
-                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
             /* ui type = 7 is end */
@@ -1401,7 +1401,7 @@ class SearchController extends Controller
             $title = isset($collaborationData->data_json->title) ? $collaborationData->data_json->title : "Collaborations" ;
             $subtitle = isset($collaborationData->data_json->subtitle) ? $collaborationData->data_json->subtitle : null ;
             if(count($collaborations))
-                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
             /* ui type = 8 is end */
@@ -1423,7 +1423,7 @@ class SearchController extends Controller
             $subtitle = isset($ProductData->data_json->subtitle) ? $ProductData->data_json->subtitle : null ;
             if(count($recommended))
                 $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$recommended,
-                'ui_type'=>9,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                'ui_type'=>9,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 
 
@@ -1439,7 +1439,7 @@ class SearchController extends Controller
             $title = isset($categoryData->data_json->title) ? $categoryData->data_json->title : 'Based on your Interest' ;
             $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
             $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$categories,
-            'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+            'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 
 
@@ -1461,7 +1461,7 @@ class SearchController extends Controller
             $subtitle = isset($ProductData->data_json->subtitle) ? $ProductData->data_json->subtitle : null ;
             if(count ($recently) != 0)
                 $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$recently,
-                'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 
             /* ui type = 11 is end */
@@ -1481,7 +1481,7 @@ class SearchController extends Controller
             $weekOfTheCategory = [];
             $weekOfTheCategory[] = ["Name"=>$title,"type"=>"category","description"=>null,"image"=>$image];
             $model[] = ['title'=>$title, "subtitle"=>null,"description"=>$description,
-                "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0,'order'=>$chefOfTheWeekProfileData->order];
+                "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
 
             /* ui type = 12 is end */
@@ -1499,7 +1499,7 @@ class SearchController extends Controller
             $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
             if($categories->count())
                 $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$categories,
-                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
 
 
@@ -1517,7 +1517,7 @@ class SearchController extends Controller
             $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
             if($recommended->count())
                 $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$recommended,
-                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1,'order'=>$chefOfTheWeekProfileData->order];
+                'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
 
             /* ui type = 14 is end */
@@ -1535,7 +1535,7 @@ class SearchController extends Controller
                 $specializationData->data_json = json_decode($specializationData->data_json);
             $title = isset($specializationData->data_json->title) ? $specializationData->data_json->title : "Explore by Specialization" ;
             if(count($specializations))
-                $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0,'order'=>$chefOfTheWeekProfileData->order];
+                $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
 
 
 
@@ -1551,7 +1551,7 @@ class SearchController extends Controller
                 $fbFriendData->data_json = json_decode($fbFriendData->data_json);
             $title = isset($fbFriendData->data_json->title) ? $fbFriendData->data_json->title : "See your facebook friend" ;
             if(count($profileData))
-            $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0,'order'=>$chefOfTheWeekProfileData->order];
+            $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
 
 
             /* ui type = 16 is end */
