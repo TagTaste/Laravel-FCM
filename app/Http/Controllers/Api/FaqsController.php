@@ -79,7 +79,11 @@ class FaqsController extends Controller
 
     public function categoriesQuestionAnswer(Request $request, $id)
     {
-        $this->model = $this->model->where('faq_category_id',$id)->get();
+        $checkExist = \DB::table('faq_categories')->where('id',$id)->first();
+        if ($checkExist){
+            $this->model = $this->model->where('faq_category_id',$id)->get();
+            return $this->sendResponse();
+        }
         return $this->sendResponse();
     }
 
