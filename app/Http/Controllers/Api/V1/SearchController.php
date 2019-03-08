@@ -557,14 +557,14 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 4728;
+        $chefOfTheWeekProfileId = 1009;
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
         {
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
-            $model[] = ['title'=>"Beverage expert of the week", "subtitle"=>null,"description"=>"Dr. Binod K Maitin is one of India’s most respected beverage experts. He retired from United Spirits (Diageo) in 2013 as Chief Technology Officer and Member of their Management Committee. He is a Ph.D. in Analytical Chemistry from the Queen’s University of Belfast, UK. Dr. Maitin’s experience in beverage sensory science is globally rated as par excellence. He is currently an independent consultant, committed to supporting emerging entrepreneurs. TagTaste is proud to have him as our partner and mentor; he will be hosting a sensory workshop at ICF’s upcoming summit in Delhi NCR on the 18th of March.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+            $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Chef Gunjan Goela is a celebrity chef, who is very popular for her shows nationally and internationally. With over 20 years of experience, Chef Gunjan has had the privilege to cook for our PM Mr. Narendra Modi. She has catered to some of the most important Indian industrialists like Ambanis, Goenkas, Modis, and Birlas. Gunjan also had a chance to do a popular TV series on Indian food with internationally famous Chef Gary Rhodes. She also manages a successful catering business and takes great pride in the rich culinary heritage of India.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
         }
 
