@@ -1207,9 +1207,10 @@ class SearchController extends Controller
             /* ui type = 1 is start */
 
         $chefOfTheWeekProfileData = \DB::table('constant_variable_model')->where('ui_type',1)->where('model_name','profile')->where('is_active',1)->first();
+        return $chefOfTheWeekProfileData;
         if($chefOfTheWeekProfileData)
             $chefOfTheWeekProfileData->data_json = json_decode($chefOfTheWeekProfileData->data_json);
-        $chefOfTheWeekProfileId = (int)$chefOfTheWeekProfileData->model_id;
+        $chefOfTheWeekProfileId = isset($chefOfTheWeekProfileData->model_id)? (int)$chefOfTheWeekProfileData->model_id : null;
         $chefOfTheWeekProfile = Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
