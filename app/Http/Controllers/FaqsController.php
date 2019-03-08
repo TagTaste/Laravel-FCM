@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Faqs;
 use Carbon\Carbon;
@@ -33,7 +33,7 @@ class FaqsController extends Controller
     public function index(Request $request)
     {
         $this->model = $this->model->get();
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 
     /**
@@ -46,7 +46,7 @@ class FaqsController extends Controller
     {
         $inputs = $request->all();
         $this->model = $this->model->create($inputs);
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 
     /**
@@ -62,7 +62,7 @@ class FaqsController extends Controller
         $faq = $this->model->where('id',$id)->first();
         $this->model = $faq->update($inputs);
 
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 
     /**
@@ -74,7 +74,7 @@ class FaqsController extends Controller
     public function destroy($id)
     {
         $this->model = $this->model->destroy($id);
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 
     public function categoriesQuestionAnswer(Request $request, $id)
@@ -82,15 +82,15 @@ class FaqsController extends Controller
         $checkExist = \DB::table('faq_categories')->where('id',$id)->whereNull('deleted_at')->first();
         if ($checkExist){
             $this->model = $this->model->where('faq_category_id',$id)->where('is_active',1)->get();
-            return $this->sendResponse();
+            return response()->json(['data'=>$this->model]);
         }
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 
     public function allCategories()
     {
         $this->model = \DB::table('faq_categories')->whereNUll('deleted_at')->get();
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 
     public function storeCategories(Request $request)
@@ -101,6 +101,6 @@ class FaqsController extends Controller
         $inputs['created_at'] = Carbon::now()->toDateTimeString();
         $inputs['updated_at'] = Carbon::now()->toDateTimeString();
         $this->model = \DB::table('faq_categories')->insert($inputs);
-        return $this->sendResponse();
+        return response()->json(['data'=>$this->model]);
     }
 }
