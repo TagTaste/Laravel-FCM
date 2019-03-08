@@ -170,7 +170,7 @@ class InsertPublicReviewQuestionair extends Command
                         if(isset($nestedOption->nested_option_list))
                         {
                             echo $nestedOption->nested_option_list;
-                            $extra = \Db::table('public_review_global_nested_option')->where('type','like',$nestedOption->nested_option_list)->get();
+                            $extra = \Db::table('public_review_global_nested_option')->where('is_active',1)->where('type','like',$nestedOption->nested_option_list)->get();
                             foreach ($extra as $nested)
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
