@@ -79,9 +79,9 @@ class FaqsController extends Controller
 
     public function categoriesQuestionAnswer(Request $request, $id)
     {
-        $checkExist = \DB::table('faq_categories')->where('id',$id)->first();
+        $checkExist = \DB::table('faq_categories')->where('id',$id)->whereNull('deleted_at')->first();
         if ($checkExist){
-            $this->model = $this->model->where('faq_category_id',$id)->get();
+            $this->model = $this->model->where('faq_category_id',$id)->where('is_active',1)->get();
             return $this->sendResponse();
         }
         return $this->sendResponse();
@@ -89,7 +89,7 @@ class FaqsController extends Controller
 
     public function allCategories()
     {
-        $this->model = \DB::table('faq_categories')->get();
+        $this->model = \DB::table('faq_categories')->whereNUll('deleted_at')->get();
         return $this->sendResponse();
     }
 
