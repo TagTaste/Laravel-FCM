@@ -13,7 +13,7 @@ class AddColumnDeletedAtFaqs extends Migration
      */
     public function up()
     {
-        Schema::table('faq_question_answer', function(Blueprint $table){
+        Schema::table('faqs_question_answer', function(Blueprint $table){
             $table->softDeletes();
         });
     }
