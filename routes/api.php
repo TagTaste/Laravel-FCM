@@ -62,7 +62,7 @@ Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarM
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
 
 // faq question answer api
-Route::get('categoriesQuestionAnswer','FaqsController@categoriesQuestionAnswer');
+Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAnswer');
 Route::get('allCategories','FaqsController@allCategories');
 Route::post('storeCategories','FaqsController@storeCategories');
 Route::resource('faqs','FaqsController');
