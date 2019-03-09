@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Faqs extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['question','answer','faq_category_id','description'];
 
     protected $visible = ['id','question','answer','faq_category_id','description','faqCategory'];
