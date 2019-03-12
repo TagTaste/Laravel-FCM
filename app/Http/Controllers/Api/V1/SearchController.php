@@ -1215,6 +1215,7 @@ class SearchController extends Controller
         if(!is_null($data))
         {
             $data->image = isset($chefOfTheWeekProfileData->data_json->image) ? $chefOfTheWeekProfileData->data_json->image : $data->image;
+            $data->image_meta = isset($chefOfTheWeekProfileData->data_json->image_meta) ? $chefOfTheWeekProfileData->data_json->image_meta : $data->image_meta;
             $data->isFollowing = Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
             $title = isset($chefOfTheWeekProfileData->data_json->title) ? $chefOfTheWeekProfileData->data_json->title : "Chef of the week" ;
