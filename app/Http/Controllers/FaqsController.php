@@ -92,7 +92,7 @@ class FaqsController extends Controller
         $checkExist =
         $this->model = \DB::table('faq_categories')->join('faqs_question_answer',function($join){
             $join->on('faq_categories.id','=','faqs_question_answer.faq_category_id')->where('faqs_question_answer.is_active',1)->whereNull('faqs_question_answer.deleted_at');
-        })->whereNUll('faq_categories.deleted_at')->get();
+        })->whereNUll('faq_categories.deleted_at')->select('faq_categories.id','faq_categories.name','faq_categories.description')->get();
         return response()->json(['data'=>$this->model]);
     }
 
