@@ -89,7 +89,10 @@ class FaqsController extends Controller
 
     public function allCategories()
     {
-        $this->model = \DB::table('faq_categories')->whereNUll('deleted_at')->get();
+        $checkExist =
+        $this->model = \DB::table('faq_categories')->rightJoin('faq_question_answer',function($join){
+            $join->on('faq_categories.id','=','faq_question_answer.faq_category_id')->where('faq_question_answer.is_active',1)->whereNull('faq_question_answer.deleted_at');
+        })->whereNUll('faq_categories.deleted_at')->get();
         return response()->json(['data'=>$this->model]);
     }
 
