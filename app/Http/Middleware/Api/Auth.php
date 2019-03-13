@@ -98,25 +98,26 @@ class Auth extends GetUserFromToken
         event(new LogRecord($data));
      }
 
-//     public function terminate($request,$response)
-//     {
-//        $this->request = $request;
-//        $requestDataCollection = collect($this->request->all());
-//        $this->contentAnalysisReqCollection = collect ();
-//
-//        $this->requestValueRecursion($requestDataCollection);
-//
-//        if($requestDataCollection->count() > 0){
-//            $tempArray = [];
-//            $tempArray["type"] = "meta";
+     public function terminate($request,$response)
+     {
+        $this->request = $request;
+        \Log::info($request->all());
+        $requestDataCollection = collect($this->request->all());
+        $this->contentAnalysisReqCollection = collect ();
+
+        $this->requestValueRecursion($requestDataCollection);
+
+        if($requestDataCollection->count() > 0){
+            $tempArray = [];
+            $tempArray["type"] = "meta";
 //            $tempArray["value"] = "IP- ".$this->request->ip().
 //            " UserID- ".$this->request->user()->id.
 //            " EndPoint- ".$this->request->fullUrl();
-//            $this->contentAnalysisReqCollection->push($tempArray);
-//            event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
-//            $this->contentAnalysisReqCollection = null;
-//        }
-//     }
+            $this->contentAnalysisReqCollection->push($tempArray);
+            event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
+            $this->contentAnalysisReqCollection = null;
+        }
+     }
 
      private function requestValueRecursion($loopValue){
         $loopValue->each(function($val,$key){
