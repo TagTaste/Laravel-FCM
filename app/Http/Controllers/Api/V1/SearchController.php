@@ -1331,9 +1331,9 @@ class SearchController extends Controller
         $data = json_decode($weekOfTheCompany);
         if(!is_null($data))
         {
-            $data->isFollowing = Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
-            $data->image = isset($chefOfTheWeekCompanyData->data_json->image) ? $chefOfTheWeekCompanyData->data_json->image : $data->image;
-            $data->image_meta = isset($chefOfTheWeekCompanyData->data_json->image_meta) ? $chefOfTheWeekCompanyData->data_json->image_meta : $data->image_meta;
+            $data->isFollowing = Redis::sIsMember("followers:profile:".$loggedInProfileId,"company.".$data->id) === 1;
+            $data->logo = isset($chefOfTheWeekCompanyData->data_json->image) ? $chefOfTheWeekCompanyData->data_json->image : $data->logo;
+            $data->logo_meta = isset($chefOfTheWeekCompanyData->data_json->image_meta) ? $chefOfTheWeekCompanyData->data_json->image_meta : $data->logo_meta;
             $title = isset($chefOfTheWeekCompanyData->data_json->title) ? $chefOfTheWeekCompanyData->data_json->title : "Company in Focus" ;
             $subtitle = isset($chefOfTheWeekCompanyData->data_json->subtitle) ? $chefOfTheWeekCompanyData->data_json->subtitle : null ;
             $description = isset($chefOfTheWeekCompanyData->data_json->description) ? $chefOfTheWeekCompanyData->data_json->description : null ;
