@@ -101,7 +101,6 @@ class Auth extends GetUserFromToken
      public function terminate($request,$response)
      {
         $this->request = $request;
-        \Log::info($request->all());
         $requestDataCollection = collect($this->request->all());
         $this->contentAnalysisReqCollection = collect ();
 
