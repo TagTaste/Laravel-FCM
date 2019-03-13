@@ -52,7 +52,7 @@ class PublicViewController extends Controller
         $socialPreview = $model->getPreviewContent();
         $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
         $this->model['social'] = [];
-        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview);
+        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName);
         $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id);
         return response()->json(['data'=>$this->model]);
     }
@@ -94,14 +94,14 @@ class PublicViewController extends Controller
         $socialPreview = $model->getPreviewContent();
         $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id, true, $sharedId);
         $this->model['social'] = [];
-        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview);
+        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName);
         $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id, true, $sharedId);
 
         return response()->json(['data'=>$this->model]);
 
     }
 
-    private function getSocialPreview($preview) : array
+    private function getSocialPreview($preview,$modelName) : array
     {
         $res = [];
         $res[] = ['property'=> 'og:title', 'content' => $preview['ogTitle']];
@@ -109,6 +109,8 @@ class PublicViewController extends Controller
         $res[] = ['property'=> 'og:description', 'content' => $preview['ogDescription']];
         $res[] = ['property'=> 'og:url', 'content' => $preview['ogUrl']];
         $res[] = ['property'=> 'og:type', 'content' => 'article'];
+        $res[] = ['property'=> 'og:modelId', 'content' => $preview['modelId']];
+        $res[] = ['property'=> 'og:modelName', 'content' => $modelName];
 //        $res['og:title'] = $preview['ogTitle'];
 //        $res['og:image'] = $preview['ogImage'];
 //        $res['og:description'] = $preview['ogDescription'];
