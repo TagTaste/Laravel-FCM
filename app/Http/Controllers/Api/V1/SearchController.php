@@ -1380,9 +1380,26 @@ class SearchController extends Controller
 
             /* ui type = 6 is start */
 
+            $companiesToFollow = \DB::table('constant_variable_model')->where('ui_type',6)->where('model_name','company')->where('is_active',1)->first();
+            if(!is_null($companiesToFollow)) {
+                $companiesToFollow->data_json = json_decode($companiesToFollow->data_json);
+                $companyData = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get();
+                $data = $companyData;
+                $companyData = [];
+                foreach ($data as $key => &$company) {
+                    if (is_null($company)) {
+                        unset($data[$key]);
+                        continue;
+                    }
+                    $company = json_decode($company);
+                    $company->isFollowing = Redis::sIsMember("following:profile:" . $loggedInProfileId, "company." . $company->id) === 1;
+                    $companyData[] = $company;
+                }
+                $title = isset($companiesToFollow->data_json->title) ? $companiesToFollow->data_json->title : "Companies to follow";
+                if(count($companyData))
+                    $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+            }
 
-        if(count($companyData))
-            $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
 
             /* ui type = 6 is end */
