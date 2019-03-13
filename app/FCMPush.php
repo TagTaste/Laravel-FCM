@@ -33,7 +33,7 @@ class FCMPush extends Model
         // For Android
         $dataBuilder = new PayloadDataBuilder();
         $dataBuilder->addData(['data' => $data]);
-
+        \Log::info($dataBuilder);
         $option = $optionBuilder->build();
         $data = $dataBuilder->build();
         $token = \DB::table('app_info')->where('profile_id',$profileId)->where('platform','android')->get()->pluck('fcm_token')->toArray();
