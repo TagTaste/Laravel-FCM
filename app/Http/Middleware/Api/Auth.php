@@ -110,9 +110,9 @@ class Auth extends GetUserFromToken
         if($requestDataCollection->count() > 0){
             $tempArray = [];
             $tempArray["type"] = "meta";
-//            $tempArray["value"] = "IP- ".$this->request->ip().
-//            " UserID- ".$this->request->user()->id.
-//            " EndPoint- ".$this->request->fullUrl();
+            $tempArray["value"] = "IP- ".$this->request->ip().
+            " UserID- ".$this->request->user()->id.
+            " EndPoint- ".$this->request->fullUrl();
             $this->contentAnalysisReqCollection->push($tempArray);
             event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
             $this->contentAnalysisReqCollection = null;
