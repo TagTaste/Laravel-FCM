@@ -1479,7 +1479,7 @@ class SearchController extends Controller
             if($categoryOfTheWeekData)
                 $categoryOfTheWeekData->data_json = json_decode($categoryOfTheWeekData->data_json);
             $title = isset($categoryOfTheWeekData->data_json->title) ? $categoryOfTheWeekData->data_json->title : "Category of Week" ;
-            $image = isset($categoryOfTheWeekData->data_json->image) ? $categoryOfTheWeekData->data_json->image : null;
+            $image = isset($categoryOfTheWeekData->data_json->image_meta) ? $categoryOfTheWeekData->data_json->image_meta->original_photo : null;
             $description = isset($chefOfTheWeekCompanyData->data_json->description) ? $chefOfTheWeekCompanyData->data_json->description : null ;
             $weekOfTheCategory = [];
             $weekOfTheCategory[] = ["Name"=>$title,"type"=>"category","description"=>null,"image"=>$image];
