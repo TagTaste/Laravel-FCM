@@ -113,7 +113,7 @@ class Auth extends GetUserFromToken
             " UserID- ".$this->request->user()->id.
             " EndPoint- ".$this->request->fullUrl();
             $this->contentAnalysisReqCollection->push($tempArray);
-            event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
+//            event(new ContentAnalysisEvent($this->contentAnalysisReqCollection));
             $this->contentAnalysisReqCollection = null;
         }
      }
