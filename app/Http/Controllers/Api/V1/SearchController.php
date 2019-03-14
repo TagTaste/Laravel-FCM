@@ -1538,7 +1538,7 @@ class SearchController extends Controller
                 $title = isset($categoryData->data_json->title) ? $categoryData->data_json->title : "Categories" ;
                 $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
                 if($categories->count())
-                    $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$categories,
+                    $model[] = ['id'=>$categoryData->model_id,'title'=>$title,'subtitle'=>$subtitle,'item'=>$categories,
                         'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
 
             }
