@@ -35,7 +35,7 @@ class Shoutout extends BaseShoutout
 
     public function getLikeCountAttribute()
     {
-        $count = Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         if($count >1000000)
         {
@@ -58,7 +58,7 @@ class Shoutout extends BaseShoutout
     public function getMetaForPublic()
     {
         $meta = [];
-        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
