@@ -557,6 +557,7 @@ class SearchController extends Controller
         /* ui type = 1 is start */
 
         $chefOfTheWeekProfileId = 1009;
+
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
@@ -564,6 +565,7 @@ class SearchController extends Controller
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
             $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Chef Gunjan Goela is a celebrity chef, who is very popular for her shows nationally and internationally. With over 20 years of experience, Chef Gunjan has had the privilege to cook for our PM Mr. Narendra Modi. She has catered to some of the most important Indian industrialists like Ambanis, Goenkas, Modis, and Birlas. Gunjan also had a chance to do a popular TV series on Indian food with internationally famous Chef Gary Rhodes. She also manages a successful catering business and takes great pride in the rich culinary heritage of India.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
 
         }
 

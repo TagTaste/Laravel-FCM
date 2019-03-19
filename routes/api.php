@@ -61,6 +61,12 @@ Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
 
+// faq question answer api
+Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAnswer');
+Route::get('allCategories','FaqsController@allCategories');
+Route::post('storeCategories','FaqsController@storeCategories');
+Route::resource('faqs','FaqsController');
+
 // unsubscribe
 Route::get("settingUpdate/{type}","SettingController@updateSetting");//this will do both subscribe and unsubscribe just pass subscribe or unsubscribe with the hash value you received and reason id for the reason of unsubscribe  
 
@@ -319,11 +325,16 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("batches/{id}/getPRProfile","BatchController@getPRProfile");
                 Route::get("batches/{id}/reportPdf","BatchController@reportPdf");
                 Route::get("reportSummary","BatchController@reportSummary");
+                Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
                 Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
                 Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
+                Route::get("getHeaderWeight","BatchController@getHeaderWeight");
+                Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");
 
-                    //filter for dashboard of product review
+
+                //filter for dashboard of product review
                 Route::get("dashboard/filters","BatchController@filters");
+                Route::get("dashboard/report/filters","BatchController@reportFilters");
                 Route::get("batches/hutCsv","BatchController@allHutCsv");
                 Route::get("batches/{id}/hutCsv","BatchController@hutCsv");
 
@@ -338,6 +349,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::get("getRejectApplicants","ApplicantController@getRejectApplicants");
                 Route::get("getInvitedApplicants","ApplicantController@getInvitedApplicants");
                 Route::get("getUnassignedApplicants","ApplicantController@getUnassignedApplicants");
+                Route::get("getApplicantFilter","ApplicantController@getApplicantFilter");
                 Route::resource('collaborateApplicants','ApplicantController');
                 // api for product-review tasting
                 Route::get("headers/{id}/question/{questionId}/search","QuestionController@getNestedOptionSearch");
