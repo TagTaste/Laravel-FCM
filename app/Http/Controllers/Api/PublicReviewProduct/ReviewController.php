@@ -284,6 +284,11 @@ class ReviewController extends Controller
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
+                    if($leafId == null)
+                    {
+                        $this->model = false;
+                        return $this->sendError("Leaf id can not null");
+                    }
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
