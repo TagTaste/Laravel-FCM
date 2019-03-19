@@ -21,6 +21,7 @@ class CreateFaqsQuestionAnswer extends Migration
             $table->foreign('faq_category_id')->references("id")->on("faq_categories");
             $table->string('description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
