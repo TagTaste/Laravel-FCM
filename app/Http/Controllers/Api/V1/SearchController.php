@@ -556,7 +556,7 @@ class SearchController extends Controller
 
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 1009;
+        $chefOfTheWeekProfileId = 200;
 
 
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
