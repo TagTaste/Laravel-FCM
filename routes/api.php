@@ -61,6 +61,12 @@ Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
 
+// faq question answer api
+Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAnswer');
+Route::get('allCategories','FaqsController@allCategories');
+Route::post('storeCategories','FaqsController@storeCategories');
+Route::resource('faqs','FaqsController');
+
 // unsubscribe
 Route::get("settingUpdate/{type}","SettingController@updateSetting");//this will do both subscribe and unsubscribe just pass subscribe or unsubscribe with the hash value you received and reason id for the reason of unsubscribe  
 
