@@ -41,7 +41,7 @@
                                                                         Dear {{$userName}}
                                                                         <br>
                                                                         <br>
-                                                                        May the splash of Holi colors brighten your life with happiness and prosperity. Happy Holi to you and your family.
+                                                                        Bright colours, water balloons, lavish gujiyas and melodious songs are the ingredients of a perfect Holi. Wish you a very happy and colourful Holi!
                                                                         <br>
                                                                         <br>
                                                                         Regards,
