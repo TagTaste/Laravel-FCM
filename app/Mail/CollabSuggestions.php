@@ -35,6 +35,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('Tagtaste Food Pvt Ltd wishes you a very colourful Holi!')->view('emails.holi-email',['userName'=>$this->name]);
+        return $this->subject('Happy Holi 2019!')->view('emails.holi-email',['userName'=>$this->name]);
     }
 }
