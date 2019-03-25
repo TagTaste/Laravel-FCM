@@ -84,8 +84,21 @@ class ReviewController extends Controller
             $this->model = Review::insert($data);
             if($currentStatus == 3)
             {
-                \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
-                    ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
+                $mandatoryQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)->where('is_mandatory',1)->get();
+                $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
+                $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->get()->count();
+
+                if($mandatoryQuestion->count() == $mandatoryReviewCount)
+                {
+                    $this->model = true;
+                    \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
+                        ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
+                }
+                else
+                {
+                    $this->model = false;
+                }
+
             }
         }
         return $this->sendResponse();
