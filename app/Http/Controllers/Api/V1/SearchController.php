@@ -30,7 +30,7 @@ class SearchController extends Controller
         'jobs' => \App\Recipe\Job::class,
         'product' => \App\PublicReviewProduct::class
     ];
-    
+
     private $filters = [
         'collaborate'=> \App\Filter\Collaborate::class,
         'recipe' => \App\Filter\Recipe::class,
@@ -126,7 +126,7 @@ class SearchController extends Controller
         if(count($profileData))
             $this->model[] = ['title'=>'Suggested People','subtitle'=>'BASED ON YOUR INTERESTS','type'=>'profile','ui_type'=>0,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
-        $specializations = \DB::table('specializations')->get();
+        $specializations = \DB::table('specializations')->orderBy("order","ASC")->get();
 
         if(count($specializations))
             $this->model[] = ['title'=>'Explore by Specializations','subtitle'=>null,'type'=>'specializations','ui_type'=>0,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
@@ -313,10 +313,10 @@ class SearchController extends Controller
         $filters[]= ['key'=>'experience','value'=>$experiencesData];
 
         $ids = \DB::table('profile_filters')->where(function ($query) use($experiences) {
-                            for ($i = 0; $i < count($experiences); $i++){
-                                $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
-                            }
-                        })->take(10)->inRandomOrder()->get()->pluck('profile_id');
+            for ($i = 0; $i < count($experiences); $i++){
+                $query->orwhere('value', 'like',  '%' . $experiences[$i] .'%');
+            }
+        })->take(10)->inRandomOrder()->get()->pluck('profile_id');
         $profileIds = $profileIds->merge($ids);
         $educations = Education::where('profile_id',$loggedInProfileId)->get()->pluck('college');
         $educationsData = [];
@@ -554,17 +554,19 @@ class SearchController extends Controller
         $loggedInProfileId = $request->user()->profile->id;
         $model = [];
 
-
         /* ui type = 1 is start */
 
-        $chefOfTheWeekProfileId = 5555;
+        $chefOfTheWeekProfileId = 200;
+
+
         $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
         {
             $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
             $item = [$data];
-            $model[] = ['title'=>"Chef of the week", "subtitle"=>null,"description"=>"Bitten by the Culinary bug, Akshay changed careers from the IT industry to Hospitality. His love, interest, and experience in the art of cooking make him an expert in tasting a varied set of products. He loves new product development and thrives in constraints. He is right now honing Indian cuisine at ITC and taking to the next generation of guests. Follow Akshay to get industry updates and interesting insights about Culinary Arts.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
+            $model[] = ['title'=>"Chef of the Week", "subtitle"=>null,"description"=>"Chef Ashish is an IHM Pusa alumnus who earned his spurs while working with Michelin Star Chef Diageo Chiarini in Senso. Chef Ashish is currently the Corporate Chef at Cafe Delhi Heights, where he and his team have been able to create an excellent menu and service architecture. As one of India’s most promising rising chefs, Ashish meets and exceeds expectations on all the parameters- economic objectives, menu innovation, service execution and he actively makes time to help start-ups, farmers and students on the community front.", "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
 
         }
 
@@ -613,6 +615,17 @@ class SearchController extends Controller
             $model[] = ['title'=>'Recommendations','subtitle'=>'Based on your background & interests','type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
 
         /* ui type = 2 is end */
+
+
+        /* ui type = 7 is start */
+
+        $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+
+        if(count($collaborations))
+            $model[] = ['title'=>'Collaborations','subtitle'=>'Interesting opportunities for you','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+
+        /* ui type = 7 is end */
 
 
         /* ui type = 3 is start */
@@ -701,16 +714,6 @@ class SearchController extends Controller
         /* ui type = 6 is end */
 
 
-
-        /* ui type = 7 is start */
-
-        $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
-
-        if(count($collaborations))
-            $model[] = ['title'=>'Collaborations','subtitle'=>'Interesting opportunities for you','type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
-
-
-        /* ui type = 7 is end */
 
 
         /* ui type = 8 is start */
@@ -822,7 +825,7 @@ class SearchController extends Controller
         /* ui type = 15 is start */
 
 
-        $specializations = \DB::table('specializations')->get();
+        $specializations = \DB::table('specializations')->orderBy("order","ASC")->get();
 
         if(count($specializations))
             $model[] = ['title'=>'Explore by Specialization','subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
@@ -1073,7 +1076,7 @@ class SearchController extends Controller
         }
         if(count($recommended))
             $model[] = ['title'=>'Products you\'d like to review','subtitle'=>'Based on your interests','item'=>$recommended,
-            'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+                'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
 
 
 
@@ -1163,41 +1166,409 @@ class SearchController extends Controller
     }
 
 
+    public function newExplore(Request $request)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $model = [];
 
-    //        $fbFriends = \DB::table('social_accounts')->where('user_id',$request->user()->id)->first();
-//        if(isset($fbFriends->fb_friends) )
-//            $profileIds = explode(",",$fbFriends->fb_friends);
-//        else
-//            $profileIds = [];
-//        foreach ($profileIds as $key => $value)
-//        {
-//            if($loggedInProfileId == $value)
-//            {
-//                unset($profileIds[$key]);
-//                continue;
-//            }
-//            $profileIds[$key] = "profile:small:".$value ;
-//        }
-//        if($length && !is_array($profileIds))
-//            $profileIds = $profileIds->toArray();
-//        $data = [];
-//        if(count($profileIds)> 0)
-//        {
-//            $data = \Redis::mget($profileIds);
-//
-//        }
-//        $profileData = [];
-//        if(count($data))
-//        {
-//            foreach($data as &$profile){
-//                if(is_null($profile)){
-//                    continue;
-//                }
-//                $profile = json_decode($profile);
-//                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
-//                $profile->self = false;
-//                $profileData[] = $profile;
-//            }
-//        }
+        /* ui type = 1 is start */
+
+        $chefOfTheWeekProfileData = \DB::table('constant_variable_model')->where('ui_type',1)->where('model_name','profile')->where('is_active',1)->first();
+        if(!is_null($chefOfTheWeekProfileData))
+        {
+            $chefOfTheWeekProfileData->data_json = json_decode($chefOfTheWeekProfileData->data_json);
+            $chefOfTheWeekProfileId = isset($chefOfTheWeekProfileData->model_id)? (int)$chefOfTheWeekProfileData->model_id : null;
+            $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
+            $data = json_decode($chefOfTheWeekProfile);
+            if(!is_null($data))
+            {
+                $data->image = isset($chefOfTheWeekProfileData->data_json->image) ? $chefOfTheWeekProfileData->data_json->image : $data->image;
+                $data->image_meta = isset($chefOfTheWeekProfileData->data_json->image_meta) ? json_encode($chefOfTheWeekProfileData->data_json->image_meta,true) : $data->image_meta;
+                $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+                $item = [$data];
+                $title = isset($chefOfTheWeekProfileData->data_json->title) ? $chefOfTheWeekProfileData->data_json->title : "Chef of the week" ;
+                $subtitle = isset($chefOfTheWeekProfileData->data_json->subtitle) ? $chefOfTheWeekProfileData->data_json->subtitle : null ;
+                $description = isset($chefOfTheWeekProfileData->data_json->description) ? $chefOfTheWeekProfileData->data_json->description : null ;
+
+                $model[] = ['title'=>$title, "subtitle"=>$subtitle,"description"=>$description, "type"=>"profile","item"=>$item,"ui_type"=>1,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
+            }
+        }
+        /* ui type = 1 is end */
+
+
+        /* ui type = 2 is start */
+        $recommendationProfileData = \DB::table('constant_variable_model')->where('ui_type',2)->where('model_name','profile')->where('is_active',1)->first();
+        if(!is_null($recommendationProfileData))
+        {
+            $recommendationProfileData->data_json = json_decode($recommendationProfileData->data_json);
+
+            $profileIds = $this->getAllProfileIdsFromNetwork($loggedInProfileId);
+            $profileIds = $profileIds->unique();
+            $length = $profileIds->count();
+            if($length)
+                $profileIds = $profileIds->random($length);
+
+            foreach ($profileIds as $key => $value)
+            {
+                if($loggedInProfileId == $value)
+                {
+                    unset($profileIds[$key]);
+                    continue;
+                }
+                $profileIds[$key] = "profile:small:".$value ;
+            }
+            if($length && !is_array($profileIds))
+                $profileIds = $profileIds->toArray();
+            $data = [];
+            if(count($profileIds)> 0)
+            {
+                $data = \Redis::mget($profileIds);
+
+            }
+            $profileData = [];
+            if(count($data))
+            {
+                foreach($data as &$profile){
+                    if(is_null($profile)){
+                        continue;
+                    }
+                    $profile = json_decode($profile);
+                    $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                    $profile->self = false;
+                    $profileData[] = $profile;
+                }
+            }
+            $title = isset($recommendationProfileData->data_json->title) ? $recommendationProfileData->data_json->title : "Recommendations";
+            $subtitle = isset($recommendationProfileData->data_json->subtitle) ? $recommendationProfileData->data_json->subtitle : null ;
+            if(count($profileData))
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'profile','ui_type'=>2,'item'=>$profileData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+        }
+
+        /* ui type = 2 is end */
+
+
+        /* ui type = 7 is start */
+
+        $collaborationData = \DB::table('constant_variable_model')->where('ui_type',7)->where('model_name','collaborate')->where('is_active',1)->first();
+        if(!is_null($collaborationData))
+        {
+            $collaborationData->data_json = json_decode($collaborationData->data_json);
+            $collaborations = Collaborate::where('state',1)->where('collaborate_type','!=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+            $title = isset($collaborationData->data_json->title) ? $collaborationData->data_json->title : "Collaborations" ;
+            $subtitle = isset($collaborationData->data_json->subtitle) ? $collaborationData->data_json->subtitle : null ;
+            if(count($collaborations))
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'collaborate','ui_type'=>7,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+        }
+
+
+        /* ui type = 7 is end */
+
+
+
+        /* ui type = 3 is start */
+
+        $activityyBasedProfileData = \DB::table('constant_variable_model')->where('ui_type',3)->where('model_name','profile')->where('is_active',1)->first();
+        if(!is_null($activityyBasedProfileData))
+        {
+            $activityyBasedProfileData->data_json = json_decode($activityyBasedProfileData->data_json);
+            $activityyBasedProfileId = explode(',',$activityyBasedProfileData->model_id);
+            foreach ($activityyBasedProfileId as $key => $value)
+            {
+                if($loggedInProfileId == $value)
+                {
+                    unset($activityyBasedProfileId[$key]);
+                    continue;
+                }
+                $activityyBasedProfileId[$key] = "profile:small:".$value ;
+            }
+
+            if(count($activityyBasedProfileId)> 0)
+            {
+                $data = \Redis::mget($activityyBasedProfileId);
+
+            }
+            $profileData = [];
+
+            foreach($data as $key => &$profile){
+                if(is_null($profile)){
+                    unset($data[$key]);
+                    continue;
+                }
+                $profile = json_decode($profile);
+                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->self = false;
+                $profileData[] = $profile;
+            }
+            $title = isset($activityyBasedProfileData->data_json->title) ? $activityyBasedProfileData->data_json->title : 'Active & Influential' ;
+
+            if(count($profileData))
+                $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'profile','ui_type'=>3,'item'=>$profileData,'color_code'=>'rgb(247, 247, 247)','is_see_more'=>1];
+
+
+        }
+
+        /* ui type = 3 is end */
+
+
+        /* ui type = 4 is start */
+
+        $chefOfTheWeekCompanyData = \DB::table('constant_variable_model')->where('ui_type',4)->where('model_name','company')->where('is_active',1)->first();
+        if(!is_null($chefOfTheWeekCompanyData))
+        {
+            $chefOfTheWeekCompanyData->data_json = json_decode($chefOfTheWeekCompanyData->data_json);
+            $weekOfTheCompanyId = isset($chefOfTheWeekCompanyData->model_id) ? (int)$chefOfTheWeekCompanyData->model_id : 55;
+            $weekOfTheCompany = \Redis::get('company:small:' . $weekOfTheCompanyId);
+            $data = json_decode($weekOfTheCompany);
+            if(!is_null($data))
+            {
+                $data->isFollowing = \Redis::sIsMember("followers:profile:".$loggedInProfileId,"company.".$data->id) === 1;
+                $data->logo = isset($chefOfTheWeekCompanyData->data_json->image) ? $chefOfTheWeekCompanyData->data_json->image : $data->logo;
+                $data->logo_meta = isset($chefOfTheWeekCompanyData->data_json->image_meta) ? json_encode($chefOfTheWeekCompanyData->data_json->image_meta,true) : $data->logo_meta;
+                $title = isset($chefOfTheWeekCompanyData->data_json->title) ? $chefOfTheWeekCompanyData->data_json->title : "Company in Focus" ;
+                $subtitle = isset($chefOfTheWeekCompanyData->data_json->subtitle) ? $chefOfTheWeekCompanyData->data_json->subtitle : null ;
+                $description = isset($chefOfTheWeekCompanyData->data_json->description) ? $chefOfTheWeekCompanyData->data_json->description : null ;
+                $data = [$data];
+                $model[] = ['title'=>$title, "subtitle"=>$subtitle,"description"=>$description, "type"=>"company","item"=>$data,"ui_type"=>4,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+            }
+        }
+
+        /* ui type = 4 is end */
+
+
+
+        /* ui type = 5 is end */
+        $companiesToFollow = \DB::table('constant_variable_model')->where('ui_type',5)->where('model_name','company')->where('is_active',1)->first();
+        if(!is_null($companiesToFollow))
+        {
+            $companiesToFollow->data_json = json_decode($companiesToFollow->data_json);
+            $companyData = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get();
+            $data = $companyData;
+            $companyData = [];
+            foreach($data as $key => &$company){
+                if(is_null($company)){
+                    unset($data[$key]);
+                    continue;
+                }
+                $company = json_decode($company);
+                $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+                $companyData[] = $company;
+            }
+            $title = isset($companiesToFollow->data_json->title) ? $companiesToFollow->data_json->title : "Companies to follow" ;
+            if(count($companyData))
+                $model[] = ['title'=>$title,'type'=>'company','ui_type'=>5,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+
+        }
+        /* ui type = 5 is end */
+
+
+        /* ui type = 6 is start */
+
+        $companiesToFollow = \DB::table('constant_variable_model')->where('ui_type',6)->where('model_name','company')->where('is_active',1)->first();
+        if(!is_null($companiesToFollow)) {
+            $companiesToFollow->data_json = json_decode($companiesToFollow->data_json);
+            $companyData = \App\Recipe\Company::whereNull('deleted_at')->skip(0)->take(15)->inRandomOrder()->get();
+            $data = $companyData;
+            $companyData = [];
+            foreach ($data as $key => &$company) {
+                if (is_null($company)) {
+                    unset($data[$key]);
+                    continue;
+                }
+                $company = json_decode($company);
+                $company->isFollowing = Redis::sIsMember("following:profile:" . $loggedInProfileId, "company." . $company->id) === 1;
+                $companyData[] = $company;
+            }
+            $title = isset($companiesToFollow->data_json->title) ? $companiesToFollow->data_json->title : "Companies to follow";
+            if(count($companyData))
+                $model[] = ['title'=>'More Companies to Follow','type'=>'company','ui_type'=>6,'item'=>$companyData,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+        }
+
+
+
+        /* ui type = 6 is end */
+
+
+
+        /* ui type = 8 is start */
+
+
+        $collaborationData = \DB::table('constant_variable_model')->where('ui_type',8)->where('model_name','collaborate-private')->where('is_active',1)->first();
+        if(!is_null($collaborationData))
+        {
+            $collaborationData->data_json = json_decode($collaborationData->data_json);
+            $collaborations = Collaborate::where('state',1)->where('collaborate_type','=','product-review')->skip(0)->take(5)->inRandomOrder()->get();
+            $title = isset($collaborationData->data_json->title) ? $collaborationData->data_json->title : "Collaborations" ;
+            $subtitle = isset($collaborationData->data_json->subtitle) ? $collaborationData->data_json->subtitle : null ;
+            if(count($collaborations))
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'type'=>'collaborate','ui_type'=>8,'item'=>$collaborations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>1];
+        }
+
+
+        /* ui type = 8 is end */
+
+
+
+        /* ui type = 9 is start */
+
+        $ProductData = \DB::table('constant_variable_model')->where('ui_type',9)->where('model_name','public-review')->where('is_active',1)->first();
+        if(!is_null($ProductData))
+        {
+            $ProductData->data_json = json_decode($ProductData->data_json);
+            $products = PublicReviewProduct::where('mark_featured',1)->inRandomOrder()->limit(10)->get();
+            $recommended = [];
+            foreach($products as $product){
+                $meta = $product->getMetaFor($loggedInProfileId);
+                $recommended[] = ['product'=>$product,'meta'=>$meta];
+            }
+            $title = isset($ProductData->data_json->title) ? $ProductData->data_json->title : "Featured Products" ;
+            $subtitle = isset($ProductData->data_json->subtitle) ? $ProductData->data_json->subtitle : null ;
+            if(count($recommended))
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$recommended,
+                    'ui_type'=>9,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+
+
+        }
+
+        /* ui type = 9 is end */
+
+
+
+        /* ui type = 10 is start */
+        $categoryData = \DB::table('constant_variable_model')->where('ui_type',10)->where('model_name','category')->where('is_active',1)->first();
+        if(!is_null($ProductData))
+        {
+            $categoryData->data_json = json_decode($categoryData->data_json);
+            $categories = ProductCategory::where('is_active')->get();
+            $title = isset($categoryData->data_json->title) ? $categoryData->data_json->title : 'Based on your Interest' ;
+            $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
+            $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$categories,
+                'ui_type'=>10,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+
+        }
+        /* ui type = 10 is end */
+
+
+
+        /* ui type = 11 is start */
+        $ProductData = \DB::table('constant_variable_model')->where('ui_type',11)->where('model_name','public-review')->where('is_active',1)->first();
+        if(!is_null($ProductData))
+        {
+            $ProductData->data_json = json_decode($ProductData->data_json);
+            $products = PublicReviewProduct::where('is_active',1)->orderBy('updated_at','desc')->limit(10)->get();
+            $recently = [];
+            foreach($products as $product){
+                $meta = $product->getMetaFor($loggedInProfileId);
+                $recently[] = ['product'=>$product,'meta'=>$meta];
+            }
+            $title = isset($ProductData->data_json->title) ? $ProductData->data_json->title : "Newly Added Products" ;
+            $subtitle = isset($ProductData->data_json->subtitle) ? $ProductData->data_json->subtitle : null ;
+            if(count ($recently) != 0)
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$recently,
+                    'ui_type'=>11,'color_code'=>'rgb(255, 255, 255)','type'=>'product','is_see_more'=>1];
+
+        }
+        /* ui type = 11 is end */
+
+
+
+
+
+
+        /* ui type = 12 is start */
+        $categoryOfTheWeekData = \DB::table('constant_variable_model')->where('ui_type',12)->where('model_name','category')->where('is_active',1)->first();
+        if(!is_null($categoryOfTheWeekData))
+        {
+            $categoryOfTheWeekData->data_json = json_decode($categoryOfTheWeekData->data_json);
+            $title = isset($categoryOfTheWeekData->data_json->title) ? $categoryOfTheWeekData->data_json->title : "Category of Week" ;
+            $image = isset($categoryOfTheWeekData->data_json->image_meta->original_photo) ? $categoryOfTheWeekData->data_json->image_meta->original_photo : null;
+            $description = isset($chefOfTheWeekCompanyData->data_json->description) ? $chefOfTheWeekCompanyData->data_json->description : null ;
+            $weekOfTheCategory = [];
+            $weekOfTheCategory[] = ["Name"=>$title,"type"=>"category","description"=>null,"image"=>$image];
+            $model[] = ['title'=>$title, "subtitle"=>null,"description"=>$description,
+                "type"=>"category","item"=>$weekOfTheCategory,"ui_type"=>12,"color_code"=>"rgb(255, 255, 255)","is_see_more"=>0];
+
+        }
+
+        /* ui type = 12 is end */
+
+
+
+
+
+        /* ui type = 13 is start */
+        $categoryData = \DB::table('constant_variable_model')->where('ui_type',13)->where('model_name','category')->where('is_active',1)->first();
+        if(!is_null($categoryData))
+        {
+            $categoryData->data_json = json_decode($categoryData->data_json);
+            $categories = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(10)->get();
+            $title = isset($categoryData->data_json->title) ? $categoryData->data_json->title : "Categories" ;
+            $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
+            if($categories->count())
+                $model[] = ['id'=>$categoryData->model_id,'title'=>$title,'subtitle'=>$subtitle,'item'=>$categories,
+                    'ui_type'=>13,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+
+        }
+        /* ui type = 13 is end */
+
+
+
+
+        /* ui type = 14 is start */
+        $categoryData = \DB::table('constant_variable_model')->where('ui_type',14)->where('model_name','category')->where('is_active',1)->first();
+        if(!is_null($categoryData))
+        {
+            $categoryData->data_json = json_decode($categoryData->data_json);
+            $recommended = PublicReviewProduct\ProductCategory::where('is_active',1)->inRandomOrder()->limit(6)->get();
+            $title = isset($categoryData->data_json->title) ? $categoryData->data_json->title : "Featured Category" ;
+            $subtitle = isset($categoryData->data_json->subtitle) ? $categoryData->data_json->subtitle : null ;
+            if($recommended->count())
+                $model[] = ['title'=>$title,'subtitle'=>$subtitle,'item'=>$recommended,
+                    'ui_type'=>14,'color_code'=>'rgb(255, 255, 255)','type'=>'category','is_see_more'=>1];
+
+        }
+        /* ui type = 14 is end */
+
+
+
+
+
+        /* ui type = 15 is start */
+
+
+        $specializations = \DB::table('specializations')->get();
+        $specializationData = \DB::table('constant_variable_model')->where('ui_type',15)->where('model_name','specialization')->where('is_active',1)->first();
+        if(!is_null($specializationData))
+        {
+            $specializationData->data_json = json_decode($specializationData->data_json);
+            $title = isset($specializationData->data_json->title) ? $specializationData->data_json->title : "Explore by Specialization" ;
+            if(count($specializations))
+                $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'specializations','ui_type'=>15,'item'=>$specializations,'color_code'=>'rgb(255, 255, 255)','is_see_more'=>0];
+        }
+
+        /* ui type = 15 is end */
+
+
+
+
+        /* ui type = 16 is start */
+
+        $fbFriendData = \DB::table('constant_variable_model')->where('ui_type',16)->where('model_name','specialization')->where('is_active',1)->first();
+        if(!is_null($fbFriendData))
+        {
+            $fbFriendData->data_json = json_decode($fbFriendData->data_json);
+            $title = isset($fbFriendData->data_json->title) ? $fbFriendData->data_json->title : "See your facebook friend" ;
+            if(count($profileData))
+                $model[] = ['title'=>$title,'subtitle'=>null,'type'=>'facebook','ui_type'=>16,'item'=>[],'color_code'=>'rgb(247, 247, 247)','is_see_more'=>0];
+
+
+        }
+        /* ui type = 16 is end */
+
+        $model = collect($model)->sortBy('order')->toArray();
+        $this->model = $model;
+
+        return $this->sendResponse();
+    }
 
 }

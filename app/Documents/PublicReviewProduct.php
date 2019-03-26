@@ -25,7 +25,7 @@ class PublicReviewProduct extends Document
         }
         else
         {
-            return 'Non-Vegeratrian';
+            return 'Non-Vegetarian';
         }
     }
 }

@@ -26,7 +26,7 @@ class PublicReviewProduct extends Filter {
         }
         else
         {
-            return 'Non-Vegeratrian';
+            return 'Non-Vegetarian';
         }
     }
 }

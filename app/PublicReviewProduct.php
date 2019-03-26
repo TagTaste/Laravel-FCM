@@ -19,7 +19,7 @@ class PublicReviewProduct extends Model
 
     protected $dates = ['deleted_at'];
 
-    public static $types = ['Vegetarian','Non-Vegeratrian'];
+    public static $types = ['Vegetarian','Non-Vegetarian'];
 
         protected $fillable = ['id','name','is_vegetarian','product_category_id','product_sub_category_id','brand_name','brand_logo',
         'company_name','company_logo','company_id','description','mark_featured','images_meta','video_link', 'global_question_id',
@@ -62,7 +62,7 @@ class PublicReviewProduct extends Model
         }
         else
         {
-            return ['id'=>2,'value'=>'Non-Vegeratrian','image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/public-review/kind_non_vegeratian_icon.png'];
+            return ['id'=>2,'value'=>'Non-Vegetarian','image'=>'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/public-review/kind_non_vegeratian_icon.png'];
         }
     }
 
