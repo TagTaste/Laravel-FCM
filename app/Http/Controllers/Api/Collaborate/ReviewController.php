@@ -91,11 +91,13 @@ class ReviewController extends Controller
                 if($mandatoryQuestion->count() == $mandatoryReviewCount)
                 {
                     $this->model = true;
+                    \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,3);
                     \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
-                        ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>$currentStatus]);
+                        ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>3]);
                 }
                 else
                 {
+                    \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,2);
                     $this->model = false;
                 }
 
