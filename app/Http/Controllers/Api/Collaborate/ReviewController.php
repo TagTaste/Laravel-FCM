@@ -48,7 +48,6 @@ class ReviewController extends Controller
         {
             return $this->sendError("You have already completed this product");
         }
-        \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
         $this->model = Review::where('profile_id',$loggedInProfileId)->where('collaborate_id',$collaborateId)
             ->where('batch_id',$batchId)->where('tasting_header_id',$headerId)->delete();
 
@@ -84,24 +83,25 @@ class ReviewController extends Controller
             $this->model = Review::insert($data);
             if($currentStatus == 3)
             {
-                $mandatoryQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)->where('is_mandatory',1)->get();
+                $mandatoryQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
+                    ->where('is_mandatory',1)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
                 $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->get()->count();
 
                 if($mandatoryQuestion->count() == $mandatoryReviewCount)
                 {
                     $this->model = true;
-                    \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,3);
                     \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)
                         ->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->update(['current_status'=>3]);
                 }
                 else
                 {
-                    \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,2);
+                    $currentStatus = 2;
                     $this->model = false;
                 }
 
             }
+            \Redis::set("current_status:batch:$batchId:profile:$loggedInProfileId" ,$currentStatus);
         }
         return $this->sendResponse();
     }
