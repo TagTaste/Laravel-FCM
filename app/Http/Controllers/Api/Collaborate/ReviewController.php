@@ -87,9 +87,6 @@ class ReviewController extends Controller
                     ->where('is_mandatory',1)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
                 $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->distinct('question_id')->count('question_id');
-                \Log::info($mandatoryQuestion->count());
-                \Log::info("here");
-                \Log::info($mandatoryReviewCount);
                 if($mandatoryQuestion->count() == $mandatoryReviewCount)
                 {
                     $this->model = true;
