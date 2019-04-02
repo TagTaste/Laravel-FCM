@@ -86,8 +86,7 @@ class ReviewController extends Controller
                 $mandatoryQuestion = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
                     ->where('is_mandatory',1)->get();
                 $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
-                \Log::info($mandatoryQuestionsId);
-                $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->distinct('question_id')->get()->count();
+                $mandatoryReviewCount = \DB::table('collaborate_tasting_user_review')->where('collaborate_id',$collaborateId)->whereIn('question_id',$mandatoryQuestionsId)->where('batch_id',$batchId)->where('profile_id',$loggedInProfileId)->get()->distinct('question_id')->count();
                 \Log::info($mandatoryQuestion->count());
                 \Log::info("here");
                 \Log::info($mandatoryReviewCount);
