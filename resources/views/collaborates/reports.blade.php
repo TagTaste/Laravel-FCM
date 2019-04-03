@@ -10,7 +10,7 @@
         margin-bottom: 7px;
     }
     .pr-answer-row .pr-answer-container {
-        width: 70%;
+        width: 65%;
         border: 2px solid rgba(217,34,42,.4);
         height: 30px;
         border-radius: 5px;
