@@ -54,13 +54,13 @@
                     <span>{{ date('Y') }}</span>
                 </td>
             </tr>
-            @if(isset($unsubscribeLink))
-            <tr>
-                <td style="padding: 10px 0px 20px 0px;font-size: 12px;color: #181818;" align="center">
-                    <a href="{{$unsubscribeLink}}"><u>unsubscribe</u></a>
-                </td>
-            </tr>
-            @endif
+            {{--@if(isset($unsubscribeLink))--}}
+            {{--<tr>--}}
+                {{--<td style="padding: 10px 0px 20px 0px;font-size: 12px;color: #181818;" align="center">--}}
+                    {{--<a href="{{$unsubscribeLink}}"><u>unsubscribe</u></a>--}}
+                {{--</td>--}}
+            {{--</tr>--}}
+            {{--@endif--}}
         </table>
     </td>
 </tr>

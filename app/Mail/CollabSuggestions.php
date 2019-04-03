@@ -21,14 +21,10 @@ class CollabSuggestions extends Mailable
     public $profileId;
     public $unsubscribeLink;
     public $settingId;
-    public function __construct($name,$id,$settingId)
+    public function __construct($name)
     {
         //
         $this->name = $name;
-        $this->settingId = $settingId;
-        $this->profileId = \App\Profile::where('user_id',$id)->pluck('id');
-        $encryptedString = Crypt::encryptString($this->settingId."/".$this->profileId[0]."/0");
-        $this->unsubscribeLink = env('APP_URL')."/settingUpdate/unsubscribe/?k=".$encryptedString;
 
     }
 
@@ -39,6 +35,6 @@ class CollabSuggestions extends Mailable
      */
     public function build()
     {
-        return $this->subject('Top trending collaborations, you should see on TagTaste.')->view('emails.collaboration-suggestions',['unsubscribeLink'=>$this->unsubscribeLink]);
+        return $this->subject('Happy Holi 2019!')->view('emails.holi-email',['userName'=>$this->name]);
     }
 }
