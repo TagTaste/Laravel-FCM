@@ -13,8 +13,6 @@ class ConstantVariableTableSeeder extends Seeder
     {
         $data = [];
         $data[] = ['model_name'=>'profile', 'model_id'=>1009, 'ui_type'=>1, 'data_json'=>'{"title": "Chef of the Week", "description": "Chef Gunjan Goela is a celebrity chef, who is very popular for her shows nationally and internationally. With over 20 years of experience, Chef Gunjan has had the privilege to cook for our PM Mr. Narendra Modi. She has catered to some of the most important Indian industrialists like Ambanis, Goenkas, Modis, and Birlas. Gunjan also had a chance to do a popular TV series on Indian food with internationally famous Chef Gary Rhodes. She also manages a successful catering business and takes great pride in the rich culinary heritage of India."}', 'is_active'=>1];
-
-
         $data[] = ['model_name'=>'profile', 'model_id'=>111, 'ui_type'=>2, 'data_json'=>'{"title": "Recommendations", "subtitle": "Based on your background & interests"}', 'is_active'=>1];
 
         $data[] = ['model_name'=>'profile', 'model_id'=>"804,70,5555,27,685,626,2376,71,530,1315,48,961,383,1195,354,358,123,238,4338,787" , 'ui_type'=>3, 'data_json'=>'{"title": "Active & Influential"}', 'is_active'=>1];
