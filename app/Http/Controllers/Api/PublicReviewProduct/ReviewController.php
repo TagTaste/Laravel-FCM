@@ -321,9 +321,20 @@ class ReviewController extends Controller
             $this->model = Review::insert($data);
             if($currentStatus == 2)
             {
-                \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
-                Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
-                    ->update(['current_status'=>$currentStatus]);
+                $mandatoryQuestion = \DB::table('public_review_questions')->where('global_question_id',$product->global_question_id)->where('is_mandatory',1)->get();
+                $mandatoryQuestionsId = $mandatoryQuestion->pluck('id');
+                $mandatoryReviewCount = \DB::table('public_product_user_review')->where('product_id',$productId)->whereIn('question_id',$mandatoryQuestionsId)->where('profile_id',$loggedInProfileId)->distinct('question_id')->count('question_id');
+                if($mandatoryQuestion->count() == $mandatoryReviewCount)
+                {
+                    $this->model = true;
+                    \DB::table('public_review_user_timings')->where('profile_id',$loggedInProfileId)->where('product_id',$productId)->update(['updated_at'=>$this->now]);
+                    Review::where('profile_id',$loggedInProfileId)->where('product_id',$productId)
+                        ->update(['current_status'=>$currentStatus]);
+                }
+                else
+                {
+                    $this->model = false;
+                }
             }
         }
         return $this->sendResponse();
