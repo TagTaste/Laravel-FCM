@@ -18,7 +18,7 @@ class AlterPublicReviewProductAddColumn extends Migration
             $table->text("company_description")->nullable();
             $table->text("paired_best_with")->nullable();
             $table->string("portion_size")->nullable();
-            $table->int("serves_count")->nullable();
+            $table->integer("serves_count")->nullable();
             $table->string("product_ingredients")->nullable();
             $table->json("nutritional_info")->nullable();
             $table->string("allergic_info_contains")->nullable();
