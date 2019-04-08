@@ -192,6 +192,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\DeleteSingleChat::class,
         \App\Console\Commands\PreviewChangesMessage::class,
         \App\Console\Commands\MailIOS::class,
+        \App\Console\Commands\ChangeBucket::class,
 
         ChatMergeMessage::class,
         CompleteTastingMail::class,
