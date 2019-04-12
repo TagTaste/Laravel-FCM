@@ -358,9 +358,9 @@ class PublicReviewProductController extends Controller
         }
         $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
 
-//        if(null !== $skip && null !== $take){
-//            $model = $model->skip($skip)->take($take);
-//        }
+        if(null !== $skip && null !== $take){
+            $model = $model->skip($skip)->take($take);
+        }
 
         return $model->get();
 
