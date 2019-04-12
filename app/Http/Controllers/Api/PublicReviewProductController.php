@@ -118,7 +118,7 @@ class PublicReviewProductController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $product = $this->model->whereNull('deleted_at')->where('id',$id)->first();
+        $product = $this->model->whereNull('deleted_at')->where('is_active',1)->where('id',$id)->first();
         if($product == null)
         {
             $this->model = [];
