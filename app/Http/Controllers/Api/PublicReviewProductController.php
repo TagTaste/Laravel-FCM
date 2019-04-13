@@ -118,7 +118,7 @@ class PublicReviewProductController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $product = $this->model->whereNull('deleted_at')->where('id',$id)->first();
+        $product = $this->model->where('is_active',1)->whereNull('deleted_at')->where('id',$id)->first();
         if($product == null)
         {
             $this->model = [];
@@ -371,7 +371,9 @@ class PublicReviewProductController extends Controller
     {
 
         $suggestions = [];
-        $products = \DB::table('products')->where('name', 'like','%'.$term.'%')->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
+        $products = \DB::table('public_review_products')->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
+            ->orWhere('company_name', 'like','%'.$term.'%')->orWhere('description', 'like','%'.$term.'%')->where('is_active',1)
+            ->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
             ->take($take)->get();
 
         if(count($products)){
