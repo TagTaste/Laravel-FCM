@@ -3619,7 +3619,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_beverage_v2','keywords'=>"generic_beverage_v2",'description'=>null,
+        $data = ['name'=>'generic_thali_v1','keywords'=>"generic_beverage_v2",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
