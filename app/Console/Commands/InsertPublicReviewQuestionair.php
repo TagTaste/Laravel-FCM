@@ -41,42 +41,3583 @@ class InsertPublicReviewQuestionair extends Command
         $headerInfo2 = [
 
 
-
             ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>"0"],
 
-
             ['header_name' => "Your Food Shot", 'header_selection_type' => "3"],
-
 
 
             ['header_name'=>"APPEARANCE","header_info"=> ["text" => "Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
 
 
-            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are only assessing the aromas (odors through the nose), so please don't drink it yet. Now bring the product closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
 
 
-            ['header_name'=>"TASTE","header_info"=> ["text" => "Slurp noisily and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more." ],'header_selection_type'=>"1"],
+            ['header_name'=>"TASTE","header_info"=> ["text" => "Eat normally (please try to eat a little of all the components) and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."],'header_selection_type'=>"1" ],
 
 
 
-
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Slurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
-
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat normally (please try to eat a little of all the components) with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘feel’ may even last after the product has been swallowed. Texture (mouthfeel) is all about the joy we get from what we drink."],'header_selection_type'=>"1"],
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is chewed, and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
-
-            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
 
         ];
 
-        $questions2 = '{ "INSTRUCTIONS": [ { "title": "Instruction", "subtitle": "<b>Welcome to the Product Review!</b>\n\nIf a product involves stirring, shaking etc (like cold coffee) then the taster must follow the instructions fully, as mentioned on the packaging.\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package. Remember, there are no right or wrong answers. Let\'s start by opening the package.", "select_type": 4 } ], "Your Food Shot": [ { "title": "Take a selfie with the product", "subtitle": "Reviews look more authentic when you post them with a photograph.", "select_type": 6 } ], "APPEARANCE": [ { "title": "What was the serving temperature of the product?", "subtitle": "You may also take a sip to assess the serving temperature.", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Frozen", "is_intensity": 0 }, { "value": "Chilled", "is_intensity": 0 }, { "value": "Cold", "is_intensity": 0 }, { "value": "Room temperature", "is_intensity": 0 }, { "value": "Warm", "is_intensity": 0 }, { "value": "Hot", "is_intensity": 0 }, { "value": "Steaming hot", "is_intensity": 0 } ] }, { "title": "How is the visual impression (color & hue) of the product?", "subtitle": "Please select a maximum of top 4 options only.", "select_type": 2, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Silky", "is_intensity": 0 }, { "value": "Smooth", "is_intensity": 0 }, { "value": "Frothy", "is_intensity": 0 }, { "value": "Bubbly (Carbonation)", "is_intensity": 0 }, { "value": "Icy", "is_intensity": 0 }, { "value": "Sediments", "is_intensity": 0 }, { "value": "Pulpy", "is_intensity": 0 }, { "value": "Seeds", "is_intensity": 0 }, { "value": "Crumbly", "is_intensity": 0 }, { "value": "Sticky", "is_intensity": 0 }, { "value": "Crispy", "is_intensity": 0 }, { "value": "Chunky", "is_intensity": 0 }, { "value": "Thick", "is_intensity": 0 }, { "value": "Oil & water separated", "is_intensity": 0 } ] }, { "title": "Overall preference of Appearance", "select_type": 5, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Dislike Extremely", "color_code": "#8C0008" }, { "value": "Dislike Moderately", "color_code": "#C92E41" }, { "value": "Dislike Slightly", "color_code": "#C92E41" }, { "value": "Can\'t Say", "color_code": "#E27616" }, { "value": "Like Slightly", "color_code": "#AC9000" }, { "value": "Like Moderately", "color_code": "#7E9B42" }, { "value": "Like Extremely", "color_code": "#305D03" } ] } ], "AROMA": [ { "title": "What all aromas have you sensed?", "subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select <b>Any other</b> and if unable to sense any aroma at all, then select <b>Absent</b>.", "select_type": 2, "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense", "is_nested_question": 0, "is_mandatory": 1, "is_nested_option": 1, "nested_option_title": "AROMAS", "nested_option_list": "AROMA" }, { "title": "Overall preference of Aroma", "select_type": 5, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Dislike Extremely", "color_code": "#8C0008" }, { "value": "Dislike Moderately", "color_code": "#C92E41" }, { "value": "Dislike Slightly", "color_code": "#C92E41" }, { "value": "Can\'t Say", "color_code": "#E27616" }, { "value": "Like Slightly", "color_code": "#AC9000" }, { "value": "Like Moderately", "color_code": "#7E9B42" }, { "value": "Like Extremely", "color_code": "#305D03" } ] } ], "TASTE": [ { "title": "Which Basic tastes have you sensed?", "is_nested_question": 0, "is_intensity": 0, "is_nested_option": 0, "is_mandatory": 1, "select_type": 2, "option": [ { "value": "Sweet", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "Salt", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "Sour", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic, Moderately Acidic, Intensely Acidic, Very Intensely Acidic, Extremely Acidic" }, { "value": "Bitter", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "Umami", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "No Basic Taste", "is_intensity": 0 } ] }, { "title": "Which Ayurvedic tastes have you sensed?", "select_type": 2, "is_intensity": 0, "is_mandatory": 1, "is_nested_question": 0, "is_nested_option": 0, "option": [ { "value": "Astringent (Dryness - Raw Banana)", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "Pungent (Spices / Garlic)", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "Pungent Cool Sensation (Mint)", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "Pungent Chilli", "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense" }, { "value": "No Ayurvedic Taste", "is_intensity": 0 } ] }, { "title": "Overall preference of Taste", "select_type": 5, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Dislike Extremely", "color_code": "#8C0008" }, { "value": "Dislike Moderately", "color_code": "#C92E41" }, { "value": "Dislike Slightly", "color_code": "#C92E41" }, { "value": "Can\'t Say", "color_code": "#E27616" }, { "value": "Like Slightly", "color_code": "#AC9000" }, { "value": "Like Moderately", "color_code": "#7E9B42" }, { "value": "Like Extremely", "color_code": "#305D03" } ] } ], "AROMATICS TO FLAVORS": [ { "title": "What all aromatics have you sensed?", "subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>.", "select_type": 2, "is_intensity": 1, "intensity_type": 2, "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense", "is_nested_question": 0, "is_mandatory": 1, "is_nested_option": 1, "nested_option_title": "AROMATICS", "nested_option_list": "AROMA" }, { "title": "Please ingest the product and pause. How is the aftertaste?", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Pleasant", "is_intensity": 0 }, { "value": "Unpleasant", "is_intensity": 0 }, { "value": "Can\'t Say", "is_intensity": 0 } ] }, { "title": "What is the length of the aftertaste?", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Long", "is_intensity": 0 }, { "value": "Sufficient", "is_intensity": 0 }, { "value": "Short", "is_intensity": 0 }, { "value": "None", "is_intensity": 0 } ] }, { "title": "How is the flavor experience?", "subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Natural & pleasant", "is_intensity": 0 }, { "value": "Natural but unpleasant", "is_intensity": 0 }, { "value": "Artificial but pleasant", "is_intensity": 0 }, { "value": "Artificial & unpleasant", "is_intensity": 0 }, { "value": "Bland", "is_intensity": 0 } ] }, { "title": "Overall preference of Aromatics", "select_type": 5, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Dislike Extremely", "color_code": "#8C0008" }, { "value": "Dislike Moderately", "color_code": "#C92E41" }, { "value": "Dislike Slightly", "color_code": "#C92E41" }, { "value": "Can\'t Say", "color_code": "#E27616" }, { "value": "Like Slightly", "color_code": "#AC9000" }, { "value": "Like Moderately", "color_code": "#7E9B42" }, { "value": "Like Extremely", "color_code": "#305D03" } ] } ], "TEXTURE": [{ "title": "How is the mouthfeel of the product?", "select_type": 2, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Refreshing", "is_intensity": 0 }, { "value": "Juicy", "is_intensity": 0 }, { "value": "Super Smooth", "is_intensity": 0 }, { "value": "Chewy", "is_intensity": 0 }, { "value": "Chunky", "is_intensity": 0 }, { "value": "Syrupy", "is_intensity": 0 }, { "value": "Tingly", "is_intensity": 0 }, { "value": "Popping", "is_intensity": 0 }, { "value": "Foamy", "is_intensity": 0 }, { "value": "Milky", "is_intensity": 0 } ] }, { "title": "How would you describe body and smoothness of the product?", "subtitle": "Body - refers to the thickness of texture of the beverage.\nSmoothness - is the result of levels of fat suspended in the beverage.", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Watery", "is_intensity": 0 }, { "value": "Skim milk", "is_intensity": 0 }, { "value": "Whole milk", "is_intensity": 0 }, { "value": "Syrupy", "is_intensity": 0 }, { "value": "Creamy", "is_intensity": 0 }, { "value": "Shaved ice", "is_intensity": 0 }, { "value": "Crystaline", "is_intensity": 0 } ] }, { "title": "How would you describe iciness present in your product (beverage)?", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Shaved ice", "is_intensity": 0 }, { "value": "Crushed ice", "is_intensity": 0 }, { "value": "Icicles", "is_intensity": 0 }, { "value": "No ice", "is_intensity": 0 }, { "value": "Not applicable", "is_intensity": 0 } ] }, { "title": "After ingesting the product, do you feel anything left inside the mouth?", "select_type": 2, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Greasy film", "is_intensity": 0 }, { "value": "Loose particles", "is_intensity": 0 }, { "value": "Sticking on tooth", "is_intensity": 0 }, { "value": "Stuck between tooth", "is_intensity": 0 }, { "value": "Chalky", "is_intensity": 0 }, { "value": "Any other", "is_intensity": 0 }, { "value": "No residue", "is_intensity": 0 } ] }, { "title": "Overall preference of Texture", "select_type": 5, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Dislike Extremely", "color_code": "#8C0008" }, { "value": "Dislike Moderately", "color_code": "#C92E41" }, { "value": "Dislike Slightly", "color_code": "#C92E41" }, { "value": "Can\'t Say", "color_code": "#E27616" }, { "value": "Like Slightly", "color_code": "#AC9000" }, { "value": "Like Moderately", "color_code": "#7E9B42" }, { "value": "Like Extremely", "color_code": "#305D03" } ] } ], "PRODUCT EXPERIENCE": [{ "title": "What do you feel about the sides (chocolate sauce etc.) served along with the product?", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Exceeds Expectation", "is_intensity": 0 }, { "value": "Meets Expectation", "is_intensity": 0 }, { "value": "Below Expectation", "is_intensity": 0 }, { "value": "Not Applicable", "is_intensity": 0 } ] }, { "title": "How would you describe the \"serve size\" of this product?", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Generous", "is_intensity": 0 }, { "value": "Modest", "is_intensity": 0 }, { "value": "Limited", "is_intensity": 0 } ] }, { "title": "Did this product succeed in satisfying your basic senses?", "select_type": 1, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Yes", "is_intensity": 0 }, { "value": "No", "is_intensity": 0 } ] }, { "title": "Which attributes can be improved further?", "select_type": 2, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 0, "option": [ { "value": "Appearance", "is_intensity": 0 }, { "value": "Aroma", "is_intensity": 0 }, { "value": "Taste", "is_intensity": 0 }, { "value": "Aromatics To Flavors", "is_intensity": 0 }, { "value": "Texture", "is_intensity": 0 }, { "value": "Everything is fine", "is_intensity": 0 } ] }, { "title": "Overall Product Preference", "select_type": 5, "is_intensity": 0, "is_nested_question": 0, "is_mandatory": 1, "option": [ { "value": "Dislike Extremely", "color_code": "#8C0008" }, { "value": "Dislike Moderately", "color_code": "#C92E41" }, { "value": "Dislike Slightly", "color_code": "#C92E41" }, { "value": "Can\'t Say", "color_code": "#E27616" }, { "value": "Like Slightly", "color_code": "#AC9000" }, { "value": "Like Moderately", "color_code": "#7E9B42" }, { "value": "Like Extremely", "color_code": "#305D03" } ] }, { "title": "Comments", "placeholder": "Share feedback in your own words…", "select_type": 3, "is_intensity": 0, "is_mandatory": 0, "is_nested_question": 0 } ] }';
+        $questions2 = '{
+
+
+	"INSTRUCTIONS": [
+
+
+		{
+
+
+			"title": "Instruction",
+
+
+			"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package. Remember, there are no right or wrong answers. Let\'s start by opening the package.",
+
+
+			"select_type": 4
+
+
+		}
+
+
+	],
+
+	"Your Food Shot": [
+
+
+		{
+
+
+			"title": "Take a selfie with the product",
+
+
+			"subtitle": "Reviews look more authentic when you post them with a photograph.",
+
+
+			"select_type": 6
+
+
+		}
+
+
+	],
+
+
+
+
+
+	"APPEARANCE": [
+
+
+		{
+
+
+			"title": "What is the serving temperature of the product? ",
+			"subtitle": "You may also touch the product to assess the serving temperature.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Frozen",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Chilled",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Cold",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Room temperature",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Warm",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Hot",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Steaming hot",
+
+
+					"is_intensity": 0
+
+				}
+
+
+			]
+
+
+		},
+		{
+
+
+			"title": "Is the product (thali) served to you a complete meal in itself, as described below?",
+			"subtitle": "A good thali is a complete meal that has diverse components. These components usually are - seasonal veggies, carbohydrates and proteins cooked as per region - specific flavors. All the thalis have a common underlying principle - they should include all the 6 tastes of Ayurveda namely sweet, salt, sour, bitter, astringent and pungent. Usually, a thali beautifully incorporates the balance of nutrients through the portion size of its diverse components.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+
+
+			]
+
+
+		},
+		{
+
+
+			"title": "Look at the arrangement of the components in the thali. How well are they arranged?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Neatly",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Messed up",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+
+
+			]
+
+
+		},
+		{
+
+
+			"title": "What all components are present in your product (thali)?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Desserts",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Chutney / Pickles",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+
+				{
+
+
+					"value": "Curries",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Dry veggies",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+					"value": "Indian breads",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Beverage (Buttermilk / Lassi etc.)",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+
+				{
+
+
+					"value": "Rice",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Papad",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+
+
+
+			]
+
+
+		},
+		{
+
+
+			"title": "How is the visual impression of the product (thali)? ",
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Appetizing",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Colorful",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Spicy",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Fresh",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Stale",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Oily",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Dull",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Boring",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "What is your assessment about components in the served product (thali)?",
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Less still appealing",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Less & unappealing",
+
+
+					"is_intensity": 0
+
+				},
+				{
+
+
+
+
+
+					"value": "Balanced",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Excess still appealing",
+
+
+					"is_intensity": 0
+
+				},
+				{
+
+
+
+
+
+					"value": "Excess & unappealing",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How do you assess the visual texture of the majority of components served to you?",
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Different textures",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Similar texture",
+
+
+					"is_intensity": 0
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "Identify the vegetables served in the product (thali). Are they seasonal?",
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+				}
+			]
+
+
+		},
+
+		{
+
+
+			"title": "How well balanced is the composition of the product (thali)?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Balanced",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Too many curries",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Excess carbohydrates",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Limited dry veggies",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Limited protein",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+
+			]
+
+
+		},
+
+		{
+
+
+			"title": "How oily are most of the components in the product (thali)?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+     	
+     	"is_nested_option": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Oil free",
+
+
+					"is_intensity": 0
+
+
+				},
+        {
+				  
+					"value": "Oily",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				}
+
+				
+
+			]
+
+
+		},
+		{
+
+
+
+
+
+			"title": "Overall preference of Appearance",
+
+
+			"select_type": 5,
+
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Extremely",
+
+
+
+
+
+					"color_code": "#8C0008"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Moderately",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Slightly",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Can\'t Say",
+
+
+
+
+
+					"color_code": "#E27616"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Slightly",
+
+
+
+
+
+					"color_code": "#AC9000"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Moderately",
+
+
+
+
+
+					"color_code": "#7E9B42"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Extremely",
+
+
+
+
+
+					"color_code": "#305D03"
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+
+
+
+		}
+
+
+	],
+
+
+
+
+
+
+
+	"AROMA": [
+
+
+		{
+
+
+			"title": "What all aromas have you sensed?",
+			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select <b>Any other</b> and if unable to sense any aroma at all, then select <b>Absent</b>.",
+
+
+
+			"select_type": 2,
+
+
+			"is_intensity": 1,
+
+
+			"intensity_type": 2,
+
+
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"is_nested_option": 1,
+
+
+			"nested_option_title": "AROMAS",
+
+
+			"nested_option_list": "AROMA"
+
+
+		},
+
+
+		{
+
+
+
+
+
+			"title": "Overall preference of Aroma",
+
+
+
+
+
+			"select_type": 5,
+
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Extremely",
+
+
+
+
+
+					"color_code": "#8C0008"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Moderately",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Slightly",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Can\'t Say",
+
+
+
+
+
+					"color_code": "#E27616"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Slightly",
+
+
+
+
+
+					"color_code": "#AC9000"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Moderately",
+
+
+
+
+
+					"color_code": "#7E9B42"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Extremely",
+
+
+
+
+
+					"color_code": "#305D03"
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+
+
+
+		}
+
+
+	],
+
+
+
+
+
+	"TASTE": [
+
+
+		{
+
+
+			"title": "Which Basic tastes have you sensed?",
+
+
+			"is_nested_question": 0,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_option": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"select_type": 2,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Sweet",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
+
+
+					"value": "Salt",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Sour",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic, Moderately Acidic, Intensely Acidic, Very Intensely Acidic, Extremely Acidic"
+
+
+				},
+
+
+				{
+
+
+					"value": "Bitter",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Umami",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "No Basic Taste",
+
+
+					"is_intensity": 0
+
+
+				}
+
+
+
+
+			]
+
+
+		},
+
+
+		{
+
+
+
+
+
+			"title": "Which Ayurvedic tastes have you sensed?",
+
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_nested_option": 0,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+					"value": "Astringent (Dryness - Raw Banana)",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
+
+
+					"value": "Pungent (Spices / Garlic)",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Pungent Cool Sensation (Mint)",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Pungent Chilli",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
+
+
+					"value": "No Ayurvedic Taste",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+		},
+
+		{
+
+
+
+
+
+			"title": "Overall preference of Taste",
+
+
+
+
+
+			"select_type": 5,
+
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Extremely",
+
+
+
+
+
+					"color_code": "#8C0008"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Moderately",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Slightly",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Can\'t Say",
+
+
+
+
+
+					"color_code": "#E27616"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Slightly",
+
+
+
+
+
+					"color_code": "#AC9000"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Moderately",
+
+
+
+
+
+					"color_code": "#7E9B42"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Extremely",
+
+
+
+
+
+					"color_code": "#305D03"
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+
+
+
+		}
+
+
+	],
+
+
+
+	"AROMATICS TO FLAVORS": [
+
+
+		{
+
+
+			"title": "What all aromatics have you sensed?",
+
+
+			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>.",
+
+
+			"select_type": 2,
+
+
+			"is_intensity": 1,
+
+
+			"intensity_type": 2,
+
+
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"is_nested_option": 1,
+
+
+			"nested_option_title": "AROMATICS",
+
+
+			"nested_option_list": "AROMA"
+
+
+		},
+		{
+
+
+			"title": "Please swallow the product and pause. How is the aftertaste?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Pleasant",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Unpleasant",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Can\'t Say",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "What is the length of the aftertaste?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Long",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Sufficient",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Short",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "None",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How is the flavor experience?",
+			"subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Natural & pleasant",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Natural but unpleasant",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Artificial but pleasant",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Artificial & unpleasant",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Bland",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "Did you get region - specific desired flavors in this product (thali), as it was mentioned in the menu?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+
+			"title": "Overall preference of Aromatics",
+
+
+			"select_type": 5,
+
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Extremely",
+
+
+
+
+
+					"color_code": "#8C0008"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Moderately",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Slightly",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Can\'t Say",
+
+
+
+
+
+					"color_code": "#E27616"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Slightly",
+
+
+
+
+
+					"color_code": "#AC9000"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Moderately",
+
+
+
+
+
+					"color_code": "#7E9B42"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Extremely",
+
+
+
+
+
+					"color_code": "#305D03"
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+
+
+
+		}
+
+
+	],
+
+
+	"TEXTURE": [
+
+		{
+
+			"title": "Eat normally, please try to eat a little of all the components. While eating, did you hear multiple sounds (crispy, crackly, crunchy etc)?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+				{
+
+
+
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+			"title": "Did you find anything particularly difficult to chew?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+				{
+
+
+
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+			"title": "Did you feel a variety of textures inside your mouth while chewing?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+				{
+
+
+
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+
+		{
+
+
+			"title": "Did you feel anything left inside the mouth after swallowing the product?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Oily film",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Loose particles",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Sticking on tooth",
+
+
+					"is_intensity": 0
+
+
+
+				},
+				{
+
+
+					"value": "Stuck between tooth",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Chalky",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "No residue",
+
+
+					"is_intensity": 0
+
+
+				}
+
+
+
+			]
+
+
+		},
+
+		{
+
+
+			"title": "Overall preference of Texture",
+
+
+			"select_type": 5,
+
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Extremely",
+
+
+
+
+
+					"color_code": "#8C0008"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Moderately",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Slightly",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Can\'t Say",
+
+
+
+
+
+					"color_code": "#E27616"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Slightly",
+
+
+
+
+
+					"color_code": "#AC9000"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Moderately",
+
+
+
+
+
+					"color_code": "#7E9B42"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Extremely",
+
+
+
+
+
+					"color_code": "#305D03"
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+
+
+
+		}
+
+
+	],
+
+
+
+
+
+
+
+
+	"PRODUCT EXPERIENCE": [{
+
+
+			"title": "How would you describe the \"serve size\" of this product(thali)?",
+			"subtitle": "Suppose the menu says it serves 2, does it really serve 2?",
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Generous",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Modest",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Limited",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "In terms of quality, which components would you rate high?",
+			"subtitle": "Please select top 3 options.",
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Desserts",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Chutney / Pickles",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Curries",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Dry veggies",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Indian breads",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Beverage (Buttermilk / Lassi etc.)",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Rice",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Papad",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "All of them",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "None of them",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+			]
+
+
+		},
+{
+
+
+			"title": "In terms of quality, which components would you rate low? ",
+			"subtitle": "Please select top 3 options.",
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Desserts",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Chutney / Pickles",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Curries",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Dry veggies",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Indian breads",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Beverage (Buttermilk / Lassi etc.)",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Rice",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Papad",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "All of them",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "None of them",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+
+
+
+			"title": "Overall Product Preference",
+
+
+			"select_type": 5,
+
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Extremely",
+
+
+
+
+
+					"color_code": "#8C0008"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Moderately",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Dislike Slightly",
+
+
+
+
+
+					"color_code": "#C92E41"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Can\'t Say",
+
+
+
+
+
+					"color_code": "#E27616"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Slightly",
+
+
+
+
+
+					"color_code": "#AC9000"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Moderately",
+
+
+
+
+
+					"color_code": "#7E9B42"
+
+
+
+
+
+				},
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Like Extremely",
+
+
+
+
+
+					"color_code": "#305D03"
+
+
+
+
+
+				}
+
+
+
+
+
+			]
+
+
+
+
+
+		},
+
+
+		{
+
+
+			"title": "Comments",
+
+
+			"placeholder": "Share feedback in your own words…",
+
+
+			"select_type": 3,
+
+
+			"is_intensity": 0,
+
+
+			"is_mandatory": 0,
+
+
+			"is_nested_question": 0
+
+
+		}
+
+
+	]
+
+
+}';
 
         $data = ['name'=>'generic_beverage_v2','keywords'=>"generic_beverage_v2",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
