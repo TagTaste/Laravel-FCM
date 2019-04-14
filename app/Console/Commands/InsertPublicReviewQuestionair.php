@@ -54,23 +54,25 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name'=>"TASTE","header_info"=> ["text" => "Eat normally (please try to eat a little of all the components) and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."],'header_selection_type'=>"1" ],
+            ['header_name'=>"TASTE","header_info"=> ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste; and some people crave for more."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat normally (please try to eat a little of all the components) with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is chewed, and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is chewed; and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
-            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
 
         ];
 
         $questions2 = '{
+
+
 
 
 	"INSTRUCTIONS": [
@@ -82,7 +84,7 @@ class InsertPublicReviewQuestionair extends Command
 			"title": "Instruction",
 
 
-			"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package. Remember, there are no right or wrong answers. Let\'s start by opening the package.",
+			"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\n\nPlease click (i) on every screen / page for guidance related to questions.\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 
 			"select_type": 4
@@ -92,6 +94,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 	],
+
 
 	"Your Food Shot": [
 
@@ -123,7 +126,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "What is the serving temperature of the product? ",
+			"title": "What is the serving temperature of the product?",
 			"subtitle": "You may also touch the product to assess the serving temperature.",
 
 			"select_type": 1,
@@ -242,8 +245,132 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "Is the product (thali) served to you a complete meal in itself, as described below?",
-			"subtitle": "A good thali is a complete meal that has diverse components. These components usually are - seasonal veggies, carbohydrates and proteins cooked as per region - specific flavors. All the thalis have a common underlying principle - they should include all the 6 tastes of Ayurveda namely sweet, salt, sour, bitter, astringent and pungent. Usually, a thali beautifully incorporates the balance of nutrients through the portion size of its diverse components.",
+			"title": "How is the visual impression (color and sheen) of the product?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Bright",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Dull",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Shiny",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Light",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Dark",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Natural",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Artificial",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
+
+
+		},
+		{
+
+
+			"title": "Is the product garnished?",
 
 			"select_type": 1,
 
@@ -292,7 +419,6 @@ class InsertPublicReviewQuestionair extends Command
 
 				}
 
-
 			]
 
 
@@ -300,7 +426,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "Look at the arrangement of the components in the thali. How well are they arranged?",
+			"title": "How do you relate to the consistency of the gravy in the product?",
 
 			"select_type": 1,
 
@@ -326,7 +452,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Neatly",
+					"value": "Water",
 
 
 					"is_intensity": 0
@@ -338,7 +464,76 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Messed up",
+					"value": "Whole Milk",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Pulpy Juice",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Cream",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Honey",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Peanut Butter",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Not Applicable",
 
 
 					"is_intensity": 0
@@ -349,7 +544,6 @@ class InsertPublicReviewQuestionair extends Command
 
 				}
 
-
 			]
 
 
@@ -357,7 +551,8 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "What all components are present in your product (thali)?",
+			"title": "How is the visual texture of the product?",
+			"subtitle": "Please select a maximum of 4 options.",
 
 			"select_type": 2,
 
@@ -381,174 +576,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
-
-					"value": "Desserts",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Chutney / Pickles",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-
-				{
-
-
-					"value": "Curries",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Dry veggies",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-				{
-
-
-
-					"value": "Indian breads",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Beverage (Buttermilk / Lassi etc.)",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-
-				{
-
-
-					"value": "Rice",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Papad",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				}
-
-
-
-			]
-
-
-		},
-		{
-
-
-			"title": "How is the visual impression of the product (thali)? ",
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Appetizing",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Colorful",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-				{
 
 
 					"value": "Spicy",
@@ -563,309 +590,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Fresh",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Stale",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Oily",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Dull",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Boring",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Any other",
-
-
-					"is_intensity": 0
-
-
-				}
-			]
-
-
-		},
-		{
-
-
-			"title": "What is your assessment about components in the served product (thali)?",
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Less still appealing",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Less & unappealing",
-
-
-					"is_intensity": 0
-
-				},
-				{
-
-
-
-
-
-					"value": "Balanced",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Excess still appealing",
-
-
-					"is_intensity": 0
-
-				},
-				{
-
-
-
-
-
-					"value": "Excess & unappealing",
-
-
-					"is_intensity": 0
-
-
-				}
-			]
-
-
-		},
-		{
-
-
-			"title": "How do you assess the visual texture of the majority of components served to you?",
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Different textures",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Similar texture",
-
-
-					"is_intensity": 0
-
-				}
-			]
-
-
-		},
-		{
-
-
-			"title": "Identify the vegetables served in the product (thali). Are they seasonal?",
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Yes",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "No",
-
-
-					"is_intensity": 0
-
-				}
-			]
-
-
-		},
-
-		{
-
-
-			"title": "How well balanced is the composition of the product (thali)?",
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Balanced",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Too many curries",
+					"value": "Soft",
 
 
 					"is_intensity": 0
@@ -875,37 +600,179 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
-
 				{
 
 
-					"value": "Excess carbohydrates",
+					"value": "Tender",
 
 
 					"is_intensity": 0
+
+
+
 
 
 				},
 				{
 
 
-
-
-
-					"value": "Limited dry veggies",
+					"value": "Lumpy",
 
 
 					"is_intensity": 0
 
 
+
+
+
 				},
-
-
 				{
 
 
-					"value": "Limited protein",
+					"value": "Mushy",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Smooth",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Sticky",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Crispy",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Crusty",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Chunky",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Rubbery",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Chewy",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Stringy",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Firm",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Dry",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Hard",
 
 
 					"is_intensity": 0
@@ -920,11 +787,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
-
 		{
 
 
-			"title": "How oily are most of the components in the product (thali)?",
+			"title": "How oily is the product?",
+
 
 			"select_type": 1,
 
@@ -933,8 +800,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"is_nested_question": 0,
-     	
-     	"is_nested_option": 0,
+			"is_nested_option": 0,
 
 
 			"is_mandatory": 1,
@@ -952,15 +818,17 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Oil free",
+					"value": "Oil Free",
 
 
 					"is_intensity": 0
 
 
 				},
-        {
-				  
+
+
+				{
+
 					"value": "Oily",
 
 
@@ -974,13 +842,135 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
-
-				
-
 			]
 
 
 		},
+		{
+
+
+			"title": "Is the quantity of main ingredient in relation to whole product sufficient?",
+			"subtitle": "Assess how much chicken / paneer is there with respect to gravy. Similarly, in dry dishes like Aloo-Gobhi, assess the ratio of Aloo & Gobhi.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+			"is_mandatory": 1,
+
+			"is_nested_question": 0,
+
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+					"value": "Yes",
+
+
+					"is_intensity": 0
+
+
+				},
+
+				{
+
+
+					"value": "No",
+
+
+					"is_intensity": 0
+
+				},
+				{
+
+
+					"value": "Doesn\'t matter",
+
+
+					"is_intensity": 0
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "What is the cooked appeal of the product?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Rightly cooked",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Under cooked",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Over cooked",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+
 		{
 
 
@@ -1206,8 +1196,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"title": "What all aromas have you sensed?",
-			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select <b>Any other</b> and if unable to sense any aroma at all, then select <b>Absent</b>.",
 
+
+			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select <b>Any other</b> and if unable to sense any aroma at all, then select <b>Absent</b>",
 
 
 			"select_type": 2,
@@ -1751,6 +1742,7 @@ class InsertPublicReviewQuestionair extends Command
 
 		},
 
+
 		{
 
 
@@ -2247,61 +2239,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
-		{
 
-
-			"title": "Did you get region - specific desired flavors in this product (thali), as it was mentioned in the menu?",
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Yes",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "No",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				}
-			]
-
-
-		},
 		{
 
 
@@ -2513,12 +2451,58 @@ class InsertPublicReviewQuestionair extends Command
 	],
 
 
-	"TEXTURE": [
+
+
+
+	"TEXTURE": [{
+			"title": "Take sufficient quantity of the product (include all the components of the served product). Bite 2-3 times and pause. What kind of sound do you hear?",
+			"subtitle": "Crispy- one sound event which is sharp, clean, fast and high pitched, e.g., Chips.\nCrunchy (Crushing sound) - multiple low pitched sounds perceived as a series of small events, e.g., Rusks.\nCrackly- bite only once without grinding, it is one sudden low pitched sound event that brittles the product, e.g., Puffed rice.",
+			"select_type": 2,
+			"is_nested_question": 0,
+			"is_nested_option": 0,
+			"is_mandatory": 1,
+			"is_intensity": 0,
+			"option": [
+
+				{
+					"value": "Crispy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Crunchy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Crackly",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "No Sound",
+					"is_intensity": 0
+				}
+
+			]
+		},
+
 
 		{
 
-			"title": "Eat normally, please try to eat a little of all the components. While eating, did you hear multiple sounds (crispy, crackly, crunchy etc)?",
 
+			"title": "How much force is needed to chew the product?",
+
+			"subtitle": "Take all the components of the product.",
 
 			"select_type": 1,
 
@@ -2535,13 +2519,161 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [
 
 
+
+
+
 				{
 
 
 
 
 
-					"value": "Yes",
+					"value": "Barely any force",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Normal force",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Extra force",
+
+
+					"is_intensity": 0
+
+
+
+				}
+
+			]
+
+
+		},
+		{
+			"title": "As you chew, which of these are being released from the product?",
+			"subtitle": "Please chew for 3-4 times and pause.",
+			"select_type": 2,
+			"is_nested_question": 0,
+			"is_nested_option": 0,
+			"is_mandatory": 1,
+			"is_intensity": 0,
+			"option": [
+
+				{
+					"value": "Moisture",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Oil",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Dry",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				}
+
+			]
+		},
+		{
+
+
+			"title": "While chewing, which prominent textures can you feel in your mouth?",
+			"subtitle": "Select a maximum of 4 options.",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Juicy",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Tender",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Silky",
+
+
+					"is_intensity": 0
+
+
+
+				},
+				{
+
+
+					"value": "Smooth",
 
 
 					"is_intensity": 0
@@ -2551,25 +2683,123 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
+					"value": "Dry",
 
 
+					"is_intensity": 0
 
-					"value": "No",
+
+				},
+				{
+
+
+					"value": "Fibrous",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Sticky",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Springy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Gummy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Chewy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Dense",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Grainy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Gritty (Hard to chew)",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Chunky",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Leathery",
 
 
 					"is_intensity": 0
 
 
 				}
+
 			]
 
 
 		},
 		{
 
-			"title": "Did you find anything particularly difficult to chew?",
 
-
+			"title": "What kind of mass is being formed?",
+			"subtitle": "Take a spoonful of the product comprising all the ingredients, chew it for minimum 8-10 times and pause.",
 			"select_type": 1,
 
 
@@ -2585,13 +2815,43 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [
 
 
+
+
+
 				{
 
 
 
 
 
-					"value": "Yes",
+					"value": "Tight mass",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Pulpy mass",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Barely any mass",
 
 
 					"is_intensity": 0
@@ -2601,63 +2861,13 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-
-
-
-					"value": "No",
+					"value": "No mass",
 
 
 					"is_intensity": 0
 
 
-				}
-			]
 
-
-		},
-		{
-
-			"title": "Did you feel a variety of textures inside your mouth while chewing?",
-
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-				{
-
-
-
-
-
-					"value": "Yes",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "No",
-
-
-					"is_intensity": 0
 
 
 				}
@@ -2669,7 +2879,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "Did you feel anything left inside the mouth after swallowing the product?",
+			"title": "After swallowing the product, do you feel anything left inside the mouth?",
 
 			"select_type": 2,
 
@@ -2718,8 +2928,10 @@ class InsertPublicReviewQuestionair extends Command
 
 				},
 
-
 				{
+
+
+
 
 
 					"value": "Sticking on tooth",
@@ -2728,8 +2940,9 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-
 				},
+
+
 				{
 
 
@@ -2739,8 +2952,15 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
+
+
+
 				},
+
 				{
+
+
+
 
 
 					"value": "Chalky",
@@ -2750,6 +2970,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
 				{
 
 
@@ -2757,6 +2979,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"is_intensity": 0
+
+
+
 
 
 				},
@@ -2769,14 +2994,15 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
+
+
+
 				}
-
-
-
 			]
 
 
 		},
+
 
 		{
 
@@ -2997,8 +3223,81 @@ class InsertPublicReviewQuestionair extends Command
 	"PRODUCT EXPERIENCE": [{
 
 
-			"title": "How would you describe the \"serve size\" of this product(thali)?",
+			"title": "What do you feel about the sides served along with the product?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Exceeds Expectation",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Meets Expectation",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Below Expectation",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+					"value": "Not Applicable",
+					"is_intensity": 0
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How would you describe the \"serve size\" of this product?",
 			"subtitle": "Suppose the menu says it serves 2, does it really serve 2?",
+
 			"select_type": 1,
 
 
@@ -3062,12 +3361,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
+
 		{
 
 
-			"title": "In terms of quality, which components would you rate high?",
-			"subtitle": "Please select top 3 options.",
-			"select_type": 2,
+			"title": "Did this product succeed in satisfying your basic senses?",
+
+
+			"select_type": 1,
 
 
 			"is_intensity": 0,
@@ -3088,22 +3389,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-
-
-
-					"value": "Desserts",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Chutney / Pickles",
+					"value": "Yes",
 
 
 					"is_intensity": 0
@@ -3113,119 +3399,34 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
 				{
 
 
-					"value": "Curries",
+					"value": "No",
 
 
 					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Dry veggies",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Indian breads",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Beverage (Buttermilk / Lassi etc.)",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Rice",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Papad",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "All of them",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "None of them",
-
-
-					"is_intensity": 0
-
-
-
 
 
 				}
+
 			]
 
 
 		},
-{
 
 
-			"title": "In terms of quality, which components would you rate low? ",
-			"subtitle": "Please select top 3 options.",
+
+
+
+		{
+
+
+			"title": "Which attributes can be improved further?",
+
+
 			"select_type": 2,
 
 
@@ -3235,7 +3436,7 @@ class InsertPublicReviewQuestionair extends Command
 			"is_nested_question": 0,
 
 
-			"is_mandatory": 1,
+			"is_mandatory": 0,
 
 
 			"option": [
@@ -3247,10 +3448,22 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
+					"value": "Appearance",
+
+
+					"is_intensity": 0
 
 
 
-					"value": "Desserts",
+
+
+				},
+
+
+				{
+
+
+					"value": "Aroma",
 
 
 					"is_intensity": 0
@@ -3262,7 +3475,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Chutney / Pickles",
+					"value": "Taste",
 
 
 					"is_intensity": 0
@@ -3272,49 +3485,24 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
 				{
 
 
-					"value": "Curries",
+					"value": "Aromatics to Flavors",
 
 
 					"is_intensity": 0
 
 
-
-
-
 				},
+
+
 				{
 
 
-					"value": "Dry veggies",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Indian breads",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Beverage (Buttermilk / Lassi etc.)",
+					"value": "Texture",
 
 
 					"is_intensity": 0
@@ -3327,46 +3515,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Rice",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "Papad",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "All of them",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-				{
-
-
-					"value": "None of them",
+					"value": "Everything is fine",
 
 
 					"is_intensity": 0
@@ -3376,17 +3525,24 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
+
+
+
+
+
 			]
 
 
 		},
+
+
 		{
 
 
 
 
 
-			"title": "Overall Product Preference",
+			"title": "Overall product preference",
 
 
 			"select_type": 5,
@@ -3619,7 +3775,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_thali_v1','keywords'=>"generic_thali_v1",'description'=>null,
+        $data = ['name'=>'generic_main_course_v1','keywords'=>"generic_main_course_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
