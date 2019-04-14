@@ -62,9 +62,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is eaten; and it may even last after the product is swallowed. Product may make sound (add on chips/nuts), may give us joy (creamy foods), and may even cause pain or disgust (sticky / slimy foods)."],'header_selection_type'=>"1"],
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is chewed; and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
-            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
         ];
@@ -81,7 +81,7 @@ class InsertPublicReviewQuestionair extends Command
 			"title": "Instruction",
 
 
-			"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package. Remember, there are no right or wrong answers. Let\'s start by opening the package.",
+			"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package. Remember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 
 			"select_type": 4
@@ -122,8 +122,8 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "What was the serving temperature of the product?",
-			"subtitle": "You may also touch to assess the serving temperature.",
+			"title": "What is the serving temperature of the product?",
+			"subtitle": "You may also touch the product to assess the serving temperature.",
 
 			"select_type": 1,
 
@@ -241,7 +241,116 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
+			"title": "How is the color of the product?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Creamish",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Whitish",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Beige",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Light brown",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Brown",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
+
+
+		},
+		{
+
+
 			"title": "How is the visual impression (color and sheen) of the product?",
+
 			"select_type": 2,
 
 
@@ -300,23 +409,20 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
 				{
 
 
-					"value": "Oily",
+					"value": "Greasy (Oily / Buttery)",
 
 
 					"is_intensity": 0
 
 
-
-
-
 				},
-
-
 				{
+
+
+
 
 
 					"value": "Light",
@@ -326,6 +432,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
 				{
 
 
@@ -335,11 +443,13 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
+
+
+
 				},
+
+
 				{
-
-
-
 
 
 					"value": "Natural",
@@ -362,89 +472,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
-			]
-
-
-		},
-		{
-
-
-			"title": "As you lift the slice away from the whole product (pizza pie), how is the molten cheese behaving?",
-
-
-			"is_nested_question": 0,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_option": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"select_type": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Cheese pull (Strands)",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Dripping",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-				{
-
-
-					"value": "None",
-
-
-					"is_intensity": 0
-
-
-				}
-
-
-
 
 			]
 
@@ -453,104 +480,8 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "What is the color of cheese in the product?",
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "White",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Ivory",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Creamish yellow",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Brownish tinge",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Any other",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				}
-
-			]
-
-
-		},
-		{
-
-
-			"title": "While holding (if possible) a slice of this pizza, what do you observe?",
-			"subtitle": "Please observe its surface with toppings, edge (arch), bottom of base and crumb along the sides.",
+			"title": "How is the visual texture of the product?",
+			"subtitle": "Please select a maximum of top 4 options only.",
 
 			"select_type": 2,
 
@@ -576,7 +507,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Fresh toppings",
+					"value": "Soft",
 
 
 					"is_intensity": 0
@@ -588,7 +519,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Overcooked toppings",
+					"value": "Flaky",
 
 
 					"is_intensity": 0
@@ -598,25 +529,13 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
-
-				{
-
-
-					"value": "Soft & gooey cheese",
-
-
-					"is_intensity": 0
-
-
-				},
 				{
 
 
 
 
 
-					"value": "Tight cheese (Skinning)",
+					"value": "Crusty",
 
 
 					"is_intensity": 0
@@ -628,7 +547,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Crusty base",
+					"value": "Mushy",
 
 
 					"is_intensity": 0
@@ -638,86 +557,196 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
-
 				{
 
 
-					"value": "Hard & burnt base",
+
+
+
+					"value": "Bubbly (Roti)",
 
 
 					"is_intensity": 0
 
 
 				},
+
+
 				{
 
 
-					"value": "Puffy edges",
-
-
-					"is_intensity": 0
-
-				},
-				{
-
-
-					"value": "Rough edges",
+					"value": "Blistered",
 
 
 					"is_intensity": 0
 
 
-				},
-				{
 
-
-					"value": "Charred (Burnt) edges",
-
-
-					"is_intensity": 0
-
-				},
-				{
-
-
-					"value": "Airy crumb",
-
-
-					"is_intensity": 0
 
 
 				},
 				{
 
 
-					"value": "Bubbly crumb",
 
 
-					"is_intensity": 0
 
-				},
-				{
-
-
-					"value": "Dense crumb",
+					"value": "Seasoned dough",
 
 
 					"is_intensity": 0
 
 
 				},
+
+
 				{
 
 
-					"value": "Hard crumb",
+					"value": "Leathery",
 
 
 					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Firm",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Dry flour",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Cracked",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Sticky",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Soggy",
+
+
+					"is_intensity": 0
+
+
+
+
 
 				}
+			]
 
 
+		},
+		{
+
+
+			"title": "How many layers can you identify in this product (Parantha, Parotta etc)?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+				{
+
+
+
+
+
+					"value": "No layers",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Multi layers",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Not applicable",
+
+
+					"is_intensity": 0
+
+
+				}
 			]
 
 
@@ -726,46 +755,124 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "In terms of quantity, what is the proportion of the components in this product?",
-
-
-			"is_nested_question": 0,
+			"title": "In terms of quantity, what is your assessment about stuffing inside the product?",
+			"subtitle": "To answer this question, please cut through the product.",
+			"select_type": 1,
 
 
 			"is_intensity": 0,
 
 
-			"is_nested_option": 0,
+			"is_nested_question": 0,
 
 
 			"is_mandatory": 1,
 
 
-			"select_type": 2,
+			"option": [
+
+				{
+
+
+
+
+
+					"value": "Barely any",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Less",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Sufficient",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Extra",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Excess (Burst stuffing)",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How is the cooked appeal of the product?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
 
 
 			"option": [
 
-
-
-
-
 				{
 
 
 
 
 
-					"value": "Base",
+					"value": "Rightly cooked",
 
 
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+					"is_intensity": 0
 
 
 				},
@@ -775,40 +882,28 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Toppings",
+					"value": "Under cooked (Raw dough)",
 
 
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+					"is_intensity": 0
 
 
 				},
 
+
 				{
 
 
-					"value": "Cheese",
 
 
-					"is_intensity": 1,
+
+					"value": "Over cooked (Burnt)",
 
 
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+					"is_intensity": 0
 
 
 				}
-
-
-
-
 			]
 
 
@@ -1583,6 +1678,7 @@ class InsertPublicReviewQuestionair extends Command
 
 		},
 
+
 		{
 
 
@@ -2079,110 +2175,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
-		{
 
-
-			"title": "Which components of the product are enhancing the flavor experience?",
-			"subtitle": "Please select a maximum of 3 options.",
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-
-
-
-				{
-
-
-
-
-
-					"value": "Base",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Sauce",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Toppings",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Cheese",
-
-
-					"is_intensity": 0
-
-
-
-
-
-				},
-
-
-				{
-
-
-					"value": "Seasonings",
-
-
-					"is_intensity": 0
-
-
-				},
-
-				{
-
-
-					"value": "Sides",
-
-
-					"is_intensity": 0
-
-
-				}
-			]
-
-
-		},
 		{
 
 
@@ -2394,112 +2387,54 @@ class InsertPublicReviewQuestionair extends Command
 	],
 
 
+
+
+
 	"TEXTURE": [{
-
-
 			"title": "Take sufficient quantity of the product (include all the components of the served product). Bite 2-3 times and pause. What kind of sound do you hear?",
 			"subtitle": "Crispy - One sharp, clean, fast, and high pitched sound, e.g., Chips.\nCrunchy - Multiple low pitched crushing sounds perceived as a series of small events, e.g., Rusks.\nCrackly - One sudden low pitched sound that brittles the product, e.g., Puffed rice.",
-
-			"is_nested_question": 0,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_option": 0,
-
-
-			"is_mandatory": 1,
-
-
 			"select_type": 2,
-
-
+			"is_nested_question": 0,
+			"is_nested_option": 0,
+			"is_mandatory": 1,
+			"is_intensity": 0,
 			"option": [
 
-
-
-
-
 				{
-
-
-
-
-
 					"value": "Crispy",
-
-
 					"is_intensity": 1,
-
-
 					"intensity_type": 2,
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
 				},
 				{
-
-
-
-
-
 					"value": "Crunchy",
-
-
 					"is_intensity": 1,
-
-
 					"intensity_type": 2,
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
 				},
 				{
-
-
-
-
-
 					"value": "Crackly",
-
-
 					"is_intensity": 1,
-
-
 					"intensity_type": 2,
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
 				},
-
 				{
-
-
 					"value": "No Sound",
-
-
 					"is_intensity": 0
-
-
 				}
 
-
-
-
 			]
-
-
 		},
 		{
 
-			"title": "How much force is needed to take the first bite?",
+
+			"title": "How much force is needed to chew the product?",
 
 			"select_type": 1,
 
@@ -2509,97 +2444,23 @@ class InsertPublicReviewQuestionair extends Command
 
 			"is_nested_question": 0,
 
-
-			"is_mandatory": 1,
-
-
-			"option": [
-
-
-				{
-
-
-
-
-
-					"value": "Less force",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Normal force",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Extra force",
-
-
-					"is_intensity": 0
-
-
-				}
-			]
-
-
-		},
-		{
-
-
-			"title": "As you chew, which of these are being released from the product?",
-
-			"is_nested_question": 0,
-
-
-			"is_intensity": 0,
-
-
 			"is_nested_option": 0,
 
-
 			"is_mandatory": 1,
-
-
-			"select_type": 2,
 
 
 			"option": [
 
 
-
-
-
 				{
 
 
 
 
 
-					"value": "Cream (Cheese)",
-
-
+					"value": "Force needed",
 					"is_intensity": 1,
-
-
 					"intensity_type": 2,
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
@@ -2610,82 +2471,60 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Juice (Toppings)",
+					"value": "No force needed",
 
 
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Oil",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-				{
-
-
-					"value": "Moisture",
-
-
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-				{
-
-
-					"value": "Dry",
-
-
-					"is_intensity": 1,
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 
 				}
-
-
-
 
 			]
 
 
 		},
 		{
+			"title": "As you chew, which of these are being released from the product?",
+			"subtitle": "Please chew for 3-4 times and pause.",
+			"select_type": 2,
+			"is_nested_question": 0,
+			"is_nested_option": 0,
+			"is_mandatory": 1,
+			"is_intensity": 0,
+			"option": [
+
+				{
+					"value": "Moisture",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
-			"title": "While chewing, what are the prominent textures in your mouth?",
-			"subtitle": "Please select a maximum of 4 options.",
+				},
+				{
+					"value": "Grease (Oil / Butter)",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
+
+				},
+				{
+					"value": "Dry",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				}
+
+			]
+		},
+		{
+
+
+			"title": "While chewing, which prominent textures can you feel in your mouth?",
+			"subtitle": "Select a maximum of 4 options.",
 			"select_type": 2,
 
 
@@ -2707,33 +2546,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Stringy",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Sticky",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Spongy",
+					"value": "Chewy",
 
 
 					"is_intensity": 0
@@ -2753,13 +2566,97 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
 				{
 
 
 
 
 
-					"value": "Chewy",
+					"value": "Fluffy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Fibrous",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Sticky",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Gummy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Springy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Grainy",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+
+
+
+					"value": "Gritty (Hard to chew)",
 
 
 					"is_intensity": 0
@@ -2785,20 +2682,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Lumpy",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-
-
-
-					"value": "Mushy",
+					"value": "Dense",
 
 
 					"is_intensity": 0
@@ -2837,7 +2721,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Firm",
+					"value": "Dry",
 
 
 					"is_intensity": 0
@@ -2850,7 +2734,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Hard",
+					"value": "Firm",
 
 
 					"is_intensity": 0
@@ -2883,9 +2767,6 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [
 
 
-
-
-
 				{
 
 
@@ -2899,9 +2780,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
-
 				{
+
+
+
 
 
 					"value": "Pulpy mass",
@@ -2910,13 +2792,13 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-
-
-
 				},
 
 
 				{
+
+
+
 
 
 					"value": "Barely any mass",
@@ -2925,8 +2807,9 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-
 				},
+
+
 				{
 
 
@@ -2936,12 +2819,16 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
+
+
+
 				}
 
 			]
 
 
 		},
+
 
 		{
 
@@ -3030,7 +2917,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "No residue",
+					"value": "Any other",
 
 
 					"is_intensity": 0
@@ -3040,14 +2927,13 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Any other",
+					"value": "No residue",
 
 
 					"is_intensity": 0
 
 
 				}
-
 
 			]
 
@@ -3273,7 +3159,8 @@ class InsertPublicReviewQuestionair extends Command
 	"PRODUCT EXPERIENCE": [{
 
 
-			"title": "What do you feel about the sides (cheese dip, garlic bread etc.) served along with the product?",
+			"title": "What do you feel about the sides (salad, raita etc.) served along with the product?",
+
 			"select_type": 1,
 
 
@@ -3346,6 +3233,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "How would you describe the \"serve size\" of this product?",
 			"subtitle": "Suppose the menu says it serves 2, does it really serve 2?",
+
 			"select_type": 1,
 
 
@@ -3409,10 +3297,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
+
 		{
 
 
 			"title": "Did this product succeed in satisfying your basic senses?",
+
 
 			"select_type": 1,
 
@@ -3435,13 +3325,13 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-
-
-
 					"value": "Yes",
 
 
 					"is_intensity": 0
+
+
+
 
 
 				},
@@ -3456,18 +3346,22 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-
-
-
 				}
+
 			]
 
 
 		},
+
+
+
+
+
 		{
 
 
 			"title": "Which attributes can be improved further?",
+
 
 			"select_type": 2,
 
@@ -3490,13 +3384,13 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-
-
-
 					"value": "Appearance",
 
 
 					"is_intensity": 0
+
+
+
 
 
 				},
@@ -3511,10 +3405,9 @@ class InsertPublicReviewQuestionair extends Command
 					"is_intensity": 0
 
 
-
-
-
 				},
+
+
 				{
 
 
@@ -3528,19 +3421,20 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
 				{
 
 
-					"value": "Aromatics To Flavors",
+					"value": "Aromatics to Flavors",
 
 
 					"is_intensity": 0
 
 
-
-
-
 				},
+
+
 				{
 
 
@@ -3567,10 +3461,16 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
+
+
+
+
+
 			]
 
 
 		},
+
 
 		{
 
@@ -3811,7 +3711,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_pizza_v1','keywords'=>"generic_pizza_v1",'description'=>null,
+        $data = ['name'=>'generic_indian_breads_v1','keywords'=>"generic_indian_breads_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
