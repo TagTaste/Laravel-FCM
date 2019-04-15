@@ -1261,7 +1261,6 @@ class BatchController extends Controller
 
     public function reportPdf(Request $request, $collaborateId,$batchId)
     {
-        set_time_limit(300);
         $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
 
         if ($collaborate === null) {
