@@ -142,7 +142,7 @@ class ReportController extends Controller
                 return '#305D03';
         }
     }
-    
+
     public function reports(Request $request,$productId,$headerId)
     {
         $product = PublicReviewProduct::where('id',$productId)->first();
@@ -479,6 +479,7 @@ class ReportController extends Controller
 
     public function reportPdf(Request $request,$productId)
     {
+        set_time_limit(300);
         $product = PublicReviewProduct::where('id',$productId)->first();
         $globalQuestionId = $product->global_question_id;
         if ($product === null) {
