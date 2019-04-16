@@ -353,10 +353,10 @@ class PublicReviewProductController extends Controller
             if($modelIds->count()){
                 $ids = array_merge($ids,$modelIds->toArray());
             }
-            return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
+            return $model::whereIn('id',$ids)->whereNull('deleted_at')->where('is_active',1)->get();
 
         }
-        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->where('is_active',1);
 
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
