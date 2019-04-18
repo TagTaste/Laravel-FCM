@@ -38,7 +38,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     public static function boot()
     {
         self::created(function($recipe){
-            //\Redis::set("recipe:" . $recipe->id,$recipe->makeHidden(['profile','likeCount'])->toJson());
+            //Redis::set("recipe:" . $recipe->id,$recipe->makeHidden(['profile','likeCount'])->toJson());
     
             //create the document for searching
             \App\Documents\Recipe::create($recipe);
@@ -63,7 +63,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     public function addToCache()
     {
-        \Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
+        Redis::set("recipe:" . $this->id,$this->makeHidden(['profile','likeCount'])->toJson());
     }
 
     public function deleteShares()
@@ -74,7 +74,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     public function removeFromCache()
     {
-        \Redis::del("recipe:" . $this->id);
+        Redis::del("recipe:" . $this->id);
     }
     public function profile() {
     	return $this->belongsTo(\App\Recipe\Profile::class);
@@ -112,7 +112,7 @@ class Recipe extends Model implements Feedable, CommentNotification
     
     public function getLikeCountAttribute()
     {
-        $count = \Redis::sCard("meta:recipe:likes:" . $this->id);
+        $count = Redis::sCard("meta:recipe:likes:" . $this->id);
         if(is_null($count)) return 0;
         if($count >1000000)
         {
@@ -146,8 +146,8 @@ class Recipe extends Model implements Feedable, CommentNotification
     {
         $meta = [];
         $key = "meta:recipe:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'recipe' ,request()->user()->profile->id);

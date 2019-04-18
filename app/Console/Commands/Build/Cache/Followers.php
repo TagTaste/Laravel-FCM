@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\Cache;
 
 use App\Subscriber;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Followers extends Command
 {
@@ -52,7 +53,7 @@ class Followers extends Command
                 $key .= $channel[0] === 'company' ? 'company:' : 'profile:';
                 $key .= $channelOwnerProfileId;
                 echo 'updating ' . $key . "\n";
-                \Redis::sAdd($key, $model->profile_id);
+                Redis::sAdd($key, $model->profile_id);
             }
         });
     }

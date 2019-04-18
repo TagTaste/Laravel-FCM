@@ -6,6 +6,7 @@ use App\Job;
 use App\Profile as BaseProfile;
 use App\Shoutout;
 use App\Subscriber;
+use Illuminate\Support\Facades\Redis;
 
 class Profile extends BaseProfile
 {
@@ -168,8 +169,8 @@ class Profile extends BaseProfile
 
     public function getFollowersCountAttribute()
     {
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$this->id);
-        return count($profileIds) - \Redis::sIsMember("followers:profile:".$this->id,$this->id);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$this->id);
+        return count($profileIds) - Redis::sIsMember("followers:profile:".$this->id,$this->id);
     }
 
 }

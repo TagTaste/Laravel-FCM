@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Api\Controller;
+use Illuminate\Support\Facades\Redis;
 
 class ApplicantController extends Controller
 {
@@ -64,7 +65,7 @@ class ApplicantController extends Controller
         $applicants = $applicants->toArray();
         foreach ($applicants as &$applicant)
         {
-            $batchIds = \Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
+            $batchIds = Redis::sMembers("collaborate:".$applicant['collaborate_id'].":profile:".$applicant['profile_id'].":");
             $count = count($batchIds);
             if($count)
             {
@@ -72,11 +73,11 @@ class ApplicantController extends Controller
                 {
                     $batchId = "batch:".$batchId;
                 }
-                $batchInfos = \Redis::mGet($batchIds);
+                $batchInfos = Redis::mGet($batchIds);
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
+                    $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile_id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }
@@ -142,7 +143,7 @@ class ApplicantController extends Controller
 
             if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
             {
-                $company = \Redis::get('company:small:' . $collaborate->company_id);
+                $company = Redis::get('company:small:' . $collaborate->company_id);
                 $company = json_decode($company);
                 $profileIds = CompanyUser::where('company_id',$collaborate->company_id)->get()->pluck('profile_id');
                 foreach ($profileIds as $profileId)
@@ -461,7 +462,7 @@ class ApplicantController extends Controller
         $applicants = [];
         foreach ($profiles as &$applicant)
         {
-            $batchIds = \Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
+            $batchIds = Redis::sMembers("collaborate:".$collaborateId.":profile:".$applicant['profile']['id'].":");
             $count = count($batchIds);
             if($count)
             {
@@ -469,11 +470,11 @@ class ApplicantController extends Controller
                 {
                     $batchId = "batch:".$batchId;
                 }
-                $batchInfos = \Redis::mGet($batchIds);
+                $batchInfos = Redis::mGet($batchIds);
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile']['id']);
+                    $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$applicant['profile']['id']);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                 }
             }

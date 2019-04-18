@@ -11,6 +11,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 
 class Shoutout extends Model implements Feedable
@@ -47,12 +48,12 @@ class Shoutout extends Model implements Feedable
         });    }
 
     public function addToCache(){
-        \Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
+        Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
     }
 
     public function removeFromCache()
     {
-        \Redis::del("shoutout:" . $this->id);
+        Redis::del("shoutout:" . $this->id);
     }
     public function profile()
     {
@@ -76,7 +77,7 @@ class Shoutout extends Model implements Feedable
 
     public function getLikeCountAttribute()
     {
-        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $count = Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         if($count >1000000)
         {
@@ -109,8 +110,8 @@ class Shoutout extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = \Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
@@ -139,8 +140,8 @@ class Shoutout extends Model implements Feedable
         }
         $key = $prefix . ":small:" . $owner->id;
 
-        if(!\Redis::exists($key)){
-            \Redis::set($key, $owner->toJson());
+        if(!Redis::exists($key)){
+            Redis::set($key, $owner->toJson());
         }
 
         return [$prefix => $key];

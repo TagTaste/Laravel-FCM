@@ -3,6 +3,7 @@
 namespace App\Shareable;
 
 use App\PeopleLike;
+use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends Share
 {
@@ -29,8 +30,8 @@ class Shoutout extends Share
         $meta = [];
         $key = "meta:shoutoutShare:likes:" . $this->id;
     
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutoutShare' ,request()->user()->profile->id);
@@ -44,7 +45,7 @@ class Shoutout extends Share
         $meta = [];
         $key = "meta:shoutoutShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 

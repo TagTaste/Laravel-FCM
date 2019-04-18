@@ -4,6 +4,7 @@ namespace App\Chat;
 
 use App\Chat;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class Message extends Model
 {
@@ -50,7 +51,7 @@ class Message extends Model
             if($message->type == 0)
             {   
                 $message->load('profile');
-                \Redis::publish("chat." . $message->chat_id,$message->toJson());
+                Redis::publish("chat." . $message->chat_id,$message->toJson());
             }
         });
     }
