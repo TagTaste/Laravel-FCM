@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableProfileGamification extends Migration
+class AlterProfilesAddExpertColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreateTableProfileGamification extends Migration
      */
     public function up()
     {
-        Schema::create('profile_gamification', function(Blueprint $table){
-            $table->unsignedInteger('tasting_expert');
-            $table->foreign('tasting_expert')->references("id")->on('profiles');
+        Schema::table('profiles',function($table){
+            $table->boolean('is_tasting_expert')->default(0);
         });
     }
 
@@ -26,6 +25,8 @@ class CreateTableProfileGamification extends Migration
      */
     public function down()
     {
-        Schema::drop('profile_gamification');
+        Schema::table('profiles',function($table){
+            $table->dropColumn('is_tasting_expert');
+        });
     }
 }
