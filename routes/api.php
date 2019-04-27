@@ -779,9 +779,31 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     $meta = isset($meta->meta) ? json_decode($meta->meta,true) : null;
                     $rating = \DB::table('public_product_user_review')->where('product_id',$item->id)
                         ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',5)->first();
+                    $spiceLevel = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                        ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',2)
+                        ->where('value','Pungent Chilli')->first();
+                    $intensity = null;
+                    if(isset($spiceLevel->intensity))
+                    {
+                        if($spiceLevel->intensity == 'Barely Detectable')
+                            $intensity = 1;
+                        else if($spiceLevel->intensity == 'Weak')
+                            $intensity = 2;
+                        else if($spiceLevel->intensity == 'Mild')
+                            $intensity = 3;
+                        else if($spiceLevel->intensity == 'Moderate')
+                            $intensity = 4;
+                        else if($spiceLevel->intensity == 'Intense')
+                            $intensity = 5;
+                        else if($spiceLevel->intensity == 'Very Intense')
+                            $intensity = 6;
+                        else if($spiceLevel->intensity == 'Extremely Intense')
+                            $intensity = 7;
+                    }
                     $data[] = ['S.No'=>$index,
                         'Product Name'=>$item->name,
                         'TT Product Link'=>'https://www.tagtaste.com/reviews/products/'.$item->id,
+                        'spice_level' => $intensity,
                         'Vendor Name'=> $vendorInfo->vendor_name,
                         'Vendor Code' => $vendorInfo->vendor_code,
                         'outlet_id' => $vendorInfo->id,
@@ -804,7 +826,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Expires" => "0"
         );
 
-        $columns = array('S.No','Product Name','TT Product Link','Vendor Name','Vendor Code','outlet_id','expert_name','expert_profile_tagline','expert_rating','expert_review_full','expert_photo','expert_dish_selfie');
+        $columns = array('S.No','Product Name','TT Product Link','spice_level','Vendor Name','Vendor Code','outlet_id','expert_name','expert_profile_tagline','expert_rating','expert_review_full','expert_photo','expert_dish_selfie');
 
         $str = '';
         foreach ($columns as $c) {
