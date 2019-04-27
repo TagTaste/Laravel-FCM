@@ -674,7 +674,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }); // end of authenticated routes. Add routes before this line to be able to
             // get current logged in user.
 
-            Route::get("csv/college",function (Request $request){
+            Route::get("csv/college1",function (Request $request){
                 $this->model = [];
                 $productIds = \DB::Table('public_product_user_review')->where('current_status',2)->where('source',2)->get()->pluck('product_id');
                 $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->get();
@@ -754,6 +754,74 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 //                return response($str, 200, $headers);
         
             });
+
+
+    Route::get("csv/college",function (Request $request){
+        $this->model = [];
+        $productIds = \DB::Table('public_product_user_review')->where('current_status',2)->where('source',2)->get()->pluck('product_id');
+        $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->get();
+        $data = [];
+        $index = 1;
+        foreach ($productInfo as $item)
+        {
+            $vendorInfos = \DB::table('public_review_product_outlets')->where('product_id',$item->id)->get();
+            foreach ($vendorInfos as $vendorInfo)
+            {
+                $profileIds = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                    ->where('outlet_id',$vendorInfo->id)->get()->pluck('profile_id');
+                $profiles = App\Profile::whereIn('id',$profileIds)->where('is_tasting_expert',1)->get();
+                foreach ($profiles as $profile)
+                {
+                    $reviews = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                        ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',3)->first();
+                    $meta = \DB::table('public_product_user_review')->where('product_id',$item->product_id)
+                        ->where('profile_id',$profile->id)->where('select_type',6)->first();
+                    $meta = isset($meta->meta) ? json_decode($meta->meta,true) : null;
+                    $rating = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                        ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',5)->first();
+                    $data[] = ['S.No'=>$index,
+                        'Product Name'=>$item->name,
+                        'TT Product Link'=>'https://www.tagtaste.com/reviews/products/'.$item->id,
+                        'Vendor Name'=> $vendorInfo->vendor_name,
+                        'Vendor Code' => $vendorInfo->vendor_code,
+                        'outlet_id' => $vendorInfo->id,
+                        'expert_name' => $profile->name,
+                        'expert_profile_tagline' => $profile->tagline,
+                        'expert_rating' => $rating->leaf_id,
+                        'expert_review_full' => isset($reviews->value) ? $reviews->value : null,
+                        'expert_photo' => $profile->imageUrl,
+                        'expert_dish_selfie' => isset($meta->meta->tiny_photo) ? $meta->meta->tiny_photo : null
+                    ];
+                }
+
+            }
+        }
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=users_name_gender.csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $columns = array('S.No','Product Name','TT Product Link','Vendor Name','Vendor Code','outlet_id','expert_name','expert_profile_tagline','expert_rating','expert_review_full','expert_photo','expert_dish_selfie');
+
+        $str = '';
+        foreach ($columns as $c) {
+            $str = $str.$c.',';
+        }
+        $str = $str."\n";
+        foreach($data as $review) {
+            foreach ($columns as $c) {
+                $str = $str.$review[$c].',';
+            }
+            $str = $str."\n";
+        }
+
+        return response($str, 200, $headers);
+
+    });
+
 
 
 });
