@@ -695,7 +695,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     {
                         $profileIds = \DB::table('public_product_user_review')->where('product_id',$item->id)
                             ->where('outlet_id',$vendorInfo->id)->get()->pluck('profile_id');
-                        $profiles = App\Profile::whereIn('profile_id',$profileIds)->where('is_tasting_expert',1)->get();
+                        $profiles = App\Profile::whereIn('id',$profileIds)->where('is_tasting_expert',1)->get();
                         foreach ($profiles as $profile)
                         {
                             $reviews = \DB::table('public_product_user_review')->where('product_id',$item->id)
