@@ -750,7 +750,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 })->store('xls');
                 $filePath = storage_path("exports/foodpanda_excel_download.xls");
 
-                return response()->download($filePath, "exports/foodpanda_excel_download.xls", $headers);
+                return response()->download($filePath, "foodpanda_excel_download.xls", $headers);
 //                return response($str, 200, $headers);
         
             });
