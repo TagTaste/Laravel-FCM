@@ -676,57 +676,82 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[234 ,235 ,217 ,256 ,242 ,241 ,245 ,244 ,243 ,250 ,249 ,248 ,246 ,237 ,215])->get();
+                $productIds = \DB::Table('public_product_user_review')->where('current_status',2)->where('source',2)->get()->pluck('product_id');
+                $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->get();
                 $data = [];
-                foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
-                {
-                    $applicantsDetails = [];
-                    $applicantsDetails['collaborate_id'] = $collaborateApplicantsDetail->collaborate_id;
-                    $applicantsDetails['message'] = $collaborateApplicantsDetail->message;
-                    if(isset($collaborateApplicantsDetail->company_id) && !is_null($collaborateApplicantsDetail->company_id))
-                    {
-                        $applicantsDetails['profile_id'] = null;
-                        $applicantsDetails['company_id'] = $collaborateApplicantsDetail->company_id;
-                        $applicantsDetails['name'] = $collaborateApplicantsDetail->company->name;
-                        $applicantsDetails['city'] = null;
-                        $applicantsDetails['email'] = null;
-                    }
-                    else
-                    {
-                        $applicantsDetails['profile_id'] = $collaborateApplicantsDetail->profile_id;
-                        $profileDetails =\DB::table('profiles')->join('users','users.id','=','profiles.user_id')
-                            ->where('profiles.id',$collaborateApplicantsDetail->profile_id)->first();
-                        $applicantsDetails['phone'] = $profileDetails->phone;
-                        $applicantsDetails['email'] = $profileDetails->email;
-                        $applicantsDetails['company_id'] = null;
-                        $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
-                        $applicantsDetails['city'] = $collaborateApplicantsDetail->city;
-                    }
-                    $data[] = $applicantsDetails;
-                }
                 $headers = array(
-                    "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=users_name_gender.csv",
+                    "Content-type" => "application/vnd.ms-excel; charset=utf-8",
+                    "Content-Disposition" => "attachment; filename=foodpanda_excel_download.xls",
                     "Pragma" => "no-cache",
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
+                $data = [];
+                $index = 1;
+                foreach ($productInfo as $item)
+                {
+                    $vendorInfos = \DB::table('public_review_product_outlets')->where('product_id',$item->id)->get();
+                    foreach ($vendorInfos as $vendorInfo)
+                    {
+                        $profileIds = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                            ->where('outlet_id',$vendorInfo->id)->get()->pluck('profile_id');
+                        $profiles = App\Profile::whereIn('profile_id',$profileIds)->where('is_tasting_expert',1)->get();
+                        foreach ($profiles as $profile)
+                        {
+                            $reviews = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                                ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',3)->first();
+                            $meta = \DB::table('public_product_user_review')->where('product_id',$item->product_id)
+                                ->where('profile_id',$profile->id)->where('select_type',6)->first();
+                            $meta = isset($meta->meta) ? json_decode($meta->meta,true) : null;
+                            $rating = \DB::table('public_product_user_review')->where('product_id',$item->id)
+                                ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',5)->first();
+                            $data[] = ['S.No'=>$index,
+                                'Product Name'=>$item->name,
+                                'TT Product Link'=>'https://www.tagtaste.com/reviews/products/'.$item->id,
+                                'Vendor Name'=> $vendorInfo->vendor_name,
+                                'Vendor Code' => $vendorInfo->vendor_code,
+                                'outlet_id' => $vendorInfo->id,
+                                'expert_name' => $profile->name,
+                                'expert_profile_tagline' => $profile->tagline,
+                                'expert_rating' => $rating->leaf_id,
+                                'expert_review_full' => $reviews->value,
+                                'expert_photo' => $profile->imageUrl,
+                                'expert_dish_selfie' => $meta->meta->tiny_photo
+                        ];
+                        }
 
-                $columns = array('collaborate_id','name','email','phone','profile_id','company_id','message');
-
-                $str = '';
-                foreach ($columns as $c) {
-                    $str = $str.$c.',';
-                }
-                $str = $str."\n";
-                foreach($data as $review) {
-                    foreach ($columns as $c) {
-                        $str = $str.$review[$c].',';
                     }
-                    $str = $str."\n";
                 }
-       
-                return response($str, 200, $headers);
+                $columns = array('S.No','Product Name','TT Product Link','Vendor Name','Vendor Code','outlet_id','expert_name','expert_profile_tagline','expert_rating','expert_review_full','expert_photo','expert_dish_selfie');
+                Excel::create("foodpanda_excel_download", function($excel) use($productInfo, $columns) {
+
+                    // Set the title
+                    $excel->setTitle("FoodPanda Integration");
+
+                    // Chain the setters
+                    $excel->setCreator('TagTaste')
+                        ->setCompany('TagTaste');
+
+                    // Call them separately
+                    $excel->setDescription('Foodpanda Tagtaste Product Review Data');
+                    // Our first sheet
+                    $excel->sheet('First sheet', function($sheet) use($productInfo, $columns) {
+                        $sheet->setOrientation('landscape');
+                        $sheet->row(1,$columns);
+                        $index = 2;
+                        foreach ($productInfo as $key => $value) {
+                            $sheet->appendRow($index, $value);
+                            $index++;
+                        }
+                        $sheet->appendRow("");
+
+                    });
+
+                })->store('xls');
+                $filePath = storage_path("foodpanda_excel_download.xls");
+
+                return response()->download($filePath, "foodpanda_excel_download.xls", $headers);
+//                return response($str, 200, $headers);
         
             });
 
