@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
-use Maatwebsite\Excel\Facades\Excel;
+use Excel;
 use Illuminate\Support\Facades\Crypt;
 
 
