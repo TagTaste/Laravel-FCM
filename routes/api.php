@@ -820,7 +820,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }
         $headers = array(
             "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=users_name_gender.csv",
+            "Content-Disposition" => "attachment; filename=foodpanda_expert_comments_with_spice_level.csv",
             "Pragma" => "no-cache",
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0"
