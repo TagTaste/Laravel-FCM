@@ -758,8 +758,9 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv/college",function (Request $request){
         $this->model = [];
-        $productIds = \DB::Table('public_product_user_review')->where('current_status',2)->where('source',2)->get()->pluck('product_id');
-        $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->get();
+        $productIds = \DB::table('public_product_user_review')->where('current_status',2)->where('source',2)
+            ->orderBy('id', 'DESC')->get()->pluck('product_id');
+        $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->skip(0)->take(30)->get();
         $data = [];
         $index = 1;
         foreach ($productInfo as $item)
