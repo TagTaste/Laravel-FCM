@@ -714,7 +714,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                                 'expert_name' => $profile->name,
                                 'expert_profile_tagline' => $profile->tagline,
                                 'expert_rating' => $rating->leaf_id,
-                                'expert_review_full' => $reviews->value,
+                                'expert_review_full' => isset($reviews->value) ? $reviews->value : null,
                                 'expert_photo' => $profile->imageUrl,
                                 'expert_dish_selfie' => $meta->meta->tiny_photo
                         ];
