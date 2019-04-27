@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\SearchClient;
-use Excel;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Crypt;
 
 
@@ -726,7 +726,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Excel::create("foodpanda_excel_download", function($excel) use($productInfo, $columns) {
 
                     // Set the title
-                    $excel->setTitle("FoodPanda Integration");
+                    $excel->setTitle("Foodpanda Integration");
 
                     // Chain the setters
                     $excel->setCreator('TagTaste')
