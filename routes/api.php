@@ -758,65 +758,73 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
     Route::get("csv/college1",function (Request $request){
         $this->model = [];
-        $productIds = \DB::table('public_product_user_review')->where('current_status',2)->where('source',2)
-            ->orderBy('id', 'DESC')->get()->pluck('product_id');
-        $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->skip(0)->take(30)->get();
-        $data = [];
-        $index = 1;
-        foreach ($productInfo as $item)
-        {
-            $vendorInfos = \DB::table('public_review_product_outlets')->where('product_id',$item->id)->get();
-            foreach ($vendorInfos as $vendorInfo)
-            {
-                $profileIds = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                    ->where('outlet_id',$vendorInfo->id)->get()->pluck('profile_id');
-                $profiles = App\Profile::whereIn('id',$profileIds)->where('is_tasting_expert',1)->get();
-                foreach ($profiles as $profile)
-                {
-                    $reviews = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                        ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',3)->first();
-                    $meta = \DB::table('public_product_user_review')->where('product_id',$item->product_id)
-                        ->where('profile_id',$profile->id)->where('select_type',6)->first();
-                    $meta = isset($meta->meta) ? json_decode($meta->meta,true) : null;
-                    $rating = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                        ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',5)->first();
-                    $spiceLevel = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                        ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',2)
-                        ->where('value','Pungent Chilli')->first();
-                    $intensity = null;
-                    if(isset($spiceLevel->intensity))
-                    {
-                        if($spiceLevel->intensity == 'Barely Detectable')
-                            $intensity = 1;
-                        else if($spiceLevel->intensity == 'Weak')
-                            $intensity = 2;
-                        else if($spiceLevel->intensity == 'Mild')
-                            $intensity = 3;
-                        else if($spiceLevel->intensity == 'Moderate')
-                            $intensity = 4;
-                        else if($spiceLevel->intensity == 'Intense')
-                            $intensity = 5;
-                        else if($spiceLevel->intensity == 'Very Intense')
-                            $intensity = 6;
-                        else if($spiceLevel->intensity == 'Extremely Intense')
-                            $intensity = 7;
-                    }
-                    $data[] = ['S.No'=>$index,
-                        'Product Name'=>$item->name,
-                        'TT Product Link'=>'https://www.tagtaste.com/reviews/products/'.$item->id,
-                        'spice_level' => $intensity,
-                        'Vendor Name'=> $vendorInfo->vendor_name,
-                        'Vendor Code' => $vendorInfo->vendor_code,
-                        'outlet_id' => $vendorInfo->id,
-                        'expert_name' => $profile->name,
-                        'expert_profile_tagline' => $profile->tagline,
-                        'expert_rating' => $rating->leaf_id,
-                        'expert_review_full' => isset($reviews->value) ? $reviews->value : null,
-                        'expert_photo' => $profile->imageUrl,
-                        'expert_dish_selfie' => isset($meta->meta->tiny_photo) ? $meta->meta->tiny_photo : null
-                    ];
-                }
+        $productIds = \DB::table('public_review_product_outlets')->select(DB::raw('count(*) as count, product_id'))
+            ->groupBy('product_id')->havingRaw("count > 1")->get()->pluck('product_id');
 
+        $products = \DB::table('public_review_products')->whereIn('id',$productIds)->get();
+        $data = [];
+        $index = 0;
+        foreach ($products as $product)
+        {
+            $outletIds = \DB::table('public_product_user_review')->select(DB::raw("COUNT(*) as count, outlet_id"))
+                ->where('product_id',$product->id)->where('current_status',2)->where('source',2)
+                ->groupBy('outlet_id')->havingRaw("count > 1")->get()->pluck('outlet_id');
+            foreach ($outletIds as $outletId)
+            {
+                $reviews = \DB::table('public_product_user_review')->select(DB::raw('sum(leaf_id) as sum,count(*) as count,question_id,leaf_id,value'))
+                    ->where('current_status',2)->where('source',2)->where('product_id',$product->id)->where('outlet_id',$outletId)
+                    ->where('select_type',5)->groupBy('question_id','value','leaf_id')->orderBy('question_id')->get();
+                $questionIds = [];
+                $rating1 = $rating2 = $rating3 = $rating4 = $rating5 = $rating6 = 0;
+                $count = 0;
+                foreach ($reviews as $review)
+                {
+                    if(in_array($review->question_id,$questionIds))
+                    {
+                        if(count($questionIds) == 1)
+                            $rating1 += $review->sum;
+                        else if(count($questionIds) == 2)
+                            $rating2 += $review->sum;
+                        else if(count($questionIds) == 3)
+                            $rating3 += $review->sum;
+                        else if(count($questionIds) == 4)
+                            $rating4 += $review->sum;
+                        else if(count($questionIds) == 5)
+                            $rating5 += $review->sum;
+                        else if(count($questionIds) == 6)
+                            $rating6 += $review->sum;
+                    }
+                    else
+                    {
+                        $questionIds[] = $review->question_id;
+                        if($rating1 == 0)
+                            $rating1 = $review->sum;
+                        else if($rating2 == 0)
+                            $rating2 = $review->sum;
+                        else if($rating3 == 0)
+                            $rating3 = $review->sum;
+                        else if($rating4 == 0)
+                            $rating4 = $review->sum;
+                        else if($rating5 == 0)
+                            $rating5 = $review->sum;
+                        else if($rating6 == 0)
+                            $rating6 = $review->sum;
+                    }
+                    $count += $review->count;
+                }
+                $count = $count/6;
+                $data[] = ['S.No'=>$index,
+                    'Product Name'=>$product->name,
+                    'TT Product Link'=>$product->id,
+                    'rating_sensogram_appearance'=> $rating1/$count,
+                    'rating_sensogram_aroma'=> $rating2/$count,
+                    'rating_sensogram_taste'=> $rating3/$count,
+                    'rating_sensogram_aromatics'=> $rating4/$count,
+                    'rating_sensogram_texture'=> $rating5/$count,
+                    'overall_rating'=> $rating6/$count,
+                    'outlet_id' => $outletId
+                ];
+                $index++;
             }
         }
         $headers = array(
@@ -826,8 +834,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0"
         );
-
-        $columns = array('S.No','Product Name','TT Product Link','spice_level','Vendor Name','Vendor Code','outlet_id','expert_name','expert_profile_tagline','expert_rating','expert_review_full','expert_photo','expert_dish_selfie');
+        $columns = array('S.No','Product Name','TT Product Link','rating_sensogram_appearance','rating_sensogram_aroma','rating_sensogram_taste','rating_sensogram_aromatics','rating_sensogram_texture','overall_rating','outlet_id');
 
         $str = '';
         foreach ($columns as $c) {
