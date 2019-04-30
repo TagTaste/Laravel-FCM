@@ -676,82 +676,44 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $productIds = \DB::Table('public_product_user_review')->where('current_status',2)->where('source',2)->get()->pluck('product_id');
-                $productInfo = \App\PublicReviewProduct::whereIn('id',$productIds)->get();
+                $outlets = \DB::table('public_review_product_outlets')->get();
+
                 $data = [];
+                $index = 1;
+                foreach ($outlets as $outlet)
+                {
+                    $data[] = ['S.No'=>$index,
+                        'TT Product Id'=>$outlet->product_id,
+                        'vendor_name'=> $outlet->vendor_name,
+                        'city'=> $outlet->city,
+                        'vendor_code'=> $outlet->vendor_code,
+                        'mm_name'=> $outlet->mm_name,
+                        'outlet_id' => $outlet->id
+                    ];
+                    $index++;
+                }
                 $headers = array(
-                    "Content-type" => "application/vnd.ms-excel; charset=utf-8",
-                    "Content-Disposition" => "attachment; filename=foodpanda_excel_download.xls",
+                    "Content-type" => "text/csv",
+                    "Content-Disposition" => "attachment; filename=outlet_data.csv",
                     "Pragma" => "no-cache",
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
-                $data = [];
-                $index = 1;
-                foreach ($productInfo as $item)
-                {
-                    $vendorInfos = \DB::table('public_review_product_outlets')->where('product_id',$item->id)->get();
-                    foreach ($vendorInfos as $vendorInfo)
-                    {
-                        $profileIds = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                            ->where('outlet_id',$vendorInfo->id)->get()->pluck('profile_id');
-                        $profiles = App\Profile::whereIn('id',$profileIds)->where('is_tasting_expert',1)->get();
-                        foreach ($profiles as $profile)
-                        {
-                            $reviews = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                                ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',3)->first();
-                            $meta = \DB::table('public_product_user_review')->where('product_id',$item->product_id)
-                                ->where('profile_id',$profile->id)->where('select_type',6)->first();
-                            $meta = isset($meta->meta) ? json_decode($meta->meta,true) : null;
-                            $rating = \DB::table('public_product_user_review')->where('product_id',$item->id)
-                                ->where('profile_id',$profile->id)->where('current_status',2)->where('select_type',5)->first();
-                            $data[] = ['S.No'=>$index,
-                                'Product Name'=>$item->name,
-                                'TT Product Link'=>'https://www.tagtaste.com/reviews/products/'.$item->id,
-                                'Vendor Name'=> $vendorInfo->vendor_name,
-                                'Vendor Code' => $vendorInfo->vendor_code,
-                                'outlet_id' => $vendorInfo->id,
-                                'expert_name' => $profile->name,
-                                'expert_profile_tagline' => $profile->tagline,
-                                'expert_rating' => $rating->leaf_id,
-                                'expert_review_full' => isset($reviews->value) ? $reviews->value : null,
-                                'expert_photo' => $profile->imageUrl,
-                                'expert_dish_selfie' => isset($meta->meta->tiny_photo) ? $meta->meta->tiny_photo : null
-                        ];
-                        }
+                $columns = array('S.No','TT Product Id','vendor_name','city','vendor_code','mm_name','outlet_id');
 
-                    }
+                $str = '';
+                foreach ($columns as $c) {
+                    $str = $str.$c.',';
                 }
-                $columns = array('S.No','Product Name','TT Product Link','Vendor Name','Vendor Code','outlet_id','expert_name','expert_profile_tagline','expert_rating','expert_review_full','expert_photo','expert_dish_selfie');
-                Excel::create("foodpanda_excel_download", function($excel) use($productInfo, $columns) {
+                $str = $str."\n";
+                foreach($data as $review) {
+                    foreach ($columns as $c) {
+                        $str = $str.$review[$c].',';
+                    }
+                    $str = $str."\n";
+                }
 
-                    // Set the title
-                    $excel->setTitle("Foodpanda Integration");
-
-                    // Chain the setters
-                    $excel->setCreator('TagTaste')
-                        ->setCompany('TagTaste');
-
-                    // Call them separately
-                    $excel->setDescription('Foodpanda Tagtaste Product Review Data');
-                    // Our first sheet
-                    $excel->sheet('First sheet', function($sheet) use($productInfo, $columns) {
-                        $sheet->setOrientation('landscape');
-                        $sheet->row(1,$columns);
-                        $index = 2;
-                        foreach ($productInfo as $key => $value) {
-                            $sheet->appendRow($index, $value);
-                            $index++;
-                        }
-                        $sheet->appendRow("");
-
-                    });
-
-                })->store('xls');
-                $filePath = storage_path("exports/foodpanda_excel_download.xls");
-
-                return response()->download($filePath, "foodpanda_excel_download.xls", $headers);
-//                return response($str, 200, $headers);
+                return response($str, 200, $headers);
         
             });
 
@@ -763,7 +725,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
         $products = \DB::table('public_review_products')->whereIn('id',$productIds)->get();
         $data = [];
-        $index = 0;
+        $index = 1;
         foreach ($products as $product)
         {
             $outletIds = \DB::table('public_product_user_review')->select(DB::raw("COUNT(*) as count, outlet_id"))
@@ -774,6 +736,27 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 $reviews = \DB::table('public_product_user_review')->select(DB::raw('sum(leaf_id) as sum,count(*) as count,question_id,leaf_id,value'))
                     ->where('current_status',2)->where('source',2)->where('product_id',$product->id)->where('outlet_id',$outletId)
                     ->where('select_type',5)->groupBy('question_id','value','leaf_id')->orderBy('question_id')->get();
+                $spicesLevel = \DB::table('public_product_user_review')->where('current_status',2)->where('source',2)
+                    ->where('product_id',$product->id)->where('outlet_id',$outletId)->where('value','Pungent Chilli')->get();
+                $spicesLevelValue = 0;
+                foreach ($spicesLevel as $item)
+                {
+                    if($item->intensity == 'Barely Detectable')
+                        $spicesLevelValue += 1;
+                    else if($item->intensity == 'Weak')
+                        $spicesLevelValue += 2;
+                    else if($item->intensity == 'Mild')
+                        $spicesLevelValue += 3;
+                    else if($item->intensity == 'Moderate')
+                        $spicesLevelValue += 4;
+                    else if($item->intensity == 'Intense')
+                        $spicesLevelValue += 5;
+                    else if($item->intensity == 'Very Intense')
+                        $spicesLevelValue += 6;
+                    else if($item->intensity == 'Extremely Intense')
+                        $spicesLevelValue += 7;
+                }
+                $spicesLevelValue = ($spicesLevelValue)/count($spicesLevel);
                 $questionIds = [];
                 $rating1 = $rating2 = $rating3 = $rating4 = $rating5 = $rating6 = 0;
                 $count = 0;
@@ -815,13 +798,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 $count = $count/6;
                 $data[] = ['S.No'=>$index,
                     'Product Name'=>$product->name,
-                    'TT Product Link'=>$product->id,
+                    'TT Product Link'=>"https://www.tagtaste.com/reviews/products".$product->id,
                     'rating_sensogram_appearance'=> $rating1/$count,
                     'rating_sensogram_aroma'=> $rating2/$count,
                     'rating_sensogram_taste'=> $rating3/$count,
                     'rating_sensogram_aromatics'=> $rating4/$count,
                     'rating_sensogram_texture'=> $rating5/$count,
                     'overall_rating'=> $rating6/$count,
+                    'spiciness' => $spicesLevelValue,
                     'outlet_id' => $outletId
                 ];
                 $index++;
@@ -829,12 +813,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
         }
         $headers = array(
             "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=foodpanda_expert_comments_with_spice_level.csv",
+            "Content-Disposition" => "attachment; filename=foodpanda_with_spice_level.csv",
             "Pragma" => "no-cache",
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0"
         );
-        $columns = array('S.No','Product Name','TT Product Link','rating_sensogram_appearance','rating_sensogram_aroma','rating_sensogram_taste','rating_sensogram_aromatics','rating_sensogram_texture','overall_rating','outlet_id');
+        $columns = array('S.No','Product Name','TT Product Link','rating_sensogram_appearance','rating_sensogram_aroma','rating_sensogram_taste','rating_sensogram_aromatics','rating_sensogram_texture','overall_rating','spiciness','outlet_id');
 
         $str = '';
         foreach ($columns as $c) {
