@@ -756,7 +756,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     else if($item->intensity == 'Extremely Intense')
                         $spicesLevelValue += 7;
                 }
-                $spicesLevelValue = ($spicesLevelValue)/count($spicesLevel);
+                if($spicesLevelValue > 0)
+                    $spicesLevelValue = ($spicesLevelValue)/count($spicesLevel);
                 $questionIds = [];
                 $rating1 = $rating2 = $rating3 = $rating4 = $rating5 = $rating6 = 0;
                 $count = 0;
