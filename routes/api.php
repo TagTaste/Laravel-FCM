@@ -677,7 +677,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
                 $comments = \DB::table('public_product_user_review')->where('source',2)->where('current_status',2)
-                    ->where('select_type',3)->take(10)->get();
+                    ->where('select_type',3)->get();
 
                 $data = [];
                 $index = 1;
