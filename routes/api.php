@@ -676,30 +676,32 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $outlets = \DB::table('public_review_product_outlets')->get();
+                $comments = \DB::table('public_product_user_review')->where('source',2)->where('current_status',2)
+                    ->where('select_type',3)->take(10)->get();
 
                 $data = [];
                 $index = 1;
-                foreach ($outlets as $outlet)
+                foreach ($comments as $comment)
                 {
+                    $product = \App\PublicReviewProduct::where('id',$comment->product_id)->first();
+                    $profile = \App\Recipe\Profile::where('id',$comment->profile_id)->first();
                     $data[] = ['S.No'=>$index,
-                        'TT Product Id'=>$outlet->product_id,
-                        'vendor_name'=> $outlet->vendor_name,
-                        'city'=> $outlet->city,
-                        'vendor_code'=> $outlet->vendor_code,
-                        'mm_name'=> $outlet->mm_name,
-                        'outlet_id' => $outlet->id
+                        'TT Product Name'=> $product->name,
+                        'TT Product Id Link'=>"https://www.tagtaste.com/reviews/products/".$comment->product_id,
+                        'Taster Name'=> $profile->name,
+                        'Taster Profile Link'=> "https://www.tagtaste.com/profile/".$profile->id,
+                        'Comment'=> $comment->value
                     ];
                     $index++;
                 }
                 $headers = array(
                     "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=outlet_data.csv",
+                    "Content-Disposition" => "attachment; filename=review_comment.csv",
                     "Pragma" => "no-cache",
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
-                $columns = array('S.No','TT Product Id','vendor_name','city','vendor_code','mm_name','outlet_id');
+                $columns = array('S.No','TT Product Name','TT Product Id Link','Taster Name','Taster Profile Link','Comment');
 
                 $str = '';
                 foreach ($columns as $c) {
@@ -718,123 +720,5 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             });
 
 
-    Route::get("csv/college1",function (Request $request){
-        $this->model = [];
-        $productIds = \DB::table('public_review_product_outlets')->select(DB::raw('count(*) as count, product_id'))
-            ->groupBy('product_id')->havingRaw("count > 1")->get()->pluck('product_id');
-
-        $products = \DB::table('public_review_products')->whereIn('id',$productIds)->get();
-        $data = [];
-        $index = 1;
-        foreach ($products as $product)
-        {
-            $outletIds = \DB::table('public_product_user_review')->select(DB::raw("COUNT(*) as count, outlet_id"))
-                ->where('product_id',$product->id)->where('current_status',2)->where('source',2)
-                ->groupBy('outlet_id')->havingRaw("count > 1")->get()->pluck('outlet_id');
-            foreach ($outletIds as $outletId)
-            {
-                $reviews = \DB::table('public_product_user_review')->select(DB::raw('sum(leaf_id) as sum,count(*) as count,question_id,leaf_id,value'))
-                    ->where('current_status',2)->where('source',2)->where('product_id',$product->id)->where('outlet_id',$outletId)
-                    ->where('select_type',5)->groupBy('question_id','value','leaf_id')->orderBy('question_id')->get();
-                $spicesLevel = \DB::table('public_product_user_review')->where('current_status',2)->where('source',2)
-                    ->where('product_id',$product->id)->where('outlet_id',$outletId)->where('value','Pungent Chilli')->get();
-                $spicesLevelValue = 0;
-                foreach ($spicesLevel as $item)
-                {
-                    if($item->intensity == 'Barely Detectable')
-                        $spicesLevelValue += 1;
-                    else if($item->intensity == 'Weak')
-                        $spicesLevelValue += 2;
-                    else if($item->intensity == 'Mild')
-                        $spicesLevelValue += 3;
-                    else if($item->intensity == 'Moderate')
-                        $spicesLevelValue += 4;
-                    else if($item->intensity == 'Intense')
-                        $spicesLevelValue += 5;
-                    else if($item->intensity == 'Very Intense')
-                        $spicesLevelValue += 6;
-                    else if($item->intensity == 'Extremely Intense')
-                        $spicesLevelValue += 7;
-                }
-                if($spicesLevelValue > 0)
-                    $spicesLevelValue = ($spicesLevelValue)/count($spicesLevel);
-                $questionIds = [];
-                $rating1 = $rating2 = $rating3 = $rating4 = $rating5 = $rating6 = 0;
-                $count = 0;
-                foreach ($reviews as $review)
-                {
-                    if(in_array($review->question_id,$questionIds))
-                    {
-                        if(count($questionIds) == 1)
-                            $rating1 += $review->sum;
-                        else if(count($questionIds) == 2)
-                            $rating2 += $review->sum;
-                        else if(count($questionIds) == 3)
-                            $rating3 += $review->sum;
-                        else if(count($questionIds) == 4)
-                            $rating4 += $review->sum;
-                        else if(count($questionIds) == 5)
-                            $rating5 += $review->sum;
-                        else if(count($questionIds) == 6)
-                            $rating6 += $review->sum;
-                    }
-                    else
-                    {
-                        $questionIds[] = $review->question_id;
-                        if($rating1 == 0)
-                            $rating1 = $review->sum;
-                        else if($rating2 == 0)
-                            $rating2 = $review->sum;
-                        else if($rating3 == 0)
-                            $rating3 = $review->sum;
-                        else if($rating4 == 0)
-                            $rating4 = $review->sum;
-                        else if($rating5 == 0)
-                            $rating5 = $review->sum;
-                        else if($rating6 == 0)
-                            $rating6 = $review->sum;
-                    }
-                    $count += $review->count;
-                }
-                $count = $count/6;
-                $data[] = ['S.No'=>$index,
-                    'Product Name'=>$product->name,
-                    'TT Product Link'=>"https://www.tagtaste.com/reviews/products".$product->id,
-                    'rating_sensogram_appearance'=> $rating1/$count,
-                    'rating_sensogram_aroma'=> $rating2/$count,
-                    'rating_sensogram_taste'=> $rating3/$count,
-                    'rating_sensogram_aromatics'=> $rating4/$count,
-                    'rating_sensogram_texture'=> $rating5/$count,
-                    'overall_rating'=> $rating6/$count,
-                    'spiciness' => $spicesLevelValue,
-                    'outlet_id' => $outletId
-                ];
-                $index++;
-            }
-        }
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=foodpanda_with_spice_level.csv",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        );
-        $columns = array('S.No','Product Name','TT Product Link','rating_sensogram_appearance','rating_sensogram_aroma','rating_sensogram_taste','rating_sensogram_aromatics','rating_sensogram_texture','overall_rating','spiciness','outlet_id');
-
-        $str = '';
-        foreach ($columns as $c) {
-            $str = $str.$c.',';
-        }
-        $str = $str."\n";
-        foreach($data as $review) {
-            foreach ($columns as $c) {
-                $str = $str.$review[$c].',';
-            }
-            $str = $str."\n";
-        }
-
-        return response($str, 200, $headers);
-
-    });
 
 });
