@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V2\Profile;
+namespace App\Http\Controllers\Api\V2;
 
 use App\Company;
 use App\Events\Actions\Tag;
@@ -42,22 +42,13 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
 
-    private function saveFileToData($key,$path,&$request,&$data,$extraKey = null)
-    {
-        if($request->hasFile($key)){
-            $response = $this->saveFile($path,$request,$key);
-            $data[$extraKey] = json_encode($response,true);
-            $data[$key] = $response['original_photo'];
-        }
-    }
-
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreRequest $request)
+    public function store(Request $request)
     {
         $profile = $request->user()->profile;
         $profileId = $profile->id;
@@ -65,12 +56,12 @@ class PhotoController extends Controller
         if(!isset($data['privacy_id'])){
             $data['privacy_id'] = 1;
         }
-        if($request->has('images') || is_null($request->input('images')) || !is_array($request->input('images')))
+        if(!$request->has('images') || is_null($request->input('images')) || !is_array($request->input('images')))
         {
             return $this->sendError("wrong format");
         }
         $data['caption'] = $request->input('caption');
-        $data['images'] = $request->input('images');
+        $data['images'] = $this->changeInJson($request->input('images'));
         $data['has_tags'] = $this->hasTags($data['caption']);
         if($request->has('company_id') && !is_null($request->input('company_id')))
         {
@@ -83,11 +74,12 @@ class PhotoController extends Controller
             }
 
             $this->model = $company->photos()->create($data);
+            $this->model->images = json_decode($this->model->images);
             if($data['has_tags']){
                 event(new Tag($this->model, $profile, $this->model->caption));
             }
-            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'image_info'=>$data['image_info'],
-                'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,
+                'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
             \Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new NewFeedable($this->model,$company));
 
@@ -102,10 +94,10 @@ class PhotoController extends Controller
             if(!$photo){
                 return $this->sendError("Could not create photo.");
             }
-
+            $photo->images = json_decode($photo->images);
             $res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
-            $data = ['id'=>$photo->id,'caption'=>$photo->caption,'photoUrl'=>$photo->photoUrl,'image_info'=>$data['image_info'],
-                'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
+            $data = ['id'=>$photo->id,'caption'=>$photo->caption,'images'=>$photo->images,
+                'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString()];
 
             \Redis::set("photo:" . $photo->id,json_encode($data));
 
@@ -127,37 +119,13 @@ class PhotoController extends Controller
             return $this->sendResponse();
         }
     }
-
-    private function saveFile($path,&$request,$key)
-    {
-        $imageName = str_random("32") . ".jpg";
-        $response['original_photo'] = \Storage::url($request->file($key)->storeAs($path."/original",$imageName,['visibility'=>'public']));
-        //create a tiny image
-        $path = $path."/tiny/" . str_random(20) . ".jpg";
-        $thumbnail = \Image::make($request->file($key))->resize(50, null,function ($constraint) {
-            $constraint->aspectRatio();
-        })->blur(1)->stream('jpg',70);
-        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-        $response['tiny_photo'] = \Storage::url($path);
-        $meta = getimagesize($request->input($key));
-        $response['meta']['width'] = $meta[0];
-        $response['meta']['height'] = $meta[1];
-        $response['meta']['mime'] = $meta['mime'];
-        $response['meta']['size'] = null;
-        $response['meta']['tiny_photo'] = $response['tiny_photo'];
-        if(!$response){
-            throw new \Exception("Could not save image " . $imageName . " at " . $path);
-        }
-        return $response;
-    }
-
     /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$profileId,$id)
+    public function show(Request $request,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
         $photo = Photo::where('id',$id)->with(['comments' => function($query){
@@ -231,17 +199,14 @@ class PhotoController extends Controller
         return $this->sendResponse();
     }
 
-    public function image($profileId, $id)
+    public function changeInJson($images)
     {
-        $photo = \App\Photo::select('file')->find($id);
-
-        if(!$photo){
-            throw new ModelNotFoundException("Could not find photo with id " . $id);
+        $data = [];
+        foreach ($images as $image)
+        {
+            $image = json_decode($image);
+            $data[] = ['original_photo'=>$image->original_photo,'tiny_photo'=>$image->tiny_photo,'meta'=>$image->meta];
         }
-        $file = Photo::getProfileImagePath($profileId, $photo->file);
-        if(file_exists($file)){
-            return response()->file($file);
-
-        }
+        return json_encode($data);
     }
 }

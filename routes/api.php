@@ -108,6 +108,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
+            Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
+
+                //multiple photos api
+                Route::resource("photos","PhotoController");
+
+            });
+
+
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
 
 
@@ -209,6 +217,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
                         Route::resource("like",'ShoutoutLikeController');
                 });
+
+
+
+             //global image upload function
+            Route::post("globalImageUpload","PhotoController@globalImageUpload");
+
 
             //invites
             Route::post("invites","InviteController@invite");

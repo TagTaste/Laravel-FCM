@@ -4,6 +4,7 @@ namespace App\V2;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
+use App\Privacy;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
 use App\Traits\CachedPayload;
@@ -20,12 +21,12 @@ class Photo extends Model implements Feedable
 
     use IdentifiesOwner, CachedPayload;
 
-    protected $fillable = ['caption','file','privacy_id','payload_id','image_info','image_meta','images'];
+    protected $fillable = ['caption','privacy_id','payload_id','images'];
 
-    protected $visible = ['id','caption','photoUrl','likeCount','file',
+    protected $visible = ['id','caption','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','image_info','image_meta','images'];
+        'owner','nextPhotoId','previousPhotoId','images'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -36,7 +37,7 @@ class Photo extends Model implements Feedable
 
     protected $with = ['like'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
+    protected $appends = ['profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
 
     protected $dates = ['deleted_at'];
 

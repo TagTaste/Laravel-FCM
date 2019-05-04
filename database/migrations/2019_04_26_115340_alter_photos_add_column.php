@@ -14,6 +14,7 @@ class AlterPhotosAddColumn extends Migration
     public function up()
     {
         Schema::table('photos',function($table){
+            $table->string('file')->nullable()->change();
             $table->json('images')->nullable();
         });
     }
@@ -26,7 +27,8 @@ class AlterPhotosAddColumn extends Migration
     public function down()
     {
         Schema::table('profiles',function($table){
-            $table->dropColumn('is_tasting_expert');
+            $table->string('file')->change();
+            $table->dropColumn('images');
         });
     }
 }
