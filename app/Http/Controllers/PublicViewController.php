@@ -53,6 +53,7 @@ class PublicViewController extends Controller
         $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id);
         $this->model['social'] = [];
         $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id);
+        $this->model['social']['deeplink_text'] = Deeplink::getDeepLinkText($modelName,$model);
         $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName,$this->model['social']['deeplink']);
         return response()->json(['data'=>$this->model]);
     }
