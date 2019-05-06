@@ -78,7 +78,7 @@ class PhotoController extends Controller
             if($data['has_tags']){
                 event(new Tag($this->model, $profile, $this->model->caption));
             }
-            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>$this->model->images,
                 'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString()];
             \Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new NewFeedable($this->model,$company));
