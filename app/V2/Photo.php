@@ -14,6 +14,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends Model implements Feedable
 {
@@ -198,8 +199,8 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photo' ,request()->user()->profile->id);

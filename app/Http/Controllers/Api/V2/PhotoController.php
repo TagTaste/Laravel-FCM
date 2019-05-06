@@ -15,6 +15,7 @@ use App\V2\Photo;
 use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PhotoController extends Controller
 {
