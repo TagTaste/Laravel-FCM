@@ -184,6 +184,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
 
+            // polling
+            Route::post('polling','PollingController@createPole');
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
