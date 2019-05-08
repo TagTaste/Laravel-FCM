@@ -26,7 +26,7 @@ class AlterPhotosAddColumn extends Migration
      */
     public function down()
     {
-        Schema::table('profiles',function($table){
+        Schema::table('photos',function($table){
             $table->string('file')->change();
             $table->dropColumn('images');
         });

@@ -13,38 +13,37 @@ class Polling extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes;
 
-    protected $fillable = ['title','profile_id','company_id'];
+    protected $table = 'poll_questions';
+
+    protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id'];
 
     protected $with = ['profile','company','options'];
 
 
-    protected $visible = ['id','title','profile_id','company_id','profile','company','options','created_at','deleted_at','updated_at'];
+    protected $visible = ['id','title','profile_id','company_id','profile','company','options','created_at',
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id'];
 
     public static function boot()
     {
         self::created(function($model){
             $model->addToCache();
-
-            \App\Documents\Collaborate::create($model);
-        });
+            });
 
         self::updated(function($model){
             $model->addToCache();
             //update the search
-            \App\Documents\Collaborate::create($model);
-
         });
     }
 
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
+        \Redis::set("polling:" . $this->id,$this->makeHidden([])->toJson());
 
     }
 
     public function removeFromCache()
     {
-        \Redis::del("collaborate:" . $this->id);
+        \Redis::del("polling:" . $this->id);
     }
     /**
      * Which profile created the collaboration project.
@@ -68,7 +67,7 @@ class Polling extends Model implements Feedable
 
     public function options()
     {
-        return $this->belongsTo(PollingOption::class);
+        return $this->hasMany('App\PollingOption','poll_id');
     }
 
     /**
@@ -151,29 +150,6 @@ class Polling extends Model implements Feedable
             return ['profile'=>'profile:small:' . $this->profile_id];
         }
         return ['company'=>'company:small:' . $this->company_id];
-    }
-
-    public function getPreviewContent()
-    {
-        $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
-        $profile = json_decode($profile);
-        $data = [];
-        $data['modelId'] = $this->id;
-        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['owner'] = $profile->id;
-        $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);
-        $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->title,0,65);
-        $data['ogDescription'] = substr($this->description,0,155);
-        $images = $this->getImagesAttribute($this->images);
-        $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
-        $data['ogImage'] = isset($images[0]) ? $images[0]:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
-        $data['ogUrl'] = env('APP_URL').'/preview/collaborate/'.$this->id;
-        $data['redirectUrl'] = env('APP_URL').'/collaborate/'.$this->id;
-        $data['collaborate_type'] = $this->collaborate_type;
-
-        return $data;
-
     }
 
 }

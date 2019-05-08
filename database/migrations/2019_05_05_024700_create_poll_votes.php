@@ -22,6 +22,8 @@ class CreatePollVotes extends Migration
             $table->unsignedInteger('poll_option_id')->nullable();
             $table->foreign('poll_option_id')->references("id")->on("poll_options");
             $table->string('ip_address')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
 
         });
     }
