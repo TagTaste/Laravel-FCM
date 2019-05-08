@@ -25,17 +25,27 @@ class PhotoController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function index(Request $request, $profileId)
+    public function index(Request $request)
     {
-        $photos = Photo::forProfile($profileId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
+        $loggedInProfileId = $request->user()->profile->id;
+        if($request->has('company_id') && !is_null($request->input('company_id')))
+        {
+            $companyId = $request->input('company_id');
+            $photos = Photo::forCompany($companyId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
+        }
+        else
+        {
+            $profileId = $request->has('profile_id') ? $request->input('profile_id') : $loggedInProfileId;
+            $photos = Photo::forProfile($profileId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
+        }
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $count = $photos->count();
         $photos = $photos->skip($skip)->take($take)->get();
 
         $this->model = [];
-        $loggedInProfileId = $request->user()->profile->id;
         foreach($photos as $photo){
+            $photo->images = json_decode($photo->images);
             $this->model[] = ['photo'=>$photo,'meta'=>$photo->getMetaFor($loggedInProfileId)];
         }
         $this->model = ['data'=>$this->model,'count'=>$count];
@@ -138,6 +148,7 @@ class PhotoController extends Controller
         if(!$photo){
             return $this->sendError("Photo not found");
         }
+        $photo->images = json_decode($photo->images);
         $meta = $photo->getMetaFor($loggedInProfileId);
         $this->model = ['photo'=>$photo,'meta'=>$meta];
 
@@ -151,33 +162,62 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateRequest $request, $profileId,$id)
+    public function update(UpdateRequest $request,$id)
     {
-        $data = $request->except(['_method','_token','profile_id']);
-        if(!isset($data['privacy_id'])){
-            $data['privacy_id'] = 1;
-        }
-        $path = Photo::getProfileImagePath($profileId);
-        $this->saveFileToData("file",$path,$request,$data,"image_meta");
+        $profile = $request->user()->profile;
+        $profileId = $profile->id;
+        $data = [];
+        $data['caption'] = $request->input('caption');
         $data['has_tags'] = $this->hasTags($data['caption']);
-        $inputs = $data;
-        unset($inputs['has_tags']);
-        $this->model = $request->user()->profile->photos()->where('id',$id)->update($inputs);
-        $this->model = \App\Photo::find($id);
-        if(isset($data['has_tags']) && $data['has_tags']){
-            event(new Tag($this->model, $request->user()->profile, $this->model->caption));
+        if($request->has('company_id') && !is_null($request->input('company_id')))
+        {
+            $companyId = $request->input('company_id');
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if(!$userBelongsToCompany){
+                return $this->sendError("User does not belong to this company");
+            }
+
+            $this->model = $company->photos()->where('id',$id)->update($data);
+
+            $this->model = Photo::find($id);
+            if(isset($data['has_tags']) && $data['has_tags']){
+                event(new Tag($this->model, $profile, $this->model->caption));
+            }
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
+                'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
+            \Redis::set("photo:" . $this->model->id,json_encode($data));
+            event(new UpdateFeedable($this->model));
+
+            $loggedInProfileId = $request->user()->profile->id;
+            $meta = $this->model->getMetaFor($loggedInProfileId);
+            $this->model = ['photo'=>$this->model,'meta'=>$meta];
+            return $this->sendResponse();
+
+        }
+        else
+        {
+            $data['has_tags'] = $this->hasTags($data['caption']);
+            $inputs = $data;
+            unset($inputs['has_tags']);
+            $this->model = $request->user()->profile->photos()->where('id',$id)->update($inputs);
+            $this->model = \App\Photo::find($id);
+            if(isset($data['has_tags']) && $data['has_tags']){
+                event(new Tag($this->model, $request->user()->profile, $this->model->caption));
+            }
+
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
+                'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
+            \Redis::set("photo:" . $this->model->id,json_encode($data));
+            event(new UpdateFeedable($this->model));
+
+            $loggedInProfileId = $request->user()->profile->id;
+            $meta = $this->model->getMetaFor($loggedInProfileId);
+            $this->model = ['photo'=>$this->model,'meta'=>$meta];
+            return $this->sendResponse();
         }
 
-        $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
-            'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
-        \Redis::set("photo:" . $this->model->id,json_encode($data));
-        event(new UpdateFeedable($this->model));
-
-        $loggedInProfileId = $request->user()->profile->id;
-        $meta = $this->model->getMetaFor($loggedInProfileId);
-        $this->model = ['photo'=>$this->model,'meta'=>$meta];
-
-        return $this->sendResponse();
     }
 
     /**
@@ -186,17 +226,46 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $profileId, $id)
+    public function destroy(Request $request, $id)
     {
-        $this->model =  $request->user()->profile->photos()->where('id',$id)->first();
-        if(!$this->model){
-            return $this->sendError("Photo not found.");
+        if($request->has('company_id') && !is_null($request->input('company_id')))
+        {
+            $companyId = $request->input('company_id');
+            $company = Company::find($companyId);
+
+            if(!$company){
+                throw new \Exception("This company does not belong to the user.");
+            }
+
+            //check if user belongs to the company
+            $userId = $request->user()->id;
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+
+            if(!$userBelongsToCompany){
+                return $this->sendError("User does not belong to this company");
+            }
+
+            $this->model = $company->photos()->where('id',$id)->first();
+            if(!$this->model){
+                return $this->sendError("Photo not found.");
+            }
+            event(new DeleteFeedable($this->model));
+
+            $this->model = $this->model->delete();
+            return $this->sendResponse();
         }
-        event(new DeleteFeedable($this->model));
-        $this->model = $this->model->delete();
-        //remove from recent photos
-        \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
-        return $this->sendResponse();
+        else
+        {
+            $this->model =  $request->user()->profile->photos()->where('id',$id)->first();
+            if(!$this->model){
+                return $this->sendError("Photo not found.");
+            }
+            event(new DeleteFeedable($this->model));
+            $this->model = $this->model->delete();
+            //remove from recent photos
+            \Redis::lRem("recent:user:" . $request->user()->id . ":photos",$id,1);
+            return $this->sendResponse();
+        }
     }
 
     public function changeInJson($images)
