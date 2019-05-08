@@ -4,6 +4,8 @@ namespace App\V2;
 
 use App\Channel\Payload;
 use App\Interfaces\Feedable;
+use App\Filter\People;
+use App\PeopleLike;
 use App\Privacy;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redis;
+
 
 class Photo extends Model implements Feedable
 {
