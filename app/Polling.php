@@ -37,7 +37,8 @@ class Polling extends Model implements Feedable
 
     public function addToCache()
     {
-        \Redis::set("polling:" . $this->id,$this->makeHidden(['privacy'])->toJson());
+        $data = ['id',$this->id,'title'=>$this->title,'options'=>$this->options(),'created_at'=>$this->created_at,'updated_at'=>$this->updated_at];
+        \Redis::set("polling:" . $this->id,json_encode($data));
 
     }
 
