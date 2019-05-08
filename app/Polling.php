@@ -19,11 +19,10 @@ class Polling extends Model implements Feedable
 
     protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id'];
 
-    protected $with = ['profile','company','options'];
-
+    protected $with = ['profile','company','options','privacy'];
 
     protected $visible = ['id','title','profile_id','company_id','profile','company','options','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','privacy'];
 
     public static function boot()
     {
@@ -39,7 +38,7 @@ class Polling extends Model implements Feedable
 
     public function addToCache()
     {
-        Redis::set("polling:" . $this->id,$this->makeHidden([])->toJson());
+        Redis::set("polling:" . $this->id,$this->makeHidden(['privacy'])->toJson());
 
     }
 
