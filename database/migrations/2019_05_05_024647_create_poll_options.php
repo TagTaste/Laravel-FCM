@@ -19,6 +19,8 @@ class CreatePollOptions extends Migration
             $table->unsignedInteger('poll_id')->nullable();
             $table->foreign('poll_id')->references("id")->on("poll_questions");
             $table->unsignedInteger('count')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

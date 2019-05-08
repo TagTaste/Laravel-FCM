@@ -5,13 +5,12 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PollingOption extends Model
+class PollingVote extends Model
 {
     use SoftDeletes;
+    protected $table = 'poll_votes';
 
-    protected $table = 'poll_options';
-
-    protected $fillable = ['text','poll_id','count','created_at','deleted_at','updated_at'];
+    protected $fillable = ['profile_id','poll_id','poll_option_id','ip_address'];
 
     protected $visible = ['id','text','poll_id','count','created_at','deleted_at','updated_at'];
 }

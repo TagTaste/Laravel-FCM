@@ -185,7 +185,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             // polling
-            Route::post('polling','PollingController@createPole');
+            Route::resource('polling','PollingController');
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
