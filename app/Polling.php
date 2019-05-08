@@ -77,44 +77,6 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-
-        if($this->collaborate_type == 'product-review')
-        {
-            $key = "meta:collaborate:likes:" . $this->id;
-            $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-            $meta['likeCount'] = \Redis::sCard($key);
-
-            $meta['commentCount'] = $this->comments()->count();
-            $peopleLike = new PeopleLike();
-            $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
-            $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
-            $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
-            $this->interestedCount = \DB::table('collaborate_applicants')->where('collaborate_id',$this->id)->distinct()->get(['profile_id'])->count();
-            $meta['interestedCount'] = $this->interestedCount;
-            $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-            return $meta;
-        }
-
-        $this->setInterestedAsProfiles($meta,$profileId);
-
-        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
-
-        $key = "meta:collaborate:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
-
-        $meta['commentCount'] = $this->comments()->count();
-        $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborate' ,request()->user()->profile->id);
-        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
-        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
-        $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
-        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
-            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
-
         return $meta;
     }
 
