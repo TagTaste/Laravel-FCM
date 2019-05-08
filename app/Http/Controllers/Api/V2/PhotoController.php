@@ -26,7 +26,7 @@ class PhotoController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function index(Request $request, $profileId)
+    public function index(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
         if($request->has('company_id') && !is_null($request->input('company_id')))
