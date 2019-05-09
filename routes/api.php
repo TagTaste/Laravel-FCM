@@ -185,7 +185,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
 
             // polling
+            Route::post('polling/{id}/like','PollingController@like');
             Route::resource('polling','PollingController');
+            Route::patch('polling/{id}/updateOptions/{optionId}','PollingController@updateOptions');
+            Route::post('polling/{id}/addOption','PollingController@addOption');
+            Route::delete('polling/{id}/deleteOptions/{optionId}','PollingController@deleteOptions');
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
