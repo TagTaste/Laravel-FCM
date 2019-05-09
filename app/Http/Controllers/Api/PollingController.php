@@ -77,7 +77,7 @@ class PollingController extends Controller
         //add model subscriber
         event(new Create($poll,$request->user()->profile));
 
-        $this->model = $poll;
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($profileId)];
         return $this->sendResponse();
     }
 
@@ -98,14 +98,11 @@ class PollingController extends Controller
             return $this->sendError('Please select poll option');
         }
 
-        $checkVote = PollingVote::where('poll_id',$pollId)->where('profile_id',$loggedInProfileId)->first();
-        if($checkVote != null)
+        $checkVote = PollingVote::where('poll_id',$pollId)->where('profile_id',$loggedInProfileId)->exists();
+        if($checkVote)
         {
-            PollingOption::where('poll_id',$pollId)->where('id',$checkVote->poll_option_id)
-                ->update(['count'=>$pollOptionCheck->count - 1]);
-            $pollOptionCheck->update(['count'=>$pollOptionCheck->count + 1]);
-            $this->model = PollingVote::where('poll_id',$pollId)->where('profile_id',$loggedInProfileId)
-                ->update(['poll_option_id'=>$pollOptionId]);
+            $this->model = [];
+            return $this->sendError('You already select vote');
         }
         else
         {
@@ -158,12 +155,17 @@ class PollingController extends Controller
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
+
         return $this->sendResponse();
     }
 
     public function show(Request $request,$pollId)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $this->model = $this->model->where('id',$pollId)->first();
+        $this->model = ['polling'=>$this->model,'meta'=>$this->model->getMetaFor($loggedInProfileId)];
+
         return $this->sendResponse();
     }
 
@@ -212,6 +214,7 @@ class PollingController extends Controller
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
     }
 
@@ -253,11 +256,53 @@ class PollingController extends Controller
         }
         PollingOption::insert($data);
         $poll = $poll->refresh();
-        $poll = $poll->addToCache();
+        $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
     }
+
+    public function deleteOptions(Request $request,$pollId,$optionId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $poll = Polling::where('id',$pollId)->first();
+        if($poll == null)
+        {
+            $this->model = [];
+            return $this->sendError('Poll is not available');
+        }
+        if(isset($poll->company_id) && !is_null($poll->company_id))
+        {
+            $companyId = $poll->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if(!$userBelongsToCompany){
+                $this->model = [];
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+        else if($poll->profile_id != $loggedInProfileId)
+        {
+            $this->model = [];
+            return $this->sendError("Poll is not related to login user");
+        }
+        $checkVote = PollingVote::where('poll_id',$pollId)->exists();
+        if($checkVote)
+        {
+            $this->model = [];
+            return $this->sendError("Poll can not be editable");
+        }
+        $this->model = $poll->options()->where('id',$optionId)->delete();
+        $poll = $poll->refresh();
+        $poll->addToCache();
+        $this->model = $poll;
+        event(new UpdateFeedable($this->model));
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
+        return $this->sendResponse();
+    }
+
 
 
 }

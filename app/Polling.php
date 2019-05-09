@@ -17,11 +17,11 @@ class Polling extends Model implements Feedable
 
     protected $fillable = ['title','profile_id','company_id','is_expired','expired_time','privacy_id','payload_id'];
 
-    protected $with = ['profile','company','options','privacy'];
+    protected $with = ['profile','company'];
 
 
-    protected $visible = ['id','title','profile_id','company_id','profile','company','options','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','privacy'];
+    protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id'];
 
     public static function boot()
     {
@@ -37,7 +37,7 @@ class Polling extends Model implements Feedable
 
     public function addToCache()
     {
-        $data = ['id',$this->id,'title'=>$this->title,'options'=>$this->options(),'created_at'=>$this->created_at,'updated_at'=>$this->updated_at];
+        $data = ['id',$this->id,'title'=>$this->title,'created_at'=>$this->created_at,'updated_at'=>$this->updated_at];
         \Redis::set("polling:" . $this->id,json_encode($data));
 
     }
@@ -78,6 +78,8 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
+        $meta['options'] = PollingOption::where('poll_id',$this->id)->get();
+        $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->exists();
         return $meta;
     }
 
