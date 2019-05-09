@@ -40,7 +40,8 @@ class Polling extends Model implements Feedable
     public function addToCache()
     {
 
-        $data = ['id'=>$this->id,'title'=>$this->title,'created_at'=>$this->created_at,'updated_at'=>$this->updated_at];
+        $data = ['id'=>$this->id,'title'=>$this->title,'created_at'=>$this->created_at->toDateTimeString(),
+            'updated_at'=>$this->updated_at->toDateTimeString()];
         Redis::set("polling:" . $this->id,json_encode($data));
 
     }
@@ -83,6 +84,7 @@ class Polling extends Model implements Feedable
         $meta = [];
         $meta['options'] = PollingOption::where('poll_id',$this->id)->get();
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->exists();
+        $meta['is_expired'] = $this->is_expired;
         return $meta;
     }
 
