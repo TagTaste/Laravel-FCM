@@ -138,19 +138,20 @@ class PollingController extends Controller
                 return $this->sendError("User does not belong to this company");
             }
         }
-        else if($poll->profile_id != $loggedInProfileId)
-        {
-            $this->model = [];
-            return $this->sendError("Poll is not related to login user");
-        }
+//        else if($poll->profile_id != $loggedInProfileId)
+//        {
+//            $this->model = [];
+//            return $this->sendError("Poll is not related to login user");
+//        }
         $checkVote = PollingVote::where('poll_id',$pollId)->exists();
         if($checkVote)
         {
             $this->model = [];
             return $this->sendError("Poll can not be editable");
         }
-        $data = $request->only('title');
-        $this->model = $this->model->update($data);
+        $data = $request->input(['title']);
+        if($data!=null)
+            $this->model = $poll->update(['title'=>$data]);
         $poll = $poll->refresh();
         $poll->addToCache();
         $this->model = $poll;
@@ -163,17 +164,18 @@ class PollingController extends Controller
     public function show(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = $this->model->where('id',$pollId)->first();
-        $this->model = ['polling'=>$this->model,'meta'=>$this->model->getMetaFor($loggedInProfileId)];
+        $this->model = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
+        if($this->model)
+            $this->model = ['polling'=>$this->model,'meta'=>$this->model->getMetaFor($loggedInProfileId)];
 
         return $this->sendResponse();
     }
 
-    public function delete(Request $request,$pollId)
+    public function destroy(Request $request,$pollId)
     {
         $poll = $this->model->where('id',$pollId)->first();
         $poll->removeFromCache();
-        $poll = $poll->options()->delete();
+        $poll->options()->delete();
         $this->model = $poll->delete();
         return $this->sendResponse();
     }
