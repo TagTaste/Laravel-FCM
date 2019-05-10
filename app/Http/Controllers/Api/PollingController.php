@@ -62,9 +62,13 @@ class PollingController extends Controller
         {
             $data['profile_id'] = $profileId;
         }
-        if(!$request->has('title') || !$request->has('options') || count($options) < 2)
+        if(!$request->has('title') )
         {
-            return $this->sendError("Please select options");
+            return $this->sendError("Please enter poll title");
+        }
+        if(!$request->has('options') || count($options) < 2 || count($options) > 4)
+        {
+            return $this->sendError("Please enter valid options");
         }
         $data['title'] = $request->input('title');
         $poll = Polling::create($data);
@@ -118,7 +122,8 @@ class PollingController extends Controller
                 PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1]);
             }
         }
-        $this->model = $poll->refresh();
+        $poll = $poll->refresh();
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
 
     }
@@ -262,6 +267,10 @@ class PollingController extends Controller
             return $this->sendError("Poll can not be editable");
         }
         $options = $request->input('options');
+        if(!$request->has('options') || count($options) < 2 || count($options) > 4)
+        {
+            return $this->sendError("Please enter valid options");
+        }
         foreach ($options as $option)
         {
             $data[] = ['text'=>$option,'poll_id'=>$poll->id,'created_at'=>$this->now,'updated_at'=>$this->now,'count'=>0];
@@ -338,6 +347,50 @@ class PollingController extends Controller
         $peopleLike = new PeopleLike();
         $this->model['peopleLiked'] = $peopleLike->peopleLike($pollId, "polling",request()->user()->profile->id);
 
+        return $this->sendResponse();
+    }
+
+    public function renew(Request $request,$pollId)
+    {
+        $loggedInProfileId = $request->user()->profile->id;
+        $poll = Polling::where('id',$pollId)->where('is_expired',1)->whereNotNull('deleted_at')->first();
+        if($poll == null)
+        {
+            $this->model = [];
+            return $this->sendError('Poll is not available');
+        }
+        if(isset($poll->company_id) && !is_null($poll->company_id))
+        {
+            $companyId = $poll->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if(!$userBelongsToCompany){
+                $this->model = [];
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+        else if($poll->profile_id != $loggedInProfileId)
+        {
+            $this->model = [];
+            return $this->sendError("Poll is not related to login user");
+        }
+        $checkVote = PollingVote::where('poll_id',$pollId)->exists();
+        if($checkVote)
+        {
+            $this->model = [];
+            return $this->sendError("Poll can not be editable");
+        }
+        $this->model = $poll->update(['is_expired'=>1,'deleted_at'=>null,'expired_time'=>null]);
+        $poll = $poll->refresh();
+        $poll->addToCache();
+        $this->model = $poll;
+        //add to feed
+        event(new NewFeedable($poll, $request->user()->profile));
+
+        //add model subscriber
+        event(new Create($poll,$request->user()->profile));
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
     }
 
