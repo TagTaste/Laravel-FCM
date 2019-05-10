@@ -117,6 +117,7 @@ class PollingController extends Controller
                 PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1]);
             }
         }
+        $this->model = $poll->refresh();
         return $this->sendResponse();
 
     }
