@@ -87,7 +87,7 @@ class PollingController extends Controller
     public function userPollVote(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->where('is_expired',1)->whereNull('deleted_at')->first();
+        $poll = Polling::where('id',$pollId)->where('is_expired',0)->whereNull('deleted_at')->first();
         if($poll == null)
         {
             $this->model = [];
