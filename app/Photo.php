@@ -247,7 +247,7 @@ class Photo extends Model implements Feedable
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
-        $content = $this->getContent($this->caption);
+//        $content = $this->getContent($this->caption);
         $data['title'] = null;
         $data['description'] = null;
         $data['ogTitle'] = null;
