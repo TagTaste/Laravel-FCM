@@ -23,7 +23,8 @@ class CommentController extends Controller {
 //        'job_share' => \App\Shareable\Occupation::class,
         'recipe_share' => \App\Shareable\Recipe::class,
         'shoutout_share' => \App\Shareable\Shoutout::class,
-        'polling' => Polling::class
+        'polling' => Polling::class,
+        'polling_share' => \App\Shareable\Polling::class
     ];
     
     private function getModel(&$modelName, &$modelId){

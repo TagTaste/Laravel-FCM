@@ -3,6 +3,7 @@
 namespace App\Shareable;
 
 use App\PeopleLike;
+use Illuminate\Support\Facades\Redis;
 
 class Polling extends Share
 {
@@ -23,25 +24,25 @@ class Polling extends Share
         return $this->belongsTo(\App\Polling::class,'poll_id');
     }
 
-//    public function like()
-//    {
-//        return $this->hasMany(\App\Shareable\Sharelikable\Collaborate::class,'collaborate_share_id');
-//    }
+    public function like()
+    {
+        return $this->hasMany(\App\Shareable\Sharelikable\Polling::class,'poll_share_id');
+    }
 
-//    public function getMetaFor($profileId){
-//        $meta = [];
-//        $key = "meta:collaborateShare:likes:" . $this->id;
-//
-//        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-//        $meta['likeCount'] = \Redis::sCard($key);
-//
-//        $peopleLike = new PeopleLike();
-//        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->profile->id);
-//
-//        $meta['commentCount'] = $this->comments()->count();
-//
-//        return $meta;
-//    }
+    public function getMetaFor($profileId){
+        $meta = [];
+        $key = "meta:pollingShare:likes:" . $this->id;
+
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'pollingShare' ,request()->user()->profile->id);
+
+        $meta['commentCount'] = $this->comments()->count();
+
+        return $meta;
+    }
 
 //    public function getMetaForPublic(){
 //        $meta = [];
