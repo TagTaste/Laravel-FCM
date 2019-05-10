@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\Actions\Like;
 use App\PeopleLike;
+use App\Polling;
 use Illuminate\Http\Request;
 use App\Shareable\Sharelikable;
 
@@ -17,9 +18,10 @@ class ShareLikeController extends Controller
             'tagboard' => \App\Ideabook::class,
             'collaborate'=> \App\Collaborate::class,
             'recipe' => \App\Recipe::class,
-            'shoutout' =>\App\Shoutout::class
+            'shoutout' =>\App\Shoutout::class,
+            'polling' => Polling::class
         ];
-    
+
         if((!array_key_exists($model,$models))){
             return $this->sendError("Could not find model with provided id");
         }
@@ -36,7 +38,10 @@ class ShareLikeController extends Controller
         }
 
         $sharedLikeModel = \App::make('App\Shareable\Sharelikable\\'.$modelName);
-    	$columnName = $model.'_share_id';
+        if($modelName == 'Polling')
+            $columnName = 'poll_share_id';
+        else
+    	    $columnName = $model.'_share_id';
 
     	$key = "meta:{$model}Share:likes:$modelId";
         $exists = \Redis::sIsMember($key,$profileId);
