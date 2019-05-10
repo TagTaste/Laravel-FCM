@@ -39,6 +39,8 @@ class Photo extends Share
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photoShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
+        $photo = \App\Photo::where('id',$this->photo_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $photo->getMetaFor($profileId);
 
         return $meta;
     }
