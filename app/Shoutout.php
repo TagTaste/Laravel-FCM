@@ -188,9 +188,9 @@ class Shoutout extends Model implements Feedable
 
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
-            \Log::error($preview);
-            \Log::error($e->getLine());
-            \Log::error($e->getMessage());
+//            \Log::error($preview);
+//            \Log::error($e->getLine());
+//            \Log::error($e->getMessage());
         }
         return empty($preview) ? null : $preview;
     }
@@ -200,15 +200,31 @@ class Shoutout extends Model implements Feedable
         $profile = isset($this->company_id) ? Company::getFromCache($this->company_id) : Profile::getFromCache($this->profile_id);
         $profile = json_decode($profile);
         $content = $this->getContent($this->content);
+        $preview = $this->getPreviewAttribute($this->preview);
         $data = [];
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
-        $data['title'] = $profile->name.' has posted on TagTaste';
-        $data['description'] = substr($content,0,155);
-        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
-        $data['ogDescription'] = substr($content,0,155);
-        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
+        $data['title'] = null;
+        $data['description'] = null;
+        $data['ogTitle'] = $data['title'];
+        $data['ogDescription'] = $data['description'];
+        $data['ogImage'] = null;
+        if($preview != null)
+        {
+            $data['title'] = isset($preview->title) ? $preview->title : $profile->name.' has posted on TagTaste';
+            $data['description'] = isset($preview->url) ? $preview->url : substr($content,0,155);
+            $data['ogTitle'] = $data['title'];
+            $data['ogDescription'] = $data['description'];
+            $data['ogImage'] = isset($preview->image) ? $preview->image :
+                'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
+        }
+        else if(strlen($content))
+        {
+            $data['title'] = substr($content,0,155);
+            $data['ogTitle'] = $data['title'];
+            $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
+        }
         $data['cardType'] = 'summary';
         $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;

@@ -191,9 +191,9 @@ class PublicReviewProduct extends Model
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['title'] = substr($this->name,0,65);
-        $data['description'] = substr($this->description,0,155);
+        $data['description'] = substr($this->company_name,0,155);
         $data['ogTitle'] = substr($this->name,0,65);
-        $data['ogDescription'] = substr($this->description,0,155);
+        $data['ogDescription'] = substr($this->company_name,0,155);
         $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
