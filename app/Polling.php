@@ -84,8 +84,11 @@ class Polling extends Model implements Feedable
         $meta = [];
         $options = PollingOption::where('poll_id',$this->id)->get();
         $count = $options->sum('count');
-        foreach ($options as $option)
-            $option->count = ($option->count/$count) * 100;
+        if($count)
+        {
+            foreach ($options as $option)
+                $option->count = ($option->count/$count) * 100;
+        }
         $meta['options'] = $options;
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
