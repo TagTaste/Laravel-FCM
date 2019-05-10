@@ -39,6 +39,8 @@ class Collaborate extends Share
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
+        $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $collaborate->getMetaFor($profileId);
 
         return $meta;
     }

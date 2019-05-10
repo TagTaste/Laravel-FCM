@@ -40,6 +40,9 @@ class Polling extends Share
 
         $meta['commentCount'] = $this->comments()->count();
 
+        $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $poll->getMetaFor($profileId);
+
         return $meta;
     }
 

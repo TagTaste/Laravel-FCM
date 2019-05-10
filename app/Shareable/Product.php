@@ -69,6 +69,8 @@ class Product extends Share
             $meta['overall_rating'] = $userCount >= 1 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
             $meta['color_code'] = $userCount >= 1 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            $product = \App\PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
+            $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
             return $meta;
         }
 
