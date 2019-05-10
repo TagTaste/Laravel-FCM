@@ -14,6 +14,7 @@ use App\PollingOption;
 use App\PollingVote;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PollingController extends Controller
 {
