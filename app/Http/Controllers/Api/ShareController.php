@@ -18,7 +18,10 @@ class ShareController extends Controller
     
     private function setColumn(&$modelName)
     {
-        $this->column = $modelName . $this->column;
+        if($modelName == 'polling')
+            $this->column = 'poll_id';
+        else
+            $this->column = $modelName . $this->column;
     }
     
     private function getModel(&$modelName, &$id)
@@ -30,7 +33,7 @@ class ShareController extends Controller
     public function store(Request $request, $modelName, $id)
     {
         $modelName = strtolower($modelName);
-        
+
         $this->setColumn($modelName);
 
 

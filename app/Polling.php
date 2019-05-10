@@ -122,4 +122,9 @@ class Polling extends Model implements Feedable
         return ['company'=>'company:small:' . $this->company_id];
     }
 
+    public function comments()
+    {
+        return $this->belongsToMany('App\Comment','comment_pollings','poll_id','comment_id');
+    }
+
 }

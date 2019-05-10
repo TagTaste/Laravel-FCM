@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Company;
+use App\Events\Actions\Like;
 use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
+use App\PeopleLike;
 use App\Polling;
+use App\PollingLike;
 use App\PollingOption;
 use App\PollingVote;
 use Carbon\Carbon;
@@ -42,6 +45,7 @@ class PollingController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $data = [];
+        $options = $request->input('options');
         if($request->has('company_id'))
         {
             $companyId = $request->input('company_id');
@@ -57,13 +61,12 @@ class PollingController extends Controller
         {
             $data['profile_id'] = $profileId;
         }
-        if(!$request->has('title') || !$request->has('options'))
+        if(!$request->has('title') || !$request->has('options') || count($options) < 2)
         {
             return $this->sendError("Please select options");
         }
         $data['title'] = $request->input('title');
         $poll = Polling::create($data);
-        $options = $request->input('options');
         $data = [];
         foreach ($options as $option)
         {
@@ -84,7 +87,7 @@ class PollingController extends Controller
     public function userPollVote(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->where('is_expired',1)->first();
+        $poll = Polling::where('id',$pollId)->where('is_expired',1)->whereNull('deleted_at')->first();
         if($poll == null)
         {
             $this->model = [];
@@ -121,7 +124,7 @@ class PollingController extends Controller
     public function update(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->first();
+        $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         if($poll == null)
         {
             $this->model = [];
@@ -149,8 +152,9 @@ class PollingController extends Controller
             $this->model = [];
             return $this->sendError("Poll can not be editable");
         }
-        $data = $request->only('title');
-        $this->model = $this->model->update($data);
+        $data = $request->input(['title']);
+        if($data!=null)
+            $this->model = $poll->update(['title'=>$data]);
         $poll = $poll->refresh();
         $poll->addToCache();
         $this->model = $poll;
@@ -163,17 +167,23 @@ class PollingController extends Controller
     public function show(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $this->model = $this->model->where('id',$pollId)->first();
-        $this->model = ['polling'=>$this->model,'meta'=>$this->model->getMetaFor($loggedInProfileId)];
+        $this->model = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
+        if($this->model)
+            $this->model = ['polling'=>$this->model,'meta'=>$this->model->getMetaFor($loggedInProfileId)];
 
         return $this->sendResponse();
     }
 
-    public function delete(Request $request,$pollId)
+    public function destroy(Request $request,$pollId)
     {
-        $poll = $this->model->where('id',$pollId)->first();
+        $poll = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
+        if($poll == null)
+        {
+            $this->model = [];
+            return $this->sendError('Poll is not available');
+        }
         $poll->removeFromCache();
-        $poll = $poll->options()->delete();
+        $poll->options()->delete();
         $this->model = $poll->delete();
         return $this->sendResponse();
     }
@@ -181,7 +191,7 @@ class PollingController extends Controller
     public function updateOptions(Request $request,$pollId,$optionId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->first();
+        $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         if($poll == null)
         {
             $this->model = [];
@@ -221,7 +231,7 @@ class PollingController extends Controller
     public function addOption(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->first();
+        $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         if($poll == null)
         {
             $this->model = [];
@@ -266,8 +276,9 @@ class PollingController extends Controller
     public function deleteOptions(Request $request,$pollId,$optionId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->first();
-        if($poll == null)
+        $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
+        $count = $poll->options()->count();
+        if($poll == null || $count <= 2)
         {
             $this->model = [];
             return $this->sendError('Poll is not available');
@@ -303,6 +314,29 @@ class PollingController extends Controller
         return $this->sendResponse();
     }
 
+    public function like(Request $request, $pollId)
+    {
+        $profileId = $request->user()->profile->id;
+        $key = "meta:polling:likes:" . $pollId;
+        $pollLike = \Redis::sIsMember($key,$profileId);
+        $this->model = [];
+        if ($pollLike) {
+            PollingLike::where('profile_id', $profileId)->where('poll_id', $pollId)->delete();
+            \Redis::sRem($key,$profileId);
+            $this->model['liked'] = false;
+        } else {
+            PollingLike::insert(['profile_id' => $profileId, 'poll_id' => $pollId]);
+            \Redis::sAdd($key,$profileId);
+            $this->model['liked'] = true;
+            $recipe = Polling::find($pollId);
+            event(new Like($recipe, $request->user()->profile));
+        }
+        $this->model['likeCount'] = \Redis::sCard($key);
 
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($pollId, "polling",request()->user()->profile->id);
+
+        return $this->sendResponse();
+    }
 
 }
