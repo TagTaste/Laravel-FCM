@@ -187,6 +187,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             // polling
             Route::post('polling/{id}/like','PollingController@like');
             Route::post('polling/{id}/vote','PollingController@userPollVote');
+            Route::post('polling/{id}/renew','PollingController@renew');
             Route::resource('polling','PollingController');
             Route::post('polling/{id}/updateOptions/{optionId}','PollingController@updateOptions');
             Route::post('polling/{id}/addOption','PollingController@addOption');

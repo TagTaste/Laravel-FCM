@@ -79,8 +79,11 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $meta['options'] = PollingOption::where('poll_id',$this->id)->get();
-        $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->exists();
+        $options = PollingOption::where('poll_id',$this->id)->get();
+        $count = $options->sum('count');
+        foreach ($options as $option)
+            $option->count = ($option->count/$count) * 100;
+        $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
         $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
