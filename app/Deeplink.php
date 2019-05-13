@@ -125,7 +125,7 @@ class Deeplink
 
     public static function getDeepLinkText($modelName,$model)
     {
-        if(isset($model->owner->name) || $modelName == 'product')
+        if(isset($model->owner->name) || $modelName == 'product' || $modelName == 'profile' || $modelName == 'company')
         {
             switch ($modelName) {
                 case 'photo':       return Deeplink::getPhotoText($model);
@@ -144,13 +144,11 @@ class Deeplink
     {
         if(isset($model->preview) && isset($model->owner->name) && !is_null($model->content) && strlen($model->content))
             return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
-        else if(isset($model->preview->title) && isset($model->owner->name))
-            return $model->preview->title." checkout this post by ".$model->owner->name." on TagTaste.";
+        else if(isset($model->preview->description) && isset($model->owner->name))
+            return $model->preview->description." checkout this post by ".$model->owner->name." on TagTaste.";
         else if(is_null($model->content) && isset($model->thumbnail))
             return "Checkout this video by ".$model->owner->name." on TagTaste.";
         else if(!is_null($model->content) && strlen($model->content) && isset($model->owner->name))
-            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
-        else
             return "Checkout this post by ".$model->owner->name." on TagTaste.";
     }
 
@@ -164,12 +162,12 @@ class Deeplink
 
     public static function getCollaborateText($model)
     {
-        return $model->description." checkout this post by ".$model->owner->name." on TagTaste.";
+        return $model->description." checkout this collaboration by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getProductText($model)
     {
-        return "Checkout this post by ".$model->company_name." on TagTaste.";
+        return "Checkout this product by ".$model->company_name." on TagTaste.";
     }
 
     public static function getProfileText($model)
