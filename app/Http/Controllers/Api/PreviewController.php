@@ -41,7 +41,7 @@ class PreviewController extends Controller
             'type' => 'article',
             'url' => $data['redirectUrl'],
             'site_name' => 'TagTaste',
-            'deeplink' => Deeplink::getShortLink($modelName, $modelId),
+//            'deeplink' => Deeplink::getShortLink($modelName, $modelId),
             'modelID' => $modelId,
             'model' => ucwords($modelName),
             'isShared' => false,
