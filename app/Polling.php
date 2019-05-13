@@ -33,6 +33,10 @@ class Polling extends Model implements Feedable
             $model->addToCache();
             //update the search
         });
+        self::deleted(function($model){
+            $model->removeFromCache();
+            //update the search
+        });
     }
 
     public function addToCache()
