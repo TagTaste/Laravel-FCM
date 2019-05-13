@@ -125,6 +125,7 @@ class Deeplink
 
     public static function getDeepLinkText($modelName,$model)
     {
+        return "hello";
         if(isset($model->owner->name) || $modelName == 'product')
         {
             switch ($modelName) {
