@@ -390,8 +390,10 @@ class PollingController extends Controller
             $this->model = [];
             return $this->sendError("Poll can not be editable");
         }
-        $this->model = $poll->update(['is_expired'=>0,'deleted_at'=>null,'expired_time'=>null]);
-        $poll->options()->update(['deleted_at'=>null]);
+
+        $this->model = $poll->update(['is_expired'=>0,'expired_time'=>null]);
+        $poll->restore();
+        \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
         $poll = $poll->refresh();
         $poll->addToCache();
         $this->model = $poll;
