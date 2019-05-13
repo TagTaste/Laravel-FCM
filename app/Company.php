@@ -546,10 +546,10 @@ class Company extends Model
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
         $data['owner'] = $this->id;
-        $data['title'] = 'Check out '.$this->name.' on TagTaste';
-        $data['description'] = substr($this->about,0,155);
-        $data['ogTitle'] = 'Check out '.$this->name.' on TagTaste';
-        $data['ogDescription'] = substr($this->about,0,155);
+        $data['title'] = null;
+        $data['description'] = null;
+        $data['ogTitle'] = null;
+        $data['ogDescription'] = null;
         $data['ogImage'] = $this->logo;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/companies/'.$this->id;
