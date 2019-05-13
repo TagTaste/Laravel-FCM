@@ -5,7 +5,7 @@ namespace App\Console\Commands\Build\Cache;
 use App\Collaborate;
 use Illuminate\Console\Command;
 
-class Job extends Command
+class Polling extends Command
 {
     /**
      * The name and signature of the console command.
