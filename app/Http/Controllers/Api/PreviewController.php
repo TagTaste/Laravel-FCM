@@ -20,7 +20,7 @@ class PreviewController extends Controller
     public function show(Request $request,$modelName,$modelId)
     {
         $model = $this->getModel($modelName, $modelId);
-        
+
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
@@ -38,7 +38,7 @@ class PreviewController extends Controller
             'model' => ucwords($modelName),
             'isShared' => false,
             'shareTypeID' => 0,
-            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $model)
+            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $data)
         ];
 
         $this->model = $res;
