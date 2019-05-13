@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Redis;
 
 class Polling extends Share
 {
-    protected $fillable = ['profile_id','poll_id','payload_id','privacy_id'];
-    protected $visible = ['id','profile_id','created_at'];
+    protected $fillable = ['profile_id','poll_id','payload_id','privacy_id','content'];
+    protected $visible = ['id','profile_id','created_at','content'];
 
     protected $with = ['polling'];
 

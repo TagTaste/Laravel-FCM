@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Share
 {
-    protected $fillable = ['profile_id','collaborate_id','payload_id','privacy_id'];
-    protected $visible = ['id','profile_id','created_at'];
+    protected $fillable = ['profile_id','collaborate_id','payload_id','privacy_id','content'];
+    protected $visible = ['id','profile_id','created_at','content'];
 
     protected $with = ['collaborate'];
 
