@@ -30,7 +30,7 @@ class Collaborate extends Model implements Feedable
 
     static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
-    protected $visible = ['id','title', 'i_am', 'looking_for',
+    protected $visible = ['id','title', 'i_am', 'looking_for','owner',
         'expires_on','video','location','categories',
         'description','project_commences',
         'duration','financials','eligibility_criteria','occassion',
@@ -550,6 +550,11 @@ class Collaborate extends Model implements Feedable
     public function getGenderRatioAttribute($value)
     {
         return !is_null($value) ? json_decode($value) : null;
+    }
+
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
     }
 
 }
