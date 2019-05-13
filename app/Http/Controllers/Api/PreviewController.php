@@ -24,7 +24,6 @@ class PreviewController extends Controller
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
-
         $data = $model->getPreviewContent();
 
         $res = [
