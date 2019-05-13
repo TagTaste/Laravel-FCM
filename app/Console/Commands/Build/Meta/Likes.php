@@ -109,6 +109,20 @@ class Likes extends Command
                 \Redis::sAdd($key,$model->profile_id);
             }
         });
+
+        \DB::table("polling_share_likes")->orderby('poll_share_id')->chunk(100,function($models){
+            foreach($models as $model){
+                $key = "meta:pollingShare:likes:" . $model->poll_share_id;
+                \Redis::sAdd($key,$model->profile_id);
+            }
+        });
+
+        \DB::table("polling_likes")->orderBy('poll_id')->chunk(100,function($models){
+            foreach($models as $model){
+                $key = "meta:polling:likes:" . $model->poll_id;
+                \Redis::sAdd($key,$model->profile_id);
+            }
+        });
         
     }
     

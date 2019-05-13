@@ -79,8 +79,17 @@ class PollingController extends Controller
         }
         PollingOption::insert($data);
         $poll = $poll->refresh();
+
+
         //add to feed
-        event(new NewFeedable($poll, $request->user()->profile));
+        if($request->has('company_id'))
+        {
+            event(new NewFeedable($poll, $company));
+        }
+        else
+        {
+            event(new NewFeedable($poll, $request->user()->profile));
+        }
 
         //add model subscriber
         event(new Create($poll,$request->user()->profile));
@@ -385,8 +394,16 @@ class PollingController extends Controller
         $poll = $poll->refresh();
         $poll->addToCache();
         $this->model = $poll;
+
         //add to feed
-        event(new NewFeedable($poll, $request->user()->profile));
+        if($request->has('company_id'))
+        {
+            event(new NewFeedable($poll, $company));
+        }
+        else
+        {
+            event(new NewFeedable($poll, $request->user()->profile));
+        }
 
         //add model subscriber
         event(new Create($poll,$request->user()->profile));
