@@ -143,9 +143,9 @@ class Deeplink
     public static function getShoutoutText($model)
     {
         if(isset($model->preview) && isset($model->owner->name) && !is_null($model->content) && strlen($model->content))
-            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
+            return $model->content.". Checkout this post by ".$model->owner->name." on TagTaste.";
         else if(isset($model->preview->description) && isset($model->owner->name))
-            return $model->preview->description." checkout this post by ".$model->owner->name." on TagTaste.";
+            return $model->preview->description.". Checkout this post by ".$model->owner->name." on TagTaste.";
         else if(is_null($model->content) && isset($model->thumbnail))
             return "Checkout this video by ".$model->owner->name." on TagTaste.";
         else if(!is_null($model->content) && strlen($model->content) && isset($model->owner->name))
@@ -155,14 +155,14 @@ class Deeplink
     public static function getPhotoText($model)
     {
         if(!is_null($model->caption) && strlen($model->caption))
-            return $model->caption." checkout this photo by ".$model->owner->name." on TagTaste.";
+            return $model->caption.". Checkout this photo by ".$model->owner->name." on TagTaste.";
         else
             return "Checkout this photo by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getCollaborateText($model)
     {
-        return $model->description." checkout this collaboration by ".$model->owner->name." on TagTaste.";
+        return $model->description.". Checkout this collaboration by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getProductText($model)
@@ -173,7 +173,7 @@ class Deeplink
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this profile on TagTaste.";
+            return $model->about.". Checkout this profile on TagTaste.";
         else
             return "Checkout this profile on TagTaste.";
 
@@ -182,7 +182,7 @@ class Deeplink
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this company on TagTaste.";
+            return $model->about.". Checkout this company on TagTaste.";
         else
             return "Checkout this company on TagTaste.";
     }
