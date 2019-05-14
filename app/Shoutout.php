@@ -219,7 +219,7 @@ class Shoutout extends Model implements Feedable
             $data['ogImage'] = isset($preview->image) ? $preview->image :
                 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
         }
-        else if(strlen($content))
+        else
         {
             $data['title'] = substr($content,0,155);
             $data['ogTitle'] = $data['title'];

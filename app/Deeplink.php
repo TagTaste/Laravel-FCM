@@ -143,47 +143,50 @@ class Deeplink
     public static function getShoutoutText($model)
     {
         if(isset($model->preview) && isset($model->owner->name) && !is_null($model->content) && strlen($model->content))
-            return $model->content.". Checkout this post by ".$model->owner->name." on TagTaste.";
+            return $model->content.". Check out this post by ".$model->owner->name." on TagTaste.";
         else if(isset($model->preview->description) && isset($model->owner->name))
-            return $model->preview->description.". Checkout this post by ".$model->owner->name." on TagTaste.";
+            return $model->preview->description.". Check out this post by ".$model->owner->name." on TagTaste.";
         else if(is_null($model->content) && isset($model->thumbnail))
-            return "Checkout this video by ".$model->owner->name." on TagTaste.";
+            return "Check out this video by ".$model->owner->name." on TagTaste.";
         else if(!is_null($model->content) && strlen($model->content) && isset($model->owner->name))
-            return "Checkout this post by ".$model->owner->name." on TagTaste.";
+            return "Check out this post by ".$model->owner->name." on TagTaste.";
+        else
+            return "Check out this post by ".$model->owner->name." on TagTaste.";
+
     }
 
     public static function getPhotoText($model)
     {
         if(!is_null($model->caption) && strlen($model->caption))
-            return $model->caption.". Checkout this photo by ".$model->owner->name." on TagTaste.";
+            return $model->caption.". Check out this photo by ".$model->owner->name." on TagTaste.";
         else
-            return "Checkout this photo by ".$model->owner->name." on TagTaste.";
+            return "Check out this photo by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getCollaborateText($model)
     {
-        return $model->description.". Checkout this collaboration by ".$model->owner->name." on TagTaste.";
+        return $model->description.". Check out this collaboration by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getProductText($model)
     {
-        return "Checkout this product by ".$model->company_name." on TagTaste.";
+        return "Check out this product by ".$model->company_name." on TagTaste.";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about.". Checkout this profile on TagTaste.";
+            return $model->about.". Check out this profile on TagTaste.";
         else
-            return "Checkout this profile on TagTaste.";
+            return "Check out this profile on TagTaste.";
 
     }
 
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about.". Checkout this company on TagTaste.";
+            return $model->about.". Check out this company on TagTaste.";
         else
-            return "Checkout this company on TagTaste.";
+            return "Check out this company on TagTaste.";
     }
 }
