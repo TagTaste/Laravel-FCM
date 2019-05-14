@@ -7,6 +7,7 @@ use App\Events\Actions\Like;
 use App\Events\Model\Subscriber\Create;
 use App\Events\NewFeedable;
 use App\Events\UpdateFeedable;
+use App\Events\DeleteFeedable;
 use App\PeopleLike;
 use App\Polling;
 use App\PollingLike;
@@ -192,12 +193,30 @@ class PollingController extends Controller
 
     public function destroy(Request $request,$pollId)
     {
+        $loggedInProfileId = $request->user()->profile->id;
         $poll = $this->model->where('id',$pollId)->whereNull('deleted_at')->first();
         if($poll == null)
         {
             $this->model = [];
             return $this->sendError('Poll is not available');
         }
+        if(isset($poll->company_id) && !is_null($poll->company_id))
+        {
+            $companyId = $poll->company_id;
+            $userId = $request->user()->id;
+            $company = Company::find($companyId);
+            $userBelongsToCompany = $company->checkCompanyUser($userId);
+            if(!$userBelongsToCompany){
+                $this->model = [];
+                return $this->sendError("User does not belong to this company");
+            }
+        }
+        else if($poll->profile_id != $loggedInProfileId)
+        {
+            $this->model = [];
+            return $this->sendError("Poll is not related to login user");
+        }
+        event(new DeleteFeedable($poll));
         $poll->removeFromCache();
         $poll->options()->delete();
         $this->model = $poll->delete();
