@@ -14,7 +14,7 @@ class AlterPublicReviewProductSharesAddCaption extends Migration
     public function up()
     {
         Schema::table('public_review_product_shares',function($table){
-            $table->text('caption')->nullable();
+            $table->text('content')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterPublicReviewProductSharesAddCaption extends Migration
     public function down()
     {
         Schema::table('public_review_product_shares',function($table){
-            $table->dropColumn('caption');
+            $table->dropColumn('content');
         });
     }
 }

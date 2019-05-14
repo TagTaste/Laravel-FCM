@@ -14,7 +14,7 @@ class AlterPollingSharesAddCaption extends Migration
     public function up()
     {
         Schema::table('polling_shares',function($table){
-            $table->text('caption')->nullable();
+            $table->text('content')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterPollingSharesAddCaption extends Migration
     public function down()
     {
         Schema::table('polling_shares',function($table){
-            $table->dropColumn('caption');
+            $table->dropColumn('content');
         });
     }
 }
