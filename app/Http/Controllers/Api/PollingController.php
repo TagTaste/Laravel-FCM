@@ -169,6 +169,12 @@ class PollingController extends Controller
             return $this->sendError("Poll can not be editable");
         }
         $data = $request->input(['title']);
+        $optionId = $request->input(['optionId']);
+        $optionText = $request->input(['optionText']);
+        $option = PollingOption::where('poll_id',$pollId)->where('id',$optionId);
+        $optionExist = $option->exists();
+        if($optionExist && $optionText!= null)
+            $this->model = $option->update(['text'=>$optionText]);
         if($data!=null)
             $this->model = $poll->update(['title'=>$data]);
         $poll = $poll->refresh();
