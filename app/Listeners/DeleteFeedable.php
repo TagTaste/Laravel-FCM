@@ -30,7 +30,9 @@ class DeleteFeedable
         \Log::info("deleting payload");
         if(method_exists($event->model,'payload')){
             $class = "\\App\\Shareable\\" . ucwords(class_basename($event->model));
+            \Log::info($class);
             $model = lcfirst(class_basename($event->model));
+            \Log::info($model);
             $class::where($model.'_id', $event->model->id)
             ->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
             Payload::where("payload->$model","$model:".$event->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
