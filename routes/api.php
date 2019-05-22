@@ -108,6 +108,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
+            Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
+
+                //multiple photos api
+                Route::resource("photos","PhotoController");
+
+            });
+
+
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
 
 
@@ -176,6 +184,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
 
+            // polling
+            Route::post('polling/{id}/like','PollingController@like');
+            Route::post('polling/{id}/vote','PollingController@userPollVote');
+            Route::post('polling/{id}/renew','PollingController@renew');
+            Route::resource('polling','PollingController');
+            Route::post('polling/{id}/updateOptions/{optionId}','PollingController@updateOptions');
+            Route::post('polling/{id}/addOption','PollingController@addOption');
+            Route::delete('polling/{id}/deleteOptions/{optionId}','PollingController@deleteOptions');
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
@@ -209,6 +225,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
                         Route::resource("like",'ShoutoutLikeController');
                 });
+
+
+
+             //global image upload function
+            Route::post("globalImageUpload","PhotoController@globalImageUpload");
+
 
             //invites
             Route::post("invites","InviteController@invite");

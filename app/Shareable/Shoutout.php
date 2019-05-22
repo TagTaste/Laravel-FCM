@@ -48,6 +48,9 @@ class Shoutout extends Share
 
         $meta['commentCount'] = $this->comments()->count();
 
+        $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $shoutout->getMetaFor(request()->user()->profile->id);
+
         return $meta;
     }
     
