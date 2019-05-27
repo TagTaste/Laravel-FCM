@@ -189,7 +189,7 @@ class PollingController extends Controller
                 }
                 else{
                     $this->model = [];
-                    $this->sendError('Invalid option given');
+                    return $this->sendError('Invalid option given');
                 }
             }
         }
