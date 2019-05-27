@@ -183,11 +183,11 @@ class PollingController extends Controller
                     $option->update(['text'=>$optionText[$i]]);
                 }
                 else if(PollingOption::where('poll_id',$pollId)->count()<4){
-                    $data = array(
+                    $dataArray = array(
                         'text'=>$optionText[$i],
                         'poll_id'=>$pollId
                     );
-                    PollingOption::insert($data);
+                    PollingOption::insert($dataArray);
                 }
                 else{
                     $this->model = [];
