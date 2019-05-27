@@ -74,7 +74,7 @@ class PollingController extends Controller
         $poll = Polling::create($data);
         $data = [];
         foreach ($options as $option)
-        {
+        {\Log::info(strlen($option));
             if(strlen($option)!=0){
                 $data[] = ['text'=>$option,'poll_id'=>$poll->id,'created_at'=>$this->now,'updated_at'=>$this->now,'count'=>0];
             }
