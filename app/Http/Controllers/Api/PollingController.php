@@ -170,6 +170,8 @@ class PollingController extends Controller
         }
         $data = $request->input(['title']);
         $optionId = $request->input(['optionId']);
+        if(!is_array($optionId))
+            $optionId = [];
         $optionText = $request->input(['optionText']);
         if(count($optionText)>0){
             for ($i=0;$i<count($optionText);$i++){
