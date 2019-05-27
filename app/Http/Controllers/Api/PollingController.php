@@ -173,18 +173,22 @@ class PollingController extends Controller
         $optionText = $request->input(['optionText']);
         if(count($optionText)>0){
             for ($i=0;$i<count($optionText);$i++){
-                $option = PollingOption::where('id',$optionId[$i])->where('poll_id',$pollId);
-                if($option->exists()){
+
+                if(array_key_exists($i, $optionId)){
+                    $option = PollingOption::where('id',$optionId[$i])->where('poll_id',$pollId);
+                    if($option->exists())
                     $option->update(['text'=>$optionText[$i]]);
                 }
+                else if(PollingOption::where('poll_id',$pollId)->count()<4){
+                    $data = array(
+                        'text'=>$optionText[$i],
+                        'poll_id'=>$pollId
+                    );
+                    PollingOption::insert($data);
+                }
                 else{
-                    if(PollingOption::where('poll_id',$pollId)->count()<4){
-                        $data = array(
-                            'text'=>$optionText[$i],
-                            'poll_id'=>$pollId
-                        );
-                            PollingOption::insert($data);
-                    }
+                    $this->model = [];
+                    $this->sendError('Invalid option given');
                 }
             }
         }
