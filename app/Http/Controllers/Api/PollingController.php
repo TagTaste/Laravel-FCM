@@ -175,8 +175,6 @@ class PollingController extends Controller
         $optionText = $request->input(['optionText']);
         if(count($optionText)>0){
             for ($i=0;$i<count($optionText);$i++){
-                \Log::info($optionText[$i]);
-                \Log::info(array_key_exists($i, $optionId));
                 if(array_key_exists($i, $optionId)){
                     $option = PollingOption::where('id',$optionId[$i])->where('poll_id',$pollId);
                     if($option->exists())
