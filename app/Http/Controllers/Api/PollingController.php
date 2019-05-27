@@ -75,7 +75,12 @@ class PollingController extends Controller
         $data = [];
         foreach ($options as $option)
         {
-            $data[] = ['text'=>$option,'poll_id'=>$poll->id,'created_at'=>$this->now,'updated_at'=>$this->now,'count'=>0];
+            if(strlen($option)!=0){
+                $data[] = ['text'=>$option,'poll_id'=>$poll->id,'created_at'=>$this->now,'updated_at'=>$this->now,'count'=>0];
+            }
+            else{
+                return $this->sendError("Please enter valid options");
+            }
         }
         PollingOption::insert($data);
         $poll = $poll->refresh();
