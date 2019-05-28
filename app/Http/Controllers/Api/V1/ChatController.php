@@ -9,6 +9,7 @@ use App\V1\Chat;
 use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\File;
+use App\CompanyUser;
 
 class ChatController extends Controller
 {
