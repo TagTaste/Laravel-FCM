@@ -342,7 +342,7 @@ class PollingController extends Controller
 
     public function deleteOptions(Request $request,$pollId,$optionId)
     {
-        \Log::info($request);
+        \Log::info($request->all());
         $loggedInProfileId = $request->user()->profile->id;
         $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         $count = $poll->options()->count();
