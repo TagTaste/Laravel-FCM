@@ -342,11 +342,14 @@ class PollingController extends Controller
 
     public function deleteOptions(Request $request,$pollId,$optionId)
     {
-        \Log::info($request->all());
         $loggedInProfileId = $request->user()->profile->id;
         $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
         $count = $poll->options()->count();
-        if($poll == null || $count <= 2)
+        $options = $request->get('optionId');
+        if(!is_array($options))
+            $options = [$options];
+
+        if($poll == null || $count - count($options) < 2)
         {
             $this->model = [];
             return $this->sendError('Poll is not available');
@@ -373,7 +376,7 @@ class PollingController extends Controller
             $this->model = [];
             return $this->sendError("Poll can not be editable");
         }
-        $this->model = $poll->options()->where('id',$optionId)->delete();
+        $this->model = $poll->options()->where('poll_id', $pollId)->whereIn('id',$options)->delete();
         $poll = $poll->refresh();
         $poll->addToCache();
         $this->model = $poll;
