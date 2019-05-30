@@ -336,7 +336,7 @@ class PollingController extends Controller
         return $this->sendResponse();
     }
 
-    public function deleteOptions(Request $request,$pollId,$optionId)
+    public function deleteOptions(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
         $poll = Polling::where('id',$pollId)->whereNull('deleted_at')->first();
