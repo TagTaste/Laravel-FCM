@@ -202,7 +202,7 @@ class PhotoController extends Controller
             $inputs = $data;
             unset($inputs['has_tags']);
             $this->model = $request->user()->profile->photos()->where('id',$id)->update($inputs);
-            $this->model = \App\Photo::find($id);
+            $this->model = \App\V2\Photo::find($id);
             if(isset($data['has_tags']) && $data['has_tags']){
                 event(new Tag($this->model, $request->user()->profile, $this->model->caption));
             }
@@ -214,6 +214,7 @@ class PhotoController extends Controller
 
             $loggedInProfileId = $request->user()->profile->id;
             $meta = $this->model->getMetaFor($loggedInProfileId);
+            $this->model->images = json_decode($this->model->images);
             $this->model = ['photo'=>$this->model,'meta'=>$meta];
             return $this->sendResponse();
         }
