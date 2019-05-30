@@ -10,7 +10,7 @@ use App\Events\NewFeedable;
 use App\PublicReviewProduct;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Redis;
 class ShareController extends Controller
 {
     private $column = "_id";
@@ -110,7 +110,7 @@ class ShareController extends Controller
         } elseif($sharedModel->profile_id){
             $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
         }
-        \Redis::set("shared:" . strtolower($modelName) . ":" . $this->model->id,$this->model->toJson());
+        Redis::set("shared:" . strtolower($modelName) . ":" . $this->model->id,$this->model->toJson());
         return $this->sendResponse();
     }
     
