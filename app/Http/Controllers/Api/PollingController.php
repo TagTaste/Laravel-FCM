@@ -178,45 +178,19 @@ class PollingController extends Controller
         if(!is_array($options))
             $options = [$options];
         if(count($options)>0){
-//            for ($i=0;$i<count($optionText);$i++){
-//                if(array_key_exists($i, $optionId)){
-//                    $option = PollingOption::where('id',$optionId[$i])->where('poll_id',$pollId);
-//                    if($option->exists())
-//                    $option->update(['text'=>$optionText[$i]]);
-//                }
-//                else if(PollingOption::where('poll_id',$pollId)->count()<4){
-//                    $dataArray = array(
-//                        'text'=>$optionText[$i],
-//                        'poll_id'=>$pollId
-//                    );
-//                    PollingOption::insert($dataArray);
-//                }
-//                else{
-//                    $this->model = [];
-//                    return $this->sendError('Invalid option given');
-//                }
-//            }
             $count = PollingOption::where('poll_id',$pollId)->count();
-            foreach($options as $key =>$value)
+            foreach($options as $value)
             {
-                if($key == 0){
-                    $dataArray = array(
-                        'text'=>$value,
-                        'poll_id'=>$pollId
-                    );
-                    if($count<4){
-                        PollingOption::insert($dataArray);
-                        $count++;
+
+                if(isset($value['id'])){
+                   $pollOptions = PollingOption::where('poll_id',$pollId)->where('id',$value['id']);
+                    if($pollOptions->exists()){
+                        $pollOptions->update(['text'=>$value['text']]);
                     }
                 }
-                else{
-                    $pollOptions = PollingOption::where('id',(int)$key)->where('poll_id',$pollId);
-                    if($pollOptions->exists()){
-                        $pollOptions->update(['text'=>$value]);
-                    }
-                    else{
-                        return $this->sendError("Invalid option id");
-                    }
+                else if($count<4){
+                    PollingOption::insert(['text'=>$value['text'],'poll_id'=>$pollId]);
+                    $count++;
                 }
             }
         }
