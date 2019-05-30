@@ -174,27 +174,49 @@ class PollingController extends Controller
             return $this->sendError("Poll can not be editable");
         }
         $data = $request->input(['title']);
-        $optionId = $request->input(['optionId']);
-        if(!is_array($optionId))
-            $optionId = [];
-        $optionText = $request->input(['optionText']);
-        if(count($optionText)>0){
-            for ($i=0;$i<count($optionText);$i++){
-                if(array_key_exists($i, $optionId)){
-                    $option = PollingOption::where('id',$optionId[$i])->where('poll_id',$pollId);
-                    if($option->exists())
-                    $option->update(['text'=>$optionText[$i]]);
-                }
-                else if(PollingOption::where('poll_id',$pollId)->count()<4){
+        $options = $request->input(['options']);
+        if(!is_array($options))
+            $options = [$options];
+        if(count($options)>0){
+//            for ($i=0;$i<count($optionText);$i++){
+//                if(array_key_exists($i, $optionId)){
+//                    $option = PollingOption::where('id',$optionId[$i])->where('poll_id',$pollId);
+//                    if($option->exists())
+//                    $option->update(['text'=>$optionText[$i]]);
+//                }
+//                else if(PollingOption::where('poll_id',$pollId)->count()<4){
+//                    $dataArray = array(
+//                        'text'=>$optionText[$i],
+//                        'poll_id'=>$pollId
+//                    );
+//                    PollingOption::insert($dataArray);
+//                }
+//                else{
+//                    $this->model = [];
+//                    return $this->sendError('Invalid option given');
+//                }
+//            }
+            $count = PollingOption::where('poll_id',$pollId)->count();
+            foreach($options as $key =>$value)
+            {
+                if($key == 0){
                     $dataArray = array(
-                        'text'=>$optionText[$i],
+                        'text'=>$value,
                         'poll_id'=>$pollId
                     );
-                    PollingOption::insert($dataArray);
+                    if($count<4){
+                        PollingOption::insert($dataArray);
+                        $count++;
+                    }
                 }
                 else{
-                    $this->model = [];
-                    return $this->sendError('Invalid option given');
+                    $pollOptions = PollingOption::where('id',(int)$key)->where('poll_id',$pollId);
+                    if($pollOptions->exists()){
+                        $pollOptions->update(['text'=>$value]);
+                    }
+                    else{
+                        return $this->sendError("Invalid option id");
+                    }
                 }
             }
         }
