@@ -82,6 +82,37 @@ class ShareController extends Controller
         
         return $this->sendResponse();
     }
+    public function update(Request $request,$modelName, $postId){
+        $content = $request->get('content');
+        $modelName = strtolower($modelName);
+        $this->setColumn($modelName);
+        $sharedModel = $this->getModel($modelName, $postId);
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+        $loggedInProfileId = $request->user()->profile->id;
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+        $share = new $class();
+        $exists = $share->where('profile_id', $loggedInProfileId)
+            ->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
+        if(!$exists){
+            return $this->sendError("Model doesn't exist");
+        }
+        $this->model = $share->where('profile_id', $loggedInProfileId)
+            ->where($this->column, $sharedModel->id)->whereNull('deleted_at')->update(['content' => $content]);
+        $this->model = $share->where('profile_id', $loggedInProfileId)
+            ->where($this->column, $sharedModel->id)->whereNull('deleted_at')->first();
+        $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
+            $modelName => $modelName . ":" . $postId, 'shared' => "shared:$modelName:" . $this->model->id
+        ];
+        if($sharedModel->company_id){
+            $this->model->relatedKey = ['company' => 'company:small:' . $sharedModel->company_id];
+        } elseif($sharedModel->profile_id){
+            $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
+        }
+        \Redis::set("shared:" . strtolower($modelName) . ":" . $this->model->id,$this->model->toJson());
+        return $this->sendResponse();
+    }
     
     public function delete(Request $request, $modelName, $id)
     {
@@ -203,5 +234,6 @@ class ShareController extends Controller
         return $this->sendResponse();
 
     }
+
 
 }
