@@ -25,8 +25,17 @@ class ShareController extends Controller
     
     private function getModel(&$modelName, &$id)
     {
-        $class = "\\App\\" . ucfirst ($modelName);
-        return $class::where('id',$id)->whereNull('deleted_at')->first();
+        if(ucfirst($modelName) === 'Photo')
+        {
+            $class = "\\App\\V2\\" . ucfirst ($modelName);
+            $photo = $class::where('id',$id)->whereNull('deleted_at')->first();
+            $photo->images = json_decode($photo->images);
+            return $photo;
+        }
+        else{
+            $class = "\\App\\" . ucfirst ($modelName);
+            return $class::where('id',$id)->whereNull('deleted_at')->first();
+        }
     }
     
     public function store(Request $request, $modelName, $id)
