@@ -103,7 +103,6 @@ class ShoutoutController extends Controller
             $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
             $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
         }
-
         $this->model = $this->model->create($inputs);
         event(new Create($this->model,$profile));
 
