@@ -90,7 +90,7 @@ class Polling extends Model implements Feedable
             foreach ($options as $option)
                 $option->count = ($option->count/$count) * 100;
         }
-        //$meta['options'] = $options;
+        $meta['options'] = $options;
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
