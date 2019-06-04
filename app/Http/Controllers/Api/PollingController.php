@@ -84,22 +84,22 @@ class PollingController extends Controller
         }
         PollingOption::insert($data);
         $poll = $poll->refresh();
+        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($profileId)];
 
 
         //add to feed
         if($request->has('company_id'))
         {
-            event(new NewFeedable($poll, $company));
+            event(new NewFeedable($this->model, $company));
         }
         else
         {
+
             event(new NewFeedable($poll, $request->user()->profile));
         }
 
         //add model subscriber
         event(new Create($poll,$request->user()->profile));
-
-        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($profileId)];
         return $this->sendResponse();
     }
 
