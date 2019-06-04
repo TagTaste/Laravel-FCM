@@ -538,7 +538,7 @@ class PublicReviewProductController extends Controller
                 $parentId = $datum['parent_s.no.'] == 0 ? null : $datum['parent_s.no.'];
                 $active = isset($datum['is_active']) ? $datum['is_active'] : 1;
                 $description = isset($datum['explainer_text']) ? $datum['explainer_text'] : null;
-                $questions[] = ["s_no"=>$datum['s.no.'],'parent_id'=>$parentId,'value'=>$datum['aroma'],'type'=>'AROMA','is_active'=>$active,'description'=>$description,'is_intensity'=>$datum['is_intensity']];
+                $questions[] = ["s_no"=>$datum['s.no.'],'parent_id'=>$parentId,'value'=>$datum['aroma'],'type'=>'AROMA','is_active'=>$active,'description'=>$description,'is_intensity'=>$datum['is_intensity_present']];
             }
         }
         $data = [];
