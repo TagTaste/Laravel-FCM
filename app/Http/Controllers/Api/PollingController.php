@@ -90,7 +90,7 @@ class PollingController extends Controller
         //add to feed
         if($request->has('company_id'))
         {
-            event(new NewFeedable($this->model, $company));
+            event(new NewFeedable($poll, $company));
         }
         else
         {
