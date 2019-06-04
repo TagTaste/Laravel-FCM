@@ -531,7 +531,7 @@ class PublicReviewProductController extends Controller
 
             foreach ($item as $datum)
             {
-                //\Log::info($datum);
+                \Log::info($datum);
                 if(is_null($datum['s.no.']))
                     break;
                 $extra[] = $datum;
