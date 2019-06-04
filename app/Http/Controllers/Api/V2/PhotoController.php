@@ -15,6 +15,7 @@ use App\V2\Photo;
 use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PhotoController extends Controller
 {
@@ -208,7 +209,7 @@ class PhotoController extends Controller
             }
 
             $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString()];
-            \Redis::set("photo:" . $this->model->id,json_encode($data));
+            Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new UpdateFeedable($this->model));
 
             $loggedInProfileId = $request->user()->profile->id;
