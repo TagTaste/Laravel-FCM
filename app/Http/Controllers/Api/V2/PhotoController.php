@@ -169,7 +169,7 @@ class PhotoController extends Controller
         $profileId = $profile->id;
         $data = [];
         $data['caption'] = $request->input('caption');
-        $data['has_tags'] = $this->hasTags($data['caption']);
+        $datum['has_tags'] = $this->hasTags($data['caption']);
         if($request->has('company_id') && !is_null($request->input('company_id')))
         {
             $companyId = $request->input('company_id');
@@ -179,11 +179,10 @@ class PhotoController extends Controller
             if(!$userBelongsToCompany){
                 return $this->sendError("User does not belong to this company");
             }
-
             $this->model = $company->photos()->where('id',$id)->update($data);
 
             $this->model = \App\V2\Photo::find($id);
-            if(isset($data['has_tags']) && $data['has_tags']){
+            if(isset($datum['has_tags']) && $datum['has_tags']){
                 event(new Tag($this->model, $profile, $this->model->caption));
             }
             $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString()];
@@ -192,6 +191,7 @@ class PhotoController extends Controller
 
             $loggedInProfileId = $request->user()->profile->id;
             $meta = $this->model->getMetaFor($loggedInProfileId);
+            $this->model->images = json_decode($this->model->images);
             $this->model = ['photo'=>$this->model,'meta'=>$meta];
             return $this->sendResponse();
 
