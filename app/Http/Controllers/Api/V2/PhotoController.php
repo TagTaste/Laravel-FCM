@@ -201,14 +201,13 @@ class PhotoController extends Controller
             $data['has_tags'] = $this->hasTags($data['caption']);
             $inputs = $data;
             unset($inputs['has_tags']);
-            $this->model = $request->user()->profile->photos()->where('id',$id)->update($inputs);
+            \App\V2\Photo::where('id',$id)->update($inputs);
             $this->model = \App\V2\Photo::find($id);
             if(isset($data['has_tags']) && $data['has_tags']){
                 event(new Tag($this->model, $request->user()->profile, $this->model->caption));
             }
 
-            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
-                'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString()];
             \Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new UpdateFeedable($this->model));
 

@@ -502,7 +502,7 @@ class Profile extends Model
 
     public function photos()
     {
-        return $this->belongsToMany('App\Photo', 'profile_photos', 'profile_id', 'photo_id');
+        return $this->belongsToMany('App\V2\Photo', 'profile_photos', 'profile_id', 'photo_id');
     }
 
     public function projects()
