@@ -80,7 +80,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
         ];
@@ -991,7 +991,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Place the dry tisanes at the bottom of a transparent glass kettle and brew as per the instructions mentioned on the package. Observe the brewing process in the kettle. How does it appear?",
+			"title": "Place the dry tisanes at the bottom of a transparent glass kettle and brew as per the instructions mentioned on the package. Observe the brewing process in the kettle. What do you feel?",
 
 
 
@@ -8174,7 +8174,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Everything is fine",
+					"value": "Balanced",
 
 
 
