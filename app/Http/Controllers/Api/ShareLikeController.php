@@ -106,7 +106,7 @@ class ShareLikeController extends Controller
         Redis::sAdd($key,$profileId);
 
         $this->model['liked'] = true;
-        $this->model['likeCount'] = \Redis::sCard($key);
+        $this->model['likeCount'] = Redis::sCard($key);
         $peopleLike = new PeopleLike();
         $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "productShare",request()->user()->profile->id);
 
