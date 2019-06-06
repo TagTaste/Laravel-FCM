@@ -119,5 +119,9 @@ class Product extends Share
                 return '#305D03';
         }
     }
+    public function like()
+    {
+        return $this->hasMany(\App\Shareable\Sharelikable\Product::class,'public_review_share_id');
+    }
 
 }

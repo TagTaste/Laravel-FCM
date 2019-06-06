@@ -24,7 +24,8 @@ class CommentController extends Controller {
         'recipe_share' => \App\Shareable\Recipe::class,
         'shoutout_share' => \App\Shareable\Shoutout::class,
         'polling' => Polling::class,
-        'polling_share' => \App\Shareable\Polling::class
+        'polling_share' => \App\Shareable\Polling::class,
+        'product_share' => \App\Shareable\Product::class
     ];
     
     private function getModel(&$modelName, &$modelId){
@@ -84,7 +85,6 @@ class CommentController extends Controller {
 	{
         $model = $this->getModel($model,$modelId);
         $this->checkRelationship($model);
-        
         if(!method_exists($model, 'comments')){
             throw new \Exception("This model does not have comments defined.");
         }
@@ -143,7 +143,7 @@ class CommentController extends Controller {
         $comment->has_tags = $this->hasTags($content);
         $comment->save();
 
-        $model->comments()->attach($comment->id);
+        //$model->comments()->attach($comment->id);
 
         if($comment->has_tags){
             event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
