@@ -16,6 +16,7 @@ use App\PollingOption;
 use App\PollingVote;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PollingController extends Controller
 {
@@ -85,6 +86,8 @@ class PollingController extends Controller
         }
         PollingOption::insert($data);
         $poll = $poll->refresh();
+        $poll->addToCache();
+
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($profileId)];
 
 
@@ -138,6 +141,7 @@ class PollingController extends Controller
             }
         }
         $poll = $poll->refresh();
+        $poll->addToCache();
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
 

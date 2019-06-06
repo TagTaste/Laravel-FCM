@@ -41,7 +41,7 @@ class Polling extends Model implements Feedable
 
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'title'=>$this->title,'created_at'=>$this->created_at->toDateTimeString(),
+        $data = ['id'=>$this->id,'title'=>$this->title,'options'=>$this->getOptionsAttribute(),'created_at'=>$this->created_at->toDateTimeString(),
             'updated_at'=>$this->updated_at->toDateTimeString()];
         \Redis::set("polling:" . $this->id,json_encode($data));
 
@@ -83,14 +83,14 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $options = PollingOption::where('poll_id',$this->id)->get();
-        $count = $options->sum('count');
-        if($count)
-        {
-            foreach ($options as $option)
-                $option->count = ($option->count/$count) * 100;
-        }
-        $meta['options'] = $options;
+//        $options = PollingOption::where('poll_id',$this->id)->get();
+//        $count = $options->sum('count');
+//        if($count)
+//        {
+//            foreach ($options as $option)
+//                $option->count = ($option->count/$count) * 100;
+//        }
+//        $meta['options'] = $options;
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
@@ -143,6 +143,13 @@ class Polling extends Model implements Feedable
     }
 
     public function getOptionsAttribute(){
-        return \DB::table('poll_options')->where('poll_id',$this->id)->get();
+        $options = PollingOption::where('poll_id',$this->id)->get();
+        $count = $options->sum('count');
+        if($count)
+        {
+            foreach ($options as $option)
+                $option->count = ($option->count/$count) * 100;
+        }
+        return $options;
     }
 }
