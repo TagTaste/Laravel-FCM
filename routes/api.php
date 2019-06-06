@@ -209,6 +209,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("categories","CategoryController");
 
             //share
+                Route::get("share/product/{id}/like",'ShareLikeController@productLikeIndex');
+                Route::post("share/product/{id}/like", 'ShareLikeController@productLikeStore');
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/product/{id}",'ShareController@productStore');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
