@@ -103,7 +103,7 @@ class ShareLikeController extends Controller
         $models->$columnName = $modelId;
         $models->save();
 
-        \Redis::sAdd($key,$profileId);
+        Redis::sAdd($key,$profileId);
 
         $this->model['liked'] = true;
         $this->model['likeCount'] = \Redis::sCard($key);
