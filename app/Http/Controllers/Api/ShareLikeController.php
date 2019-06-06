@@ -7,6 +7,7 @@ use App\PeopleLike;
 use App\Polling;
 use Illuminate\Http\Request;
 use App\Shareable\Sharelikable;
+use Illuminate\Support\Facades\Redis;
 
 class ShareLikeController extends Controller
 {
@@ -85,7 +86,7 @@ class ShareLikeController extends Controller
             $columnName = 'public_review_share_id';
 
         $key = "meta:productShare:likes:$modelId";
-        $exists = \Redis::sIsMember($key,$profileId);
+        $exists = Redis::sIsMember($key,$profileId);
         if($exists)
         {
             \Redis::sRem($key,$profileId);
