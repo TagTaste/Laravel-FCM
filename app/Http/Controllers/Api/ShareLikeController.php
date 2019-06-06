@@ -92,7 +92,7 @@ class ShareLikeController extends Controller
             Redis::sRem($key,$profileId);
             $sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
             $this->model['liked'] = false;
-            $this->model['likeCount'] = \Redis::sCard($key);
+            $this->model['likeCount'] = Redis::sCard($key);
             $peopleLike = new PeopleLike();
             $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "productShare",request()->user()->profile->id);
             return $this->sendResponse();
