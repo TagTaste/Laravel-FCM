@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Channel\Payload;
 use App\Company;
 use App\Events\Actions\Like;
 use App\Events\Model\Subscriber\Create;
@@ -241,6 +242,7 @@ class PollingController extends Controller
             return $this->sendError("Poll is not related to login user");
         }
         event(new DeleteFeedable($poll));
+        Payload::where('model',"App\Polling")->where('model_id',$pollId)->update(['deleted_at'=>$this->now]);
         $poll->removeFromCache();
         $poll->options()->delete();
         $this->model = $poll->delete();
