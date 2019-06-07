@@ -51,6 +51,16 @@ class Product extends Share
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
         $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        $key = "meta:productShare:likes:" . $this->id;
+
+        $meta['hasLiked'] = \Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'productShare' ,request()->user()->profile->id);
+
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
         return $meta;
     }
 
