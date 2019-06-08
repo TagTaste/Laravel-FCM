@@ -225,6 +225,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
 
         $schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
+        $schedule->command('follow:company')->at('23:00');
         //$schedule->command('ServiceInterruptionMail')->dailyAt('18:20');
 
         //command for redis store suggestion
