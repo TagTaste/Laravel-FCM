@@ -152,4 +152,23 @@ class Polling extends Model implements Feedable
         }
         return $options;
     }
+
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
+        $data['title'] = substr($this->title,0,65);
+        $data['description'] = null;
+        $data['ogTitle'] = substr($this->title,0,65);
+        $data['ogDescription'] = null;
+        $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
+        $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
+        $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/polling/'.$this->id;
+
+        return $data;
+
+    }
 }

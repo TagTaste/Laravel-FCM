@@ -20,13 +20,12 @@ class PreviewController extends Controller
     public function show(Request $request,$modelName,$modelId)
     {
         $model = $this->getModel($modelName, $modelId);
-        
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
 
         $data = $model->getPreviewContent();
-
+        return $data;
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
