@@ -104,6 +104,7 @@ class ShoutoutController extends Controller
         }
         \Log::info($inputs);
         $this->model = $this->model->create($inputs);
+        \Log::info($this->model);
         event(new Create($this->model,$profile));
 
         if($inputs['has_tags']){

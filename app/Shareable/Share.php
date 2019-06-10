@@ -9,10 +9,11 @@ use App\Privacy;
 use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\GetTags;
 
 class Share extends Model implements CommentNotification
 {
-    use SoftDeletes, CachedPayload;
+    use SoftDeletes, CachedPayload, GetTags;
      
     protected $fillable = ['profile_id','privacy_id','content'];
     protected $visible = ['id','profile_id','created_at','content'];
@@ -99,5 +100,15 @@ class Share extends Model implements CommentNotification
     public function getCommentNotificationMessage() : string
     {
         return "New comment on your share!";
+    }
+
+    public function getContentAttribute($value)
+    {
+        $profiles = $this->getTaggedProfiles($value);
+
+        if($profiles){
+            $value = ['text'=>$value,'profiles'=>$profiles];
+        }
+        return $value;
     }
 }
