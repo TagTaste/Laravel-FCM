@@ -102,9 +102,7 @@ class ShoutoutController extends Controller
             $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
             $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
         }
-        \Log::info($inputs);
         $this->model = $this->model->create($inputs);
-        \Log::info($this->model);
         event(new Create($this->model,$profile));
 
         if($inputs['has_tags']){
