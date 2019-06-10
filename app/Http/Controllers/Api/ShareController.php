@@ -11,8 +11,12 @@ use App\PublicReviewProduct;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use App\Traits\CheckTags;
+use App\Events\Actions\Tag;
+
 class ShareController extends Controller
 {
+    use CheckTags;
     private $column = "_id";
     
     private function setColumn(&$modelName)
