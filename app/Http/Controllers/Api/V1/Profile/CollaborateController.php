@@ -156,6 +156,7 @@ class CollaborateController extends Controller
     public function update(Request $request, $profileId, $id)
     {
         $inputs = $request->all();
+        \Log::info($inputs);
         $profileId = $request->user()->profile->id;
 
         unset($inputs['expires_on']);
