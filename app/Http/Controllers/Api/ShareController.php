@@ -88,6 +88,12 @@ class ShareController extends Controller
             $this->model->profile_id = $sharedModel->profile_id;
             event(new Share($this->model,$request->user()->profile));
         }
+        //Tag profile and notify user
+        $content = $request->input('content');
+        $tags = $this->hasTags($content);
+        if(isset($tags)){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
         
         return $this->sendResponse();
     }

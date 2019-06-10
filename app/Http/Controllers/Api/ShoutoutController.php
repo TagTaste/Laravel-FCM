@@ -65,7 +65,6 @@ class ShoutoutController extends Controller
             $this->model = [];
             return $this->sendError($e->getMessage());
         }
-        \Log::info($inputs['content']);
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -107,7 +106,6 @@ class ShoutoutController extends Controller
         event(new Create($this->model,$profile));
 
         if($inputs['has_tags']){
-            \Log::info($this->model->content);
             event(new Tag($this->model, $profile, $this->model->content));
         }
         return $this->sendResponse();
