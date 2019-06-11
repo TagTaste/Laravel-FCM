@@ -95,7 +95,8 @@ class ShareController extends Controller
         //Tag profile and notify user
         $content = $request->input('content');
         $tags = $this->hasTags($content);
-        if(isset($tags)){
+
+        if(isset($tags) && $tags != 0){
             event(new Tag($this->model, $request->user()->profile, $this->model->content));
         }
         
