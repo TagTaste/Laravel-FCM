@@ -108,7 +108,7 @@ class PhotoController extends Controller
             $photo->images = json_decode($photo->images);
             $res = \DB::table("profile_photos")->insert(['profile_id'=>$profileId,'photo_id'=>$photo->id]);
             $data = ['id'=>$photo->id,'caption'=>$photo->caption,'images'=>$photo->images,
-                'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString(), 'image_meta'=>json_decode($this->model->images[0])];
+                'created_at'=>$photo->created_at->toDateTimeString(), 'updated_at'=>$photo->updated_at->toDateTimeString(), 'image_meta'=>json_encode($photo->images[0])];
 
             \Redis::set("photo:" . $photo->id,json_encode($data));
 
