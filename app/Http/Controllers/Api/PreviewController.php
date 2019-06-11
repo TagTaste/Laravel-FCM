@@ -25,7 +25,6 @@ class PreviewController extends Controller
         }
 
         $data = $model->getPreviewContent();
-        return $data;
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
