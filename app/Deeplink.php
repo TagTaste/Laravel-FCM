@@ -119,6 +119,7 @@ class Deeplink
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
                 case 'company':     return env('APP_URL')."/company/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
+                case 'polling':     return env('APP_URL').'/polling/'.$modelId;
             }
         }
     }
@@ -134,6 +135,7 @@ class Deeplink
                 case 'profile':     return Deeplink::getProfileText($model);
                 case 'company':     return Deeplink::getCompanyText($model);
                 case 'product':     return Deeplink::getProductText($model);
+                case 'polling':     return Deeplink::getPollingText($model);
             }
         }
         else
@@ -160,6 +162,11 @@ class Deeplink
             return $model->caption." checkout this photo by ".$model->owner->name." on TagTaste.";
         else
             return "Checkout this photo by ".$model->owner->name." on TagTaste.";
+    }
+
+    public static function getPollingText($model){
+
+            return "Checkout this poll by ".$model->owner->name." on TagTaste";
     }
 
     public static function getCollaborateText($model)
