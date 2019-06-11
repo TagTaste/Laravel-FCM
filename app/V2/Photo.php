@@ -307,7 +307,7 @@ class Photo extends Model implements Feedable
 
     public function getImagesAttribute($value){
         if($value === null){
-            reuturn "here";
+            return "here";
         }
     }
 
