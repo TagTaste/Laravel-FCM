@@ -159,9 +159,9 @@ class Polling extends Model implements Feedable
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['title'] = substr($this->title,0,65);
-        $data['description'] = null;
+        $data['description'] = "by ".$this->profile->name;
         $data['ogTitle'] = substr($this->title,0,65);
-        $data['ogDescription'] = null;
+        $data['ogDescription'] = "by ".$this->profile->name;
         $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
