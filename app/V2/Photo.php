@@ -311,7 +311,7 @@ class Photo extends Model implements Feedable
                 return null;
             }
             else{
-                return [$this->image_meta];
+                return "[".$this->image_meta."]";
             }
         }
         else{
