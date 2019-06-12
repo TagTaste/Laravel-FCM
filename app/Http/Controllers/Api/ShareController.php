@@ -278,7 +278,7 @@ class ShareController extends Controller
         }
         $this->model->update(['content'=>$content]);
         $this->model = $this->model->first()->refresh();
-        return $this->model;
+
         $tags = $this->hasTags($content);
 
         if(isset($tags) && $tags != 0){
