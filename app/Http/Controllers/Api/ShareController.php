@@ -104,6 +104,11 @@ class ShareController extends Controller
     }
     public function update(Request $request,$modelName, $postId){
         $content = $request->get('content');
+        $tags = $this->hasTags($content);
+
+        if(isset($tags) && $tags != 0){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
         $modelName = strtolower($modelName);
         $this->setColumn($modelName);
         $sharedModel = $this->getModel($modelName, $postId);
@@ -218,10 +223,16 @@ class ShareController extends Controller
         $share->privacy_id = $request->input('privacy_id');
         $share->created_at = Carbon::now()->toDateTimeString();
         $share->updated_at = Carbon::now()->toDateTimeString();
+        $share->content = $request->input('content');
 //        $this->model = $share->insert(['profile_id' => $loggedInProfileId, $this->column => $sharedModel->id,
 //            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         $share->save();
         $this->model = $share;
+        $tags = $this->hasTags($content);
+
+        if(isset($tags) && $tags != 0){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
         $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
             $modelName => "public-review/product" . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
         ];
@@ -253,6 +264,27 @@ class ShareController extends Controller
             Payload::where("payload->product","public-review/product:".$id)->where("payload->sharedBy","profile:small:".$loggedInId)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
         return $this->sendResponse();
 
+    }
+
+    public function productUpdate(Request $request, $modelId){
+        $content = $request->input('content');
+        $modelName = 'product';
+        $class = "\\App\\Shareable\\".ucwords($modelName);
+        $this->setColumn($modelName);
+        $loggedInId = $request->user()->profile->id;
+        $this->model = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at');
+        if(!$this->model->exists()){
+            return $this->sendError("Model not found.");
+        }
+        $this->model->update(['content'=>$content]);
+        $this->model = $this->model->first()->refresh();
+        return $this->model;
+        $tags = $this->hasTags($content);
+
+        if(isset($tags) && $tags != 0){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
+        return $this->sendResponse();
     }
 
 

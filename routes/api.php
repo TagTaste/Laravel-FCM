@@ -218,6 +218,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::delete("share/product/{id}",'ShareController@productShareDelete');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
+                Route::patch("share/product/{id}", 'ShareController@productUpdate');
                 Route::patch("share/{modelname}/{id}", 'ShareController@update');
 
             //send mail to applicants of job or collaborate
