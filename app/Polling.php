@@ -19,9 +19,9 @@ class Polling extends Model implements Feedable
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['options'];
+    protected $appends = ['options','owner'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner'];
 
     public static function boot()
     {
@@ -170,5 +170,10 @@ class Polling extends Model implements Feedable
 
         return $data;
 
+    }
+
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
     }
 }
