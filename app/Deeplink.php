@@ -93,7 +93,6 @@ class Deeplink
                 ],
             ],
         ]);
-        \Log::info((string)$res->getBody());
         return json_decode((string)$res->getBody());
     }
 
