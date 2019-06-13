@@ -106,9 +106,7 @@ class ShareController extends Controller
         $content = $request->get('content');
         $tags = $this->hasTags($content);
 
-        if(isset($tags) && $tags != 0){
-            event(new Tag($this->model, $request->user()->profile, $this->model->content));
-        }
+
         $modelName = strtolower($modelName);
         $this->setColumn($modelName);
         $sharedModel = $this->getModel($modelName, $postId);
@@ -136,6 +134,9 @@ class ShareController extends Controller
             $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
         }
         Redis::set("shared:" . strtolower($modelName) . ":" . $this->model->id,$this->model->toJson());
+        if(isset($tags) && $tags != 0){
+            event(new Tag($this->model, $request->user()->profile, $this->model->content));
+        }
         return $this->sendResponse();
     }
     
