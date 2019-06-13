@@ -25,7 +25,8 @@ class PreviewController extends Controller
         }
 
         $data = $model->getPreviewContent();
-        \Log::info("deeplink ".Deeplink::getShortLink($modelName, $modelId));
+        $deepLink = Deeplink::getShortLink($modelName, $modelId);
+        \Log::info($deepLink);
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
@@ -33,7 +34,7 @@ class PreviewController extends Controller
             'type' => 'article',
             'url' => $data['redirectUrl'],
             'site_name' => 'TagTaste',
-            'deeplink' => Deeplink::getShortLink($modelName, $modelId),
+            'deeplink' => $deepLink,
             'modelID' => $modelId,
             'model' => ucwords($modelName),
             'isShared' => false,
