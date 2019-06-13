@@ -57,6 +57,7 @@ class Deeplink
     private function getDeeplinkUrl()
     {
         $data = $this->model->getPreviewContent();
+        \Log::info($data);
         $client = new \GuzzleHttp\Client();
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
             'json' => [
