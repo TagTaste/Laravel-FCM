@@ -437,12 +437,12 @@ class PollingController extends Controller
             $this->model = [];
             return $this->sendError("Poll is not related to login user");
         }
-        $checkVote = PollingVote::where('poll_id',$pollId)->exists();
-        if($checkVote)
-        {
-            $this->model = [];
-            return $this->sendError("Poll can not be editable");
-        }
+//        $checkVote = PollingVote::where('poll_id',$pollId)->exists();
+//        if($checkVote)
+//        {
+//            $this->model = [];
+//            return $this->sendError("Poll can not be editable");
+//        }
         $this->model = $poll->update(['is_expired'=>0,'expired_time'=>null]);
         $poll->restore();
         \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
