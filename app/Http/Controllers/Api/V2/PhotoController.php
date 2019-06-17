@@ -208,7 +208,6 @@ class PhotoController extends Controller
             }
             $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>json_encode(json_decode($this->model->images)[0])];
             Redis::set("photo:" . $this->model->id,json_encode($data));
-            dd($data);
             event(new UpdateFeedable($this->model));
 
             $loggedInProfileId = $request->user()->profile->id;
