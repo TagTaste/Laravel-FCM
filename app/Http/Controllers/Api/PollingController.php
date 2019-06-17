@@ -415,7 +415,8 @@ class PollingController extends Controller
     public function renew(Request $request,$pollId)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $poll = Polling::where('id',$pollId)->where('is_expired',1)->whereNotNull('deleted_at')->first();
+        $poll = Polling::where('id',$pollId)->where('is_expired',1)->first();
+        //return $poll;
         if($poll == null)
         {
             $this->model = [];
