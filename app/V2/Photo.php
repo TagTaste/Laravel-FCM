@@ -28,7 +28,7 @@ class Photo extends Model implements Feedable
     protected $visible = ['id','caption','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','images'];
+        'owner','nextPhotoId','previousPhotoId','images','image_meta'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -316,6 +316,17 @@ class Photo extends Model implements Feedable
         }
         else{
             return $value;
+        }
+    }
+
+    public function getImageMetaAttribute($value){
+        if($value === null){
+            if($this->images == null){
+                return null;
+            }
+            else{
+                return json_encode($this->images[0]);
+            }
         }
     }
 
