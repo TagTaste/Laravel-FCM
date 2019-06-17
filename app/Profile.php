@@ -927,7 +927,7 @@ class Profile extends Model
 
     public function getCuisinesAttribute()
     {
-        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',request()->user()->profile->id)->get()->pluck('cuisine_id');
+        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',$this->id)->get()->pluck('cuisine_id');
         return  \DB::table('cuisines')->whereIn('id',$cuisineIds)->get();
     }
 
