@@ -454,11 +454,11 @@ class PollingController extends Controller
         //add to feed
         if($request->has('company_id'))
         {
-            event(new NewFeedable($poll, $company));
+            //event(new NewFeedable($poll, $company));
         }
         else
         {
-            event(new NewFeedable($poll, $request->user()->profile));
+            //event(new NewFeedable($poll, $request->user()->profile));
         }
 
         //add model subscriber
