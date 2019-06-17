@@ -111,7 +111,7 @@ class PollingController extends Controller
     {
         $loggedInProfileId = $request->user()->profile->id;
         $poll = Polling::where('id',$pollId)->where('is_expired',0)->whereNull('deleted_at')->first();
-        if($poll == null)
+        if($poll == null || $poll->owner->id == $loggedInProfileId)
         {
             $this->model = [];
             return $this->sendError('Poll is not available');
