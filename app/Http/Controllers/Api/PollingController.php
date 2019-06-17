@@ -463,7 +463,7 @@ class PollingController extends Controller
 
         //add model subscriber
         event(new Create($poll,$request->user()->profile));
-        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
+        $this->model = true;
         return $this->sendResponse();
     }
 
