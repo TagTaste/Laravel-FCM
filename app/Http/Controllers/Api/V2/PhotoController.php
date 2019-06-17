@@ -185,7 +185,7 @@ class PhotoController extends Controller
             if(isset($datum['has_tags']) && $datum['has_tags']){
                 event(new Tag($this->model, $profile, $this->model->caption));
             }
-            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>json_decode($this->model->images[0])];
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>json_encode(json_decode($this->model->images)[0])];
             \Redis::set("photo:" . $this->model->id,json_encode($data));
             event(new UpdateFeedable($this->model));
 
@@ -206,9 +206,9 @@ class PhotoController extends Controller
             if(isset($data['has_tags']) && $data['has_tags']){
                 event(new Tag($this->model, $request->user()->profile, $this->model->caption));
             }
-
-            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>json_decode($this->model->images[0])];
+            $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'images'=>json_decode($this->model->images),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>json_encode(json_decode($this->model->images)[0])];
             Redis::set("photo:" . $this->model->id,json_encode($data));
+            dd($data);
             event(new UpdateFeedable($this->model));
 
             $loggedInProfileId = $request->user()->profile->id;
