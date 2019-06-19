@@ -37,9 +37,10 @@ class Shoutout extends Command
      */
     public function handle()
     {
-        \App\Shoutout::chunk(200,function($models){
+        \App\Shoutout::whereIn("id",[4652, 4665, 4667, 4671])->chunk(200,function($models){
             foreach($models as $model){
-                $model->addToCache();
+                // $model->addToCache();
+                $model->addToCacheFeed();
             }
         });
     }

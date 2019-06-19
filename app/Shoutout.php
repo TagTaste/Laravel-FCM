@@ -50,6 +50,25 @@ class Shoutout extends Model implements Feedable
         \Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
     }
 
+    public function addToCacheFeed(){
+        $data = $this->makeHidden(
+            [
+                'privacy',
+                'owner',
+                'privacy_id', 
+                'payload_id',
+                'mediaJson'
+            ]
+        )->toArray();
+        
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        dd($data);
+        \Redis::set("shoutout:" . $this->id,json_encode($data));
+    }
+
     public function removeFromCache()
     {
         \Redis::del("shoutout:" . $this->id);
