@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Redis;
 
 class Profile extends Model
 {
@@ -158,7 +159,7 @@ class Profile extends Model
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id;
         }
-        $profiles = \Redis::mget($ids);
+        $profiles = Redis::mget($ids);
         
         if (count(array_filter($profiles)) == 0) {
             return false;
