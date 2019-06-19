@@ -58,7 +58,7 @@ class Photo extends Command
                 } else {
                     $images = json_decode($photo->images);
                     if (count($images) > 0) {
-                        $image_meta = $images[0];
+                        $image_meta = json_encode($images[0]);
                     }
                 }
 
