@@ -78,6 +78,7 @@ class Photo extends Command
                     if (is_null($value) || $value == '')
                         unset($data[$key]);
                 }
+                echo "key = photo:".$data['id']."\n";
                 \Redis::set("photo:".$data['id'], json_encode($data));
             }
         });
