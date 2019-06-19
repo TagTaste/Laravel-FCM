@@ -5,6 +5,7 @@ namespace App\Console\Commands\Build\Cache;
 use Illuminate\Console\Command;
 use App\Traits\GetTags;
 use App\Traits\CheckTags;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends Command
 {
@@ -79,7 +80,7 @@ class Photo extends Command
                         unset($data[$key]);
                 }
                 echo "key = photo:".$data['id']."\n";
-                \Redis::set("photo:".$data['id'], json_encode($data));
+                Redis::set("photo:".$data['id'], json_encode($data));
             }
         });
     }
