@@ -328,6 +328,9 @@ class Photo extends Model implements Feedable
                 return json_encode($this->images[0]);
             }
         }
+        else{
+            return $value;
+        }
     }
 
 }
