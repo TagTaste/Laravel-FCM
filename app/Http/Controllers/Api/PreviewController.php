@@ -27,7 +27,7 @@ class PreviewController extends Controller
         $data = $model->getPreviewContent();
         $deepLink = Deeplink::getShortLink($modelName, $modelId);
         $res = [
-            'title' => $data['ogTitle'],
+            'title' => "content ".$data['ogTitle'],
             'image' => $data['ogImage'],
             'description' => $data['ogDescription'],
             'type' => 'article',
