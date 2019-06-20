@@ -50,7 +50,7 @@ class Shoutout extends Model implements Feedable
         \Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
     }
 
-    public function addToCacheFeed(){
+    public function addToCacheV2(){
         $data = $this->makeHidden(
             [
                 'privacy',
@@ -177,7 +177,8 @@ class Shoutout extends Model implements Feedable
 
     public function getContentAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        // $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
         if($profiles){
             $value = ['text'=>$value,'profiles'=>$profiles];

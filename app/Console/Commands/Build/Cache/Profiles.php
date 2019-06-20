@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Build\Cache;
 
 use Illuminate\Console\Command;
+use App\Helper;
 
 class Profiles extends Command
 {
@@ -39,7 +40,29 @@ class Profiles extends Command
     {
         \App\Recipe\Profile::whereNull('deleted_at')->chunk(200,function($profiles){
             foreach($profiles as $model){
-                \Redis::set("profile:small:" . $model->id,$model->toJson());
+                $keyRequired = [
+                    'id',
+                    'user_id',
+                    'name',
+                    'designation',
+                    'handle',
+                    'tagline',
+                    'image_meta',
+                    'isFollowing'
+                ];
+                $data = Helper::camel_case_keys(
+                    array_intersect_key(
+                        $model->toArray(), 
+                        array_flip($keyRequired)
+                    )
+                );
+                $key = "profile:small:" . $model->id.":V2";
+                echo 'updating ' . $key . "\n";
+                \Redis::set($key,json_encode($data));
+                
+                $keySmall = "profile:small:" . $model->id;
+                echo 'updating ' . $keySmall . "\n";
+                \Redis::set($keySmall, $model->toJson());
             }
         });
     }

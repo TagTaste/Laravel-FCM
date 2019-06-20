@@ -152,6 +152,24 @@ class Profile extends Model
         return $profiles;
     }
 
+    public static function getMultipleFromCacheV2($ids = [])
+    {
+        $keyPreifx = "profile:small:";
+        foreach ($ids as &$id) {
+            $id = $keyPreifx . $id.":V2";
+        }
+        $profiles = \Redis::mget($ids);
+        if (count(array_filter($profiles)) == 0) {
+            return false;
+        }
+        foreach ($profiles as $index => &$profile) {
+            $profile = json_decode($profile);
+            dd($profile);
+        }
+
+        return $profiles;
+    }
+
     public function user()
     {
         return $this->belongsTo('App\User');
