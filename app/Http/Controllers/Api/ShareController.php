@@ -36,6 +36,10 @@ class ShareController extends Controller
             $photo->images = json_decode($photo->images);
             return $photo;
         }
+        else if (ucfirst($modelName)== 'Product') {
+            $class = "\\App\\PublicReviewProduct";
+            return $class::where('id',$id)->whereNull('deleted_at')->first();
+        }
         else{
             $class = "\\App\\" . ucfirst ($modelName);
             return $class::where('id',$id)->whereNull('deleted_at')->first();
@@ -191,6 +195,38 @@ class ShareController extends Controller
         return $this->sendResponse();
 
     }
+    public function showProduct(Request $request,$id, $modelId)
+    {
+        $modelName = "product";
+        $this->setColumn($modelName);
+
+        $loggedInProfileId = $request->user()->profile->id;
+
+        $class = "\\App\\Shareable\\" . ucwords($modelName);
+
+        $share = new $class();
+        $exists = $share->where('id', $id)->whereNull('deleted_at')->first();
+        $sharedModel = $this->getModel($modelName, $modelId);
+        if (!$sharedModel) {
+            return $this->sendError("Nothing found for given Id.");
+        }
+
+        if (!$exists) {
+            return $this->sendError("Nothing found for given shared model.");
+        }
+        $this->model['shared'] = $exists;
+        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $exists->profile_id));
+        $this->model['type'] = $modelName;
+        if($sharedModel->company_id){
+            $this->model['company'] = json_decode(\Redis::get('company:small:' . $sharedModel->company_id));
+        } elseif($sharedModel->profile_id){
+            $this->model['profile'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
+        }
+        $this->model[$modelName] = $sharedModel;
+        $this->model['meta']= $exists->getMetaFor($loggedInProfileId);
+        return $this->sendResponse();
+    }
+
 
     public function productStore(Request $request, $id)
     {
