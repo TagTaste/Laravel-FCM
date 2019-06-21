@@ -122,4 +122,75 @@ class Deeplink
             }
         }
     }
+    public static function getDeepLinkText($modelName,$model)
+    {
+        if(isset($model->owner->name) || $modelName == 'product')
+        {
+            switch ($modelName) {
+                case 'photo':       return Deeplink::getPhotoText($model);
+                case 'shoutout':    return Deeplink::getShoutoutText($model);
+                case 'collaborate': return Deeplink::getCollaborateText($model);
+                case 'profile':     return Deeplink::getProfileText($model);
+                case 'company':     return Deeplink::getCompanyText($model);
+                case 'product':     return Deeplink::getProductText($model);
+                case 'polling':     return Deeplink::getPollingText($model);
+            }
+        }
+        else
+            return null;
+    }
+
+    public static function getShoutoutText($model)
+    {
+        if(isset($model->preview) && isset($model->owner->name) && !is_null($model->content) && strlen($model->content))
+            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
+        else if(isset($model->preview->title) && isset($model->owner->name))
+            return $model->preview->title." checkout this post by ".$model->owner->name." on TagTaste.";
+        else if(is_null($model->content) && isset($model->thumbnail))
+            return "Checkout this video by ".$model->owner->name." on TagTaste.";
+        else if(!is_null($model->content) && strlen($model->content) && isset($model->owner->name))
+            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
+        else
+            return "Checkout this post by ".$model->owner->name." on TagTaste.";
+    }
+
+    public static function getPhotoText($model)
+    {
+        if(!is_null($model->caption) && strlen($model->caption))
+            return $model->caption." checkout this photo by ".$model->owner->name." on TagTaste.";
+        else
+            return "Checkout this photo by ".$model->owner->name." on TagTaste.";
+    }
+
+    public static function getPollingText($model){
+
+        return "Checkout this poll by ".$model->owner->name." on TagTaste";
+    }
+
+    public static function getCollaborateText($model)
+    {
+        return $model->description." checkout this post by ".$model->owner->name." on TagTaste.";
+    }
+
+    public static function getProductText($model)
+    {
+        return "Checkout this post by ".$model->company_name." on TagTaste.";
+    }
+
+    public static function getProfileText($model)
+    {
+        if(isset($model->about) && !is_null($model->about) && strlen($model->about))
+            return $model->about." checkout this profile on TagTaste.";
+        else
+            return "Checkout this profile on TagTaste.";
+
+    }
+
+    public static function getCompanyText($model)
+    {
+        if(isset($model->about) && !is_null($model->about) && strlen($model->about))
+            return $model->about." checkout this company on TagTaste.";
+        else
+            return "Checkout this company on TagTaste.";
+    }
 }
