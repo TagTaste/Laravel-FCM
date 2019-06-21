@@ -39,7 +39,7 @@ class PreviewController extends Controller
             'model' => ucwords($modelName),
             'isShared' => false,
             'shareTypeID' => 0,
-
+            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
         ];
 
         $this->model = $res;
