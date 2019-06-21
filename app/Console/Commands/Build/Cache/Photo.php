@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Build\Cache;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends Command
 {
@@ -37,9 +38,53 @@ class Photo extends Command
      */
     public function handle()
     {
-        \App\Photo::chunk(200,function($models){
-            foreach($models as $model){
-                $model->addToCache();
+        // \App\Photo::chunk(200,function($models){
+        //     foreach($models as $model){
+        //         $model->addToCache();
+        //     }
+        // });
+
+        \DB::table("photos")->orderBy('created_at')->chunk(200, function($photos){
+            foreach ($photos as $photo) {
+                $captionProfiles = $this->getTaggedProfilesFeed($photo->caption);
+                $captionDetail = $photo->caption;
+                if ($captionProfiles) {
+                    $captionDetail = [
+                        'text' => $photo->caption,
+                        'profiles' => $captionProfiles
+                    ];
+                }
+
+                $image_meta = null;
+                if ($photo->image_meta) {
+                    $image_meta = $photo->image_meta;
+                } else {
+                    $images = json_decode($photo->images);
+                    if (count($images) > 0) {
+                        $image_meta = json_encode($images[0]);
+                    }
+                }
+
+                $data = array(
+                    'id'=> $photo->id,
+                    'caption' => $captionDetail,
+                    'deleted_at' => $photo->deleted_at,
+                    'created_at' => $photo->created_at,
+                    'updated_at' => $photo->updated_at,
+                    'images' => json_decode($photo->images),
+                    'image_meta' => $image_meta
+                );
+                
+                foreach ($data as $key => $value) {
+                    if ($key == "images" || $key == "image_meta" )
+                        continue;
+                    if (is_null($value) || $value == '')
+                        unset($data[$key]);
+                }
+                echo "key = photo:".$data['id']."\n";
+                print_r($data);
+                echo "======== \n\n";
+                // Redis::set("photo:".$data['id'], json_encode($data));
             }
         });
     }
