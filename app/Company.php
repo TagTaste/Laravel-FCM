@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Storage;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends Model
 {
@@ -139,13 +140,14 @@ class Company extends Model
             //add creator as a user of his company
             $company->addUser($company->user);
             $company->addToCache();
+            $company->addToCacheV2();
             //make searchable
             \App\Documents\Company::create($company);
         });
         
         self::updated(function(Company $company){
             $company->addToCache();
-    
+            $company->addToCacheV2();
             //update the document
             \App\Documents\Company::create($company);
         });
@@ -175,17 +177,33 @@ class Company extends Model
             'logo_meta' =>$this->logo_meta,
             'hero_image_meta' =>$this->hero_image_meta
         ];
-        \Redis::set("company:small:" . $this->id,json_encode($data));
+        Redis::set("company:small:".$this->id,json_encode($data));
+    }
+
+    public function addToCacheV2()
+    {
+        $data = [
+            'id' => $this->id,
+            'profile_id' => $this->profileId,
+            'name' => $this->name,
+            'logo_meta' => $this->logo_meta
+        ];
+        Redis::set("company:small:".$this->id.":V2",json_encode($data));
     }
 
     public static function getFromCache($id)
     {
-        return \Redis::get('company:small:' . $id);
+        return Redis::get('company:small:'.$id);
+    }
+
+    public static function getFromCacheV2($id)
+    {
+        return Redis::get('company:small:'.$id.":V2");
     }
 
     public function removeFromCache()
     {
-        \Redis::del("company:small:" . $this->id);
+        Redis::del("company:small:".$this->id, "company:small:".$this->id.":V2");
     }
     
     public function photos()

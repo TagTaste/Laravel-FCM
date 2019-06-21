@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\Cache;
 
 use Illuminate\Console\Command;
 use App\Helper;
+use Illuminate\Support\Facades\Redis;
 
 class Profiles extends Command
 {
@@ -38,31 +39,14 @@ class Profiles extends Command
      */
     public function handle()
     {
-        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200,function($profiles){
+        \App\Recipe\Profile::where("id",1)->whereNull('deleted_at')->chunk(200,function($profiles){
             foreach($profiles as $model){
-                $keyRequired = [
-                    'id',
-                    'user_id',
-                    'name',
-                    'designation',
-                    'handle',
-                    'tagline',
-                    'image_meta',
-                    'isFollowing'
-                ];
-                $data = Helper::camel_case_keys(
-                    array_intersect_key(
-                        $model->toArray(), 
-                        array_flip($keyRequired)
-                    )
-                );
-                $key = "profile:small:" . $model->id.":V2";
-                echo 'updating ' . $key . "\n";
-                \Redis::set($key,json_encode($data));
+                echo "updating profile:small:".$model->id.":V2 \n";
+                $model->addToCacheV2();
                 
                 $keySmall = "profile:small:" . $model->id;
                 echo 'updating ' . $keySmall . "\n";
-                \Redis::set($keySmall, $model->toJson());
+                Redis::set($keySmall, $model->toJson());
             }
         });
     }

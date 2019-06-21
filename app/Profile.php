@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Redis;
 
 class Profile extends Model
 {
@@ -98,6 +99,7 @@ class Profile extends Model
             \App\Documents\Profile::create($profile);
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
             event(new SuggestionEngineEvent($profile, 'create'));
 
         });
@@ -105,6 +107,7 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
@@ -122,21 +125,49 @@ class Profile extends Model
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
-        \Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+        Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+    }
+
+    public function addToCacheV2()
+    {
+        $keyRequired = [
+            'id',
+            'user_id',
+            'name',
+            'designation',
+            'handle',
+            'tagline',
+            'image_meta',
+            'isFollowing'
+        ];
+        $data = array_intersect_key(
+            $this->toArray(), 
+            array_flip($keyRequired)
+        );
+        
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        
+        $key = "profile:small:" . $data['id'].":V2";
+        Redis::set($key, json_encode($data));
     }
 
     public static function getFromCache($id)
     {
-        return \Redis::get('profile:small:' . $id);
+        return Redis::get('profile:small:' . $id);
     }
 
     public function removeFromCache()
     {
-        return \Redis::del('profile:small:' . $this->id);
+        return Redis::del('profile:small:' . $this->id, 'profile:small:' . $this->id.":V2");
+        
     }
 
     public static function getMultipleFromCache($ids = [])
     {
+        // depricated after V2 Feed
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id;
@@ -163,8 +194,12 @@ class Profile extends Model
             return false;
         }
         foreach ($profiles as $index => &$profile) {
-            $profile = json_decode($profile);
-            dd($profile);
+            $data = json_decode($profile);
+            $profile = array(
+                "id" => $data->id,
+                "name" => $data->name,
+                "handle" => $data->handle
+            );
         }
 
         return $profiles;

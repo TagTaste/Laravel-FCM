@@ -40,6 +40,7 @@ class Companies extends Command
         \App\Company::chunk(200,function($models){
             foreach($models as $model){
                 $model->addToCache();
+                $model->addToCacheV2();
             }
         });
     }

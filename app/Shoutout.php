@@ -11,6 +11,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 
 class Shoutout extends Model implements Feedable
@@ -40,14 +41,17 @@ class Shoutout extends Model implements Feedable
     {
         self::created(function($shoutout){
             $shoutout->addToCache();
+            $shoutout->addToCacheV2();
         });
 
         self::updated(function($shoutout){
             $shoutout->addToCache();
-        });    }
+            $shoutout->addToCacheV2();
+        });    
+    }
 
     public function addToCache(){
-        \Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
+        Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
     }
 
     public function addToCacheV2(){
@@ -60,19 +64,18 @@ class Shoutout extends Model implements Feedable
                 'mediaJson'
             ]
         )->toArray();
-        
         foreach ($data as $key => $value) {
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
-        dd($data);
-        \Redis::set("shoutout:" . $this->id,json_encode($data));
+        Redis::set("shoutout:" . $this->id.":V2",json_encode($data));
     }
 
     public function removeFromCache()
     {
-        \Redis::del("shoutout:" . $this->id);
+        Redis::del("shoutout:" . $this->id, "shoutout:" . $this->id.":V2");
     }
+
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);

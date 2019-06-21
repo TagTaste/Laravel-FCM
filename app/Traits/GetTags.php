@@ -14,6 +14,7 @@ trait GetTags
     
     public function getTaggedProfiles($value)
     {
+        // depricated after V2 Feed
         if(isset($this->has_tags) && $this->has_tags === 0){
             return false;
         }

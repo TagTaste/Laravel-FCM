@@ -10,6 +10,7 @@ use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Model implements Feedable
 {
@@ -58,12 +59,13 @@ class Collaborate extends Model implements Feedable
     {
         self::created(function($model){
             $model->addToCache();
-    
+            $model->addToCacheV2();
             \App\Documents\Collaborate::create($model);
         });
         
         self::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             //update the search
             \App\Documents\Collaborate::create($model);
     
@@ -72,13 +74,58 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
+        Redis::set(
+            "collaborate:" . $this->id,
+            $this->makeHidden([
+                'privacy',
+                'profile',
+                'company',
+                'commentCount',
+                'likeCount',
+                'applicationCount',
+                'fields'
+            ])->toJson()
+        );
     
+    }
+
+    public function addToCacheV2()
+    {
+        $keyRequired = [
+            "id",
+            "title",
+            "description",
+            "profile_id",
+            "company_id",
+            "has_tags",
+            "collaborate_type",
+            "expires_on",
+            "updated_at",
+            "created_at",
+            "deleted_at",
+        ];
+        $data = array_intersect_key(
+            $this->makeHidden([
+                'privacy',
+                'profile',
+                'company',
+                'commentCount',
+                'likeCount',
+                'applicationCount',
+                'fields'
+            ])->toArray(), 
+            array_flip($keyRequired)
+        );
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::set("collaborate:".$this->id.":V2",json_encode($data));    
     }
     
     public function removeFromCache()
     {
-        \Redis::del("collaborate:" . $this->id);
+        Redis::del("collaborate:".$this->id, "collaborate:".$this->id.":V2");
     }
     /**
      * Which profile created the collaboration project.
