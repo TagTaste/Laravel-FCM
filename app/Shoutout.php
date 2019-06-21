@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-
 class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent;
@@ -205,9 +204,9 @@ class Shoutout extends Model implements Feedable
         $data['owner'] = $profile->id;
         $data['title'] = $profile->name.' has posted on TagTaste';
         $data['description'] = substr($content,0,155);
-        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
-        $data['ogDescription'] = substr($content,0,155);
-        $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
+        $data['ogTitle'] = $this->getOgTitle();
+        $data['ogDescription'] = $this->getOgDescription();
+        $data['ogImage'] = $this->getOgImage();
         $data['cardType'] = 'summary';
         $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
@@ -241,5 +240,34 @@ class Shoutout extends Model implements Feedable
     public function getmediaJsonAttribute($value)
     {
         return json_decode($value);
+    }
+
+    public function getOgTitle()
+    {
+        if($this->preview != null) {
+            return  $this->preview["title"];
+        }
+
+        return substr($this->getContent($this->content),0,155);
+    }
+
+    public function getOgDescription()
+    {
+        if($this->preview != null) {
+            return  $this->preview["url"];
+        }
+        return null;
+    }
+
+    public function getOgImage()
+    {
+        if($this->preview != null) {
+            return  isset($this->preview["image"])?$this->preview["image"]:null;
+        }
+        if($this->media_url != null) {
+            $thumbnail = $this->media_json->thumbnail;
+            return $thumbnail;
+        }
+        return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
     }
 }
