@@ -8,6 +8,7 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Polling extends Model implements Feedable
 {
@@ -41,15 +42,20 @@ class Polling extends Model implements Feedable
 
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'title'=>$this->title,'options'=>$this->getOptionsAttribute(),'created_at'=>$this->created_at->toDateTimeString(),
-            'updated_at'=>$this->updated_at->toDateTimeString()];
-        \Redis::set("polling:" . $this->id,json_encode($data));
+        $data = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'options' => $this->getOptionsAttribute(),
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
+        ];
+        Redis::set("polling:" . $this->id,json_encode($data));
 
     }
 
     public function removeFromCache()
     {
-        \Redis::del("polling:" . $this->id);
+        Redis::del("polling:" . $this->id);
     }
     /**
      * Which profile created the collaboration project.
@@ -94,8 +100,8 @@ class Polling extends Model implements Feedable
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
