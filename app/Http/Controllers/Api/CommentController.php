@@ -145,11 +145,24 @@ class CommentController extends Controller {
 
         //$model->comments()->attach($comment->id);
 
-        if($comment->has_tags){
-            event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
+        if ($comment->has_tags) {
+            event(
+                new Tag(
+                    $model,
+                    $request->user()->profile,
+                    $comment->content,
+                    null,
+                    null,
+                    null,
+                    $comment
+                )
+            );
         }
         $meta = $comment->getMetaFor($model);
-        $this->model = ["comment"=>$comment,"meta"=>$meta];
+        $this->model = [
+            "comment"=>$comment,
+            "meta"=>$meta
+        ];
         return $this->sendResponse();
     }
 

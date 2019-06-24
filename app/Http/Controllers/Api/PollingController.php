@@ -76,9 +76,15 @@ class PollingController extends Controller
         $poll = Polling::create($data);
         $data = [];
         foreach ($options as $option)
-        {\Log::info($option);
-            if(strlen($option)!=0){
-                $data[] = ['text'=>$option,'poll_id'=>$poll->id,'created_at'=>$this->now,'updated_at'=>$this->now,'count'=>0];
+        {
+            if (strlen($option)!=0) {
+                $data[] = [
+                    'text'=>$option,
+                    'poll_id'=>$poll->id,
+                    'created_at'=>$this->now,
+                    'updated_at'=>$this->now,
+                    'count'=>0
+                ];
             }
             else{
                 return $this->sendError("Please enter valid options");
@@ -88,7 +94,10 @@ class PollingController extends Controller
         $poll = $poll->refresh();
         $poll->addToCache();
 
-        $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($profileId)];
+        $this->model = [
+            'polling'=>$poll,
+            'meta'=>$poll->getMetaFor($profileId)
+        ];
 
 
         //add to feed
