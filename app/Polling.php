@@ -8,6 +8,7 @@ use App\Traits\CachedPayload;
 use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Polling extends Model implements Feedable
 {
@@ -19,9 +20,9 @@ class Polling extends Model implements Feedable
 
     protected $with = ['profile','company'];
 
-
+    protected $appends = ['options','owner'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner'];
 
     public static function boot()
     {
@@ -41,15 +42,20 @@ class Polling extends Model implements Feedable
 
     public function addToCache()
     {
-        $data = ['id'=>$this->id,'title'=>$this->title,'created_at'=>$this->created_at->toDateTimeString(),
-            'updated_at'=>$this->updated_at->toDateTimeString()];
-        \Redis::set("polling:" . $this->id,json_encode($data));
+        $data = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'options' => $this->getOptionsAttribute(),
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
+        ];
+        Redis::set("polling:" . $this->id,json_encode($data));
 
     }
 
     public function removeFromCache()
     {
-        \Redis::del("polling:" . $this->id);
+        Redis::del("polling:" . $this->id);
     }
     /**
      * Which profile created the collaboration project.
@@ -83,22 +89,23 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-        $options = PollingOption::where('poll_id',$this->id)->get();
-        $count = $options->sum('count');
-        if($count)
-        {
-            foreach ($options as $option)
-                $option->count = ($option->count/$count) * 100;
-        }
-        $meta['options'] = $options;
+//        $options = PollingOption::where('poll_id',$this->id)->get();
+//        $count = $options->sum('count');
+//        if($count)
+//        {
+//            foreach ($options as $option)
+//                $option->count = ($option->count/$count) * 100;
+//        }
+//        $meta['options'] = $options;
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
     }
 
@@ -141,4 +148,38 @@ class Polling extends Model implements Feedable
         return $this->belongsToMany('App\Comment','comment_pollings','poll_id','comment_id');
     }
 
+    public function getOptionsAttribute(){
+        $options = PollingOption::where('poll_id',$this->id)->get();
+        $count = $options->sum('count');
+        if($count)
+        {
+            foreach ($options as $option)
+                $option->count = ($option->count/$count) * 100;
+        }
+        return $options;
+    }
+
+    public function getPreviewContent()
+    {
+        $data = [];
+        $data['modelId'] = $this->id;
+        $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
+        $data['title'] = substr($this->title,0,65);
+        $data['description'] = "by ".$this->profile->name;
+        $data['ogTitle'] = substr($this->title,0,65);
+        $data['ogDescription'] = "by ".$this->profile->name;
+        $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
+        $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
+        $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
+        $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;
+        $data['redirectUrl'] = env('APP_URL').'/polling/'.$this->id;
+
+        return $data;
+
+    }
+
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
+    }
 }

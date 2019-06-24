@@ -246,12 +246,12 @@ class Photo extends Model implements Feedable
         $data = [];
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['owner'] = $profile->id;
+        $data['owner'] = $profile;
         $content = $this->getContent($this->caption);
-        $data['title'] = $profile->name. ' has posted on TagTaste';
-        $data['description'] = substr($content,0,150);
-        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
-        $data['ogDescription'] = substr($content,0,150);
+        $data['title'] = null;
+        $data['description'] = null;
+        $data['ogTitle'] = null;
+        $data['ogDescription'] = null;
         $data['ogImage'] = $this->photoUrl;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/preview/photo/'.$this->id;
@@ -299,6 +299,18 @@ class Photo extends Model implements Feedable
         else
         {
             return null;
+        }
+    }
+    public function getImageMetaAttribute($value)
+    {
+        if($value === null){
+            if($this->images === null)
+                return null;
+            else
+                return json_encode(json_decode($this->images)[0]);
+        }
+        else{
+            return $value;
         }
     }
    

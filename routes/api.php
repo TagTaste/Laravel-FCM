@@ -191,7 +191,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::resource('polling','PollingController');
             Route::post('polling/{id}/updateOptions/{optionId}','PollingController@updateOptions');
             Route::post('polling/{id}/addOption','PollingController@addOption');
-            Route::delete('polling/{id}/deleteOptions/{optionId}','PollingController@deleteOptions');
+            Route::delete('polling/{id}/deleteOptions','PollingController@deleteOptions');
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
@@ -209,13 +209,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("categories","CategoryController");
 
             //share
+                Route::get("share/product/{id}/like",'ShareLikeController@productLikeIndex');
+                Route::post("share/product/{id}/like", 'ShareLikeController@productLikeStore');
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/product/{id}",'ShareController@productStore');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
+                Route::get("share/product/{id}/{modelId}", 'ShareController@showProduct');
                 Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
                 Route::delete("share/product/{id}",'ShareController@productShareDelete');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
+                Route::patch("share/product/{id}", 'ShareController@productUpdate');
+                Route::patch("share/{modelname}/{id}", 'ShareController@update');
 
             //send mail to applicants of job or collaborate
             Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
@@ -698,43 +703,32 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
 
             Route::get("csv/college",function (Request $request){
                 $this->model = [];
-                $collaborateApplicantsDetails = \App\Collaborate\Applicant::whereIn('collaborate_id',[234 ,235 ,217 ,256 ,242 ,241 ,245 ,244 ,243 ,250 ,249 ,248 ,246 ,237 ,215])->get();
+                $comments = \DB::table('public_product_user_review')->where('source',2)->where('current_status',2)
+                    ->where('select_type',3)->get();
+
                 $data = [];
-                foreach ($collaborateApplicantsDetails as $collaborateApplicantsDetail)
+                $index = 1;
+                foreach ($comments as $comment)
                 {
-                    $applicantsDetails = [];
-                    $applicantsDetails['collaborate_id'] = $collaborateApplicantsDetail->collaborate_id;
-                    $applicantsDetails['message'] = $collaborateApplicantsDetail->message;
-                    if(isset($collaborateApplicantsDetail->company_id) && !is_null($collaborateApplicantsDetail->company_id))
-                    {
-                        $applicantsDetails['profile_id'] = null;
-                        $applicantsDetails['company_id'] = $collaborateApplicantsDetail->company_id;
-                        $applicantsDetails['name'] = $collaborateApplicantsDetail->company->name;
-                        $applicantsDetails['city'] = null;
-                        $applicantsDetails['email'] = null;
-                    }
-                    else
-                    {
-                        $applicantsDetails['profile_id'] = $collaborateApplicantsDetail->profile_id;
-                        $profileDetails =\DB::table('profiles')->join('users','users.id','=','profiles.user_id')
-                            ->where('profiles.id',$collaborateApplicantsDetail->profile_id)->first();
-                        $applicantsDetails['phone'] = $profileDetails->phone;
-                        $applicantsDetails['email'] = $profileDetails->email;
-                        $applicantsDetails['company_id'] = null;
-                        $applicantsDetails['name'] = $collaborateApplicantsDetail->profile->name;
-                        $applicantsDetails['city'] = $collaborateApplicantsDetail->city;
-                    }
-                    $data[] = $applicantsDetails;
+                    $product = \App\PublicReviewProduct::where('id',$comment->product_id)->first();
+                    $profile = \App\Recipe\Profile::where('id',$comment->profile_id)->first();
+                    $data[] = ['S.No'=>$index,
+                        'TT Product Name'=> $product->name,
+                        'TT Product Id Link'=>"https://www.tagtaste.com/reviews/products/".$comment->product_id,
+                        'Taster Name'=> $profile->name,
+                        'Taster Profile Link'=> "https://www.tagtaste.com/profile/".$profile->id,
+                        'Comment'=> $comment->value
+                    ];
+                    $index++;
                 }
                 $headers = array(
                     "Content-type" => "text/csv",
-                    "Content-Disposition" => "attachment; filename=users_name_gender.csv",
+                    "Content-Disposition" => "attachment; filename=review_comment.csv",
                     "Pragma" => "no-cache",
                     "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
                     "Expires" => "0"
                 );
-
-                $columns = array('collaborate_id','name','email','phone','profile_id','company_id','message');
+                $columns = array('S.No','TT Product Name','TT Product Id Link','Taster Name','Taster Profile Link','Comment');
 
                 $str = '';
                 foreach ($columns as $c) {
@@ -747,10 +741,11 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                     }
                     $str = $str."\n";
                 }
-       
+
                 return response($str, 200, $headers);
         
             });
+
 
 
 });
