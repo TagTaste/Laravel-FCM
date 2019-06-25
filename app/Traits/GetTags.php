@@ -27,4 +27,20 @@ trait GetTags
 
         return $profiles === false ? false : $profiles;
     }
+    
+    public function getTaggedProfilesFeed($value)
+    {
+        if(isset($this->has_tags) && $this->has_tags === 0){
+            return false;
+        }
+        
+        $matches = $this->getMatches($value);
+        if($matches === false){
+            return false;
+        }
+        
+        $profiles = \App\Profile::getMultipleFromCacheFeed($matches[1]);
+
+        return $profiles === false ? false : $profiles;
+    }
 }

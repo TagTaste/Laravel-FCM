@@ -92,7 +92,7 @@ class Shoutout extends BaseShoutout
 
         } catch(\Exception $e){
             \Log::error("Could not load preview image");
-            \Log::error($preview);
+//            \Log::error($preview);
             \Log::error($e->getLine());
             \Log::error($e->getMessage());
         }

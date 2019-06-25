@@ -20,13 +20,12 @@ class PreviewController extends Controller
     public function show(Request $request,$modelName,$modelId)
     {
         $model = $this->getModel($modelName, $modelId);
-        
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
-
+        $modelData = $model;
         $data = $model->getPreviewContent();
-
+        $deepLink = Deeplink::getShortLink($modelName, $modelId);
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
@@ -34,12 +33,12 @@ class PreviewController extends Controller
             'type' => 'article',
             'url' => $data['redirectUrl'],
             'site_name' => 'TagTaste',
-            'deeplink' => Deeplink::getShortLink($modelName, $modelId),
+            'deeplink' => $deepLink,
             'modelID' => $modelId,
             'model' => ucwords($modelName),
             'isShared' => false,
             'shareTypeID' => 0,
-
+            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
         ];
 
         $this->model = $res;

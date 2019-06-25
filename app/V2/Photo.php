@@ -1,9 +1,12 @@
 <?php
 
-namespace App;
+namespace App\V2;
 
 use App\Channel\Payload;
+use App\Filter\People;
 use App\Interfaces\Feedable;
+use App\PeopleLike;
+use App\Privacy;
 use App\Scopes\Company as ScopeCompany;
 use App\Scopes\Profile as ScopeProfile;
 use App\Traits\CachedPayload;
@@ -17,15 +20,15 @@ use Illuminate\Support\Facades\Storage;
 class Photo extends Model implements Feedable
 {
     use ScopeProfile, ScopeCompany, SoftDeletes, GetTags, HasPreviewContent;
-    
-    use IdentifiesOwner, CachedPayload;
-    
-    protected $fillable = ['caption','file','privacy_id','payload_id','image_info','image_meta'];
 
-    protected $visible = ['id','caption','photoUrl','likeCount','file',
+    use IdentifiesOwner, CachedPayload;
+
+    protected $fillable = ['caption','privacy_id','payload_id','images'];
+
+    protected $visible = ['id','caption','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','image_info','image_meta'];
+        'owner','nextPhotoId','previousPhotoId','images','image_meta'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -36,8 +39,8 @@ class Photo extends Model implements Feedable
 
     protected $with = ['like'];
 
-    protected $appends = ['photoUrl','profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
-    
+    protected $appends = ['profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
+
     protected $dates = ['deleted_at'];
 
     public static function boot()
@@ -48,8 +51,8 @@ class Photo extends Model implements Feedable
 //            \DB::transaction(function() use ($photo){
 //                $photo->ideabooks()->detach();
 
-                $photo->profile()->detach();
-                $photo->company()->detach();
+            $photo->profile()->detach();
+            $photo->company()->detach();
 
 //            });
         });
@@ -60,7 +63,7 @@ class Photo extends Model implements Feedable
         //so it can't be pushed to the feed since there won't be any "owner".
 
         self::created(function($photo){
-           //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
+            //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
 
 //        self::created(function($photo){
@@ -71,14 +74,14 @@ class Photo extends Model implements Feedable
 //            $photo->addToCache();
 //        });
     }
-    
+
     public function addToCache()
     {
         $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),
             'updated_at'=>$this->updated_at->toDateTimeString(),'image_meta'=>$this->image_meta];
         \Redis::set("photo:" . $this->id,json_encode($data));
     }
-    
+
     public function deleteFromCache()
     {
         \Redis::del("photo:" . $this->id);
@@ -98,14 +101,14 @@ class Photo extends Model implements Feedable
     {
         return $this->hasMany('App\PhotoLike','photo_id');
     }
-    
+
     public static function getProfileImagePath($profileId,$filename = null)
     {
         $relativePath = "images/ph/$profileId/p";
         $status = Storage::makeDirectory($relativePath,0644,true);
         return $filename === null ? $relativePath : $relativePath . "/" . $filename;
     }
-    
+
     public static function getCompanyImagePath($profileId,$companyId, $filename = null)
     {
         $relativePath = "images/ph/$companyId/c";
@@ -116,7 +119,7 @@ class Photo extends Model implements Feedable
     public function getLikeCountAttribute()
     {
         $count = $this->like->count();
-        
+
         if($count >1000000)
         {
             $count = round($count/1000000, 1);
@@ -129,70 +132,70 @@ class Photo extends Model implements Feedable
         }
         return $count;
     }
-    
+
     public function getPhotoUrlAttribute()
     {
         return $this->file;
     }
-    
+
     public function profile()
     {
         return $this->belongsToMany('App\Recipe\Profile','profile_photos','photo_id','profile_id');
     }
-    
+
     public function getProfile(){
         return $this->profile->first();
     }
-    
+
     public function company()
     {
         return $this->belongsToMany('App\Recipe\Company','company_photos','photo_id','company_id');
     }
-    
+
     public function getCompany()
     {
         return $this->company->first();
     }
-    
+
     public function getProfileIdAttribute()
     {
         $profile = $this->getProfile();
-        
+
         return $profile !== null ? $profile->id : null;
     }
-    
+
     public function getCompanyIdAttribute()
     {
         $company = $this->getCompany();
-        
+
         return $company !== null ? $company->id : null;
     }
-    
+
     public function owner()
     {
         $profile = $this->getProfile();
         if($profile){
             return $profile;
         }
-        
+
         return $this->getCompany();
     }
-    
+
     public function getOwnerAttribute()
     {
         return $this->owner();
     }
-    
+
     public function privacy()
     {
         return $this->belongsTo(Privacy::class);
     }
-    
+
     public function payload()
     {
         return $this->belongsTo(Payload::class,'payload_id','id');
     }
-    
+
     public function getMetaFor($profileId)
     {
         $meta = [];
@@ -210,7 +213,7 @@ class Photo extends Model implements Feedable
 
         return $meta;
     }
-    
+
     public function getNotificationContent()
     {
         return [
@@ -220,7 +223,7 @@ class Photo extends Model implements Feedable
             'image' => $this->photoUrl
         ];
     }
-    
+
     public function getRelatedKey() : array
     {
         if(empty($this->relatedKey) && $this->profile_id !== null){
@@ -228,11 +231,11 @@ class Photo extends Model implements Feedable
         }
         return ['company'=>'company:small:' . $this->company_id];
     }
-    
+
     public function getCaptionAttribute($value)
     {
         $profiles = $this->getTaggedProfiles($value);
-        
+
         if($profiles){
             $value = ['text'=>$value,'profiles'=>$profiles];
         }
@@ -246,12 +249,12 @@ class Photo extends Model implements Feedable
         $data = [];
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
-        $data['owner'] = $profile;
+        $data['owner'] = $profile->id;
         $content = $this->getContent($this->caption);
-        $data['title'] = null;
-        $data['description'] = null;
-        $data['ogTitle'] = null;
-        $data['ogDescription'] = null;
+        $data['title'] = $profile->name. ' has posted on TagTaste';
+        $data['description'] = substr($content,0,150);
+        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
+        $data['ogDescription'] = substr($content,0,150);
         $data['ogImage'] = $this->photoUrl;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/preview/photo/'.$this->id;
@@ -301,17 +304,34 @@ class Photo extends Model implements Feedable
             return null;
         }
     }
-    public function getImageMetaAttribute($value)
-    {
+
+    public function getImagesAttribute($value){
         if($value === null){
-            if($this->images === null)
+            if($this->image_meta == null){
                 return null;
-            else
-                return json_encode(json_decode($this->images)[0]);
+            }
+            else{
+                return "[".$this->image_meta."]";
+            }
         }
         else{
             return $value;
         }
     }
-   
+
+    public function getImageMetaAttribute($value)
+    {
+        if ($value === null) {
+            if ($this->images == null) {
+                return null;
+            } else {
+                if (count($this->images)>0)
+                    return json_encode($this->images[0]);
+                else
+                    return null;
+            }
+        }
+        return $value;
+    }
+
 }
