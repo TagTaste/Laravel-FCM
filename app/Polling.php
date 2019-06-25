@@ -47,7 +47,8 @@ class Polling extends Model implements Feedable
             'title' => $this->title,
             'options' => $this->getOptionsAttribute(),
             'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString()
+            'updated_at' => $this->updated_at->toDateTimeString(),
+            'profile_id'=>$this->profile_id
         ];
         Redis::set("polling:" . $this->id,json_encode($data));
 
