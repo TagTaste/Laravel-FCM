@@ -108,6 +108,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
             Route::get('suggestion/{modelName}','SuggestionEngineController@suggestion');
             Route::post('suggestion/{modelName}','SuggestionEngineController@suggestionIgonre');
 
+            Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
+
+                //multiple photos api
+                Route::resource("photos","PhotoController");
+
+            });
+
+
             Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'],function() {
 
 
@@ -176,6 +184,14 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::post("change/password","UserController@changePassword");
 
 
+            // polling
+            Route::post('polling/{id}/like','PollingController@like');
+            Route::post('polling/{id}/vote','PollingController@userPollVote');
+            Route::post('polling/{id}/renew','PollingController@renew');
+            Route::resource('polling','PollingController');
+            Route::post('polling/{id}/updateOptions/{optionId}','PollingController@updateOptions');
+            Route::post('polling/{id}/addOption','PollingController@addOption');
+            Route::delete('polling/{id}/deleteOptions','PollingController@deleteOptions');
 
             //chat
                 Route::post('chatMessage',"ChatController@chatMessage");
@@ -193,13 +209,18 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                 Route::resource("categories","CategoryController");
 
             //share
+                Route::get("share/product/{id}/like",'ShareLikeController@productLikeIndex');
+                Route::post("share/product/{id}/like", 'ShareLikeController@productLikeStore');
                 Route::post("share/{modelname}/{id}/like",'ShareLikeController@store');
                 Route::post("share/product/{id}",'ShareController@productStore');
                 Route::post("share/{modelName}/{id}",'ShareController@store');
+                Route::get("share/product/{id}/{modelId}", 'ShareController@showProduct');
                 Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
                 Route::delete("share/product/{id}",'ShareController@productShareDelete');
                 Route::delete("share/{modelName}/{id}",'ShareController@delete');
                 Route::get("share/{modelname}/{id}/like",'ShareLikeController@index');
+                Route::patch("share/product/{id}", 'ShareController@productUpdate');
+                Route::patch("share/{modelname}/{id}", 'ShareController@update');
 
             //send mail to applicants of job or collaborate
             Route::post("{feature}/{featureId}/message","ChatController@featureMessage");
@@ -209,6 +230,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' //note the dot.
                  Route::group(['prefix'=>'shoutout/{shoutoutId}'],function(){
                         Route::resource("like",'ShoutoutLikeController');
                 });
+
+
+
+             //global image upload function
+            Route::post("globalImageUpload","PhotoController@globalImageUpload");
+
 
             //invites
             Route::post("invites","InviteController@invite");
