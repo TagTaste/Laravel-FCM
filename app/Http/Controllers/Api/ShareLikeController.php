@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\Actions\Like;
 use App\PeopleLike;
+use App\Polling;
 use Illuminate\Http\Request;
 use App\Shareable\Sharelikable;
+use Illuminate\Support\Facades\Redis;
 
 class ShareLikeController extends Controller
 {
@@ -17,9 +19,10 @@ class ShareLikeController extends Controller
             'tagboard' => \App\Ideabook::class,
             'collaborate'=> \App\Collaborate::class,
             'recipe' => \App\Recipe::class,
-            'shoutout' =>\App\Shoutout::class
+            'shoutout' =>\App\Shoutout::class,
+            'polling' => Polling::class
         ];
-    
+
         if((!array_key_exists($model,$models))){
             return $this->sendError("Could not find model with provided id");
         }
@@ -36,13 +39,16 @@ class ShareLikeController extends Controller
         }
 
         $sharedLikeModel = \App::make('App\Shareable\Sharelikable\\'.$modelName);
-    	$columnName = $model.'_share_id';
+        if($modelName == 'Polling')
+            $columnName = 'poll_share_id';
+        else
+    	    $columnName = $model.'_share_id';
 
     	$key = "meta:{$model}Share:likes:$modelId";
-        $exists = \Redis::sIsMember($key,$profileId);
+        $exists = Redis::sIsMember($key,$profileId);
     	if($exists)
     	{
-    	    \Redis::sRem($key,$profileId);
+    	    Redis::sRem($key,$profileId);
     		$sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
             $this->model['liked'] = false;
             $this->model['likeCount'] = \Redis::sCard($key);
@@ -56,7 +62,7 @@ class ShareLikeController extends Controller
     	$models->$columnName = $modelId;
     	$models->save();
     	
-    	\Redis::sAdd($key,$profileId);
+    	Redis::sAdd($key,$profileId);
     	
         $this->model['liked'] = true;
         $this->model['likeCount'] = \Redis::sCard($key);
@@ -64,6 +70,47 @@ class ShareLikeController extends Controller
         $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "{$model}Share",request()->user()->profile->id);
         
     	event(new Like($shareModel,$request->user()->profile));
+        return $this->sendResponse();
+    }
+    public function ProductLikeStore(Request $request, $modelId){
+        $profileId = $request->user()->profile->id;
+
+        //$modelClass = \App::make('App\Shareable\\'.$modelName);
+        $shareModel = \App\Shareable\Product::where('id',$modelId)->first();
+
+        if(!$shareModel){
+            return $this->sendError("Could not find id with provided model");
+        }
+
+        $sharedLikeModel = \App::make('App\Shareable\Sharelikable\Product');
+            $columnName = 'public_review_share_id';
+
+        $key = "meta:productShare:likes:$modelId";
+        $exists = Redis::sIsMember($key,$profileId);
+        if($exists)
+        {
+            Redis::sRem($key,$profileId);
+            $sharedLikeModel::where('profile_id',$profileId)->where($columnName,$modelId)->delete();
+            $this->model['liked'] = false;
+            $this->model['likeCount'] = Redis::sCard($key);
+            $peopleLike = new PeopleLike();
+            $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "productShare",request()->user()->profile->id);
+            return $this->sendResponse();
+        }
+
+        $models = new $sharedLikeModel;
+        $models->profile_id = $profileId;
+        $models->$columnName = $modelId;
+        $models->save();
+
+        Redis::sAdd($key,$profileId);
+
+        $this->model['liked'] = true;
+        $this->model['likeCount'] = Redis::sCard($key);
+        $peopleLike = new PeopleLike();
+        $this->model['peopleLiked'] = $peopleLike->peopleLike($modelId, "productShare",request()->user()->profile->id);
+
+        event(new Like($shareModel,$request->user()->profile));
         return $this->sendResponse();
     }
 
@@ -89,5 +136,15 @@ class ShareLikeController extends Controller
     	$profileId = $class::where($columnName,$modelId)->select('profile_id')->get();
     	$this->model = \App\Profile::whereIn('id',$profileId)->get();
     	return $this->sendResponse();
+    }
+
+    public function productLikeIndex($modelId){
+        $class = \App::make('App\Shareable\Sharelikable\Product');
+
+        $columnName = 'public_review_share_id';
+
+        $profileId = $class::where($columnName,$modelId)->select('profile_id')->get();
+        $this->model = \App\Profile::whereIn('id',$profileId)->get();
+        return $this->sendResponse();
     }
 }

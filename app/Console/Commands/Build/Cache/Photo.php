@@ -33,7 +33,7 @@ class Photo extends Command
     {
         parent::__construct();
     }
-
+    
     /**
      * Execute the console command.
      *
@@ -79,7 +79,6 @@ class Photo extends Command
                         unset($data[$key]);
                 }
                 echo "key = photo:".$data['id']."\n";
-                echo "======== \n\n";
                 Redis::set("photo:".$data['id'], json_encode($data));
             }
         });

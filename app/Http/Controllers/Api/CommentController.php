@@ -4,6 +4,7 @@ use App\Comment;
 use App\CompanyUser;
 use App\Events\Actions\Tag;
 use App\Events\Update;
+use App\Polling;
 use App\Traits\CheckTags;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -21,7 +22,10 @@ class CommentController extends Controller {
         'photo_share' => \App\Shareable\Photo::class,
 //        'job_share' => \App\Shareable\Occupation::class,
         'recipe_share' => \App\Shareable\Recipe::class,
-        'shoutout_share' => \App\Shareable\Shoutout::class
+        'shoutout_share' => \App\Shareable\Shoutout::class,
+        'polling' => Polling::class,
+        'polling_share' => \App\Shareable\Polling::class,
+        'product_share' => \App\Shareable\Product::class
     ];
     
     private function getModel(&$modelName, &$modelId){
@@ -81,7 +85,6 @@ class CommentController extends Controller {
 	{
         $model = $this->getModel($model,$modelId);
         $this->checkRelationship($model);
-        
         if(!method_exists($model, 'comments')){
             throw new \Exception("This model does not have comments defined.");
         }
@@ -140,13 +143,26 @@ class CommentController extends Controller {
         $comment->has_tags = $this->hasTags($content);
         $comment->save();
 
-        $model->comments()->attach($comment->id);
+        //$model->comments()->attach($comment->id);
 
-        if($comment->has_tags){
-            event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
+        if ($comment->has_tags) {
+            event(
+                new Tag(
+                    $model,
+                    $request->user()->profile,
+                    $comment->content,
+                    null,
+                    null,
+                    null,
+                    $comment
+                )
+            );
         }
         $meta = $comment->getMetaFor($model);
-        $this->model = ["comment"=>$comment,"meta"=>$meta];
+        $this->model = [
+            "comment"=>$comment,
+            "meta"=>$meta
+        ];
         return $this->sendResponse();
     }
 

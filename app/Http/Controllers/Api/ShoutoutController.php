@@ -65,7 +65,6 @@ class ShoutoutController extends Controller
             $this->model = [];
             return $this->sendError($e->getMessage());
         }
-
         $inputs['has_tags'] = $this->hasTags($inputs['content']);
         $profile = $request->user()->profile;
         if(isset($inputs['preview']['image']) && !empty($inputs['preview']['image'])){
@@ -103,7 +102,6 @@ class ShoutoutController extends Controller
             $inputs['cloudfront_media_url'] = $mediaJson['cloudfront_media_url'];
             $inputs['media_json'] = json_encode($mediaJson['media_json'],true);
         }
-
         $this->model = $this->model->create($inputs);
         event(new Create($this->model,$profile));
 

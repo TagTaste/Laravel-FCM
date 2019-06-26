@@ -37,6 +37,8 @@ class Shoutout extends Share
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutoutShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
+        $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $shoutout->getMetaFor($profileId);
 
         return $meta;
     }
@@ -60,6 +62,9 @@ class Shoutout extends Share
         $meta['likeCount'] = \Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
+
+        $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $shoutout->getMetaFor(request()->user()->profile->id);
 
         return $meta;
     }

@@ -209,7 +209,7 @@ class Company extends Model
     
     public function photos()
     {
-        return $this->belongsToMany('App\Photo','company_photos','company_id','photo_id');
+        return $this->belongsToMany('App\V2\Photo','company_photos','company_id','photo_id');
     }
 
     public function awards()

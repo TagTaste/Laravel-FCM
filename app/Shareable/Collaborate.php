@@ -6,8 +6,8 @@ use App\PeopleLike;
 
 class Collaborate extends Share
 {
-    protected $fillable = ['profile_id','collaborate_id','payload_id','privacy_id'];
-    protected $visible = ['id','profile_id','created_at'];
+    protected $fillable = ['profile_id','collaborate_id','payload_id','privacy_id','content'];
+    protected $visible = ['id','profile_id','created_at','content'];
 
     protected $with = ['collaborate'];
 
@@ -39,6 +39,8 @@ class Collaborate extends Share
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->profile->id);
 
         $meta['commentCount'] = $this->comments()->count();
+        $collaborate = \App\Collaborate::where('id',$this->collaborate_id)->whereNull('deleted_at')->first();
+        $meta['original_post_meta'] = $collaborate->getMetaFor($profileId);
 
         return $meta;
     }

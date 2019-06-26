@@ -516,10 +516,10 @@ class Collaborate extends Model implements Feedable
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
-        $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);
-        $data['description'] = substr($this->description,0,155);
-        $data['ogTitle'] = $profile->name. ' is looking for '.substr($this->title,0,65);
-        $data['ogDescription'] = substr($this->description,0,155);
+        $data['title'] = substr($this->title,0,65);
+        $data['description'] = $profile->name;
+        $data['ogTitle'] = substr($this->title,0,65);
+        $data['ogDescription'] = $profile->name;
         $images = $this->getImagesAttribute($this->images);
         $data['cardType'] = isset($images[0]) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images[0]) ? $images[0]:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';

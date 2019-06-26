@@ -11,8 +11,8 @@ use App\Shareable\Share;
 
 class Product extends Share
 {
-    protected $fillable = ['profile_id','product_id','payload_id','privacy_id'];
-    protected $visible = ['id','profile_id','product_id','created_at'];
+    protected $fillable = ['profile_id','product_id','payload_id','privacy_id','content'];
+    protected $visible = ['id','profile_id','product_id','created_at','content'];
 
     protected $with = ['product'];
 
@@ -51,6 +51,16 @@ class Product extends Share
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
         $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        $key = "meta:productShare:likes:" . $this->id;
+
+        $meta['hasLiked'] = \Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'productShare' ,request()->user()->profile->id);
+
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
         return $meta;
     }
 
@@ -69,6 +79,8 @@ class Product extends Share
             $meta['overall_rating'] = $userCount >= 1 ? $overallPreferances/$userCount : null;
             $meta['count'] = $userCount;
             $meta['color_code'] = $userCount >= 1 ? $this->getColorCode(floor($meta['overall_rating'])) : null;
+            $product = \App\PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
+            $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
             return $meta;
         }
 
@@ -116,6 +128,10 @@ class Product extends Share
             default:
                 return '#305D03';
         }
+    }
+    public function like()
+    {
+        return $this->hasMany(\App\Shareable\Sharelikable\Product::class,'public_review_share_id');
     }
 
 }
