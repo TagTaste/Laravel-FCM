@@ -87,7 +87,7 @@ class PollingController extends Controller
         }
 
         PollingOption::insert($data);
-        $poll = $poll->refresh();
+        $poll = Polling::find($poll->id);
         $poll->addToCache();
 
         $this->model = [
