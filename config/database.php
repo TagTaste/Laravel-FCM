@@ -118,6 +118,13 @@ return [
             'database' => 0,
         ],
 
+        'V2' => [
+            'host' => env('REDIS_HOST_V2', 'localhost'),
+            'password' => env('REDIS_PASSWORD_V2', ''),
+            'port' => env('REDIS_PORT_V2', 6379),
+            'database' => 0,
+        ],
+
     ],
 
 ];

@@ -38,8 +38,10 @@ class Companies extends Command
     public function handle()
     {
         \App\Company::chunk(200,function($models){
-            foreach($models as $model){
+            foreach ($models as $model) {
+                echo "Caching: company:small:" .$model->id."\n";
                 $model->addToCache();
+                echo "Caching: company:small:".$model->id.":V2 \n\n";
                 $model->addToCacheV2();
             }
         });

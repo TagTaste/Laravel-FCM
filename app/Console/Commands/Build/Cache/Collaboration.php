@@ -38,10 +38,12 @@ class Collaboration extends Command
      */
     public function handle()
     {
-        Collaborate::chunk(200,function($models) {
-           foreach($models as $model){
-               $model->addToCache();
-               $model->addToCacheV2();
+        Collaborate::where('id',1844)->chunk(200,function($models) {
+           foreach ($models as $model) {
+                echo "Caching: collaborate:" .$model->id."\n";
+                $model->addToCache();
+                echo "Caching: collaborate:" .$model->id.":V2 \n\n";
+                $model->addToCacheV2();
            }
         });
     }

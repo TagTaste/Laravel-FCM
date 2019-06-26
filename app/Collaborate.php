@@ -86,7 +86,6 @@ class Collaborate extends Model implements Feedable
                 'fields'
             ])->toJson()
         );
-    
     }
 
     public function addToCacheV2()
@@ -120,12 +119,13 @@ class Collaborate extends Model implements Feedable
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
-        Redis::set("collaborate:".$this->id.":V2",json_encode($data));    
+        Redis::connection('V2')->set("collaborate:".$this->id.":V2",json_encode($data));    
     }
     
     public function removeFromCache()
     {
-        Redis::del("collaborate:".$this->id, "collaborate:".$this->id.":V2");
+        Redis::del("collaborate:".$this->id);
+        Redis::connection('V2')->del("collaborate:".$this->id.":V2");
     }
     /**
      * Which profile created the collaboration project.
@@ -368,6 +368,38 @@ class Collaborate extends Model implements Feedable
 
         $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+
+        return $meta;
+    }
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getMetaForV2(int $profileId) : array
+    {
+        $meta = [];
+
+        if ($this->collaborate_type == 'product-review') {
+            $key = "meta:collaborate:likes:" . $this->id;
+            $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
+            $meta['like_Count'] = Redis::sCard($key);
+            $meta['comment_count'] = $this->comments()->count();
+            $meta['share_count'] = \DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+            $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
+            $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            return $meta;
+        }
+
+        $key = "meta:collaborate:likes:" . $this->id;
+        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['like_Count'] = Redis::sCard($key);
+        $meta['comment_count'] = $this->comments()->count();
+        $meta['share_count']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
+        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
         return $meta;

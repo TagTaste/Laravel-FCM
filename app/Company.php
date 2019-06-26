@@ -184,11 +184,11 @@ class Company extends Model
     {
         $data = [
             'id' => $this->id,
-            'profile_id' => $this->profileId,
+            'profileId' => $this->profileId,
             'name' => $this->name,
             'logo_meta' => $this->logo_meta
         ];
-        Redis::set("company:small:".$this->id.":V2",json_encode($data));
+        Redis::connection('V2')->set("company:small:".$this->id.":V2",json_encode($data));
     }
 
     public static function getFromCache($id)
@@ -198,12 +198,13 @@ class Company extends Model
 
     public static function getFromCacheV2($id)
     {
-        return Redis::get('company:small:'.$id.":V2");
+        return Redis::connection('V2')->get('company:small:'.$id.":V2");
     }
 
     public function removeFromCache()
     {
-        Redis::del("company:small:".$this->id, "company:small:".$this->id.":V2");
+        Redis::del("company:small:".$this->id);
+        Redis::connection('V2')->del("company:small:".$this->id.":V2");
     }
     
     public function photos()

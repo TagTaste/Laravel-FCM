@@ -9,6 +9,7 @@ use App\Privacy;
 use App\Traits\CachedPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Share extends Model implements CommentNotification
 {
@@ -31,9 +32,11 @@ class Share extends Model implements CommentNotification
     {
         static::created(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
         });
         static::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
         });
         static::deleted(function($model){
             $model->payload->delete();
@@ -43,7 +46,27 @@ class Share extends Model implements CommentNotification
     public function addToCache()
     {
         $model = class_basename($this);
-        \Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
+        Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
+    }
+
+    public function addToCacheV2()
+    {
+        $model = class_basename($this);
+        $data = [
+            'id' => $this->id,
+            'collaborate_id' => $this->collaborate_id,
+            'photo_id' => $this->photo_id,
+            'shoutout_id' => $this->shoutout_id,
+            'product_id' => $this->product_id,
+            'profile_id' => $this->profile_id,
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
+        ];
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set("shared:" . strtolower($model) . ":" . $this->id.":V2",json_encode($data));
     }
     
     public function payload()

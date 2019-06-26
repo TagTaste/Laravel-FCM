@@ -151,7 +151,7 @@ class Profile extends Model
         }
         
         $key = "profile:small:" . $data['id'].":V2";
-        Redis::set($key, json_encode($data));
+        Redis::connection('V2')->set($key, json_encode($data));
     }
 
     public static function getFromCache($id)
@@ -159,9 +159,15 @@ class Profile extends Model
         return Redis::get('profile:small:' . $id);
     }
 
+    public static function getFromCacheV2($id)
+    {
+        return Redis::connection('V2')->get('profile:small:' . $id);
+    }
+
     public function removeFromCache()
     {
-        return Redis::del('profile:small:' . $this->id, 'profile:small:' . $this->id.":V2");
+        Redis::connection('V2')->del('profile:small:' . $this->id.":V2");
+        return Redis::del('profile:small:' . $this->id);
         
     }
 
@@ -172,7 +178,7 @@ class Profile extends Model
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id;
         }
-        $profiles = \Redis::mget($ids);
+        $profiles = Redis::mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
@@ -189,7 +195,7 @@ class Profile extends Model
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id.":V2";
         }
-        $profiles = \Redis::mget($ids);
+        $profiles = Redis::connection('V2')->mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
@@ -254,7 +260,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
             {
                 return null;
             }
@@ -468,8 +474,8 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = \Redis::SCARD("following:profile:".$this->id);
-        if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("following:profile:".$this->id);
+        if( $count > 0 && Redis::sIsMember("following:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -506,8 +512,8 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = \Redis::SCARD("followers:profile:".$this->id);
-        if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("followers:profile:".$this->id);
+        if(Redis::sIsMember("followers:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -529,7 +535,7 @@ class Profile extends Model
     {
         if($this->id != request()->user()->profile->id)
         {
-            $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
+            $profileIds = Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
             if(!count($profileIds)){
                 return ['count' => 0, 'profiles' => []];
             }
@@ -544,7 +550,7 @@ class Profile extends Model
             }
             $data = [];
             if(count($profileInfo))
-                $data = \Redis::mget($profileInfo);
+                $data = Redis::mget($profileInfo);
 
             foreach($data as &$profile){
                 $profile = json_decode($profile);
@@ -755,13 +761,13 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return \Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
+        return Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
     public function getIsFollowedByAttribute()
     {
-        return \Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+        return Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
     }
 
     //specific to API
@@ -782,7 +788,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
             {
                 return null;
             }
@@ -802,7 +808,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
             {
                 return null;
             }

@@ -68,12 +68,13 @@ class Shoutout extends Model implements Feedable
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
-        Redis::set("shoutout:" . $this->id.":V2",json_encode($data));
+        Redis::connection('V2')->set("shoutout:" . $this->id.":V2",json_encode($data));
     }
 
     public function removeFromCache()
     {
-        Redis::del("shoutout:" . $this->id, "shoutout:" . $this->id.":V2");
+        Redis::del("shoutout:" . $this->id);
+        Redis::connection('V2')->del("shoutout:" . $this->id.":V2");
     }
 
     public function profile()
@@ -131,27 +132,33 @@ class Shoutout extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = \Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
-
+        $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutout' ,request()->user()->profile->id);
-
         $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        return $meta;
+    }
 
-
-
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $meta['has_liked'] = Redis::sIsMember("meta:shoutout:likes:".$this->id,$profileId) === 1;
+        $meta['like_count'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $meta['comment_count'] = $this->comments()->count();
+        $meta['share_count']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
+        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         return $meta;
     }
 
     public function getRelatedKey() : array
     {
-
         $owner = $this->owner();
         $prefix = "profile";
         if($owner instanceof \App\Recipe\Profile){

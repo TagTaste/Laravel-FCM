@@ -3,10 +3,13 @@
 namespace App\Console\Commands\Build\Cache;
 
 use Illuminate\Console\Command;
+use App\Traits\GetTags;
+use App\Traits\CheckTags;
 use Illuminate\Support\Facades\Redis;
 
 class Photo extends Command
 {
+    use GetTags, CheckTags;
     /**
      * The name and signature of the console command.
      *
@@ -38,15 +41,9 @@ class Photo extends Command
      */
     public function handle()
     {
-        // \App\Photo::chunk(200,function($models){
-        //     foreach($models as $model){
-        //         $model->addToCache();
-        //     }
-        // });
-
-        \DB::table("photos")->orderBy('created_at')->chunk(200, function($photos){
+        \DB::table("photos")->where('id', 2082)->orderBy('created_at')->chunk(200, function($photos){
             foreach ($photos as $photo) {
-                $captionProfiles = $this->getTaggedProfilesFeed($photo->caption);
+                $captionProfiles = $this->getTaggedProfilesV2($photo->caption);
                 $captionDetail = $photo->caption;
                 if ($captionProfiles) {
                     $captionDetail = [
@@ -82,9 +79,8 @@ class Photo extends Command
                         unset($data[$key]);
                 }
                 echo "key = photo:".$data['id']."\n";
-                print_r($data);
                 echo "======== \n\n";
-                // Redis::set("photo:".$data['id'], json_encode($data));
+                Redis::set("photo:".$data['id'], json_encode($data));
             }
         });
     }

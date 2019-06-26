@@ -6,11 +6,10 @@ use App\PublicReviewProduct\Review;
 use App\PublicReviewProduct\ReviewHeader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Facades\Redis;
 
 class PublicReviewProduct extends Model
 {
-
     use SoftDeletes;
 
     public $incrementing = false;
@@ -39,11 +38,13 @@ class PublicReviewProduct extends Model
     {
         self::created(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             \App\Documents\PublicReviewProduct::create($model);
         });
 
         self::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             //update the search
             \App\Documents\PublicReviewProduct::create($model);
 
@@ -52,8 +53,49 @@ class PublicReviewProduct extends Model
 
     public function addToCache()
     {
-        \Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
+        Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
 
+    }
+
+    public function addToCacheV2()
+    {
+        $data = $this->makeHidden([
+            "is_vegetarian",
+            "product_category_id",
+            "product_sub_category_id",
+            "brand_name",
+            "brand_logo",
+            "company_name",
+            "company_logo",
+            "company_id",
+            "description",
+            "mark_featured",
+            "keywords",
+            "is_authenticity_check",
+            "global_question_id",
+            "is_active",
+            "brand_description",
+            "company_description",
+            "paired_best_with",
+            "portion_size",
+            "serves_count",
+            "product_ingredients",
+            "nutritional_info",
+            "allergic_info_contains",
+            "type",
+            "product_category",
+            "product_sub_category",
+            "overall_rating",
+            "current_status"
+        ])->toArray();
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set(
+            "public-review/product:" . $this->id.":V2",
+            json_encode($data)
+        );
     }
 
     public function getTypeAttribute()
