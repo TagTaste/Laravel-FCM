@@ -34,11 +34,11 @@ class MemberController extends Controller
 
         if(is_null($member->exited_on))
         {
-            $this->model = Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->get();
+            $this->model = Member::withTrashed()->where('chat_id',$chatId)->whereNull('exited_on')->join('profiles','profiles.id','=','chat_members.profile_id')->whereNull('profiles.deleted_at')->get();
         }
         else
         {
-            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->whereNull('exited_on')->get();
+            $this->model = Member::withTrashed()->where('chat_id',$chatId)->where('created_at','<=',$member->exited_on)->whereNull('exited_on')->join('profiles','profiles.id','=','chat_members.profile_id')->whereNull('profiles.deleted_at')->get();
         }
     	return $this->sendResponse();
     }

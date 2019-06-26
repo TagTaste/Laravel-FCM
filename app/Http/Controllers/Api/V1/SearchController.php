@@ -1115,7 +1115,7 @@ class SearchController extends Controller
         foreach($products as $product){
             $productModel = PublicReviewProduct::where('id',$product->id)->first();
             $meta = $productModel->getMetaFor($loggedInProfileId);
-            $recently[] = ['product'=>$product,'meta'=>$meta];
+            $recently[] = ['product'=>$productModel,'meta'=>$meta];
         }
         if(count ($recently) != 0)
             $model[] = ['title'=>'Newly Added','subtitle'=>'Be the first one to review','item'=>$recently,
