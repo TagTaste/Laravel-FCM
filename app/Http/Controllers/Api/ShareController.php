@@ -314,7 +314,7 @@ class ShareController extends Controller
             return $this->sendError("Model not found.");
         }
         $this->model->update(['content'=>$content]);
-        $this->model = $this->model->first()->refresh();
+        $this->model = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         $this->model->addToCache();
         $tags = $this->hasTags($content);
 
