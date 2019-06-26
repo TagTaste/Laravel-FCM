@@ -24,6 +24,7 @@ use App\Console\Commands\CapitalizeUserName;
 use App\Console\Commands\CompleteTastingMail;
 use App\Console\Commands\CountryCodeFix;
 use App\Console\Commands\DeletePhoto;
+use App\Console\Commands\ExpirePolling;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\InsertPublicReviewQuestionair;
@@ -107,6 +108,9 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\ChangeAffiliationsCommand::class,
         \App\Console\Commands\ChatGroup::class,
+
+        //expire poll
+        ExpirePolling::class,
         
         //API VERSION
         \App\Console\Commands\Api\Version::class,
@@ -193,7 +197,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\PreviewChangesMessage::class,
         \App\Console\Commands\MailIOS::class,
         \App\Console\Commands\ChangeBucket::class,
-
+        \App\Console\Commands\FollowTagtaste::class,
         ChatMergeMessage::class,
         CompleteTastingMail::class,
         //\App\Console\Commands\DeleteUsers::class,
@@ -224,7 +228,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:job')->dailyAt('12:00');
         $schedule->command('expires_on:collaboration')->dailyAt('12:00');
 
+        //daily polling expire at 12
+        $schedule->command('expires_on:polling')->dailyAt('12:00');
+
+
         $schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
+        //$schedule->command('follow:company')->dailyAt('23:00');
         //$schedule->command('ServiceInterruptionMail')->dailyAt('18:20');
 
         //command for redis store suggestion

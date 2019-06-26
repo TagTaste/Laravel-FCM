@@ -25,11 +25,12 @@ class FeedController extends Controller
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
             ->where('subscribers.profile_id',$profileId)
+            ->whereNull('channel_payloads.deleted_at')
             //Query Builder's where clause doesn't work here for some reason.
             //Don't remove this where query.
             //Ofcourse, unless you know what you are doing.
 //            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
-            ->orderBy('channel_payloads.created_at','desc')
+            ->orderBy('channel_payloads.updated_at','desc')
             ->skip($skip)
             ->take($take)
             ->get();

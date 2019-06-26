@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Redis;
 
 class Profile extends Model
 {
@@ -152,6 +153,30 @@ class Profile extends Model
         return $profiles;
     }
 
+    public static function getMultipleFromCacheFeed($ids = [])
+    {
+        $keyPreifx = "profile:small:";
+        foreach ($ids as &$id) {
+            $id = $keyPreifx . $id;
+        }
+        $profiles = Redis::mget($ids);
+        
+        if (count(array_filter($profiles)) == 0) {
+            return false;
+        }
+        
+        foreach ($profiles as $index => &$profile) {
+            $data = json_decode($profile);
+            $profile = array(
+                "id" => $data->id,
+                "name" => $data->name,
+                "handle" => $data->handle
+            );
+            
+        }
+        return $profiles;
+    }
+    
     public function user()
     {
         return $this->belongsTo('App\User');
@@ -502,7 +527,7 @@ class Profile extends Model
 
     public function photos()
     {
-        return $this->belongsToMany('App\Photo', 'profile_photos', 'profile_id', 'photo_id');
+        return $this->belongsToMany('App\V2\Photo', 'profile_photos', 'profile_id', 'photo_id');
     }
 
     public function projects()
@@ -927,7 +952,7 @@ class Profile extends Model
 
     public function getCuisinesAttribute()
     {
-        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',request()->user()->profile->id)->get()->pluck('cuisine_id');
+        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',$this->id)->get()->pluck('cuisine_id');
         return  \DB::table('cuisines')->whereIn('id',$cuisineIds)->get();
     }
 
