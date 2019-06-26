@@ -142,7 +142,7 @@ class PollingController extends Controller
                 PollingOption::where('poll_id',$pollId)->where('id',$pollOptionId)->update(['count'=>$pollOptionCheck->count + 1]);
             }
         }
-        $poll = $poll->refresh();
+        $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = ['polling'=>$poll,'meta'=>$poll->getMetaFor($loggedInProfileId)];
         return $this->sendResponse();
@@ -202,7 +202,7 @@ class PollingController extends Controller
         }
         if ($data!=null)
             $this->model = $poll->update(['title'=>$data]);
-        $poll = $poll->refresh();
+        $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -285,7 +285,7 @@ class PollingController extends Controller
             return $this->sendError("Poll can not be editable");
         }
         $this->model = $poll->options()->where('id',$optionId)->update(['text'=>$request->input('text')]);
-        $poll = $poll->refresh();
+        $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -331,7 +331,7 @@ class PollingController extends Controller
             $data[] = ['text'=>$option,'poll_id'=>$poll->id,'created_at'=>$this->now,'updated_at'=>$this->now,'count'=>0];
         }
         PollingOption::insert($data);
-        $poll = $poll->refresh();
+        $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -376,7 +376,7 @@ class PollingController extends Controller
             return $this->sendError("Poll can not be editable");
         }
         $this->model = $poll->options()->where('poll_id', $pollId)->whereIn('id',$options)->delete();
-        $poll = $poll->refresh();
+        $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
         event(new UpdateFeedable($this->model));
@@ -442,7 +442,7 @@ class PollingController extends Controller
         $this->model = $poll->update(['is_expired'=>0,'expired_time'=>null]);
         $poll->restore();
         \DB::table('poll_options')->where('poll_id',$pollId)->update(['deleted_at'=>null]);
-        $poll = $poll->refresh();
+        $poll = Polling::find($pollId);
         $poll->addToCache();
         $this->model = $poll;
         //add to feed
