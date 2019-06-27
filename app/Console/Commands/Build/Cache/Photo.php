@@ -41,7 +41,7 @@ class Photo extends Command
      */
     public function handle()
     {
-        \DB::table("photos")->where('id', 2082)->orderBy('created_at')->chunk(200, function($photos){
+        \DB::table("photos")->orderBy('created_at')->chunk(200, function($photos){
             foreach ($photos as $photo) {
                 $captionProfiles = $this->getTaggedProfilesV2($photo->caption);
                 $captionDetail = $photo->caption;

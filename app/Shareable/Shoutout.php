@@ -50,8 +50,6 @@ class Shoutout extends Share
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
-        $peopleLike = new PeopleLike();
-        $meta['peopleLiked'] = $peopleLike->peopleLikeV2($this->id, 'shoutoutShare' ,request()->user()->profile->id);
         return $meta;
     }
 

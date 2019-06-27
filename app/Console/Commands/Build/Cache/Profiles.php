@@ -39,7 +39,7 @@ class Profiles extends Command
      */
     public function handle()
     {
-        \App\Recipe\Profile::where('id',2049)->whereNull('deleted_at')->chunk(200,function($profiles){
+        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200,function($profiles){
             foreach($profiles as $model){
                 echo "updating profile:small:".$model->id.":V2 \n";
                 $model->addToCacheV2();

@@ -134,7 +134,7 @@ class AttributeValueTableSeeder extends Seeder {
             }
         }
 
-        $values = array_merge($cuisines,$awards, $establishments);
+        $values = array_merge($cuisines, $awards, $establishments);
 
         if(count($values)){
             AttributeValue::insert($values);

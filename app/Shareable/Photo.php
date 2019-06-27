@@ -4,6 +4,7 @@ namespace App\Shareable;
 
 use App\PeopleLike;
 use App\Shareable\Share;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends Share
 {
@@ -31,8 +32,8 @@ class Photo extends Share
         $meta = [];
         $key = "meta:photoShare:likes:" . $this->id;
     
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photoShare' ,request()->user()->profile->id);
@@ -41,6 +42,16 @@ class Photo extends Share
         $photo = \App\Photo::where('id',$this->photo_id)->whereNull('deleted_at')->first();
         $meta['original_post_meta'] = $photo->getMetaFor($profileId);
 
+        return $meta;
+    }
+
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $key = "meta:shoutoutShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
 

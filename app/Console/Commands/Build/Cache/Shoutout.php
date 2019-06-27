@@ -37,7 +37,7 @@ class Shoutout extends Command
      */
     public function handle()
     {
-        \App\Shoutout::where('id',5097)->chunk(200,function($models){
+        \App\Shoutout::chunk(200,function($models){
             foreach($models as $model){
                 echo "caching shoutout:".$model->id." \n";
                 $model->addToCache();

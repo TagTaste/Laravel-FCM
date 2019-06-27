@@ -125,12 +125,10 @@ class FeedController extends Controller
                 $model = $payload->model;
                 echo $model;
                 print_r("<br/>");
-                if (!in_array($model, ["App\V2\Photo", "App\Polling"])) {
-                    $type = $this->getType($payload->model);
-                    $model = $model::find($payload->model_id);
-                    if ($model !== null && method_exists($model, 'getMetaForV2')) {
-                        $data['meta'] = $model->getMetaForV2($profileId);
-                    }
+                $type = $this->getType($payload->model);
+                $model = $model::find($payload->model_id);
+                if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                    $data['meta'] = $model->getMetaForV2($profileId);
                 }
             }
             $data['type'] = $type;

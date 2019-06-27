@@ -38,10 +38,10 @@ class Job extends Command
      */
     public function handle()
     {
-        \App\Job::chunk(200,function($models){
-           foreach($models as $model){
-               $model->addToCache();
-           }
-        });
+        // \App\Job::chunk(200,function($models){
+        //    foreach($models as $model){
+        //        $model->addToCache();
+        //    }
+        // });
     }
 }
