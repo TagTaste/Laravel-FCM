@@ -134,4 +134,16 @@ class Product extends Share
         return $this->hasMany(\App\Shareable\Sharelikable\Product::class,'public_review_share_id');
     }
 
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->product->id,
+            'share_id' => $this->id,
+            'content' => null != $this->content ? $this->content : $this->photo->caption,
+            'image' => null,
+            'shared' => true
+        ];
+    }
+
 }
