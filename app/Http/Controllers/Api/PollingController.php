@@ -130,7 +130,7 @@ class PollingController extends Controller
         if($checkVote)
         {
             $this->model = [];
-            return $this->sendError('You already select vote');
+            return $this->sendError('You have already voted.');
         }
         else
         {
