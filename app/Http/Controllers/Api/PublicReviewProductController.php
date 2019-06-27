@@ -421,7 +421,7 @@ class PublicReviewProductController extends Controller
         return $this->sendResponse();
     }
 
-    public function uploadGlobalNestedOption(Request $request)
+    public function uploadGlobalNestedOption1(Request $request)
     {
         $filename = str_random(32) . ".xlsx";
         $path = "images/public-review/products/global/nested/option";
@@ -498,6 +498,55 @@ class PublicReviewProductController extends Controller
             dispatch($mail);
         }
         $this->model = $productDetails;
+        return $this->sendResponse();
+    }
+    public function uploadGlobalNestedOption(Request $request)
+    {
+        $filename = str_random(32) . ".xlsx";
+        $path = "images/public-review/products/global/nested/option";
+        $file = $request->file('file')->storeAs($path,$filename,['visibility'=>'public']);
+        //$fullpath = env("STORAGE_PATH",storage_path('app/')) . $path . "/" . $filename;
+        //$fullpath = \Storage::url($file);
+
+        //load the file
+        $data = [];
+        try {
+            $fullpath = $request->file->store('temp', 'local');
+            \Excel::load("storage/app/" . $fullpath, function($reader) use (&$data){
+                $data = $reader->toArray();
+            })->get();
+            if(empty($data)){
+                return $this->sendError("Empty file uploaded.");
+            }
+            \Storage::disk('local')->delete($file);
+        } catch (\Exception $e){
+            \Log::info($e->getMessage());
+            return $this->sendError($e->getMessage());
+
+        }
+        $questions = [];
+        $extra = [];
+        foreach ($data as $item)
+        {
+
+            foreach ($item as $datum)
+            {
+                \Log::info($datum);
+                if(is_null($datum['s.no.']))
+                    break;
+                $extra[] = $datum;
+                $parentId = $datum['parent_s.no.'] == 0 ? null : $datum['parent_s.no.'];
+                $active = isset($datum['is_active']) ? $datum['is_active'] : 1;
+                $description = isset($datum['explainer_text']) ? $datum['explainer_text'] : null;
+                $questions[] = ["s_no"=>$datum['s.no.'],'parent_id'=>$parentId,'value'=>$datum['aroma'],'type'=>'AROMA','is_active'=>$active,'description'=>$description,'is_intensity'=>$datum['is_intensity_present']];
+            }
+        }
+        $data = [];
+        foreach ($questions as $item)
+        {
+            $data[] = ['type'=>'AROMA','s_no'=>$item['s_no'],'parent_id'=>$item['parent_id'],'value'=>$item['value'],'is_active'=>$item['is_active'],'description'=>$item['description'],'is_intensity'=>$item['is_intensity']];
+        }
+        $this->model = \DB::table('public_review_global_nested_option')->insert($data);
         return $this->sendResponse();
     }
 

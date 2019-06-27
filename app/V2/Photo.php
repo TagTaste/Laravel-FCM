@@ -24,7 +24,7 @@ class Photo extends Model implements Feedable
 
     use IdentifiesOwner, CachedPayload;
 
-    protected $fillable = ['caption','privacy_id','payload_id','images'];
+    protected $fillable = ['caption','privacy_id','payload_id','images','image_meta'];
 
     protected $visible = ['id','caption','likeCount',
         'created_at','comments',
