@@ -265,6 +265,11 @@ class ShareController extends Controller
 //            'privacy_id' => $request->input('privacy_id') ,'content' => $request->input('content')]);
         $share->save();
         $this->model = $share;
+        $this->model->additionalPayload = ['sharedBy' => 'profile:small:' . $loggedInProfileId,
+            $modelName => $modelName . ":" . $id, 'shared' => "shared:$modelName:" . $this->model->id
+        ];
+        $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
+        $content = $request->input('content');
         $tags = $this->hasTags($content);
 
         if(isset($tags) && $tags != 0){
@@ -314,7 +319,7 @@ class ShareController extends Controller
             return $this->sendError("Model not found.");
         }
         $this->model->update(['content'=>$content]);
-        $this->model = $this->model->first()->refresh();
+        $this->model = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         $this->model->addToCache();
         $tags = $this->hasTags($content);
 
