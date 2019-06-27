@@ -99,6 +99,7 @@ class Profile extends Model
             \App\Documents\Profile::create($profile);
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
             event(new SuggestionEngineEvent($profile, 'create'));
 
         });
@@ -106,6 +107,7 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
@@ -123,26 +125,60 @@ class Profile extends Model
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
-        \Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+        Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+    }
+
+    public function addToCacheV2()
+    {
+        $keyRequired = [
+            'id',
+            'user_id',
+            'name',
+            'designation',
+            'handle',
+            'tagline',
+            'image_meta',
+            'isFollowing'
+        ];
+        $data = array_intersect_key(
+            $this->toArray(), 
+            array_flip($keyRequired)
+        );
+        
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        
+        $key = "profile:small:" . $data['id'].":V2";
+        Redis::connection('V2')->set($key, json_encode($data));
     }
 
     public static function getFromCache($id)
     {
-        return \Redis::get('profile:small:' . $id);
+        return Redis::get('profile:small:' . $id);
+    }
+
+    public static function getFromCacheV2($id)
+    {
+        return Redis::connection('V2')->get('profile:small:' . $id);
     }
 
     public function removeFromCache()
     {
-        return \Redis::del('profile:small:' . $this->id);
+        Redis::connection('V2')->del('profile:small:' . $this->id.":V2");
+        return Redis::del('profile:small:' . $this->id);
+        
     }
 
     public static function getMultipleFromCache($ids = [])
     {
+        // depricated after V2 Feed
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id;
         }
-        $profiles = \Redis::mget($ids);
+        $profiles = Redis::mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
@@ -153,18 +189,16 @@ class Profile extends Model
         return $profiles;
     }
 
-    public static function getMultipleFromCacheFeed($ids = [])
+    public static function getMultipleFromCacheV2($ids = [])
     {
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
-            $id = $keyPreifx . $id;
+            $id = $keyPreifx . $id.":V2";
         }
-        $profiles = Redis::mget($ids);
-        
+        $profiles = Redis::connection('V2')->mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
-        
         foreach ($profiles as $index => &$profile) {
             $data = json_decode($profile);
             $profile = array(
@@ -172,11 +206,11 @@ class Profile extends Model
                 "name" => $data->name,
                 "handle" => $data->handle
             );
-            
         }
+
         return $profiles;
     }
-    
+
     public function user()
     {
         return $this->belongsTo('App\User');
@@ -226,7 +260,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
             {
                 return null;
             }
@@ -440,8 +474,8 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = \Redis::SCARD("following:profile:".$this->id);
-        if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("following:profile:".$this->id);
+        if( $count > 0 && Redis::sIsMember("following:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -478,8 +512,8 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = \Redis::SCARD("followers:profile:".$this->id);
-        if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("followers:profile:".$this->id);
+        if(Redis::sIsMember("followers:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -501,7 +535,7 @@ class Profile extends Model
     {
         if($this->id != request()->user()->profile->id)
         {
-            $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
+            $profileIds = Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
             if(!count($profileIds)){
                 return ['count' => 0, 'profiles' => []];
             }
@@ -516,7 +550,7 @@ class Profile extends Model
             }
             $data = [];
             if(count($profileInfo))
-                $data = \Redis::mget($profileInfo);
+                $data = Redis::mget($profileInfo);
 
             foreach($data as &$profile){
                 $profile = json_decode($profile);
@@ -727,13 +761,13 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return \Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
+        return Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
     public function getIsFollowedByAttribute()
     {
-        return \Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+        return Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
     }
 
     //specific to API
@@ -754,7 +788,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
             {
                 return null;
             }
@@ -774,7 +808,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
             {
                 return null;
             }

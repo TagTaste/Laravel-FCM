@@ -14,6 +14,7 @@ trait GetTags
     
     public function getTaggedProfiles($value)
     {
+        // depricated after V2 Feed
         if(isset($this->has_tags) && $this->has_tags === 0){
             return false;
         }
@@ -27,8 +28,8 @@ trait GetTags
 
         return $profiles === false ? false : $profiles;
     }
-    
-    public function getTaggedProfilesFeed($value)
+
+    public function getTaggedProfilesV2($value)
     {
         if(isset($this->has_tags) && $this->has_tags === 0){
             return false;
@@ -39,7 +40,7 @@ trait GetTags
             return false;
         }
         
-        $profiles = \App\Profile::getMultipleFromCacheFeed($matches[1]);
+        $profiles = \App\Profile::getMultipleFromCacheV2($matches[1]);
 
         return $profiles === false ? false : $profiles;
     }

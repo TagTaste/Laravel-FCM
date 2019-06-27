@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Build\Cache;
 
-use App\Shareable\Collaborate;
 use Illuminate\Console\Command;
 
 class Share extends Command
@@ -38,33 +37,54 @@ class Share extends Command
      */
     public function handle()
     {
-        Collaborate::chunk(200,function($shares){
+        // \App\Shareable\Job::chunk(200,function($shares){
+        //     foreach($shares as $share){
+        //         $share->addToCache();
+        //     }
+        // });
+
+        // \App\Shareable\Recipe::chunk(200,function($shares){
+        //     foreach($shares as $share){
+        //         $share->addToCache();
+        //     }
+        // });
+        
+        \App\Shareable\Collaborate::chunk(200,function($shares){
             foreach($shares as $share){
+                echo "caching shared:collaborate:".$share->id." \n";
                 $share->addToCache();
+                echo "caching shared:collaborate:".$share->id.":V2 \n\n";
+                $share->addToCacheV2();
             }
         });
         
-        \App\Shareable\Job::chunk(200,function($shares){
-            foreach($shares as $share){
-                $share->addToCache();
-            }
-        });
         
         \App\Shareable\Photo::chunk(200,function($shares){
             foreach($shares as $share){
+                echo "caching shared:photo:".$share->id." \n";
                 $share->addToCache();
+                echo "caching shared:photo:".$share->id.":V2 \n\n";
+                $share->addToCacheV2();
             }
         });
         
-        \App\Shareable\Recipe::chunk(200,function($shares){
-            foreach($shares as $share){
-                $share->addToCache();
-            }
-        });
+        
     
         \App\Shareable\Shoutout::chunk(200,function($shares){
             foreach($shares as $share){
+                echo "caching shared:shoutout:".$share->id." \n";
                 $share->addToCache();
+                echo "caching shared:shoutout:".$share->id.":V2 \n\n";
+                $share->addToCacheV2();
+            }
+        });
+
+        \App\Shareable\Product::chunk(200,function($shares){
+            foreach($shares as $share){
+                echo "caching shared:product:".$share->id." \n";
+                $share->addToCache();
+                echo "caching shared:product:".$share->id.":V2 \n\n";
+                $share->addToCacheV2();
             }
         });
     }

@@ -16,6 +16,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends Model implements Feedable
 {
@@ -63,7 +64,7 @@ class Photo extends Model implements Feedable
         //so it can't be pushed to the feed since there won't be any "owner".
 
         self::created(function($photo){
-            //\Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
+            //Redis::set("photo:" . $photo->id,$photo->makeHidden(['profile_id','company_id','owner','likeCount'])->toJson());
         });
 
 //        self::created(function($photo){
@@ -79,12 +80,12 @@ class Photo extends Model implements Feedable
     {
         $data = ['id'=>$this->id,'caption'=>$this->caption,'photoUrl'=>$this->photoUrl,'created_at'=>$this->created_at->toDateTimeString(),
             'updated_at'=>$this->updated_at->toDateTimeString(),'image_meta'=>$this->image_meta];
-        \Redis::set("photo:" . $this->id,json_encode($data));
+        Redis::set("photo:".$this->id,json_encode($data));
     }
 
     public function deleteFromCache()
     {
-        \Redis::del("photo:" . $this->id);
+        Redis::del("photo:".$this->id);
     }
 
     public function ideabooks()
@@ -200,11 +201,27 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'photo' ,request()->user()->profile->id);
+        $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+        $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+
+        return $meta;
+    }
+
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $key = "meta:photo:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
         $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();

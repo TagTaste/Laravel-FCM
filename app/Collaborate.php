@@ -10,6 +10,7 @@ use App\Traits\IdentifiesOwner;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Model implements Feedable
 {
@@ -58,12 +59,13 @@ class Collaborate extends Model implements Feedable
     {
         self::created(function($model){
             $model->addToCache();
-    
+            $model->addToCacheV2();
             \App\Documents\Collaborate::create($model);
         });
         
         self::updated(function($model){
             $model->addToCache();
+            $model->addToCacheV2();
             //update the search
             \App\Documents\Collaborate::create($model);
     
@@ -72,13 +74,58 @@ class Collaborate extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("collaborate:" . $this->id,$this->makeHidden(['privacy','profile','company','commentCount','likeCount','applicationCount','fields'])->toJson());
-    
+        Redis::set(
+            "collaborate:" . $this->id,
+            $this->makeHidden([
+                'privacy',
+                'profile',
+                'company',
+                'commentCount',
+                'likeCount',
+                'applicationCount',
+                'fields'
+            ])->toJson()
+        );
+    }
+
+    public function addToCacheV2()
+    {
+        $keyRequired = [
+            "id",
+            "title",
+            "description",
+            "profile_id",
+            "company_id",
+            "has_tags",
+            "collaborate_type",
+            "expires_on",
+            "updated_at",
+            "created_at",
+            "deleted_at",
+        ];
+        $data = array_intersect_key(
+            $this->makeHidden([
+                'privacy',
+                'profile',
+                'company',
+                'commentCount',
+                'likeCount',
+                'applicationCount',
+                'fields'
+            ])->toArray(), 
+            array_flip($keyRequired)
+        );
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set("collaborate:".$this->id.":V2",json_encode($data));    
     }
     
     public function removeFromCache()
     {
-        \Redis::del("collaborate:" . $this->id);
+        Redis::del("collaborate:".$this->id);
+        Redis::connection('V2')->del("collaborate:".$this->id.":V2");
     }
     /**
      * Which profile created the collaboration project.
@@ -321,6 +368,38 @@ class Collaborate extends Model implements Feedable
 
         $meta['interestedCount'] = (int) \Redis::hGet("meta:collaborate:" . $this->id,"applicationCount") ?: 0;
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+
+        return $meta;
+    }
+
+    /**
+     * @param int $profileId
+     * @return array
+     */
+    public function getMetaForV2(int $profileId) : array
+    {
+        $meta = [];
+
+        if ($this->collaborate_type == 'product-review') {
+            $key = "meta:collaborate:likes:" . $this->id;
+            $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
+            $meta['like_Count'] = Redis::sCard($key);
+            $meta['comment_count'] = $this->comments()->count();
+            $meta['share_count'] = \DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+            $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
+            $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+                ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+            return $meta;
+        }
+
+        $key = "meta:collaborate:likes:" . $this->id;
+        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['like_Count'] = Redis::sCard($key);
+        $meta['comment_count'] = $this->comments()->count();
+        $meta['share_count']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
+        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
         return $meta;
