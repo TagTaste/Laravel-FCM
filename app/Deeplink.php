@@ -124,7 +124,7 @@ class Deeplink
     }
     public static function getDeepLinkText($modelName,$model)
     {
-        if(isset($model->owner->name) || $modelName == 'product' || $modelName == 'profile' ||$modelName =='company')
+        if( $modelName == 'product' || $modelName == 'profile' || isset($model->owner->name) || $modelName =='company')
         {
             switch ($modelName) {
                 case 'photo':       return Deeplink::getPhotoText($model);
