@@ -145,5 +145,14 @@ class Product extends Share
             'shared' => true
         ];
     }
+    public function getMetaForPublic(){
+        $meta = [];
+        $key = "meta:productShare:likes:" . $this->id;
 
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $meta['commentCount'] = $this->comments()->count();
+
+        return $meta;
+    }
 }
