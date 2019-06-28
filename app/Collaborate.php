@@ -41,9 +41,9 @@ class Collaborate extends Model implements Feedable
         'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
         'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
         'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
-        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta'];
+        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner'];
 
-    protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology'];
+    protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -120,6 +120,11 @@ class Collaborate extends Model implements Feedable
                 unset($data[$key]);
         }
         Redis::connection('V2')->set("collaborate:".$this->id.":V2",json_encode($data));    
+    }
+
+    public function getOwnerAttribute()
+    {
+        return $this->owner();
     }
     
     public function removeFromCache()
@@ -518,6 +523,8 @@ class Collaborate extends Model implements Feedable
         $data['owner'] = $profile->id;
         $data['title'] = substr($this->title,0,65);
         $data['description'] = $profile->name;
+        $data['title'] = $profile->name. ' is looking for '.substr($this->title,0,65);
+        $data['description'] = substr($this->description,0,155);
         $data['ogTitle'] = substr($this->title,0,65);
         $data['ogDescription'] = $profile->name;
         $images = $this->getImagesAttribute($this->images);
