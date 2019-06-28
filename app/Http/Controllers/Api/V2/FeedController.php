@@ -103,8 +103,7 @@ class FeedController extends Controller
             $data = [];
             $index++;
             $cached = json_decode($payload->payload, true);
-            print_r($cached);
-            print_r("<br/>");
+            
             foreach($cached as $name => $key){
                 $cachedData = null;
                 if (in_array($name, $indexTypeV2)) {
@@ -117,14 +116,10 @@ class FeedController extends Controller
                     \Log::warning("could not get from $key");
                 }
                 $data[$name] = json_decode($cachedData,true);
-                echo $key." | ".$name;
-                print_r("<br/>");
             }
 
             if($payload->model !== null){
                 $model = $payload->model;
-                echo $model;
-                print_r("<br/>");
                 $type = $this->getType($payload->model);
                 $model = $model::find($payload->model_id);
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {
@@ -133,69 +128,6 @@ class FeedController extends Controller
             }
             $data['type'] = $type;
             $this->model[] = $data;
-            print_r("---<br/>");
-        }
-        dd($this->model);
-        $position1 = rand(5,8);
-        $position2 = rand(15,20);
-        $followingCount = \Redis::sCard("following:profile:".request()->user()->profile->id);
-        $suggestion = new SuggestionEngine();
-        $rand1 = rand(1,4);
-        $rand2 = rand(1,4);
-
-        if($followingCount <= 200)
-        {
-            $position1 = rand(3,6);
-            $rand1 = rand(1,4);
-            if($rand1 == $rand2)
-                $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
-        }
-
-        if($rand1 == $rand2)
-            $rand2 = $rand2 + 1 >= 4 ? 1 : $rand2 + 1;
-
-        $index = 0;
-        foreach($payloads as $payload){
-            $type = null;
-            $data = [];
-            $index++;
-            $cached = json_decode($payload->payload, true);
-
-            foreach($cached as $name => $key){
-                $cachedData = \Redis::get($key);
-                if(!$cachedData){
-                    \Log::warning("could not get from $key");
-                }
-                $data[$name] = json_decode($cachedData,true);
-            }
-            if($payload->model !== null){
-                $model = $payload->model;
-                $type = $this->getType($payload->model);
-                $model = $model::find($payload->model_id);
-                if($model !== null && method_exists($model, 'getMetaFor')){
-                    $data['meta'] = $model->getMetaFor($profileId);
-                }
-            }
-            $data['type'] = $type;
-            $this->model[] = $data;
-            $data = [];
-            if($index == $position1)
-            {
-                $data['item'] = $suggestion->suggestion[$rand1 - 1];
-                $data['type'] = 'suggestion';
-                $count = \Redis::sCard('suggested:'.$data['item'].':'.request()->user()->profile->id);
-                if($count)
-                    $this->model[] = $data;
-            }
-            elseif ($index == $position2)
-            {
-                $data['item'] = $suggestion->suggestion[$rand2 - 1];
-                $data['type'] = 'suggestion';
-                $count = \Redis::sCard('suggested:'.$data['item'].':'.request()->user()->profile->id);
-                if($count)
-                    $this->model[] = $data;
-            }
-
         }
     }
     
