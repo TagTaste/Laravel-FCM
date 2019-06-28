@@ -265,11 +265,11 @@ class Photo extends Model implements Feedable
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile;
         $content = $this->getContent($this->caption);
-        $data['title'] = null;
-        $data['description'] = null;
-        $data['ogTitle'] = null;
+        $data['title'] = $profile->name. ' has posted on TagTaste';
+        $data['description'] = substr($content,0,150);
+        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
         $data['ogDescription'] = null;
-        $data['ogImage'] = $this->photoUrl;
+        $data['ogImage'] = json_decode($this->image_meta)->original_photo;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/preview/photo/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/photo/'.$this->id;

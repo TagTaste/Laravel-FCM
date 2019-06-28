@@ -8,7 +8,6 @@
 
 namespace App;
 
-
 class Deeplink
 {
     private $model;
@@ -123,10 +122,9 @@ class Deeplink
             }
         }
     }
-
     public static function getDeepLinkText($modelName,$model)
     {
-        if(isset($model->owner->name) || $modelName == 'product')
+        if( $modelName == 'product' || $modelName == 'profile' || isset($model->owner->name) || $modelName =='company')
         {
             switch ($modelName) {
                 case 'photo':       return Deeplink::getPhotoText($model);
@@ -144,29 +142,29 @@ class Deeplink
 
     public static function getShoutoutText($model)
     {
-        if(isset($model->preview) && isset($model->owner->name) && !is_null($model->content) && strlen($model->content))
-            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
-        else if(isset($model->preview->title) && isset($model->owner->name))
-            return $model->preview->title." checkout this post by ".$model->owner->name." on TagTaste.";
-        else if(is_null($model->content) && isset($model->thumbnail))
-            return "Checkout this video by ".$model->owner->name." on TagTaste.";
-        else if(!is_null($model->content) && strlen($model->content) && isset($model->owner->name))
-            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
-        else
+            if($model->preview != null){
+                if(!is_null($model->content) && strlen($model->content)) {
+                    $description = $model->content;
+                } else {
+                    $description = isset($model->preview["description"])?$model->preview["description"]:null;
+                }
+                return $description."\n Checkout this post by ".$model->owner->name." on TagTaste.";
+            }
+            if($model->media_url != null && $model->content !=  null){
+                return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste.";
+            }
             return "Checkout this post by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getPhotoText($model)
     {
-        if(!is_null($model->caption) && strlen($model->caption))
-            return $model->caption." checkout this photo by ".$model->owner->name." on TagTaste.";
-        else
-            return "Checkout this photo by ".$model->owner->name." on TagTaste.";
+        $caption = $model->caption;
+            return $caption."\n Checkout this photo by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getPollingText($model){
 
-            return "Checkout this poll by ".$model->owner->name." on TagTaste";
+        return "Checkout this poll by ".$model->owner->name." on TagTaste";
     }
 
     public static function getCollaborateText($model)
@@ -176,7 +174,7 @@ class Deeplink
 
     public static function getProductText($model)
     {
-        return "Checkout this post by ".$model->company_name." on TagTaste.";
+        return $model->description." Checkout this post by ".$model->company_name." on TagTaste.";
     }
 
     public static function getProfileText($model)

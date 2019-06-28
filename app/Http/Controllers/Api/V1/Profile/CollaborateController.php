@@ -107,7 +107,6 @@ class CollaborateController extends Controller
         if (!empty($fields)) {
             unset($inputs['fields']);
         }
-
         $this->model = $this->model->create($inputs);
 
 //        $categories = $request->input('categories');
