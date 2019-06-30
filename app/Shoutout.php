@@ -266,7 +266,7 @@ class Shoutout extends Model implements Feedable
             return  isset($this->preview["image"])?$this->preview["image"]:null;
         }
         if($this->media_url != null) {
-            $thumbnail = $this->media_json->thumbnail;
+            $thumbnail = isset($this->media_json->thumbnail) ? $this->media_json->thumbnail : null;
             return $thumbnail;
         }
         return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';

@@ -26,7 +26,6 @@ class PreviewController extends Controller
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
-        $modelData = $model;
         $data = $model->getPreviewContent();
         $deepLink = Deeplink::getShortLink($modelName, $modelId);
         $modelData = $model;
@@ -65,7 +64,7 @@ class PreviewController extends Controller
             return $this->sendError("Nothing found for given Id.");
         }
         $data = $model->getPreviewContent();
-
+        $modelData = $model;
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
@@ -78,7 +77,7 @@ class PreviewController extends Controller
             'model' => ucwords($modelName),
             'isShared' => true,
             'shareTypeID' => $shareId,
-
+            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
         ];
 
         $this->model = $res;
