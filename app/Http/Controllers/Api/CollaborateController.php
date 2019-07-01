@@ -9,6 +9,7 @@ use App\PeopleLike;
 use App\Profile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class CollaborateController extends Controller
 {
@@ -149,7 +150,7 @@ class CollaborateController extends Controller
                         'profile_id' => $request->user()->profile->id
                     ]);
 
-            $company = \Redis::get('company:small:' . $companyId);
+            $company = Redis::get('company:small:' . $companyId);
             $company = json_decode($company);
             if(isset($collaborate->company_id) && (!is_null($collaborate->company_id)))
             {
@@ -203,7 +204,7 @@ class CollaborateController extends Controller
                 event(new \App\Events\Actions\Apply($collaborate, $request->user()->profile, $request->input("message","")));
             }
         }
-        \Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
+        Redis::hIncrBy("meta:collaborate:$id","applicationCount",1);
         return $this->sendResponse();
     }
     
@@ -217,13 +218,13 @@ class CollaborateController extends Controller
         $this->model = [];
         $profileId = $request->user()->profile->id;
         $key = "meta:collaborate:likes:$id";
-        $like = \Redis::sIsMember($key,$profileId);
+        $like = Redis::sIsMember($key,$profileId);
         if($like){
             \DB::table("collaboration_likes")
                 ->where("collaboration_id",$id)->where('profile_id',$profileId)
                 ->delete();
-            \Redis::sRem($key,$profileId);
-            $this->model['likeCount'] = \Redis::sCard($key);
+            Redis::sRem($key,$profileId);
+            $this->model['likeCount'] = Redis::sCard($key);
             $this->model['liked'] = false;
 
             $peopleLike = new PeopleLike();
@@ -234,8 +235,8 @@ class CollaborateController extends Controller
         
         event(new Like($collaborate,$request->user()->profile));
         \DB::table("collaboration_likes")->insert(["collaboration_id"=>$id,'profile_id'=>$profileId]);
-        \Redis::sAdd($key,$profileId);
-        $this->model['likeCount'] = \Redis::sCard($key);
+        Redis::sAdd($key,$profileId);
+        $this->model['likeCount'] = Redis::sCard($key);
         $this->model['liked'] = true;
 
         $peopleLike = new PeopleLike();
@@ -433,7 +434,7 @@ class CollaborateController extends Controller
             {
                 continue;
             }
-            $batchIds = \Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
+            $batchIds = Redis::sMembers("collaborate:".$collaborate['id'].":profile:$loggedInProfileId:");
             $count = count($batchIds);
             if($count)
             {
@@ -441,12 +442,12 @@ class CollaborateController extends Controller
                 {
                     $batchId = "batch:".$batchId;
                 }
-                $batchInfos = \Redis::mGet($batchIds);
+                $batchInfos = Redis::mGet($batchIds);
                 $batches = [];
                 foreach ($batchInfos as &$batchInfo)
                 {
                     $batchInfo = json_decode($batchInfo);
-                    $currentStatus = \Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
+                    $currentStatus = Redis::get("current_status:batch:$batchInfo->id:profile:".$loggedInProfileId);
                     $batchInfo->current_status = !is_null($currentStatus) ? (int)$currentStatus : 0;
                     if($currentStatus != 0)
                     {

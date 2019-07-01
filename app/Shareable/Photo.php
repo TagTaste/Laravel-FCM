@@ -59,7 +59,7 @@ class Photo extends Share
         $meta = [];
         $key = "meta:photoShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 

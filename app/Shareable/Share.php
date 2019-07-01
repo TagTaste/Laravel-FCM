@@ -48,6 +48,7 @@ class Share extends Model implements CommentNotification
     {
         $model = class_basename($this);
         Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
+
     }
 
     public function addToCacheV2()
@@ -105,9 +106,9 @@ class Share extends Model implements CommentNotification
         $name = strtolower(class_basename($this));
         $key  =  "shared:$name:" . $this->id;
         
-        if(!\Redis::exists($key))
+        if(!Redis::exists($key))
         {
-            \Redis::set($key,$this->toJson());
+            Redis::set($key,$this->toJson());
         }
         return [$name => $key];
     }

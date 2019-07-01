@@ -168,7 +168,6 @@ class Profile extends Model
     {
         Redis::connection('V2')->del('profile:small:' . $this->id.":V2");
         return Redis::del('profile:small:' . $this->id);
-        
     }
 
     public static function getMultipleFromCache($ids = [])

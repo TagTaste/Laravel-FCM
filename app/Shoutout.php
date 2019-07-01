@@ -51,6 +51,7 @@ class Shoutout extends Model implements Feedable
 
     public function addToCache(){
         Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
+
     }
 
     public function addToCacheV2(){
@@ -98,7 +99,7 @@ class Shoutout extends Model implements Feedable
 
     public function getLikeCountAttribute()
     {
-        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $count = Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         if($count >1000000)
         {
@@ -133,6 +134,10 @@ class Shoutout extends Model implements Feedable
         $meta = [];
         $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 67c748d6448b71852e1d2eb9c17b88bccc424f29
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutout' ,request()->user()->profile->id);
@@ -167,8 +172,8 @@ class Shoutout extends Model implements Feedable
         }
         $key = $prefix . ":small:" . $owner->id;
 
-        if(!\Redis::exists($key)){
-            \Redis::set($key, $owner->toJson());
+        if(!Redis::exists($key)){
+            Redis::set($key, $owner->toJson());
         }
 
         return [$prefix => $key];

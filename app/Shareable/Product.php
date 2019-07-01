@@ -7,6 +7,7 @@ use App\PeopleLike;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\Shareable\Share;
+use Illuminate\Support\Facades\Redis;
 
 
 class Product extends Share
@@ -53,8 +54,8 @@ class Product extends Share
         $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
         $key = "meta:productShare:likes:" . $this->id;
 
-        $meta['hasLiked'] = \Redis::sIsMember($key,request()->user()->profile->id) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'productShare' ,request()->user()->profile->id);

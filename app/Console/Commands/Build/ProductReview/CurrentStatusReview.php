@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\ProductReview;
 
 use App\Collaborate;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class CurrentStatusReview extends Command
 {
@@ -42,10 +43,10 @@ class CurrentStatusReview extends Command
         foreach ($models as $model)
         {
             echo "batch id is ".$model->batch_id." profile id ".$model->profile_id."\n";
-            \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,0);
+            Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,0);
             if($model->begin_tasting == 1)
             {
-                \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,1);
+                Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,1);
             }
             $currentStatus = \DB::table('collaborate_tasting_user_review')->where('batch_id',$model->batch_id)
                 ->where('profile_id',$model->profile_id)->first();
@@ -54,11 +55,11 @@ class CurrentStatusReview extends Command
 //                    echo "profile id ".$model->profile_id." batch id ".$model->batch_id." current status .".$currentStatus->current_status."\n";
                 if($currentStatus->current_status == 3)
                 {
-                    \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,3);
+                    Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,3);
                 }
                 else
                 {
-                    \Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,2);
+                    Redis::set("current_status:batch:$model->batch_id:profile:$model->profile_id" ,2);
                 }
             }
         }
