@@ -320,8 +320,8 @@ class Photo extends Model implements Feedable
     }
     public function getImageMetaAttribute($value)
     {
-        if($value === null){
-            if($this->images === null)
+        if($value === null || !isset($this->images)){
+            if($this->images === null || count(json_decode($this->images))===0)
                 return null;
             else
                 return json_encode(json_decode($this->images)[0]);

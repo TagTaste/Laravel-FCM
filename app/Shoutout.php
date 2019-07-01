@@ -279,7 +279,7 @@ class Shoutout extends Model implements Feedable
             return  $this->preview["title"];
         }
 
-        return substr($this->getContent($this->content),0,155);
+        return $this->getContent($this->content)!=null ? substr($this->getContent($this->content),0,155) : "Checkout this post by ".$this->owner->name;
     }
 
     public function getOgDescription()
@@ -296,7 +296,7 @@ class Shoutout extends Model implements Feedable
             return  isset($this->preview["image"])?$this->preview["image"]:null;
         }
         if($this->media_url != null) {
-            $thumbnail = $this->media_json->thumbnail;
+            $thumbnail = isset($this->media_json->thumbnail) ? $this->media_json->thumbnail : null;
             return $thumbnail;
         }
         return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';

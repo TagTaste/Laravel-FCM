@@ -153,13 +153,13 @@ class Deeplink
             if($model->media_url != null && $model->content !=  null){
                 return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste.";
             }
-            return "Checkout this post by ".$model->owner->name." on TagTaste.";
+            return substr($model->content,0,155)."\n Checkout this post by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return $caption."\n Checkout this photo by ".$model->owner->name." on TagTaste.";
+            return substr($caption,0,155)."\n Checkout this photo by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getPollingText($model){
@@ -169,18 +169,18 @@ class Deeplink
 
     public static function getCollaborateText($model)
     {
-        return $model->description." checkout this post by ".$model->owner->name." on TagTaste.";
+        return substr($model->description,0,155)." checkout this collaborate by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getProductText($model)
     {
-        return $model->description." Checkout this post by ".$model->company_name." on TagTaste.";
+        return substr($model->description,0,155)." Checkout this product by ".$model->company_name." on TagTaste.";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this profile on TagTaste.";
+            return substr($model->about,0,155)." checkout this profile on TagTaste.";
         else
             return "Checkout this profile on TagTaste.";
 
@@ -189,7 +189,7 @@ class Deeplink
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this company on TagTaste.";
+            return substr($model->about,0,155)." checkout this company on TagTaste.";
         else
             return "Checkout this company on TagTaste.";
     }
