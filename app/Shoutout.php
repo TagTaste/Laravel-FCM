@@ -249,7 +249,7 @@ class Shoutout extends Model implements Feedable
             return  $this->preview["title"];
         }
 
-        return substr($this->getContent($this->content),0,155);
+        return $this->getContent($this->content)!=null ? substr($this->getContent($this->content),0,155) : "Checkout this post by ".$this->owner->name;
     }
 
     public function getOgDescription()
