@@ -153,7 +153,7 @@ class Deeplink
             if($model->media_url != null && $model->content !=  null){
                 return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste.";
             }
-            return "Checkout this post by ".$model->owner->name." on TagTaste.";
+            return substr($model->content,0,155)."\n Checkout this post by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getPhotoText($model)
