@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Build\Suggestion\SuggestionToDatabase;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Command
 {
@@ -52,12 +53,12 @@ class Collaborate extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('collaborate_id');
                         foreach ($x as $y)
                         {
-                            \Redis::sAdd('suggested:collaborate:'.$model->id,$y);
+                            Redis::sAdd('suggested:collaborate:'.$model->id,$y);
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar collaborate ids
-                    $collaborateIds = \Redis::sMembers('suggested:collaborate:'.$model->id);
+                    $collaborateIds = Redis::sMembers('suggested:collaborate:'.$model->id);
                     $collaborateIdsCsc = '';
                     $index = 0;
                     foreach ($collaborateIds as $collaborateId)
@@ -97,12 +98,12 @@ class Collaborate extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('collaborate_id');
                         foreach ($x as $y)
                         {
-                            \Redis::sAdd('suggested:collaborate:'.$model->id,$y);
+                            Redis::sAdd('suggested:collaborate:'.$model->id,$y);
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar collaborate ids
-                    $collaborateIds = \Redis::sMembers('suggested:collaborate:'.$model->id);
+                    $collaborateIds = Redis::sMembers('suggested:collaborate:'.$model->id);
                     $collaborateIdsCsc = '';
                     $index = 0;
                     foreach ($collaborateIds as $collaborateId)

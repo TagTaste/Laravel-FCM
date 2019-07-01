@@ -7,6 +7,7 @@ use App\Recipe\Profile;
 use App\SearchClient;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class OnboardingController extends Controller
 {
@@ -54,7 +55,7 @@ class OnboardingController extends Controller
         $data = [];
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         $profileData = [];
@@ -66,7 +67,7 @@ class OnboardingController extends Controller
                     continue;
                 }
                 $profile = json_decode($profile);
-                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                 $profile->self = false;
                 $profileData[] = $profile;
                 $i++;
@@ -95,7 +96,7 @@ class OnboardingController extends Controller
 
         if(count($foundationTeamIds)> 0)
         {
-            $data = \Redis::mget($foundationTeamIds);
+            $data = Redis::mget($foundationTeamIds);
 
         }
         $profileData = [];
@@ -106,7 +107,7 @@ class OnboardingController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
             $profileData[] = $profile;
         }
@@ -127,7 +128,7 @@ class OnboardingController extends Controller
 
         if(count($activityBasedIds)> 0)
         {
-            $data = \Redis::mget($activityBasedIds);
+            $data = Redis::mget($activityBasedIds);
 
         }
         $profileData = [];
@@ -138,7 +139,7 @@ class OnboardingController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
             $profileData[] = $profile;
         }
@@ -154,14 +155,14 @@ class OnboardingController extends Controller
         {
             $companyId = "company:small:" . $companyId;
         }
-        $data = \Redis::mget($companyIds);
+        $data = Redis::mget($companyIds);
         foreach($data as $key => &$company){
             if(is_null($company)){
                 unset($data[$key]);
                 continue;
             }
             $company = json_decode($company);
-            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+            $company->isFollowing = Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
             $companyData[] = $company;
         }
 //        $this->model['company'] = $companyData;

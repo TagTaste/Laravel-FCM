@@ -54,7 +54,6 @@ class PublicReviewProduct extends Model
     public function addToCache()
     {
         Redis::set("public-review/product:" . $this->id,$this->makeHidden(['overall_rating','current_status'])->toJson());
-
     }
 
     public function addToCacheV2()

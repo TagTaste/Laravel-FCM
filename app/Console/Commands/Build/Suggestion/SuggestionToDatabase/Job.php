@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Build\Suggestion\SuggestionToDatabase;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Job extends Command
 {
@@ -55,14 +56,14 @@ class Job extends Command
                             $hasApplied = \DB::table('applications')->where('job_id',$y)->where('profile_id',$model->id)->exists();
                             if(!$hasApplied)
                             {
-                                \Redis::sAdd('suggested:job:'.$model->id,$y);
+                                Redis::sAdd('suggested:job:'.$model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar company ids
-                    $jobIds = \Redis::sMembers('suggested:job:'.$model->id);
+                    $jobIds = Redis::sMembers('suggested:job:'.$model->id);
                     $jobIdsCsc = '';
                     $index = 0;
                     foreach ($jobIds as $jobId)
@@ -106,14 +107,14 @@ class Job extends Command
                             $hasApplied = \DB::table('applications')->where('job_id',$y)->where('profile_id',$model->id)->exists();
                             if(!$hasApplied)
                             {
-                                \Redis::sAdd('suggested:job:'.$model->id,$y);
+                                Redis::sAdd('suggested:job:'.$model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar company ids
-                    $jobIds = \Redis::sMembers('suggested:job:'.$model->id);
+                    $jobIds = Redis::sMembers('suggested:job:'.$model->id);
                     $jobIdsCsc = '';
                     $index = 0;
                     foreach ($jobIds as $jobId)

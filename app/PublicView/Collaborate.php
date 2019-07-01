@@ -6,6 +6,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Collaborate as BaseCollaborate;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends BaseCollaborate
 {
@@ -42,7 +43,7 @@ class Collaborate extends BaseCollaborate
     {
         $meta = [];
         $key = "meta:collaborate:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }

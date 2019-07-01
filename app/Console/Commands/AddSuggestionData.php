@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class AddSuggestionData extends Command
 {
@@ -51,16 +52,16 @@ class AddSuggestionData extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('profile_id');
                         foreach ($x as $y)
                         {
-                            if(!\Redis::sIsMember('following:profile:'. $model->id, $y))
+                            if(!Redis::sIsMember('following:profile:'. $model->id, $y))
                             {
-                                \Redis::sAdd('suggested:profile:'. $model->id,$y);
+                                Redis::sAdd('suggested:profile:'. $model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar profile ids
-                    $profileids = \Redis::sMembers('suggested:profile:'. $model->id);
+                    $profileids = Redis::sMembers('suggested:profile:'. $model->id);
                     $profileidsCsv = '';
                     $index = 0;
                     foreach ($profileids as $profileid)
@@ -72,7 +73,7 @@ class AddSuggestionData extends Command
                     }
                     if($index < 20)
                     {
-                        $profileids = \Redis::sMembers('following:profile:'.$model->id);
+                        $profileids = Redis::sMembers('following:profile:'.$model->id);
                         $profileids = \DB::table('profiles')->select('id')->whereNotIn('id',$profileids)->whereNull('deleted_at')->inRandomOrder()->take(20 - $index)->get();
                         foreach ($profileids as $profileid)
                         {
@@ -91,21 +92,21 @@ class AddSuggestionData extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('profile_id');
                         foreach ($x as $y)
                         {
-                            if(!\Redis::sIsMember('following:profile:'. $model->id, $y))
+                            if(!Redis::sIsMember('following:profile:'. $model->id, $y))
                             {
-                                \Redis::sAdd('suggested:profile:'. $model->id,$y);
+                                Redis::sAdd('suggested:profile:'. $model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar profile ids
-                    $profileids = \Redis::sMembers('suggested:profile:'. $model->id);
+                    $profileids = Redis::sMembers('suggested:profile:'. $model->id);
                     $profileidsCsv = '';
                     $index = 0;
                     foreach ($profileids as $profileid)
                     {
-                        \Redis::sAdd('suggested:profile:'. $model->id,$profileid);
+                        Redis::sAdd('suggested:profile:'. $model->id,$profileid);
                         if($index > 20)
                             break;
                         $profileidsCsv = $profileid.','.$profileidsCsv;
@@ -113,13 +114,13 @@ class AddSuggestionData extends Command
                     }
                     if($index < 20)
                     {
-                        $profileids = \Redis::sMembers('following:profile:'.$model->id);
+                        $profileids = Redis::sMembers('following:profile:'.$model->id);
 
                         $profileids = \DB::table('profiles')->select('id')->whereNotIn('id',$profileids)->whereNull('deleted_at')->inRandomOrder()->take(20 - $index)->get();
 
                         foreach ($profileids as $profileid)
                         {
-                            \Redis::sAdd('suggested:profile:'. $model->id,$profileid->id);
+                            Redis::sAdd('suggested:profile:'. $model->id,$profileid->id);
                             $profileidsCsv = $profileid->id.','.$profileidsCsv;
                         }
                     }
@@ -143,16 +144,16 @@ class AddSuggestionData extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
                         foreach ($x as $y)
                         {
-                            if(!\Redis::sIsMember('following:profile:'.$model->id, "company".$y))
+                            if(!Redis::sIsMember('following:profile:'.$model->id, "company".$y))
                             {
-                                \Redis::sAdd('suggested:company:'.$model->id,$y);
+                                Redis::sAdd('suggested:company:'.$model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar company ids
-                    $companiesIds = \Redis::sMembers('suggested:company:'.$model->id);
+                    $companiesIds = Redis::sMembers('suggested:company:'.$model->id);
                     $companiesIdsCsv = '';
                     $index = 0;
                     foreach ($companiesIds as $companiesId)
@@ -165,7 +166,7 @@ class AddSuggestionData extends Command
 
                     if($index < 20)
                     {
-                        $ids = \Redis::sMembers('following:profile:'.$model->id);
+                        $ids = Redis::sMembers('following:profile:'.$model->id);
                         $companiesIds = [];
                         foreach ($ids as $id)
                         {
@@ -193,16 +194,16 @@ class AddSuggestionData extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
                         foreach ($x as $y)
                         {
-                            if(!\Redis::sIsMember('following:profile:'.$model->id, "company".$y))
+                            if(!Redis::sIsMember('following:profile:'.$model->id, "company".$y))
                             {
-                                \Redis::sAdd('suggested:company:'.$model->id,$y);
+                                Redis::sAdd('suggested:company:'.$model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar company ids
-                    $companiesIds = \Redis::sMembers('suggested:company:'.$model->id);
+                    $companiesIds = Redis::sMembers('suggested:company:'.$model->id);
                     $companiesIdsCsv = '';
                     $index = 0;
                     foreach ($companiesIds as $companiesId)
@@ -214,7 +215,7 @@ class AddSuggestionData extends Command
                     }
                     if($index < 20)
                     {
-                        $ids = \Redis::sMembers('following:profile:'.$model->id);
+                        $ids = Redis::sMembers('following:profile:'.$model->id);
                         $companiesIds = [];
                         foreach ($ids as $id)
                         {

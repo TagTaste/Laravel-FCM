@@ -7,6 +7,7 @@ namespace App\Traits;
  * Class isCached
  * @package App\Traits
  */
+use Illuminate\Support\Facades\Redis;
 trait IsCached
 {
     public function getCacheKey() : array
@@ -14,9 +15,9 @@ trait IsCached
         $name = strtolower(class_basename($this));
         $key = $name . ":" . $this->id;
         
-        if(!\Redis::exists($key))
+        if(!Redis::exists($key))
         {
-            \Redis::set($key,$this->toJson());
+            Redis::set($key,$this->toJson());
         }
         return [$name => $key];
     }

@@ -380,10 +380,10 @@ class Company extends Model
         $this->users()->attach($user->id,['profile_id'=>$user->profile->id,'created_at'=>Carbon::now()->toDateTimeString()]);
 
 //        //companies the logged in user is following
-//        \Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
+//        Redis::sAdd("following:profile:" . $user->profile->id, "company.$this->id");
 //
 //        //profiles that are following $channelOwner
-//        \Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
+//        Redis::sAdd("followers:company:" . $this->id, $user->profile->id);
         
         //subscribe the user to the company feed
 //        $user->completeProfile->subscribe("public",$this);
@@ -450,7 +450,7 @@ class Company extends Model
     
         //if you use \App\Profile here, it would end up nesting a lot of things.
 //        $profiles = Company::getFollowers($this->id);
-        $count = \Redis::sCard("followers:company:" . $this->id);
+        $count = Redis::sCard("followers:company:" . $this->id);
 //        if($count > 1000000)
 //        {
 //            $count = round($count/1000000, 1);
@@ -469,7 +469,7 @@ class Company extends Model
     
     public static function getFollowers($id)
     {
-        $profileIds = \Redis::SMEMBERS("followers:company:" . $id);
+        $profileIds = Redis::SMEMBERS("followers:company:" . $id);
 
         foreach ($profileIds as &$profileId)
         {
@@ -477,7 +477,7 @@ class Company extends Model
         }
         $data = [];
         if(count($profileIds)) {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
         }
         $followerProfileId = request()->user()->profile->id;
         foreach ($data as &$datum)
@@ -486,7 +486,7 @@ class Company extends Model
             if(!isset($data['id'])){
                 continue;
             }
-            $datum['isFollowing'] = \Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
+            $datum['isFollowing'] = Redis::sIsMember("following:profile:" . $followerProfileId,$datum['id']) == 1;
 //            $datum['self'] = $followerProfileId === $datum['id'];
         }
         return $data;
@@ -498,12 +498,12 @@ class Company extends Model
     }
     public function isFollowing($followerProfileId = null)
     {
-        return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
+        return Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
     
     public static function checkFollowing($followerProfileId,$id)
     {
-        return \Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
+        return Redis::sIsMember("following:profile:" . $followerProfileId, "company." . $id) === 1;
     }
 
     public function getAvgRatingAttribute()

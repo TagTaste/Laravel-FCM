@@ -3,8 +3,8 @@
 namespace App\V2;
 
 use App\Channel\Payload;
-use App\Filter\People;
 use App\Interfaces\Feedable;
+use App\Filter\People;
 use App\PeopleLike;
 use App\Privacy;
 use App\Scopes\Company as ScopeCompany;

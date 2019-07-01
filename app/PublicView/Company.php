@@ -8,6 +8,7 @@ use App\Company\Type;
 use App\CompanyRating;
 use Storage;
 use App\Company as BaseCompany;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends BaseCompany
 {
@@ -163,7 +164,7 @@ class Company extends BaseCompany
 
     public function getFollowersCountAttribute()
     {
-        return \Redis::SCARD("followers:company:".$this->id);
+        return Redis::SCARD("followers:company:".$this->id);
     }
 
 }

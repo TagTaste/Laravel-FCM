@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\Suggestion;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Job extends Command
 {
@@ -42,11 +43,11 @@ class Job extends Command
             ->orderBy('id')->chunk(100,function($owners){
                 foreach ($owners as $owner)
                 {
-                    $jobIds = \Redis::sMembers('suggested:job:'.$owner->id);
+                    $jobIds = Redis::sMembers('suggested:job:'.$owner->id);
 
                     foreach ($jobIds as $jobId)
                     {
-                        \Redis::sRem('suggested:job:'.$owner->id,$jobId);
+                        Redis::sRem('suggested:job:'.$owner->id,$jobId);
                     }
                 }
             });
@@ -61,7 +62,7 @@ class Job extends Command
                         $hasApplied = \DB::table('applications')->where('job_id',$suggestedId)->where('profile_id',$owner->profile_id)->exists();
                         if(!$hasApplied)
                         {
-                            \Redis::sAdd('suggested:job:'.$owner->profile_id,$suggestedId);
+                            Redis::sAdd('suggested:job:'.$owner->profile_id,$suggestedId);
                         }
                     }
                 }
