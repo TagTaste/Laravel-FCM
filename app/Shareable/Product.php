@@ -140,7 +140,7 @@ class Product extends Share
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->product->id,
             'share_id' => $this->id,
-            'content' => null != $this->content ? $this->content : $this->photo->caption,
+            'content' => null != $this->content ? $this->content : null,
             'image' => null,
             'shared' => true
         ];
