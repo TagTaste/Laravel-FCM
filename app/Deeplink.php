@@ -169,12 +169,12 @@ class Deeplink
 
     public static function getCollaborateText($model)
     {
-        return substr($model->description,0,155)." checkout this post by ".$model->owner->name." on TagTaste.";
+        return substr($model->description,0,155)." checkout this collaborate by ".$model->owner->name." on TagTaste.";
     }
 
     public static function getProductText($model)
     {
-        return substr($model->description,0,155)." Checkout this post by ".$model->company_name." on TagTaste.";
+        return substr($model->description,0,155)." Checkout this product by ".$model->company_name." on TagTaste.";
     }
 
     public static function getProfileText($model)
