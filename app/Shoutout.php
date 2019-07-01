@@ -134,10 +134,6 @@ class Shoutout extends Model implements Feedable
         $meta = [];
         $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
-<<<<<<< HEAD
-=======
-
->>>>>>> 67c748d6448b71852e1d2eb9c17b88bccc424f29
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutout' ,request()->user()->profile->id);
