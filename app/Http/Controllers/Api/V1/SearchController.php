@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -1038,11 +1039,13 @@ class SearchController extends Controller
         /* ui type = 9 is start */
 
 
-        $products = PublicReviewProduct::where('mark_featured',1)->where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
+        //$products = PublicReviewProduct::where('mark_featured',1)->where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
+        $products = DB::select('select * from public_review_products left join (select distinct(product_id) from public_review_product_outlets) as food_panda on food_panda.product_id = public_review_products.id where is_active = 1 && mark_featured = 1 && product_id IS NULL && deleted_at IS NULL order by RAND() limit 10');
         $recommended = [];
         foreach($products as $product){
-            $meta = $product->getMetaFor($loggedInProfileId);
-            $recommended[] = ['product'=>$product,'meta'=>$meta];
+            $productModel = PublicReviewProduct::where('id',$product->id)->first();
+            $meta = $productModel->getMetaFor($loggedInProfileId);
+            $recommended[] = ['product'=>$productModel,'meta'=>$meta];
         }
         if(count($recommended))
             $model[] = ['title'=>'Featured Products','subtitle'=>'Products in focus this week','item'=>$recommended,
@@ -1069,11 +1072,13 @@ class SearchController extends Controller
 
         /* ui type = 10 is start */
 
-        $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
+        //$products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->inRandomOrder()->limit(10)->get();
+        $products = DB::select('select * from public_review_products left join (select distinct(product_id) from public_review_product_outlets) as food_panda on food_panda.product_id = public_review_products.id where is_active = 1 && product_id IS NULL && deleted_at IS NULL order by RAND() limit 10');
         $recommended = [];
         foreach($products as $product){
-            $meta = $product->getMetaFor($loggedInProfileId);
-            $recommended[] = ['product'=>$product,'meta'=>$meta];
+            $productModel = PublicReviewProduct::where('id',$product->id)->first();
+            $meta = $productModel->getMetaFor($loggedInProfileId);
+            $recommended[] = ['product'=>$productModel,'meta'=>$meta];
         }
         if(count($recommended))
             $model[] = ['title'=>'Products you\'d like to review','subtitle'=>'Based on your interests','item'=>$recommended,
@@ -1105,11 +1110,13 @@ class SearchController extends Controller
 
         /* ui type = 11 is start */
 
-        $products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->orderBy('updated_at','desc')->limit(10)->get();
+        //$products = PublicReviewProduct::where('is_active',1)->whereNull('deleted_at')->orderBy('updated_at','desc')->limit(10)->get();
+        $products = DB::select('select * from public_review_products left join (select distinct(product_id) from public_review_product_outlets) as food_panda on food_panda.product_id = public_review_products.id where is_active = 1 && product_id IS NULL && deleted_at IS NULL  order by RAND(), updated_at desc limit 10');
         $recently = [];
         foreach($products as $product){
-            $meta = $product->getMetaFor($loggedInProfileId);
-            $recently[] = ['product'=>$product,'meta'=>$meta];
+            $productModel = PublicReviewProduct::where('id',$product->id)->first();
+            $meta = $productModel->getMetaFor($loggedInProfileId);
+            $recently[] = ['product'=>$productModel,'meta'=>$meta];
         }
         if(count ($recently) != 0)
             $model[] = ['title'=>'Newly Added','subtitle'=>'Be the first one to review','item'=>$recently,

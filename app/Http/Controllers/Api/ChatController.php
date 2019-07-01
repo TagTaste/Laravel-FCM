@@ -361,7 +361,7 @@ class ChatController extends Controller
     }
 
     public function featureMessage(Request $request,$feature,$featureId)
-    {   
+    {
         $model = $this->getModel($feature,$featureId);
         if(empty($model))
         {

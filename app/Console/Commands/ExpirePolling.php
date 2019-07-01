@@ -39,9 +39,9 @@ class ExpirePolling extends Command
                 foreach($models as $model){
                     echo $model->id . "\n";
                     $model->update(['expired_time'=>Carbon::now()->toDateTimeString(),'is_expired'=>1]);
-                    $model->removeFromCache();
-                    $model->options()->delete();
-                    $model->delete();
+//                    $model->removeFromCache();
+//                    $model->options()->delete();
+//                    $model->delete();
                 }
             });
 

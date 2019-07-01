@@ -49,27 +49,27 @@ class Polling extends Share
         return $meta;
     }
 
-//    public function getMetaForPublic(){
-//        $meta = [];
-//        $key = "meta:collaborateShare:likes:" . $this->id;
-//
-//        $meta['likeCount'] = \Redis::sCard($key);
-//
-//        $meta['commentCount'] = $this->comments()->count();
-//
-//        return $meta;
-//    }
+    public function getMetaForPublic(){
+        $meta = [];
+        $key = "meta:collaborateShare:likes:" . $this->id;
 
-//    public function getNotificationContent()
-//    {
-//        return [
-//            'name' => strtolower(class_basename(self::class)),
-//            'id' => $this->collaborate->id,
-//            'share_id' => $this->id,
-//            'content' => null != $this->content ? $this->content : $this->collaborate->looking_for,
-//            'image' => null,
-//            'shared' => true
-//        ];
-//    }
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $meta['commentCount'] = $this->comments()->count();
+
+        return $meta;
+    }
+
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->polling->id,
+            'share_id' => $this->id,
+            'content' => null != $this->content ? $this->content : null,
+            'image' => null,
+            'shared' => true
+        ];
+    }
 
 }

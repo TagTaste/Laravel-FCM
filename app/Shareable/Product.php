@@ -51,6 +51,16 @@ class Product extends Share
         $meta = [];
         $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
         $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        $key = "meta:productShare:likes:" . $this->id;
+
+        $meta['hasLiked'] = \Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $peopleLike = new PeopleLike();
+        $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'productShare' ,request()->user()->profile->id);
+
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
         return $meta;
     }
 
@@ -119,5 +129,30 @@ class Product extends Share
                 return '#305D03';
         }
     }
+    public function like()
+    {
+        return $this->hasMany(\App\Shareable\Sharelikable\Product::class,'public_review_share_id');
+    }
 
+    public function getNotificationContent()
+    {
+        return [
+            'name' => strtolower(class_basename(self::class)),
+            'id' => $this->product->id,
+            'share_id' => $this->id,
+            'content' => null != $this->content ? $this->content : $this->photo->caption,
+            'image' => null,
+            'shared' => true
+        ];
+    }
+    public function getMetaForPublic(){
+        $meta = [];
+        $key = "meta:productShare:likes:" . $this->id;
+
+        $meta['likeCount'] = \Redis::sCard($key);
+
+        $meta['commentCount'] = $this->comments()->count();
+
+        return $meta;
+    }
 }

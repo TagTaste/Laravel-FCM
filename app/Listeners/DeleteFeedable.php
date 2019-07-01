@@ -31,9 +31,11 @@ class DeleteFeedable
         if(method_exists($event->model,'payload')){
             $class = "\\App\\Shareable\\" . ucwords(class_basename($event->model));
             $model = lcfirst(class_basename($event->model));
+            Payload::where("payload->$model","$model:".$event->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
+            if($model === 'polling')
+                $model = 'poll';
             $class::where($model.'_id', $event->model->id)
             ->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
-            Payload::where("payload->$model","$model:".$event->model->id)->update(['deleted_at'=>\Carbon\Carbon::now()->toDateTimeString()]);
 
 //            $response = $event->model->payload->delete();
 

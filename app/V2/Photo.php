@@ -25,12 +25,12 @@ class Photo extends Model implements Feedable
 
     use IdentifiesOwner, CachedPayload;
 
-    protected $fillable = ['caption','privacy_id','payload_id','images'];
+    protected $fillable = ['caption','privacy_id','payload_id','images','image_meta'];
 
     protected $visible = ['id','caption','likeCount',
         'created_at','comments',
         'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','images'];
+        'owner','nextPhotoId','previousPhotoId','images','image_meta'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -305,6 +305,35 @@ class Photo extends Model implements Feedable
         {
             return null;
         }
+    }
+
+    public function getImagesAttribute($value){
+        if($value === null){
+            if($this->image_meta == null){
+                return null;
+            }
+            else{
+                return "[".$this->image_meta."]";
+            }
+        }
+        else{
+            return $value;
+        }
+    }
+
+    public function getImageMetaAttribute($value)
+    {
+        if ($value === null) {
+            if ($this->images == null) {
+                return null;
+            } else {
+                if (count($this->images)>0)
+                    return json_encode($this->images[0]);
+                else
+                    return null;
+            }
+        }
+        return $value;
     }
 
 }

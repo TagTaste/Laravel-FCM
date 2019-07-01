@@ -191,7 +191,7 @@ class Company extends Model
     
     public function photos()
     {
-        return $this->belongsToMany('App\Photo','company_photos','company_id','photo_id');
+        return $this->belongsToMany('App\V2\Photo','company_photos','company_id','photo_id');
     }
 
     public function awards()
@@ -546,9 +546,9 @@ class Company extends Model
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
         $data['owner'] = $this->id;
-        $data['title'] = null;
-        $data['description'] = null;
-        $data['ogTitle'] = null;
+        $data['title'] = 'Check out '.$this->name.' on TagTaste';
+        $data['description'] = substr($this->about,0,155);
+        $data['ogTitle'] = 'Check out '.$this->name.' on TagTaste';
         $data['ogDescription'] = null;
         $data['ogImage'] = $this->logo;
         $data['cardType'] = 'summary_large_image';

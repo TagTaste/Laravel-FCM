@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Redis;
+use App\CompanyUser;
 
 class ChatController extends Controller
 {
