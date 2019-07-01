@@ -38,7 +38,7 @@ class ExpirePolling extends Command
             ->orderBy('id')->chunk(100,function($models) {
                 foreach($models as $model){
                     echo $model->id . "\n";
-                    $model->update(['expired_time'=>Carbon::now()->toDateTimeString(),'is_expired'=>7]);
+                    $model->update(['expired_time'=>Carbon::now()->toDateTimeString(),'is_expired'=>1]);
 //                    $model->removeFromCache();
 //                    $model->options()->delete();
 //                    $model->delete();
