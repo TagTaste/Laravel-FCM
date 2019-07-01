@@ -561,9 +561,9 @@ class Collaborate extends Model implements Feedable
         return !is_null($value) ? json_decode($value) : null;
     }
 
-    public function getOwnerAttribute()
-    {
-        return $this->owner();
-    }
+//    public function getOwnerAttribute()
+//    {
+//        return $this->owner();
+//    }
 
 }
