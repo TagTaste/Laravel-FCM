@@ -7,6 +7,7 @@
  */
 
 namespace App;
+use Illuminate\Support\Str;
 
 class Deeplink
 {
@@ -148,18 +149,18 @@ class Deeplink
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
-                return $description."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($description,0,155))."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
             }
             if($model->media_url != null && $model->content !=  null){
-                return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($model->content,0,155))."\n Checkout this video by ".$model->owner->name." on TagTaste. ";
             }
-            return substr($model->content,0,155)."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
+            return Str::words(substr($model->content,0,155))."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return substr($caption,0,155)."\n Checkout this photo by ".$model->owner->name." on TagTaste. ";
+            return Str::words(substr($caption,0,155))."\n Checkout this photo by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPollingText($model){
@@ -169,18 +170,18 @@ class Deeplink
 
     public static function getCollaborateText($model)
     {
-        return substr($model->description,0,155)."\n checkout this collaboration by ".$model->owner->name." on TagTaste. ";
+        return Str::words(substr($model->description,0,155))."\n checkout this collaboration by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getProductText($model)
     {
-        return substr($model->description,0,155)."\n Checkout ".$model->name." by ".$model->company_name." on TagTaste. ";
+        return Str::words(substr($model->description,0,155))."\n Checkout ".$model->name." by ".$model->company_name." on TagTaste. ";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return substr($model->about,0,155)."\n checkout this profile on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."\n checkout this profile on TagTaste. ";
         else
             return "Checkout this profile on TagTaste. ";
 
@@ -189,7 +190,7 @@ class Deeplink
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return substr($model->about,0,155)."\n checkout this company on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."\n checkout this company on TagTaste. ";
         else
             return "Checkout this company on TagTaste. ";
     }
