@@ -216,11 +216,12 @@ class Photo extends Model implements Feedable
 
     public function getNotificationContent()
     {
+        $image = $this->images[0]->original_photo;
         return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->caption,
-            'image' => $this->photoUrl
+            'image' => $image
         ];
     }
 
