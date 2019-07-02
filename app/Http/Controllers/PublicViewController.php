@@ -46,7 +46,6 @@ class PublicViewController extends Controller
         if(isset($model->caption) && isset($model->caption['text'])) {
             $model->caption = $this->getContentForHTML($model->caption);
         }
-
         $meta = $model->getMetaForPublic();
         $this->model = [$modelName=>$model,'meta'=>$meta];
         $socialPreview = $model->getPreviewContent();
@@ -54,8 +53,7 @@ class PublicViewController extends Controller
         $this->model['social'] = [];
         $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id);
         $this->model['social']['deeplink_text'] = Deeplink::getDeepLinkText($modelName,$model);
-        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName,
-            $this->model['social']['deeplink'],$this->model['social']['deeplink_text']);
+        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName, $this->model['social']['deeplink'],$this->model['social']['deeplink_text']);
         return response()->json(['data'=>$this->model]);
     }
 
@@ -91,18 +89,15 @@ class PublicViewController extends Controller
         $this->model['shared'] = $sharedModel;
         $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
         $this->model['type'] = $modelName;
-        $this->model[$modelName] = $model;
+        $this->model[$modelName] = (array) $model;
         $this->model['meta']= $sharedModel->getMetaForPublic();
         $socialPreview = $model->getPreviewContent();
         $socialPreview['ogUrl'] = Deeplink::getActualUrl($modelName, $id, true, $sharedId);
         $this->model['social'] = [];
         $this->model['social']['deeplink'] = Deeplink::getShortLink($modelName, $id, true, $sharedId);
         $this->model['social']['deeplink_text'] = Deeplink::getDeepLinkText($modelName,$model);
-        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName,
-            $this->model['social']['deeplink'],$this->model['social']['deeplink_text']);
-
-        return response()->json(['data'=>$this->model]);
-
+        $this->model['social']['metaTags'] = $this->getSocialPreview($socialPreview,$modelName, $this->model['social']['deeplink'],$this->model['social']['deeplink_text']);
+        return response()->json(['data' => $this->model]);
     }
 
     private function getSocialPreview($preview,$modelName,$deepLink,$deepLinkText) : array

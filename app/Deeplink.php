@@ -8,7 +8,6 @@
 
 namespace App;
 
-
 class Deeplink
 {
     private $model;
@@ -117,16 +116,15 @@ class Deeplink
                 case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
                 case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
-                case 'company':     return env('APP_URL')."/company/$modelId";
+                case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
             }
         }
     }
-
     public static function getDeepLinkText($modelName,$model)
     {
-        if(isset($model->owner->name) || $modelName == 'product')
+        if( $modelName == 'product' || $modelName == 'profile' || isset($model->owner->name) || $modelName =='company')
         {
             switch ($modelName) {
                 case 'photo':       return Deeplink::getPhotoText($model);
@@ -144,55 +142,55 @@ class Deeplink
 
     public static function getShoutoutText($model)
     {
-        if(isset($model->preview) && isset($model->owner->name) && !is_null($model->content) && strlen($model->content))
-            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
-        else if(isset($model->preview->title) && isset($model->owner->name))
-            return $model->preview->title." checkout this post by ".$model->owner->name." on TagTaste.";
-        else if(is_null($model->content) && isset($model->thumbnail))
-            return "Checkout this video by ".$model->owner->name." on TagTaste.";
-        else if(!is_null($model->content) && strlen($model->content) && isset($model->owner->name))
-            return $model->content." checkout this post by ".$model->owner->name." on TagTaste.";
-        else
-            return "Checkout this post by ".$model->owner->name." on TagTaste.";
+            if($model->preview != null){
+                if(!is_null($model->content) && strlen($model->content)) {
+                    $description = $model->content;
+                } else {
+                    $description = isset($model->preview["description"])?$model->preview["description"]:null;
+                }
+                return $description."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
+            }
+            if($model->media_url != null && $model->content !=  null){
+                return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste. ";
+            }
+            return substr($model->content,0,155)."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPhotoText($model)
     {
-        if(!is_null($model->caption) && strlen($model->caption))
-            return $model->caption." checkout this photo by ".$model->owner->name." on TagTaste.";
-        else
-            return "Checkout this photo by ".$model->owner->name." on TagTaste.";
+        $caption = $model->caption;
+            return substr($caption,0,155)."\n Checkout this photo by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPollingText($model){
 
-            return "Checkout this poll by ".$model->owner->name." on TagTaste";
+        return "Checkout this poll by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getCollaborateText($model)
     {
-        return $model->description." checkout this post by ".$model->owner->name." on TagTaste.";
+        return substr($model->description,0,155)."\n checkout this collaboration by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getProductText($model)
     {
-        return "Checkout this post by ".$model->company_name." on TagTaste.";
+        return substr($model->description,0,155)."\n Checkout ".$model->name." by ".$model->company_name." on TagTaste. ";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this profile on TagTaste.";
+            return substr($model->about,0,155)."\n checkout this profile on TagTaste. ";
         else
-            return "Checkout this profile on TagTaste.";
+            return "Checkout this profile on TagTaste. ";
 
     }
 
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this company on TagTaste.";
+            return substr($model->about,0,155)."\n checkout this company on TagTaste. ";
         else
-            return "Checkout this company on TagTaste.";
+            return "Checkout this company on TagTaste. ";
     }
 }

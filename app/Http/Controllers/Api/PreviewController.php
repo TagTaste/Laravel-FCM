@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Collaborate;
 use App\Deeplink;
 use Illuminate\Http\Request;
+use App\Traits\GetTags;
+use App\Traits\HasPreviewContent;
 
 class PreviewController extends Controller
 {
+    use GetTags, HasPreviewContent;
     private function getModel(&$modelName, &$id)
     {
         if($modelName == 'product')
@@ -23,9 +26,15 @@ class PreviewController extends Controller
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
-        $modelData = $model;
         $data = $model->getPreviewContent();
         $deepLink = Deeplink::getShortLink($modelName, $modelId);
+        $modelData = $model;
+        if(isset($modelData->caption)) {
+            $modelData->caption = $this->getContent($modelData->caption);
+        }
+        if(isset($modelData->content)) {
+            $modelData->content = $this->getContent($modelData->content);
+        }
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
@@ -55,7 +64,7 @@ class PreviewController extends Controller
             return $this->sendError("Nothing found for given Id.");
         }
         $data = $model->getPreviewContent();
-
+        $modelData = $model;
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
@@ -68,7 +77,7 @@ class PreviewController extends Controller
             'model' => ucwords($modelName),
             'isShared' => true,
             'shareTypeID' => $shareId,
-
+            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
         ];
 
         $this->model = $res;

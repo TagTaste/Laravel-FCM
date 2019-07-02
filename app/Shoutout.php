@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-
 class Shoutout extends Model implements Feedable
 {
     use IdentifiesOwner, CachedPayload, SoftDeletes, GetTags, HasPreviewContent;
@@ -204,26 +203,11 @@ class Shoutout extends Model implements Feedable
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['owner'] = $profile->id;
-        $data['title'] = null;
-        $data['description'] = null;
-        $data['ogTitle'] = $data['title'];
-        $data['ogDescription'] = $data['description'];
-        $data['ogImage'] = null;
-        if($preview != null)
-        {
-            $data['title'] = isset($preview->title) ? $preview->title : $profile->name.' has posted on TagTaste';
-            $data['description'] = isset($preview->url) ? $preview->url : substr($content,0,155);
-            $data['ogTitle'] = $data['title'];
-            $data['ogDescription'] = $data['description'];
-            $data['ogImage'] = isset($preview->image) ? $preview->image :
-                'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
-        }
-        else if(strlen($content))
-        {
-            $data['title'] = substr($content,0,155);
-            $data['ogTitle'] = $data['title'];
-            $data['ogImage'] = 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
-        }
+        $data['title'] = $profile->name.' has posted on TagTaste';
+        $data['description'] = substr($content,0,155);
+        $data['ogTitle'] = $this->getOgTitle();
+        $data['ogDescription'] = $this->getOgDescription();
+        $data['ogImage'] = $this->getOgImage();
         $data['cardType'] = 'summary';
         $data['ogUrl'] = env('APP_URL').'/preview/shoutout/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/feed/view/shoutout/'.$this->id;
@@ -257,5 +241,34 @@ class Shoutout extends Model implements Feedable
     public function getmediaJsonAttribute($value)
     {
         return json_decode($value);
+    }
+
+    public function getOgTitle()
+    {
+        if($this->preview != null) {
+            return  $this->preview["title"];
+        }
+
+        return $this->getContent($this->content)!=null ? substr($this->getContent($this->content),0,155) : "Checkout this post by ".$this->owner->name;
+    }
+
+    public function getOgDescription()
+    {
+        if($this->preview != null) {
+            return  $this->preview["url"];
+        }
+        return null;
+    }
+
+    public function getOgImage()
+    {
+        if($this->preview != null) {
+            return  isset($this->preview["image"])?$this->preview["image"]:null;
+        }
+        if($this->media_url != null) {
+            $thumbnail = isset($this->media_json->thumbnail) ? $this->media_json->thumbnail : null;
+            return $thumbnail;
+        }
+        return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
     }
 }
