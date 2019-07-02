@@ -145,6 +145,8 @@ class Deeplink
     {
             if(is_array($model->content)){
                 $content = $model->content['text'];
+            } else {
+                $content = $model->content;
             }
             if($model->preview != null){
                 if(!is_null($content) && strlen($content)) {
