@@ -169,18 +169,18 @@ class Deeplink
 
     public static function getCollaborateText($model)
     {
-        return substr($model->description,0,155)." checkout this collaborate by ".$model->owner->name." on TagTaste. ";
+        return substr($model->description,0,155)."\n checkout this collaboration by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getProductText($model)
     {
-        return substr($model->description,0,155)." Checkout ".$model->name." by ".$model->company_name." on TagTaste. ";
+        return substr($model->description,0,155)."\n Checkout ".$model->name." by ".$model->company_name." on TagTaste. ";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return substr($model->about,0,155)." checkout this profile on TagTaste. ";
+            return substr($model->about,0,155)."\n checkout this profile on TagTaste. ";
         else
             return "Checkout this profile on TagTaste. ";
 
@@ -189,7 +189,7 @@ class Deeplink
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return substr($model->about,0,155)." checkout this company on TagTaste. ";
+            return substr($model->about,0,155)."\n checkout this company on TagTaste. ";
         else
             return "Checkout this company on TagTaste. ";
     }
