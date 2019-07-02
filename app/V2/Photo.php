@@ -251,7 +251,7 @@ class Photo extends Model implements Feedable
 
     public function getCaptionAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
         if($profiles){
             $value = ['text'=>$value,'profiles'=>$profiles];
