@@ -143,18 +143,21 @@ class Deeplink
 
     public static function getShoutoutText($model)
     {
+            if(is_array($model->content)){
+                $content = $model->content['text'];
+            }
             if($model->preview != null){
-                if(!is_null($model->content) && strlen($model->content)) {
-                    $description = $model->content;
+                if(!is_null($content) && strlen($content)) {
+                    $description = $content;
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
                 return Str::words(substr($description,0,155))."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
             }
             if($model->media_url != null && $model->content !=  null){
-                return Str::words(substr($model->content,0,155))."\n Checkout this video by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($content,0,155))."\n Checkout this video by ".$model->owner->name." on TagTaste. ";
             }
-            return Str::words(substr($model->content,0,155))."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
+            return Str::words(substr($content,0,155))."\n Checkout this post by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPhotoText($model)
