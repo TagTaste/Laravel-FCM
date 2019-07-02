@@ -71,15 +71,21 @@ class Company extends BaseCompany
 
     public function getIsFollowingAttribute()
     {
+        if (is_null(request()->user())) {
+            return False;
+        }
         return $this->isFollowing(request()->user()->profile->id);
     }
     public function isFollowing($followerProfileId = null)
     {
-        return \Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
+        return Redis::sIsMember("following:profile:" . $followerProfileId,"company." . $this->id) === 1;
     }
 
     public function getIsAdminAttribute()
     {
+        if (is_null(request()->user())) {
+            return False;
+        }
         $userId = request()->user()->id;
         return $this->users()->where('user_id','=',$userId)->exists();
     }
