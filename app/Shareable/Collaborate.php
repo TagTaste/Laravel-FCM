@@ -49,7 +49,6 @@ class Collaborate extends Share
     public function getMetaForV2($profileId) {
         $meta = [];
         $key = "meta:collaborateShare:likes:" . $this->id;
-    
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
