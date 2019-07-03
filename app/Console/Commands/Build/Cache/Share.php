@@ -68,7 +68,6 @@ class Share extends Command
             }
         });
         
-        
     
         \App\Shareable\Shoutout::chunk(200,function($shares){
             foreach($shares as $share){

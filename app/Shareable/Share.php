@@ -104,12 +104,32 @@ class Share extends Model implements CommentNotification
     public function getCacheKey() : array
     {
         $name = strtolower(class_basename($this));
-        $key  =  "shared:$name:" . $this->id;
+        $key  =  "shared:$name:".$this->id;
         
-        if(!Redis::exists($key))
-        {
+        if (!Redis::exists($key)) {
             Redis::set($key,$this->toJson());
         }
+
+        $key_v2 = "shared:$name:".$this->id.":V2";
+        if (!Redis::connection('V2')->exists($key_v2)) {
+            $data = [
+                'id' => $this->id,
+                'collaborate_id' => $this->collaborate_id,
+                'photo_id' => $this->photo_id,
+                'shoutout_id' => $this->shoutout_id,
+                'product_id' => $this->product_id,
+                'profile_id' => $this->profile_id,
+                'created_at' => $this->created_at->toDateTimeString(),
+                'updated_at' => $this->updated_at->toDateTimeString()
+            ];
+            foreach ($data as $key => $value) {
+                if (is_null($value) || $value == '') {
+                    unset($data[$key]);
+                }
+            }
+            Redis::connection('V2')->set($key_v2, json_encode($data));
+        }
+        
         return [$name => $key];
     }
     
