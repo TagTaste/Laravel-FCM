@@ -167,7 +167,7 @@ class Polling extends Model implements Feedable
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['title'] = substr($this->title,0,65);
         $data['description'] = "by ".$this->profile->name;
-        $data['ogTitle'] = substr($this->title,0,65);
+        $data['ogTitle'] = "Poll: ".substr($this->title,0,65);
         $data['ogDescription'] = "by ".$this->profile->name;
         $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
