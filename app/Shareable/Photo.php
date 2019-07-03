@@ -48,7 +48,7 @@ class Photo extends Share
     public function getMetaForV2($profileId)
     {
         $meta = [];
-        $key = "meta:shoutoutShare:likes:" . $this->id;
+        $key = "meta:photoShare:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
