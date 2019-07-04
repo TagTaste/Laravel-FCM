@@ -18,8 +18,6 @@ trait IdentifiesOwner
      */
     public function getOwner()
     {
-       
-        
         if($this->getAttributeValue('company_id') !== null){
             
             //if there's a custom implementation, call that.
@@ -29,10 +27,7 @@ trait IdentifiesOwner
             }
             
             return $this->company;
-        }
-        
-       
-        if($this->getAttribute('profile_id') !== null){
+        } else if($this->getAttribute('profile_id') !== null){
             
             //there's a custom implementation, call that.
             if(method_exists($this,'getProfile')){
@@ -42,6 +37,8 @@ trait IdentifiesOwner
             }
             
             return $this->profile;
+        } else {
+            return null;
         }
         
         throw new \Exception("IdentifiesOwner Trait used, but this " . self::class . " belongs to neither Profile Nor Company");
