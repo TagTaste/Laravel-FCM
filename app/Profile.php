@@ -99,6 +99,7 @@ class Profile extends Model
             \App\Documents\Profile::create($profile);
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
             event(new SuggestionEngineEvent($profile, 'create'));
 
         });
@@ -106,6 +107,7 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
@@ -123,26 +125,59 @@ class Profile extends Model
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
-        \Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+        Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+    }
+
+    public function addToCacheV2()
+    {
+        $keyRequired = [
+            'id',
+            'user_id',
+            'name',
+            'designation',
+            'handle',
+            'tagline',
+            'image_meta',
+            'isFollowing'
+        ];
+        $data = array_intersect_key(
+            $this->toArray(), 
+            array_flip($keyRequired)
+        );
+        
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        
+        $key = "profile:small:" . $data['id'].":V2";
+        Redis::connection('V2')->set($key, json_encode($data));
     }
 
     public static function getFromCache($id)
     {
-        return \Redis::get('profile:small:' . $id);
+        return Redis::get('profile:small:' . $id);
+    }
+
+    public static function getFromCacheV2($id)
+    {
+        return Redis::connection('V2')->get('profile:small:' . $id);
     }
 
     public function removeFromCache()
     {
-        return \Redis::del('profile:small:' . $this->id);
+        Redis::connection('V2')->del('profile:small:' . $this->id.":V2");
+        return Redis::del('profile:small:' . $this->id);
     }
 
     public static function getMultipleFromCache($ids = [])
     {
+        // depricated after V2 Feed
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id;
         }
-        $profiles = \Redis::mget($ids);
+        $profiles = Redis::mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
@@ -153,18 +188,16 @@ class Profile extends Model
         return $profiles;
     }
 
-    public static function getMultipleFromCacheFeed($ids = [])
+    public static function getMultipleFromCacheV2($ids = [])
     {
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
-            $id = $keyPreifx . $id;
+            $id = $keyPreifx . $id.":V2";
         }
-        $profiles = Redis::mget($ids);
-        
+        $profiles = Redis::connection('V2')->mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
-        
         foreach ($profiles as $index => &$profile) {
             $data = json_decode($profile);
             $profile = array(
@@ -172,11 +205,11 @@ class Profile extends Model
                 "name" => $data->name,
                 "handle" => $data->handle
             );
-            
         }
+
         return $profiles;
     }
-    
+
     public function user()
     {
         return $this->belongsTo('App\User');
@@ -226,7 +259,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
             {
                 return null;
             }
@@ -440,8 +473,8 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = \Redis::SCARD("following:profile:".$this->id);
-        if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("following:profile:".$this->id);
+        if( $count > 0 && Redis::sIsMember("following:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -478,8 +511,8 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = \Redis::SCARD("followers:profile:".$this->id);
-        if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("followers:profile:".$this->id);
+        if(Redis::sIsMember("followers:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -499,29 +532,31 @@ class Profile extends Model
 
     public function getMutualFollowersAttribute()
     {
-        if($this->id != request()->user()->profile->id)
-        {
-            $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
-            if(!count($profileIds)){
-                return ['count' => 0, 'profiles' => []];
-            }
-            $i = 0;
-            $profileInfo = [];
-            foreach ($profileIds as $profileId)
-            {
-                if($i == 5)
-                    break;
-                $profileInfo[] = "profile:small:".$profileId;
-                $i++;
-            }
-            $data = [];
-            if(count($profileInfo))
-                $data = \Redis::mget($profileInfo);
+        if (!is_null(request()->user())) {
+            if ($this->id != request()->user()->profile->id) {
+                $profileIds = Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
+                if (!count($profileIds)) {
+                    return ['count' => 0, 'profiles' => []];
+                }
 
-            foreach($data as &$profile){
-                $profile = json_decode($profile);
+                $i = 0;
+                $profileInfo = [];
+                
+                foreach ($profileIds as $profileId) {
+                    if ($i == 5)
+                        break;
+                    $profileInfo[] = "profile:small:".$profileId;
+                    $i++;
+                }
+                $data = [];
+                if (count($profileInfo))
+                    $data = Redis::mget($profileInfo);
+
+                foreach ($data as &$profile) {
+                    $profile = json_decode($profile);
+                }
+                return ['count' => count($profileIds), 'profiles' => $data];
             }
-            return ['count' => count($profileIds), 'profiles' => $data];
         }
     }
 
@@ -727,13 +762,18 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return \Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
+        return Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
     public function getIsFollowedByAttribute()
     {
-        return \Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+        if (!is_null(request()->user())) {
+            return Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+        } else {
+            return false;
+        }
+        
     }
 
     //specific to API
@@ -754,7 +794,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
             {
                 return null;
             }
@@ -774,7 +814,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
             {
                 return null;
             }
@@ -784,7 +824,15 @@ class Profile extends Model
 
     public function getNotificationCountAttribute()
     {
-        return \DB::table('notifications')->whereNull('last_seen')->where('notifiable_id',request()->user()->profile->id)->count();
+        if (!is_null(request()->user())) {
+            return \DB::table('notifications')
+                ->whereNull('last_seen')
+                ->where('notifiable_id',request()->user()->profile->id)
+                ->count();
+        } else {
+            return 0;
+        }
+        
     }
 
     public function getNotificationContent($action = null)
@@ -802,19 +850,32 @@ class Profile extends Model
 
     public function getMessageCountAttribute()
     {
-        return \DB::table('message_recepients')->whereNull('last_seen')->where('recepient_id',request()->user()->profile->id)->distinct('chat_id')->count();
+        if (!is_null(request()->user())) {
+            return \DB::table('message_recepients')
+                ->whereNull('last_seen')
+                ->where('recepient_id',request()->user()->profile->id)
+                ->distinct('chat_id')
+                ->count();
+        } else {
+            return 0;
+        }
     }
 
     public function getAddPasswordAttribute()
     {
-        if(request()->user()->profile->id != $this->id)
-        {
+        if (!is_null(request()->user())) {
+            if(request()->user()->profile->id != $this->id) {
+                return false;
+            } else {
+                return \DB::table('users')
+                    ->whereNull('password')
+                    ->where('id',request()->user()->id)
+                    ->exists();
+            } 
+        } else {
             return false;
         }
-        else
-        {
-            return \DB::table('users')->whereNull('password')->where('id',request()->user()->id)->exists();
-        }
+        
     }
 
     public function routeNotificationForMail()
@@ -824,7 +885,15 @@ class Profile extends Model
 
     public function getUnreadNotificationCountAttribute()
     {
-        return \DB::table('notifications')->whereNull('read_at')->where('notifiable_id',request()->user()->profile->id)->count();
+        if (!is_null(request()->user())) {
+            return \DB::table('notifications')
+                ->whereNull('read_at')
+                ->where('notifiable_id',request()->user()->profile->id)
+                ->count();
+        } else {
+            return 0;
+        }
+        
     }
 
     public function getPreviewContent()
@@ -836,7 +905,7 @@ class Profile extends Model
         $data['title'] = 'Check out '.$this->name.'\'s profile on TagTaste';
         $data['description'] = substr($this->tagline,0,155);
         $data['ogTitle'] = 'Check out '.$this->name.'\'s profile on TagTaste';
-        $data['ogDescription'] = substr($this->tagline,0,155);
+        $data['ogDescription'] = null;
         $data['ogImage'] = $this->imageUrl;
         $data['cardType'] = 'summary_large_image';
         $data['ogUrl'] = env('APP_URL').'/profile/'.$this->id;
@@ -851,78 +920,103 @@ class Profile extends Model
 
     public function getremainingMessagesAttribute()
     {
-        if(request()->user()->profile->id == $this->id)
-        {
-            $remaining = \DB::table('chat_limits')->where('profile_id',$this->id)->first();
-            return isset($remaining) ? $remaining : null;
+        if (!is_null(request()->user())) { 
+            if(request()->user()->profile->id == $this->id)
+            {
+                $remaining = \DB::table('chat_limits')->where('profile_id',$this->id)->first();
+                return isset($remaining) ? $remaining : null;
+            }
+        } else {
+            return null;
         }
     }
 
     public function getIsMessageAbleAttribute()
     {
-        $chat = Chat::open($this->id,request()->user()->profile->id);
-        return is_null($chat) ? false : true;
+        if (!is_null(request()->user())) {
+            $chat = Chat::open($this->id,request()->user()->profile->id);
+            return is_null($chat) ? false : true;
+        } else {
+            return false;
+        }
+       
     }
 
     public function getProfileCompletionAttribute()
     {
-        if(request()->user()->profile->id == $this->id)
-        {
-            $remaningMandatoryItem = [];
-            $remaningOptionalItem = [];
-            $profileCompletionMandatoryFieldForCollaborationApply = [];
-            $index = 0;
-            if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
+        if (!is_null(request()->user())) {
+            if(request()->user()->profile->id == $this->id)
             {
-                $index++;
-                $remaningMandatoryItem = ['verified_email'];
-            }
-
-            foreach ($this->profileCompletionMandatoryField as $item)
-            {
-                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                $remaningMandatoryItem = [];
+                $remaningOptionalItem = [];
+                $profileCompletionMandatoryFieldForCollaborationApply = [];
+                $index = 0;
+                if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
                 {
                     $index++;
-                    $remaningMandatoryItem[] = $item;
+                    $remaningMandatoryItem = ['verified_email'];
                 }
-            }
 
-            foreach ($this->profileCompletionOptionalField as $item)
-            {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                foreach ($this->profileCompletionMandatoryField as $item)
                 {
-                    $index++;
-                    $remaningOptionalItem[] = $item;
+                    if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    {
+                        $index++;
+                        $remaningMandatoryItem[] = $item;
+                    }
                 }
-            }
-            foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
-            {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
-                {
-                    $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
-                }
-            }
-            $percentage = ((30 - $index) / 30 ) * 100;
-            $profileCompletion = [
-                'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
-                'mandatory_remaining_field' => $remaningMandatoryItem,
-                'optional_remaining_field' => $remaningOptionalItem,
-                'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
-            ];
 
-            return $profileCompletion;
+                foreach ($this->profileCompletionOptionalField as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    {
+                        $index++;
+                        $remaningOptionalItem[] = $item;
+                    }
+                }
+                foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    {
+                        $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
+                    }
+                }
+                $percentage = ((30 - $index) / 30 ) * 100;
+                $profileCompletion = [
+                    'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
+                    'mandatory_remaining_field' => $remaningMandatoryItem,
+                    'optional_remaining_field' => $remaningOptionalItem,
+                    'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
+                ];
+
+                return $profileCompletion;
+            }
         }
     }
 
     public function getBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)->where('begin_tasting',1)->count();
+        if (!is_null(request()->user())) {
+            return \DB::table('collaborate_batches_assign')
+                ->where('profile_id',request()->user()->profile->id)
+                ->where('begin_tasting',1)
+                ->count();
+        } else {
+            return 0;
+        }
     }
 
     public function getNewBatchesCountAttribute()
     {
-        return \DB::table('collaborate_batches_assign')->where('profile_id',request()->user()->profile->id)
-            ->where('begin_tasting',1)->whereNull('last_seen')->count();
+        if (!is_null(request()->user())) {
+            return \DB::table('collaborate_batches_assign')
+            ->where('profile_id',request()->user()->profile->id)
+            ->where('begin_tasting',1)
+            ->whereNull('last_seen')
+            ->count();
+        } else {
+            return 0;
+        }
     }
 
     public function shippingaddress()
@@ -958,19 +1052,24 @@ class Profile extends Model
 
     public function getEstablishmentTypesAttribute()
     {
-        $establishmentTypeIds =  \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
-        return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
+        if (!is_null(request()->user())) {
+            $establishmentTypeIds = \DB::table('profile_establishment_types')->where('profile_id',request()->user()->profile->id)->get()->pluck('establishment_type_id');
+            return  \DB::table('establishment_types')->whereIn('id',$establishmentTypeIds)->get();
+        }
     }
 
     public function getInterestedCollectionsAttribute()
     {
-        $interestedCollectionIds =  \DB::table('profiles_interested_collections')->where('profile_id',request()->user()->profile->id)->get()->pluck('interested_collection_id');
-        return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
+        if (!is_null(request()->user())) {
+            $interestedCollectionIds =  \DB::table('profiles_interested_collections')->where('profile_id',request()->user()->profile->id)->get()->pluck('interested_collection_id');
+            return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
+        }
     }
 
     public function getFbInfoAttribute()
     {
-        return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
+        if (!is_null(request()->user())) {
+            return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
+        }
     }
 }
-
