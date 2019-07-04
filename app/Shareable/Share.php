@@ -56,6 +56,7 @@ class Share extends Model implements CommentNotification
         $model = class_basename($this);
         $data = [
             'id' => $this->id,
+            'content' => $this->content,
             'collaborate_id' => $this->collaborate_id,
             'photo_id' => $this->photo_id,
             'shoutout_id' => $this->shoutout_id,
@@ -114,6 +115,7 @@ class Share extends Model implements CommentNotification
         if (!Redis::connection('V2')->exists($key_v2)) {
             $data = [
                 'id' => $this->id,
+                'content' => $this->content,
                 'collaborate_id' => $this->collaborate_id,
                 'photo_id' => $this->photo_id,
                 'shoutout_id' => $this->shoutout_id,
@@ -148,10 +150,13 @@ class Share extends Model implements CommentNotification
 
     public function getContentAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
-        if($profiles){
-            $value = ['text'=>$value,'profiles'=>$profiles];
+        if ($profiles) {
+            $value = [
+                'text'=>$value,
+                'profiles'=>$profiles
+            ];
         }
         return $value;
     }
