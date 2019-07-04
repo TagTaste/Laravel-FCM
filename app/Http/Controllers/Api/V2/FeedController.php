@@ -89,11 +89,6 @@ class FeedController extends Controller
     
     private function getMeta(&$payloads, &$profileId)
     {
-//        if($payloads->count() === 0){
-//            $this->errors[] = 'No more feeds';
-//            return;
-//        }
-
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
 
@@ -118,14 +113,17 @@ class FeedController extends Controller
                 $data[$name] = json_decode($cachedData,true);
             }
 
+
             if($payload->model !== null){
                 $model = $payload->model;
+                print_r($model);
                 $type = $this->getType($payload->model);
                 $model = $model::find($payload->model_id);
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {
                     $data['meta'] = $model->getMetaForV2($profileId);
                 }
             }
+            print_r($data);
             $data['type'] = $type;
             $this->model[] = $data;
         }
