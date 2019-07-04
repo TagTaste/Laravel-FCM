@@ -4,6 +4,7 @@ namespace App\Recipe;
 
 use Storage;
 use App\Company as BaseCompany;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends BaseCompany
 {
