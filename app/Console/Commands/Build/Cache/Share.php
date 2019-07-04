@@ -86,5 +86,14 @@ class Share extends Command
                 $share->addToCacheV2();
             }
         });
+
+        \App\Shareable\Polling::chunk(200,function($shares){
+            foreach($shares as $share){
+                echo "caching shared:polling:".$share->id." \n";
+                $share->addToCache();
+                echo "caching shared:polling:".$share->id.":V2 \n\n";
+                $share->addToCacheV2();
+            }
+        });
     }
 }

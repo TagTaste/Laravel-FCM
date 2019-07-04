@@ -98,7 +98,6 @@ class FeedController extends Controller
             $data = [];
             $index++;
             $cached = json_decode($payload->payload, true);
-            
             foreach($cached as $name => $key){
                 $cachedData = null;
                 if (in_array($name, $indexTypeV2)) {
@@ -116,14 +115,12 @@ class FeedController extends Controller
 
             if($payload->model !== null){
                 $model = $payload->model;
-                print_r($model);
                 $type = $this->getType($payload->model);
                 $model = $model::find($payload->model_id);
                 if ($model !== null && method_exists($model, 'getMetaForV2')) {
                     $data['meta'] = $model->getMetaForV2($profileId);
                 }
             }
-            print_r($data);
             $data['type'] = $type;
             $this->model[] = $data;
         }
