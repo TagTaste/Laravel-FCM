@@ -102,7 +102,7 @@ class CommentController extends Controller {
         
         event(new \App\Events\Actions\Comment($model,$request->user()->profile, $comment->content, null, null, null, $comment));
         
-        if($comment->has_tags){
+        if ($comment->has_tags) {
             event(new Tag($model,$request->user()->profile,$comment->content, null, null, null, $comment));
         }
         $meta = $comment->getMetaFor($model);

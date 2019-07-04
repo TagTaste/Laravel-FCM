@@ -8,6 +8,7 @@
 
 namespace App;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 class Deeplink
 {
@@ -117,7 +118,7 @@ class Deeplink
                 case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
                 case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
-                case 'company':     return env('APP_URL')."/company/$modelId";
+                case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
             }
@@ -143,55 +144,62 @@ class Deeplink
 
     public static function getShoutoutText($model)
     {
+            if(is_array($model->content)){
+                $content = $model->content['text'];
+            } else {
+                $content = $model->content;
+            }
             if($model->preview != null){
-                if(!is_null($model->content) && strlen($model->content)) {
-                    $description = $model->content;
+                if(!is_null($content) && strlen($content)) {
+                    $description = $content;
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
-                return $description."\n Checkout this post by ".$model->owner->name." on TagTaste.";
+                return Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
             }
             if($model->media_url != null && $model->content !=  null){
-                return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste.";
+                return Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste. ";
+            } else if ($content != null) {
+               return Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
             }
-            return substr($model->content,0,155)."\n Checkout this post by ".$model->owner->name." on TagTaste.";
+        return "Checkout this post by ".$model->owner->name." on TagTaste. ";
+
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return substr($caption,0,155)."\n Checkout this photo by ".$model->owner->name." on TagTaste.";
+            return Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPollingText($model){
 
-        return "Checkout this poll by ".$model->owner->name." on TagTaste";
+        return "Checkout this poll by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getCollaborateText($model)
     {
-        return substr($model->description,0,155)." checkout this collaborate by ".$model->owner->name." on TagTaste.";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getProductText($model)
     {
-        return substr($model->description,0,155)." Checkout this product by ".$model->company_name." on TagTaste.";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste. ";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return substr($model->about,0,155)." checkout this profile on TagTaste.";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste. ";
         else
-            return "Check out this profile on TagTaste.";
-
+            return "Checkout this profile on TagTaste. ";
     }
 
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return substr($model->about,0,155)." checkout this company on TagTaste.";
+            return Str::words(substr($model->about,0,155))."...\r\ncheckout this company on TagTaste. ";
         else
-            return "Check out this company on TagTaste.";
+            return "Checkout this company on TagTaste. ";
     }
 }
