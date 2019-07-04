@@ -150,10 +150,13 @@ class Share extends Model implements CommentNotification
 
     public function getContentAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
-        if($profiles){
-            $value = ['text'=>$value,'profiles'=>$profiles];
+        if ($profiles) {
+            $value = [
+                'text'=>$value,
+                'profiles'=>$profiles
+            ];
         }
         return $value;
     }
