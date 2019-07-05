@@ -650,7 +650,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post("/preview",function(Request $request){
             $url = $request->input('url');
             $tags = \App\Preview::get($url);
-
             return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
         });
 
