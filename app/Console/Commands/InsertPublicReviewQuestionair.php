@@ -8080,7 +8080,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_raw_honey_v1','keywords'=>"generic_raw_honey_v1",'description'=>null,
+        $data = ['name'=>'generic_raw_honey_v1_2','keywords'=>"generic_raw_honey_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
