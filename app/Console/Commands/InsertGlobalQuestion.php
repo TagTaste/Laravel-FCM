@@ -63,7 +63,7 @@ class InsertGlobalQuestion extends Command
 
 
 
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."]]
+            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavors and Texture; rate the overall experience of the product on all the parameters taken together."]]
 
 
 
@@ -331,94 +331,6 @@ class InsertGlobalQuestion extends Command
 				{
 
 					"value": "Spots",
-
-					"is_intensity": 0
-
-				}
-
-			]
-
-		},
-
-		{
-
-			"title": "How does the visual texture of the product appear to you?",
-
-			"select_type": 2,
-
-			"is_intensity": 0,
-
-			"is_nested_question": 0,
-
-			"is_mandatory": 1,
-
-			"option": [{
-
-					"value": "Baked",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Roasted",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Fried",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Sticky",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Smooth",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Rough",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Crisp",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Limp",
-
-					"is_intensity": 0
-
-				},
-
-				{
-
-					"value": "Firm",
 
 					"is_intensity": 0
 
