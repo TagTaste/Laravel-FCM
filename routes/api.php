@@ -59,6 +59,7 @@ Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
+Route::get('preview/chefOfTheWeek', 'Api\PreviewController@showChefProfile');
 
 // faq question answer api
 Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAnswer');
