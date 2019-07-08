@@ -128,10 +128,10 @@ class Polling extends Model implements Feedable
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
-        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = Redis::sCard($key);
-        $meta['commentCount'] = $this->comments()->count();
-        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['like_count'] = Redis::sCard($key);
+        $meta['comment_count'] = $this->comments()->count();
+        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
