@@ -137,6 +137,7 @@ class ShareController extends Controller
         } elseif($sharedModel->profile_id){
             $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
         }
+        $this->model->addToCacheV2();
         Redis::set("shared:" . strtolower($modelName) . ":" . $this->model->id,$this->model->toJson());
         if(isset($tags) && $tags != 0){
             event(new Tag($this->model, $request->user()->profile, $this->model->content));
