@@ -201,52 +201,52 @@ class Deeplink
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
-                return Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. \r\n";
             }
             if($model->media_url != null && $model->content !=  null){
-                return Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste. \r\n";
             } else if ($content != null) {
-               return Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
+               return Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. \r\n";
             }
-        return "Checkout this post by ".$model->owner->name." on TagTaste. ";
+        return "Checkout this post by ".$model->owner->name." on TagTaste. \r\n";
 
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste. ";
+            return Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste. \r\n";
     }
 
     public static function getPollingText($model){
 
-        return "Checkout this poll by ".$model->owner->name." on TagTaste. ";
+        return "Checkout this poll by ".$model->owner->name." on TagTaste. \r\n";
     }
 
     public static function getCollaborateText($model)
     {
-        return Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste. ";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste. \r\n";
     }
 
     public static function getProductText($model)
     {
-        return Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste. ";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste. \r\n";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste. \r\n";
         else
-            return "Checkout this profile on TagTaste. ";
+            return "Checkout this profile on TagTaste. \r\n";
 
     }
 
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste. \r\n";
         else
-            return "Checkout this company on TagTaste. ";
+            return "Checkout this company on TagTaste. \r\n";
     }
 }
