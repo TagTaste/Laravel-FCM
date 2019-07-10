@@ -296,6 +296,10 @@ class ProfileController extends Controller
             }
         }
         $this->model = Profile::find($request->user()->profile->id);
+        $this->model->addToCache();
+        $this->model->addToCacheV2();
+        $this->model->addToGraph();
+        $this->model->updateUserToDob();
         return $this->sendResponse();
     }
     

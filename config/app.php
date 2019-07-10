@@ -198,6 +198,7 @@ return [
         Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
 
     ],
 

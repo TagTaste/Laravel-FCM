@@ -79,6 +79,7 @@ return [
             'sslmode' => 'prefer',
         ],
         'neo4j' => [
+            'name' => env('DB_NEO4J_CONNECTION', 'neo4j'),
             'driver' => env('DB_NEO4J_CONNECTION', 'neo4j'),
             'host'   => env('DB_NEO4J_HOST', 'localhost'),
             'port'   => env('DB_NEO4J_PORT', '7474'),

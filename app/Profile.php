@@ -100,6 +100,8 @@ class Profile extends Model
             //bad call inside, would be fixed soon
             $profile->addToCache();
             $profile->addToCacheV2();
+            $profile->addToGraph();
+            $profile->addUserToDob();
             event(new SuggestionEngineEvent($profile, 'create'));
 
         });
@@ -108,7 +110,7 @@ class Profile extends Model
             //bad call inside, would be fixed soon
             $profile->addToCache();
             $profile->addToCacheV2();
-
+            $profile->addToGraph();
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
 //            event(new SuggestionEngineEvent($profile, 'update'));
@@ -152,6 +154,87 @@ class Profile extends Model
         
         $key = "profile:small:" . $data['id'].":V2";
         Redis::connection('V2')->set($key, json_encode($data));
+    }
+
+    public function addToGraph()
+    {
+        $keyRequired = [
+            'id',
+            'user_id',
+            'name',
+            'designation',
+            'handle',
+            'tagline',
+            'image_meta',
+            'isFollowing'
+        ];
+        $data = array_intersect_key(
+            $this->toArray(), 
+            array_flip($keyRequired)
+        );
+        
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+
+        $user = \App\Neo4j\User::where('user_id', (int)$data['user_id'])->first();
+        if (!$user) {
+            \App\Neo4j\User::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\User::where('user_id', (int)$data['user_id'])->update($data);
+        }
+    }
+
+    public function addUserToDob()
+    {
+        if ($this->dob) {
+            $time = strtotime($this->dob);
+            $date = date('d-m',$time);
+            $user = \App\Neo4j\User::where('id', $this->id)->first();
+            if ($user) {
+                $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
+                $date_type_have_user = $date_type->have->where('id', $this->id)->first();
+                if (!$date_type_have_user) {
+                    $relation = $date_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $date_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserToDob()
+    {
+        $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
+        dd($user->dateOfBirth());
+        if ($this->dob) {
+            $time = strtotime($this->dob);
+            $date = date('d-m',$time);
+            $user = \App\Neo4j\User::where('id', $this->id)->first();
+            if ($user) {
+                $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
+                $date_type_have_user = $date_type->have->where('id', $this->id)->first();
+                if (!$date_type_have_user) {
+                    $relation = $date_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $date_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
     }
 
     public static function getFromCache($id)

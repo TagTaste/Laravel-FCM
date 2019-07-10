@@ -63,40 +63,6 @@ class DateOfBirth extends Command
             } else {
                 echo "DOB: ".$dob." and name:".$name." already exist. \n";
             }
-        } 
-        
-        $counter = 1;
-        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200, function($profiles) use($counter) {
-            $counter = 1;
-            foreach($profiles as $model) {
-                $profileId = (int)$model->user_id;
-                if ($model->dob) {
-                    $time = strtotime($model->dob);
-                    $date = date('d-m',$time);
-                    $user = \App\Neo4j\User::where('profileId', $profileId)->first();
-                    if (!$user) {
-                        echo $counter." | Profile id: ".$profileId." not exist. \n";
-                    } else {
-                        $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
-                        $datetypeHaveUser = $date_type->have->where('profileId', $profileId)->first();
-                        if (!$datetypeHaveUser) {
-                            $relation = $date_type->have()->attach($user);
-                            $relation->status = 1;
-                            $relation->statusValue = "have";
-                            $relation->save();
-                            echo $counter." | Date Type id: ".$date.", Profile id: ".$profileId." associated. \n";
-                        } else {
-                            $relation = $date_type->have()->edge($user);
-                            $relation->status = 1;
-                            $relation->statusValue = "have";
-                            $relation->save();
-                            echo $counter." | Date Type id: ".$date.", Profile id: ".$profileId." already associated. \n";
-                        }
-                    }
-                } else {
-                    echo $counter." | Profile id: ".$profileId." have no dob. \n";
-                }
-            }
-        });
+        }
     }
 }
