@@ -111,6 +111,7 @@ class Profile extends Model
             $profile->addToCache();
             $profile->addToCacheV2();
             $profile->addToGraph();
+            $profile->addToGraph();
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
 //            event(new SuggestionEngineEvent($profile, 'update'));
@@ -181,7 +182,6 @@ class Profile extends Model
         $user = \App\Neo4j\User::where('user_id', (int)$data['user_id'])->first();
         if (!$user) {
             \App\Neo4j\User::create($data);
-            dd("test");
         } else {
             unset($data['id']);
             \App\Neo4j\User::where('user_id', (int)$data['user_id'])->update($data);
@@ -193,10 +193,10 @@ class Profile extends Model
         if ($this->dob) {
             $time = strtotime($this->dob);
             $date = date('d-m',$time);
-            $user = \App\Neo4j\User::where('id', $this->id)->first();
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
             if ($user) {
                 $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
-                $date_type_have_user = $date_type->have->where('id', $this->id)->first();
+                $date_type_have_user = $date_type->have->where('user_id', (int)$this->user_id)->first();
                 if (!$date_type_have_user) {
                     $relation = $date_type->have()->attach($user);
                     $relation->status = 1;
@@ -215,7 +215,7 @@ class Profile extends Model
     public function updateUserToDob()
     {
         $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
-        dd($user->dateOfBirth());
+        dd($user, $this->dob);
         if ($this->dob) {
             $time = strtotime($this->dob);
             $date = date('d-m',$time);

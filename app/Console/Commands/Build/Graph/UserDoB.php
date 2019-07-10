@@ -41,7 +41,7 @@ class UserDoB extends Command
         $counter = 1;
         \App\Recipe\Profile::whereNull('deleted_at')->chunk(200, function($profiles) use($counter) {
             foreach($profiles as $model) {
-                echo $counter." | id: ".(int)$model['id']."| user_id: ".(int)$model['user_id']."\n";
+                echo "\n".$counter." | id: ".(int)$model['id']."| user_id: ".(int)$model['user_id']."\n";
                 $model->addUserToDob();
                 $counter = $counter + 1;
             }

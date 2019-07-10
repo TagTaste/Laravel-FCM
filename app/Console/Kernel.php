@@ -51,6 +51,7 @@ use App\Console\Commands\Build\Graph\Specializations as GraphSpecialisations;
 use App\Console\Commands\Build\Graph\DateOfBirth as GraphDateofBirth;
 use App\Console\Commands\Build\Graph\Cuisines as GraphCuisines;
 use App\Console\Commands\Build\Graph\Education as GraphEducation;
+use App\Console\Commands\Build\Graph\UserDoB as GraphUserDoB;
 
 class Kernel extends ConsoleKernel
 {
@@ -86,6 +87,7 @@ class Kernel extends ConsoleKernel
         GraphSpecialisations::class,
         GraphDateofBirth::class,
         GraphEducation::class,
+        GraphUserDoB::class,
 
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
