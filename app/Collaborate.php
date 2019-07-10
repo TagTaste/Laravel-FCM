@@ -388,23 +388,23 @@ class Collaborate extends Model implements Feedable
 
         if ($this->collaborate_type == 'product-review') {
             $key = "meta:collaborate:likes:" . $this->id;
-            $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
-            $meta['like_Count'] = Redis::sCard($key);
-            $meta['comment_count'] = $this->comments()->count();
-            $meta['share_count'] = \DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
-            $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
-            $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+            $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+            $meta['likeCount'] = Redis::sCard($key);
+            $meta['commentCount'] = $this->comments()->count();
+            $meta['shareCount'] = \DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+            $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+            $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
             return $meta;
         }
 
         $key = "meta:collaborate:likes:" . $this->id;
-        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
-        $meta['like_Count'] = Redis::sCard($key);
-        $meta['comment_count'] = $this->comments()->count();
-        $meta['share_count']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
-        $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
-        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=\DB::table('collaborate_shares')->where('collaborate_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
         return $meta;

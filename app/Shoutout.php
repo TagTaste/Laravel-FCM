@@ -146,12 +146,12 @@ class Shoutout extends Model implements Feedable
     public function getMetaForV2($profileId)
     {
         $meta = [];
-        $meta['has_liked'] = Redis::sIsMember("meta:shoutout:likes:".$this->id,$profileId) === 1;
-        $meta['like_count'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
-        $meta['comment_count'] = $this->comments()->count();
-        $meta['share_count']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
-        $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
-        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+        $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:".$this->id,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         return $meta;
     }

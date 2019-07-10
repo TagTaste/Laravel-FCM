@@ -64,6 +64,20 @@ class Product extends Share
         return $meta;
     }
 
+    public function getMetaForV2() : array
+    {
+        $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
+        $meta = [];
+        $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
+        $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        $key = "meta:productShare:likes:" . $this->id;
+        $meta['hasLiked'] = \Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
+        return $meta;
+    }
+
     public function getOverallRatingAttribute($product)
     {
         $header = PublicReviewProduct\ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
