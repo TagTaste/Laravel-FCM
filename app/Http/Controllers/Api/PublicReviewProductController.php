@@ -330,7 +330,7 @@ class PublicReviewProductController extends Controller
                 $products = $this->model['product'];
                 $this->model = [];
                 foreach($products as $product){
-                    $this->logSlack($product);
+                    $product =  \App\PublicReviewProduct::where('id',$product['id'])->first();
                     $meta = $product->getMetaFor($profileId);
                     $this->model[] = ['product'=>$product,'meta'=>$meta];
                 }
