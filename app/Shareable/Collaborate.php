@@ -46,12 +46,13 @@ class Collaborate extends Share
         return $meta;
     }
 
-    public function getMetaForV2($profileId) {
+    public function getMetaForV2($profileId)
+    {
         $meta = [];
         $key = "meta:collaborateShare:likes:" . $this->id;
-        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
-        $meta['like_count'] = Redis::sCard($key);
-        $meta['comment_count'] = $this->comments()->count();
+        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }
 
