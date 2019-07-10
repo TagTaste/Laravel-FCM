@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Support\Facades\Redis;
 
 class TestEvent
 {
@@ -23,7 +24,7 @@ class TestEvent
     public function __construct($message)
     {
         //$this->message = $message;
-        \Redis::publish('notifications', json_encode(['foo' => 'bar']));
+        Redis::publish('notifications', json_encode(['foo' => 'bar']));
     }
     
 }

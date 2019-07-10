@@ -11,6 +11,7 @@ use App\Traits\JobInternshipDate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Job extends Model implements Feedable
 {
@@ -89,12 +90,12 @@ class Job extends Model implements Feedable
     
     public function addToCache()
     {
-        \Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','profile','company','applications','applicationCount','hasApplied'])->toJson());
+        Redis::set("job:" . $this->id,$this->makeHidden(['privacy','owner','profile','company','applications','applicationCount','hasApplied'])->toJson());
     }
     
     public function deleteFromCache()
     {
-        \Redis::del("job:" . $this->id);
+        Redis::del("job:" . $this->id);
     }
     
     public function getJobIdAttribute()
@@ -149,7 +150,7 @@ class Job extends Model implements Feedable
             \DB::table('applications')->insert(['job_id' => $this->id, 'profile_id' => $profileId,
                 'created_at' => Carbon::now()->toDateTimeString(),'resume'=>$resume,'shortlisted'=>0,'message'=>$message]);
 
-            \Redis::hIncrBy("meta:job:" . $this->id,"applicationCount",1);
+            Redis::hIncrBy("meta:job:" . $this->id,"applicationCount",1);
             return true;
 
         }
@@ -165,7 +166,7 @@ class Job extends Model implements Feedable
 
         if(\DB::table('applications')->where(['job_id'=>$this->id,'profile_id'=>$profileId])->delete()) {
 
-            \Redis::hIncrBy("meta:job:" . $this->id, "applicationCount", -1);
+            Redis::hIncrBy("meta:job:" . $this->id, "applicationCount", -1);
             return true;
         }
         return false;
@@ -210,7 +211,7 @@ class Job extends Model implements Feedable
     
     public function getApplicationCountAttribute()
     {
-        return (int)\Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
+        return (int)Redis::hGet("meta:job:" . $this->id, "applicationCount") ?: 0;
     }
 
     public function getPreviewContent()

@@ -10,6 +10,7 @@ use App\Shoutout;
 use App\ShoutoutLike;
 use Illuminate\Http\Request;
 use App\Events\Update;
+use Illuminate\Support\Facades\Redis;
 
 class ShoutoutLikeController extends Controller
 {
@@ -35,15 +36,15 @@ class ShoutoutLikeController extends Controller
     {
         $profileId = $request->user()->profile->id;
         $key = "meta:shoutout:likes:" . $id;
-        $shoutoutLike = \Redis::sIsMember($key, $profileId);
+        $shoutoutLike = Redis::sIsMember($key, $profileId);
         $this->model = [];
         if ($shoutoutLike != null) {
             ShoutoutLike::where('profile_id', $profileId)->where('shoutout_id', $id)->delete();
-            \Redis::sRem($key, $profileId);
+            Redis::sRem($key, $profileId);
             $this->model['liked'] = false;
         } else {
             ShoutoutLike::create(['profile_id' => $profileId, 'shoutout_id' => $id]);
-            \Redis::sAdd($key, $profileId);
+            Redis::sAdd($key, $profileId);
             $this->model['liked'] = true;
             
             $shoutout = Shoutout::findOrFail($id);
@@ -53,7 +54,7 @@ class ShoutoutLikeController extends Controller
         }
         $peopleLike = new PeopleLike();
         $this->model['peopleLiked'] = $peopleLike->peopleLike($id, "shoutout",request()->user()->profile->id);
-        $this->model['likeCount'] = \Redis::sCard($key);
+        $this->model['likeCount'] = Redis::sCard($key);
     
         return $this->sendResponse();
     }

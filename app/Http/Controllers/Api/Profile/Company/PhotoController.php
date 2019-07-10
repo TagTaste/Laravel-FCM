@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Photo;
 use App\Traits\CheckTags;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PhotoController extends Controller
 {
@@ -76,7 +77,7 @@ class PhotoController extends Controller
         }
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,'image_info'=>$data['image_info'],
             'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
-        \Redis::set("photo:" . $this->model->id,json_encode($data));
+        Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new NewFeedable($this->model,$company));
     
         //add subscriber
@@ -140,7 +141,7 @@ class PhotoController extends Controller
         }
         $data = ['id'=>$this->model->id,'caption'=>$this->model->caption,'photoUrl'=>$this->model->photoUrl,
             'created_at'=>$this->model->created_at->toDateTimeString(),'updated_at'=>$this->model->updated_at->toDateTimeString(),'image_meta'=>$this->model->image_meta];
-        \Redis::set("photo:" . $this->model->id,json_encode($data));
+        Redis::set("photo:" . $this->model->id,json_encode($data));
         event(new UpdateFeedable($this->model));
 
         $loggedInProfileId = $request->user()->profile->id;

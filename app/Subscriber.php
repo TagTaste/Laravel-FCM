@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Redis;
 
 class Subscriber extends Model
 {
@@ -22,27 +23,27 @@ class Subscriber extends Model
     
     public static function getFollowers($profileId)
     {
-        $profileIds = \Redis::sMembers("followers:profile:$profileId");
+        $profileIds = Redis::sMembers("followers:profile:$profileId");
         $keys = [];
         foreach($profileIds as $id){
             $keys[] = "profile:small:" . $id;
         }
-        return \Redis::mget($keys);
+        return Redis::mget($keys);
     }
     
     public static function countFollowers($profileId)
     {
-        return \Redis::sCard("followers:profile:" . $profileId);
+        return Redis::sCard("followers:profile:" . $profileId);
     }
     
     public static function countFollowing($profileId)
     {
-        return \Redis::sCard("following:profile:" . $profileId);
+        return Redis::sCard("following:profile:" . $profileId);
     }
     
     public static function getFollowing($profileId)
     {
-        $profileIds = \Redis::sMembers("following:profile:$profileId");
+        $profileIds = Redis::sMembers("following:profile:$profileId");
         if(count($profileIds) === 0) {
             return;
         }
@@ -54,6 +55,6 @@ class Subscriber extends Model
             }
             $keys[] = "profile:small:" . $id;
         }
-        return \Redis::mget($keys);
+        return Redis::mget($keys);
     }
 }

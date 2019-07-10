@@ -7,6 +7,8 @@
  */
 
 namespace App;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 class Deeplink
 {
@@ -32,12 +34,12 @@ class Deeplink
     public static function getShortLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-//        if(!\Redis::exists($key)) {
+//        if(!Redis::exists($key)) {
 //            $self = new self($modelName, $modelId, $isShared, $share_id);
 //            $deeplink = $self->getDeeplinkUrl();
-//            \Redis::set($key,json_encode($deeplink));
+//            Redis::set($key,json_encode($deeplink));
 //        }
-//        return (json_decode(\Redis::get($key)))->url;
+//        return (json_decode(Redis::get($key)))->url;
 
         $self = new self($modelName, $modelId, $isShared, $share_id);
         return $self->getDeeplinkUrl()->url;
@@ -46,8 +48,8 @@ class Deeplink
     public static function getLongLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
-//        if(\Redis::exists($key)) {
-//            return (json_decode(\Redis::get($key)))->url;
+//        if(Redis::exists($key)) {
+//            return (json_decode(Redis::get($key)))->url;
 //        }
         $url = 'https://tagtaste.app.link/?modelName='.$modelName.'&modelID='.$modelId.'&$fallback_url='.urlencode(Deeplink::getActualUrl($modelName, $modelId, $isShared, $share_id)).'&$canonical_identifier='.urlencode('share_feed/'.$modelId).'&shareTypeID='.$share_id.'&isShared='.$isShared;
         return $url;
@@ -116,7 +118,7 @@ class Deeplink
                 case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
                 case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
-                case 'company':     return env('APP_URL')."/company/$modelId";
+                case 'company':     return env('APP_URL')."/companies/$modelId";
                 case 'product':     return env('APP_URL').'/reviews/products/'.$modelId;
                 case 'polling':     return env('APP_URL').'/polling/'.$modelId;
             }
@@ -142,55 +144,62 @@ class Deeplink
 
     public static function getShoutoutText($model)
     {
+            if(is_array($model->content)){
+                $content = $model->content['text'];
+            } else {
+                $content = $model->content;
+            }
             if($model->preview != null){
-                if(!is_null($model->content) && strlen($model->content)) {
-                    $description = $model->content;
+                if(!is_null($content) && strlen($content)) {
+                    $description = $content;
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
-                return $description."\n Checkout this post by ".$model->owner->name." on TagTaste.";
+                return Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
             }
             if($model->media_url != null && $model->content !=  null){
-                return $model->content."\n Checkout this video by ".$model->owner->name." on TagTaste.";
+                return Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste. ";
+            } else if ($content != null) {
+               return Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
             }
-            return "Checkout this post by ".$model->owner->name." on TagTaste.";
+        return "Checkout this post by ".$model->owner->name." on TagTaste. ";
+
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return $caption."\n Checkout this photo by ".$model->owner->name." on TagTaste.";
+            return Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getPollingText($model){
 
-        return "Checkout this poll by ".$model->owner->name." on TagTaste";
+        return "Checkout this poll by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getCollaborateText($model)
     {
-        return $model->description." checkout this post by ".$model->owner->name." on TagTaste.";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste. ";
     }
 
     public static function getProductText($model)
     {
-        return $model->description." Checkout this post by ".$model->company_name." on TagTaste.";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste. ";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this profile on TagTaste.";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste. ";
         else
-            return "Checkout this profile on TagTaste.";
-
+            return "Checkout this profile on TagTaste. ";
     }
 
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return $model->about." checkout this company on TagTaste.";
+            return Str::words(substr($model->about,0,155))."...\r\ncheckout this company on TagTaste. ";
         else
-            return "Checkout this company on TagTaste.";
+            return "Checkout this company on TagTaste. ";
     }
 }

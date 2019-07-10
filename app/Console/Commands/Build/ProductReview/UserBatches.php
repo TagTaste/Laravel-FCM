@@ -4,6 +4,7 @@ namespace App\Console\Commands\Build\ProductReview;
 
 use App\Collaborate;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class UserBatches extends Command
 {
@@ -42,7 +43,7 @@ class UserBatches extends Command
             foreach ($models as $model) {
                 echo "key is. "."collaborate:$model->collaborate_id:profile:$model->profile_id:". "\n";
                 echo "batch_id:".$model->batch_id."\n";
-                \Redis::sAdd("collaborate:$model->collaborate_id:profile:$model->profile_id:" ,$model->batch_id);
+                Redis::sAdd("collaborate:$model->collaborate_id:profile:$model->profile_id:" ,$model->batch_id);
             }
         });;
     }

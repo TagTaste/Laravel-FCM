@@ -48,10 +48,10 @@ class Photo extends Share
     public function getMetaForV2($profileId)
     {
         $meta = [];
-        $key = "meta:shoutoutShare:likes:" . $this->id;
-        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = Redis::sCard($key);
-        $meta['commentCount'] = $this->comments()->count();
+        $key = "meta:photoShare:likes:" . $this->id;
+        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['like_count'] = Redis::sCard($key);
+        $meta['comment_count'] = $this->comments()->count();
         return $meta;
     }
 
@@ -59,7 +59,7 @@ class Photo extends Share
         $meta = [];
         $key = "meta:photoShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 

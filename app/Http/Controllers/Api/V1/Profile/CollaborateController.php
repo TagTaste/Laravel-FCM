@@ -107,6 +107,7 @@ class CollaborateController extends Controller
         if (!empty($fields)) {
             unset($inputs['fields']);
         }
+        unset($inputs['images']);
         $this->model = $this->model->create($inputs);
 
 //        $categories = $request->input('categories');
@@ -164,7 +165,6 @@ class CollaborateController extends Controller
         if ($collaborate === null) {
             return $this->sendError( "Collaboration not found.");
         }
-        unset($inputs['images']);
         $imagesArray = [];
         if ($request->has("images"))
         {
@@ -225,7 +225,7 @@ class CollaborateController extends Controller
             \App\Filter\Collaborate::addModel($this->model);
             return $this->sendResponse();
         }
-
+        unset($inputs['images']);
         $this->model = $collaborate->update($inputs);
 
         \App\Filter\Collaborate::addModel(Collaborate::find($id));

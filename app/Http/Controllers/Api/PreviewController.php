@@ -17,7 +17,14 @@ class PreviewController extends Controller
             $class = "\\App\\" . "PublicReviewProduct";
         else
             $class = "\\App\\" . ucwords($modelName);
-        return $class::find($id);
+        if($modelName === 'collaborate')
+        {
+            $model = $class::where('id',$id)->where('state',$class::$state[0])->whereNull('deleted_at')->first();
+        }
+        else {
+            $model = $class::find($id);
+        }
+        return $model;
     }
     
     public function show(Request $request,$modelName,$modelId)
@@ -26,7 +33,6 @@ class PreviewController extends Controller
         if (!$model) {
             return $this->sendError("Nothing found for given Id.");
         }
-        $modelData = $model;
         $data = $model->getPreviewContent();
         $deepLink = Deeplink::getShortLink($modelName, $modelId);
         $modelData = $model;
@@ -65,7 +71,7 @@ class PreviewController extends Controller
             return $this->sendError("Nothing found for given Id.");
         }
         $data = $model->getPreviewContent();
-
+        $modelData = $model;
         $res = [
             'title' => $data['ogTitle'],
             'image' => $data['ogImage'],
@@ -78,7 +84,7 @@ class PreviewController extends Controller
             'model' => ucwords($modelName),
             'isShared' => true,
             'shareTypeID' => $shareId,
-
+            'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
         ];
 
         $this->model = $res;

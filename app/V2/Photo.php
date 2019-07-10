@@ -3,8 +3,8 @@
 namespace App\V2;
 
 use App\Channel\Payload;
-use App\Filter\People;
 use App\Interfaces\Feedable;
+use App\Filter\People;
 use App\PeopleLike;
 use App\Privacy;
 use App\Scopes\Company as ScopeCompany;
@@ -233,11 +233,12 @@ class Photo extends Model implements Feedable
 
     public function getNotificationContent()
     {
+        $image = $this->images[0]->original_photo;
         return [
             'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->caption,
-            'image' => $this->photoUrl
+            'image' => $image
         ];
     }
 
@@ -251,7 +252,7 @@ class Photo extends Model implements Feedable
 
     public function getCaptionAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
         if($profiles){
             $value = ['text'=>$value,'profiles'=>$profiles];

@@ -1,6 +1,6 @@
 <?php namespace App\Observers;
 
-
+use Illuminate\Support\Facades\Redis;
 class CacheableObeserver
 {
     public function created($model)
@@ -10,12 +10,12 @@ class CacheableObeserver
     }
     
     public function updated($model){
-        \Redis::set($this->getKey($model),$model->toJson());
+        Redis::set($this->getKey($model),$model->toJson());
     }
     
     public function deleted($model){
-        \Redis::del($this->getKey($model));
-        //\Redis::srem($this->getCollectionKey($model),$model->id);
+        Redis::del($this->getKey($model));
+        //Redis::srem($this->getCollectionKey($model),$model->id);
     }
     
     private function getKey(&$model)

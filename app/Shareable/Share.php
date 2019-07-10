@@ -48,6 +48,7 @@ class Share extends Model implements CommentNotification
     {
         $model = class_basename($this);
         Redis::set("shared:" . strtolower($model) . ":" . $this->id,$this->toJson());
+
     }
 
     public function addToCacheV2()
@@ -55,6 +56,7 @@ class Share extends Model implements CommentNotification
         $model = class_basename($this);
         $data = [
             'id' => $this->id,
+            'content' => $this->content,
             'collaborate_id' => $this->collaborate_id,
             'photo_id' => $this->photo_id,
             'shoutout_id' => $this->shoutout_id,
@@ -103,12 +105,33 @@ class Share extends Model implements CommentNotification
     public function getCacheKey() : array
     {
         $name = strtolower(class_basename($this));
-        $key  =  "shared:$name:" . $this->id;
+        $key  =  "shared:$name:".$this->id;
         
-        if(!\Redis::exists($key))
-        {
-            \Redis::set($key,$this->toJson());
+        if (!Redis::exists($key)) {
+            Redis::set($key,$this->toJson());
         }
+
+        $key_v2 = "shared:$name:".$this->id.":V2";
+        if (!Redis::connection('V2')->exists($key_v2)) {
+            $data = [
+                'id' => $this->id,
+                'content' => $this->content,
+                'collaborate_id' => $this->collaborate_id,
+                'photo_id' => $this->photo_id,
+                'shoutout_id' => $this->shoutout_id,
+                'product_id' => $this->product_id,
+                'profile_id' => $this->profile_id,
+                'created_at' => $this->created_at->toDateTimeString(),
+                'updated_at' => $this->updated_at->toDateTimeString()
+            ];
+            foreach ($data as $key => $value) {
+                if (is_null($value) || $value == '') {
+                    unset($data[$key]);
+                }
+            }
+            Redis::connection('V2')->set($key_v2, json_encode($data));
+        }
+        
         return [$name => $key];
     }
     
@@ -127,10 +150,13 @@ class Share extends Model implements CommentNotification
 
     public function getContentAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
-        if($profiles){
-            $value = ['text'=>$value,'profiles'=>$profiles];
+        if ($profiles) {
+            $value = [
+                'text'=>$value,
+                'profiles'=>$profiles
+            ];
         }
         return $value;
     }

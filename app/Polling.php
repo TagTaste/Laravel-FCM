@@ -198,7 +198,7 @@ class Polling extends Model implements Feedable
         $data['ogDescription'] = "by ".$this->profile->name;
         $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
-        $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-collaboration-big.png';
+        $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
         $data['ogUrl'] = env('APP_URL').'/polling/'.$this->id;
         $data['redirectUrl'] = env('APP_URL').'/polling/'.$this->id;
 

@@ -51,6 +51,7 @@ class Shoutout extends Model implements Feedable
 
     public function addToCache(){
         Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
+
     }
 
     public function addToCacheV2(){
@@ -98,7 +99,7 @@ class Shoutout extends Model implements Feedable
 
     public function getLikeCountAttribute()
     {
-        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $count = Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         if($count >1000000)
         {
@@ -167,8 +168,8 @@ class Shoutout extends Model implements Feedable
         }
         $key = $prefix . ":small:" . $owner->id;
 
-        if(!\Redis::exists($key)){
-            \Redis::set($key, $owner->toJson());
+        if(!Redis::exists($key)){
+            Redis::set($key, $owner->toJson());
         }
 
         return [$prefix => $key];
@@ -279,7 +280,7 @@ class Shoutout extends Model implements Feedable
             return  $this->preview["title"];
         }
 
-        return substr($this->getContent($this->content),0,155);
+        return $this->getContent($this->content)!=null ? substr($this->getContent($this->content),0,155) : "Checkout this post by ".$this->owner->name;
     }
 
     public function getOgDescription()
@@ -296,7 +297,7 @@ class Shoutout extends Model implements Feedable
             return  isset($this->preview["image"])?$this->preview["image"]:null;
         }
         if($this->media_url != null) {
-            $thumbnail = $this->media_json->thumbnail;
+            $thumbnail = isset($this->media_json->thumbnail) ? $this->media_json->thumbnail : null;
             return $thumbnail;
         }
         return 'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png';
