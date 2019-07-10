@@ -78,17 +78,7 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
-        'neo4j' => [
-            'name' => env('DB_NEO4J_CONNECTION', 'neo4j'),
-            'driver' => env('DB_NEO4J_CONNECTION', 'neo4j'),
-            'host'   => env('DB_NEO4J_HOST', 'localhost'),
-            'port'   => env('DB_NEO4J_PORT', '7474'),
-            'username' => env('DB_NEO4J_USERNAME', null),
-            'password' => env('DB_NEO4J_PASSWORD', null)
-        ],
     ],
-
-    'neo4j_uri' => env('DB_NEO4J_URI', 'http://neo4j:password@127.0.0.1:7474'),
 
     /*
     |--------------------------------------------------------------------------

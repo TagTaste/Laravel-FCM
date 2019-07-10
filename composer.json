@@ -24,9 +24,7 @@
         "spatie/laravel-image-optimizer": "^1.1",
         "intervention/image": "^2.4",
         "barryvdh/laravel-dompdf": "^0.8.2",
-        "webpatser/laravel-uuid": "2.*",
-        "vinelab/neoeloquent": "^1.4",
-        "graphaware/neo4j-php-client": "^4.8"
+        "webpatser/laravel-uuid": "2.*"
     },
 
     "require-dev": {
