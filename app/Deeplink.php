@@ -245,7 +245,7 @@ class Deeplink
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return Str::words(substr($model->about,0,155))."...\r\ncheckout this company on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste. ";
         else
             return "Checkout this company on TagTaste. ";
     }

@@ -44,7 +44,7 @@ class PreviewController extends Controller
             'site_name' => 'TagTaste',
             'deeplink' => $deepLink,
             'modelID' => $modelId,
-            'model' => ucwords($modelName),
+            'modelName' => ucwords($modelName),
             'isShared' => false,
             'shareTypeID' => 0,
             'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
