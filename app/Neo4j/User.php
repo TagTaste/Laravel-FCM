@@ -9,7 +9,7 @@ class User extends NeoEloquent
 {
     use SoftDeletes;
     
-    protected $connection = 'neo4j';    
+    protected $connection = 'neo4j';
 
     protected $dates = ['deleted_at'];
 
