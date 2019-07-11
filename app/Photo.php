@@ -250,7 +250,7 @@ class Photo extends Model implements Feedable
         $content = $this->getContent($this->caption);
         $data['title'] = $profile->name. ' has posted on TagTaste';
         $data['description'] = substr($content,0,150);
-        $data['ogTitle'] = $profile->name. ' has posted on TagTaste';
+        $data['ogTitle'] = $profile->name. ' has posted a photo on TagTaste';
         $data['ogDescription'] = null;
         $data['ogImage'] = json_decode($this->image_meta)->original_photo;
         $data['cardType'] = 'summary_large_image';
