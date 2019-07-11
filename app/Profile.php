@@ -215,14 +215,21 @@ class Profile extends Model
     public function updateUserToDob()
     {
         $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
-        dd($user, $this->dob);
+        dd($user->dateOfBirth);
+        if (isset($user->dateOfBirth)) {
+            $relation = $user->dateOfBirth->have();
+            dd($relation);
+            // ->have()->edge($user);
+            // $relation->status = 0;
+            // $relation->save();
+        }
+        dd("test");
         if ($this->dob) {
             $time = strtotime($this->dob);
             $date = date('d-m',$time);
-            $user = \App\Neo4j\User::where('id', $this->id)->first();
             if ($user) {
                 $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
-                $date_type_have_user = $date_type->have->where('id', $this->id)->first();
+                $date_type_have_user = $date_type->have->where('user_id', $this->user_id)->first();
                 if (!$date_type_have_user) {
                     $relation = $date_type->have()->attach($user);
                     $relation->status = 1;

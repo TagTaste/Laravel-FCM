@@ -25,8 +25,8 @@ class User extends NeoEloquent
         return $this->belongsToMany('\App\Neo4j\User', 'FOLLOWS');
     }
 
-    // public function dateOfBirth()
-    // {
-    //     return $this->belongsTo('\App\Neo4j\DateOfBirth', 'HAVE');
-    // }
+    public function dateOfBirth()
+    {
+        return $this->belongsTo('\App\Neo4j\DateOfBirth', 'HAVE');
+    }
 }
