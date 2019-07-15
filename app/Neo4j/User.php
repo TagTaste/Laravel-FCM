@@ -15,9 +15,9 @@ class User extends NeoEloquent
 
     protected $label = 'User';
 
-    protected $fillable = ['id', 'user_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'isFollowing'];
+    protected $fillable = ['id', 'profile_id', 'user_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'isFollowing'];
 
-    protected $append = ['id', 'user_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'isFollowing'];
+    protected $append = ['id', 'profile_id', 'name', 'designation', 'handle', 'tagline', 'image_meta', 'isFollowing'];
 
     
     public function follows()
@@ -27,6 +27,11 @@ class User extends NeoEloquent
 
     public function dateOfBirth()
     {
-        return $this->belongsTo('\App\Neo4j\DateOfBirth', 'HAVE');
+        return $this->belongsToMany('\App\Neo4j\DateOfBirth', 'HAVE');
+    }
+
+    public function cuisines()
+    {
+        return $this->belongsToMany('\App\Neo4j\Cuisines', 'HAVE');
     }
 }

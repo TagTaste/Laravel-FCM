@@ -43,15 +43,17 @@ use App\Console\Commands\UpdateNotificationModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\SettingChanges as SettingChanges;
-use App\Console\Commands\Build\Graph\Profiles as GraphProfiles;
+use App\Console\Commands\Build\Graph\DateOfBirth as GraphDateofBirth;
+use App\Console\Commands\Build\Graph\Cuisines as GraphCuisines;
 use App\Console\Commands\Build\Graph\Following as GraphFollowing;
 use App\Console\Commands\Build\Graph\Followers as GraphFollowers;
 use App\Console\Commands\Build\Graph\FoodieType as GraphFoodieType;
 use App\Console\Commands\Build\Graph\Specializations as GraphSpecialisations;
-use App\Console\Commands\Build\Graph\DateOfBirth as GraphDateofBirth;
-use App\Console\Commands\Build\Graph\Cuisines as GraphCuisines;
 use App\Console\Commands\Build\Graph\Education as GraphEducation;
-use App\Console\Commands\Build\Graph\UserDoB as GraphUserDoB;
+use App\Console\Commands\Build\Graph\Build\Profiles as GraphProfiles;
+use App\Console\Commands\Build\Graph\Build\UserDoB as GraphUserDoB;
+use App\Console\Commands\Build\Graph\Build\UserCuisine as GraphUserCuisine;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -88,6 +90,7 @@ class Kernel extends ConsoleKernel
         GraphDateofBirth::class,
         GraphEducation::class,
         GraphUserDoB::class,
+        GraphUserCuisine::class,
 
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,

@@ -299,7 +299,8 @@ class ProfileController extends Controller
         $this->model->addToCache();
         $this->model->addToCacheV2();
         $this->model->addToGraph();
-        $this->model->updateUserToDob();
+        $this->model->updateUserDob();
+        $this->model->updateUserCuisine();
         return $this->sendResponse();
     }
     

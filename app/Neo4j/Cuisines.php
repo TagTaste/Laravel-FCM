@@ -9,15 +9,13 @@ class Cuisines extends NeoEloquent
 {
     use SoftDeletes;
     
-    protected $connection = 'neo4j';    
-
-    protected $table = 'Cuisines';
+    protected $connection = 'neo4j';
 
     protected $dates = ['deleted_at'];
 
     protected $label = 'Cuisines';
 
-    protected $fillable = ['cuisineId', 'name'];
+    protected $fillable = ['cuisine_id', 'name'];
 
     public function have()
     {

@@ -178,7 +178,10 @@ class Profile extends Model
             if (is_null($value) || $value == '')
                 unset($data[$key]);
         }
-
+        
+        if (isset($data['id'])) {
+            $data['profile_id'] = $data['id'];
+        }
         $user = \App\Neo4j\User::where('user_id', (int)$data['user_id'])->first();
         if (!$user) {
             \App\Neo4j\User::create($data);
@@ -188,7 +191,7 @@ class Profile extends Model
         }
     }
 
-    public function addUserToDob()
+    public function addUserDob()
     {
         if ($this->dob) {
             $time = strtotime($this->dob);
@@ -212,18 +215,14 @@ class Profile extends Model
         }
     }
 
-    public function updateUserToDob()
+    public function updateUserDob()
     {
         $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
-        dd($user->dateOfBirth);
         if (isset($user->dateOfBirth)) {
-            $relation = $user->dateOfBirth->have();
-            dd($relation);
-            // ->have()->edge($user);
-            // $relation->status = 0;
-            // $relation->save();
+            foreach ($user->dateOfBirth as $key => $value) {
+                $detach_result = $value->have()->detach($user);
+            }
         }
-        dd("test");
         if ($this->dob) {
             $time = strtotime($this->dob);
             $date = date('d-m',$time);
@@ -237,6 +236,54 @@ class Profile extends Model
                     $relation->save();
                 } else {
                     $relation = $date_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function addUserCuisine()
+    {
+        if ($this->cuisines->pluck('id') && $this->cuisines->pluck('id')->count()) {
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            foreach ($this->cuisines->pluck('id') as $key => $value) {
+                $cuisine_type = \App\Neo4j\Cuisines::where('cuisine_id', $value)->first();
+                $cuisine_type_have_user = $cuisine_type->have->where('user_id', (int)$this->user_id)->first();
+                if (!$cuisine_type_have_user) {
+                    $relation = $cuisine_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $cuisine_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserCuisine()
+    {
+        $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+        // if (isset($user->cuisines) && $user->cuisines->count()) {
+        //     // $detach_result = $user->dateOfBirth->have()->detach($user);
+        // }
+
+        if ($this->cuisines->pluck('id') && $this->cuisines->pluck('id')->count()) {
+            foreach ($this->cuisines->pluck('id') as $key => $value) {
+                $cuisine_type = \App\Neo4j\Cuisines::where('cuisine_id', $value)->first();
+                $cuisine_type_have_user = $cuisine_type->have->where('user_id', (int)$this->user_id)->first();
+                if (!$cuisine_type_have_user) {
+                    $relation = $cuisine_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $cuisine_type->have()->edge($user);
                     $relation->status = 1;
                     $relation->statusValue = "have";
                     $relation->save();
