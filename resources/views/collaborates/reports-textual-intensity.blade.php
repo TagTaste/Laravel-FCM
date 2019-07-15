@@ -5,6 +5,14 @@
         $finalTotal = $currentAnswer->total;
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
         $percent = number_format(floor(($currentAnswer->total/$totalAnswers)*100), 1);
+        $totalIntensity = 0;
+        foreach ($intensities as $key => $value) {
+            if ($value['count']) {
+                $totalIntensity = $totalIntensity + (($key + 1) * $value['count']);
+            }
+        }
+        $avgIntensity = number_format((float)($totalIntensity/$finalTotal), 2, '.', '');
+        $roundedIntensity = round($avgIntensity) - 1;
     @endphp
     <div class="pr-answer-row">
         <div class="pr-answer-container">
@@ -15,6 +23,7 @@
                         <span>{{$path}} > </span>
                     @endisset
                     {{$answerTitle}}
+                    (Intensity - {{$avgIntensity}}/{{count($intensities)}} - {{$intensities[$roundedIntensity]['value']}})
                 </p>
             </div>
         </div>

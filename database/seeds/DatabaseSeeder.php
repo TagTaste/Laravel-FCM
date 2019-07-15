@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DefaultRoleUserValues::class);
         //$this->call(AttributeValueTableSeeder::class);//requires cuisine and establishment and ProfileAttribute
         $this->call(DesignationTableSeeder::class);
-        // $this->call(FoodieTypeTableSeeder::class);
+        $this->call(FoodieTypeTableSeeder::class);
         $this->call(SpecializationsTableSeeder::class);
         $this->call(SpecializationAddDescriptionTableSeeder::class);
         $this->call(InsertImageAllTableSeeder::class);//requires specializations
