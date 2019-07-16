@@ -61,7 +61,7 @@
         font-family: Helvetica Neue, Arial;
     }
     .pr-report-pill-text {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 500;
         color: #70080c;
         margin-bottom: 0;
