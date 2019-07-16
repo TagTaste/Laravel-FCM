@@ -13,17 +13,18 @@
         }
         $avgIntensity = number_format((float)($totalIntensity/$finalTotal), 2, '.', '');
         $roundedIntensity = round($avgIntensity) - 1;
+        $classNameOfPillText = isset($path) ? 'pr-report-pill-text--small' : 'pr-report-pill-text';
     @endphp
     <div class="pr-answer-row">
         <div class="pr-answer-container">
             <div class="active" style="width: {{$percent}}%;"></div>
             <div class="answer-pill-details">
-                <p class="pr-report-pill-text">
+                <p class="{{ $classNameOfPillText }}">
                     @isset($path)
                         <span>{{$path}} > </span>
                     @endisset
                     {{$answerTitle}}
-                    (Intensity - {{$avgIntensity}}/{{count($intensities)}} - {{$intensities[$roundedIntensity]['value']}})
+                    (Avg Int.- {{$avgIntensity}}/{{count($intensities)}}, {{$intensities[$roundedIntensity]['value']}})
                 </p>
             </div>
         </div>
