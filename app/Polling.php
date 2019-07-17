@@ -46,7 +46,7 @@ class Polling extends Model implements Feedable
             'id' => $this->id,
             'title' => $this->title,
             'options' => $this->getOptionsAttribute(),
-            'meta' => $this->meta,
+            'poll_meta' => $this->meta,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id
