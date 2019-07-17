@@ -39,7 +39,6 @@ class Following extends Command
     public function handle()
     {
         Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
-            ->where('profiles.id',1)
             ->whereNull('profiles.deleted_at')
             ->whereNull('subscribers.deleted_at')
             ->select('profile_id', 'channel_name')
