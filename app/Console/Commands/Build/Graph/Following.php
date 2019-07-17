@@ -4,7 +4,6 @@ namespace App\Console\Commands\Build\Graph;
 
 use App\Subscriber;
 use Illuminate\Console\Command;
-use GraphAware\Neo4j\Client\ClientBuilder;
 
 class Following extends Command
 {
@@ -20,7 +19,7 @@ class Following extends Command
      *
      * @var string
      */
-    protected $description = 'rebuild following cache.';
+    protected $description = 'rebuild followers cache.';
 
     /**
      * Create a new command instance.
@@ -39,67 +38,49 @@ class Following extends Command
      */
     public function handle()
     {
-        $client = ClientBuilder::create()->addConnection('default', 'http://neo4j:password@localhost:11003')->build();
-        // $result = $client->run('MATCH (u:User {profileId: 2043})-[c:CAN_FOLLOW]-(f:User) WHERE c.sameHabbit = true RETURN u,c,f');
-        // $result = $client->run('MATCH (u:User {profileId: 2043})-[c:FOLLOWS]-(f:User) WHERE c.status = 1 RETURN id(f) as ids');
-        $data = array();
-        $result = $client->run('
-            MATCH (:FoodieType {foodieTypeId: 9})-[:HAVE]-(users:User), (user:User {profileId:8})
-            WHERE users.profileId <> 8 AND not ((user)-[:FOLLOWS {status:1}]->(users))
-            RETURN users LIMIT 10'
-        );
-        foreach ($result->getRecords() as $record) {
-            array_push($data, $record->get('users')->values());
-        }
-        dd($data);
+        Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
+            ->where('profiles.id',1)
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->select('profile_id', 'channel_name')
+            ->chunk(200, function ($subscribers) {
+                echo "************* Count " . $subscribers->count() . "\n\n";
+                $counter = 1;
+                foreach ($subscribers as $model) {
+                    $user_id = (int)$model->profile_id;
 
-        $user1 = \App\Neo4j\User::where('profileId', 2043)->first();
-        $user3 = \App\Neo4j\User::where('profileId', 2042)->first();
-        $user2 = \App\Neo4j\User::where('profileId', 2044)->first();
-        
-        // $canFollow = $user1->follows()->detach($user2);
-        $canFollow = $user1->follows()->attach($user2);
-        $canFollow->status = 0;
-        $canFollow->statusValue = "not_follow";
-        $canFollow->save();
-        
-        // $canFollow = $user1->follows()->attach($user3);
-        // $canFollow->status = 0;
-        // $canFollow->statusValue = "not_follow";
-        // $canFollow->save();
-        
-        // $canFollow = $user1->canFollow()->attach($user2);
-        // $canFollow->sameHabbit = true;
-        // $canFollow->sameCollboartion = true;
-        // $canFollow->save();
-
-        // $canFollow = $user1->follows()->edge($user2);
-        // $canFollow->status = 1;
-        // $canFollow->statusValue = "follow";
-        // $canFollow->save();
-        
-        // $canFollow = $user1->canFollow()->edges()->toArray();
-        // foreach ($canFollow as $key => $value) {
-        //     var_dump($value->toArray());
-        // }
-        dd($canFollow);
-        // $location = $relation->parent();
-        // $user = $relation->related();
-        // $relations = $user1->canFollowSamePollAnswer()->edges();
-        // dd($relations);
-        // $canFollowSamePollAnswer = $user1->canFollowSamePollAnswer()->attach($user2);
-        // $canFollowSameHabbit = $user1->canFollowSameHabbit()->attach($user2);
-        // $canFollowSameCollboartion = $user1->canFollowSameCollboartion()->attach($user2);
-        // $canFollowSamePollAnswer = $user1->canFollowSamePollAnswer()->detach($user2);
-        // $canFollowSameHabbit = $user1->canFollowSameHabbit()->detach($user2);
-        // $canFollowSameCollboartion = $user1->canFollowSameCollboartion()->detach($user2);
-        dd($user1, $user2, $canFollowSamePollAnswer, $canFollowSameHabbit, $canFollowSameCollboartion);
-        
-        // $user = \App\Neo4j\User::where('profileId', 984)->first();
-        // $followedBy = \App\Neo4j\User::where('profileId', 2039)->first();
-        // $user->canFollowSamePollAnswer()->attach($followedBy);
-        // $followedBy->canFollowSamePollAnswer()->attach($user)
-        // $relation = $user->canFollowSamePollAnswer()->detach($followedBy);
-        // $followedBy->followers()->attach($user);
+                    $channel = explode(".",$model->channel_name);
+                    if ($channel[0] === "company") {
+                        continue;
+                    }
+                    
+                    $channel_owner_profile_id = last($channel);
+                    if ($model->profile_id == $channel_owner_profile_id) {
+                        continue;
+                    }
+                    
+                    $following_id = (int)$channel_owner_profile_id;
+                    $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
+                    $following_profile = \App\Neo4j\User::where('profile_id', $following_id)->first();
+                    if ($user_profile && $following_profile) {
+                        $is_user_following = $following_profile->follows->where('profile_id', $user_id)->first();
+                        if (!$is_user_following) {
+                            echo $counter." | User: ".$user_id." is following id: ".$following_id." not associated. \n";
+                            $relation = $following_profile->follows()->attach($user_profile);
+                            $relation->following = 1;
+                            $relation->save();
+                        } else {
+                            $relation = $following_profile->follows()->edge($user_profile);
+                            $relation->following = 1;
+                            $relation->save();
+                            echo $counter." | User: ".$user_id." is following id: ".$following_id." already associated. \n";
+                        }
+                    } else {
+                        echo $counter." | Either User : ".$user_id." not exist or following id: ".$following_id." not exist. \n";
+                    }
+                    $counter = $counter + 1;
+                }
+                sleep(2);
+            });
     }
 }

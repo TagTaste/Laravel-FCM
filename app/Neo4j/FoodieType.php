@@ -15,7 +15,7 @@ class FoodieType extends NeoEloquent
 
     protected $label = 'FoodieType';
 
-    protected $fillable = ['foodieTypeId', 'name'];
+    protected $fillable = ['foodie_type_id', 'name'];
 
     public function have()
     {

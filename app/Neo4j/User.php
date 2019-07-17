@@ -34,4 +34,19 @@ class User extends NeoEloquent
     {
         return $this->belongsToMany('\App\Neo4j\Cuisines', 'HAVE');
     }
+
+    public function foodieType()
+    {
+        return $this->belongsTo('\App\Neo4j\FoodieType', 'HAVE');
+    }
+
+    public function degree()
+    {
+        return $this->belongsToMany('\App\Neo4j\Degree', 'HAVE');
+    }
+
+    public function experiance()
+    {
+        return $this->belongsToMany('\App\Neo4j\Experiance', 'HAVE');
+    }
 }

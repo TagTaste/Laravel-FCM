@@ -101,7 +101,11 @@ class Profile extends Model
             $profile->addToCache();
             $profile->addToCacheV2();
             $profile->addToGraph();
-            $profile->addUserToDob();
+            $profile->addUserDob();
+            $profile->addUserCuisine();
+            $profile->addUserEatingHabit();
+            $profile->addUserFoodieType();
+            $profile->addUserSpecialization();
             event(new SuggestionEngineEvent($profile, 'create'));
 
         });
@@ -111,7 +115,11 @@ class Profile extends Model
             $profile->addToCache();
             $profile->addToCacheV2();
             $profile->addToGraph();
-            $profile->addToGraph();
+            $profile->updateUserDob();
+            $profile->updateUserCuisine();
+            $profile->updateUserEatingHabit();
+            $profile->updateUserFoodieType();
+            $profile->updateUserSpecialization();
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
 //            event(new SuggestionEngineEvent($profile, 'update'));
@@ -292,6 +300,110 @@ class Profile extends Model
         }
     }
 
+    public function addUserFoodieType()
+    {
+        if ($this->foodieType && isset($this->foodieType->id)) {
+            $foodie_type_id = $this->foodieType->id;
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            if ($user) {
+                $foodie_type = \App\Neo4j\FoodieType::where('foodie_type_id', $foodie_type_id)->first();
+                $foodie_type_have_user = $foodie_type->have->where('user_id', $this->user_id)->first();
+                if (!$foodie_type_have_user) {
+                    $relation = $foodie_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $foodie_type->have()->edge($user);
+                    $relation->status = 0;
+                    $relation->statusValue = "haven't";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserFoodieType()
+    {
+        $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
+        if (isset($user->foodieType)) {
+            $detach_result = $user->foodieType->have()->detach($user);
+        }
+
+        if ($this->foodieType && isset($this->foodieType->id)) {
+            $foodie_type_id = $this->foodieType->id;
+            if ($user) {
+                $foodie_type = \App\Neo4j\FoodieType::where('foodie_type_id', $foodie_type_id)->first();
+                $foodie_type_have_user = $foodie_type->have->where('user_id', $this->user_id)->first();
+                if (!$foodie_type_have_user) {
+                    $relation = $foodie_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $foodie_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function addUserSpecialization()
+    {
+        if ($this->profile_specializations->pluck('id') && $this->profile_specializations->pluck('id')->count()) {
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            foreach ($this->profile_specializations->pluck('id') as $key => $value) {
+                $specialization_type = \App\Neo4j\Specialization::where('specialization_id', $value)->first();
+                $specialization_type_have_user = $specialization_type
+                    ->have
+                    ->where('user_id', (int)$this->user_id)
+                    ->first();
+                if (!$specialization_type_have_user) {
+                    $relation = $specialization_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $specialization_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserSpecialization()
+    {
+        $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+        // if (isset($user->profile_specializations) && $user->profile_specializations->count()) {
+        //     // $detach_result = $user->profile_specializations->have()->detach($user);
+        // }
+
+        if ($this->profile_specializations->pluck('id') && $this->profile_specializations->pluck('id')->count()) {
+            foreach ($this->profile_specializations->pluck('id') as $key => $value) {
+                $specialization_type = \App\Neo4j\Specialization::where('specialization_id', $value)->first();
+                $specialization_type_have_user = $specialization_type
+                    ->have
+                    ->where('user_id', (int)$this->user_id)
+                    ->first();
+                if (!$specialization_type_have_user) {
+                    $relation = $specialization_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $specialization_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
     public static function getFromCache($id)
     {
         return Redis::get('profile:small:' . $id);
@@ -338,11 +450,19 @@ class Profile extends Model
         }
         foreach ($profiles as $index => &$profile) {
             $data = json_decode($profile);
-            $profile = array(
-                "id" => $data->id,
-                "name" => $data->name,
-                "handle" => $data->handle
-            );
+            if (!is_null($data)) {
+                $profile = array(
+                    "id" => $data->id,
+                    "name" => $data->name,
+                    "handle" => $data->handle
+                );
+            } else {
+                $profile = array(
+                    "id" => 0,
+                    "name" => "",
+                    "handle" => ""
+                );
+            }
         }
 
         return $profiles;

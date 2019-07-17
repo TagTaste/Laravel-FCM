@@ -5,17 +5,17 @@ namespace App\Neo4j;
 use Vinelab\NeoEloquent\Eloquent\SoftDeletes;
 use Vinelab\NeoEloquent\Eloquent\Model as NeoEloquent;
 
-class Specialization extends NeoEloquent
+class Experiance extends NeoEloquent
 {
     use SoftDeletes;
     
-    protected $connection = 'neo4j';    
+    protected $connection = 'neo4j';
 
     protected $dates = ['deleted_at'];
 
-    protected $label = 'Specializations';
+    protected $label = 'Experiance';
 
-    protected $fillable = ['specialization_id', 'name'];
+    protected $fillable = ['name'];
 
     public function have()
     {

@@ -51,4 +51,135 @@ class Experience extends Model
       return $value;
     }
 
+    public function seo_friendly_url($string)
+    {
+        $string = str_replace('.', '', $string);
+        $string = str_replace('. ', '', $string);
+        $string = str_replace("'", '', $string);
+        $string = str_replace(array('[\', \']'), '', $string);
+        $string = preg_replace('/\[.*\]/U', '', $string);
+        $string = preg_replace('/&(amp;)?#?[a-z0-9]+;/i', '_AND_', $string);
+        $string = htmlentities($string, ENT_COMPAT, 'utf-8');
+        $string = preg_replace('/&([a-z])(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|lig|quot|rsquo);/i', '\\1', $string );
+        $string = preg_replace(array('/[^a-z0-9]/i', '/[-]+/') , '_', $string);
+        return strtoupper(trim($string, '_'));
+    }
+
+    public function remove_unwanted_info($designation)
+    {
+        $replacer = array(
+            '?' => "",
+            "'" => "",
+            "." => "",
+            "(" => "",
+            ")" => "",
+            "-" => "_",
+            ":" => "_",
+            " " => "_",
+            "." => "_",
+            "&AMP;" => "_AND_",
+            "_RSQUO_" => ""
+        );
+
+        $string =  str_replace(
+            array_keys($replacer),
+            array_values($replacer),
+            preg_replace('/\_+/', "_",$this->seo_friendly_url($designation))
+        );
+
+        return $string;
+    }
+   
+    public function addUserExperience()
+    {
+        if ($this->designation) {
+            $designation = $this->seo_friendly_url($this->designation);
+            $designation = $this->remove_unwanted_info($this->designation);
+            if (strlen($designation)) {
+                $designation_exist = \App\Neo4j\Experiance::where('name',$designation)->first();
+                if (!$designation_exist) {
+                    $designation_exist = \App\Neo4j\Experiance::create([
+                        "name" => $designation
+                    ]);
+                }
+                if ($designation_exist) {
+                    $user = \App\Neo4j\User::where('profile_id', $this->profile_id)->first();
+                    if ($user) {
+                        $designation_have_user = $designation_exist
+                            ->have
+                            ->where('profile_id', (int)$this->profile_id)
+                            ->first();
+                        if (!$designation_have_user) {
+                            $relation = $designation_exist->have()->attach($user);
+                            $relation->status = 1;
+                            $relation->statusValue = "have";
+                            $relation->save();
+                        } else {
+                            $relation = $designation_exist->have()->edge($user);
+                            $relation->status = 1;
+                            $relation->statusValue = "have";
+                            $relation->save();
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    public function updateUserExperience()
+    {
+        if ($this->designation) {
+            $designation = $this->seo_friendly_url($this->designation);
+            $designation = $this->remove_unwanted_info($this->designation);
+            if (strlen($designation)) {
+                $designation_exist = \App\Neo4j\Experiance::where('name',$designation)->first();
+                if (!$designation_exist) {
+                    $designation_exist = \App\Neo4j\Experiance::create([
+                        "name" => $designation
+                    ]);
+                }
+                if ($designation_exist) {
+                    $user = \App\Neo4j\User::where('profile_id', $this->profile_id)->first();
+                    if ($user) {
+                        $designation_have_user = $designation_exist
+                            ->have
+                            ->where('profile_id', (int)$this->profile_id)
+                            ->first();
+                        if (!$designation_have_user) {
+                            $relation = $designation_exist->have()->attach($user);
+                            $relation->status = 1;
+                            $relation->statusValue = "have";
+                            $relation->save();
+                        } else {
+                            $relation = $designation_exist->have()->edge($user);
+                            $relation->status = 1;
+                            $relation->statusValue = "have";
+                            $relation->save();
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    public function detachUserExperience()
+    {
+        if ($this->designation) {
+            $designation = $this->seo_friendly_url($this->designation);
+            $designation = $this->remove_unwanted_info($this->designation);
+            if (strlen($designation)) {
+                $user = \App\Neo4j\User::where('profile_id', $this->profile_id)->first();
+                $designation_data = \App\Neo4j\Experiance::where('name',$designation)->first();
+                if (!is_null($designation_data)) {
+                    $designation_data_have_user = $designation_data->have->where('profile_id', (int)$this->profile_id)->first();
+                    if ($designation_data_have_user) {
+                        $detach_result = $designation_data->have()->detach($user);
+                    }
+                }
+            }
+        }
+    }
+
 }

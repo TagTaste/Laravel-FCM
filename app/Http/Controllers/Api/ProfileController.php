@@ -301,6 +301,8 @@ class ProfileController extends Controller
         $this->model->addToGraph();
         $this->model->updateUserDob();
         $this->model->updateUserCuisine();
+        $this->model->updateUserFoodieType();
+        $this->model->updateUserSpecialization();
         return $this->sendResponse();
     }
     
