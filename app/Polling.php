@@ -22,7 +22,7 @@ class Polling extends Model implements Feedable
 
     protected $appends = ['options','owner','meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
-        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner','meta'];
+        'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner'];
 
     public static function boot()
     {
@@ -46,6 +46,7 @@ class Polling extends Model implements Feedable
             'id' => $this->id,
             'title' => $this->title,
             'options' => $this->getOptionsAttribute(),
+            'meta' => $this->meta,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id
