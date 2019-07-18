@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Build\Graph;
+namespace App\Console\Commands\Build\Graph\Build;
 
 use App\Subscriber;
 use Illuminate\Console\Command;

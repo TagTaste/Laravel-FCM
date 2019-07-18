@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Console\Commands\Build\Graph\Build;
+namespace App\Console\Commands\Build\Graph;
 
 use Illuminate\Console\Command;
 use Vinelab\NeoEloquent\Exceptions\NeoEloquentException;
 
-class Companies extends Command
+class Profiles extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:graph:companies';
+    protected $signature = 'build:graph:profiles';
 
     /**
      * The console command description.
@@ -39,9 +39,9 @@ class Companies extends Command
     public function handle()
     {
         $counter = 1;
-        \App\Company::chunk(200, function($models) use($counter) {
-            foreach($models as $model) {
-                echo $counter." | id: ".(int)$model['id']." | name: ".$model['name']." | user_id: ".(int)$model['user_id']."\n";
+        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200, function($profiles) use($counter) {
+            foreach($profiles as $model) {
+                echo $counter." | id: ".(int)$model['id']."| user_id: ".(int)$model['user_id']."\n";
                 $model->addToGraph();
                 $counter = $counter + 1;
             }

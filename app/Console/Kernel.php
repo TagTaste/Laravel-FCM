@@ -50,12 +50,11 @@ use App\Console\Commands\Build\Graph\FoodieType as GraphFoodieType;
 use App\Console\Commands\Build\Graph\Specializations as GraphSpecialisations;
 use App\Console\Commands\Build\Graph\Education as GraphEducation;
 use App\Console\Commands\Build\Graph\Experiance as GraphExperiance;
+use App\Console\Commands\Build\Graph\Profiles as GraphProfiles;
+use App\Console\Commands\Build\Graph\Companies as GraphCompanies;
 
-use App\Console\Commands\Build\Graph\Following as GraphFollowing;
-use App\Console\Commands\Build\Graph\Follower as GraphFollower;
-
-use App\Console\Commands\Build\Graph\Build\Profiles as GraphProfiles;
-use App\Console\Commands\Build\Graph\Build\Companies as GraphCompanies;
+use App\Console\Commands\Build\Graph\Build\Following as GraphFollowing;
+use App\Console\Commands\Build\Graph\Build\Follower as GraphFollower;
 use App\Console\Commands\Build\Graph\Build\UserDoB as GraphUserDoB;
 use App\Console\Commands\Build\Graph\Build\UserCuisine as GraphUserCuisine;
 use App\Console\Commands\Build\Graph\Build\UserFoodieType as GraphUserFoodieType;
