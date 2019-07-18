@@ -22,7 +22,17 @@ class User extends NeoEloquent
     
     public function follows()
     {
+        return $this->hasMany('\App\Neo4j\User', 'FOLLOWS');
+    }
+
+    public function followed_by()
+    {
         return $this->belongsToMany('\App\Neo4j\User', 'FOLLOWS');
+    }
+
+    public function follows_company()
+    {
+        return $this->hasMany('\App\Neo4j\Company', 'FOLLOWS_COMPANY');
     }
 
     public function dateOfBirth()
@@ -48,5 +58,10 @@ class User extends NeoEloquent
     public function experiance()
     {
         return $this->belongsToMany('\App\Neo4j\Experiance', 'HAVE');
+    }
+
+    public function companies()
+    {
+        return $this->belongsToMany('\App\Neo4j\Company', 'FOLLOWS');
     }
 }

@@ -376,57 +376,65 @@ class ProfileController extends Controller
 
     public function follow(Request $request)
     {
-        $channelOwnerProfileId = $request->input('id');
+        $channel_owner_profile_id = $request->input('id');
         //$request->user()->profile->follow($id);
-        $channelOwner = \App\Recipe\Profile::find($channelOwnerProfileId);
-        if(!$channelOwner){
+        $channel_owner = \App\Recipe\Profile::find($channel_owner_profile_id);
+        if (!$channel_owner) {
             throw new ModelNotFoundException();
         }
-        if($channelOwnerProfileId == $request->user()->profile->id)
-        {
+        
+        if ($channel_owner_profile_id == $request->user()->profile->id) {
             return $this->sendError("You can not follow yourself.");
         }
-        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
-        $profileId = $request->user()->profile->id;
+        $profile_id = $request->user()->profile->id;
+
+        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channel_owner);
+
+        // add profiles the logged in user is following
+        Redis::sAdd("following:profile:".$profile_id, $channel_owner_profile_id);
         
-        //profiles the logged in user is following
-        Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
+        // add profiles that are following $channel_owner in redis
+        Redis::sAdd("followers:profile:".$channel_owner_profile_id, $profile_id);
         
-        //profiles that are following $channelOwner
-        Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
-        
-        if(!$this->model){
+        if (!$this->model) {
             $this->sendError("You are already following this profile.");
         }
 
-        event(new Follow($channelOwner, $request->user()->profile));
+        event(new Follow($channel_owner, $request->user()->profile));
 
-        Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
+        Redis::sRem('suggested:profile:'.$profile_id, $channel_owner_profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->followProfileSuggestion((int)$profile_id, (int)$channel_owner_profile_id);
 
         return $this->sendResponse();
     }
     
     public function unfollow(Request $request)
     {
-        $channelOwnerProfileId = $request->input('id');
+        $channel_owner_profile_id = $request->input('id');
         //$request->user()->profile->follow($id);
-        $channelOwner = Profile::find($channelOwnerProfileId);
-        if(!$channelOwner){
+        $channel_owner = Profile::find($channel_owner_profile_id);
+        if(!$channel_owner){
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channel_owner);
         
-        if(!$this->model){
+        if (!$this->model) {
             $this->sendError("You are not following this profile.");
         }
     
-        $profileId = $request->user()->profile->id;
-        //profiles the logged in user is following
-        Redis::sRem("following:profile:" . $profileId, $channelOwnerProfileId);
+        $profile_id = $request->user()->profile->id;
+        
+        // remove profiles the logged in user is following
+        Redis::sRem("following:profile:" . $profile_id, $channel_owner_profile_id);
     
-        //profiles that are following $channelOwner
-        Redis::sRem("followers:profile:" . $channelOwnerProfileId, $profileId);
+        // remove profiles that are following $channel_owner in redis
+        Redis::sRem("followers:profile:" . $channel_owner_profile_id, $profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->unfollowProfileSuggestion((int)$profile_id, (int)$channel_owner_profile_id);
     
         return $this->sendResponse();
     }

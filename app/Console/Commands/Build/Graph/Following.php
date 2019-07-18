@@ -46,40 +46,10 @@ class Following extends Command
                 echo "************* Count " . $subscribers->count() . "\n\n";
                 $counter = 1;
                 foreach ($subscribers as $model) {
-                    $user_id = (int)$model->profile_id;
-
-                    $channel = explode(".",$model->channel_name);
-                    if ($channel[0] === "company") {
-                        continue;
-                    }
-                    
-                    $channel_owner_profile_id = last($channel);
-                    if ($model->profile_id == $channel_owner_profile_id) {
-                        continue;
-                    }
-                    
-                    $following_id = (int)$channel_owner_profile_id;
-                    $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
-                    $following_profile = \App\Neo4j\User::where('profile_id', $following_id)->first();
-                    if ($user_profile && $following_profile) {
-                        $is_user_following = $following_profile->follows->where('profile_id', $user_id)->first();
-                        if (!$is_user_following) {
-                            echo $counter." | User: ".$user_id." is following id: ".$following_id." not associated. \n";
-                            $relation = $following_profile->follows()->attach($user_profile);
-                            $relation->following = 1;
-                            $relation->save();
-                        } else {
-                            $relation = $following_profile->follows()->edge($user_profile);
-                            $relation->following = 1;
-                            $relation->save();
-                            echo $counter." | User: ".$user_id." is following id: ".$following_id." already associated. \n";
-                        }
-                    } else {
-                        echo $counter." | Either User : ".$user_id." not exist or following id: ".$following_id." not exist. \n";
-                    }
+                    echo "\n".$counter." | profile_id: ".(int)$model['profile_id']." | channel: ".$model['channel_name']."\n";
+                    $model->followSuggestion();
                     $counter = $counter + 1;
                 }
-                sleep(2);
             });
     }
 }

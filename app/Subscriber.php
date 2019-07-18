@@ -57,4 +57,83 @@ class Subscriber extends Model
         }
         return Redis::mget($keys);
     }
+
+    public function followSuggestion()
+    {
+        if (isset($this->profile_id) && isset($this->channel_name)) {
+            $user_id = (int)$this->profile_id;
+            $channel = explode(".",$this->channel_name);
+            $channel_owner_profile_id = last($channel);
+            
+            if (($channel[0] != "company") && ($this->profile_id != $channel_owner_profile_id)) {
+                $following_id = (int)$channel_owner_profile_id;
+                $this->followProfileSuggestion($user_id, $following_id);
+            }
+        }
+    }
+
+    public function followProfileSuggestion($user_id, $following_id)
+    {
+        $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
+        $following_profile = \App\Neo4j\User::where('profile_id', $following_id)->first();
+
+        if ($user_profile && $following_profile) {
+            $is_user_following = $user_profile->follows->where('profile_id', $following_id)->first();
+            if (!$is_user_following) {
+                $relation = $user_profile->follows()->attach($following_profile);
+                $relation->following = 1;
+                $relation->save();
+            } else {
+                $relation = $user_profile->follows()->edge($following_profile);
+                $relation->following = 1;
+                $relation->save();
+            }
+        }
+    }
+
+    public function unfollowProfileSuggestion($user_id, $following_id)
+    {
+        $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
+        $following_profile = \App\Neo4j\User::where('profile_id', $following_id)->first();
+        if ($user_profile && $following_profile) {
+            $is_user_following = $user_profile->follows->where('profile_id', $following_id)->first();
+            if ($is_user_following) {
+                $relation = $user_profile->follows()->edge($following_profile);
+                $relation->following = 0;
+                $relation->save();
+            }
+        }
+    }
+
+    public function followCompanySuggestion($user_id, $company_id)
+    {
+        $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
+        $company_profile = \App\Neo4j\Company::where('company_id', $company_id)->first();
+        if ($user_profile && $company_profile) {
+            $is_user_following = $user_profile->follows_company->where('company_id', $company_id)->first();
+            if (!$is_user_following) {
+                $relation = $user_profile->follows_company()->attach($company_profile);
+                $relation->following = 1;
+                $relation->save();
+            } else {
+                $relation = $user_profile->follows_company()->edge($company_profile);
+                $relation->following = 1;
+                $relation->save();
+            }
+        }
+    }
+
+    public function unfollowCompanySuggestion($user_id, $company_id)
+    {
+        $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
+        $company_profile = \App\Neo4j\Company::where('company_id', $company_id)->first();
+        if ($user_profile && $company_profile) {
+            $is_user_following = $user_profile->follows_company->where('company_id', $company_id)->first();
+            if ($is_user_following) {
+                $relation = $user_profile->follows_company()->edge($company_profile);
+                $relation->following = 0;
+                $relation->save();
+            }
+        }
+    }
 }

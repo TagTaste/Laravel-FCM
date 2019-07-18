@@ -141,6 +141,7 @@ class Company extends Model
             $company->addUser($company->user);
             $company->addToCache();
             $company->addToCacheV2();
+            $company->addToGraph();
             //make searchable
             \App\Documents\Company::create($company);
         });
@@ -184,11 +185,31 @@ class Company extends Model
     {
         $data = [
             'id' => $this->id,
-            'profileId' => $this->profileId,
+            'profile_id' => $this->profileId,
             'name' => $this->name,
             'logo_meta' => $this->logo_meta
         ];
         Redis::connection('V2')->set("company:small:".$this->id.":V2",json_encode($data));
+    }
+
+    public function addToGraph()
+    {
+        $data = [
+            'id' => $this->id,
+            'profile_id' => $this->profileId,
+            'name' => $this->name,
+            'logo_meta' => $this->logo_meta
+        ];
+        if (isset($data['id'])) {
+            $data['company_id'] = (int)$data['id'];
+        }
+        $company = \App\Neo4j\Company::where('company_id', (int)$data['company_id'])->first();
+        if (!$company) {
+            \App\Neo4j\Company::create($data);
+        } else {
+            unset($data['company_id']);
+            $company->update($data);
+        }
     }
 
     public static function getFromCache($id)

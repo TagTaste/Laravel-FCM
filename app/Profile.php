@@ -103,7 +103,6 @@ class Profile extends Model
             $profile->addToGraph();
             $profile->addUserDob();
             $profile->addUserCuisine();
-            $profile->addUserEatingHabit();
             $profile->addUserFoodieType();
             $profile->addUserSpecialization();
             event(new SuggestionEngineEvent($profile, 'create'));
@@ -117,7 +116,6 @@ class Profile extends Model
             $profile->addToGraph();
             $profile->updateUserDob();
             $profile->updateUserCuisine();
-            $profile->updateUserEatingHabit();
             $profile->updateUserFoodieType();
             $profile->updateUserSpecialization();
             //this would delete the old document.
@@ -194,7 +192,7 @@ class Profile extends Model
         if (!$user) {
             \App\Neo4j\User::create($data);
         } else {
-            unset($data['id']);
+            unset($data['user_id']);
             \App\Neo4j\User::where('user_id', (int)$data['user_id'])->update($data);
         }
     }
