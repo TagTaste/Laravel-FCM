@@ -63,6 +63,11 @@ class Deeplink
     private function getDeeplinkUrl()
     {
         $data = $this->model->getPreviewContent();
+        if (class_basename($this->model) == 'Company') {
+            $companyId = $this->model->id;
+        } else {
+            $companyId = null;
+        }
         $client = new \GuzzleHttp\Client();
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
             'json' => [
@@ -95,6 +100,7 @@ class Deeplink
                     'isShared' =>               $this->shared,
 
                     'profileID' =>              isset($data['owner']) ? $data['owner'] : null,
+                    'companyID' =>              $companyId
 
                 ],
             ],
