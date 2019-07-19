@@ -24,7 +24,7 @@
                         <span>{{$path}} > </span>
                     @endisset
                     {{$answerTitle}}
-                    ({{$avgIntensity}} - {{$intensities[$roundedIntensity]['value']}})
+                    ({{$intensities[$roundedIntensity]['value']}} - {{$avgIntensity}})
                 </p>
             </div>
         </div>
