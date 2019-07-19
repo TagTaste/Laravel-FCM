@@ -98,7 +98,7 @@ class FeedController extends Controller
             $data = [];
             $index++;
             $cached = json_decode($payload->payload, true);
-            foreach($cached as $name => $key){
+            foreach ($cached as $name => $key) {
                 $cachedData = null;
                 if (in_array($name, $indexTypeV2)) {
                     $key = $key.":V2";
@@ -113,7 +113,7 @@ class FeedController extends Controller
             }
 
 
-            if($payload->model !== null){
+            if ($payload->model !== null) {
                 $model = $payload->model;
                 $type = $this->getType($payload->model);
                 $model = $model::find($payload->model_id);

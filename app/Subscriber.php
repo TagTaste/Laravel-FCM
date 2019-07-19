@@ -65,9 +65,12 @@ class Subscriber extends Model
             $channel = explode(".",$this->channel_name);
             $channel_owner_profile_id = last($channel);
             
-            if (($channel[0] != "company") && ($this->profile_id != $channel_owner_profile_id)) {
+            if (($channel[0] != "company") && ($user_id != $channel_owner_profile_id)) {
                 $following_id = (int)$channel_owner_profile_id;
-                $this->followProfileSuggestion($user_id, $following_id);
+                $this->followProfileSuggestion((int)$user_id, (int)$following_id);
+            } elseif (($channel[0] == "company") && ($user_id != $channel_owner_profile_id)) {
+                $company_id = (int)$channel_owner_profile_id;
+                $this->followCompanySuggestion((int)$user_id, (int)$company_id);
             }
         }
     }
