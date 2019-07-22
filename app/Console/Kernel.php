@@ -16,6 +16,7 @@ use App\Console\Commands\Build\Cache\PublicReviewProduct;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
+use App\Console\Commands\Build\Cache\Polling;
 use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\ChatMergeMessage;
 use App\Console\Commands\CloseCollaborate;
@@ -86,6 +87,8 @@ class Kernel extends ConsoleKernel
         Share::class,
         SettingChanges::class,
         PublicReviewProduct::class,
+        Polling::class,
+
         
         // Rebuild Graph
         GraphProfiles::class,
