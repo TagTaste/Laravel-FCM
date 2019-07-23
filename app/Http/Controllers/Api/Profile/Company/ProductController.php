@@ -66,7 +66,7 @@ class ProductController extends Controller
         $product->save();
         
         $categories = $request->input('categories');
-        $product->categories()->sync($categories);
+        //$product->categories()->sync($categories);
         $product->refresh();
         $this->model = $product;
         return $this->sendResponse();
