@@ -93,7 +93,7 @@ Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");
  * has prefix api/ - defined in RouteServiceProvider.php
  * note the dot.
  */
-Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {   
+Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     
     /**
