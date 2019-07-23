@@ -65,9 +65,9 @@ class ProductController extends Controller
         $product->company_id = $companyId;
         $product->save();
         
-        $categories = $request->input('categories');
-        $product->categories()->sync($categories);
-        $product->refresh();
+        // $categories = $request->input('categories');
+        // $product->categories()->sync($categories);
+        // $product->refresh();
         $this->model = $product;
         return $this->sendResponse();
     }
