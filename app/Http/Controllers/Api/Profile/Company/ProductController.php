@@ -116,9 +116,9 @@ class ProductController extends Controller
         $product->mode = $request->input("mode");
         $product->save();
         
-        $categories = $request->input('categories');
-        $product->categories()->sync($categories);
-        $product->refresh();
+        // $categories = $request->input('categories');
+        // $product->categories()->sync($categories);
+        // $product->refresh();
         $this->model = $product;
         return $this->sendResponse();
     }
