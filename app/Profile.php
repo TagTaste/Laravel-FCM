@@ -833,9 +833,9 @@ class Profile extends Model
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_profile/'.$this->id;
         $data['owner'] = $this->id;
-        $data['title'] = 'Check out '.$this->name.'\'s profile on TagTaste';
+        $data['title'] = 'Checkout '.$this->name.'\'s profile on TagTaste';
         $data['description'] = substr($this->tagline,0,155);
-        $data['ogTitle'] = 'Check out '.$this->name.'\'s profile on TagTaste';
+        $data['ogTitle'] = 'Checkout '.$this->name.'\'s profile on TagTaste';
         $data['ogDescription'] = null;
         $data['ogImage'] = $this->imageUrl;
         $data['cardType'] = 'summary_large_image';

@@ -68,6 +68,7 @@ class ProductController extends Controller
         // $categories = $request->input('categories');
         // $product->categories()->sync($categories);
         // $product->refresh();
+        
         $this->model = $product;
         return $this->sendResponse();
     }
