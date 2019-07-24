@@ -14,7 +14,7 @@
                                 <tr>
                                     <td align="center" bgcolor="#FFFFFF" style="padding:20px 0px 20px 0px;border-radius: 10px 10px 0 0;width:100%!important;" width="100%">
                                         <div style="font-size: 20px;font-weight: bold;color: #181818;padding: 0 40px 0 40px">
-                                            We are performing scheduled maintenance. We should be back online shortly.
+                                            We are performing a scheduled maintenance. We should be back online shortly.
                                         </div>
                                     </td>
                                 </tr>
@@ -34,8 +34,6 @@
                                                         <tr>
                                                             <td>
                                                                 <div>
-                                                                    <br>
-                                                                    <div style="text-align: center;"><img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year"></div>
                                                                     <br>
                                                                     <p style="font-size: 14px; color: #181818; margin:0px">
                                                                         Dear {{$userName}}

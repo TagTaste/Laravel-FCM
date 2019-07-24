@@ -39,7 +39,7 @@ class ServiceInterruption extends Command
      */
     public function handle()
     {
-        User::with([])->whereNull('deleted_at')->whereIn('id',[1,8587])
+        User::with([])->whereNull('deleted_at')
             ->orderBy('id')->chunk(100,function($models) {
                 $count = 0;
                 foreach ($models as $model)
