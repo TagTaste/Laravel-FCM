@@ -37,12 +37,15 @@
                                                                     <br>
                                                                     <div style="text-align: center;"><img src="https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/blog/newyear.jpg" height="400px" width="400px" alt="Happy New Year"></div>
                                                                     <br>
-                                                                    <p style="font-size: 14px;color: #181818;margin:0px">
+                                                                    <p style="font-size: 14px; color: #181818; margin:0px">
                                                                         Dear {{$userName}}
                                                                         <br>
                                                                         <br>
-                                                                        Wishing you and your family a very happy and prosperous new year 2019. Thank you for your love and continued support in building one of the strongest communities of food professionals and enthusiasts across the world.
+                                                                        Just dropping in to let you know we’ll be shutting down our engines for scheduled maintenance on Wednesday 25th of July between 12:00 AM and 1:00 AM IST.
                                                                         <br>
+                                                                        We apologise for any inconvenience this may cause, but even a well-oiled machine needs to be serviced from time to time.
+                                                                        <br>
+                                                                        On the bright side, we’ll be back bigger, better and stronger than before.
                                                                         <br>
                                                                         Regards,
                                                                         <br>
