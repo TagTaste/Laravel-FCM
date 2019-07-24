@@ -23,7 +23,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-        list($skip,$take) = Paginator::paginate($page, 10);
+        list($skip,$take) = Paginator::paginate($page, 16);
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -170,7 +170,7 @@ class FeedController extends Controller
             $data['type'] = $type;
             $this->model[$feed_position[$index++]] = $data;
         }
-        $this->model = array_filter($this->model);
+        $this->model = array_values(array_filter($this->model));
     }
 
     private function suggestion_by_dob($client, $profile, $profileId) 
