@@ -148,7 +148,7 @@ class Polling extends Model implements Feedable
     public function getNotificationContent()
     {
         return [
-            'name' => 'poll',
+            'name' => strtolower(class_basename(self::class)),
             'id' => $this->id,
             'content' => $this->title,
             'image' => null,

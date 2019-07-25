@@ -32,7 +32,16 @@ Coreteam extends Model
 
     public function getImageUrlAttribute()
     {
-        return !is_null($this->image) ? \Storage::url($this->image) : null;
+        $image = null;
+        if (!is_null($this->image)) {
+            $pos = strpos($this->image, env('S3_BUCKET'));
+            if ($pos === false) {
+                $image = \Storage::url($this->image);
+            } else {
+                $image = $this->image;
+            }
+        }
+        return $image;
     }
 
     public function getIsFollowingAttribute()

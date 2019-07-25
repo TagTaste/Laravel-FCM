@@ -36,7 +36,7 @@ class ServiceInterruptionJob
         \Mail::send('emails.serviceInterruption', ['userName'=>$this->username], function($message)
         {
             // $path = "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/Taster's+Docket.pdf";
-            $message->to($this->useremail, $this->username)->subject('Happy New Year 2019!');
+            $message->to($this->useremail, $this->username)->subject('Temporarily Down for Maintenance');
         });
     }
 }

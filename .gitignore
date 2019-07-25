@@ -16,3 +16,4 @@ app/storage/
 /nbproject
 newrelic_agent.log
 /storage
+yarn.lock
