@@ -38,40 +38,37 @@ class Following extends Command
      */
     public function handle()
     {
-        $subscribers = Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
-            ->whereNull('profiles.deleted_at')
-            ->whereNull('subscribers.deleted_at')
-            ->select('subscribers.id', 'profile_id', 'channel_name')
-            ->skip(233000)
-            ->limit(50000)
-            ->get();
-
-           
-        // echo "sleep for 1 second.";
-        // sleep(1);
-        echo "************* Count " . $subscribers->count() . "\n\n";
-        $counter = 1;
-        foreach ($subscribers as $model) {
-            echo "\n".$counter."| id: ".$model['id']." | profile_id: ".(int)$model['profile_id']." | channel: ".$model['channel_name']."\n";
-            $model->followSuggestion();
-            $counter = $counter + 1;
-        }
-
-
-        // Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
+        // $subscribers = Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
         //     ->whereNull('profiles.deleted_at')
         //     ->whereNull('subscribers.deleted_at')
         //     ->select('subscribers.id', 'profile_id', 'channel_name')
-        //     ->chunk(50, function ($subscribers) {
-        //         echo "sleep for 1 second.";
-        //         sleep(1);
-        //         echo "************* Count " . $subscribers->count() . "\n\n";
-        //         $counter = 1;
-        //         foreach ($subscribers as $model) {
-        //             echo "\n".$counter."| id: ".$model['id']." | profile_id: ".(int)$model['profile_id']." | channel: ".$model['channel_name']."\n";
-        //             $model->followSuggestion();
-        //             $counter = $counter + 1;
-        //         }
-        //     });
+        //     ->skip(233000)
+        //     ->limit(50000)
+        //     ->get();
+
+        // echo "************* Count " . $subscribers->count() . "\n\n";
+        // $counter = 1;
+        // foreach ($subscribers as $model) {
+        //     echo "\n".$counter."| id: ".$model['id']." | profile_id: ".(int)$model['profile_id']." | channel: ".$model['channel_name']."\n";
+        //     $model->followSuggestion();
+        //     $counter = $counter + 1;
+        // }
+
+
+        Subscriber::join("profiles",'profiles.id','=','subscribers.profile_id')
+            ->whereNull('profiles.deleted_at')
+            ->whereNull('subscribers.deleted_at')
+            ->select('subscribers.id', 'profile_id', 'channel_name')
+            ->chunk(50, function ($subscribers) {
+                echo "sleep for 1 second.";
+                sleep(1);
+                echo "************* Count " . $subscribers->count() . "\n\n";
+                $counter = 1;
+                foreach ($subscribers as $model) {
+                    echo "\n".$counter."| id: ".$model['id']." | profile_id: ".(int)$model['profile_id']." | channel: ".$model['channel_name']."\n";
+                    $model->followSuggestion();
+                    $counter = $counter + 1;
+                }
+            });
     }
 }
