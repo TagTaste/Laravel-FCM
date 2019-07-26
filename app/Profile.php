@@ -192,7 +192,7 @@ class Profile extends Model
         if (!$user) {
             \App\Neo4j\User::create($data);
         } else {
-            unset($data['user_id']);
+            unset($data['id']);
             \App\Neo4j\User::where('user_id', (int)$data['user_id'])->update($data);
         }
     }
