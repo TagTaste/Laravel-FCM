@@ -186,7 +186,7 @@ class FeedController extends Controller
             "type" => "suggestion",
         );
         $time = strtotime($profile->dob);
-        if (!is_null($foodie_type)) {
+        if (!is_null($time)) {
             $date = date('d-m',$time);
             $query = "MATCH (:DateOfBirth {dob: '$date'})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
                 WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
