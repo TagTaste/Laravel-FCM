@@ -214,18 +214,20 @@ class FeedController extends Controller
             "type" => "suggestion",
         );
         $foodie_type = $profile->foodieType;
-        $foodie_type_id = $foodie_type->id;
-        $query = "MATCH (:FoodieType {foodie_type_id: $foodie_type_id})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
-            WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
-            WITH users, rand() AS number
-            RETURN users
-            ORDER BY number
-            LIMIT 10";
-        $result = $client->run($query);
-        foreach ($result->records() as $record) {
-            $suggestion["meta"]["count"]++;
-            array_push($suggestion["suggestion"], $record->get('users')->values());
-        } 
+        if (!is_null($foodie_type)) {
+            $foodie_type_id = $foodie_type->id;
+            $query = "MATCH (:FoodieType {foodie_type_id: $foodie_type_id})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
+                WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
+                WITH users, rand() AS number
+                RETURN users
+                ORDER BY number
+                LIMIT 10";
+            $result = $client->run($query);
+            foreach ($result->records() as $record) {
+                $suggestion["meta"]["count"]++;
+                array_push($suggestion["suggestion"], $record->get('users')->values());
+            } 
+        }
         return $suggestion;   
     }
 
