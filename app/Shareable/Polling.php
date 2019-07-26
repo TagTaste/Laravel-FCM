@@ -53,8 +53,8 @@ class Polling extends Share
     {
         $meta = [];
         $key = "meta:pollingShare:likes:" . $this->id;
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
         $meta['original_post_meta'] = $poll->getMetaFor($profileId);
@@ -65,7 +65,7 @@ class Polling extends Share
         $meta = [];
         $key = "meta:collaborateShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 
