@@ -186,18 +186,20 @@ class FeedController extends Controller
             "type" => "suggestion",
         );
         $time = strtotime($profile->dob);
-        $date = date('d-m',$time);
-        $query = "MATCH (:DateOfBirth {dob: '$date'})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
-            WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
-            WITH users, rand() AS number
-            RETURN users
-            ORDER BY number
-            LIMIT 10";
-        $result = $client->run($query);
-        foreach ($result->records() as $record) {
-            $suggestion["meta"]["count"]++;
-            array_push($suggestion["suggestion"], $record->get('users')->values());
-        } 
+        if (!is_null($foodie_type)) {
+            $date = date('d-m',$time);
+            $query = "MATCH (:DateOfBirth {dob: '$date'})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
+                WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
+                WITH users, rand() AS number
+                RETURN users
+                ORDER BY number
+                LIMIT 10";
+            $result = $client->run($query);
+            foreach ($result->records() as $record) {
+                $suggestion["meta"]["count"]++;
+                array_push($suggestion["suggestion"], $record->get('users')->values());
+            } 
+        }
         return $suggestion;   
     }
 
