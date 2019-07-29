@@ -561,7 +561,7 @@ class SearchController extends Controller
         $chefOfTheWeekProfileId = 200;
 
 
-        $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
+        $chefOfTheWeekProfile = Redis::get('profile:small:' . $chefOfTheWeekProfileId);
         $data = json_decode($chefOfTheWeekProfile);
         if(!is_null($data))
         {
@@ -1187,13 +1187,13 @@ class SearchController extends Controller
         {
             $chefOfTheWeekProfileData->data_json = json_decode($chefOfTheWeekProfileData->data_json);
             $chefOfTheWeekProfileId = isset($chefOfTheWeekProfileData->model_id)? (int)$chefOfTheWeekProfileData->model_id : null;
-            $chefOfTheWeekProfile = \Redis::get('profile:small:' . $chefOfTheWeekProfileId);
+            $chefOfTheWeekProfile = Redis::get('profile:small:' . $chefOfTheWeekProfileId);
             $data = json_decode($chefOfTheWeekProfile);
             if(!is_null($data))
             {
                 $data->image = isset($chefOfTheWeekProfileData->data_json->image) ? $chefOfTheWeekProfileData->data_json->image : $data->image;
                 $data->image_meta = isset($chefOfTheWeekProfileData->data_json->image_meta) ? json_encode($chefOfTheWeekProfileData->data_json->image_meta,true) : $data->image_meta;
-                $data->isFollowing = \Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
+                $data->isFollowing = Redis::sIsMember("followers:profile:".$data->id,$loggedInProfileId) === 1;
                 $item = [$data];
                 $title = isset($chefOfTheWeekProfileData->data_json->title) ? $chefOfTheWeekProfileData->data_json->title : "Chef of the week" ;
                 $subtitle = isset($chefOfTheWeekProfileData->data_json->subtitle) ? $chefOfTheWeekProfileData->data_json->subtitle : null ;
@@ -1232,7 +1232,7 @@ class SearchController extends Controller
             $data = [];
             if(count($profileIds)> 0)
             {
-                $data = \Redis::mget($profileIds);
+                $data = Redis::mget($profileIds);
 
             }
             $profileData = [];
@@ -1243,7 +1243,7 @@ class SearchController extends Controller
                         continue;
                     }
                     $profile = json_decode($profile);
-                    $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                    $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                     $profile->self = false;
                     $profileData[] = $profile;
                 }
@@ -1294,7 +1294,7 @@ class SearchController extends Controller
 
             if(count($activityyBasedProfileId)> 0)
             {
-                $data = \Redis::mget($activityyBasedProfileId);
+                $data = Redis::mget($activityyBasedProfileId);
 
             }
             $profileData = [];
@@ -1305,7 +1305,7 @@ class SearchController extends Controller
                     continue;
                 }
                 $profile = json_decode($profile);
-                $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+                $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
                 $profile->self = false;
                 $profileData[] = $profile;
             }
@@ -1327,11 +1327,11 @@ class SearchController extends Controller
         {
             $chefOfTheWeekCompanyData->data_json = json_decode($chefOfTheWeekCompanyData->data_json);
             $weekOfTheCompanyId = isset($chefOfTheWeekCompanyData->model_id) ? (int)$chefOfTheWeekCompanyData->model_id : 55;
-            $weekOfTheCompany = \Redis::get('company:small:' . $weekOfTheCompanyId);
+            $weekOfTheCompany = Redis::get('company:small:' . $weekOfTheCompanyId);
             $data = json_decode($weekOfTheCompany);
             if(!is_null($data))
             {
-                $data->isFollowing = \Redis::sIsMember("followers:profile:".$loggedInProfileId,"company.".$data->id) === 1;
+                $data->isFollowing = Redis::sIsMember("followers:profile:".$loggedInProfileId,"company.".$data->id) === 1;
                 $data->logo = isset($chefOfTheWeekCompanyData->data_json->image) ? $chefOfTheWeekCompanyData->data_json->image : $data->logo;
                 $data->logo_meta = isset($chefOfTheWeekCompanyData->data_json->image_meta) ? json_encode($chefOfTheWeekCompanyData->data_json->image_meta,true) : $data->logo_meta;
                 $title = isset($chefOfTheWeekCompanyData->data_json->title) ? $chefOfTheWeekCompanyData->data_json->title : "Company in Focus" ;
@@ -1360,7 +1360,7 @@ class SearchController extends Controller
                     continue;
                 }
                 $company = json_decode($company);
-                $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+                $company->isFollowing = Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
                 $companyData[] = $company;
             }
             $title = isset($companiesToFollow->data_json->title) ? $companiesToFollow->data_json->title : "Companies to follow" ;
