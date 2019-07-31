@@ -477,15 +477,34 @@ class FeedController extends Controller
             ->whereNotIn('id',$applied_collaboration)
             ->inRandomOrder()
             ->pluck('id')
-            ->take(10)
+            ->take(3)
             ->toArray();
 
         if (count($collaborations)) {
             foreach ($collaborations as $key => $id) {
                 $cached_data = Redis::get("collaborate:".$id.":V2");
                 if ($cached_data) {
+                    $data = json_decode($cached_data,true); 
+                    $data["company"] = [];
+                    $data["profile"] = [];
+                    // add company detail to collaboration
+                    if (isset($data['company_id'])) {
+                        $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
+                        if ($company_cached_data) {
+                            $data["company"] = json_decode($company_cached_data,true); 
+                        } 
+                    }
+
+                    // add profile detail to collaboration
+                    if (isset($data['profile_id'])) {
+                        $company_cached_data = Redis::get("profile:small:".$data['profile_id'].":V2");
+                        if ($company_cached_data) {
+                            $data["profile"] = json_decode($company_cached_data,true); 
+                        } 
+                    }
+
                     $suggestion["meta"]["count"]++;
-                    array_push($suggestion["suggestion"], json_decode($cached_data,true)); 
+                    array_push($suggestion["suggestion"], $data); 
                 }
             }
         }
