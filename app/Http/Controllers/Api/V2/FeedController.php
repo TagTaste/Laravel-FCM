@@ -102,9 +102,9 @@ class FeedController extends Controller
 
         $feed_position = array_values(array_diff(array_keys($this->model),$suggestion_position));
 
-        $random = range(0,7);
+        $random = range(0,6);
         shuffle($random);
-        $random_suggestion = array_slice($random,0,3);
+        $random_suggestion = array_slice($random,0,2);
         foreach ($random_suggestion as $key => $value) {
             switch ($value) {
                 case '0':
@@ -128,13 +128,11 @@ class FeedController extends Controller
                 case '6':
                     $this->model[$suggestion_position[$key]] = $this->suggestion_by_company($client, $profile, $profileId);
                     break;
-                case '7':
-                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_following($client, $profile, $profileId);
-                    break;
                 default:
                     break;
             }
         }
+        $this->model[$suggestion_position[2]] = $this->suggestion_by_following($client, $profile, $profileId);
         $this->model[$suggestion_position[3]] = $this->suggestion_company($client, $profile, $profileId);
         
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
