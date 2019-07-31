@@ -39,10 +39,9 @@ class Profile extends Model
         'patents', 'followingProfiles', 'followerProfiles', 'mutualFollowers', 'name', 'photos', 'education','address', 'projects', 'professional',
         'created_at', 'pincode', 'isTagged', 'handle', 'expertise', 'keywords', 'city', 'country', 'resumeUrl', 'email_private',
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
-        'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step',
-        'remainingMessages', 'isFollowedBy', 'isMessageAble','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
+        'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
@@ -861,7 +860,8 @@ class Profile extends Model
     public function getIsMessageAbleAttribute()
     {
         $chat = Chat::open($this->id,request()->user()->profile->id);
-        return is_null($chat) ? false : true;
+        //return is_null($chat) ? false : true;
+        return true;
     }
 
     public function getProfileCompletionAttribute()
@@ -976,6 +976,11 @@ class Profile extends Model
     public function getFbInfoAttribute()
     {
         return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
+    }
+
+    public function getAllergensAttribute()
+    {
+        return \DB::table('allergens')->join('profiles_allergens','profiles_allergens.allergens_id','=','allergens.id')->where('profiles_allergens.profile_id',$this->id)->pluck('name');
     }
 }
 
