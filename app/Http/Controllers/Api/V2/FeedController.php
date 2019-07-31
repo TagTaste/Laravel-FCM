@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
 use GraphAware\Neo4j\Client\ClientBuilder;
+use App\Collaborate;
 
 class FeedController extends Controller
 {
@@ -104,7 +105,7 @@ class FeedController extends Controller
 
         $random = range(0,6);
         shuffle($random);
-        $random_suggestion = array_slice($random,0,2);
+        $random_suggestion = array_slice($random,0,1);
         foreach ($random_suggestion as $key => $value) {
             switch ($value) {
                 case '0':
@@ -132,6 +133,7 @@ class FeedController extends Controller
                     break;
             }
         }
+        $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
         $this->model[$suggestion_position[2]] = $this->suggestion_by_following($client, $profile, $profileId);
         $this->model[$suggestion_position[3]] = $this->suggestion_company($client, $profile, $profileId);
         
@@ -448,6 +450,44 @@ class FeedController extends Controller
         foreach ($result->records() as $record) {
             $suggestion["meta"]["count"]++;
             array_push($suggestion["suggestion"], $record->get('company')->values());
+        }
+        return $suggestion;
+    }
+
+    private function suggestion_collaboration($client, $profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Collaboration suggestion.",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_collaboration = \DB::table('collaborate_applicants')
+            ->where('profile_id',$profileId)
+            ->where('is_invited',0)
+            ->whereNull('rejected_at')
+            ->pluck('collaborate_id')
+            ->toArray();
+
+        $collaborations = Collaborate::where('collaborates.state',Collaborate::$state[0])
+            ->whereNotIn('id',$applied_collaboration)
+            ->inRandomOrder()
+            ->pluck('id')
+            ->take(10)
+            ->toArray();
+
+        if (count($collaborations)) {
+            foreach ($collaborations as $key => $id) {
+                $cached_data = Redis::get("collaborate:".$id.":V2");
+                if ($cached_data) {
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], json_decode($cached_data,true)); 
+                }
+            }
         }
         return $suggestion;
     }
