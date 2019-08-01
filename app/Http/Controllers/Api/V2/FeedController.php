@@ -484,8 +484,8 @@ class FeedController extends Controller
                 $cached_data = Redis::get("collaborate:".$id.":V2");
                 if ($cached_data) {
                     $data = json_decode($cached_data,true); 
-                    $data["company"] = [];
-                    $data["profile"] = [];
+                    $data["company"] = null;
+                    $data["profile"] = null;
                     // add company detail to collaboration
                     if (isset($data['company_id'])) {
                         $company_cached_data = Redis::get("company:small:".$data['company_id'].":V2");
