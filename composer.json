@@ -26,7 +26,8 @@
         "barryvdh/laravel-dompdf": "^0.8.2",
         "webpatser/laravel-uuid": "2.*",
         "vinelab/neoeloquent": "^1.4",
-        "graphaware/neo4j-php-client": "^4.8"
+        "graphaware/neo4j-php-client": "^4.8",
+        "barryvdh/laravel-cors": "0.10.1"
     },
 
     "require-dev": {
