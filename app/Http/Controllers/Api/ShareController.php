@@ -137,6 +137,7 @@ class ShareController extends Controller
         } elseif($sharedModel->profile_id){
             $this->model->relatedKey = ['profile' => 'profile:small:' . $sharedModel->profile_id];
         }
+        $this->model->addToCacheV2();
         Redis::set("shared:" . strtolower($modelName) . ":" . $this->model->id,$this->model->toJson());
         if(isset($tags) && $tags != 0){
             event(new Tag($this->model, $request->user()->profile, $this->model->content));
@@ -183,12 +184,12 @@ class ShareController extends Controller
             return $this->sendError("Nothing found for given shared model.");
         }
         $this->model['shared'] = $exists;
-        $this->model['sharedBy'] = json_decode(\Redis::get('profile:small:' . $exists->profile_id));
+        $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $exists->profile_id));
         $this->model['type'] = $modelName;
         if($sharedModel->company_id){
-            $this->model['company'] = json_decode(\Redis::get('company:small:' . $sharedModel->company_id));
+            $this->model['company'] = json_decode(Redis::get('company:small:' . $sharedModel->company_id));
         } elseif($sharedModel->profile_id){
-            $this->model['profile'] = json_decode(\Redis::get('profile:small:' . $sharedModel->profile_id));
+            $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel->profile_id));
         }
         $this->model[$modelName] = $sharedModel;
         $this->model['meta']= $exists->getMetaFor($loggedInProfileId);

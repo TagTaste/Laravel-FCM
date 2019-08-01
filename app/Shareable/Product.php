@@ -7,6 +7,7 @@ use App\PeopleLike;
 use App\PublicReviewProduct;
 use App\PublicReviewProduct\Review;
 use App\Shareable\Share;
+use Illuminate\Support\Facades\Redis;
 
 
 class Product extends Share
@@ -53,12 +54,26 @@ class Product extends Share
         $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
         $key = "meta:productShare:likes:" . $this->id;
 
-        $meta['hasLiked'] = \Redis::sIsMember($key,request()->user()->profile->id) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'productShare' ,request()->user()->profile->id);
 
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
+        return $meta;
+    }
+
+    public function getMetaForV2() : array
+    {
+        $product = PublicReviewProduct::where('id',$this->product_id)->whereNull('deleted_at')->first();
+        $meta = [];
+        $meta['overall_rating'] = $this->getOverallRatingAttribute($product);
+        $meta['current_status'] = $this->getCurrentStatusAttribute($product,request()->user()->profile->id);
+        $key = "meta:productShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,request()->user()->profile->id) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $meta['original_post_meta'] = $product->getMetaFor(request()->user()->profile->id);
         return $meta;
@@ -149,7 +164,7 @@ class Product extends Share
         $meta = [];
         $key = "meta:productShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 

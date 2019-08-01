@@ -34,6 +34,7 @@ class EducationController extends Controller {
         $inputs = $request->except(['_method','_token']);
         $inputs['profile_id'] = $request->user()->profile->id;
         $this->model = Education::create($inputs);
+        $this->model->addUserEducation();
         return $this->sendResponse();
 	}
 
@@ -63,7 +64,10 @@ class EducationController extends Controller {
 	public function update(Request $request, $profileId, $id)
 	{
         $input = $request->except(['_method','_token']);
-        $this->model = Education::where('id',$id)->where("profile_id",$request->user()->profile->id)->update($input);
+        $education = Education::where('id',$id)->where("profile_id",$profileId)->first();
+        $education->detachUserEducation();
+        $this->model = $education->update($input);
+        $education->updateUserEducation();
         return $this->sendResponse();
 	}
 
@@ -75,6 +79,8 @@ class EducationController extends Controller {
 	 */
 	public function destroy(Request $request, $profileId, $id)
 	{
+		$education = Education::where('id',$id)->where("profile_id",$profileId)->first();
+        $education->detachUserEducation();
         $this->model = Education::where('profile_id',$request->user()->profile->id)->where('id',$id)->delete();
         return $this->sendResponse();
 	}

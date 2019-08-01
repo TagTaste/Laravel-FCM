@@ -11,6 +11,7 @@ use App\Traits\IdentifiesOwner;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redis;
 
 class Shoutout extends Model implements Feedable
 {
@@ -39,20 +40,43 @@ class Shoutout extends Model implements Feedable
     {
         self::created(function($shoutout){
             $shoutout->addToCache();
+            $shoutout->addToCacheV2();
         });
 
         self::updated(function($shoutout){
             $shoutout->addToCache();
-        });    }
+            $shoutout->addToCacheV2();
+        });    
+    }
 
     public function addToCache(){
-        \Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
+        Redis::set("shoutout:" . $this->id,$this->makeHidden(['privacy','owner'])->toJson());
+
+    }
+
+    public function addToCacheV2(){
+        $data = $this->makeHidden(
+            [
+                'privacy',
+                'owner',
+                'privacy_id', 
+                'payload_id',
+                'mediaJson'
+            ]
+        )->toArray();
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        Redis::connection('V2')->set("shoutout:" . $this->id.":V2",json_encode($data));
     }
 
     public function removeFromCache()
     {
-        \Redis::del("shoutout:" . $this->id);
+        Redis::del("shoutout:" . $this->id);
+        Redis::connection('V2')->del("shoutout:" . $this->id.":V2");
     }
+
     public function profile()
     {
         return $this->belongsTo(\App\Recipe\Profile::class);
@@ -75,7 +99,7 @@ class Shoutout extends Model implements Feedable
 
     public function getLikeCountAttribute()
     {
-        $count = \Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $count = Redis::sCard("meta:shoutout:likes:" . $this->id);
 
         if($count >1000000)
         {
@@ -108,27 +132,33 @@ class Shoutout extends Model implements Feedable
     public function getMetaFor($profileId)
     {
         $meta = [];
-        $meta['hasLiked'] = \Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard("meta:shoutout:likes:" . $this->id);
-
+        $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:" . $this->id,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
         $meta['commentCount'] = $this->comments()->count();
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'shoutout' ,request()->user()->profile->id);
-
         $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
         $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
-
         $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
+        return $meta;
+    }
 
-
-
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $meta['hasLiked'] = Redis::sIsMember("meta:shoutout:likes:".$this->id,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard("meta:shoutout:likes:" . $this->id);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=\DB::table('shoutout_shares')->where('shoutout_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
+            ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
         return $meta;
     }
 
     public function getRelatedKey() : array
     {
-
         $owner = $this->owner();
         $prefix = "profile";
         if($owner instanceof \App\Recipe\Profile){
@@ -138,8 +168,8 @@ class Shoutout extends Model implements Feedable
         }
         $key = $prefix . ":small:" . $owner->id;
 
-        if(!\Redis::exists($key)){
-            \Redis::set($key, $owner->toJson());
+        if(!Redis::exists($key)){
+            Redis::set($key, $owner->toJson());
         }
 
         return [$prefix => $key];
@@ -157,7 +187,8 @@ class Shoutout extends Model implements Feedable
 
     public function getContentAttribute($value)
     {
-        $profiles = $this->getTaggedProfiles($value);
+        // $profiles = $this->getTaggedProfiles($value);
+        $profiles = $this->getTaggedProfilesV2($value);
 
         if($profiles){
             $value = ['text'=>$value,'profiles'=>$profiles];

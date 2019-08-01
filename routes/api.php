@@ -93,7 +93,7 @@ Route::post("unsubscribe/reason","SettingController@reasonUnsubscribe");
  * has prefix api/ - defined in RouteServiceProvider.php
  * note the dot.
  */
-Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {   
+Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
     Route::post('/verifyInviteCode','UserController@verifyInviteCode');
     
     /**
@@ -131,6 +131,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+            Route::get("feed","FeedController@feed");
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
@@ -156,7 +157,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
                 Route::delete("deleteMessage","MessageController@deleteMessage");
                 Route::resource("messages","MessageController");
                 Route::resource("members","MemberController");
-
             });
 
             Route::get("feed",'FeedController@feed');

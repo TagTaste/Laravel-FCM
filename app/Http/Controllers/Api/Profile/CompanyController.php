@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Subscriber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Redis;
 
 class CompanyController extends Controller
 {
@@ -51,6 +51,7 @@ class CompanyController extends Controller
         if(empty($inputs)){
             throw new \Exception("Empty request received.");
         }
+
         $inputs['user_id'] = $request->user()->id;
         try {
             $company = Company::create($inputs);
@@ -182,6 +183,9 @@ class CompanyController extends Controller
         $company = \App\Company::find($id);
         $company->addToCache();
         $this->model = $company;
+        $this->model->addToCache();
+        $this->model->addToCacheV2();
+        $this->model->addToGraph();
         //update the document
         \App\Documents\Company::create($company);
         \App\Filter\Company::addModel($company);
@@ -203,10 +207,10 @@ class CompanyController extends Controller
         Subscriber::where("channel_name","like","company%$id")->delete();
     
         //remove from following profiles
-        $followers = \Redis::smembers("followers:company:$id");
+        $followers = Redis::smembers("followers:company:$id");
         if(count($followers)){
             foreach($followers as $profileId){
-                \Redis::sRem("following:profile:$profileId",$id);
+                Redis::sRem("following:profile:$profileId",$id);
             }
         }
         
@@ -221,9 +225,8 @@ class CompanyController extends Controller
         
         
         //remove from cache
-        \Redis::del("company:small:" . $id);
-        \Redis::del("followers:company:$id");
-    
+        Redis::del("company:small:".$id);
+        Redis::del("followers:company:$id");
     
         return $this->sendResponse();
     }
@@ -258,48 +261,55 @@ class CompanyController extends Controller
     
     public function follow(Request $request, $profileId, $id)
     {
-        $channelOwner = Company::find($id);
-        if(!$channelOwner){
+        $channel_owner = Company::find($id);
+        if (!$channel_owner) {
             throw new ModelNotFoundException("Company not found.");
         }
         
-        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
-        
-        if(!$this->model){
+        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channel_owner);
+        if (!$this->model) {
            return $this->sendError("You are already following this company.");
         }
         
-        $profileId = $request->user()->profile->id;
+        $profile_id = $request->user()->profile->id;
     
-        //companies the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, "company.$id");
+        // add companies the logged in user is following
+        Redis::sAdd("following:profile:" . $profile_id, "company.$id");
     
-        //profiles that are following $channelOwner
-        \Redis::sAdd("followers:company:" . $id, $profileId);
+        // add companies that are following $channel_owner
+        Redis::sAdd("followers:company:".$id, $profile_id);
 
-        \Redis::sRem('suggested:company:'.$profileId,$id);
+        Redis::sRem('suggested:company:'.$profile_id, $id);
+        
+        $subscriber = new Subscriber();
+        $subscriber->followCompanySuggestion((int)$profile_id, (int)$id);
         
         return $this->sendResponse();
     }
     
     public function unfollow(Request $request, $profileId, $id)
     {
-        $channelOwner = Company::find($id);
-        if(!$channelOwner){
-            throw new ModelNotFoundException();
+        $channel_owner = Company::find($id);
+        if(!$channel_owner){
+            throw new ModelNotFoundException("Company not found.");
         }
 
-        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
-        
-        if(!$this->model){
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channel_owner);
+        if (!$this->model) {
             return $this->sendError("You are not following this company.");
         }
-        $profileId = $request->user()->profile->id;
-        //companies the logged in user is following
-        \Redis::sRem("following:profile:" . $profileId, "company.$id");
+
+        $profile_id = $request->user()->profile->id;
+        
+        // remove companies the logged in user is following
+        Redis::sRem("following:profile:".$profile_id, "company.$id");
     
-        //profiles that are following $channelOwner
-        \Redis::sRem("followers:company:" . $id, $profileId);
+        // remove profiles that are following $channelOwner
+        Redis::sRem("followers:company:".$id, $profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->unfollowCompanySuggestion((int)$profile_id, (int)$id);
+
         return $this->sendResponse();
     }
 
@@ -351,7 +361,7 @@ class CompanyController extends Controller
     public function followers(Request $request, $profileId, $id)
     {
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:company:".$id);
+        $profileIds = Redis::SMEMBERS("followers:company:".$id);
         $this->model['count'] = count($profileIds);
         $data = [];
         $page = $request->has('page') ? $request->input('page') : 1;
@@ -364,7 +374,7 @@ class CompanyController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         foreach($data as &$profile){
@@ -372,7 +382,7 @@ class CompanyController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
         $this->model['profile'] = $data;
         return $this->sendResponse();

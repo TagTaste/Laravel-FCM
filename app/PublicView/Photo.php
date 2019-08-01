@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use App\Photo as BasePhoto;
+use Illuminate\Support\Facades\Redis;
 
 class Photo extends BasePhoto
 {
@@ -125,7 +126,7 @@ class Photo extends BasePhoto
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         return $meta;
     }

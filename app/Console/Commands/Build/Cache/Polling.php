@@ -39,7 +39,9 @@ class Polling extends Command
     public function handle()
     {
         \App\Polling::chunk(200,function($models){
-            foreach($models as $model){
+            foreach($models as $model) {
+                $keySmall = "polling:" . $model->id;
+                echo 'updating ' . $keySmall . "\n";
                 $model->addToCache();
             }
         });

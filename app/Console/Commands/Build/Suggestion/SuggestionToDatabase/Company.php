@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Build\Suggestion\SuggestionToDatabase;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class Company extends Command
 {
@@ -52,16 +53,16 @@ class Company extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
                         foreach ($x as $y)
                         {
-                            if(!\Redis::sIsMember('following:profile:'.$model->id, "company".$y))
+                            if(!Redis::sIsMember('following:profile:'.$model->id, "company".$y))
                             {
-                                \Redis::sAdd('suggested:company:'.$model->id,$y);
+                                Redis::sAdd('suggested:company:'.$model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar company ids
-                    $companiesIds = \Redis::sMembers('suggested:company:'.$model->id);
+                    $companiesIds = Redis::sMembers('suggested:company:'.$model->id);
                     $companiesIdsCsv = '';
                     $index = 0;
                     foreach ($companiesIds as $companiesId)
@@ -74,7 +75,7 @@ class Company extends Command
 
                     if($index < 20)
                     {
-                        $ids = \Redis::sMembers('following:profile:'.$model->id);
+                        $ids = Redis::sMembers('following:profile:'.$model->id);
                         $companiesIds = [];
                         foreach ($ids as $id)
                         {
@@ -102,16 +103,16 @@ class Company extends Command
                         $x = $data->where('value','like','%'.$datum->value.'%')->where('key',$datum->key)->get()->pluck('company_id');
                         foreach ($x as $y)
                         {
-                            if(!\Redis::sIsMember('following:profile:'.$model->id, "company".$y))
+                            if(!Redis::sIsMember('following:profile:'.$model->id, "company".$y))
                             {
-                                \Redis::sAdd('suggested:company:'.$model->id,$y);
+                                Redis::sAdd('suggested:company:'.$model->id,$y);
                                 $modelIds[] = $y;
                             }
                         }
                     }
                     echo "profile id ".$model->id ."\n";
                     //get existing similar company ids
-                    $companiesIds = \Redis::sMembers('suggested:company:'.$model->id);
+                    $companiesIds = Redis::sMembers('suggested:company:'.$model->id);
                     $companiesIdsCsv = '';
                     $index = 0;
                     foreach ($companiesIds as $companiesId)
@@ -123,7 +124,7 @@ class Company extends Command
                     }
                     if($index < 20)
                     {
-                        $ids = \Redis::sMembers('following:profile:'.$model->id);
+                        $ids = Redis::sMembers('following:profile:'.$model->id);
                         $companiesIds = [];
                         foreach ($ids as $id)
                         {

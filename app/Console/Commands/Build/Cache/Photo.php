@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Redis;
 class Photo extends Command
 {
     use GetTags, CheckTags;
-
     /**
      * The name and signature of the console command.
      *
@@ -43,8 +42,8 @@ class Photo extends Command
     public function handle()
     {
         \DB::table("photos")->orderBy('created_at')->chunk(200, function($photos){
-            foreach($photos as $photo){
-                $captionProfiles = $this->getTaggedProfilesFeed($photo->caption);
+            foreach ($photos as $photo) {
+                $captionProfiles = $this->getTaggedProfilesV2($photo->caption);
                 $captionDetail = $photo->caption;
                 if ($captionProfiles) {
                     $captionDetail = [

@@ -3,6 +3,7 @@
 namespace App\Shareable;
 
 use App\PeopleLike;
+use Illuminate\Support\Facades\Redis;
 
 class Collaborate extends Share
 {
@@ -32,8 +33,8 @@ class Collaborate extends Share
         $meta = [];
         $key = "meta:collaborateShare:likes:" . $this->id;
     
-        $meta['hasLiked'] = \Redis::sIsMember($key,$profileId) === 1;
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
 
         $peopleLike = new PeopleLike();
         $meta['peopleLiked'] = $peopleLike->peopleLike($this->id, 'collaborateShare' ,request()->user()->profile->id);
@@ -45,11 +46,21 @@ class Collaborate extends Share
         return $meta;
     }
 
+    public function getMetaForV2($profileId)
+    {
+        $meta = [];
+        $key = "meta:collaborateShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        return $meta;
+    }
+
     public function getMetaForPublic(){
         $meta = [];
         $key = "meta:collaborateShare:likes:" . $this->id;
 
-        $meta['likeCount'] = \Redis::sCard($key);
+        $meta['likeCount'] = Redis::sCard($key);
 
         $meta['commentCount'] = $this->comments()->count();
 

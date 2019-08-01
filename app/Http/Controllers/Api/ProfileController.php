@@ -15,6 +15,7 @@ use App\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Jobs\PhoneVerify;
+use Illuminate\Support\Facades\Redis;
 
 class ProfileController extends Controller
 {
@@ -61,7 +62,7 @@ class ProfileController extends Controller
         {
             unset($this->model['email']);
         }
-        if(!\Redis::sIsMember("followers:profile:".$loggedInProfileId,$id) && $this->model['profile']['email_private'] == 2)
+        if(!Redis::sIsMember("followers:profile:".$loggedInProfileId,$id) && $this->model['profile']['email_private'] == 2)
         {
             unset($this->model['email']);
         }
@@ -295,6 +296,13 @@ class ProfileController extends Controller
             }
         }
         $this->model = Profile::find($request->user()->profile->id);
+        $this->model->addToCache();
+        $this->model->addToCacheV2();
+        $this->model->addToGraph();
+        $this->model->updateUserDob();
+        $this->model->updateUserCuisine();
+        $this->model->updateUserFoodieType();
+        $this->model->updateUserSpecialization();
         return $this->sendResponse();
     }
     
@@ -368,57 +376,65 @@ class ProfileController extends Controller
 
     public function follow(Request $request)
     {
-        $channelOwnerProfileId = $request->input('id');
+        $channel_owner_profile_id = $request->input('id');
         //$request->user()->profile->follow($id);
-        $channelOwner = \App\Recipe\Profile::find($channelOwnerProfileId);
-        if(!$channelOwner){
+        $channel_owner = \App\Recipe\Profile::find($channel_owner_profile_id);
+        if (!$channel_owner) {
             throw new ModelNotFoundException();
         }
-        if($channelOwnerProfileId == $request->user()->profile->id)
-        {
+        
+        if ($channel_owner_profile_id == $request->user()->profile->id) {
             return $this->sendError("You can not follow yourself.");
         }
-        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channelOwner);
-        $profileId = $request->user()->profile->id;
+        $profile_id = $request->user()->profile->id;
+
+        $this->model = $request->user()->completeProfile->subscribeNetworkOf($channel_owner);
+
+        // add profiles the logged in user is following
+        Redis::sAdd("following:profile:".$profile_id, $channel_owner_profile_id);
         
-        //profiles the logged in user is following
-        \Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
+        // add profiles that are following $channel_owner in redis
+        Redis::sAdd("followers:profile:".$channel_owner_profile_id, $profile_id);
         
-        //profiles that are following $channelOwner
-        \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
-        
-        if(!$this->model){
+        if (!$this->model) {
             $this->sendError("You are already following this profile.");
         }
 
-        event(new Follow($channelOwner, $request->user()->profile));
+        event(new Follow($channel_owner, $request->user()->profile));
 
-        \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
+        Redis::sRem('suggested:profile:'.$profile_id, $channel_owner_profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->followProfileSuggestion((int)$profile_id, (int)$channel_owner_profile_id);
 
         return $this->sendResponse();
     }
     
     public function unfollow(Request $request)
     {
-        $channelOwnerProfileId = $request->input('id');
+        $channel_owner_profile_id = $request->input('id');
         //$request->user()->profile->follow($id);
-        $channelOwner = Profile::find($channelOwnerProfileId);
-        if(!$channelOwner){
+        $channel_owner = Profile::find($channel_owner_profile_id);
+        if(!$channel_owner){
             throw new ModelNotFoundException();
         }
         
-        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channelOwner);
+        $this->model = $request->user()->completeProfile->unsubscribeNetworkOf($channel_owner);
         
-        if(!$this->model){
+        if (!$this->model) {
             $this->sendError("You are not following this profile.");
         }
     
-        $profileId = $request->user()->profile->id;
-        //profiles the logged in user is following
-        \Redis::sRem("following:profile:" . $profileId, $channelOwnerProfileId);
+        $profile_id = $request->user()->profile->id;
+        
+        // remove profiles the logged in user is following
+        Redis::sRem("following:profile:" . $profile_id, $channel_owner_profile_id);
     
-        //profiles that are following $channelOwner
-        \Redis::sRem("followers:profile:" . $channelOwnerProfileId, $profileId);
+        // remove profiles that are following $channel_owner in redis
+        Redis::sRem("followers:profile:" . $channel_owner_profile_id, $profile_id);
+
+        $subscriber = new Subscriber();
+        $subscriber->unfollowProfileSuggestion((int)$profile_id, (int)$channel_owner_profile_id);
     
         return $this->sendResponse();
     }
@@ -512,9 +528,9 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
 
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$id);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$id);
         $count = count($profileIds);
-        if($count > 0 && \Redis::sIsMember("followers:profile:".$id,$id)){
+        if($count > 0 && Redis::sIsMember("followers:profile:".$id,$id)){
                   $count = $count - 1;
         }
         $this->model['count'] = $count;
@@ -535,7 +551,7 @@ class ProfileController extends Controller
 
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         foreach($data as &$profile){
@@ -543,7 +559,7 @@ class ProfileController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
         $this->model['profile'] = $data;
@@ -552,11 +568,11 @@ class ProfileController extends Controller
     
     private function getFollowing($id, $loggedInProfileId, $page)
     {
-        $profileIds = \Redis::sMembers("following:profile:$id");
+        $profileIds = Redis::sMembers("following:profile:$id");
     
         $count = count($profileIds);
         
-        if($count > 0 && \Redis::sIsMember("following:profile:".$id,$id)){
+        if($count > 0 && Redis::sIsMember("following:profile:".$id,$id)){
               $count = $count - 1;
         }
 
@@ -578,7 +594,7 @@ class ProfileController extends Controller
         $following = [];
         if(count($profileIds)> 0)
         {
-            $following = \Redis::mget($profileIds);
+            $following = Redis::mget($profileIds);
         }
         foreach($following as &$profile){
             if(is_null($profile)){
@@ -589,7 +605,7 @@ class ProfileController extends Controller
             $profile->type = isset($profile->profileId) ? "company" : "profile";
             $value = isset($profile->profileId) ? "company." : null;
             $value .= $profile->id;
-            $profile->isFollowing =  \Redis::sIsMember($key,$value) === 1;
+            $profile->isFollowing =  Redis::sIsMember($key,$value) === 1;
         }
         return ['count'=> $count,'profile'=>$following];
     }
@@ -655,7 +671,7 @@ class ProfileController extends Controller
         
         $this->model = [];
         foreach($recentModels as $model => $class){
-            $modelIds = \Redis::lRange($keyPrefix . $model,0,9);
+            $modelIds = Redis::lRange($keyPrefix . $model,0,9);
             $this->model[$model] = $class::whereIn("id",$modelIds)->get();
         }
         return $this->sendResponse();
@@ -678,7 +694,7 @@ class ProfileController extends Controller
         {
             $companyId = "company:small:" . $companyId;
         }
-        $data = \Redis::mget($companyIds);
+        $data = Redis::mget($companyIds);
         foreach($data as &$company){
             $company = json_decode($company);
         }
@@ -689,7 +705,7 @@ class ProfileController extends Controller
     {
         $this->model = [];
         $loginProfileId = $request->user()->profile->id;
-        $profileIds = \Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
+        $profileIds = Redis::SINTER("followers:profile:".$id,"followers:profile:".$loginProfileId);
         $data = [];
         $this->model['count'] = count($profileIds);
         $page = $request->has('page') ? $request->input('page') : 1;
@@ -700,7 +716,7 @@ class ProfileController extends Controller
         }
         if(count($profileIds))
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
         }
         foreach($data as &$profile){
             $profile = json_decode($profile);
@@ -712,7 +728,7 @@ class ProfileController extends Controller
     public function tagging(Request $request)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         $query = $request->input('term');
 
         $this->model = \App\Recipe\Profile::select('profiles.*')->join('users','profiles.user_id','=','users.id')->where('users.name','like',"%$query%")
@@ -727,8 +743,8 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
 
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
-        $this->model['count'] = count($profileIds) - \Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $this->model['count'] = count($profileIds) - Redis::sIsMember("followers:profile:".$loggedInProfileId,$loggedInProfileId);
         $data = [];
         foreach ($profileIds as $key => $value)
         {
@@ -742,7 +758,7 @@ class ProfileController extends Controller
 
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         $followerData = [];
@@ -751,7 +767,7 @@ class ProfileController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $followerData[] = $profile;
         }
         $this->model['profile'] = array_filter($followerData);
@@ -763,7 +779,7 @@ class ProfileController extends Controller
         $loggedInProfileId = $request->user()->profile->id ;
 
         $this->model = [];
-        $profileIds = \Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
+        $profileIds = Redis::SMEMBERS("followers:profile:".$loggedInProfileId);
         //$this->model['count'] = count($profileIds);
         $data = [];
         /*
@@ -783,7 +799,7 @@ class ProfileController extends Controller
 
         if(count($profileIds)> 0)
         {
-            $data = \Redis::mget($profileIds);
+            $data = Redis::mget($profileIds);
 
         }
         foreach($data as &$profile){
@@ -791,7 +807,7 @@ class ProfileController extends Controller
                 continue;
             }
             $profile = json_decode($profile);
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
             $profile->self = false;
         }
         $this->model = array_filter($data);
@@ -835,12 +851,12 @@ class ProfileController extends Controller
 
         foreach ($this->model['profile'] as &$profile)
         {
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
 
         foreach ($this->model['company'] as &$company)
         {
-            $company->isFollowing = \Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
+            $company->isFollowing = Redis::sIsMember("following:profile:" . $loggedInProfileId,"company." . $company->id) === 1;
         }
 
         return $this->sendResponse();
@@ -960,7 +976,7 @@ class ProfileController extends Controller
         foreach ($profiles as &$profile)
         {
             $fbFriends = $profile->id.",".$fbFriends;
-            $profile->isFollowing = \Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
+            $profile->isFollowing = Redis::sIsMember("followers:profile:".$profile->id,$loggedInProfileId) === 1;
         }
         \DB::table('social_accounts')->where('provider_user_id',$loggedInUserProviderId)
             ->where('user_id',$request->user()->id)->update(['fb_friends'=>$fbFriends]);
@@ -984,7 +1000,7 @@ class ProfileController extends Controller
         {
             $premiumnCompanies[] = "company:small:" . $companyId;
         }
-        $data = \Redis::mget($premiumnCompanies);
+        $data = Redis::mget($premiumnCompanies);
         foreach($data as &$company){
             $company = json_decode($company);
         }
@@ -1073,10 +1089,10 @@ class ProfileController extends Controller
             $profileId = $request->user()->profile->id;
 
             //profiles the logged in user is following
-            \Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
+            Redis::sAdd("following:profile:" . $profileId, $channelOwnerProfileId);
 
             //profiles that are following $channelOwner
-            \Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
+            Redis::sAdd("followers:profile:" . $channelOwnerProfileId, $profileId);
 
             if(!$data){
                 continue;
@@ -1084,7 +1100,7 @@ class ProfileController extends Controller
             $this->model = $data;
             event(new Follow($channelOwner, $request->user()->profile));
 
-            \Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
+            Redis::sRem('suggested:profile:'.$request->user()->profile->id,$channelOwnerProfileId);
         }
         if(isset($this->model) && $this->model != false)
             $this->model = true;

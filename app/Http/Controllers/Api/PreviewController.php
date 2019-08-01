@@ -17,7 +17,14 @@ class PreviewController extends Controller
             $class = "\\App\\" . "PublicReviewProduct";
         else
             $class = "\\App\\" . ucwords($modelName);
-        return $class::find($id);
+        if($modelName === 'collaborate')
+        {
+            $model = $class::where('id',$id)->where('state',$class::$state[0])->whereNull('deleted_at')->first();
+        }
+        else {
+            $model = $class::find($id);
+        }
+        return $model;
     }
     
     public function show(Request $request,$modelName,$modelId)

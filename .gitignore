@@ -6,6 +6,7 @@ public/*
 !public/health.php
 Homestead.yaml
 Homestead.json
+composer.lock
 app/storage/
 .env.*.php
 .env.php
