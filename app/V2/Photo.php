@@ -306,7 +306,8 @@ class Photo extends Model implements Feedable
         }
     }
 
-    public function getImagesAttribute($value){
+    public function getImagesAttribute($value)
+    {
         if($value === null){
             if($this->image_meta == null){
                 return null;
@@ -326,8 +327,8 @@ class Photo extends Model implements Feedable
             return $value;
         }
         else{
-            if ($this->image != null && count(json_decode($this->images))>0) {
-                return json_encode(json_decode($this->images)[0]);
+            if ($this->images != null && count($this->images)>0) {
+                return json_encode($this->images[0]);
             } else {
                 return null;
             }
