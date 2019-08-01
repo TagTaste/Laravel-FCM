@@ -136,7 +136,6 @@ class FeedController extends Controller
         $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
         $this->model[$suggestion_position[2]] = $this->suggestion_by_following($client, $profile, $profileId);
         $this->model[$suggestion_position[3]] = $this->suggestion_company($client, $profile, $profileId);
-        dd($this->model);
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
         $index = 0;
