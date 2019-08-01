@@ -199,6 +199,7 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
     ],
 
