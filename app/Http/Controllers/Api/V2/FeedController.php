@@ -136,7 +136,7 @@ class FeedController extends Controller
         $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
         $this->model[$suggestion_position[2]] = $this->suggestion_by_following($client, $profile, $profileId);
         $this->model[$suggestion_position[3]] = $this->suggestion_company($client, $profile, $profileId);
-        
+        dd($this->model);
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
         $index = 0;
@@ -191,8 +191,8 @@ class FeedController extends Controller
             $query = "MATCH (:DateOfBirth {dob: '$date'})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
                 WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
                 WITH users, rand() AS number
-                RETURN users
                 ORDER BY number
+                RETURN DISTINCT users
                 LIMIT 10";
             $result = $client->run($query);
             foreach ($result->records() as $record) {
@@ -221,8 +221,8 @@ class FeedController extends Controller
             $query = "MATCH (:FoodieType {foodie_type_id: $foodie_type_id})-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
                 WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
                 WITH users, rand() AS number
-                RETURN users
                 ORDER BY number
+                RETURN DISTINCT users
                 LIMIT 10";
             $result = $client->run($query);
             foreach ($result->records() as $record) {
@@ -251,8 +251,8 @@ class FeedController extends Controller
             $query = "MATCH (cuisine:Cuisines)-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
                 WHERE cuisine.cuisine_id IN [$cuisine_ids_string] AND users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
                 WITH users, rand() AS number
-                RETURN users
                 ORDER BY number
+                RETURN DISTINCT users
                 LIMIT 10";
             $result = $client->run($query);
             foreach ($result->records() as $record) {
@@ -293,8 +293,8 @@ class FeedController extends Controller
         $query = "MATCH (degree:Degree)-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
             WHERE degree.name IN [$education_list_string] AND users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
             WITH users, rand() AS number
-            RETURN users
             ORDER BY number
+            RETURN DISTINCT users
             LIMIT 10";
         $result = $client->run($query);
         foreach ($result->records() as $record) {
@@ -334,8 +334,8 @@ class FeedController extends Controller
         $query = "MATCH (experiance:Experiance)-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
             WHERE experiance.name IN [$experiance_list_string] AND users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
             WITH users, rand() AS number
-            RETURN users
             ORDER BY number
+            RETURN DISTINCT users
             LIMIT 10";
         $result = $client->run($query);
         foreach ($result->records() as $record) {
@@ -362,8 +362,8 @@ class FeedController extends Controller
             $query = "MATCH (specialization:Specializations)-[:HAVE]-(users:User), (user:User {profile_id:$profileId})
                 WHERE specialization.specialization_id IN [$specialization_ids_string] AND users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
                 WITH users, rand() AS number
-                RETURN users
                 ORDER BY number
+                RETURN DISTINCT users
                 LIMIT 10";
             $result = $client->run($query);
             foreach ($result->records() as $record) {
@@ -389,8 +389,8 @@ class FeedController extends Controller
         $query = "MATCH (user:User {profile_id:$profileId})-[:FOLLOWS_COMPANY]-(company:Company)<-[:FOLLOWS_COMPANY]-(users:User)
             WHERE users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(users))
             WITH users, rand() AS number
-            RETURN users
             ORDER BY number
+            RETURN DISTINCT users
             LIMIT 10";
         $result = $client->run($query);
         foreach ($result->records() as $record) {
@@ -416,8 +416,8 @@ class FeedController extends Controller
         $query = "MATCH (user:User {profile_id:$profileId})-[:FOLLOWS]-(users:User)<-[:FOLLOWS]-(sub_users:User)   
             WHERE sub_users.profile_id <> $profileId AND not ((user)-[:FOLLOWS {following:1}]->(sub_users))
             WITH sub_users, rand() AS number
-            RETURN sub_users
             ORDER BY number
+            RETURN DISTINCT sub_users
             LIMIT 10";
         $result = $client->run($query);
         foreach ($result->records() as $record) {
@@ -443,8 +443,8 @@ class FeedController extends Controller
         $query = "MATCH (user:User {profile_id:$profileId}), (company:Company)
             WHERE not ((user)-[:FOLLOWS_COMPANY {following:1}]->(company))
             WITH company, rand() AS number
-            RETURN company
             ORDER BY number
+            RETURN DISTINCT company
             LIMIT 10";
         $result = $client->run($query);
         foreach ($result->records() as $record) {
