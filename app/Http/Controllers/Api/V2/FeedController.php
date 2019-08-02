@@ -538,7 +538,9 @@ class FeedController extends Controller
             ->whereNotIn('id',$applied_product_review)
             ->inRandomOrder()
             ->pluck('id')
+            ->take(10)
             ->toArray();
+            
         if (count($public_review_product)) {
             foreach ($public_review_product as $key => $id) {
                 $cached_data = Redis::get("public-review/product:".$id.":V2");
