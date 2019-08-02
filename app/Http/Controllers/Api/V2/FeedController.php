@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Controller;
 use Illuminate\Support\Facades\Redis;
 use GraphAware\Neo4j\Client\ClientBuilder;
 use App\Collaborate;
+use App\PublicReviewProduct;
 
 class FeedController extends Controller
 {
@@ -103,7 +104,7 @@ class FeedController extends Controller
 
         $feed_position = array_values(array_diff(array_keys($this->model),$suggestion_position));
 
-        $random = range(0,6);
+        $random = range(0,7);
         shuffle($random);
         $random_suggestion = array_slice($random,0,1);
         foreach ($random_suggestion as $key => $value) {
@@ -129,13 +130,17 @@ class FeedController extends Controller
                 case '6':
                     $this->model[$suggestion_position[$key]] = $this->suggestion_by_company($client, $profile, $profileId);
                     break;
+                case '7':
+                    $this->model[$suggestion_position[$key]] = $this->suggestion_by_following($client, $profile, $profileId);
+                    break;
                 default:
                     break;
             }
         }
         $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
-        $this->model[$suggestion_position[2]] = $this->suggestion_by_following($client, $profile, $profileId);
-        $this->model[$suggestion_position[3]] = $this->suggestion_company($client, $profile, $profileId);
+        $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
+        $this->model[$suggestion_position[3]] = $this->suggestion_products($client, $profile, $profileId);
+
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
         $index = 0;
@@ -502,6 +507,43 @@ class FeedController extends Controller
                         } 
                     }
 
+                    $suggestion["meta"]["count"]++;
+                    array_push($suggestion["suggestion"], $data); 
+                }
+            }
+        }
+        return $suggestion;
+    }
+
+    private function suggestion_products($client, $profile, $profileId) 
+    {
+        $suggestion = array(
+            "suggestion" => array(),
+            "meta" => [
+                "count" => 0,
+                "text" => "Product suggestion.",
+                "sub_type" => "public_review_product",
+            ],
+            "type" => "suggestion",
+        );
+
+        $applied_product_review = \DB::table('public_product_user_review')
+            ->where('profile_id',$profileId)
+            ->where('current_status',2)
+            ->distinct('product_id')
+            ->pluck('product_id')
+            ->toArray();
+
+        $public_review_product = PublicReviewProduct::where('is_active',1)
+            ->whereNotIn('id',$applied_product_review)
+            ->inRandomOrder()
+            ->pluck('id')
+            ->toArray();
+        if (count($public_review_product)) {
+            foreach ($public_review_product as $key => $id) {
+                $cached_data = Redis::get("public-review/product:".$id.":V2");
+                if ($cached_data) {
+                    $data = json_decode($cached_data,true); 
                     $suggestion["meta"]["count"]++;
                     array_push($suggestion["suggestion"], $data); 
                 }
