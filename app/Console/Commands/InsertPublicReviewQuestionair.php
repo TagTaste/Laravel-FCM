@@ -45,35 +45,26 @@ class InsertPublicReviewQuestionair extends Command
 
             ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
+
             ['header_name' => "Your Food Shot",'header_selection_type' => "3"],
 
 
+            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
 
 
-            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a piece of the product on a white plate. Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
+            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are only assessing the aromas (odors through the nose), so please don't drink it yet. Now bring the product closer to your nose and take a deep breath; you may also try taking 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like fermentation, distillation etc.), which the product might have undergone."],'header_selection_type'=>"1"],
 
 
-
-            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone."],'header_selection_type'=>"1"],
-
+            ['header_name' => "TASTE","header_info" => ["text" => "Slurp noisily and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
-            ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
+            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Slurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
+            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we drink."],'header_selection_type'=>"1"],
 
 
-            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics."],'header_selection_type'=>"1"],
-
-
-
-
-            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
-
-
-
-
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Acidity, Aftertaste, Flavor and Body; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
 
         ];
 
@@ -88,7 +79,7 @@ class InsertPublicReviewQuestionair extends Command
 		"title": "Instruction",
 
 
-		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nRemember, there are no right or wrong answers.",
+		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease click (!) on every screen/page for guidance related to questions. Remember, there are no right or wrong answers.",
 
 
 		"select_type": 4
@@ -96,7 +87,8 @@ class InsertPublicReviewQuestionair extends Command
 
 	}],
 
-"Your Food Shot": [
+    
+    "Your Food Shot": [
 
 
 
@@ -135,9 +127,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"title": "What is the serving temperature of the product?",
-
-
-			"subtitle": "You may also touch the product to assess the serving temperature.",
 
 
 			"select_type": 1,
@@ -191,7 +180,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Room Temperature",
+					"value": "Room temperature",
 
 
 					"is_intensity": 0
@@ -227,7 +216,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Burning Hot",
+					"value": "Steaming hot",
 
 
 					"is_intensity": 0
@@ -245,7 +234,203 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "How is the visual impression (color and sheen) of the product?",
+			"title": "Assess the foam on the surface of the coffee. What do you observe?",
+     "subtitle": "Compact foam - small bubbles; Airy foam - large bubbles.",
+		
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [{
+
+
+					"value": "Only compact foam",
+
+
+					"is_intensity": 0
+
+
+				},
+{
+
+
+					"value": "Only airy foam",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Compact & airy foam",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Washed out foam",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "No foam",
+
+
+					"is_intensity": 0
+
+
+				}
+				
+
+			]
+
+
+		},
+		{
+
+
+			"title": "In terms of the motif (design), how does the top layer appear to you?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [{
+
+
+					"value": "Appealing",
+
+
+					"is_intensity": 0
+
+
+				},
+{
+
+
+					"value": "Boring",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Artistic",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Elegant",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Simple",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Opulent",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Bold",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Minimal",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Overwhelming",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "No motif",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
+
+
+		},
+		{
+
+
+			"title": "How is the visual impression (color & hue) of the product?",
 
 			"select_type": 2,
 
@@ -282,17 +467,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Shiny",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Glazed",
+					"value": "Soft shine",
 
 
 					"is_intensity": 0
@@ -319,7 +494,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
 				{
 
 
@@ -340,193 +514,18 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
-				
 
 			]
 
 
 		},
-{
-
-
-			"title": "What is the color of the product & its intensity?",
-
-
-			"is_nested_question": 0,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_option": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"select_type": 1,
-
-
-			"option": [{
-
-
-					"value": "Golden",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Yellow",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Brown",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Copper",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Any other",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				}
-
-
-			]
-
-
-		},
-
 		{
 
 
-			"title": "How many turnings (folds) are there in the product?",
+			"title": "How is your first sip experience of the coffee?",
+     "subtitle": "Please take only a small sip to experience the texture of the top layer of the coffee.",
 
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "3",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "5",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "More than 5",
-
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-
-		},
-
-
-		{
-
-
-			"title": "How symmetrical (uniform)  is the shape of croissant on either side of a centre turning (fold)?",
-
-			"select_type": 1,
+			"select_type": 2,
 
 
 			"is_intensity": 0,
@@ -541,7 +540,7 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [{
 
 
-					"value": "Perfectly symmetrical",
+					"value": "Feathery",
 
 
 					"is_intensity": 0
@@ -553,7 +552,89 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Asymmetrical (Non - uniform)",
+					"value": "Soft",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Foamy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Tingly",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Silky",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Soapy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Greasy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Slimy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Milky",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Watery",
 
 
 					"is_intensity": 0
@@ -569,205 +650,9 @@ class InsertPublicReviewQuestionair extends Command
 {
 
 
-			"title": "What do you observe on the surface of the product?",
+			"title": "What is the height of foam in your product (coffee)?",
+     "subtitle": "Put the spoon in the centre of the coffee and move the spoon aside towards the rim. Observe at the cross-section of the foam.",
 
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Cracks",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Blisters",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Creases",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Smooth",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Any other",
-
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-
-		},
-{
-
-
-			"title": "How is the visual texture of the product?",
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Moist",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Dry",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Oily",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Sticky",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Rough",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Baked",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Fried",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Crisp",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Limp",
-
-
-					"is_intensity": 0
-
-
-				}
-
-
-			]
-
-
-		},
-		{
-
-
-			"title": "How does the product prominently behaves when you squeeze it gently between fingers and thumb?",
-"subtitle": "<b>Flakiness</b> - Slightly risen crust of layers separated by the air pockets\n<b>Crumbly</b> - Broken into small parts, sometimes powdery fragments",
 			"select_type": 1,
 
 
@@ -783,7 +668,7 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [{
 
 
-					"value": "Just right flakiness",
+					"value": "Less than 1 cm",
 
 
 					"is_intensity": 0
@@ -795,7 +680,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "High flakiness",
+					"value": "Around 1 cm",
 
 
 					"is_intensity": 0
@@ -807,19 +692,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Few crumbs (Less crumbly)",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Many crumbs",
+					"value": "Around 2 cm",
 
 
 					"is_intensity": 0
@@ -829,257 +702,23 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Excessively crumbly",
+					"value": "More than 2 cm",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "None",
 
 
 					"is_intensity": 0
 
 
 				}
-
-			]
-
-
-		},
-		{
-
-
-			"title": "Cut the product into two halves and observe the crumb. What do you see?",
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Many layers (light)",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Few layers (porous)",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "No layers (dense)",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Large hole (cave)",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Airy",
-
-
-					"is_intensity": 0
-
-
-				},
-					{
-
-
-					"value": "Bright",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Dull",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Shiny",
-
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-
-		},
-		{
-
-
-			"title": "Observe the filling at the open end of the product, how does it appear to you?",
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 0,
-
-
-			"option": [{
-
-
-					"value": "Fresh",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Stale",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Oozing out",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Levelled",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Sunken",
-
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-
-		},
-	{
-
-
-			"title": "How does the <b>crust</b> behave?",
-"subtitle": "Hold the product in one hand and place the other hand on the end. Now try to pull gently from one end away from rest of the product.\n<b>Supple</b> - Flexibility is higher then tendency to tear apart.",
-			"is_nested_question": 0,
-
-
-			"is_intensity": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"select_type": 1,
-
-
-			"option": [{
-
-
-					"value": "Resist (Hard to pull)",
-
-
-					"is_intensity": 0
-
-				},
-
-
-				{
-
-
-					"value": "Supple (Flexible)",
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-					"value": "Tender (Easy to tear)",
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
 
 			]
 
@@ -1207,7 +846,7 @@ class InsertPublicReviewQuestionair extends Command
 			"title": "What all aromas have you sensed?",
 
 
-			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
+			"subtitle": "Directly use the search box to select the aromas that you identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
 
 
 			"select_type": 2,
@@ -1355,7 +994,7 @@ class InsertPublicReviewQuestionair extends Command
 	"TASTE": [{
 
 
-			"title": "Which Basic tastes have you sensed?",
+			"title": "Which Basic Tastes have you sensed?",
 
 
 			"is_nested_question": 0,
@@ -1484,7 +1123,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "Which Ayurvedic tastes have you sensed?",
+			"title": "Which Ayurvedic Tastes have you sensed?",
 
 
 			"select_type": 2,
@@ -1591,7 +1230,83 @@ class InsertPublicReviewQuestionair extends Command
 
 		},
 
+{
 
+
+			"title": "How acidic is the coffee?",
+     "subtitle": "Coffee without acids is \"flat\" and with acids can be \"bright with a pop\" or undesirably \"sour\".",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [{
+
+
+					"value": "Flat",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Bright",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Winey",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Lime (Sour)",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Fermented",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
+
+
+		},
 		{
 
 
@@ -1749,7 +1464,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "Please swallow the product and pause. How is the aftertaste?",
+			"title": "Please ingest the product and pause. How is the aftertaste?",
 
 
 			"select_type": 1,
@@ -1963,7 +1678,109 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
+{
 
+
+			"title": "How best would you describe your coffee?",
+
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [{
+
+
+					"value": "Enjoyably Bitter",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Sharp (High kick)",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Bright (Medium kick)",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Mellow (Low kick)",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Milky",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "None",
+
+
+					"is_intensity": 0
+
+
+				}
+			
+			
+
+			]
+
+
+		},
 
 		{
 
@@ -2080,13 +1897,236 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-"TEXTURE": [{
+"TEXTURE": [
+  {
 
 
-			"title": "Take sufficient quantity of the product, bite the product just once then identify the sound and its intensity. Which prominent sound do you hear?",
+			"title": "How is the mouthfeel of the product?",
+
+			"subtitle": "Please drink the product normally, without slurping.",
 
 
-			"subtitle": "<b>Crispy</b> - One sharp, clean, fast, and high pitched sound. Eg., Chips.\n<b>Crunchy</b> - Multiple low pitched crushing sounds perceived as a series of small events. Eg., Rusks.\n<b>Crackly</b> - One sudden low pitched sound that brittles the product. Eg., Puffed rice.",
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [{
+
+
+					"value": "Refreshing",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Smooth",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Velvety",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Mellow",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Bitting",
+
+
+					"is_intensity": 0
+
+
+				},
+					{
+
+
+					"value": "Heavy",
+
+
+					"is_intensity": 0
+
+
+				},
+	{
+
+
+					"value": "Weak",
+
+
+					"is_intensity": 0
+
+
+				},
+	{
+
+
+					"value": "Rough",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Gritty (Sediments)",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				}
+
+
+
+			]
+
+
+		},
+		{
+
+
+			"title": "How would you describe the body and smoothness of the coffee? ",
+
+			"subtitle": "Body - refers to the heaviness of the texture of the brewed coffee.\nSmoothness - refers to levels of fat suspended in the coffee.",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [{
+
+
+					"value": "Like water",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Like skim milk",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Like syrup",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Like whole milk",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Like creamy",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				}
+
+
+			]
+
+
+		},
+  {
+
+
+			"title": "What is coating your mouth?",
 
 
 			"select_type": 2,
@@ -2107,7 +2147,7 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [{
 
 
-					"value": "Crispy",
+					"value": "Coffee (Espresso)",
 
 
 					"is_intensity": 1,
@@ -2125,7 +2165,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Crunchy",
+					"value": "Milk",
 
 
 					"is_intensity": 1,
@@ -2143,7 +2183,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Crackly",
+					"value": "Foam",
 
 
 					"is_intensity": 1,
@@ -2157,171 +2197,10 @@ class InsertPublicReviewQuestionair extends Command
 
 				},
 
-
-				{
-
-
-					"value": "No Sound",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Not applicable",
-
-
-					"is_intensity": 0
-
-
-				}
-
-
-			]
-
-
-		},
-
-
-		{
-
-
-			"title": "How much force is needed to chew the product?",
-
-			"subtitle": "Please chew the product 3-4 times and pause.",
-
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Barely any force",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Normal force",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Extra force",
-
-
-					"is_intensity": 0
-
-
-				}
-
-
-			]
-
-
-		},
 {
 
 
-			"title": "As you chew, what is being released from the product?",
-
-			"select_type": 2,
-
-
-			"is_nested_question": 0,
-
-
-			"is_nested_option": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"is_intensity": 0,
-
-
-			"option": [{
-
-
-					"value": "Butter",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Margarine",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Moisture",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-{
-
-
-					"value": "Oil",
+					"value": "Water",
 
 
 					"is_intensity": 1,
@@ -2335,448 +2214,6 @@ class InsertPublicReviewQuestionair extends Command
 
 				},
 				{
-
-
-					"value": "Dry",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				}
-
-		
-
-
-			]
-
-
-		},
-
-		{
-
-
-			"title": "Take a piece of crumb and press it against the palate. How does it behave?",
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Melts quickly",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Melts but slowly",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Hard to dissolve",
-
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-
-		},
-{
-
-
-			"title": "While chewing, which textures can you feel inside your mouth?",
-      "subtitle":"Please select a maximum of 4 options.",
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Soft",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Spongy",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Dough like",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Sandy",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Chewy",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Chunky",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Pasty",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Mushy",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Rubbery",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Unchewable particles",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Firm",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Viscous filling",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Sticky filling",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Dense filling",
-
-
-					"is_intensity": 0
-
-
-				}
-
-
-			]
-
-
-		},
-		{
-
-
-			"title": "What kind of mass is being formed?",
-"subtitle": "Take sufficient quantity of the product, chew it for minimum 8-10 times and pause.",
-
-			"select_type": 1,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Tight mass",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Pulpy mass",
-
-
-					"is_intensity": 0
-
-
-				},
-				{
-
-
-					"value": "Barely any mass",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "No mass",
-
-
-					"is_intensity": 0
-
-
-				}
-
-			]
-
-
-		},
-{
-
-
-			"title": "After swallowing the product, do you feel anything left inside the mouth?",
-
-
-			"is_nested_question": 0,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_option": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"select_type": 2,
-
-
-			"option": [{
-
-
-					"value": "Greasy film",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Loose particles",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Sticking on tooth / palate",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Stuck between teeth",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-
-
-				{
-
-
-					"value": "Chalky",
-
-
-					"is_intensity": 1,
-
-
-					"intensity_type": 2,
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-				},
-				{
-
-
-					"value": "No residue",
-
-
-					"is_intensity": 0
-
-				},
-{
 
 
 					"value": "Any other",
@@ -2793,12 +2230,122 @@ class InsertPublicReviewQuestionair extends Command
 
 				}
 
+			]
+
+
+		},
+
+{
+
+
+			"title": "After ingesting the product, do you feel anything left inside the mouth?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+			  {
+
+
+					"value": "Greasy film",
+
+
+					"is_intensity": 0
+
+
+				},
+			  {
+
+
+					"value": "Oily film",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Loose particles",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Sticking on tooth",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Stuck between teeth",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Chalky",
+
+
+					"is_intensity": 0
+
+
+				},
+
+       {
+
+
+					"value": "Any other",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "No residue",
+
+
+					"is_intensity": 0
+
+
+				}
+				
 
 
 			]
 
 
 		},
+	
 
 		{
 
@@ -2918,7 +2465,88 @@ class InsertPublicReviewQuestionair extends Command
 "PRODUCT EXPERIENCE": [{
 
 
-			"title": "Did this product succeed in satisfying your basic senses?",
+			"title": "Is your coffee balanced or not? If not so, then which attribute(s) are causing imbalance and thus need improvement?",
+"subtitle": " In a good coffee 4 basic elements (Acidity, Aftertaste, Flavor and Body) should be in balance.",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+			  {
+
+
+					"value": "Balanced",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Acidity",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Aftertaste",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Flavors",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Body",
+
+
+					"is_intensity": 0
+
+
+				}
+
+
+			]
+
+
+		},
+
+
+		{
+
+
+			"title": "How would you describe the \"serve size\" of this product?",
 
 
 			"select_type": 1,
@@ -2936,7 +2564,7 @@ class InsertPublicReviewQuestionair extends Command
 			"option": [{
 
 
-					"value": "Yes",
+					"value": "Generous",
 
 
 					"is_intensity": 0
@@ -2948,14 +2576,25 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "No",
+					"value": "Modest",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Limited",
 
 
 					"is_intensity": 0
 
 
 				}
-
 
 			]
 
@@ -2966,103 +2605,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-			"title": "Which attributes can be improved further?",
-
-
-			"select_type": 2,
-
-
-			"is_intensity": 0,
-
-
-			"is_nested_question": 0,
-
-
-			"is_mandatory": 1,
-
-
-			"option": [{
-
-
-					"value": "Appearance",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Aroma",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Taste",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Aromatics To Flavors",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Texture",
-
-
-					"is_intensity": 0
-
-
-				},
-
-
-				{
-
-
-					"value": "Balanced product",
-
-
-					"is_intensity": 0
-
-
-				}
-
-
-			]
-
-
-		},
-
-
-		{
-
-
-			"title": "Overall product experience",
+			"title": "Overall Product Preference",
 
 
 			"select_type": 5,
@@ -3196,7 +2739,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_croissant_v1','keywords'=>"generic_croissant_v1",'description'=>null,
+        $data = ['name'=>'generic_latte_cappuccino_v1','keywords'=>"generic_latte_cappuccino_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
