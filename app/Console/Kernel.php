@@ -29,6 +29,7 @@ use App\Console\Commands\ExpirePolling;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\InsertPublicReviewQuestionair;
+use App\Console\Commands\InsertPublicReviewQuestionair1;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\ProgressiveImage;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -208,6 +209,7 @@ class Kernel extends ConsoleKernel
         RemoveDuplicateFromReviewTable::class,
 
         InsertPublicReviewQuestionair::class,
+        InsertPublicReviewQuestionair1::class,
 
 
         //Progressive image
