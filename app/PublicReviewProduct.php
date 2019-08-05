@@ -64,7 +64,6 @@ class PublicReviewProduct extends Model
             "product_sub_category_id",
             "brand_name",
             "brand_logo",
-            "company_name",
             "company_logo",
             "company_id",
             "description",
