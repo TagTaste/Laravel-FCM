@@ -174,6 +174,7 @@ class FeedController extends Controller
             $data['type'] = $type;
             $this->model[$feed_position[$index++]] = $data;
         }
+
         $this->model = array_values(array_filter($this->model));
     }
 
@@ -522,7 +523,7 @@ class FeedController extends Controller
             "meta" => [
                 "count" => 0,
                 "text" => "Product suggestion.",
-                "sub_type" => "public_review_product",
+                "sub_type" => "product",
             ],
             "type" => "suggestion",
         );
@@ -537,15 +538,17 @@ class FeedController extends Controller
         $public_review_product = PublicReviewProduct::where('is_active',1)
             ->whereNotIn('id',$applied_product_review)
             ->inRandomOrder()
-            ->pluck('id')
-            ->take(10)
-            ->toArray();
-            
+            ->get(['id', 'global_question_id'])
+            ->take(10);
+
         if (count($public_review_product)) {
-            foreach ($public_review_product as $key => $id) {
-                $cached_data = Redis::get("public-review/product:".$id.":V2");
+            foreach ($public_review_product as $key => $product) {
+                $cached_data = Redis::get("public-review/product:".$product->id.":V2");
                 if ($cached_data) {
-                    $data = json_decode($cached_data,true); 
+                    $data = array();
+                    $data['product'] = json_decode($cached_data,true); 
+                    $data['meta'] = $product->getMetaFor($profileId);
+                    
                     $suggestion["meta"]["count"]++;
                     array_push($suggestion["suggestion"], $data); 
                 }
