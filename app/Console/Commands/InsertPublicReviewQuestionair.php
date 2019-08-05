@@ -58,7 +58,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Slurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odor/s that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Slurp noisily again, keeping your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
@@ -2556,7 +2556,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Lik whole milk",
+					"value": "Like whole milk",
 
 
 					"is_intensity": 0
@@ -3013,8 +3013,8 @@ class InsertPublicReviewQuestionair extends Command
 	"PRODUCT EXPERIENCE": [{
 
 
-			"title": "Is your coffee <b>balanced</b> or not? If not so, then which attribute(s) are causing imbalance and thus need improvement?",
-"subtitle": "In a good coffee 4 basic elements (Acidity, Aftertaste, Flavor, and Body) should be in <b>Balance</b>.",
+			"title": "Is your coffee balanced or not? If not so, then which attribute(s) are causing imbalance and thus need improvement?",
+"subtitle": "In a good coffee 4 basic elements (Acidity, Aftertaste, Flavor, and Body) should be in Balance.",
 			"select_type": 2,
 
 
