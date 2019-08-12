@@ -6,6 +6,7 @@ use App\Events\Actions\JoinFriend;
 use App\Exceptions\Auth\SocialAccountUserNotFound;
 use App\Http\Controllers\Api\Controller;
 use App\Profile\User;
+use function GuzzleHttp\uri_template;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -162,5 +163,26 @@ class LoginController extends Controller
         }
         return $user;
 
+    }
+    public function loginLinkedin(Request $request)
+    {
+        $code = $request->input('code');
+        $redirect_uri = $request->input('redirect_uri');
+        $client = new \GuzzleHttp\Client();
+        $params['headers'] = ['Content-Type' => 'application/x-www-form-urlencoded'];
+        $client_id = env("LINKEDIN_ID");
+        $client_secret = env("LINKEDIN_LOGIN_SECRET");
+        $link = 'https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code='.$code.'&redirect_uri='.$redirect_uri.'&client_id='.$client_id.'&client_secret='.$client_secret;
+//        dd($link);
+        $res = $client->request('POST', $link, [$params]);
+        $response = $res->getBody()->getContents();
+        $response = json_decode($response);
+        $accessToken = $response->access_token;
+        $linkedInData = "https://api.linkedin.com/v2/me";
+        $bearerToken = "Bearer ".$accessToken;
+        $linkedInParam["headers"] = ["Authorization" => $bearerToken];
+        $linkedInRes = $client->request('GET', $linkedInData, $linkedInParam);
+        $linkedInResponse = $linkedInRes->getBody()->getContents();
+        dd($linkedInResponse);
     }
 }
