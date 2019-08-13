@@ -132,6 +132,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
             Route::get("feed","FeedController@feed");
+            Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {

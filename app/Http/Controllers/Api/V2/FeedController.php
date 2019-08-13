@@ -178,7 +178,7 @@ class FeedController extends Controller
         $this->model = array_values(array_filter($this->model));
     }
 
-    private function suggestion_by_dob($client, $profile, $profileId) 
+    public static function suggestion_by_dob($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -208,7 +208,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    private function suggestion_by_foodie_type($client, $profile, $profileId) 
+    public static function suggestion_by_foodie_type($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -238,7 +238,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    private function suggestion_by_cuisine($client, $profile, $profileId) 
+    public static function suggestion_by_cuisine($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -268,7 +268,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    private function suggestion_by_education($client, $profile, $profileId) 
+    public static function suggestion_by_education($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -309,7 +309,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    private function suggestion_by_experiance($client, $profile, $profileId) 
+    public static function suggestion_by_experiance($client, $profile, $profileId) 
     {
         // birthday suggestion
         $suggestion = array(
@@ -350,7 +350,7 @@ class FeedController extends Controller
         return $suggestion;   
     }
 
-    private function suggestion_by_specialization($client, $profile, $profileId) 
+    public static function suggestion_by_specialization($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -379,7 +379,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    private function suggestion_by_company($client, $profile, $profileId) 
+    public static function suggestion_by_company($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -406,7 +406,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    private function suggestion_by_following($client, $profile, $profileId) 
+    public static function suggestion_by_following($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -433,7 +433,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    private function suggestion_company($client, $profile, $profileId) 
+    public static function suggestion_company($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -459,7 +459,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    private function suggestion_collaboration($client, $profile, $profileId) 
+    public static function suggestion_collaboration($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
@@ -516,7 +516,7 @@ class FeedController extends Controller
         return $suggestion;
     }
 
-    private function suggestion_products($client, $profile, $profileId) 
+    public static function suggestion_products($client, $profile, $profileId) 
     {
         $suggestion = array(
             "suggestion" => array(),
