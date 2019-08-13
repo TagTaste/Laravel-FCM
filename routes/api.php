@@ -132,6 +132,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
             Route::get("feed","FeedController@feed");
+            Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
@@ -674,7 +675,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::get("android_module_version","VersionController@getAndroidModuleVersion");
         Route::post("ios_module_version/{id}","VersionController@postIosModuleVersion");
         Route::post("android_module_version/{id}","VersionController@postAndroidModuleVersion");
-
+        Route::resource("advertisements","AdvertisementController");
 
     }); // end of authenticated routes. Add routes before this line to be able to
     // get current logged in user.
