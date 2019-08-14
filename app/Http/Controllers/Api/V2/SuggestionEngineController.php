@@ -19,14 +19,6 @@ class SuggestionEngineController extends Controller
         $profile_id = $profile->id;
         $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
         $this->model = FeedController::suggestion_by_following($client, $profile, $profile_id);
-        // dd($test);
-        // dd($profile, $profile_id);
-
-        // $key = 'suggested:'.$modelName.':'.$request->user()->profile->id;
-        // $ignoredId = $request->input('id');
-
-        // $this->model = Redis::sRem($key,$ignoredId);
-
         return $this->sendResponse();
     }
 }

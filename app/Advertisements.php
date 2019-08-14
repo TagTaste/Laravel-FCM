@@ -11,38 +11,63 @@ class Advertisements extends Model
 	use IdentifiesOwner, SoftDeletes;
 
     protected $fillable = [
-    	'title',
-    	'description',
-    	'youtube_url',
-    	'video',
+        'title',
+        'description',
+        'video',
+        'youtube_url',
+        'link',
+        'image',
+        'cities',
+        'payload',
+        'profile_id',
+        'company_id',
+        'is_expired',
         'created_at',
         'updated_at',
         'deleted_at',
-    	'expired_at',
-    	'is_expired',
-    	'profile_id',
-    	'company_id',
-    	'link',
-    	'image',
-    	'cities'
+        'expired_at'
     ];
 
     protected $visible = [
     	'id',
     	'title',
-    	'description',
-    	'youtube_url',
-    	'video',
-    	'created_at',
+        'description',
+        // 'video',
+        // 'youtube_url',
+        'link',
+        'image',
+        // 'cities',
+        'payload',
+        // 'profile_id',
+        // 'company_id',
+        'is_expired',
+        'created_at',
         'updated_at',
         'deleted_at',
-    	'expired_at',
-    	'is_expired',
-    	'profile_id',
-    	'company_id',
-    	'link',
-    	'image',
-    	'cities'
+        'expired_at',
+        'profile',
+        'company'
     ];
 
+    protected $with = ['profile', 'company'];
+
+    /**
+     * Which profile created the collaboration project.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profile()
+    {
+        return $this->belongsTo(\App\Recipe\Profile::class);
+    }
+
+     /**
+     * Which company created the collaboration project.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company()
+    {
+        return $this->belongsTo(\App\Recipe\Company::class);
+    }
 }
