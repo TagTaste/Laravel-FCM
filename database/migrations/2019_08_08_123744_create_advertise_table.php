@@ -23,6 +23,8 @@ class CreateAdvertiseTable extends Migration
             $table->text('image')->nullable()->default(null);
             $table->text('cities')->nullable()->default(null);
             $table->text('payload')->nullable()->default(null);
+            $table->text('model')->nullable()->default(null);
+            $table->integer('model_id')->nullable()->default(null);
             $table->integer('company_id')->unsigned()->nullable()->default(null);
             $table->integer('profile_id')->unsigned()->nullable()->default(null);
             $table->boolean('is_expired')->default(0);
