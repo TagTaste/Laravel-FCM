@@ -188,12 +188,12 @@ class LoginController extends Controller
         $linkedInEmailRes = $client->request('GET', $linkedInEmailData, $linkedInEmailParam);
         $linkedInEmailResponse = $linkedInEmailRes->getBody()->getContents();
         $data = [];
-        $data['email']=json_decode($linkedInEmailResponse)->elements[0]['handle~']->emailAddress;
-        $data['id']=json_decode($linkedInResponse);
-//        $data['name']=;
-//        $data['avatar_original']=;
+        $linkedInResponse = json_decode($linkedInResponse);
+        $data['email']=json_decode($linkedInEmailResponse)->elements[0]->{'handle~'}->emailAddress;
+        $data['id']=$linkedInResponse->id;
+        $data['name']=$linkedInResponse->firstName->localized->en_US.' '.$linkedInResponse->lastName->localized->en_US;
+        $data['avatar_original']=$linkedInResponse->profilePicture->{'displayImage~'}->elements[0]->identifiers[0]->identifier;
         $data['token']=$accessToken;
-        dd($data);
-        return $linkedInEmailResponse;
+        return $data;
     }
 }
