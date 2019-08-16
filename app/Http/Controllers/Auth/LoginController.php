@@ -173,16 +173,27 @@ class LoginController extends Controller
         $client_id = env("LINKEDIN_ID");
         $client_secret = env("LINKEDIN_LOGIN_SECRET");
         $link = 'https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code='.$code.'&redirect_uri='.$redirect_uri.'&client_id='.$client_id.'&client_secret='.$client_secret;
-//        dd($link);
         $res = $client->request('POST', $link, [$params]);
         $response = $res->getBody()->getContents();
         $response = json_decode($response);
         $accessToken = $response->access_token;
-        $linkedInData = "https://api.linkedin.com/v2/me";
+        $linkedInData = "https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))";
         $bearerToken = "Bearer ".$accessToken;
         $linkedInParam["headers"] = ["Authorization" => $bearerToken];
         $linkedInRes = $client->request('GET', $linkedInData, $linkedInParam);
         $linkedInResponse = $linkedInRes->getBody()->getContents();
-        dd($linkedInResponse);
+        $linkedInEmailData = "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))";
+        $bearerToken = "Bearer ".$accessToken;
+        $linkedInEmailParam["headers"] = ["Authorization" => $bearerToken];
+        $linkedInEmailRes = $client->request('GET', $linkedInEmailData, $linkedInEmailParam);
+        $linkedInEmailResponse = $linkedInEmailRes->getBody()->getContents();
+        $data = [];
+        $data['email']=json_decode($linkedInEmailResponse)->elements[0]['handle~']->emailAddress;
+        $data['id']=json_decode($linkedInResponse);
+//        $data['name']=;
+//        $data['avatar_original']=;
+        $data['token']=$accessToken;
+        dd($data);
+        return $linkedInEmailResponse;
     }
 }
