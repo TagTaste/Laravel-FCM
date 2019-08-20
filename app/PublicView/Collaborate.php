@@ -20,7 +20,7 @@ class Collaborate extends BaseCollaborate
         ,'privacy_id','created_at','deleted_at', 'file1','deliverables','start_in','state','updated_at','profile','images_meta'];
 
 
-    protected $appends = ['owner' ,'images','images_meta'];
+    protected $appends = ['owner' ,'images'];
 
     protected $with = ['profile'];
 
