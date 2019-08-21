@@ -29,6 +29,7 @@ use App\Console\Commands\ExpirePolling;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\InsertPublicReviewQuestionair;
+use App\Console\Commands\InsertPublicReviewQuestionair1;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\ProgressiveImage;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -246,6 +247,7 @@ class Kernel extends ConsoleKernel
         RemoveDuplicateFromReviewTable::class,
 
         InsertPublicReviewQuestionair::class,
+        InsertPublicReviewQuestionair1::class,
 
 
         //Progressive image
@@ -272,8 +274,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:polling')->dailyAt('12:00');
 
 
-        $schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
-        //$schedule->command('follow:company')->dailyAt('23:00');
+        //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
+        $schedule->command('follow:company')->weekly()->wednesdays()->at('00:00');;
         //$schedule->command('ServiceInterruptionMail')->dailyAt('18:20');
 
         //command for redis store suggestion
