@@ -56,8 +56,7 @@ class Share extends Command
                 echo "caching shared:collaborate:".$share->id.":V2 \n\n";
                 $share->addToCacheV2();
             }
-        });
-        
+        });  
         
         \App\Shareable\Photo::chunk(200,function($shares){
             foreach($shares as $share){
@@ -67,7 +66,6 @@ class Share extends Command
                 $share->addToCacheV2();
             }
         });
-        
     
         \App\Shareable\Shoutout::chunk(200,function($shares){
             foreach($shares as $share){
