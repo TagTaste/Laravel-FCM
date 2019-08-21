@@ -14,7 +14,7 @@ class Company extends BaseCompany
 {
     protected $visible = [
         'id', 'name', 'about', 'logo', 'hero_image', 'phone', 'registered_address', 'established_on', 'type', 'tagline', 'gallery',
-        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue'];
+        'type', 'status', 'avg_rating', 'review_count', 'rating_count','followersCount','speciality','employeeCountArray','employeeCountValue', 'logo_meta', 'hero_image_meta'];
 
     protected $with = ['gallery','status','type'];
 
