@@ -15,13 +15,29 @@ class Profile extends BaseProfile
     protected $with = [];
 
     protected $visible = ['id','name', 'designation','imageUrl','tagline','about','handle','city','expertise',
-        'keywords','image','experience','education','followersCount', 'image_meta','hero_image_meta'];
+        'keywords','image','experience','education','followersCount', 'image_meta','hero_image_meta,','foodie_type','cuisines','profile_occupation','allergens'];
 
-    protected $appends = ['name','imageUrl','experience','education','followersCount'];
+    protected $appends = ['name','imageUrl','experience','education','followersCount','foodie_type','cuisines','allergens'];
 
     public function photos()
     {
         return $this->belongsToMany('App\PublicView\Photos','profile_photos','profile_id','photo_id');
+    }
+
+    public function getAllergensAttribute()
+    {
+        return \DB::table('allergens')->join('profiles_allergens','profiles_allergens.allergens_id','=','allergens.id')->where('profiles_allergens.profile_id',$this->id)->pluck('name');
+    }
+
+    public function profile_occupations()
+    {
+        return $this->hasMany('App\Profile\Occupation');
+    }
+
+    public function getCuisinesAttribute()
+    {
+        $cuisineIds =  \DB::table('profiles_cuisines')->where('profile_id',$this->id)->get()->pluck('cuisine_id');
+        return  \DB::table('cuisines')->whereIn('id',$cuisineIds)->get();
     }
 
     public function collaborate()
@@ -94,6 +110,10 @@ class Profile extends BaseProfile
         unset($experiences);
         return $sortedExperience;
 
+    }
+    public function getFoodieTypeAttribute()
+    {
+        return isset($this->foodie_type_id) ? \DB::table('foodie_type')->where('id',$this->foodie_type_id)->first() : null;
     }
 
     public function getEducationAttribute(){
