@@ -44,60 +44,8 @@ class Profile extends BaseProfile
         return $this->hasMany(Job::class);
     }
 
-    public function getExperienceAttribute(){
-        $experiences = $this->experience()->get();
-        $dates = $experiences->toArray();
-
-        $experiences = $experiences->keyBy('id');
-        $sortedExperience = collect([]);
-        $endDates = [];
-        foreach ($dates as $exp) {
-            $id = $exp['id'];
-
-            if (is_null($exp['end_date']) || $exp['current_company'] === 1) {
-                $sortedExperience->push($experiences->get($id));
-                continue;
-            }
-            $dateArray = explode("-", $exp['end_date']);
-            $temp = array_fill(0, 3 - count($dateArray), '01');
-            $tempdate = implode("-", array_merge($temp, $dateArray));
-            $endDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
-        }
-
-
-        $currentCompanies = $sortedExperience->pluck('start_date','id')->toArray();
-        $startDates = [];
-
-        foreach($currentCompanies as $id=>$startDate){
-
-            $dateArray = explode("-", $startDate);
-            $temp = array_fill(0, 3 - count($dateArray), '01');
-            $tempdate = implode("-", array_merge($temp, $dateArray));
-            $startDates[] = ['id' => $id, 'date' => $tempdate, 'time' => strtotime($tempdate)];
-        }
-        $startDates = collect($startDates)->sortByDesc('time')->keyBy('id')->toArray();
-        $sortedExperience = collect([]);
-
-        foreach($startDates as $id=>$date){
-
-            $sortedExperience->push($experiences->get($id));
-        }
-
-
-        $sorted = collect($endDates)->sortByDesc('time')->keyBy('id')->toArray();
-        unset($endDates);
-
-        foreach($sorted as $id=>$date){
-            $sortedExperience->push($experiences->get($id));
-        }
-
-        unset($experiences);
-        return $sortedExperience;
-
-    }
-
-    public function getEducationAttribute(){
-
+    public function getEducationAttribute()
+    {
         $educations = $this->education()->get();
 
         $dates = $educations->toArray();
@@ -147,7 +95,6 @@ class Profile extends BaseProfile
 
         unset($educations);
         return $sortedEducation;
-
     }
 
     public function experience()
