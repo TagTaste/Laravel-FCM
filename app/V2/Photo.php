@@ -26,10 +26,13 @@ class Photo extends Model implements Feedable
 
     protected $fillable = ['caption','privacy_id','payload_id','images','image_meta'];
 
-    protected $visible = ['id','caption','likeCount',
-        'created_at','comments',
-        'profile_id','company_id','privacy_id','updated_at','deleted_at',
-        'owner','nextPhotoId','previousPhotoId','images','image_meta'];
+    // old
+    // protected $visible = ['id','caption','likeCount',
+    //     'created_at','comments',
+    //     'profile_id','company_id','privacy_id','updated_at','deleted_at',
+    //     'owner','nextPhotoId','previousPhotoId','images','image_meta'];
+
+    protected $visible = ['id','caption','created_at','profile_id','company_id','privacy_id','updated_at','deleted_at','images','image_meta', 'owner'];
 
     protected $casts = [
         'privacy_id' => 'integer',
@@ -40,7 +43,9 @@ class Photo extends Model implements Feedable
 
     protected $with = ['like'];
 
-    protected $appends = ['profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
+    // old
+    // protected $appends = ['profile_id','company_id','owner','likeCount','nextPhotoId','previousPhotoId'];
+    protected $appends = ['profile_id','company_id', 'owner'];
 
     protected $dates = ['deleted_at'];
 
@@ -185,6 +190,45 @@ class Photo extends Model implements Feedable
     public function getOwnerAttribute()
     {
         return $this->owner();
+    }
+
+    public function getOwnerAttributeV2()
+    {
+        $data = array();
+        $owner = $this->owner();
+        if (!is_null($this->profile_id)) {
+            $keyRequired = [
+                'id',
+                'user_id',
+                'name',
+                'designation',
+                'handle',
+                'tagline',
+                'image_meta',
+                'isFollowing'
+            ];
+            $data = array_intersect_key(
+                $owner->toArray(), 
+                array_flip($keyRequired)
+            );
+            
+            foreach ($data as $key => $value) {
+                if (is_null($value) || $value == '')
+                    unset($data[$key]);
+            }
+            return $data;
+        } else {
+            if (!is_null($this->company_id)) {
+                $data = [
+                    'id' => $owner->id,
+                    'profile_id' => $owner->profileId,
+                    'name' => $owner->name,
+                    'logo_meta' => $owner->logo_meta
+                ];
+                return $data;
+            }
+        }
+        return $data;
     }
 
     public function privacy()

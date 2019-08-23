@@ -142,20 +142,30 @@ class PhotoController extends Controller
     public function show(Request $request,$id)
     {
         $loggedInProfileId = $request->user()->profile->id;
-        $photo = Photo::where('id',$id)->with(['comments' => function($query){
-            $query->orderBy('created_at','desc');
-        }])
-            ->with(['like'=>function($query) use ($loggedInProfileId){
-                $query->where('profile_id',$loggedInProfileId);
-            }])->first();
-
+        $photo = Photo::where('id',$id)->first();
+        
         if(!$photo){
             return $this->sendError("Photo not found");
         }
         $photo->images = json_decode($photo->images);
-        $meta = $photo->getMetaFor($loggedInProfileId);
-        $this->model = ['photo'=>$photo,'meta'=>$meta];
+        $owner = $photo->getOwnerAttributeV2();
+        $meta = $photo->getMetaForV2($loggedInProfileId);
+        $photo = $photo->toArray();
+        foreach ($photo as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($photo[$key]);
+        }
+        $this->model = [
+            'photo'=>$photo,
+            'meta'=>$meta
+        ];
+        if (isset($photo['profile_id'])) {
+            $this->model['profile'] = $owner;
+        }
 
+        if (isset($photo['company_id'])) {
+            $this->model['company'] = $owner;
+        }
         return $this->sendResponse();
     }
 

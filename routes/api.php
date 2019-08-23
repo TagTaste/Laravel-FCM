@@ -131,6 +131,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+            Route::resource("shoutout",'ShoutoutController');
+            Route::resource("polling","PollingController");
             Route::get("feed","FeedController@feed");
             Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
         });
