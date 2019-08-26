@@ -55,14 +55,23 @@ class Photo extends Share
         return $meta;
     }
 
+    public function getMetaForV2Shared($profileId)
+    {
+        $meta = [];
+        $key = "meta:photoShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $photo = \App\Photo::where('id',$this->photo_id)->whereNull('deleted_at')->first();
+        $meta['originalPostMeta'] = $photo->getMetaForV2($profileId);
+        return $meta;
+    }
+
     public function getMetaForPublic(){
         $meta = [];
         $key = "meta:photoShare:likes:" . $this->id;
-
         $meta['likeCount'] = Redis::sCard($key);
-
         $meta['commentCount'] = $this->comments()->count();
-
         return $meta;
     }
     

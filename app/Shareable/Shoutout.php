@@ -53,6 +53,18 @@ class Shoutout extends Share
         return $meta;
     }
 
+    public function getMetaForV2Shared($profileId)
+    {
+        $meta = [];
+        $key = "meta:photoShare:likes:" . $this->id;
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $shoutout = \App\Shoutout::where('id',$this->shoutout_id)->whereNull('deleted_at')->first();
+        $meta['originalPostMeta'] = $shoutout->getMetaForV2($profileId);
+        return $meta;
+    }
+
     public function getMetaForPublic() {
         $meta = [];
         $key = "meta:shoutoutShare:likes:" . $this->id;

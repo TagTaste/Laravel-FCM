@@ -57,8 +57,13 @@ class Polling extends Share
         $meta['likeCount'] = Redis::sCard($key);
         $meta['commentCount'] = $this->comments()->count();
         $poll = \App\Polling::where('id',$this->poll_id)->whereNull('deleted_at')->first();
-        $meta['original_post_meta'] = $poll->getMetaFor($profileId);
+        $meta['originalPostMeta'] = $poll->getMetaFor($profileId);
         return $meta;
+    }
+
+    public function getMetaForV2Shared($profileId)
+    {
+        return $this->getMetaForV2($profileId);
     }
 
     public function getMetaForPublic(){

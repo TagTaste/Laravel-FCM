@@ -107,14 +107,16 @@ class Company extends Model
         'company_id',
         'is_premium',
         'logo_meta',
-        'hero_image_meta'
+        'hero_image_meta',
+        'totalPostCount',
+        'imagePostCount'
     ];
     
     protected $with = ['advertisements','addresses','type','status','awards','patents','books',
         'portfolio','productCatalogue','coreteam','gallery'];
 
     protected $appends = ['statuses','companyTypes','profileId','followerProfiles','is_admin','avg_rating','review_count','rating_count',
-        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue', 'company_id'];
+        'product_catalogue_count','product_catalogue_category_count','isFollowing','employeeCountArray','employeeCountValue', 'company_id', 'totalPostCount','imagePostCount'];
 
     private $empValue = ['1','2 - 10','11 - 50','51 - 200','201 - 500','501 - 1000','1001 - 5000','5001 - 10,000','10,000+'];
 
@@ -599,6 +601,21 @@ class Company extends Model
 
         return $data;
 
+    }
+
+    public function getTotalPostCountAttribute()
+    {
+        return \DB::table('channel_payloads')->where('channel_name','company.public.'.$this->id)->whereNull('deleted_at')->count();
+    }
+
+    public function getImagePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')
+            ->where('channel_name','company.public.'.$this->id)
+            ->whereNull('deleted_at')
+            ->where('model', 'like', '%Photo')
+            ->where('model', 'not like', '%Shareable%')
+            ->count();
     }
 
 }

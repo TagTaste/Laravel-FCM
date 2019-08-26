@@ -166,7 +166,6 @@ class ShareController extends Controller
         $modelName = strtolower($modelName);
         $this->setColumn($modelName);
 
-
         $loggedInProfileId = $request->user()->profile->id;
 
         $class = "\\App\\Shareable\\" . ucwords($modelName);
