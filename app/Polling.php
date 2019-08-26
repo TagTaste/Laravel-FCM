@@ -214,4 +214,9 @@ class Polling extends Model implements Feedable
         $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
         return $meta;
     }
+
+    public function getPollMetaAttribute()
+    {
+        return $this->getMetaAttribute();
+    }
 }

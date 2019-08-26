@@ -216,13 +216,13 @@ class Photo extends Model implements Feedable
     {
         $meta = [];
         $key = "meta:photo:likes:" . $this->id;
-        $meta['has_liked'] = Redis::sIsMember($key,$profileId) === 1;
-        $meta['like_count'] = Redis::sCard($key);
-        $meta['comment_count'] = $this->comments()->count();
-        $meta['share_count']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
-        $meta['shared_at']= \App\Shareable\Share::getSharedAt($this);
+        $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['shareCount']=\DB::table('photo_shares')->where('photo_id',$this->id)->whereNull('deleted_at')->count();
+        $meta['sharedAt']= \App\Shareable\Share::getSharedAt($this);
         $meta['tagged']=\DB::table('ideabook_photos')->where('photo_id',$this->id)->exists();
-        $meta['is_admin'] = $this->company_id ? \DB::table('company_users')
+        $meta['isAdmin'] = $this->company_id ? \DB::table('company_users')
             ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
 
         return $meta;

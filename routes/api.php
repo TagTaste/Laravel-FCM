@@ -131,8 +131,12 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+            Route::resource("shoutout",'ShoutoutController');
+            Route::resource("polling","PollingController");
+            Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
             Route::get("feed","FeedController@feed");
             Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
+            Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {

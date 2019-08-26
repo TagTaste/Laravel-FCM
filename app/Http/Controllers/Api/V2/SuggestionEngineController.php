@@ -21,4 +21,13 @@ class SuggestionEngineController extends Controller
         $this->model = FeedController::suggestion_by_following($client, $profile, $profile_id);
         return $this->sendResponse();
     }
+
+    public function suggestionCompany(Request $request)
+    {
+        $profile = $request->user()->profile;
+        $profile_id = $profile->id;
+        $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
+        $this->model = FeedController::suggestion_company($client, $profile, $profile_id);
+        return $this->sendResponse();
+    }
 }

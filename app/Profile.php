@@ -41,13 +41,13 @@ class Profile extends Model
         'address_private', 'phone_private', 'dob_private', 'training', 'affiliations', 'style_image', 'style_hero_image',
         'verified_phone', 'notificationCount', 'messageCount', 'addPassword', 'unreadNotificationCount', 'onboarding_step', 'isFollowedBy','profileCompletion','batchesCount','gender','user_id','newBatchesCount','shippingaddress',
         'profile_occupations', 'profile_specializations','is_veteran','is_expert','foodie_type_id','foodie_type','establishment_types','cuisines','interested_collections',
-        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens', 'totalPostCount'];
+        'onboarding_complete',"image_meta","hero_image_meta",'fb_info','is_facebook_connected','is_linkedin_connected','is_google_connected','is_tasting_expert','reviewCount','allergens', 'totalPostCount', 'imagePostCount'];
 
 
     protected $appends = ['imageUrl', 'heroImageUrl', 'followingProfiles', 'followerProfiles', 'isTagged', 'name' ,
         'resumeUrl','experience','education','mutualFollowers','notificationCount','messageCount','addPassword','unreadNotificationCount',
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
-        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount'];
+        'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount'];
 
     private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
         'verified_phone', 'city', 'country','is_facebook_connected','is_linkedin_connected', 'keywords', 'expertise', 'experience', 'education'];
@@ -1336,6 +1336,16 @@ class Profile extends Model
     public function getTotalPostCountAttribute()
     {
         return \DB::table('channel_payloads')->where('channel_name','public.'.$this->id)->whereNull('deleted_at')->count();
+    }
+
+    public function getImagePostCountAttribute()
+    {
+        return \DB::table('channel_payloads')
+            ->where('channel_name','public.'.$this->id)
+            ->whereNull('deleted_at')
+            ->where('model', 'like', '%Photo')
+            ->where('model', 'not like', '%Shareable%')
+            ->count();
     }
 }
 
