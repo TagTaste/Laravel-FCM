@@ -1330,7 +1330,7 @@ class Profile extends Model
 
     public function getAllergensAttribute()
     {
-        return \DB::table('allergens')->join('profiles_allergens','profiles_allergens.allergens_id','=','allergens.id')->where('profiles_allergens.profile_id',$this->id)->get(['name', 'description', 'image', 'allergens_id']);
+        return \DB::table('allergens')->join('profiles_allergens','profiles_allergens.allergens_id','=','allergens.id')->where('profiles_allergens.profile_id',$this->id)->get(['id', 'name', 'description', 'image']);
     }
 
     public function getTotalPostCountAttribute()
