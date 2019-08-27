@@ -130,7 +130,6 @@ class QuestionController extends Controller
             ->whereNull('parent_question_id')->where('header_type_id',$id)->where('is_active',1)->orderBy('id')->get();
         $withNested = \DB::table('collaborate_tasting_questions')->where('collaborate_id',$collaborateId)
             ->whereNotNull('parent_question_id')->where('is_active',1)->where('header_type_id',$id)->orderBy('id')->get();
-
         foreach ($withoutNest as &$data)
         {
             if(isset($data->questions)&&!is_null($data->questions))
