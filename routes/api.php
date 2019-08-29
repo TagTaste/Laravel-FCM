@@ -46,6 +46,7 @@ Route::post('login',function(Request $request) {
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
