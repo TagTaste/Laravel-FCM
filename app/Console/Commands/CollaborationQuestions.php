@@ -56,7 +56,7 @@ class CollaborationQuestions extends Command implements ShouldQueue
         foreach ($data as &$datum)
         {
             $headerInfo = isset($datum['header_info']) ? $datum['header_info'] : null;
-            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>isset($headerInfo) ? json_encode($headerInfo,true) : null,'collaborate_id'=>$collaborateId];
+            $header[] = ['header_type'=>$datum['header_name'],'is_active'=>1,'header_info'=>isset($headerInfo) ? json_encode($headerInfo,true) : null,'collaborate_id'=>$collaborateId, 'header_selection_type'=>$datum['header_selection_type']];
         }
         Collaborate\ReviewHeader::insert($header);
         foreach ($questions as $key=>$question)
@@ -152,8 +152,9 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $nestedOptionIntensity = isset($nested->is_intensity) ? $nested->is_intensity : $nestedOption->is_intensity;
+                                $imageUrl = isset($nested->image_url)?$nested->image_url:null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,'is_active'=>$nested->is_active,
-                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity];
+                                    'collaborate_id'=>$collaborateId,'header_type_id'=>$headerId,'description'=>$description,'is_intensity'=>$nestedOptionIntensity,'image_url'=>$imageUrl];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
