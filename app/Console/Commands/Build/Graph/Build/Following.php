@@ -40,32 +40,26 @@ class Following extends Command
     public function handle()
     {
          $counter = 1;
-        \App\Recipe\Profile::whereNull('deleted_at')->chunk(200, function($profiles) use($counter) {
+        \App\Recipe\Profile::whereNotIn('id', [1, 44,70,165,460,5555])->whereNull('deleted_at')->chunk(200, function($profiles) use($counter) {
             foreach($profiles as $model) {
                 $user_id = $model->id;
-                // echo $user_id." | ".Redis::SCARD("following:profile:".$model->id)."\n\n";
                 $members = Redis::SMEMBERS("following:profile:".$model->id);
                 $total_member = count($members);
                 echo "profile_id: ".(int)$user_id." | ".$total_member."\n";
                 if ($total_member) {
                     foreach ($members as $key => $ids) {
-                        // if ($key < 3482) {
-                        //     echo "profile_id: ".(int)$user_id." | (".($key+1)."/".$total_member."\n";
-                        // } else {
-                            if (strpos($ids, 'company') !== false) {
-                                $company_detail = explode(".",$ids);
-                                if (count($company_detail) == 2) {
-                                    $company_id = (int)$company_detail[1];
-                                    echo "profile_id: ".(int)$user_id." | (".($key+1)."/".$total_member.") company following_id: ".(int)$company_id."\n";
-                                    Subscriber::followCompanySuggestion($user_id, $company_id);
-                                }
-                            } else {
-                                $following_id = (int)$ids;
-                                echo "profile_id: ".(int)$user_id." | (".($key+1)."/".$total_member.") user following_id: ".(int)$following_id."\n";
-                                Subscriber::followProfileSuggestion($user_id, $following_id);
+                        if (strpos($ids, 'company') !== false) {
+                            $company_detail = explode(".",$ids);
+                            if (count($company_detail) == 2) {
+                                $company_id = (int)$company_detail[1];
+                                echo "profile_id: ".(int)$user_id." | (".($key+1)."/".$total_member.") company following_id: ".(int)$company_id."\n";
+                                Subscriber::followCompanySuggestion($user_id, $company_id);
                             }
-                        // }
-                        
+                        } else {
+                            $following_id = (int)$ids;
+                            echo "profile_id: ".(int)$user_id." | (".($key+1)."/".$total_member.") user following_id: ".(int)$following_id."\n";
+                            Subscriber::followProfileSuggestion($user_id, $following_id);
+                        }
                     }
                 }
                 echo "*********************\n\n";
