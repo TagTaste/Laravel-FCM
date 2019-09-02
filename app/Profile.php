@@ -973,6 +973,11 @@ class Profile extends Model
         return  \DB::table('interested_collections')->whereIn('id',$interestedCollectionIds)->get();
     }
 
+    public function getFbInfoAttribute()
+    {
+        return \DB::table('social_accounts')->where('provider', 'facebook')->where('user_id',request()->user()->id)->first();
+    }
+    
     public function getAllergensAttribute()
     {
         return \DB::table('allergens')->join('profiles_allergens','profiles_allergens.allergens_id','=','allergens.id')->where('profiles_allergens.profile_id',$this->id)->get(['id', 'name', 'description', 'image']);
