@@ -71,11 +71,11 @@ class InsertGlobalQuestion extends Command
 
         $questions2 = '{
 
-	
 
 
 
-"INSTRUCTIONS": [{
+
+	"INSTRUCTIONS": [{
 
 		"title": "Instruction",
 
@@ -291,18 +291,18 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				},
-                                               {
+				{
 
 					"value": "Any other",
 
-					"is_intensity": 0,
+					"is_intensity": 0
 
 				}
 
 			]
 
 		},
-{
+		{
 
 			"title": "How does the product drop / flow from the spoon? ",
 
@@ -512,10 +512,10 @@ class InsertGlobalQuestion extends Command
 
 	],
 
-	
 
 
-"AROMA": [{
+
+	"AROMA": [{
 
 			"title": "What all aromas have you sensed? ",
 
@@ -882,10 +882,10 @@ class InsertGlobalQuestion extends Command
 
 	],
 
-	
 
 
-"AROMATICS TO FLAVORS": [{
+
+	"AROMATICS TO FLAVORS": [{
 
 			"title": "What all aromatics have you sensed?",
 
@@ -1148,11 +1148,10 @@ class InsertGlobalQuestion extends Command
 
 	],
 
-	
 
 
-"TEXTURE": [
-{
+
+	"TEXTURE": [{
 
 			"title": "While eating, how does the product feel inside the mouth? ",
 			"subtitle": "Please eat one teaspoon of the product and assess.",
@@ -1203,7 +1202,7 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				},
-					{
+				{
 
 					"value": "Like puree (tomato)",
 
@@ -1217,7 +1216,7 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				}
-				
+
 			]
 
 		},
@@ -1232,7 +1231,7 @@ class InsertGlobalQuestion extends Command
 			"is_intensity": 0,
 
 			"is_nested_question": 0,
-			
+
 			"is_nested_option": 0,
 
 			"is_mandatory": 1,
@@ -1241,7 +1240,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "Smooth",
 
-           "is_intensity": 1,
+					"is_intensity": 1,
 
 					"intensity_type": 2,
 
@@ -1463,7 +1462,7 @@ class InsertGlobalQuestion extends Command
 					"is_intensity": 0
 
 				},
-        {
+				{
 
 					"value": "No residue",
 
@@ -1571,10 +1570,10 @@ class InsertGlobalQuestion extends Command
 
 	],
 
-	
 
 
-"PRODUCT EXPERIENCE": [{
+
+	"PRODUCT EXPERIENCE": [{
 
 			"title": "Did this product succeed in satisfying your basic senses?",
 
@@ -1762,7 +1761,7 @@ class InsertGlobalQuestion extends Command
 
 }';
 
-        $data = ['name'=>'Honey Application (Kejriwal)','keywords'=>"Honey Application (Kejriwal)",'description'=>null,
+        $data = ['name'=>'Condiments - Tamarind (Sauth)','keywords'=>"Condiments - Tamarind (Sauth)",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
