@@ -49,11 +49,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a piece of the product on a white plate. Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
+            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a slice of bread & place it on a white plate. Examine the product visually and answer the questions outlined below. In this tasting process, the top and bottom most slice should be <b>excluded</b>."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone."],'header_selection_type'=>"1"],
+            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
 
@@ -61,7 +61,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics."],'header_selection_type'=>"1"],
+            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
@@ -87,7 +87,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 
 
@@ -151,13 +151,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-	"APPEARANCE": [
-	  {
+	"APPEARANCE": [{
 
 
 
 
-			"title": "What is the serving temperature of the product? ",
+			"title": "What is the serving temperature of the product?",
 
 
 
@@ -341,7 +340,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "How is the visual impression (color & sheen) of the product?",
+			"title": "How is the visual impression (color and sheen) of the product (bread)?",
 
 
 
@@ -442,6 +441,24 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+					"value": "Oily",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
 					"value": "Light",
 
 
@@ -511,12 +528,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
-   {
+{
 
 
 
 
-			"title": "What is the colour and intensity of the product?",
+			"title": "What is the colour and intensity of the crumb?",
 
 
 
@@ -581,7 +598,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Cream",
+					"value": "Yellow",
 
 
 
@@ -611,7 +628,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Golden",
+					"value": "Beige",
 
 
 
@@ -637,62 +654,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				{
-
-
-
-
-					"value": "Golden brown",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Tan",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-					{
 
 
 
@@ -718,7 +679,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-					{
+
+
+
+
+				{
 
 
 
@@ -753,13 +718,186 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
+    {
+
+
+
+
+			"title": "<b>Only for multi - ingredient bread</b> (product). What is the quantity of the grains / seeds etc. on crust & crumb?",
+
+       "subtitle": "Crumb (inner part of the bread)",
+
+
+			"is_nested_question": 0,
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+			"is_nested_option": 0,
+
+
+
+
+			"is_mandatory": 0,
+
+
+
+
+			"select_type": 2,
+
+
+
+
+			"option": [{
+
+
+
+
+					"value": "Crust",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+
+
+
+
+				{
+
+
+
+
+					"value": "Crumb",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				}
+				
+			]
+
+
+
+
+		},
 		{
 
 
 
 
-			"title": "What is your impression about baking?",
+			"title": "If it\'s <b>multi-ingredient bread</b> (product), does the presence of multi-ingredient on the crumb (inner part of the bread) matter to you?",
 
+
+
+			"select_type": 1,
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+			"is_mandatory": 0,
+
+
+
+
+			"option": [{
+
+
+
+
+					"value": "Yes",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+					"value": "Doesn\'t matter",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				}
+
+
+			]
+
+
+
+
+		},
+
+
+		{
+
+
+
+
+			"title": "How does the shape of the product (slice of bread) appear to you?",
+
+
+			"subtitle": "Dome - Arch shape",
 
 
 			"select_type": 1,
@@ -787,7 +925,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Evenly baked",
+					"value": "All sides uniform",
 
 
 
@@ -805,23 +943,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Under baked",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Blistered",
+					"value": "Slightly domed",
 
 
 
@@ -839,7 +961,59 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Burnt",
+					"value": "Excessively domed",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+					"value": "Collapsed",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+					"value": "Broken",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Curvy sides",
 
 
 
@@ -852,21 +1026,24 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
-
 			]
 
 
 
 
 		},
+
+
+
 		{
 
 
 
 
-			"title": "How is the visual appeal of the product?",
+			"title": "While touching the product, how does the product feel?",
 
-      "subtitle": "Please select a maximum of 4 options.",
+
+
 
 			"select_type": 2,
 
@@ -889,140 +1066,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 			"option": [{
-
-
-
-
-					"value": "Delicious",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Fresh",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Brittle",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Rich topping",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Oozing",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Plain & simple",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Smooth",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-{
-
-
-
-
-					"value": "Fancy",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
 
 
 
@@ -1040,376 +1083,34 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-				{
 
 
-
-
-					"value": "Homemade",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Firm",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Ready-made",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Artisanal",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-					{
-
-
-
-
-					"value": "Chunky",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-
-			]
-
-
-
-
-		},
-		{
-
-
-
-
-			"title": "What is your view about the filling / topping in the product?",
-
-
-			"select_type": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Less",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Balanced",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Excess",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Doesn\'t matter",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Not applicable",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-				]
-		},
-{
-
-
-
-
-			"title": "How is the visual texture of the product?",
-
-      "subtitle": "You may also touch to feel the texture of the product.",
-
-			"select_type": 2,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Smooth",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Fluffy",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Dry",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Crumbly",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Greasy",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Rough",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Crisp",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-{
-
-
-
-
-					"value": "Limp",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
 				{
 
 
 
 
 					"value": "Moist",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+
+
+				{
+
+
+
+
+					"value": "Dry",
 
 
 
@@ -1443,7 +1144,39 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Oily",
+					"value": "Rough",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Smooth",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Loose particles",
 
 
 
@@ -1456,16 +1189,437 @@ class InsertPublicReviewQuestionair extends Command
 				}
 
 
+
+
 			]
+
+
+
+
+		},
+{
+
+
+
+
+			"title": "Observe the size & arrangement of cells in the crumb (inner part of the bread). What do you observe?",
+
+
+			"subtitle": "Variation - Mix of small & big cells",
+
+
+			"select_type": 1,
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+			"is_nested_question": 0,
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+			"option": [{
+
+
+
+
+					"value": "Same all over",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+					"value": "Variation",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				}
+
+			]
+
+
+
 
 		},
 
+{
+
+
+
+
+			"title": "What do observe about the crumb cells (inner part of the bread)?",
+
+       "subtitle": "Fine - Sponge like with small cells, closely packed.\nOpen - Sponge like with large cells (same or different sizes), loosely packed.\nPorous - Small holes through which air or liquid may pass.\nTunnel - A large hole, forming a passage through which even solid can pass.",
+
+
+			"is_nested_question": 0,
+
+
+
+
+			"is_intensity": 0,
+
+
+
+
+			"is_nested_option": 0,
+
+
+
+
+			"is_mandatory": 1,
+
+
+
+
+			"select_type": 2,
+
+
+
+
+			"option": [{
+
+
+
+
+					"value": "Fine cells",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+
+				{
+
+
+
+
+					"value": "Open cells",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Porous holes",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+
+				{
+
+
+
+
+					"value": "Tunnel",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Raw dough",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+
+				{
+
+
+
+
+					"value": "All of them",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Any other",
+
+
+
+
+					"is_intensity": 1,
+
+
+
+
+					"intensity_type": 2,
+
+
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+				}
+
+				
+				
+			]
+
+
+
+
+		},
 		{
 
 
 
 
-			"title": "Overall Preference of Appearance",
+			"title": "Slide your forefinger on the surface of the crumb to imitate spreading action of a knife while applying the butter. How is your <b>spreading experience</b>?",
+
+
+			"select_type": 2,
+
+
+
+			"is_intensity": 0,
+
+
+
+			"is_nested_question": 0,
+
+
+
+			"is_mandatory": 1,
+
+
+
+			"option": [{
+
+
+
+
+					"value": "Spreads easily",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+					"value": "Sticky (Doesn\'t spread)",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Chunky particles (Doesn\'t spread)",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+
+
+				{
+
+
+
+
+					"value": "Crumbly (Doesn\'t spread)",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				},
+				{
+
+
+
+
+					"value": "Breaks (Doesn\'t spread)",
+
+
+
+
+					"is_intensity": 0
+
+
+
+
+				}
+
+			]
+
+
+
+
+		},
+		{
+
+
+
+
+			"title": "Overall preference of Appearance",
 
 
 
@@ -1659,7 +1813,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
+
 
 
 
@@ -1718,7 +1874,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Overall Preference of Aroma",
+			"title": "Overall preference of Aroma",
 
 
 
@@ -1889,6 +2045,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		}
+
+
+
 
 
 	],
@@ -2302,7 +2461,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Overall Preference of Taste",
+			"title": "Overall preference of Taste",
 
 
 
@@ -2921,7 +3080,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Overall Preference of Aromatics",
+			"title": "Overall preference of Aromatics",
 
 
 
@@ -3112,157 +3271,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Take sufficient quantity of the product, bite the product just once then identify the sound and its intensity. Which prominent sound do you hear? ",
-"subtitle": "Crispy - One sharp, clean, fast, and high pitched sound. Eg., Chips.\n Crunchy - Multiple low pitched crushing sounds perceived as a series of small events. Eg., Rusks.\nCrackly - One sudden low pitched sound that brittles the product. Eg., Puffed rice.",
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_option": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"select_type": 2,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Crispy",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Crunchy",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Crackly",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "No Sound",
-
-
-
-
-					"is_intensity": 0
-
-
-
-				}
-				
-
-
-
-
-			]
-
-
-
-
-		},
-	  {
-
-
-
-
 			"title": "How much force is needed to chew the product?",
 
 
@@ -3297,7 +3305,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Barely any",
+					"value": "Barely any force",
 
 
 
@@ -3317,7 +3325,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Weak",
+					"value": "Normal force",
 
 
 
@@ -3337,79 +3345,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Mild",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Moderate",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Intense",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Very Intense",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Extremely Intense",
+					"value": "Extra force",
 
 
 
@@ -3434,7 +3370,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "As you chew, what is being released from the product?",
+			"title": "As you chew, what do you prominently feel inside the mouth?",
 
 
 
@@ -3469,7 +3405,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Fats (Butter, cream etc.)",
+					"value": "Oil / Butter",
 
 
 
@@ -3490,36 +3426,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-
-
-
-				{
-
-
-
-
-					"value": "Oil",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
 
 
 
@@ -3549,7 +3455,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-				
+
+
+
+
 				{
 
 
@@ -3593,7 +3502,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "While chewing, which textures can you feel inside your mouth?",
 
-"subtitle" : "Please chew the product again for 3-4 times and pause. Please select a maximum of 4 options.",
+
 
 
 			"select_type": 2,
@@ -3626,7 +3535,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Tender",
+					"value": "Soft",
 
 
 
@@ -3706,13 +3615,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
-				
 				{
 
 
 
 
-					"value": "Gooey",
+					"value": "Sticky",
 
 
 
@@ -3733,6 +3641,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
+
 				{
 
 
@@ -3759,142 +3670,16 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
+
+
 				{
 
 
 
 
-					"value": "Chunky",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Gritty",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Fibrous",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Mushy",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Rubbery",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Coarse",
+					"value": "Rough",
 
 
 
@@ -3941,90 +3726,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				},
+
+
+
 				{
 
 
 
 
-					"value": "Hard",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Molten",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Dense filling",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Light filling",
+					"value": "Any other",
 
 
 
@@ -4045,8 +3755,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 				}
-				
-
 
 
 			]
@@ -4055,134 +3763,6 @@ class InsertPublicReviewQuestionair extends Command
 
 
 		},
-		{
-
-
-
-
-			"title": "How fast does the product melt-in-the-mouth?",
-
-
-			"select_type": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Melts quickly",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Melts moderately",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Melts slowly",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Doesn\'t melt",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Not applicable",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-			]
-
-
-
-
-		},
-		
 		{
 
 
@@ -4190,7 +3770,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"title": "What kind of mass is being formed?",
 
-"subtitle": "Take sufficient quantity of the product, chew it for minimum 8-10 times and pause.",
+    "subtitle": "Take sufficient quantity of the product, chew it for minimum 8-10 times and pause.",
 
 
 			"select_type": 1,
@@ -4406,7 +3986,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Oily/ Greasy film",
+					"value": "Oily film",
 
 
 
@@ -4543,7 +4123,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Overall Preference of Texture",
+			"title": "Overall preference of Texture",
 
 
 
@@ -5198,7 +4778,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'generic_cookie_ biscuit_v1','keywords'=>"generic_cookie_ biscuit_v1",'description'=>null,
+        $data = ['name'=>'generic_sliced_bread_v1','keywords'=>"generic_sliced_bread_v1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
