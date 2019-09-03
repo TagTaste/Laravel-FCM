@@ -75,11 +75,10 @@ class Subscriber extends Model
         }
     }
 
-    public function followProfileSuggestion($user_id, $following_id)
+    public static function followProfileSuggestion($user_id, $following_id)
     {
         $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
         $following_profile = \App\Neo4j\User::where('profile_id', $following_id)->first();
-
         if ($user_profile && $following_profile) {
             $is_user_following = $user_profile->follows->where('profile_id', $following_id)->first();
             if (!$is_user_following) {
@@ -94,7 +93,7 @@ class Subscriber extends Model
         }
     }
 
-    public function unfollowProfileSuggestion($user_id, $following_id)
+    public static function unfollowProfileSuggestion($user_id, $following_id)
     {
         $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
         $following_profile = \App\Neo4j\User::where('profile_id', $following_id)->first();
@@ -108,7 +107,7 @@ class Subscriber extends Model
         }
     }
 
-    public function followCompanySuggestion($user_id, $company_id)
+    public static function followCompanySuggestion($user_id, $company_id)
     {
         $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
         $company_profile = \App\Neo4j\Company::where('company_id', $company_id)->first();
@@ -126,7 +125,7 @@ class Subscriber extends Model
         }
     }
 
-    public function unfollowCompanySuggestion($user_id, $company_id)
+    public static function unfollowCompanySuggestion($user_id, $company_id)
     {
         $user_profile = \App\Neo4j\User::where('profile_id', $user_id)->first();
         $company_profile = \App\Neo4j\Company::where('company_id', $company_id)->first();
