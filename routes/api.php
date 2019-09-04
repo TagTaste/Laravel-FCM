@@ -137,6 +137,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("feed","FeedController@feed");
             Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
             Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
+            //namespace profile
+            Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
+                //namespace company - Checks for company admin
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                    Route::resource("users","UserController");
+                });
+            });
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
