@@ -1273,7 +1273,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 				{
 
@@ -1285,7 +1285,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 
 				{
@@ -1298,7 +1298,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 				{
 
@@ -1310,7 +1310,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 
 				{
@@ -1323,7 +1323,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 				{
 
@@ -1335,7 +1335,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 
 				{
@@ -1348,7 +1348,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				},
 				{
 
@@ -1360,7 +1360,7 @@ class InsertGlobalQuestion extends Command
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 				}
 			]
 
@@ -1372,6 +1372,7 @@ class InsertGlobalQuestion extends Command
 			"subtitle": "Compress half a teaspoon of the product between the tongue and the palate. Please don\'t swallow the product yet.",
 
 			"select_type": 1,
+
 
 			"is_intensity": 0,
 
