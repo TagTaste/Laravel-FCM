@@ -97,6 +97,7 @@ class FeedController extends Controller
         $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
 
         $suggestion_position = array();
+        // 2 profile 6 product 10 company 13 ad engine 15 collaboration
         $suggestion_position[] = rand(1,4);
         $suggestion_position[] = rand(6,10);
         $suggestion_position[] = rand(12,15);
