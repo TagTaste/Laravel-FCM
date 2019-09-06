@@ -7,6 +7,7 @@
  */
 
 namespace App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Deeplink
@@ -16,7 +17,6 @@ class Deeplink
     private $modelName;
     private $shared;
     private $share_id;
-
 
     public function __construct($modelName, $modelId, $shared = false, $share_id = 0)
     {
@@ -44,6 +44,12 @@ class Deeplink
         return $self->getDeeplinkUrl()->url;
     }
 
+    public static function getChefShortLink($model)
+    {
+        $self = new self($model->model_name,$model->model_id, false, 0);
+        return $self->getChefDeeplinkUrl(json_decode($model->data_json))->url;
+    }
+
     public static function getLongLink($modelName, $modelId, $isShared = false, $share_id = 0)
     {
         $key = 'deeplink:'.$modelName.':'.$modelId.':'.$share_id;
@@ -57,6 +63,11 @@ class Deeplink
     private function getDeeplinkUrl()
     {
         $data = $this->model->getPreviewContent();
+        if (class_basename($this->model) == 'Company') {
+            $companyId = $this->model->id;
+        } else {
+            $companyId = null;
+        }
         $client = new \GuzzleHttp\Client();
         $res = $client->request('POST', 'https://api.branch.io/v1/url', [
             'json' => [
@@ -89,6 +100,48 @@ class Deeplink
                     'isShared' =>               $this->shared,
 
                     'profileID' =>              isset($data['owner']) ? $data['owner'] : null,
+                    'companyID' =>              $companyId
+
+                ],
+            ],
+        ]);
+        return json_decode((string)$res->getBody());
+    }
+
+    private function getChefDeeplinkUrl($data)
+    {
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('POST', 'https://api.branch.io/v1/url', [
+            'json' => [
+                "branch_key" => env('BRANCH_KEY'),
+
+                "data" => [
+                    '$canonical_identifier' =>  'share_feed/',
+                    '$og_title' =>              $data->title,
+                    '$og_description' =>        substr($data->description,0,155).'...',
+                    '$og_image_url' =>          $data->image_meta->original_photo,
+//                    '$og_image_width' =>      '273px',
+//                    '$og_image_height' =>     '526px',
+                    '$og_type' =>               'article',
+                    '$og_app_id' =>             env('FACEBOOK_ID'),
+                    '$desktop_url' =>           Deeplink::getActualUrl($this->modelName, $this->modelId, $this->shared, $this->share_id),
+
+                    '$twitter_card' =>         'summary',
+                    '$twitter_title' =>         $data->title,
+                    '$twitter_description' =>   substr($data->description,0,155).'...',
+                    '$twitter_image_url' =>     $data->image_meta->original_photo,
+                    '$twitter_site' =>          '@tagtaste',
+
+                    // type and typeID will be deprecated due to branch reserved keyword issue
+                    'typeID' =>                 $this->modelId,
+                    'type' =>                   $this->modelName,
+
+                    'modelName' =>              $this->modelName,
+                    'modelID' =>                $this->modelId,
+                    'shareTypeID' =>            $this->share_id,
+                    'isShared' =>               $this->shared,
+
+                    'profileID' =>              $this->modelId,
 
                 ],
             ],
@@ -154,52 +207,52 @@ class Deeplink
                 } else {
                     $description = isset($model->preview["description"])?$model->preview["description"]:null;
                 }
-                return Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($description,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n";
             }
             if($model->media_url != null && $model->content !=  null){
-                return Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste. ";
+                return Str::words(substr($content,0,155))."...\r\nCheckout this video by ".$model->owner->name." on TagTaste! \r\n";
             } else if ($content != null) {
-               return Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste. ";
+               return Str::words(substr($content,0,155))."...\r\nCheckout this post by ".$model->owner->name." on TagTaste! \r\n";
             }
-        return "Checkout this post by ".$model->owner->name." on TagTaste. ";
+        return "Checkout this post by ".$model->owner->name." on TagTaste! \r\n";
 
     }
 
     public static function getPhotoText($model)
     {
         $caption = $model->caption;
-            return Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste. ";
+            return Str::words(substr($caption,0,155))."...\r\nCheckout this photo by ".$model->owner->name." on TagTaste! \r\n";
     }
 
     public static function getPollingText($model){
 
-        return "Checkout this poll by ".$model->owner->name." on TagTaste. ";
+        return "Checkout this poll by ".$model->owner->name." on TagTaste! \r\n";
     }
 
     public static function getCollaborateText($model)
     {
-        return Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste. ";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout this collaboration by ".$model->owner->name." on TagTaste! \r\n";
     }
 
     public static function getProductText($model)
     {
-        return Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste. ";
+        return Str::words(substr($model->description,0,155))."...\r\nCheckout ".$model->name." by ".$model->company_name." on TagTaste! \r\n";
     }
 
     public static function getProfileText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this profile on TagTaste! \r\n";
         else
-            return "Checkout this profile on TagTaste. ";
+            return "Checkout this profile on TagTaste. \r\n";
 
     }
 
     public static function getCompanyText($model)
     {
         if(isset($model->about) && !is_null($model->about) && strlen($model->about))
-            return Str::words(substr($model->about,0,155))."...\r\ncheckout this company on TagTaste. ";
+            return Str::words(substr($model->about,0,155))."...\r\nCheckout this company on TagTaste! \r\n";
         else
-            return "Checkout this company on TagTaste. ";
+            return "Checkout this company on TagTaste! \r\n";
     }
 }

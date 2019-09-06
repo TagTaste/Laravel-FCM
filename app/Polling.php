@@ -20,7 +20,7 @@ class Polling extends Model implements Feedable
 
     protected $with = ['profile','company'];
 
-    protected $appends = ['options','owner'];
+    protected $appends = ['options','owner','meta'];
     protected $visible = ['id','title','profile_id','company_id','profile','company','created_at',
         'deleted_at','updated_at','is_expired','expired_time','privacy_id','payload_id','options','owner'];
 
@@ -46,6 +46,7 @@ class Polling extends Model implements Feedable
             'id' => $this->id,
             'title' => $this->title,
             'options' => $this->getOptionsAttribute(),
+            'poll_meta' => $this->meta,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'profile_id'=>$this->profile_id
@@ -90,14 +91,6 @@ class Polling extends Model implements Feedable
     public function getMetaFor(int $profileId) : array
     {
         $meta = [];
-//        $options = PollingOption::where('poll_id',$this->id)->get();
-//        $count = $options->sum('count');
-//        if($count)
-//        {
-//            foreach ($options as $option)
-//                $option->count = ($option->count/$count) * 100;
-//        }
-//        $meta['options'] = $options;
         $meta['self_vote'] = PollingVote::where('poll_id',$this->id)->where('profile_id',$profileId)->first();
         $meta['is_expired'] = $this->is_expired;
         $key = "meta:polling:likes:" . $this->id;
@@ -132,7 +125,7 @@ class Polling extends Model implements Feedable
             'id' => $this->id,
             'content' => $this->title,
             'image' => null,
-            'collaborate_type' => $this->collaborate_type
+            //'collaborate_type' => $this->collaborate_type
         ];
     }
 
@@ -166,9 +159,9 @@ class Polling extends Model implements Feedable
         $data['modelId'] = $this->id;
         $data['deeplinkCanonicalId'] = 'share_feed/'.$this->id;
         $data['title'] = substr($this->title,0,65);
-        $data['description'] = "by ".$this->profile->name;
-        $data['ogTitle'] = substr($this->title,0,65);
-        $data['ogDescription'] = "by ".$this->profile->name;
+        $data['description'] = "by ".$this->owner->name;
+        $data['ogTitle'] = "Poll: ".substr($this->title,0,65);
+        $data['ogDescription'] = "by ".$this->owner->name;
         $images = isset($this->images_meta[0]->original_photo) ? $this->images_meta[0]->original_photo : null;
         $data['cardType'] = isset($images) ? 'summary_large_image':'summary';
         $data['ogImage'] = isset($images) ? $images:'https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/poll_feed.png';
@@ -182,5 +175,16 @@ class Polling extends Model implements Feedable
     public function getOwnerAttribute()
     {
         return $this->owner();
+    }
+
+    public function getMetaAttribute()
+    {
+        $meta = [];
+        $meta['is_expired'] = $this->is_expired;
+        $key = "meta:polling:likes:" . $this->id;
+        $meta['likeCount'] = Redis::sCard($key);
+        $meta['commentCount'] = $this->comments()->count();
+        $meta['vote_count'] = \DB::table('poll_votes')->where('poll_id',$this->id)->count();
+        return $meta;
     }
 }

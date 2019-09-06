@@ -46,6 +46,7 @@ Route::post('login',function(Request $request) {
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
@@ -59,6 +60,7 @@ Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
+Route::get('preview/chefOfTheWeek', 'Api\PreviewController@showChefProfile');
 
 // faq question answer api
 Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAnswer');
@@ -650,7 +652,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post("/preview",function(Request $request){
             $url = $request->input('url');
             $tags = \App\Preview::get($url);
-
             return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
         });
 

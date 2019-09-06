@@ -24,9 +24,24 @@ class Preview
             $tags = $self->parseFacebookTags($url);
             \Redis::set($key,json_encode($tags));
         }
-    
+        if (isset(json_decode(\Redis::get($key))->image)) {
+            $self = new self($url);
+            $meta = $self->getFileMeta(json_decode(\Redis::get($key))->image);
+            $tags = json_decode(\Redis::get($key));
+            $tags->meta = $meta;
+            \Redis::set($key,json_encode($tags));
+        }
         return json_decode(\Redis::get($key));
        
+    }
+
+    protected function getFileMeta($url)
+    {
+        $meta = getimagesize($url);
+        $imageMeta = [];
+        $imageMeta["height"] = $meta[1];
+        $imageMeta["width"] = $meta[0];
+        return $imageMeta;
     }
 
     public static function getCached($url) {

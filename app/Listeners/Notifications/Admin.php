@@ -32,6 +32,7 @@ class Admin
             return;
         }
         $profile = Profile::where('user_id',$userId)->first();
+        $event->content = $event->model->name;
         Notification::send($profile, new \App\Notifications\Actions\Admin($event));
     }
 }
