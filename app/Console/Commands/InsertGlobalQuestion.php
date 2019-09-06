@@ -38,22 +38,44 @@ class InsertGlobalQuestion extends Command
     public function handle()
     {
         $headerInfo2 = [
+
+
+
             ['header_name' => "INSTRUCTIONS"],
+
+
+
             ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below."]],
+
+
             ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone."]],
+
+
             ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."]],
+
+
+
             ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics."]],
+
+
+
             ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."]],
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."]]
+
+
+
+            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."]]
+
+
+
         ];
 
         $questions2 = '{
 
-    
 
 
 
-"INSTRUCTIONS": [{
+
+    "INSTRUCTIONS": [{
 
         "title": "Instruction",
 
@@ -268,11 +290,19 @@ class InsertGlobalQuestion extends Command
 
                     "is_intensity": 0
 
+                },
+                {
+
+                    "value": "Any other",
+
+                    "is_intensity": 0
+
                 }
+
             ]
 
         },
-{
+        {
 
             "title": "How does the product drop / flow from the spoon? ",
 
@@ -482,10 +512,10 @@ class InsertGlobalQuestion extends Command
 
     ],
 
-    
 
 
-"AROMA": [{
+
+    "AROMA": [{
 
             "title": "What all aromas have you sensed? ",
 
@@ -852,10 +882,10 @@ class InsertGlobalQuestion extends Command
 
     ],
 
-    
 
 
-"AROMATICS TO FLAVORS": [{
+
+    "AROMATICS TO FLAVORS": [{
 
             "title": "What all aromatics have you sensed?",
 
@@ -1118,11 +1148,10 @@ class InsertGlobalQuestion extends Command
 
     ],
 
-    
 
 
-"TEXTURE": [
-{
+
+    "TEXTURE": [{
 
             "title": "While eating, how does the product feel inside the mouth? ",
             "subtitle": "Please eat one teaspoon of the product and assess.",
@@ -1173,7 +1202,7 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
 
                 },
-                    {
+                {
 
                     "value": "Like puree (tomato)",
 
@@ -1187,7 +1216,7 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
 
                 }
-                
+
             ]
 
         },
@@ -1202,7 +1231,7 @@ class InsertGlobalQuestion extends Command
             "is_intensity": 0,
 
             "is_nested_question": 0,
-            
+
             "is_nested_option": 0,
 
             "is_mandatory": 1,
@@ -1211,11 +1240,13 @@ class InsertGlobalQuestion extends Command
 
                     "value": "Smooth",
 
-           "is_intensity": 1,
+                    "is_intensity": 1,
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+                    
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
 
                 },
 
@@ -1227,9 +1258,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
                 },
 
                 {
@@ -1240,9 +1271,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
                 {
 
@@ -1252,9 +1283,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
 
                 {
@@ -1265,9 +1296,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
                 {
 
@@ -1277,9 +1308,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
 
                 {
@@ -1290,9 +1321,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
                 {
 
@@ -1302,9 +1333,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
 
                 {
@@ -1315,9 +1346,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 },
                 {
 
@@ -1327,9 +1358,9 @@ class InsertGlobalQuestion extends Command
 
                     "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
                 }
             ]
 
@@ -1340,7 +1371,8 @@ class InsertGlobalQuestion extends Command
             "title": "How fast does the product melt-in-the-mouth?",
             "subtitle": "Compress half a teaspoon of the product between the tongue and the palate. Please don\'t swallow the product yet.",
 
-            "select_type": 2,
+            "select_type": 1,
+
 
             "is_intensity": 0,
 
@@ -1433,7 +1465,7 @@ class InsertGlobalQuestion extends Command
                     "is_intensity": 0
 
                 },
-        {
+                {
 
                     "value": "No residue",
 
@@ -1541,10 +1573,10 @@ class InsertGlobalQuestion extends Command
 
     ],
 
-    
 
 
-"PRODUCT EXPERIENCE": [{
+
+    "PRODUCT EXPERIENCE": [{
 
             "title": "Did this product succeed in satisfying your basic senses?",
 
@@ -1735,6 +1767,10 @@ class InsertGlobalQuestion extends Command
         $data = ['name'=>'Condiments - Tamarind (Sauth)','keywords'=>"Condiments - Tamarind (Sauth)",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
+
+
+
+
 
 
     }
