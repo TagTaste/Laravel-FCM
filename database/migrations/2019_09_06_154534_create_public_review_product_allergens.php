@@ -14,14 +14,15 @@ class CreatePublicReviewProductAllergens extends Migration
     public function up()
     {
         Schema::create('public_review_product_allergens', function (Blueprint $table) {
-            $table->string('product_id');
+            $table->string('product_id', 255);
             $table->integer('allergen_id')->unsigned();
             $table->timestamps();
             $table->softDeletes();
-
+            
             $table->foreign('allergen_id')->references('id')->on('allergens');
             $table->foreign('product_id')->references('id')->on('public_review_products');
 
+            $table->index(['product_id', 'allergen_id']);
         });
     }
     /**
@@ -31,5 +32,7 @@ class CreatePublicReviewProductAllergens extends Migration
      */
     public function down(){
         Schema::dropIfExists('public_review_product_allergens');
+        $table->dropIndex(['product_id', 'allergen_id']);
+
     }
 }

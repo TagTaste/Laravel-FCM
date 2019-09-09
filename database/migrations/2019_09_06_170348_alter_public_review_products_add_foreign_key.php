@@ -19,6 +19,7 @@ class AlterPublicReviewProductsAddForeignKey extends Migration
             $table->foreign('company_id')->references('id')->on('public_review_product_companies');
             $table->foreign('city_id')->references('id')->on('public_review_cities');
             $table->foreign('type_id')->references('id')->on('public_review_product_types');
+                   
         });
     }
 

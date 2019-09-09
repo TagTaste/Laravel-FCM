@@ -21,8 +21,10 @@ class AlterPublicReviewProductsAddColumn extends Migration
             $table->integer('type_id')->unsigned()->nullable();
             $table->boolean('is_pan')->default(0);
             
-            $table->string('brand_name')->nullable()->change();
-            $table->string('company_name')->nullable()->change();    
+            $table->string('brand_name', 255)->nullable()->change();
+            $table->string('company_name', 255)->nullable()->change();  
+            
+            $table->index(['type_id', 'brand_id', 'city_id', 'is_pan']);
            
         });
     }
@@ -43,6 +45,8 @@ class AlterPublicReviewProductsAddColumn extends Migration
 
             $table->string('brand_name')->change();
             $table->string('company_name')->change(); 
+            
+            $table->dropIndex(['type_id', 'brand_id', 'city_id', 'is_pan']);
         });
     }
 }

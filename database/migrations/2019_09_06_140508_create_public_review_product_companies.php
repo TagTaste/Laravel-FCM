@@ -15,12 +15,15 @@ class CreatePublicReviewProductCompanies extends Migration
     {
         Schema::create('public_review_product_companies', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->string('name', 255);
             $table->text('image')->nullable();
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['id', 'name', 'is_active']);
+
         });
     }
 
@@ -32,5 +35,7 @@ class CreatePublicReviewProductCompanies extends Migration
     public function down()
     {
         Schema::dropIfExists('public_review_product_companies');
+        $table->dropIndex(['id', 'name', 'is_active']);
+
     }
 }
