@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Redis;
 use GraphAware\Neo4j\Client\ClientBuilder;
 use App\Collaborate;
 use App\PublicReviewProduct;
+use App\Advertisements;
 
 class FeedController extends Controller
 {
@@ -25,7 +26,7 @@ class FeedController extends Controller
             $this->errors[] = 'No more feed';
             return $this->sendResponse();
         }
-        list($skip,$take) = Paginator::paginate($page, 16);
+        list($skip,$take) = Paginator::paginate($page, 15);
         
         $profileId = $request->user()->profile->id;
         $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
@@ -96,12 +97,15 @@ class FeedController extends Controller
         $this->model = array_fill(0, 20, null);
         $client = ClientBuilder::create()->addConnection('default', config('database.neo4j_uri'))->build();
 
-        $suggestion_position = array();
-        // 2 profile 6 product 10 company 13 ad engine 15 collaboration
-        $suggestion_position[] = rand(1,4);
-        $suggestion_position[] = rand(6,10);
-        $suggestion_position[] = rand(12,15);
-        $suggestion_position[] = rand(17,19);
+        // 2 profile, 6 product, 10 company, 13 ad engine and 15 collaboration suggestion
+        $suggestion_position = array(2, 6, 10, 13, 15);
+
+        // $suggestion_position = array();
+        // $suggestion_position[] = rand(2,4);
+        // $suggestion_position[] = rand(6,8);
+        // $suggestion_position[] = rand(10,12);
+        // $suggestion_position[] = rand(14,16);
+        // $suggestion_position[] = rand(18,20);
 
         $feed_position = array_values(array_diff(array_keys($this->model),$suggestion_position));
 
@@ -138,9 +142,10 @@ class FeedController extends Controller
                     break;
             }
         }
-        $this->model[$suggestion_position[1]] = $this->suggestion_collaboration($client, $profile, $profileId);
+        $this->model[$suggestion_position[1]] = $this->suggestion_products($client, $profile, $profileId);
         $this->model[$suggestion_position[2]] = $this->suggestion_company($client, $profile, $profileId);
-        $this->model[$suggestion_position[3]] = $this->suggestion_products($client, $profile, $profileId);
+        $this->model[$suggestion_position[3]] = $this->ad_engine($client, $profile, $profileId);
+        $this->model[$suggestion_position[4]] = $this->suggestion_collaboration($client, $profile, $profileId);
 
         $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
         $indexTypeV1 = array("photo", "polling");
@@ -555,6 +560,58 @@ class FeedController extends Controller
                 }
             }
         }
+        return $suggestion;
+    }
+
+    public static function ad_engine($client, $profile, $profileId) 
+    {
+        $advertisement = Advertisements::inRandomOrder()->first()->toArray();
+        $data = [];
+
+        $cached = json_decode($advertisement['payload'], true);
+        if ($cached) {
+            $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+            $indexTypeV1 = array("photo", "polling");
+            foreach ($cached as $name => $key) {
+                $cachedData = null;
+                if (in_array($name, $indexTypeV2)) {
+                    $key = $key.":V2";
+                    $cachedData = Redis::connection('V2')->get($key);
+                } else {
+                    $cachedData = Redis::get($key);
+                }
+                if (!$cachedData) {
+                    \Log::warning("could not get from $key");
+                }
+                $data[$name] = json_decode($cachedData,true);
+            }
+
+            if ($advertisement['actual_model'] !== null) {
+                $model = $advertisement['actual_model'];
+                $type = getType($advertisement['actual_model']);
+                $model = $model::find($advertisement['model_id']);
+                if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                    $data['meta'] = $model->getMetaForV2($profileId);
+                }
+            }
+            $data['type'] = strtolower($advertisement['model']);
+        }
+
+        $advertisement['payload'] = $data;
+
+        foreach ($advertisement as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($advertisement[$key]);
+        }
+        $suggestion = array(
+            "ad_engine" => $advertisement,
+            "meta" => [
+                "count" => 0,
+                "text" => "Promoted",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "ad_engine",
+        );
         return $suggestion;
     }
 
