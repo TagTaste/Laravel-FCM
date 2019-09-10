@@ -321,6 +321,7 @@ class ShareController extends Controller
         $this->model->update(['content'=>$content]);
         $this->model = $class::where($this->column,$modelId)->where('profile_id',$loggedInId)->whereNull('deleted_at')->first();
         $this->model->addToCache();
+        $this->model->addToCacheV2();
         $tags = $this->hasTags($content);
 
         if(isset($tags) && $tags != 0){
