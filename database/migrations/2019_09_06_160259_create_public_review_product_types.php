@@ -8,7 +8,7 @@ class CreatePublicReviewProductTypes extends Migration
 {
     /**
      * Run the migrations.
-     *
+     * 
      * @return void
      */
     public function up()
@@ -20,7 +20,7 @@ class CreatePublicReviewProductTypes extends Migration
             $table->boolean('is_active')->default(0);
             $table->timestamps();
             $table->softDeletes();
-
+            
             $table->index(['id', 'name', 'is_active']);
             
         });
@@ -31,10 +31,7 @@ class CreatePublicReviewProductTypes extends Migration
      *
      * @return void
      */
-    public function down()
-    {
+    public function down(){
         Schema::dropIfExists('public_review_product_types');
-        $table->dropIndex(['id', 'name', 'is_active']);
-
     }
 }

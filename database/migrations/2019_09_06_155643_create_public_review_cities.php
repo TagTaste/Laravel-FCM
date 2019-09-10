@@ -39,7 +39,6 @@ class CreatePublicReviewCities extends Migration
     public function down()
     {
         Schema::dropIfExists('public_review_cities');
-        $table->dropIndex(['id', 'city', 'state', 'is_active']);
 
     }
 }

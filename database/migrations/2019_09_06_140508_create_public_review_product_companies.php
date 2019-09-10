@@ -35,7 +35,6 @@ class CreatePublicReviewProductCompanies extends Migration
     public function down()
     {
         Schema::dropIfExists('public_review_product_companies');
-        $table->dropIndex(['id', 'name', 'is_active']);
 
     }
 }

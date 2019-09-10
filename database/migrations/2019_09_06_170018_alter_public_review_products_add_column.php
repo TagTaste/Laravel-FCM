@@ -36,7 +36,7 @@ class AlterPublicReviewProductsAddColumn extends Migration
      */
     public function down()
     {
-        Schema::table('public_review_products', function (Blueprint $table) {
+         Schema::table('public_review_products', function (Blueprint $table) {
            
             $table->dropColumn(['brand_id']);
             $table->dropColumn(['city_id']);
@@ -45,7 +45,7 @@ class AlterPublicReviewProductsAddColumn extends Migration
 
             $table->string('brand_name')->change();
             $table->string('company_name')->change(); 
-            
+
             $table->dropIndex(['type_id', 'brand_id', 'city_id', 'is_pan']);
         });
     }

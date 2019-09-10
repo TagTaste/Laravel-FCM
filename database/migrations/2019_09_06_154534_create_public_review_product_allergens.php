@@ -18,7 +18,7 @@ class CreatePublicReviewProductAllergens extends Migration
             $table->integer('allergen_id')->unsigned();
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->foreign('allergen_id')->references('id')->on('allergens');
             $table->foreign('product_id')->references('id')->on('public_review_products');
 
@@ -32,7 +32,6 @@ class CreatePublicReviewProductAllergens extends Migration
      */
     public function down(){
         Schema::dropIfExists('public_review_product_allergens');
-        $table->dropIndex(['product_id', 'allergen_id']);
 
     }
 }
