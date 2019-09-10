@@ -163,4 +163,13 @@ class LoginController extends Controller
         return $user;
 
     }
+    public function getCities(Request $request)
+    {
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('GET', 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities', ['headers'=>[
+            'x-rapidapi-key'=> '77814062e0msh6558e89404ab958p144440jsnac29624fe139',
+               'x-rapidapi-host' => 'wft-geo-db.p.rapidapi.com'
+        ]]);
+        return $res->getBody();
+    }
 }
