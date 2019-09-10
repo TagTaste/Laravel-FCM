@@ -50,7 +50,7 @@ class Advertisements extends Model
                 return "App\Polling";
                 break;
             case 'Photo':
-                return "App\Photo";
+                return "App\V2\Photo";
                 break;
             case 'Collaborate':
                 return "App\Collaborate";
