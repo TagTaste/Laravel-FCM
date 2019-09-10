@@ -46,6 +46,7 @@ Route::post('login',function(Request $request) {
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
@@ -137,6 +138,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("feed","FeedController@feed");
             Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
             Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
+
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
                 //namespace company - Checks for company admin
