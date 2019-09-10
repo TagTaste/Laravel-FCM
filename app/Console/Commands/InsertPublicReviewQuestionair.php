@@ -1884,7 +1884,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Astringent (Pucker - Raw Banana)",
+					"value": "Astringent (Puckery - Raw Banana)",
 
 
 
@@ -3016,7 +3016,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"subtitle": "Place one teaspoon of the product, move your tongue up and try to compress the product between tongue and the palate; please don\'t swallow the product yet.",
+			"subtitle": "Place one teaspoon of the product inside the mouth, move your tongue up and try to compress the product between tongue and the palate; please don\'t swallow the product yet.",
 
 
 
