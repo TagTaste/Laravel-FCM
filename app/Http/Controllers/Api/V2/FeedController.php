@@ -565,6 +565,16 @@ class FeedController extends Controller
 
     public static function ad_engine($client, $profile, $profileId) 
     {
+        $suggestion = array(
+            "ad_engine" => [],
+            "meta" => [
+                "count" => 0,
+                "text" => "Promoted",
+                "sub_type" => "collaborate",
+            ],
+            "type" => "ad_engine",
+        );
+
         $advertisement = Advertisements::inRandomOrder()->first()->toArray();
         $data = [];
 
@@ -595,6 +605,8 @@ class FeedController extends Controller
                 }
             }
             $data['type'] = strtolower($advertisement['model']);
+            $suggestion['meta']['sub_type'] = strtolower($advertisement['model']);
+            $suggestion['meta']['count'] = 1; 
         }
 
         $advertisement['payload'] = $data;
@@ -603,15 +615,8 @@ class FeedController extends Controller
             if (is_null($value) || $value == '')
                 unset($advertisement[$key]);
         }
-        $suggestion = array(
-            "ad_engine" => $advertisement,
-            "meta" => [
-                "count" => 0,
-                "text" => "Promoted",
-                "sub_type" => "collaborate",
-            ],
-            "type" => "ad_engine",
-        );
+        
+        $suggestion['ad_engine'] = $advertisement;
         return $suggestion;
     }
 
