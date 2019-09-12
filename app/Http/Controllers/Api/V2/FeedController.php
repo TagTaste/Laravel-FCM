@@ -575,7 +575,7 @@ class FeedController extends Controller
             "type" => "ad_engine",
         );
 
-        $advertisement_random = Advertisements::inRandomOrder()->first()
+        $advertisement_random = Advertisements::inRandomOrder()->first();
 
         if (count($advertisement)) {
             $advertisement = $advertisement_random->toArray();
