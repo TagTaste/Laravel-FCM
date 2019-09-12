@@ -575,48 +575,54 @@ class FeedController extends Controller
             "type" => "ad_engine",
         );
 
-        $advertisement = Advertisements::inRandomOrder()->first()->toArray();
-        $data = [];
+        $advertisement_random = Advertisements::inRandomOrder()->first()
 
-        $cached = json_decode($advertisement['payload'], true);
-        if ($cached) {
-            $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-            $indexTypeV1 = array("photo", "polling");
-            foreach ($cached as $name => $key) {
-                $cachedData = null;
-                if (in_array($name, $indexTypeV2)) {
-                    $key = $key.":V2";
-                    $cachedData = Redis::connection('V2')->get($key);
-                } else {
-                    $cachedData = Redis::get($key);
+        if (count($advertisement)) {
+            $advertisement = $advertisement_random->toArray();
+
+            $data = [];
+
+            $cached = json_decode($advertisement['payload'], true);
+            if ($cached) {
+                $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+                $indexTypeV1 = array("photo", "polling");
+                foreach ($cached as $name => $key) {
+                    $cachedData = null;
+                    if (in_array($name, $indexTypeV2)) {
+                        $key = $key.":V2";
+                        $cachedData = Redis::connection('V2')->get($key);
+                    } else {
+                        $cachedData = Redis::get($key);
+                    }
+                    if (!$cachedData) {
+                        \Log::warning("could not get from $key");
+                    }
+                    $data[$name] = json_decode($cachedData,true);
                 }
-                if (!$cachedData) {
-                    \Log::warning("could not get from $key");
+
+                if ($advertisement['actual_model'] !== null) {
+                    $model = $advertisement['actual_model'];
+                    $type = getType($advertisement['actual_model']);
+                    $model = $model::find($advertisement['model_id']);
+                    if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                        $data['meta'] = $model->getMetaForV2($profileId);
+                    }
                 }
-                $data[$name] = json_decode($cachedData,true);
+                $data['type'] = strtolower($advertisement['model']);
+                $suggestion['meta']['sub_type'] = strtolower($advertisement['model']);
+                $suggestion['meta']['count'] = 1; 
             }
 
-            if ($advertisement['actual_model'] !== null) {
-                $model = $advertisement['actual_model'];
-                $type = getType($advertisement['actual_model']);
-                $model = $model::find($advertisement['model_id']);
-                if ($model !== null && method_exists($model, 'getMetaForV2')) {
-                    $data['meta'] = $model->getMetaForV2($profileId);
-                }
+            $advertisement['payload'] = $data;
+
+            foreach ($advertisement as $key => $value) {
+                if (is_null($value) || $value == '')
+                    unset($advertisement[$key]);
             }
-            $data['type'] = strtolower($advertisement['model']);
-            $suggestion['meta']['sub_type'] = strtolower($advertisement['model']);
-            $suggestion['meta']['count'] = 1; 
-        }
-
-        $advertisement['payload'] = $data;
-
-        foreach ($advertisement as $key => $value) {
-            if (is_null($value) || $value == '')
-                unset($advertisement[$key]);
+            
+            $suggestion['ad_engine'] = $advertisement;
         }
         
-        $suggestion['ad_engine'] = $advertisement;
         return $suggestion;
     }
 
