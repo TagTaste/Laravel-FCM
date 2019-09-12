@@ -28,7 +28,7 @@ class CreateArticlesTable extends Migration {
             $table->foreign("template_id")->references("id")->on("templates");
         });
 	}
-
+	
 	/**
 	 * Reverse the migrations.
 	 *
