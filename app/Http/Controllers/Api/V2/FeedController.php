@@ -577,7 +577,7 @@ class FeedController extends Controller
 
         $advertisement_random = Advertisements::inRandomOrder()->first();
 
-        if (count($advertisement)) {
+        if (count($advertisement_random)) {
             $advertisement = $advertisement_random->toArray();
 
             $data = [];
