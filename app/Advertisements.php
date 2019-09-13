@@ -10,10 +10,10 @@ class Advertisements extends Model
 {
 	use IdentifiesOwner, SoftDeletes;
 
-    protected $fillable = ['title','description','video','youtube_url','link','image','cities','payload','model','model_id','profile_id','company_id','is_expired','created_at','updated_at','deleted_at','expired_at'
+    protected $fillable = ['title','description','video','youtube_url','link','image','cities','payload','model','model_id','profile_id','company_id','is_active','created_at','updated_at','deleted_at','expired_at'
     ];
 
-    protected $visible = ['id','title','description','link','image','payload','model','model_id','is_expired','created_at','updated_at','deleted_at','expired_at','profile','company','actual_model', 'type'
+    protected $visible = ['id','title','description','link','image','payload','model','model_id','profile','company','actual_model', 'type'
     ];
 
     protected $with = ['profile', 'company'];

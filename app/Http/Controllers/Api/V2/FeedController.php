@@ -13,6 +13,7 @@ use GraphAware\Neo4j\Client\ClientBuilder;
 use App\Collaborate;
 use App\PublicReviewProduct;
 use App\Advertisements;
+use Carbon\Carbon;
 
 class FeedController extends Controller
 {
@@ -575,7 +576,7 @@ class FeedController extends Controller
             "type" => "ad_engine",
         );
 
-        $advertisement_random = Advertisements::inRandomOrder()->first();
+        $advertisement_random = Advertisements::where('is_active',1)->whereDate('expired_at', '>', Carbon::now())->inRandomOrder()->first();
 
         if (count($advertisement_random)) {
             $advertisement = $advertisement_random->toArray();
@@ -620,6 +621,7 @@ class FeedController extends Controller
             
             $suggestion['ad_engine'] = $advertisement;
         }
+        dd($suggestion);
         return $suggestion;
     }
 
