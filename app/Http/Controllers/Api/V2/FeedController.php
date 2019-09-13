@@ -620,7 +620,6 @@ class FeedController extends Controller
             
             $suggestion['ad_engine'] = $advertisement;
         }
-        dd($suggestion);
         return $suggestion;
     }
 
