@@ -43,10 +43,6 @@ class InsertGlobalQuestion extends Command
 
         ['header_name' => "INSTRUCTIONS"],
 
-    ['header_name' => "TASTE", "header_info" => ["video_link" => "https://www.youtube.com/watch?v=TGOdxQhgi5Y"], 'header_selection_type' => "1"],
-
- [, "images" => ["https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"], ]
-
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below."]],
 
 
