@@ -79,10 +79,10 @@ class ShareController extends BaseController
         $this->model['sharedBy'] = json_decode(Redis::get('profile:small:' . $exists->profile_id.':V2'));
         $this->model['type'] = $modelName;
         
-        if (isset($shoutout['company_id'])) {
-            $this->model['company'] = json_decode(Redis::get('company:small:' . $sharedModel->company_id.':V2'));
-        } else if (isset($shoutout['profile_id'])) {
-            $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel->profile_id.':V2'));
+        if (isset($sharedModel['company_id'])) {
+            $this->model['company'] = json_decode(Redis::get('company:small:' . $sharedModel['company_id'].':V2'));
+        } else if (isset($sharedModel['profile_id'])) {
+            $this->model['profile'] = json_decode(Redis::get('profile:small:' . $sharedModel['profile_id'].':V2'));
         }
         $this->model[$modelName] = $sharedModel;
         $this->model['meta']= $exists->getMetaForV2Shared($loggedInProfileId);
