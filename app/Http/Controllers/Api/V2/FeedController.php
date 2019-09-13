@@ -579,7 +579,6 @@ class FeedController extends Controller
 
         if (count($advertisement_random)) {
             $advertisement = $advertisement_random->toArray();
-
             $data = [];
 
             $cached = json_decode($advertisement['payload'], true);
@@ -610,11 +609,10 @@ class FeedController extends Controller
                 }
                 $data['type'] = strtolower($advertisement['model']);
                 $suggestion['meta']['sub_type'] = strtolower($advertisement['model']);
-                $suggestion['meta']['count'] = 1; 
+                $advertisement['payload'] = $data;
             }
-
-            $advertisement['payload'] = $data;
-
+            $suggestion['meta']['count'] = 1; 
+            
             foreach ($advertisement as $key => $value) {
                 if (is_null($value) || $value == '')
                     unset($advertisement[$key]);
@@ -622,7 +620,7 @@ class FeedController extends Controller
             
             $suggestion['ad_engine'] = $advertisement;
         }
-        
+        dd($suggestion);
         return $suggestion;
     }
 
