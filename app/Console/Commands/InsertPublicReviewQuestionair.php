@@ -69,7 +69,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
         ];
@@ -84,7 +84,7 @@ class InsertPublicReviewQuestionair extends Command
 
 		"title": "Instruction",
 
-		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the comment box at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
+		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 		"select_type": 4
 
@@ -206,7 +206,7 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 			"title": "How is the color of the product?",
-			"subtitle": "Please select the color & its intensity.",
+
 			"is_nested_question": 0,
 
 			"is_intensity": 0,
@@ -221,23 +221,14 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Creamish",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 				},
 
 				{
 
 					"value": "Whitish",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -245,11 +236,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Beige",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -257,23 +244,14 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Light brown",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
+					"is_intensity": 0
 				},
 
 				{
 
 					"value": "Brown",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -281,11 +259,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Any other",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				}
 
@@ -375,7 +349,7 @@ class InsertPublicReviewQuestionair extends Command
 
 			"is_mandatory": 1,
 
-			"select_type": 1,
+			"select_type": 2,
 
 			"option": [{
 
@@ -1366,17 +1340,12 @@ class InsertPublicReviewQuestionair extends Command
 
 			"is_nested_question": 0,
 
-			"is_nested_option": 0,
 
 			"option": [{
 
 					"value": "Crispy",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -1384,11 +1353,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Crunchy",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -1396,11 +1361,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Crackly",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				},
 
@@ -1446,11 +1407,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "No force needed",
 
-					"is_intensity": 1,
-
-					"intensity_type": 2,
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+					"is_intensity": 0
 
 				}
 			]
@@ -1571,7 +1528,7 @@ class InsertPublicReviewQuestionair extends Command
 
 				{
 
-					"value": "Springy (Like spring)",
+					"value": "Springy",
 
 					"is_intensity": 1,
 
@@ -1932,7 +1889,7 @@ class InsertPublicReviewQuestionair extends Command
 
 				{
 
-					"value": "Aromatics To Flavor",
+					"value": "Aromatics to flavor",
 
 					"is_intensity": 0
 
