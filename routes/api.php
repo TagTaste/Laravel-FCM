@@ -138,6 +138,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("feed","FeedController@feed");
             Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
             Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
+            Route::get('ad_engine','SuggestionEngineController@adEngineList');
 
             //namespace profile
             Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
