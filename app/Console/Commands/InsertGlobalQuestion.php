@@ -39,6 +39,7 @@ class InsertGlobalQuestion extends Command
     {
         $headerInfo2 = [
 
+
         ['header_name' => "INSTRUCTIONS"],
 
         ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below.","images" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"]],
@@ -68,12 +69,9 @@ class InsertGlobalQuestion extends Command
 
 
 
-
     ];
 
-        $questions2 = '
-
-{
+        $questions2 = '{
 
 
 
@@ -656,7 +654,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't Say",
+                    "value": "Can\'t Say",
 
 
                     "color_code": "#E27616"
@@ -741,7 +739,7 @@ class InsertGlobalQuestion extends Command
             "title": "What all aromas have you sensed? ",
 
 
-            "subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can't find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
+            "subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
 
 
             "select_type": 2,
@@ -833,7 +831,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't Say",
+                    "value": "Can\'t Say",
 
 
                     "color_code": "#E27616"
@@ -1477,7 +1475,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't Say",
+                    "value": "Can\'t Say",
 
 
                     "color_code": "#E27616"
@@ -1564,7 +1562,7 @@ class InsertGlobalQuestion extends Command
             "title": "What all aromatics have you sensed?",
 
 
-            "subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can't find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\". ",
+            "subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\". ",
 
 
             "select_type": 2,
@@ -1643,7 +1641,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't say",
+                    "value": "Can\'t say",
 
 
                     "is_intensity": 0
@@ -1875,7 +1873,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't Say",
+                    "value": "Can\'t Say",
 
 
                     "color_code": "#E27616"
@@ -2530,7 +2528,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't Say",
+                    "value": "Can\'t Say",
 
 
                     "color_code": "#E27616"
@@ -2812,7 +2810,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Can't Say",
+                    "value": "Can\'t Say",
 
 
                     "color_code": "#E27616"
@@ -2892,7 +2890,7 @@ class InsertGlobalQuestion extends Command
 
 }';
 
-        $data = ['name'=>'Tamarind For Testing','keywords'=>"Tamarind For Testing",'description'=>null,
+        $data = ['name'=>'Tamarind For Testing1','keywords'=>"Tamarind For Testing1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
