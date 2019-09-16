@@ -108,7 +108,6 @@ class SuggestionEngineController extends Controller
             }
         }
         $this->model = $final_data;
-        dd($this->model);
-        return $this->model;
+        return $this->sendResponse();
     }
 }
