@@ -46,7 +46,7 @@ class InsertGlobalQuestion extends Command
 
 
 
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"]],
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don\'t take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"]],
 
 
 
@@ -60,7 +60,7 @@ class InsertGlobalQuestion extends Command
 
 
 
-        ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."]],
+        ['header_name' => "TEXTURE","header_info" => ["text" => "Let\'s experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."]],
 
 
 
@@ -81,7 +81,7 @@ class InsertGlobalQuestion extends Command
         "title": "Instruction",
 
 
-        "subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\n\nPlease click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b>.\n\nRemember, there are no right or wrong answers. ",
+        "subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\n\nPlease click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b>.\n\nRemember, there are no right or wrong answers.",
 
 
         "select_type": 4
@@ -97,7 +97,7 @@ class InsertGlobalQuestion extends Command
             "title": "What is the serving temperature of the product?",
 
 
-            "subtitle": "You may also touch the product to assess the serving temperature.",
+            "subtitle": "You may also touch the <b>product to assess</b> the serving temperature.",
 
 
             "select_type": 1,
@@ -600,7 +600,7 @@ class InsertGlobalQuestion extends Command
         {
 
 
-            "title": "Overall Preference",
+            "title": "Overall Preference Overall Preference Overall Preference Overall Preference Overall Preference", 
 
 
             "select_type": 5,
@@ -987,8 +987,9 @@ class InsertGlobalQuestion extends Command
                     "intensity_type": 2,
 
 
-                    "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
+                    "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic",
 
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 
                 },
 
@@ -1576,6 +1577,7 @@ class InsertGlobalQuestion extends Command
 
             "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
+            "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007",
 
 
             "is_nested_question": 0,
@@ -1957,7 +1959,7 @@ class InsertGlobalQuestion extends Command
     "TEXTURE": [{
 
 
-            "title": "While eating, how does the product feel inside the mouth?While eating, how does the product feel inside the mouth?While eating, how does the product feel inside the mouth?Please eat one teaspoon of the product and assess.",
+            "title": "While eating, how does the product feel inside the mouth?While eating, how does the product feel inside the mouth?While eating,eat one teaspoon of the product and assess.",
 
             "subtitle": "Please eat one teaspoon of the product and assess.Please eat one teaspoon of the product and assess.Please eat one teaspoon of the product and assess.",
 
@@ -2158,8 +2160,9 @@ class InsertGlobalQuestion extends Command
                     "intensity_type": 2,
 
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
+                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
 
 
                 },
@@ -2299,7 +2302,7 @@ class InsertGlobalQuestion extends Command
 
             "title": "How fast does the product melt-in-the-mouth?",
 
-            "subtitle": "Compress half a teaspoon of the product between the tongue and the palate. Please don't swallow the product yet.",
+            "subtitle": "Compress half a teaspoon of the product between the tongue and the palate. Please don\'t swallow the product yet.",
 
 
             "select_type": 1,
@@ -2352,7 +2355,7 @@ class InsertGlobalQuestion extends Command
                 {
 
 
-                    "value": "Doesn't melt",
+                    "value": "Doesn\'t melt",
 
 
                     "is_intensity": 0
@@ -2893,9 +2896,6 @@ class InsertGlobalQuestion extends Command
         $data = ['name'=>'Tamarind For Testing1','keywords'=>"Tamarind For Testing1",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
-
-
-
 
 
 
