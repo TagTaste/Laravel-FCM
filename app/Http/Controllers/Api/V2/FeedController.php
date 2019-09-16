@@ -567,17 +567,17 @@ class FeedController extends Controller
 
     public static function ad_engine($client, $profile, $profileId) 
     {
-        $suggestion = array(
+        $card = array(
             "ad_engine" => [],
             "meta" => [
                 "count" => 0,
                 "text" => "Promoted",
-                "sub_type" => "collaborate",
+                "sub_type" => null,
             ],
             "type" => "ad_engine",
         );
 
-        $advertisement_random = Advertisements::where('is_active',1)->whereDate('expired_at', '>', Carbon::now())->inRandomOrder()->first();
+        $advertisement_random = Advertisements::whereNull('deleted_at')->where('is_active',1)->whereDate('expired_at', '>', Carbon::now())->inRandomOrder()->first();
 
         if (count($advertisement_random)) {
             $advertisement = $advertisement_random->toArray();
@@ -610,19 +610,21 @@ class FeedController extends Controller
                     }
                 }
                 $data['type'] = strtolower($advertisement['model']);
-                $suggestion['meta']['sub_type'] = strtolower($advertisement['model']);
+                $card['meta']['sub_type'] = strtolower($advertisement['model']);
                 $advertisement['payload'] = $data;
+            } else {
+                $card['meta']['sub_type'] = "image";
             }
-            $suggestion['meta']['count'] = 1; 
+            $card['meta']['count'] = 1; 
             
             foreach ($advertisement as $key => $value) {
                 if (is_null($value) || $value == '')
                     unset($advertisement[$key]);
             }
             
-            $suggestion['ad_engine'] = $advertisement;
+            $card['ad_engine'] = $advertisement;
         }
-        return $suggestion;
+        return $card;
     }
 
     private function getType($modelName)

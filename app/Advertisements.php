@@ -42,18 +42,21 @@ class Advertisements extends Model
 
     public function getActualModelAttribute()
     {
-        switch ($this->model) {
-            case 'Shoutout':
+        switch (strtolower($this->model)) {
+            case 'shoutout':
                 return "App\Shoutout";
                 break;
-            case 'Polling':
+            case 'polling':
                 return "App\Polling";
                 break;
-            case 'Photo':
+            case 'photo':
                 return "App\V2\Photo";
                 break;
-            case 'Collaborate':
+            case 'collaborate':
                 return "App\Collaborate";
+                break;
+            case 'product':
+                return "App\PublicReviewProduct";
                 break;
             default:
                 return null;
