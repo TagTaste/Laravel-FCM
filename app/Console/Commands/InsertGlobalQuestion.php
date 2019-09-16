@@ -40,32 +40,32 @@ class InsertGlobalQuestion extends Command
         $headerInfo2 = [
 
 
-        ['header_name' => "INSTRUCTIONS"],
+        ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
 
-        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below.","images" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"]],
-
-
-
-        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don\'t take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"]],
+        ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below.","images" => "https://s3.ap-south-1.amazonaws.com/static3.tagtaste.com/images/share/share-shoutout-small.png"],'header_selection_type'=>"1"],
 
 
 
-        ['header_name' => "TASTE","header_info" => ["video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"]],
+        ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don\'t take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone.","video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"],'header_selection_type'=>"1"],
 
 
 
-
-        ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics."]],
+        ['header_name' => "TASTE","header_info" => ["video_link" => "https://www.youtube.com/watch?v=HCjNJDNzw8Y"],'header_selection_type'=>"1"],
 
 
 
 
-        ['header_name' => "TEXTURE","header_info" => ["text" => "Let\'s experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."]],
+        ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
 
-        ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."]]
+        ['header_name' => "TEXTURE","header_info" => ["text" => "Let\'s experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+
+
+
+
+        ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
 
