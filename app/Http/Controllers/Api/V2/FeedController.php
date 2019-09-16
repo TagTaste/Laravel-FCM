@@ -543,8 +543,7 @@ class FeedController extends Controller
             ->toArray();
 
         $public_review_product = PublicReviewProduct::where('is_active',1)
-            ->where('id',"db27c270-d540-11e9-9d43-77c8eef1e7fa")
-            // ->whereNotIn('id',$applied_product_review)
+            ->whereNotIn('id',$applied_product_review)
             ->inRandomOrder()
             ->get(['id', 'global_question_id'])
             ->take(10);
