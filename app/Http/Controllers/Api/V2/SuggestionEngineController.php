@@ -65,36 +65,41 @@ class SuggestionEngineController extends Controller
                 $advertisement = $advertisement_detail->toArray();
                 $data = [];
 
-                $cached = json_decode($advertisement['payload'], true);
-                if ($cached) {
-                    $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
-                    $indexTypeV1 = array("photo", "polling");
-                    foreach ($cached as $name => $key) {
-                        $cachedData = null;
-                        if (in_array($name, $indexTypeV2)) {
-                            $key = $key.":V2";
-                            $cachedData = Redis::connection('V2')->get($key);
-                        } else {
-                            $cachedData = Redis::get($key);
+                if (2 == $advertisement['type_id']) {
+                    if (!is_null($advertisement['payload'])) {
+                        $cached = json_decode($advertisement['payload'], true);
+                        $indexTypeV2 = array("shared", "company", "sharedBy", "shoutout", "profile", "collaborate");
+                        $indexTypeV1 = array("photo", "polling");
+                        foreach ($cached as $name => $key) {
+                            $cachedData = null;
+                            if (in_array($name, $indexTypeV2)) {
+                                $key = $key.":V2";
+                                $cachedData = Redis::connection('V2')->get($key);
+                            } else {
+                                $cachedData = Redis::get($key);
+                            }
+                            if (!$cachedData) {
+                                \Log::warning("could not get from $key");
+                            }
+                            $data[$name] = json_decode($cachedData,true);
                         }
-                        if (!$cachedData) {
-                            \Log::warning("could not get from $key");
-                        }
-                        $data[$name] = json_decode($cachedData,true);
-                    }
 
-                    if ($advertisement['actual_model'] !== null) {
-                        $model = $advertisement['actual_model'];
-                        $type = getType($advertisement['actual_model']);
-                        $model = $model::find($advertisement['model_id']);
-                        if ($model !== null && method_exists($model, 'getMetaForV2')) {
-                            $data['meta'] = $model->getMetaForV2($profileId);
+                        if ($advertisement['actual_model'] !== null) {
+                            $model = $advertisement['actual_model'];
+                            $type = getType($advertisement['actual_model']);
+                            $model = $model::find($advertisement['model_id']);
+                            if ($model !== null && method_exists($model, 'getMetaForV2')) {
+                                $data['meta'] = $model->getMetaForV2($profileId);
+                            }
                         }
+                        $data['type'] = strtolower($advertisement['model']);
+                        $card['meta']['sub_type'] = strtolower($advertisement['model']);
+                        $advertisement['payload'] = $data;
                     }
-                    $data['type'] = strtolower($advertisement['model']);
-                    $card['meta']['sub_type'] = strtolower($advertisement['model']);
-                    $advertisement['payload'] = $data;
-                } else {
+                } else if (1 == $advertisement['type_id']) {
+                    if (!is_null($advertisement['image'])) {
+                        $advertisement['image'] = json_decode($advertisement['image']);
+                    }
                     $card['meta']['sub_type'] = "image";
                 }
                 $card['meta']['count'] = 1; 
