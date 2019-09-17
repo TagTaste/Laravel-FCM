@@ -61,7 +61,7 @@ class Profile extends Model
         private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
     **/
-    private $profileCompletionOptionalField = ['keywords','imageUrl', 'verified_phone'];
+    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone', 'verified_phone'];
 
     private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
 
@@ -1217,7 +1217,7 @@ class Profile extends Model
 
                 foreach ($this->profileCompletionMandatoryField as $item)
                 {
-                    if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || ($item == "cuisines" && $this->{$item}->count() == 0))
                     {
                         $index++;
                         $remaningMandatoryItem[] = $item;
