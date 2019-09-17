@@ -56,7 +56,7 @@ class Advertisements extends Model
                 return "App\Collaborate";
                 break;
             case 'product':
-                return "App\PublicReviewProduct";
+                return "App\Shareable\Product";
                 break;
             default:
                 return null;
