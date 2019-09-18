@@ -543,7 +543,8 @@ class FeedController extends Controller
             ->toArray();
 
         $public_review_product = PublicReviewProduct::where('is_active',1)
-            ->whereNotIn('id',$applied_product_review)
+            // ->whereNotIn('id',$applied_product_review)
+            ->where('id', 'db27c270-d540-11e9-9d43-77c8eef1e7fa')
             ->inRandomOrder()
             ->get(['id', 'global_question_id'])
             ->take(10);
@@ -555,7 +556,7 @@ class FeedController extends Controller
                     $data = array();
                     $data['product'] = json_decode($cached_data,true); 
                     $data['meta'] = $product->getMetaFor($profileId);
-                    if (!is_null($data['meta'])) {
+                    if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
                         $suggestion["meta"]["count"]++;
                         array_push($suggestion["suggestion"], $data); 
                     }
