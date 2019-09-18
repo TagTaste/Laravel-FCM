@@ -173,8 +173,7 @@ class PublicReviewProduct extends Model
     public function getOverallRatingAttribute()
     {
         $header = ReviewHeader::where('global_question_id',$this->global_question_id)->where('header_selection_type',2)->first();
-        if($header != null)
-        {
+        if (!is_null($header)) {
             $overallPreferances = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->sum('leaf_id');
             $userCount = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$this->id)->where('header_id',$header->id)->where('select_type',5)->get()->count();
             $question = \DB::table('public_review_questions')->where('header_id',$header->id)->where('questions->select_type',5)->first();

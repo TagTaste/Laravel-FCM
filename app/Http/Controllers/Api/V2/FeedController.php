@@ -555,7 +555,7 @@ class FeedController extends Controller
                     $data = array();
                     $data['product'] = json_decode($cached_data,true); 
                     $data['meta'] = $product->getMetaFor($profileId);
-                    if (!is_null($data['meta'])) {
+                    if (!is_null($data['meta']) && array_key_exists('overall_rating', $data['meta']) && !is_null($data['meta']['overall_rating'])) {
                         $suggestion["meta"]["count"]++;
                         array_push($suggestion["suggestion"], $data); 
                     }
