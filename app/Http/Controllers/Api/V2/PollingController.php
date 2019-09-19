@@ -51,7 +51,6 @@ class PollingController extends BaseController
         $owner = $poll->getOwnerAttribute();
         $meta = $poll->getMetaForV2($loggedInProfileId);
         $poll = $poll->toArray();
-        // dd($loggedInProfileId, $poll);
         
         $this->model = [
             'polling'=>$poll,
