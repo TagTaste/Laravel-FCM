@@ -192,7 +192,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile born on same day.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -222,7 +222,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile having same eating habit.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -252,7 +252,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile having same cuisine.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -282,7 +282,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile having same degree.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -323,7 +323,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile having same job profile.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -363,7 +363,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile having same job specialization.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -392,7 +392,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile following same company.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -419,7 +419,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Profile following sub followers.",
+                "text" => "Suggested for you",
                 "sub_type" => "profile",
             ],
             "type" => "suggestion",
@@ -446,7 +446,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Company suggestion.",
+                "text" => "Suggested for you",
                 "sub_type" => "company",
             ],
             "type" => "suggestion",
@@ -472,7 +472,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Collaboration suggestion.",
+                "text" => "Suggested for you",
                 "sub_type" => "collaborate",
             ],
             "type" => "suggestion",
@@ -529,7 +529,7 @@ class FeedController extends Controller
             "suggestion" => array(),
             "meta" => [
                 "count" => 0,
-                "text" => "Product suggestion.",
+                "text" => "Suggested for you",
                 "sub_type" => "product",
             ],
             "type" => "suggestion",
