@@ -31,17 +31,11 @@ class Collaborate extends Model implements Feedable
 
     static public $state = [1,2,3,4,5]; //active =1 , delete =2 expired =3 draft as saved = 4 5 = close
 
-    protected $visible = ['id','title', 'i_am', 'looking_for','owner',
-        'expires_on','video','location','categories',
-        'description','project_commences',
-        'duration','financials','eligibility_criteria','occassion',
-        'profile_id', 'company_id','template_fields','template_id','notify','privacy_id',
-        'profile','company','created_at','deleted_at',
-        'applicationCount','file1','deliverables','start_in','state','updated_at','images',
-        'step','financial_min','financial_max','type','type_id','addresses','collaborate_type',
-        'is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio',
-        'no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations',
-        'brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner'];
+    /** visible fields earlier
+    'id','title', 'i_am', 'looking_for','owner','expires_on','video','location','categories','description','project_commences','duration','financials','eligibility_criteria','occassion','profile_id', 'company_id','template_fields','template_id','notify','privacy_id','profile','company','created_at','deleted_at','applicationCount','file1','deliverables','start_in','state','updated_at','images','step','financial_min','financial_max','type','type_id','addresses','collaborate_type','is_taster_residence','product_review_meta','methodology_id','age_group','gender_ratio','no_of_expert','no_of_veterans','is_product_endorsement','tasting_methodology','collaborate_occupations','collaborate_specializations','brand_name','brand_logo','no_of_batches','collaborate_allergens','global_question_id','taster_instruction','images_meta','owner'
+    */
+    protected $visible = ['id','title','expires_on','profile_id','company_id','created_at','updated_at','deleted_at','video','location','privacy_id','description','duration','file1','state','step','type_id','is_taster_residence','collaborate_type','brand_name','brand_logo','methodology_id','no_of_batches','global_question_id','images_meta','applicationCount','type','product_review_meta','tasting_methodology','profile','company','categories','addresses','collaborate_specializations','collaborate_allergens'
+    ];
 
     protected $appends = ['applicationCount','type','product_review_meta','tasting_methodology','owner'];
 
@@ -129,7 +123,7 @@ class Collaborate extends Model implements Feedable
      */
     public function profile()
     {
-        return $this->belongsTo(\App\Recipe\Profile::class);
+        return $this->belongsTo(\App\V2\Profile::class);
     }
     
     /**
@@ -139,7 +133,7 @@ class Collaborate extends Model implements Feedable
      */
     public function company()
     {
-        return $this->belongsTo(\App\Recipe\Company::class);
+        return $this->belongsTo(\App\V2\Company::class);
     }
     
     public function collaborateapplicants()
@@ -387,6 +381,8 @@ class Collaborate extends Model implements Feedable
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
             return $meta;
         }
+
+        $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
         $meta['hasLiked'] = Redis::sIsMember($key,$profileId) === 1;
