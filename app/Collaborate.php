@@ -381,7 +381,8 @@ class Collaborate extends Model implements Feedable
                 ->where('company_id',$this->company_id)->where('user_id',request()->user()->id)->exists() : false ;
             return $meta;
         }
-
+        $this->setInterestedAsProfiles($meta,$profileId);
+        
         $meta['isShortlisted'] = \DB::table('collaborate_shortlist')->where('collaborate_id',$this->id)->where('profile_id',$profileId)->exists();
 
         $key = "meta:collaborate:likes:" . $this->id;
