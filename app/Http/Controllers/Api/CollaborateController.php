@@ -56,7 +56,7 @@ class CollaborateController extends Controller
             $profileId = $request->user()->profile->id;
             $this->model["data"]=[];
             foreach($collaborations as $collaboration){
-                $meta = $collaboration->getMetaFor($profileId);
+                $meta = $collaboration->getMetaForV2($profileId);
                 $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
             }
             
@@ -71,7 +71,7 @@ class CollaborateController extends Controller
         
         $profileId = $request->user()->profile->id;
         foreach($collaborations as $collaboration){
-		    $meta = $collaboration->getMetaFor($profileId);
+		    $meta = $collaboration->getMetaForV2($profileId);
             $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
         return $this->sendResponse();
@@ -93,8 +93,17 @@ class CollaborateController extends Controller
 
         $profileId = $request->user()->profile->id;
         if($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired'){
-            $meta = $collaboration->getMetaFor($profileId);
-            $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
+            $meta = $collaboration->getMetaForV2($profileId);
+            $collaboration_detail = $collaboration->toArray();
+            foreach ($collaboration_detail as $key => $value) {
+                if (is_null($value) || $value == '') {
+                    unset($collaboration_detail[$key]);
+                } else if (is_array($value) && count($value) == 0) {
+                    unset($collaboration_detail[$key]);
+                }
+            }
+            // dd($collaboration_detail);
+            $this->model = ['collaboration'=>$collaboration_detail,'meta'=>$meta];
             return $this->sendResponse();
         }
 
@@ -109,7 +118,7 @@ class CollaborateController extends Controller
         }
 
 
-        $meta = $collaboration->getMetaFor($profileId);
+        $meta = $collaboration->getMetaForV2($profileId);
         $this->model = ['collaboration'=>$collaboration,'meta'=>$meta];
         return $this->sendResponse();
 		
@@ -289,7 +298,7 @@ class CollaborateController extends Controller
         
         $profileId = $request->user()->profile->id;
         foreach($this->model as $collaboration){
-            $meta = $collaboration->getMetaFor($profileId);
+            $meta = $collaboration->getMetaForV2($profileId);
             $this->model['data'][] = ['collaboration'=>$collaboration,'meta'=>$meta];
         }
         
