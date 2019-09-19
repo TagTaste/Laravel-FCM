@@ -95,14 +95,6 @@ class CollaborateController extends Controller
         if($collaboration->state == 'Active' || $collaboration->state == 'Close' || $collaboration->state == 'Expired'){
             $meta = $collaboration->getMetaForV2($profileId);
             $collaboration_detail = $collaboration->toArray();
-            foreach ($collaboration_detail as $key => $value) {
-                if (is_null($value) || $value == '') {
-                    unset($collaboration_detail[$key]);
-                } else if (is_array($value) && count($value) == 0) {
-                    unset($collaboration_detail[$key]);
-                }
-            }
-            // dd($collaboration_detail);
             $this->model = ['collaboration'=>$collaboration_detail,'meta'=>$meta];
             return $this->sendResponse();
         }
