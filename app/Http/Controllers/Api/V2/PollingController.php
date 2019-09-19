@@ -54,7 +54,7 @@ class PollingController extends BaseController
         
         $this->model = [
             'polling'=>$poll,
-            'meta'=>$this->model->getMetaFor($loggedInProfileId)
+            'meta'=>$meta
         ];
 
         if (isset($poll['profile_id'])) {
