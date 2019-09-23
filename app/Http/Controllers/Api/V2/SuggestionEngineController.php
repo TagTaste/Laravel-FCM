@@ -53,13 +53,13 @@ class SuggestionEngineController extends Controller
         if (count($advertisements)) {
             foreach ($advertisements as $key => $advertisement_detail) {
                 $card = array(
-                    "ad_engine" => [],
+                    "advertisement" => [],
                     "meta" => [
                         "count" => 0,
                         "text" => "Promoted",
                         "sub_type" => null,
                     ],
-                    "type" => "ad_engine",
+                    "type" => "advertisement",
                 );
 
                 $advertisement = $advertisement_detail->toArray();
@@ -108,7 +108,7 @@ class SuggestionEngineController extends Controller
                     if (is_null($value) || $value == '')
                         unset($advertisement[$key]);
                 }
-                $card['ad_engine'] = $advertisement;
+                $card['advertisement'] = $advertisement;
                 array_push($final_data, $card);
             }
         }
