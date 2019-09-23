@@ -568,13 +568,13 @@ class FeedController extends Controller
     public static function ad_engine($client, $profile, $profileId) 
     {
         $card = array(
-            "ad_engine" => [],
+            "advertisement" => [],
             "meta" => [
                 "count" => 0,
                 "text" => "Promoted",
                 "sub_type" => null,
             ],
-            "type" => "ad_engine",
+            "type" => "advertisement",
         );
 
         $advertisement_random = Advertisements::whereNull('deleted_at')->where('is_active',1)->whereDate('expired_at', '>', Carbon::now())->inRandomOrder()->first();
@@ -628,7 +628,7 @@ class FeedController extends Controller
                     unset($advertisement[$key]);
             }
             
-            $card['ad_engine'] = $advertisement;
+            $card['advertisement'] = $advertisement;
         }
         return $card;
     }
@@ -654,6 +654,37 @@ class FeedController extends Controller
         $profileId=$request->user()->profile->id;
         $this->getMeta($payloads,$profileId);
 
+        return $this->sendResponse();
+    }
+
+    // cards that are interacted over feed.
+    public function feedInteraction(Request $request, $modelName, $modelId, $device, $interactionTypeId)
+    {
+        dd($request, $modelName, $modelId, $device, $interactionTypeId);
+        $page = $request->input('page');
+        if($page > 20)
+        {
+            $this->errors[] = 'No more feed';
+            return $this->sendResponse();
+        }
+        list($skip,$take) = Paginator::paginate($page, 15);
+        
+        $profileId = $request->user()->profile->id;
+        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
+            ->where('subscribers.profile_id',$profileId)
+            //Query Builder's where clause doesn't work here for some reason.
+            //Don't remove this where query.
+            //Ofcourse, unless you know what you are doing.
+//            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
+            ->orderBy('channel_payloads.created_at','desc')
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        if($payloads->count() === 0){
+            $this->errors[] = 'No more feed';
+            return $this->sendResponse();
+        }
+        $this->getMeta($payloads, $profileId, $request->user()->profile);
         return $this->sendResponse();
     }
   
