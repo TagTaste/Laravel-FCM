@@ -319,7 +319,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Steaming hot",
+					"value": "Burning hot",
 
 
 					"is_intensity": 0
@@ -1623,7 +1623,7 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-					"value": "Astringent - (Puckery - Raw banana)",
+					"value": "Astringent (Puckery - Raw banana)",
 
 
 					"is_intensity": 1,
@@ -3912,7 +3912,7 @@ class InsertPublicReviewQuestionair extends Command
 
 }';
 
-        $data = ['name'=>'Generic Biryani_20th Sep_V2 2','keywords'=>"Generic Biryani_20th Sep_V2 2",'description'=>null,
+        $data = ['name'=>'Generic Biryani_20th Sep_V2','keywords'=>"Generic Biryani_20th Sep_V2",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);
