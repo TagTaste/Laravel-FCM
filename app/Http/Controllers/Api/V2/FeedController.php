@@ -13,6 +13,7 @@ use GraphAware\Neo4j\Client\ClientBuilder;
 use App\Collaborate;
 use App\PublicReviewProduct;
 use App\Advertisements;
+use App\FeedTracker;
 use Carbon\Carbon;
 
 class FeedController extends Controller
@@ -660,31 +661,79 @@ class FeedController extends Controller
     // cards that are interacted over feed.
     public function feedInteraction(Request $request, $modelName, $modelId, $device, $interactionTypeId)
     {
-        dd($request, $modelName, $modelId, $device, $interactionTypeId);
-        $page = $request->input('page');
-        if($page > 20)
-        {
-            $this->errors[] = 'No more feed';
-            return $this->sendResponse();
-        }
-        list($skip,$take) = Paginator::paginate($page, 15);
+        $this->model = new FeedTracker();
+
+        $this->errors = [
+            'message' => null,
+            'code' => 0
+        ];
+        $inputs = array();
         
-        $profileId = $request->user()->profile->id;
-        $payloads = Payload::join('subscribers','subscribers.channel_name','=','channel_payloads.channel_name')
-            ->where('subscribers.profile_id',$profileId)
-            //Query Builder's where clause doesn't work here for some reason.
-            //Don't remove this where query.
-            //Ofcourse, unless you know what you are doing.
-//            ->whereRaw(\DB::raw('channel_payloads.created_at >= subscribers.created_at'))
-            ->orderBy('channel_payloads.created_at','desc')
-            ->skip($skip)
-            ->take($take)
-            ->get();
-        if($payloads->count() === 0){
-            $this->errors[] = 'No more feed';
+        // compute device.
+        $inputs['model_name'] = null;
+        if (in_array($modelName, ['advertisement','product', 'product', 'photo', 'shoutout', 'collaborate', 'suggestion'])) {
+            $inputs['model_name'] = $modelName;
+        } else {
+            $this->errors = [
+                'message' => 'Please provide proper modelName. i.e. advertisement, product, product, photo, shoutout, collaborate or suggestion.',
+                'code' => 1
+            ];
             return $this->sendResponse();
         }
-        $this->getMeta($payloads, $profileId, $request->user()->profile);
+
+        // compute model id.
+        $inputs['model_id'] = $modelId;
+        if (is_numeric($modelId)) {
+            $inputs['model_id'] = (int)$modelId;
+        }
+
+        // compute profile id.
+        $inputs['profile_id'] = $request->user()->profile->id;
+
+        // compute interaction type id and interaction type.
+        if (is_numeric($interactionTypeId)) {
+            $interactionTypeId = (int)$interactionTypeId;
+            if (!in_array($interactionTypeId, [1,2])) {
+                $this->errors = 'Please provide proper interaction type. i.e. 1 for viewed and 2 for interacted.';
+                return $this->sendResponse();
+            } else {
+                switch ($interactionTypeId) {
+                    case 1:
+                        $inputs['interaction_type'] = "viewed";
+                        break;
+                    case 2:
+                        $inputs['interaction_type'] = "interacted";
+                        break;
+                    default:
+                        $inputs['interaction_type'] = null;
+                        break;
+                }
+                $inputs['interaction_type_id'] = $interactionTypeId;
+            }
+        } else {
+            $this->errors = 'Please provide proper interaction type id of integer type.';
+            return $this->sendResponse();
+        }
+
+        // compute device.
+        $inputs['device'] = null;
+        if (in_array($device, ['android','web', 'ios'])) {
+            $inputs['device'] = $device;
+        } else {
+            $this->errors = [
+                'message' => 'Please provide proper device. i.e. web, android or ios.',
+                'code' => 1
+            ];
+            return $this->sendResponse();
+        }
+
+        // compute device id.
+        $inputs['device_id'] = null;
+        if (!is_null($request->device_id)) {
+            $inputs['device_id'] = $request->device_id;
+        }
+
+        $this->model = $this->model->create($inputs);
         return $this->sendResponse();
     }
   

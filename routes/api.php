@@ -136,6 +136,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::resource("polling","PollingController");
             Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
             Route::get("feed","FeedController@feed");
+            Route::get("feed/{modelName}/{modelId}/{device}/{interactionTypeId}","FeedController@feedInteraction");
             Route::get('suggestion/profile','SuggestionEngineController@suggestionProfile');
             Route::get('suggestion/company','SuggestionEngineController@suggestionCompany');
             Route::get('ad_engine','SuggestionEngineController@adEngineList');
