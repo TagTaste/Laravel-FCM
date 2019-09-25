@@ -122,7 +122,7 @@ class Deeplink
                     '$og_image_url' =>          $data->image_meta->original_photo,
 //                    '$og_image_width' =>      '273px',
 //                    '$og_image_height' =>     '526px',
-                    '$og_type' =>               'article',
+                    '$og_type' =>               'review',
                     '$og_app_id' =>             env('FACEBOOK_ID'),
                     '$desktop_url' =>           Deeplink::getActualUrl($this->modelName, $this->modelId, $this->shared, $this->share_id),
 

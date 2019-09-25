@@ -41,35 +41,41 @@ class InsertPublicReviewQuestionair extends Command
         $headerInfo2 = [
 
 
-            ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
+
+            ['header_name'=>"INSTRUCTIONS",'header_selection_type'=>"0"],
+
+
+            ['header_name' => "Your Food Shot", 'header_selection_type' => "3"],
 
 
 
-            ['header_name' => "Your Food Shot",'header_selection_type' => "3"],
+            ['header_name'=>"APPEARANCE","header_info"=> ["text" => "Biryanis are closely related to Pulaos. Authentic biryanis can be differentiated from pulaos based on the following factors:\n1. Biryanis are usually multi layered. A layer of the main ingredient is generally sandwiched between the bottom and top layers of rice.\n2. Whole spices cannot be seen or felt in the mouth and yet they can be sensed.\n\nOn the other hand in pulaos, all the ingredients are cooked together and thus it has a homogenous color and the whole spices are clearly visible.\n\nNow examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Take a slice of bread & place it on a white plate. Examine the product visually and answer the questions outlined below. In this tasting process, the top and bottom most slice should be <b>excluded</b>."],'header_selection_type'=>"1"],
+            ['header_name'=>"AROMA","header_info"=> ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
+            ['header_name'=>"TASTE","header_info"=> ["text" => "Eat normally (please include all the components present in the product) and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
+
+            ['header_name'=>"AROMATICS TO FLAVORS","header_info"=> ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
+
+            ['header_name'=>"TEXTURE","header_info"=> ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."],'header_selection_type'=>"1"],
 
 
+            ['header_name'=>"PRODUCT EXPERIENCE","header_info"=> ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics to flavor and Texture; rate the overall experience of the product on all the parameters taken together."],'header_selection_type'=>"2"]
 
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
+
 
 
         ];
@@ -77,72 +83,42 @@ class InsertPublicReviewQuestionair extends Command
         $questions2 = '{
 
 
-	"INSTRUCTIONS": [{
-
-
-
-
-		"title": "Instruction",
-
-
-
-
-		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
-
-
-
-
-		"select_type": 4
-
-
-
-
-	}],
-
-
-
-
-	"Your Food Shot": [
-
-
-
+	"INSTRUCTIONS": [
 
 
 		{
 
 
+			"title": "Instruction",
 
 
+			"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the questionnaire.\n\nPlease note that you are reviewing the product and NOT the package. Please click (i) on every screen / page for guidance related to questions.\n\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
 
-			"title": "Take a selfie with the product",
-
-
-
-
-
-			"subtitle": "Reviews look more authentic when you post them with a photograph.",
-
-
-
-
-
-			"select_type": 6
-
-
-
-
+			"select_type": 4
 
 
 		}
 
 
+	],
+
+	"Your Food Shot": [
 
 
+		{
 
 
+			"title": "Take a selfie with the product",
 
 
+			"subtitle": "Reviews look more authentic when you post them with a photograph.",
+
+
+			"select_type": 6
+
+
+		}
 
 
 	],
@@ -151,42 +127,117 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-	"APPEARANCE": [{
+	"APPEARANCE": [
 
 
+		{
 
 
-			"title": "What is the serving temperature of the product?",
-
-
-
-
-			"subtitle": "You may also touch the product to assess the serving temperature.",
-
-
-
+			"title": "How is this product being served to you?",
 
 			"select_type": 1,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_question": 0,
-
-
 
 
 			"is_mandatory": 1,
 
 
+			"option": [
 
 
-			"option": [{
+
+
+
+				{
+
+
+
+
+
+					"value": "Traditional dum (pot)",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Platter",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Delivery box",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Bowl",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
+
+
+		},
+
+
+		{
+
+
+			"title": "What is the serving temperature of the product?",
+			"subtitle": "You may also touch the product to assess the serving temperature.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -194,29 +245,20 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Frozen",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Chilled",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -224,59 +266,39 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Cold",
 
 
-
-
 					"is_intensity": 0
 
 
-
-
 				},
-
-
-
-
 				{
 
 
 
 
-					"value": "Room Temperature",
 
-
+					"value": "Room temperature",
 
 
 					"is_intensity": 0
 
 
-
-
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Warm",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -284,568 +306,57 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Hot",
 
 
-
-
 					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Burning Hot",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-
-
-			]
-
-
-
-
-		},
-
-
-
-		{
-
-
-
-
-			"title": "How is the visual impression (color and sheen) of the product (bread)?",
-
-
-
-			"select_type": 2,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Bright",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Dull",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Shiny",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Glazed",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Oily",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Light",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Dark",
-
-
-
-
-					"is_intensity": 0
-
-
 
 
 				},
 				{
 
 
-
-
-					"value": "Natural",
-
-
+					"value": "Burning hot",
 
 
 					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Artificial",
-
-
-
-
-					"is_intensity": 0
-
-
-
 
 				}
 
 
 			]
-
-
-
-
-		},
-{
-
-
-
-
-			"title": "What is the colour and intensity of the crumb?",
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_option": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"select_type": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "White",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Yellow",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Beige",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Brown",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Any other",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				}
-
-
-
-			]
-
-
-
-
-		},
-    {
-
-
-
-
-			"title": "<b>Only for multi - ingredient bread</b> (product). What is the quantity of the grains / seeds etc. on crust & crumb?",
-
-       "subtitle": "Crumb (inner part of the bread)",
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_option": 0,
-
-
-
-
-			"is_mandatory": 0,
-
-
-
-
-			"select_type": 2,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Crust",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Crumb",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
-
-
-				}
-				
-			]
-
-
 
 
 		},
 		{
 
 
-
-
-			"title": "If it\'s <b>multi-ingredient bread</b> (product), does the presence of multi-ingredient on the crumb (inner part of the bread) matter to you?",
-
-
+			"title": "Please serve the product in a plate. Does the product (Biryani) served meet the following criteria?",
+			"subtitle": "1. Biryanis are usually multi layered. A layer of the main ingredient is generally sandwiched between the bottom and top layers of rice.\n2. Whole spices cannot be seen or felt in the mouth and yet they can be sensed.",
 
 			"select_type": 1,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_question": 0,
 
 
+			"is_mandatory": 1,
 
 
-			"is_mandatory": 0,
+			"option": [
 
 
 
 
-			"option": [{
+
+				{
+
 
 
 
@@ -853,11 +364,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Yes",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
@@ -866,548 +373,208 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
+					"value": "No",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
 
 
 					"value": "Doesn\'t matter",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
 
 				}
 
-
 			]
 
 
-
-
 		},
-
-
 		{
 
 
-
-
-			"title": "How does the shape of the product (slice of bread) appear to you?",
-
-
-			"subtitle": "Dome - Arch shape",
-
-
-			"select_type": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "All sides uniform",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Slightly domed",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Excessively domed",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Collapsed",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Broken",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Curvy sides",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-			]
-
-
-
-
-		},
-
-
-
-		{
-
-
-
-
-			"title": "While touching the product, how does the product feel?",
-
-
+			"title": "From the list of ingredients mentioned below, select the ones that are present in your Biryani and tell the proportion of its quantity in the product.",
 
 
 			"select_type": 2,
 
 
-
-
 			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
 
 			"is_mandatory": 1,
 
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Soft",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Moist",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Dry",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Sticky",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Rough",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Smooth",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Loose particles",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-
-
-			]
-
-
-
-
-		},
-{
-
-
-
-
-			"title": "Observe the size & arrangement of cells in the crumb (inner part of the bread). What do you observe?",
-
-
-			"subtitle": "Variation - Mix of small & big cells",
-
-
-			"select_type": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
 			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Same all over",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Variation",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-			]
-
-
-
-
-		},
-
-{
-
-
-
-
-			"title": "What do observe about the crumb cells (inner part of the bread)?",
-
-       "subtitle": "Fine - Sponge like with small cells, closely packed.\nOpen - Sponge like with large cells (same or different sizes), loosely packed.\nPorous - Small holes through which air or liquid may pass.\nTunnel - A large hole, forming a passage through which even solid can pass.",
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_intensity": 0,
-
-
-
 
 			"is_nested_option": 0,
 
 
+			"option": [
 
 
-			"is_mandatory": 1,
 
 
+
+				{
+
+
+					"value": "Rice",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+				},
+
+				{
+
+
+					"value": "Veggies",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+
+
+				},
+        {
+
+
+					"value": "Paneer",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+
+
+
+				},
+
+				{
+
+
+					"value": "Meat / Poultry",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
+
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How is the visual impression (color and sheen) of the product?",
 
 
 			"select_type": 2,
 
 
+			"is_intensity": 0,
 
 
-			"option": [{
+			"is_nested_question": 0,
 
 
+			"is_mandatory": 1,
 
 
-					"value": "Fine cells",
-
-
-
-
-					"is_intensity": 1,
+			"option": [
 
 
 
 
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
-
-
-				},
 
 				{
 
 
 
 
-					"value": "Open cells",
+
+					"value": "Bright",
 
 
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
+					"is_intensity": 0
 
 
 				},
+
+
 				{
 
 
+					"value": "Dull",
 
 
-					"value": "Porous holes",
+					"is_intensity": 0
 
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
 
 
 
 
 				},
 
+
 				{
 
 
+					"value": "Shiny",
 
 
-					"value": "Tunnel",
+					"is_intensity": 0
 
 
+				},
+				{
 
 
-					"is_intensity": 1,
+					"value": "Oily",
 
 
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
+					"is_intensity": 0
 
 
 				},
@@ -1416,126 +583,338 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Raw dough",
+
+					"value": "Light",
 
 
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
-
-
-				},
-
-				{
-
-
-
-
-					"value": "All of them",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
+					"is_intensity": 0
 
 
 				},
 				{
 
 
+					"value": "Dark",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Natural",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Artificial",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How is the color of rice in the product?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Same color",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Multi color",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "Can you identify the type of rice in this product?",
+			"subtitle": "Sella rice is parboiled rice i.e it is partly cooked by boiling.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Basmati",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Non - Basmati",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Sella Basmati",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Sella Non - Basmati",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Can\'t Say",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				}
+
+			]
+
+
+		},
+		{
+
+
+			"title": "Which of these garnishes on the product are appealing to you?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Caramelised onions",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Herbs",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Green chilli",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "Nuts",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
 
 
 					"value": "Any other",
 
 
+					"is_intensity": 0
+
+				},
+				{
 
 
-					"is_intensity": 1,
+					"value": "None",
 
 
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Any,Very Less,Less,Sufficient,Little Extra,Extra,Excess"
-
-
-
+					"is_intensity": 0
 
 				}
 
-				
-				
 			]
-
-
 
 
 		},
 		{
 
 
+			"title": "How does the rice appear to you in the product?",
 
-
-			"title": "Slide your forefinger on the surface of the crumb to imitate spreading action of a knife while applying the butter. How is your <b>spreading experience</b>?",
-
-
-			"select_type": 2,
-
+			"select_type": 1,
 
 
 			"is_intensity": 0,
 
 
-
 			"is_nested_question": 0,
-
 
 
 			"is_mandatory": 1,
 
 
-
-			"option": [{
-
+			"option": [
 
 
 
-					"value": "Spreads easily",
 
 
+				{
+
+
+
+
+
+					"value": "Fluffy & separated",
 
 
 					"is_intensity": 0
-
-
 
 
 				},
@@ -1544,14 +923,11 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-
-
-					"value": "Sticky (Doesn\'t spread)",
-
-
+					"value": "Not fluffy & separated",
 
 
 					"is_intensity": 0
+
 
 
 
@@ -1560,61 +936,22 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
-
-
-					"value": "Chunky particles (Doesn\'t spread)",
-
-
+					"value": "Sticky & lumpy",
 
 
 					"is_intensity": 0
 
-
-
-
-				},
-
-
-				{
-
-
-
-
-					"value": "Crumbly (Doesn\'t spread)",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Breaks (Doesn\'t spread)",
-
-
-
-
-					"is_intensity": 0
 
 
 
 
 				}
-
 			]
-
-
 
 
 		},
 		{
+
 
 
 
@@ -1622,9 +959,8 @@ class InsertPublicReviewQuestionair extends Command
 			"title": "Overall preference of Appearance",
 
 
-
-
 			"select_type": 5,
+
 
 
 
@@ -1634,7 +970,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_nested_question": 0,
+
 
 
 
@@ -1644,7 +982,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"option": [{
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -1654,7 +1000,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#8C0008"
+
 
 
 
@@ -1662,9 +1010,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -1674,7 +1021,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -1682,9 +1031,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -1694,7 +1042,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -1704,7 +1054,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -1714,7 +1066,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#E27616"
+
 
 
 
@@ -1724,7 +1078,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -1734,7 +1090,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#AC9000"
+
 
 
 
@@ -1744,7 +1102,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -1754,7 +1114,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#7E9B42"
+
 
 
 
@@ -1764,7 +1126,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -1774,7 +1138,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#305D03"
+
 
 
 
@@ -1784,14 +1150,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
 
 
 
 
+
 		}
-
-
 
 
 	],
@@ -1802,74 +1168,50 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+	"AROMA": [
 
 
-	"AROMA": [{
-
-
+		{
 
 
 			"title": "What all aromas have you sensed?",
 
 
-
-
-			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
-
-
+			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select <b>Any other</b> and if unable to sense any aroma at all, then select <b>Absent.</b>",
 
 
 			"select_type": 2,
 
 
-
-
 			"is_intensity": 1,
-
-
 
 
 			"intensity_type": 2,
 
 
-
-
 			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
-
-
 
 
 			"is_nested_question": 0,
 
 
-
-
 			"is_mandatory": 1,
-
-
 
 
 			"is_nested_option": 1,
 
 
+			"nested_option_title": "AROMAS",
 
 
-			"nested_option_list": "AROMA",
-
-
-
-
-			"nested_option_title": "AROMAS"
-
-
+			"nested_option_list": "AROMA"
 
 
 		},
 
 
-
-
 		{
+
 
 
 
@@ -1879,7 +1221,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"select_type": 5,
+
 
 
 
@@ -1889,7 +1233,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_nested_question": 0,
+
 
 
 
@@ -1899,7 +1245,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"option": [{
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -1909,7 +1263,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#8C0008"
+
 
 
 
@@ -1917,9 +1273,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -1929,7 +1284,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -1937,9 +1294,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -1949,7 +1305,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -1959,7 +1317,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -1969,7 +1329,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#E27616"
+
 
 
 
@@ -1979,7 +1341,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -1989,7 +1353,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#AC9000"
+
 
 
 
@@ -1999,7 +1365,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -2009,7 +1377,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#7E9B42"
+
 
 
 
@@ -2019,7 +1389,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -2029,7 +1401,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#305D03"
+
 
 
 
@@ -2039,7 +1413,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
+
 
 
 
@@ -2047,51 +1423,44 @@ class InsertPublicReviewQuestionair extends Command
 		}
 
 
-
-
-
 	],
 
 
 
 
+
 	"TASTE": [
-	  {
 
 
+		{
 
 
 			"title": "Which Basic tastes have you sensed?",
 
 
-
-
 			"is_nested_question": 0,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_option": 0,
-
-
 
 
 			"is_mandatory": 1,
 
 
-
-
 			"select_type": 2,
 
 
+			"option": [
 
 
-			"option": [{
+
+
+
+				{
+
 
 
 
@@ -2099,46 +1468,28 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Sweet",
 
 
-
-
 					"is_intensity": 1,
-
-
 
 
 					"intensity_type": 2,
 
 
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Salt",
 
 
-
-
 					"is_intensity": 1,
 
 
-
-
 					"intensity_type": 2,
-
-
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -2146,59 +1497,38 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Sour",
 
 
-
-
 					"is_intensity": 1,
-
-
 
 
 					"intensity_type": 2,
 
 
-
-
-					"intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
-
-
+					"intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic, Moderately Acidic, Intensely Acidic, Very Intensely Acidic, Extremely Acidic"
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Bitter",
 
 
-
-
 					"is_intensity": 1,
 
 
-
-
 					"intensity_type": 2,
-
-
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -2206,29 +1536,20 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Umami",
 
 
-
-
 					"is_intensity": 1,
 
 
-
-
 					"intensity_type": 2,
-
-
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -2236,24 +1557,17 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				},
-
-
 
 
 				{
 
 
-
-
 					"value": "No Basic Taste",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				}
@@ -2264,11 +1578,7 @@ class InsertPublicReviewQuestionair extends Command
 			]
 
 
-
-
 		},
-
-
 
 
 		{
@@ -2276,22 +1586,18 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"title": "Which Ayurvedic tastes have you sensed?",
-
-
 
 
 			"select_type": 2,
 
 
-
-
 			"is_intensity": 0,
 
 
-
-
 			"is_mandatory": 1,
+
 
 
 
@@ -2301,37 +1607,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_nested_option": 0,
 
 
 
 
-			"option": [{
 
+			"option": [
 
-
-
-					"value": "Astringent (Dryness - Raw Banana)",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
 
 
 
@@ -2339,51 +1623,31 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
+					"value": "Astringent (Puckery - Raw banana)",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+
+
+				{
 
 
 					"value": "Pungent (Spices / Garlic)",
 
 
-
-
 					"is_intensity": 1,
 
 
-
-
 					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Pungent Cool Sensation (Mint)",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
 
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
@@ -2391,32 +1655,24 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				},
-
-
 
 
 				{
 
 
-
-
-					"value": "Pungent Chilli",
-
-
+					"value": "Pungent Cool Sensation (Mint)",
 
 
 					"is_intensity": 1,
 
 
-
-
 					"intensity_type": 2,
 
 
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense, Very Intense, Extremely Intense"
 
 
 
@@ -2424,19 +1680,32 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
+				{
+
+
+					"value": "Pungent Chilli",
+
+
+					"is_intensity": 1,
+
+
+					"intensity_type": 2,
+
+
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
 
 
 				{
 
 
-
-
 					"value": "No Ayurvedic Taste",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -2446,17 +1715,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
-
-
 
 
 		},
 
 
-
-
 		{
+
 
 
 
@@ -2466,7 +1733,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"select_type": 5,
+
 
 
 
@@ -2476,7 +1745,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_nested_question": 0,
+
 
 
 
@@ -2486,7 +1757,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"option": [{
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -2496,7 +1775,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#8C0008"
+
 
 
 
@@ -2504,9 +1785,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -2516,7 +1796,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -2524,9 +1806,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -2536,7 +1817,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -2546,7 +1829,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -2556,7 +1841,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#E27616"
+
 
 
 
@@ -2566,7 +1853,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -2576,7 +1865,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#AC9000"
+
 
 
 
@@ -2586,7 +1877,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -2596,7 +1889,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#7E9B42"
+
 
 
 
@@ -2606,7 +1901,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -2616,7 +1913,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#305D03"
+
 
 
 
@@ -2626,14 +1925,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
 
 
 
 
+
 		}
-
-
 
 
 	],
@@ -2645,103 +1944,72 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
-	"AROMATICS TO FLAVORS": [{
-
-
-
-
-			"title": "What all aromatics have you sensed?",
-
-
-
-
-			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\".",
-
-
-
-
-			"select_type": 2,
-
-
-
-
-			"is_intensity": 1,
-
-
-
-
-			"intensity_type": 2,
-
-
-
-
-			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"is_nested_option": 1,
-
-
-
-
-			"nested_option_title": "AROMATICS",
-
-
-
-
-			"nested_option_list": "AROMA"
-
-
-
-
-		},
-
-
+	"AROMATICS TO FLAVORS": [
 
 
 		{
 
 
+			"title": "What all aromatics have you sensed?",
 
 
-			"title": "Please swallow the product and pause. How is the aftertaste?",
+			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select <b>Any other</b> and if unable to sense any aromatics at all, then select <b>Absent</b>.",
 
 
+			"select_type": 2,
 
 
-			"select_type": 1,
+			"is_intensity": 1,
 
 
+			"intensity_type": 2,
 
 
-			"is_intensity": 0,
-
-
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
 
 			"is_nested_question": 0,
 
 
+			"is_mandatory": 1,
+
+
+			"is_nested_option": 1,
+
+
+			"nested_option_title": "AROMATICS",
+
+
+			"nested_option_list": "AROMA"
+
+
+		},
+		{
+
+
+			"title": "Please swallow the product and pause. How is the aftertaste?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
 
 
 			"is_mandatory": 1,
 
 
+			"option": [
 
 
-			"option": [{
+
+
+
+				{
+
 
 
 
@@ -2749,29 +2017,20 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Pleasant",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Unpleasant",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -2779,69 +2038,46 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
 
 
-
-
-					"value": "Can\'t say",
-
-
+					"value": "Can\'t Say",
 
 
 					"is_intensity": 0
 
 
-
-
 				}
-
-
-
-
 			]
 
 
-
-
 		},
-
-
-
-
 		{
-
-
 
 
 			"title": "What is the length of the aftertaste?",
 
 
-
-
 			"select_type": 1,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_question": 0,
-
-
 
 
 			"is_mandatory": 1,
 
 
+			"option": [
 
 
-			"option": [{
+
+
+
+				{
+
 
 
 
@@ -2849,29 +2085,20 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Long",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Sufficient",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -2879,94 +2106,56 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Short",
 
 
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "None",
 
 
 					"is_intensity": 0
 
 
+				}
+			]
 
 
-				},
+		},
+		{
+
+
+			"title": "How is the flavor experience?",
+			"subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
 
 
 
 
 				{
 
-
-
-
-					"value": "None",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-
-
-			]
-
-
-
-
-		},
-
-
-
-
-		{
-
-
-
-
-			"title": "How is the flavor experience?",
-
-
-
-
-			"subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
-
-
-
-
-			"select_type": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
 
 
 
@@ -2974,29 +2163,20 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Natural & pleasant",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Natural but unpleasant",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -3004,44 +2184,65 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Artificial but pleasant",
 
 
-
-
 					"is_intensity": 0
 
 
-
-
 				},
-
-
-
-
 				{
-
-
 
 
 					"value": "Artificial & unpleasant",
 
 
-
-
 					"is_intensity": 0
 
 
 
 
+
 				},
+
+
+				{
+
+
+					"value": "Bland",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "Which components in the product are contributing more towards enhancing the flavor experience?",
+			"subtitle": "Please select top 3 options.",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
 
 
 
@@ -3051,9 +2252,20 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Bland",
+
+					"value": "Rice",
 
 
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Main ingredient (Meat / Poultry / Veggies)",
 
 
 					"is_intensity": 0
@@ -3061,31 +2273,88 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
+				},
+
+
+				{
+
+
+					"value": "Spices",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Garnish (Caramlised onion etc)",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Raita",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Salan",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Garnish (Biryani masala)",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "None",
+
+
+					"is_intensity": 0
+
+
 				}
-
-
-
-
-
 			]
 
 
-
-
 		},
-
-
 		{
-
 
 
 
 			"title": "Overall preference of Aromatics",
 
 
-
-
 			"select_type": 5,
+
 
 
 
@@ -3095,7 +2364,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_nested_question": 0,
+
 
 
 
@@ -3105,7 +2376,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"option": [{
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -3115,7 +2394,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#8C0008"
+
 
 
 
@@ -3123,9 +2404,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -3135,7 +2415,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -3143,9 +2425,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -3155,7 +2436,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -3165,7 +2448,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -3175,7 +2460,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#E27616"
+
 
 
 
@@ -3185,7 +2472,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -3195,7 +2484,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#AC9000"
+
 
 
 
@@ -3205,7 +2496,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -3215,7 +2508,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#7E9B42"
+
 
 
 
@@ -3225,7 +2520,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -3235,7 +2532,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#305D03"
+
 
 
 
@@ -3245,7 +2544,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
+
 
 
 
@@ -3253,13 +2554,7 @@ class InsertPublicReviewQuestionair extends Command
 		}
 
 
-
-
 	],
-
-
-
-
 
 
 
@@ -3267,465 +2562,83 @@ class InsertPublicReviewQuestionair extends Command
 
 	"TEXTURE": [
 	  {
-
-
-
-
-			"title": "How much force is needed to chew the product?",
-
-
-
-			"subtitle": "Please chew the product 3-4 times and pause.",
-
-
-
-
+			"title": "What are you feeling prominently about the solids (rice) inside the mouth?",
+			"subtitle": "Take a spoonful of rice and chew for 3-4 times and pause.",
 			"select_type": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
 			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Barely any force",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Normal force",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Extra force",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-
-			]
-
-
-
-
-		},
-	  {
-
-
-
-
-			"title": "As you chew, what do you prominently feel inside the mouth?",
-
-
-
-
-			"select_type": 2,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
 			"is_nested_option": 0,
-
-
-
-
 			"is_mandatory": 1,
-
-
-
-
 			"is_intensity": 0,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Oil / Butter",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
+			"option": [
 
 				{
-
-
-
-
-					"value": "Moisture",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Dry",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				}
-
-
-
-
-			]
-
-
-
-
-		},
-		{
-
-
-
-
-			"title": "While chewing, which textures can you feel inside your mouth?",
-
-
-
-
-			"select_type": 2,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_nested_option": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"option": [{
-
-
-
-
-					"value": "Soft",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-				{
-
-
-
-
-					"value": "Spongy",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Lumpy",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-				{
-
-
-
-
-					"value": "Sticky",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-				{
-
-
-
-
 					"value": "Chewy",
-
-
-
-
 					"is_intensity": 1,
-
-
-
-
 					"intensity_type": 2,
-
-
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
-
-
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Rough",
-
-
-
-
-					"is_intensity": 1,
-
-
-
-
-					"intensity_type": 2,
-
-
-
-
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
-
-
 
 
 				},
 				{
+					"value": "Gritty (Hard to chew)",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
+				},
+				{
+					"value": "Pasty",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
 
+				},
+				{
+					"value": "Mushy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+				{
+					"value": "Coarse",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+				{
 					"value": "Firm",
-
-
-
-
 					"is_intensity": 1,
-
-
-
-
 					"intensity_type": 2,
-
-
-
-
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				}
+
+			]
+		},
 
 
+		{
 
 
-				},
+			"title": "How much force is needed to chew the main ingredient (meat / poultry / veggies / paneer)?",
+			"subtitle": "Try to take approximately a spoonful of main ingredient only, chew for 3- 4 times and pause.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
 
 
 
@@ -3734,66 +2647,252 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-					"value": "Any other",
+
+					"value": "Barely Any",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Less",
+
+
+					"is_intensity": 0
 
 
 
 
-					"is_intensity": 1,
+
+				},
+
+
+				{
+
+
+					"value": "Normal",
+
+
+					"is_intensity": 0
 
 
 
-
-					"intensity_type": 2,
-
-
+				},
+				{
 
 
-					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+					"value": "Little Extra",
 
 
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+					"value": "Excess",
+
+
+					"is_intensity": 0
 
 
 				}
 
-
 			]
 
 
+		},
+		{
+			"title": "What are you feeling prominently about the main ingredient (meat / poultry / veggies / paneer) inside your mouth?",
+			"subtitle": "Select a maximum 2 options.",
+			"select_type": 2,
+			"is_nested_question": 0,
+			"is_nested_option": 0,
+			"is_mandatory": 1,
+			"is_intensity": 0,
+			"option": [
+
+				{
+					"value": "Juicy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Tender",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Dry",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+
+
+				},
+				{
+					"value": "Fibrous",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+				{
+					"value": "Springy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+				{
+					"value": "Mushy",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+				{
+					"value": "Rubbery",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+        {
+					"value": "Leathery",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+        {
+					"value": "Firm",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
+        {
+					"value": "Hard",
+					"is_intensity": 1,
+					"intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				}
+
+
+			]
+		},
+		{
+
+
+			"title": "How oily is the product?",
+			"subtitle": "Take a spoonful of the product comprising all the ingredients, chew it for minimum 8-10 times and pause.",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Oil free",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Less",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+
+
+				{
+
+
+					"value": "Moderate",
+
+
+					"is_intensity": 0
+
+
+
+				},
+				{
+
+
+					"value": "Excess",
+
+
+					"is_intensity": 0
+
+
+				}
+
+			]
 
 
 		},
 		{
 
 
-
-
-			"title": "What kind of mass is being formed?",
-
-    "subtitle": "Take sufficient quantity of the product, chew it for minimum 8-10 times and pause.",
-
+			"title": "What kind of the mass is being formed inside your mouth?",
 
 			"select_type": 1,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_question": 0,
-
-
 
 
 			"is_mandatory": 1,
 
 
+			"option": [
 
 
-			"option": [{
+
+
+
+				{
+
 
 
 
@@ -3801,75 +2900,51 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Tight mass",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Pulpy mass",
 
 
-
-
 					"is_intensity": 0
 
 
 
 
+
 				},
+
+
 				{
-
-
 
 
 					"value": "Barely any mass",
 
 
-
-
 					"is_intensity": 0
 
 
-
-
 				},
-
-
-
-
 				{
-
-
 
 
 					"value": "No mass",
 
 
-
-
 					"is_intensity": 0
 
 
 
 
+
 				}
-
-
 			]
-
-
 
 
 		},
@@ -3877,34 +2952,29 @@ class InsertPublicReviewQuestionair extends Command
 		{
 
 
-
-
 			"title": "Is this product difficult to swallow?",
-
-
-
+			"subtitle": "Assuming you have chewed it at least 8-10 times",
 
 			"select_type": 1,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_question": 0,
-
-
 
 
 			"is_mandatory": 1,
 
 
+			"option": [
 
 
-			"option": [{
+
+
+
+				{
+
 
 
 
@@ -3912,6 +2982,16 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Yes",
 
 
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "No",
 
 
 					"is_intensity": 0
@@ -3919,85 +2999,37 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-				},
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "After swallowing the product, do you feel anything left inside the mouth?",
+
+			"select_type": 2,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
 
 
 
 
 				{
 
-
-
-
-					"value": "No",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				}
-
-
-			]
-
-
-
-
-		},
-
-
-
-		{
-
-
-
-
-			"title": "After swallowing the product, do you feel anything left inside the mouth?",
-
-
-			"select_type": 2,
-
-
-
-
-			"is_intensity": 0,
-
-
-
-
-			"is_nested_question": 0,
-
-
-
-
-			"is_mandatory": 1,
-
-
-
-
-			"option": [
-			  
-			  {
-
-
-
-
-					"value": "Oily film",
-
-
-
-
-					"is_intensity": 0
-
-
-
-
-				},
-			  {
 
 
 
@@ -4005,6 +3037,16 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Loose particles",
 
 
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Sticking on tooth/ palate",
 
 
 					"is_intensity": 0
@@ -4012,30 +3054,10 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-				},
-
-
-
-
-				{
-
-
-
-
-					"value": "Sticking on tooth / palate",
-
-
-
-
-					"is_intensity": 0
-
-
-
 
 				},
-
-
 				{
+
 
 
 
@@ -4043,44 +3065,20 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Stuck between teeth",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
 				{
-
-
 
 
 					"value": "Chalky",
 
 
-
-
 					"is_intensity": 0
 
-
-
-
-				},
-
-				{
-
-
-
-
-					"value": "No residue",
-
-
-
-
-					"is_intensity": 0
 
 
 
@@ -4089,11 +3087,35 @@ class InsertPublicReviewQuestionair extends Command
 				{
 
 
+
+
+
+					"value": "Oily film",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
 
 
 					"value": "Any other",
 
 
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+					"value": "No residue",
 
 
 					"is_intensity": 0
@@ -4101,21 +3123,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				}
-
-
-
-
-
 			]
 
 
-
-
 		},
-
-
-
 
 
 		{
@@ -4123,12 +3136,12 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"title": "Overall preference of Texture",
 
 
-
-
 			"select_type": 5,
+
 
 
 
@@ -4138,7 +3151,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_nested_question": 0,
+
 
 
 
@@ -4148,7 +3163,15 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"option": [{
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -4158,7 +3181,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#8C0008"
+
 
 
 
@@ -4166,9 +3191,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -4178,7 +3202,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -4186,9 +3212,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -4198,7 +3223,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -4208,7 +3235,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4218,7 +3247,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#E27616"
+
 
 
 
@@ -4228,7 +3259,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4238,7 +3271,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#AC9000"
+
 
 
 
@@ -4248,7 +3283,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4258,7 +3295,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#7E9B42"
+
 
 
 
@@ -4268,7 +3307,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4278,7 +3319,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#305D03"
+
 
 
 
@@ -4288,14 +3331,14 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
 
 
 
 
+
 		}
-
-
 
 
 	],
@@ -4307,51 +3350,190 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-
-	"PRODUCT EXPERIENCE": [
-	 
-
-		{
+	"PRODUCT EXPERIENCE": [{
 
 
-
-
-			"title": "Did this product succeed in satisfying your basic senses?",
-
+			"title": "What do you feel about the sides (raita, salan, salad, pickle etc.) served with the product (Biryani)?",
 
 
 
 			"select_type": 1,
 
 
-
-
 			"is_intensity": 0,
-
-
 
 
 			"is_nested_question": 0,
 
 
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
+
+
+
+
+
+					"value": "Exceeds Expectation",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Meets Expectation",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Below Expectation",
+
+
+					"is_intensity": 0
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Not applicable",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+		{
+
+
+			"title": "How would you describe the serving size of this product?",
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
 
 
 			"is_mandatory": 1,
 
 
+			"option": [
 
 
-			"option": [{
 
 
+
+				{
+
+
+
+
+
+					"value": "Generous",
+
+
+					"is_intensity": 0
+
+
+				},
+
+
+				{
+
+
+					"value": "Modest",
+
+
+					"is_intensity": 0
+
+
+
+
+
+				},
+				{
+
+
+
+
+
+					"value": "Limited",
+
+
+					"is_intensity": 0
+
+
+				}
+			]
+
+
+		},
+
+		{
+
+
+			"title": "Did this product (Biryani) succeed in satisfying your basic senses?",
+
+
+			"select_type": 1,
+
+
+			"is_intensity": 0,
+
+
+			"is_nested_question": 0,
+
+
+			"is_mandatory": 1,
+
+
+			"option": [
+
+
+
+
+
+				{
 
 
 					"value": "Yes",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -4359,31 +3541,18 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "No",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				}
 
-
-
-
 			]
-
-
 
 
 		},
@@ -4391,47 +3560,39 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 		{
-
-
 
 
 			"title": "Which attributes can be improved further?",
 
 
-
-
 			"select_type": 2,
-
-
 
 
 			"is_intensity": 0,
 
 
-
-
 			"is_nested_question": 0,
 
 
+			"is_mandatory": 0,
 
 
-			"is_mandatory": 1,
+			"option": [
 
 
 
 
-			"option": [{
 
-
+				{
 
 
 					"value": "Appearance",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -4439,39 +3600,26 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Aroma",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Taste",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
@@ -4479,61 +3627,38 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
 
 
-
-
-					"value": "Aromatics to flavors",
-
-
+					"value": "Aromatics to flavor",
 
 
 					"is_intensity": 0
 
 
-
-
 				},
 
 
-
-
 				{
-
-
 
 
 					"value": "Texture",
 
 
-
-
 					"is_intensity": 0
+
 
 
 
 
 				},
-
-
-
-
 				{
-
-
 
 
 					"value": "Balanced product",
 
 
-
-
 					"is_intensity": 0
-
-
 
 
 				}
@@ -4541,14 +3666,11 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
 
 
-
-
 		},
-
-
 
 
 		{
@@ -4556,9 +3678,8 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
-			"title": "Overall Product Experience",
 
-
+			"title": "Overall product preference",
 
 
 			"select_type": 5,
@@ -4566,7 +3687,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_intensity": 0,
+
 
 
 
@@ -4576,12 +3699,21 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			"is_mandatory": 1,
 
 
 
 
-			"option": [{
+
+			"option": [
+
+
+
+
+
+				{
+
 
 
 
@@ -4591,7 +3723,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#8C0008"
+
 
 
 
@@ -4599,9 +3733,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -4611,7 +3744,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -4619,9 +3754,8 @@ class InsertPublicReviewQuestionair extends Command
 				},
 
 
-
-
 				{
+
 
 
 
@@ -4631,7 +3765,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#C92E41"
+
 
 
 
@@ -4641,7 +3777,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4651,7 +3789,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#E27616"
+
 
 
 
@@ -4661,7 +3801,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4671,7 +3813,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#AC9000"
+
 
 
 
@@ -4681,7 +3825,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4691,7 +3837,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#7E9B42"
+
 
 
 
@@ -4701,7 +3849,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 				{
+
 
 
 
@@ -4711,7 +3861,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 					"color_code": "#305D03"
+
 
 
 
@@ -4721,7 +3873,9 @@ class InsertPublicReviewQuestionair extends Command
 
 
 
+
 			]
+
 
 
 
@@ -4729,56 +3883,36 @@ class InsertPublicReviewQuestionair extends Command
 		},
 
 
-
-
 		{
-
-
 
 
 			"title": "Comments",
 
 
-
-
 			"placeholder": "Share feedback in your own words…",
-
-
 
 
 			"select_type": 3,
 
 
-
-
 			"is_intensity": 0,
-
-
 
 
 			"is_mandatory": 0,
 
 
-
-
 			"is_nested_question": 0
-
-
 
 
 		}
 
 
-
-
 	]
-
-
 
 
 }';
 
-        $data = ['name'=>'generic_sliced_bread_v1','keywords'=>"generic_sliced_bread_v1",'description'=>null,
+        $data = ['name'=>'Generic Biryani_20th Sep_V2','keywords'=>"Generic Biryani_20th Sep_V2",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
 
         \DB::table('public_review_global_questions')->insert($data);

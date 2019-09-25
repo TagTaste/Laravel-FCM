@@ -41,29 +41,28 @@ class InsertGlobalQuestion extends Command
 
 
 
-            ['header_name' => "INSTRUCTIONS"],
+            ['header_name' => "INSTRUCTIONS",'header_selection_type'=>"0"],
+
+
+            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Examine the product visually and answer the questions outlined below."],'header_selection_type'=>"1"],
+
+
+            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't eat yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aromas arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc.) which the product might have undergone."],'header_selection_type'=>"1"],
+
+
+            ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "APPEARANCE", "header_info" => ["text" => "Empty the package in a white bowl. Examine the product and answer the questions outlined below."]],
-
-
-            ['header_name' => "AROMA","header_info" => ["text" => "At this stage, we are assessing only aromas (odors) through the nose, so please don't take a bite yet. Now bring the product closer to your nose and take a deep breath; you may also take 3-4 short, quick and strong sniffs. Aroma/s arising from the product can be traced to the ingredients and the processes (like baking, cooking, fermentation etc) which the product might have undergone."]],
-
-
-            ['header_name' => "TASTE","header_info" => ["text" => "Eat normally and assess the tastes.\n\nAll the tastes except Umami are self-explanatory. Umami taste is felt when you get a continuous secretion of saliva; taste is felt on the entire tongue, throat, roof, back of the mouth; has a long lasting aftertaste and some people crave for more."]],
+            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odor/s that come from inside the mouth; these observed odors are called Aromatics."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "AROMATICS TO FLAVORS","header_info" => ["text" => "Eat normally with your MOUTH CLOSED and EXHALE THROUGH THE NOSE. Identify the odors that come from inside the mouth; these identified odors are called Aromatics."]],
+            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. FEEL starts when the product is put inside the mouth; FEEL changes when the product is chewed; and it may even last after the product is swallowed. Product may make sound (chips), may give us joy (creamy foods), and may even cause pain or disgust (sticky/slimy foods)."],'header_selection_type'=>"1"],
 
 
 
-            ['header_name' => "TEXTURE","header_info" => ["text" => "Let's experience the Texture (Feel) now. ‘Feel’ starts when the product comes in contact with the mouth and the ‘Feel’ may even last after the product has been swallowed. Texture (Feel) is all about the joy we get from what we eat."]],
-
-
-
-            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."]]
+            ['header_name' => "PRODUCT EXPERIENCE","header_info" => ["text" => "Consider all the attributes - Appearance, Aroma, Taste, Aromatics To Flavors, and Texture; rate the overall experience of the product on all parameters taken together."],'header_selection_type'=>"2"]
 
 
 
@@ -75,1696 +74,1948 @@ class InsertGlobalQuestion extends Command
 
 
 
-    "INSTRUCTIONS": [{
+	"INSTRUCTIONS": [{
 
-        "title": "Instruction",
+		"title": "Instruction",
 
-        "subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations.\n\nPlease click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b>.\n\nRemember, there are no right or wrong answers. ",
+		"subtitle": "<b>Welcome to the Product Review!</b>\n\nTo review, follow the questionnaire and select the answers that match your observations. Please click (i) on every screen / page for guidance related to questions.\n\nAny attribute that stands out as either too good or too bad, may please be highlighted in the <b>comment box</b> at the end of the each section.\n\nPlease note that you are reviewing the product and NOT the package.\nRemember, there are no right or wrong answers. Let\'s start by opening the package.",
 
-        "select_type": 4
+		"select_type": 4
 
-    }],
+	}],
 
 
-    "APPEARANCE": [{
+	"APPEARANCE": [{
 
-            "title": "What is the serving temperature of the product?",
+			"title": "What is the serving temperature of the product?",
 
-            "subtitle": "You may also touch the product to assess the serving temperature.",
+			"subtitle": "You may also touch the product to assess the serving temperature.",
 
-            "select_type": 1,
+			"select_type": 1,
 
-            "is_intensity": 0,
+			"is_intensity": 0,
 
-            "is_nested_question": 0,
+			"is_nested_question": 0,
 
-            "is_mandatory": 1,
+			"is_mandatory": 1,
 
-            "option": [{
+			"option": [{
 
-                    "value": "Frozen",
+					"value": "Frozen",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Chilled",
+					"value": "Chilled",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Cold",
+					"value": "Cold",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Room temperature",
+					"value": "Room temperature",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Warm",
+					"value": "Warm",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Hot",
+					"value": "Hot",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Burning hot",
+					"value": "Burning hot",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                }
+				}
 
-            ]
+			]
 
-        },
+		},
+		{
 
+			"title": "How is the color of the product?",
+			"subtitle": "Please select the color & its intensity.",
+			"is_nested_question": 0,
 
-        {
+			"is_intensity": 0,
 
-            "title": "How is the visual impression (color and sheen) of the product?",
+			"is_nested_option": 0,
 
-            "select_type": 2,
+			"is_mandatory": 1,
 
-            "is_intensity": 0,
+			"select_type": 1,
 
-            "is_nested_question": 0,
+			"option": [{
 
-            "is_mandatory": 1,
+					"value": "Creamish",
 
-            "option": [{
+					"is_intensity": 1,
 
-                    "value": "Bright",
+					"intensity_type": 2,
 
-                    "is_intensity": 0
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Dull",
+					"value": "Whitish",
 
-                    "is_intensity": 0
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "value": "Shiny",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
+					"value": "Beige",
 
-                {
+					"is_intensity": 1,
 
-                    "value": "Glazed",
+					"intensity_type": 2,
 
-                    "is_intensity": 0
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Light",
+					"value": "Light brown",
 
-                    "is_intensity": 0
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "value": "Dark",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
-                {
+					"value": "Brown",
 
-                    "value": "Natural",
+					"is_intensity": 1,
 
-                    "is_intensity": 0
+					"intensity_type": 2,
 
-                },
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                {
+				},
 
-                    "value": "Artificial",
+				{
 
-                    "is_intensity": 0
+					"value": "Any other",
 
-                }
+					"is_intensity": 1,
 
-            ]
+					"intensity_type": 2,
 
-        },
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-        {
+				}
 
-            "title": "How does the visual texture of the product appear to you?",
+			]
 
-            "select_type": 2,
+		},
 
-            "is_intensity": 0,
+		{
 
-            "is_nested_question": 0,
+			"title": "How is the visual impression of the product?",
 
-            "is_mandatory": 1,
+			"select_type": 2,
 
-            "option": [{
+			"is_intensity": 0,
 
-                    "value": "Smooth",
+			"is_nested_question": 0,
 
-                    "is_intensity": 0
+			"is_mandatory": 1,
 
-                },
+			"option": [{
 
-                {
+					"value": "Bright",
 
-                    "value": "Silky",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Dull",
 
-                    "value": "Seed awareness",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Shiny",
 
-                    "value": "Skin awareness",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Light",
 
-                    "value": "Fibrous",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
-                {
+				{
 
-                    "value": "Any other",
+					"value": "Dark",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                }
+				},
 
-            ]
+				{
 
-        },
-        {
+					"value": "Natural",
 
-            "title": "How does the product drop / flow from the spoon? ",
+					"is_intensity": 0
 
-            "subtitle": "Take a teaspoonful of the product and tilt it slightly.",
+				},
+				{
 
-            "select_type": 1,
+					"value": "Artificial",
 
-            "is_intensity": 0,
+					"is_intensity": 0
 
-            "is_nested_question": 0,
+				}
 
-            "is_mandatory": 1,
+			]
 
-            "option": [{
+		},
+		{
 
-                    "value": "Does not drop",
+			"title": "Please touch the product. What do you observe on your fingers?",
 
-                    "is_intensity": 0
+			"is_nested_question": 0,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_nested_option": 0,
 
-                    "value": "Flows reluctantly",
+			"is_mandatory": 1,
 
-                    "is_intensity": 0
+			"select_type": 1,
 
-                },
+			"option": [{
 
-                {
+					"value": "Oily",
 
-                    "value": "Flows slowly",
+					"is_intensity": 1,
 
-                    "is_intensity": 0
+					"intensity_type": 2,
 
-                },
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                {
+				},
 
-                    "value": "Flows moderately",
+				{
 
-                    "is_intensity": 0
+					"value": "Any other",
 
-                },
+					"is_intensity": 1,
 
-                {
+					"intensity_type": 2,
 
-                    "value": "Flows quickly",
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Nothing",
 
-                    "value": "Flows slightly faster",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				}
+			]
 
-                },
+		},
 
-                {
+		{
 
-                    "value": "Flows freely (water)",
+			"title": "How is the puffiness of the product?",
 
-                    "is_intensity": 0
+			"select_type": 1,
 
-                }
+			"is_intensity": 0,
 
-            ]
+			"is_nested_question": 0,
 
-        },
-        {
+			"is_mandatory": 1,
 
-            "title": "How is the consistency of the product?",
+			"option": [{
 
-            "select_type": 1,
+					"value": "Puffed all over & smooth",
 
-            "is_intensity": 0,
+					"is_intensity": 0
 
-            "is_nested_question": 0,
+				},
 
-            "is_mandatory": 1,
+				{
 
-            "option": [{
+					"value": "Puffed all over & blistered",
 
-                    "value": "Homogenous",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Flattened & smooth",
 
-                    "value": "Water separated",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Flattened & blistered",
 
-                    "value": "Pulpy",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Partially puffed",
 
-                    "value": "Lumpy (clots)",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
+				{
 
-                }
+					"value": "Not puffed (Stiff)",
 
-            ]
+					"is_intensity": 0
 
-        },
-        {
+				}
+			]
 
-            "title": "Overall Preference",
+		},
+		{
 
-            "select_type": 5,
+			"title": "If the product is <b>puffed all over</b>, in your opinion how <b>high</b> is the puff?",
 
-            "is_intensity": 0,
+			"select_type": 1,
 
-            "is_nested_question": 0,
+			"is_intensity": 0,
 
-            "is_mandatory": 1,
+			"is_nested_question": 0,
 
-            "option": [{
+			"is_mandatory": 0,
 
-                    "value": "Dislike Extremely",
+			"option": [{
 
-                    "color_code": "#8C0008"
+					"value": "Very less",
 
-                },
+					"is_intensity": 0
 
-                {
+				},
 
-                    "value": "Dislike Moderately",
+				{
 
-                    "color_code": "#C92E41"
+					"value": "Less",
 
-                },
+					"is_intensity": 0
 
-                {
+				},
 
-                    "value": "Dislike Slightly",
+				{
 
-                    "color_code": "#C92E41"
+					"value": "High",
 
-                },
+					"is_intensity": 0
 
-                {
+				},
 
-                    "value": "Can\'t Say",
+				{
 
-                    "color_code": "#E27616"
+					"value": "Very high",
 
-                },
+					"is_intensity": 0
 
-                {
+				},
 
-                    "value": "Like Slightly",
+				{
 
-                    "color_code": "#AC9000"
+					"value": "Extremely high",
 
-                },
+					"is_intensity": 0
 
-                {
+				}
 
-                    "value": "Like Moderately",
+			]
 
-                    "color_code": "#7E9B42"
+		},
+		{
 
-                },
+			"title": "How is the visual texture of the top layer of the product?",
 
-                {
+			"select_type": 2,
 
-                    "value": "Like Extremely",
+			"is_intensity": 0,
 
-                    "color_code": "#305D03"
+			"is_nested_question": 0,
 
-                }
+			"is_mandatory": 1,
 
-            ]
+			"option": [{
 
-        },
+					"value": "Crispy",
 
-        {
+					"is_intensity": 0
 
-            "title": "Comments",
+				},
 
-            "placeholder": "Share feedback in your own words…",
+				{
 
-            "select_type": 3,
+					"value": "Crusty",
 
-            "is_intensity": 0,
+					"is_intensity": 0
 
-            "is_mandatory": 0,
+				},
 
-            "is_nested_question": 0
+				{
 
-        }
+					"value": "Cracked",
 
-    ],
+					"is_intensity": 0
 
+				},
 
+				{
 
+					"value": "Dry flour",
 
-    "AROMA": [{
+					"is_intensity": 0
 
-            "title": "What all aromas have you sensed? ",
+				},
+				{
 
-            "subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
+					"value": "Limp",
 
-            "select_type": 2,
+					"is_intensity": 0
 
-            "is_intensity": 1,
+				},
+				{
 
-            "intensity_type": 2,
+					"value": "Flaky",
 
-            "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+					"is_intensity": 0
 
-            "is_nested_question": 0,
+				},
+				{
 
-            "is_mandatory": 1,
+					"value": "Any other",
 
-            "is_nested_option": 1,
+					"is_intensity": 0
 
-            "nested_option_list": "AROMA",
+				}
+			]
 
-            "nested_option_title": "AROMAS"
+		},
+		{
 
-        },
+			"title": "How is the elasticity of the product?",
+			"subtitle": "Pull the product normally, as you do it while eating.",
 
-        {
+			"is_nested_question": 0,
 
-            "title": "Overall Preference",
+			"is_intensity": 0,
 
-            "select_type": 5,
+			"is_nested_option": 0,
 
-            "is_intensity": 0,
+			"is_mandatory": 1,
 
-            "is_nested_question": 0,
+			"select_type": 1,
 
-            "is_mandatory": 1,
+			"option": [{
 
-            "option": [{
+					"value": "Elastic",
 
-                    "value": "Dislike Extremely",
+					"is_intensity": 1,
 
-                    "color_code": "#8C0008"
+					"intensity_type": 2,
 
-                },
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                {
+				},
 
-                    "value": "Dislike Moderately",
+				{
 
-                    "color_code": "#C92E41"
+					"value": "None",
 
-                },
+					"is_intensity": 0
 
-                {
+				}
 
-                    "value": "Dislike Slightly",
 
-                    "color_code": "#C92E41"
+			]
 
-                },
+		},
 
-                {
+		{
 
-                    "value": "Can\'t Say",
+			"title": "Overall preference of Appearance",
 
-                    "color_code": "#E27616"
+			"select_type": 5,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_nested_question": 0,
 
-                    "value": "Like Slightly",
+			"is_mandatory": 1,
 
-                    "color_code": "#AC9000"
+			"option": [{
 
-                },
+					"value": "Dislike Extremely",
 
-                {
+					"color_code": "#8C0008"
 
-                    "value": "Like Moderately",
+				},
 
-                    "color_code": "#7E9B42"
+				{
 
-                },
+					"value": "Dislike Moderately",
 
-                {
+					"color_code": "#C92E41"
 
-                    "value": "Like Extremely",
+				},
 
-                    "color_code": "#305D03"
+				{
 
-                }
+					"value": "Dislike Slightly",
 
-            ]
+					"color_code": "#C92E41"
 
-        },
+				},
 
-        {
+				{
 
-            "title": "Comments",
+					"value": "Can\'t Say",
 
-            "placeholder": "Share feedback in your own words…",
+					"color_code": "#E27616"
 
-            "select_type": 3,
+				},
 
-            "is_intensity": 0,
+				{
 
-            "is_mandatory": 0,
+					"value": "Like Slightly",
 
-            "is_nested_question": 0
+					"color_code": "#AC9000"
 
-        }
+				},
 
+				{
 
-    ],
+					"value": "Like Moderately",
 
-    "TASTE": [{
+					"color_code": "#7E9B42"
 
-            "title": "Which Basic tastes have you sensed?",
+				},
 
-            "is_nested_question": 0,
+				{
 
-            "is_intensity": 0,
+					"value": "Like Extremely",
 
-            "is_nested_option": 0,
+					"color_code": "#305D03"
 
-            "is_mandatory": 1,
+				}
 
-            "select_type": 2,
+			]
 
-            "option": [{
+		},
 
-                    "value": "Sweet",
+		{
 
-                    "is_intensity": 1,
+			"title": "Comments",
 
-                    "intensity_type": 2,
+			"placeholder": "Share feedback in your own words…",
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+			"select_type": 3,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_mandatory": 0,
 
-                    "value": "Salt",
+			"is_nested_question": 0
 
-                    "is_intensity": 1,
+		}
 
-                    "intensity_type": 2,
+	],
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
 
-                {
 
-                    "value": "Sour",
+	"AROMA": [{
 
-                    "is_intensity": 1,
+			"title": "What all aromas have you sensed?",
 
-                    "intensity_type": 2,
+			"subtitle": "Directly use the search box to select the aromas that you have identified or follow the category based aroma list. In case you can\'t find the identified aromas, select \"Any other\" and if unable to sense any aroma at all, then select \"Absent\".",
 
-                    "intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
+			"select_type": 2,
 
-                },
+			"is_intensity": 1,
 
-                {
+			"intensity_type": 2,
 
-                    "value": "Bitter",
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "is_intensity": 1,
+			"is_nested_question": 0,
 
-                    "intensity_type": 2,
+			"is_mandatory": 1,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+			"is_nested_option": 1,
 
-                },
+			"nested_option_list": "AROMA",
 
-                {
+			"nested_option_title": "AROMAS"
 
-                    "value": "Umami",
+		},
 
-                    "is_intensity": 1,
+		{
 
-                    "intensity_type": 2,
+			"title": "Overall preference of Aroma",
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+			"select_type": 5,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_nested_question": 0,
 
-                    "value": "No Basic Taste",
+			"is_mandatory": 1,
 
-                    "is_intensity": 0
+			"option": [{
 
-                }
+					"value": "Dislike Extremely",
 
-            ]
+					"color_code": "#8C0008"
 
-        },
+				},
 
-        {
+				{
 
-            "title": "Which Ayurvedic tastes have you sensed?",
+					"value": "Dislike Moderately",
 
-            "select_type": 2,
+					"color_code": "#C92E41"
 
-            "is_intensity": 0,
+				},
 
-            "is_mandatory": 1,
+				{
 
-            "is_nested_question": 0,
+					"value": "Dislike Slightly",
 
-            "is_nested_option": 0,
+					"color_code": "#C92E41"
 
-            "option": [{
+				},
 
-                    "value": "Astringent (Dryness - Raw Banana)",
+				{
 
-                    "is_intensity": 1,
+					"value": "Can\'t Say",
 
-                    "intensity_type": 2,
+					"color_code": "#E27616"
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				},
 
-                },
+				{
 
-                {
+					"value": "Like Slightly",
 
-                    "value": "Pungent (Spices / Garlic)",
+					"color_code": "#AC9000"
 
-                    "is_intensity": 1,
+				},
 
-                    "intensity_type": 2,
+				{
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
+					"value": "Like Moderately",
 
-                },
+					"color_code": "#7E9B42"
 
-                {
+				},
 
-                    "value": "Pungent Cool Sensation (Mint)",
+				{
 
-                    "is_intensity": 1,
+					"value": "Like Extremely",
 
-                    "intensity_type": 2,
+					"color_code": "#305D03"
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
+				}
 
-                },
+			]
 
-                {
+		},
 
-                    "value": "Pungent Chilli",
+		{
 
-                    "is_intensity": 1,
+			"title": "Comments",
 
-                    "intensity_type": 2,
+			"placeholder": "Share feedback in your own words…",
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense, Very Intense, Extremely Intense"
+			"select_type": 3,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_mandatory": 0,
 
-                    "value": "No Ayurvedic Taste",
+			"is_nested_question": 0
 
-                    "is_intensity": 0
+		}
 
-                }
 
-            ]
+	],
 
-        },
+	"TASTE": [{
 
-        {
+			"title": "Which Basic tastes have you sensed?",
 
-            "title": "Overall Preference",
+			"is_nested_question": 0,
 
-            "select_type": 5,
+			"is_intensity": 0,
 
-            "is_intensity": 0,
+			"is_nested_option": 0,
 
-            "is_nested_question": 0,
+			"is_mandatory": 1,
 
-            "is_mandatory": 1,
+			"select_type": 2,
 
-            "option": [{
+			"option": [{
 
-                    "value": "Dislike Extremely",
+					"value": "Sweet",
 
-                    "color_code": "#8C0008"
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "value": "Dislike Moderately",
+				},
 
-                    "color_code": "#C92E41"
+				{
 
-                },
+					"value": "Salt",
 
-                {
+					"is_intensity": 1,
 
-                    "value": "Dislike Slightly",
+					"intensity_type": 2,
 
-                    "color_code": "#C92E41"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Can\'t Say",
+					"value": "Sour",
 
-                    "color_code": "#E27616"
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Acidic,Weakly Acidic,Mildly Acidic,Moderately Acidic,Intensely Acidic,Very Intensely Acidic,Extremely Acidic"
 
-                    "value": "Like Slightly",
+				},
 
-                    "color_code": "#AC9000"
+				{
 
-                },
+					"value": "Bitter",
 
-                {
+					"is_intensity": 1,
 
-                    "value": "Like Moderately",
+					"intensity_type": 2,
 
-                    "color_code": "#7E9B42"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Like Extremely",
+					"value": "Umami",
 
-                    "color_code": "#305D03"
+					"is_intensity": 1,
 
-                }
+					"intensity_type": 2,
 
-            ]
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-        },
+				},
 
-        {
+				{
 
-            "title": "Comments",
+					"value": "No Basic Taste",
 
-            "placeholder": "Share feedback in your own words…",
+					"is_intensity": 0
 
-            "select_type": 3,
+				}
 
-            "is_intensity": 0,
+			]
 
-            "is_mandatory": 0,
+		},
 
-            "is_nested_question": 0
+		{
 
-        }
+			"title": "Which Ayurvedic tastes have you sensed?",
 
-    ],
+			"select_type": 2,
 
+			"is_intensity": 0,
 
+			"is_mandatory": 1,
 
+			"is_nested_question": 0,
 
-    "AROMATICS TO FLAVORS": [{
+			"is_nested_option": 0,
 
-            "title": "What all aromatics have you sensed?",
+			"option": [{
 
-            "subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\". ",
+					"value": "Astringent (Puckery - Raw Banana)",
 
-            "select_type": 2,
+					"is_intensity": 1,
 
-            "is_intensity": 1,
+					"intensity_type": 2,
 
-            "intensity_type": 2,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+				},
 
-            "is_nested_question": 0,
+				{
 
-            "is_mandatory": 1,
+					"value": "Pungent (Spices / Garlic)",
 
-            "is_nested_option": 1,
+					"is_intensity": 1,
 
-            "nested_option_title": "AROMATICS",
+					"intensity_type": 2,
 
-            "nested_option_list": "AROMA"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-        },
+				},
 
-        {
+				{
 
-            "title": "Please swallow the product and pause. How is the aftertaste?",
+					"value": "Pungent Cool Sensation (Mint)",
 
-            "select_type": 1,
+					"is_intensity": 1,
 
-            "is_intensity": 0,
+					"intensity_type": 2,
 
-            "is_nested_question": 0,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            "is_mandatory": 1,
+				},
 
-            "option": [{
+				{
 
-                    "value": "Pleasant",
+					"value": "Pungent Chilli",
 
-                    "is_intensity": 0
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense, Very Intense, Extremely Intense"
 
-                    "value": "Unpleasant",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
+					"value": "No Ayurvedic Taste",
 
-                {
+					"is_intensity": 0
 
-                    "value": "Can\'t say",
+				}
 
-                    "is_intensity": 0
+			]
 
-                }
+		},
 
-            ]
+		{
 
-        },
+			"title": "Overall preference of Taste",
 
-        {
+			"select_type": 5,
 
-            "title": "What is the length of the aftertaste?",
+			"is_intensity": 0,
 
-            "select_type": 1,
+			"is_nested_question": 0,
 
-            "is_intensity": 0,
+			"is_mandatory": 1,
 
-            "is_nested_question": 0,
+			"option": [{
 
-            "is_mandatory": 1,
+					"value": "Dislike Extremely",
 
-            "option": [{
+					"color_code": "#8C0008"
 
-                    "value": "Long",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
+					"value": "Dislike Moderately",
 
-                {
+					"color_code": "#C92E41"
 
-                    "value": "Sufficient",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
+					"value": "Dislike Slightly",
 
-                {
+					"color_code": "#C92E41"
 
-                    "value": "Short",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
+					"value": "Can\'t Say",
 
-                {
+					"color_code": "#E27616"
 
-                    "value": "None",
+				},
 
-                    "is_intensity": 0
+				{
 
-                }
+					"value": "Like Slightly",
 
-            ]
+					"color_code": "#AC9000"
 
-        },
+				},
 
-        {
+				{
 
-            "title": "How is the flavor experience?",
+					"value": "Like Moderately",
 
-            "subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
+					"color_code": "#7E9B42"
 
-            "select_type": 1,
+				},
 
-            "is_intensity": 0,
+				{
 
-            "is_nested_question": 0,
+					"value": "Like Extremely",
 
-            "is_mandatory": 1,
+					"color_code": "#305D03"
 
-            "option": [{
+				}
 
-                    "value": "Natural & pleasant",
+			]
 
-                    "is_intensity": 0
+		},
 
-                },
+		{
 
-                {
+			"title": "Comments",
 
-                    "value": "Natural but unpleasant",
+			"placeholder": "Share feedback in your own words…",
 
-                    "is_intensity": 0
+			"select_type": 3,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_mandatory": 0,
 
-                    "value": "Artificial but pleasant",
+			"is_nested_question": 0
 
-                    "is_intensity": 0
+		}
 
-                },
+	],
 
-                {
 
-                    "value": "Artificial & unpleasant",
 
-                    "is_intensity": 0
 
-                },
+	"AROMATICS TO FLAVORS": [{
 
-                {
+			"title": "What all aromatics have you sensed?",
 
-                    "value": "Bland",
+			"subtitle": "Directly use the search box to select the aromatics that you have identified or follow the category based aromatics list. In case you can\'t find the identified aromatics, select \"Any other\" and if unable to sense any aromatics at all, then select \"Absent\".",
 
-                    "is_intensity": 0
+			"select_type": 2,
 
-                }
+			"is_intensity": 1,
 
-            ]
+			"intensity_type": 2,
 
-        },
+			"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
+			"is_nested_question": 0,
 
-        {
+			"is_mandatory": 1,
 
-            "title": "Overall Preference",
+			"is_nested_option": 1,
 
-            "select_type": 5,
+			"nested_option_title": "AROMATICS",
 
-            "is_intensity": 0,
+			"nested_option_list": "AROMA"
 
-            "is_nested_question": 0,
+		},
 
-            "is_mandatory": 1,
+		{
 
-            "option": [{
+			"title": "Please swallow the product and pause. How is the aftertaste?",
 
-                    "value": "Dislike Extremely",
+			"select_type": 1,
 
-                    "color_code": "#8C0008"
+			"is_intensity": 0,
 
-                },
+			"is_nested_question": 0,
 
-                {
+			"is_mandatory": 1,
 
-                    "value": "Dislike Moderately",
+			"option": [{
 
-                    "color_code": "#C92E41"
+					"value": "Pleasant",
 
-                },
+					"is_intensity": 0
 
-                {
+				},
 
-                    "value": "Dislike Slightly",
+				{
 
-                    "color_code": "#C92E41"
+					"value": "Unpleasant",
 
-                },
+					"is_intensity": 0
 
-                {
+				},
 
-                    "value": "Can\'t Say",
+				{
 
-                    "color_code": "#E27616"
+					"value": "Can\'t say",
 
-                },
+					"is_intensity": 0
 
-                {
+				}
 
-                    "value": "Like Slightly",
+			]
 
-                    "color_code": "#AC9000"
+		},
 
-                },
+		{
 
-                {
+			"title": "What is the length of the aftertaste?",
 
-                    "value": "Like Moderately",
+			"select_type": 1,
 
-                    "color_code": "#7E9B42"
+			"is_intensity": 0,
 
-                },
+			"is_nested_question": 0,
 
-                {
+			"is_mandatory": 1,
 
-                    "value": "Like Extremely",
+			"option": [{
 
-                    "color_code": "#305D03"
+					"value": "Long",
 
-                }
+					"is_intensity": 0
 
-            ]
+				},
 
-        },
+				{
 
-        {
+					"value": "Sufficient",
 
-            "title": "Comments",
+					"is_intensity": 0
 
-            "placeholder": "Share feedback in your own words…",
+				},
 
-            "select_type": 3,
+				{
 
-            "is_intensity": 0,
+					"value": "Short",
 
-            "is_mandatory": 0,
+					"is_intensity": 0
 
-            "is_nested_question": 0
+				},
 
-        }
+				{
 
-    ],
+					"value": "None",
 
+					"is_intensity": 0
 
+				}
 
+			]
 
-    "TEXTURE": [{
+		},
 
-            "title": "While eating, how does the product feel inside the mouth? ",
-            "subtitle": "Please eat one teaspoon of the product and assess.",
+		{
 
-            "select_type": 1,
+			"title": "How is the flavor experience?",
 
-            "is_intensity": 0,
+			"subtitle": "Flavor is experienced only inside the mouth when the taste and aromatics (odor through the mouth) work together.",
 
-            "is_nested_question": 0,
+			"select_type": 1,
 
-            "is_mandatory": 1,
+			"is_intensity": 0,
 
-            "option": [{
+			"is_nested_question": 0,
 
-                    "value": "Like water",
+			"is_mandatory": 1,
 
-                    "is_intensity": 0
+			"option": [{
 
-                },
+					"value": "Natural & pleasant",
 
-                {
+					"is_intensity": 0
 
-                    "value": "Like toned milk",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
+					"value": "Natural but unpleasant",
 
-                {
+					"is_intensity": 0
 
-                    "value": "Like full cream milk",
+				},
 
-                    "is_intensity": 0
+				{
 
-                },
-                {
+					"value": "Artificial but pleasant",
 
-                    "value": "Like honey",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Artificial & unpleasant",
 
-                    "value": "Like condensed milk",
+					"is_intensity": 0
 
-                    "is_intensity": 0
+				},
 
-                },
-                {
+				{
 
-                    "value": "Like puree (tomato)",
+					"value": "Bland",
 
-                    "is_intensity": 0
+					"is_intensity": 0
 
-                },
-                {
+				}
 
-                    "value": "Like paste (peanut butter)",
+			]
 
-                    "is_intensity": 0
+		},
 
-                }
 
-            ]
+		{
 
-        },
-        {
+			"title": "Overall preference of Aromatics",
 
-            "title": "While eating, which textures can you experience inside your mouth?",
+			"select_type": 5,
 
-            "subtitle": "Please select a maximum of 3 options.",
+			"is_intensity": 0,
 
-            "select_type": 2,
+			"is_nested_question": 0,
 
-            "is_intensity": 0,
+			"is_mandatory": 1,
 
-            "is_nested_question": 0,
+			"option": [{
 
-            "is_nested_option": 0,
+					"value": "Dislike Extremely",
 
-            "is_mandatory": 1,
+					"color_code": "#8C0008"
 
-            "option": [{
+				},
 
-                    "value": "Smooth",
+				{
 
-                    "is_intensity": 1,
+					"value": "Dislike Moderately",
 
-                    "intensity_type": 2,
+					"color_code": "#C92E41"
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
-                    
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
+				},
 
-                },
+				{
 
-                {
+					"value": "Dislike Slightly",
 
-                    "value": "Silky",
+					"color_code": "#C92E41"
 
-                    "is_intensity": 1,
+				},
 
-                    "intensity_type": 2,
+				{
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+					"value": "Can\'t Say",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006"
-                },
+					"color_code": "#E27616"
 
-                {
+				},
 
-                    "value": "Soft",
+				{
 
-                    "is_intensity": 1,
+					"value": "Like Slightly",
 
-                    "intensity_type": 2,
+					"color_code": "#AC9000"
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+				},
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
-                {
+				{
 
-                    "value": "Sticky",
+					"value": "Like Moderately",
 
-                    "is_intensity": 1,
+					"color_code": "#7E9B42"
 
-                    "intensity_type": 2,
+				},
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+				{
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
+					"value": "Like Extremely",
 
-                {
+					"color_code": "#305D03"
 
-                    "value": "Grainy",
+				}
 
-                    "is_intensity": 1,
+			]
 
-                    "intensity_type": 2,
+		},
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+		{
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
-                {
+			"title": "Comments",
 
-                    "value": "Gritty",
+			"placeholder": "Share feedback in your own words…",
 
-                    "is_intensity": 1,
+			"select_type": 3,
 
-                    "intensity_type": 2,
+			"is_intensity": 0,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+			"is_mandatory": 0,
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
+			"is_nested_question": 0
 
-                {
+		}
 
-                    "value": "Seeds",
+	],
 
-                    "is_intensity": 1,
 
-                    "intensity_type": 2,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
-                {
+	"TEXTURE": [{
 
-                    "value": "Fibre",
+			"title": "Take sufficient quantity of the product (include all the components of the served product). Bite 2-3 times and pause. What kind of sound do you hear?",
+			"subtitle": "Crispy- one sound event which is sharp, clean, fast and high pitched, e.g., Chips.\nCrunchy (Crushing sound) - multiple low pitched sounds perceived as a series of small events,e.g., Rusks.\nCrackly- bite only once without grinding, it is one sudden low pitched sound event that brittles the product,e.g., Puffed rice.",
 
-                    "is_intensity": 1,
+			"select_type": 1,
 
-                    "intensity_type": 2,
+			"is_intensity": 0,
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+			"is_mandatory": 1,
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
+			"is_nested_question": 0,
 
-                {
 
-                    "value": "Skin",
+			"option": [{
 
-                    "is_intensity": 1,
+					"value": "Crispy",
 
-                    "intensity_type": 2,
+					"is_intensity": 0
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+				},
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                },
-                {
+				{
 
-                    "value": "Any other",
+					"value": "Crunchy",
 
-                    "is_intensity": 1,
+					"is_intensity": 0
 
-                    "intensity_type": 2,
+				},
 
-                    "intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense",
+				{
 
-                    "intensity_color": "#000001,#000002,#000003,#000004,#000005,#000006,#000007"
-                }
-            ]
+					"value": "Crackly",
 
-        },
+					"is_intensity": 0
 
-        {
+				},
 
-            "title": "How fast does the product melt-in-the-mouth?",
-            "subtitle": "Compress half a teaspoon of the product between the tongue and the palate. Please don\'t swallow the product yet.",
+				{
 
-            "select_type": 1,
+					"value": "No Sound",
 
+					"is_intensity": 0
 
-            "is_intensity": 0,
 
-            "is_nested_question": 0,
+				}
 
-            "is_mandatory": 1,
+			]
 
-            "option": [{
+		},
+		{
 
-                    "value": "Melts quickly",
+			"title": "How much force is needed to chew the product?",
 
-                    "is_intensity": 0
+			"select_type": 1,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_mandatory": 1,
 
-                    "value": "Melts moderately",
+			"is_nested_question": 0,
 
-                    "is_intensity": 0
+			"is_nested_option": 0,
 
-                },
+			"option": [{
 
-                {
+					"value": "Force needed",
 
-                    "value": "Melts slowly",
+					"is_intensity": 1,
 
-                    "is_intensity": 0
+					"intensity_type": 2,
 
-                },
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "value": "Doesn\'t melt",
+				},
 
-                    "is_intensity": 0
+				{
 
-                }
-            ]
+					"value": "No force needed",
 
-        },
+					"is_intensity": 0
 
-        {
+				}
+			]
 
-            "title": "After swallowing the product, do you feel anything left inside the mouth?",
+		},
+		{
 
-            "select_type": 2,
+			"title": "As you chew, which of these are being released from the product?",
 
-            "is_intensity": 0,
+			"subtitle": "Please chew for 3 - 4 times and pause.",
 
-            "is_nested_question": 0,
+			"select_type": 2,
 
-            "is_mandatory": 1,
+			"is_intensity": 0,
 
-            "option": [{
+			"is_mandatory": 1,
 
-                    "value": "Oily film",
+			"is_nested_question": 0,
 
-                    "is_intensity": 0
+			"is_nested_option": 0,
 
-                },
+			"option": [{
 
-                {
+					"value": "Grease (Oil/ Butter)",
 
-                    "value": "Loose particles",
+					"is_intensity": 1,
 
-                    "is_intensity": 0
+					"intensity_type": 2,
 
-                },
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                {
+				},
 
-                    "value": "Sticking on tooth / palate",
+				{
 
-                    "is_intensity": 0
+					"value": "Moisture",
 
-                },
+					"is_intensity": 1,
 
-                {
+					"intensity_type": 2,
 
-                    "value": "Stuck between teeth",
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-                    "is_intensity": 0
+				},
+				{
 
-                },
+					"value": "Dry",
 
-                {
+					"is_intensity": 1,
 
-                    "value": "Chalky",
+					"intensity_type": 2,
 
-                    "is_intensity": 0
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-                },
-                {
+				}
+			]
 
-                    "value": "No residue",
+		},
+		{
 
-                    "is_intensity": 0
+			"title": "While chewing, which prominent textures can you feel in your mouth?",
 
-                },
-                {
+			"select_type": 2,
 
-                    "value": "Any other",
+			"is_intensity": 0,
 
-                    "is_intensity": 0
+			"is_mandatory": 1,
 
-                }
+			"is_nested_question": 0,
 
-            ]
+			"is_nested_option": 0,
 
-        },
-        {
+			"option": [{
 
-            "title": "Overall Preference",
+					"value": "Chewy",
 
-            "select_type": 5,
+					"is_intensity": 1,
 
-            "is_intensity": 0,
+					"intensity_type": 2,
 
-            "is_nested_question": 0,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            "is_mandatory": 1,
+				},
 
-            "option": [{
+				{
 
-                    "value": "Dislike Extremely",
+					"value": "Tender",
 
-                    "color_code": "#8C0008"
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-                    "value": "Dislike Moderately",
+				},
+				{
 
-                    "color_code": "#C92E41"
+					"value": "Fluffy",
 
-                },
+					"is_intensity": 1,
 
-                {
+					"intensity_type": 2,
 
-                    "value": "Dislike Slightly",
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-                    "color_code": "#C92E41"
+				},
+				{
 
-                },
+					"value": "Sticky",
 
-                {
+					"is_intensity": 1,
 
-                    "value": "Can\'t Say",
+					"intensity_type": 2,
 
-                    "color_code": "#E27616"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
+				},
 
-                {
+				{
 
-                    "value": "Like Slightly",
+					"value": "Springy (Like spring)",
 
-                    "color_code": "#AC9000"
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-                    "value": "Like Moderately",
+				},
+				{
 
-                    "color_code": "#7E9B42"
+					"value": "Gritty",
 
-                },
+					"is_intensity": 1,
 
-                {
+					"intensity_type": 2,
 
-                    "value": "Like Extremely",
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-                    "color_code": "#305D03"
+				},
+				{
 
-                }
+					"value": "Rubbery",
 
-            ]
+					"is_intensity": 1,
 
-        },
+					"intensity_type": 2,
 
-        {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            "title": "Comments",
+				},
 
-            "placeholder": "Share feedback in your own words…",
+				{
 
-            "select_type": 3,
+					"value": "Leathery",
 
-            "is_intensity": 0,
+					"is_intensity": 1,
 
-            "is_mandatory": 0,
+					"intensity_type": 2,
 
-            "is_nested_question": 0
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-        }
+				},
+				{
 
-    ],
+					"value": "Firm",
 
+					"is_intensity": 1,
 
+					"intensity_type": 2,
 
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate, Intense,Very Intense,Extremely Intense"
 
-    "PRODUCT EXPERIENCE": [{
+				},
+				{
 
-            "title": "Did this product succeed in satisfying your basic senses?",
+					"value": "Hard",
 
-            "select_type": 1,
+					"is_intensity": 1,
 
-            "is_intensity": 0,
+					"intensity_type": 2,
 
-            "is_nested_question": 0,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            "is_mandatory": 1,
+				}
+			]
 
-            "option": [{
+		},
+		{
 
-                    "value": "Yes",
+			"title": "What kind of mass is being formed?",
+			"subtitle": "Chew it for minimum 8-10 times and pause.",
 
-                    "is_intensity": 0
+			"select_type": 1,
 
-                },
+			"is_intensity": 0,
 
-                {
+			"is_nested_question": 0,
 
-                    "value": "No",
+			"is_mandatory": 1,
 
-                    "is_intensity": 0
+			"option": [{
 
-                }
+					"value": "Tight mass",
 
-            ]
+					"is_intensity": 0
 
-        },
+				},
 
-        {
+				{
 
-            "title": "Which attributes can be improved further?",
+					"value": "Pulpy mass",
 
-            "select_type": 2,
+					"is_intensity": 0
 
-            "is_intensity": 0,
+				},
 
-            "is_nested_question": 0,
+				{
 
-            "is_mandatory": 1,
+					"value": "Barely any mass",
 
-            "option": [{
+					"is_intensity": 0
 
-                    "value": "Appearance",
+				},
+				{
 
-                    "is_intensity": 0
+					"value": "No mass",
 
-                },
+					"is_intensity": 0
 
-                {
+				}
 
-                    "value": "Aroma",
+			]
 
-                    "is_intensity": 0
+		},
+		{
 
-                },
+			"title": "Did you feel anything left inside the mouth after swallowing the product?",
 
-                {
+			"select_type": 2,
 
-                    "value": "Taste",
+			"is_intensity": 0,
 
-                    "is_intensity": 0
+			"is_nested_question": 0,
 
-                },
+			"is_nested_option": 0,
 
-                {
+			"is_mandatory": 1,
 
-                    "value": "Aromatics To Flavors",
+			"option": [{
 
-                    "is_intensity": 0
+					"value": "Oily film",
 
-                },
+					"is_intensity": 1,
 
-                {
+					"intensity_type": 2,
 
-                    "value": "Texture",
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "is_intensity": 0
+				},
 
-                },
+				{
 
-                {
+					"value": "Loose particles",
 
-                    "value": "Balanced product",
+					"is_intensity": 1,
 
-                    "is_intensity": 0
+					"intensity_type": 2,
 
-                }
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            ]
 
-        },
+				},
 
-        {
+				{
 
-            "title": "Overall Product Preference",
+					"value": "Sticking on tooth",
 
-            "select_type": 5,
+					"is_intensity": 1,
 
-            "is_intensity": 0,
+					"intensity_type": 2,
 
-            "is_nested_question": 0,
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-            "is_mandatory": 1,
 
-            "option": [{
+				},
+				{
 
-                    "value": "Dislike Extremely",
+					"value": "Stuck between tooth",
 
-                    "color_code": "#8C0008"
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "value": "Dislike Moderately",
 
-                    "color_code": "#C92E41"
+				},
+				{
 
-                },
+					"value": "Chalky",
 
-                {
+					"is_intensity": 1,
 
-                    "value": "Dislike Slightly",
+					"intensity_type": 2,
 
-                    "color_code": "#C92E41"
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                },
 
-                {
+				},
+				{
 
-                    "value": "Can\'t Say",
+					"value": "Any other",
 
-                    "color_code": "#E27616"
+					"is_intensity": 1,
 
-                },
+					"intensity_type": 2,
 
-                {
+					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
-                    "value": "Like Slightly",
 
-                    "color_code": "#AC9000"
+				},
+				{
 
-                },
+					"value": "No residue",
 
-                {
+					"is_intensity": 0
 
-                    "value": "Like Moderately",
+				}
 
-                    "color_code": "#7E9B42"
+			]
 
-                },
+		},
 
-                {
+		{
 
-                    "value": "Like Extremely",
+			"title": "Overall preference of Texture",
 
-                    "color_code": "#305D03"
+			"select_type": 5,
 
-                }
+			"is_intensity": 0,
 
-            ]
+			"is_nested_question": 0,
 
-        },
+			"is_mandatory": 1,
 
-        {
+			"option": [{
 
-            "title": "Comments",
+					"value": "Dislike Extremely",
 
-            "placeholder": "Share feedback in your own words…",
+					"color_code": "#8C0008"
 
-            "select_type": 3,
+				},
 
-            "is_intensity": 0,
+				{
 
-            "is_mandatory": 0,
+					"value": "Dislike Moderately",
 
-            "is_nested_question": 0
+					"color_code": "#C92E41"
 
-        }
+				},
 
-    ]
+				{
+
+					"value": "Dislike Slightly",
+
+					"color_code": "#C92E41"
+
+				},
+
+				{
+
+					"value": "Can\'t Say",
+
+					"color_code": "#E27616"
+
+				},
+
+				{
+
+					"value": "Like Slightly",
+
+					"color_code": "#AC9000"
+
+				},
+
+				{
+
+					"value": "Like Moderately",
+
+					"color_code": "#7E9B42"
+
+				},
+
+				{
+
+					"value": "Like Extremely",
+
+					"color_code": "#305D03"
+
+				}
+
+			]
+
+		},
+
+		{
+
+			"title": "Comments",
+
+			"placeholder": "Share feedback in your own words…",
+
+			"select_type": 3,
+
+			"is_intensity": 0,
+
+			"is_mandatory": 0,
+
+			"is_nested_question": 0
+
+		}
+
+	],
+
+
+
+
+	"PRODUCT EXPERIENCE": [{
+
+			"title": "Did this product succeed in satisfying your basic senses?",
+
+			"select_type": 1,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Yes",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "No",
+
+					"is_intensity": 0
+
+				}
+
+			]
+
+		},
+
+		{
+
+			"title": "Which attributes can be improved further?",
+
+			"select_type": 2,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Appearance",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Aroma",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Taste",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Aromatics to flavor",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Texture",
+
+					"is_intensity": 0
+
+				},
+
+				{
+
+					"value": "Balanced product",
+
+					"is_intensity": 0
+
+				}
+
+			]
+
+		},
+
+		{
+
+			"title": "Overall Product Preference",
+
+			"select_type": 5,
+
+			"is_intensity": 0,
+
+			"is_nested_question": 0,
+
+			"is_mandatory": 1,
+
+			"option": [{
+
+					"value": "Dislike Extremely",
+
+					"color_code": "#8C0008"
+
+				},
+
+				{
+
+					"value": "Dislike Moderately",
+
+					"color_code": "#C92E41"
+
+				},
+
+				{
+
+					"value": "Dislike Slightly",
+
+					"color_code": "#C92E41"
+
+				},
+
+				{
+
+					"value": "Can\'t Say",
+
+					"color_code": "#E27616"
+
+				},
+
+				{
+
+					"value": "Like Slightly",
+
+					"color_code": "#AC9000"
+
+				},
+
+				{
+
+					"value": "Like Moderately",
+
+					"color_code": "#7E9B42"
+
+				},
+
+				{
+
+					"value": "Like Extremely",
+
+					"color_code": "#305D03"
+
+				}
+
+			]
+
+		},
+
+		{
+
+			"title": "Comments",
+
+			"placeholder": "Share feedback in your own words…",
+
+			"select_type": 3,
+
+			"is_intensity": 0,
+
+			"is_mandatory": 0,
+
+			"is_nested_question": 0
+
+		}
+
+	]
 
 }';
 
-        $data = ['name'=>'Condiments - Tamarind (Sauth)','keywords'=>"Condiments - Tamarind (Sauth)",'description'=>null,
+        $data = ['name'=>'private_bhatura','keywords'=>"private_bhatura",'description'=>null,
             'question_json'=>$questions2,'header_info'=>json_encode($headerInfo2,true)];
         \DB::table('global_questions')->insert($data);
 
