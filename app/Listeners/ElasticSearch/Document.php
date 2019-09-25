@@ -28,7 +28,6 @@ class Document
     public function handle(Searchable $event)
     {
         $client =  SearchClient::get();
-        unset($event->document->type);
         $client->index($event->document->toArray());
     }
 }
