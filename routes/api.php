@@ -46,6 +46,7 @@ Route::post('login',function(Request $request) {
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
@@ -131,6 +132,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+            //namespace profile
+            Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
+                //namespace company - Checks for company admin
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                    Route::resource("users","UserController");
+                });
+            });
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {

@@ -106,7 +106,8 @@ class CollaborationQuestions extends Command implements ShouldQueue
                                 'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
-                                'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
+                                'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
+                                'intensity_color'=>isset($v['intensity_color'])?$v['intensity_color'] : null
                             ];
                             $i++;
                         }

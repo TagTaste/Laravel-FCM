@@ -157,10 +157,30 @@ class LoginController extends Controller
                 $userInfo = isset($socialiteUser['user']) ? $socialiteUser['user'] : null;
                 $user = \App\Profile\User::addFoodie($socialiteUser['name'],$socialiteUser['email'],null,
                     true,$provider,$socialiteUser['id'],$socialiteUser['avatar_original'],false,$socialiteUser['token'],$socialiteUserLink,$userInfo);
+                $companies = \App\Company::whereIn('id',[111,137,322])->get();
+                foreach ($companies as $company) {
+                    $model = $user->completeProfile->subscribeNetworkOf($company);
+                    if($model) {
+                        //companies the logged in user is following
+                        \Redis::sAdd("following:profile:" . $user->profile->id, "company.$company->id");
+
+                        //profiles that are following $channelOwner
+                        \Redis::sAdd("followers:company:" . $company->id, $user->profile->id);
+                    }
+                }
             }
 
         }
         return $user;
 
+    }
+    public function getCities(Request $request)
+    {
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('GET', 'https://wft-geo-db.p.rapidapi.com/v1/geo/cities', ['headers'=>[
+            'x-rapidapi-key'=> '77814062e0msh6558e89404ab958p144440jsnac29624fe139',
+               'x-rapidapi-host' => 'wft-geo-db.p.rapidapi.com'
+        ]]);
+        return $res->getBody();
     }
 }

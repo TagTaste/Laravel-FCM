@@ -38,7 +38,17 @@ class UserController extends Controller
         $result['result'] = ['user'=>$user,'token'=>  \JWTAuth::attempt(
             ['email'=>$request->input('user.email')
                 ,'password'=>$request->input('user.password')])];
+        $companies = \App\Company::whereIn('id',[111,137,322])->get();
+        foreach ($companies as $company) {
+            $model = $user->completeProfile->subscribeNetworkOf($company);
+            if($model) {
+                //companies the logged in user is following
+                \Redis::sAdd("following:profile:" . $user->profile->id, "company.$company->id");
 
+                //profiles that are following $channelOwner
+                \Redis::sAdd("followers:company:" . $company->id, $user->profile->id);
+            }
+        }
         $mail = (new \App\Jobs\EmailVerification($user))->onQueue('emails');
         \Log::info('Queueing Verified Email...');
 
@@ -204,7 +214,6 @@ class UserController extends Controller
         return $this->sendResponse();
 
     }
-
 
 
 }

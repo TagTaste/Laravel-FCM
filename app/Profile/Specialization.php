@@ -11,9 +11,9 @@ class Specialization extends Model {
 
     protected $fillable = ['profile_id','specialization_id'];
 
-    protected $visible = ['id','name','description'];
+    protected $visible = ['id','name','description', 'image'];
 
-    protected $appends = ['id','name','description'];
+    protected $appends = ['id','name','description', 'image'];
 
     protected $spcialzation = null;
 
@@ -33,4 +33,8 @@ class Specialization extends Model {
         return isset($this->spcialzation->description) ? $this->spcialzation->description : null;
     }
 
+    public function getImageAttribute()
+    {
+        return isset($this->spcialzation->image) ? $this->spcialzation->image : null;
+    }
 }
