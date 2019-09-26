@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DispatchJob;
 use App\Console\Commands\AddHandle;
 use App\Console\Commands\AddSuggestionData;
 use App\Console\Commands\BackupDatabase;
@@ -217,7 +218,9 @@ class Kernel extends ConsoleKernel
 
 
         //update social connection
-        SocialConnectedAddFlag::class
+        SocialConnectedAddFlag::class,
+
+        DispatchJob::class
 
     ];
 

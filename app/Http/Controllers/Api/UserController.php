@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Events\Actions\JoinFriend;
+use App\Jobs\RemoveDuplicateFromAppInfo;
 
 class UserController extends Controller
 {
@@ -94,21 +95,40 @@ class UserController extends Controller
             dispatch($mail);
             return $this->sendResponse();
         }
-
+        
         return $this->sendError("Your password has not been changed.");
     }
-
+    
     public function fcmToken(Request $request)
-    {
+    {        
         $user = User::where("id", $request->user()->id)->first();
         $platform = $request->has('platform') ? $request->input('platform') : 'android' ;
         $version = $request->hasHeader('X-VERSION') ? $request->header('X-VERSION') : ($request->hasHeader('X-VERSION-IOS') ? $request->header('X-VERSION-IOS') : NULL) ;
         $device_info = $request->has('device_info') ? $request->input('device_info') : NULL ;
-        $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
-        if($tokenExists)
+        
+        //updated by nikhil
+        $deviceInfoJson = json_decode($device_info);
+        $deviceName = '';
+        $deviceIdentifier = '';
+        if($platform == 'ios'){
+            $deviceName = strtolower( $deviceInfoJson->deviceType);  
+            $deviceIdentifier = $deviceInfoJson->identifierForVendor;           
+        }else{
+            $deviceName = strtolower($deviceInfoJson->SERIAL);
+            $deviceIdentifier = $deviceInfoJson->ID;
+        }
+        
+        if(strpos($deviceName, 'simulator') !== false || strpos($deviceName, 'emulator') !== false){
+            //yes its a simulator  or emultor, so no need to store device info.
+            return $this->sendError("Simulator/emulator detected.");
+        }
+        
+        $deviceTokenExist = \DB::table('app_info')->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)->exists();
+        // $tokenExists = \DB::table('app_info')->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)->exists();
+        if($deviceTokenExist)
         {
-            \DB::table("app_info")->where('profile_id',$request->user()->profile->id)->where('fcm_token', $request->input('fcm_token'))->where('platform',$platform)
-                ->update(['user_app_version'=>$version, 'device_info'=>$device_info]);
+            \DB::table("app_info")->where('device_info->identifierForVendor',$deviceIdentifier)->orWhere('device_info->ID',$deviceIdentifier)
+                ->update(["profile_id"=>$request->user()->profile->id,'fcm_token'=>$request->input('fcm_token'),'platform'=>$platform,'user_app_version'=>$version, 'device_info'=>$device_info]);
             $this->model = 1;
             return $this->sendResponse();
         }
@@ -144,12 +164,13 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-
-        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
-            ->where('profile_id',$request->user()->profile->id)->delete();
+        //updated by nikhil
+        // $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))
+        //     ->where('profile_id',$request->user()->profile->id)->delete();
+        $this->model = \DB::table("app_info")->where('fcm_token',$request->input('fcm_token'))->delete();
         return $this->sendResponse();
     }
-
+    
     public function verifyInviteCode(Request $request)
     {
 //        $this->model = \DB::table("users")->where('invite_code',$request->input("invite_code"))->exists() ? true : false;
@@ -171,7 +192,6 @@ class UserController extends Controller
         
         return $this->sendResponse();
     }
-
 
     public function socialLink(Request $request,$provider)
     {

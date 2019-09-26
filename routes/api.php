@@ -120,7 +120,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post('/logout','UserController@logout');
         Route::post('/user/verify/phone','UserController@phoneVerify');
 
-        Route::post('/user/requestOtp','UserController@requestOtp');
+                            Route::post('/user/requestOtp','UserController@requestOtp');
 
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard

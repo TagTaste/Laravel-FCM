@@ -23,7 +23,7 @@ class SendConnectionInvite implements ShouldQueue
         $this->user = $user;
         $this->invitation = $invitation;
     }
-
+    
     /**
      * Execute the job.
      *
