@@ -309,9 +309,11 @@ class PublicReviewProductController extends Controller
                 $products = $this->model['product'];
                 $this->model = [];
                 foreach($products as $product){
-                    \Log::info($product);
-                    $meta = $product->getMetaFor($profileId);
-                    $this->model[] = ['product'=>$product,'meta'=>$meta];
+                    if($product!=null) {
+                        $meta = $product->getMetaFor($profileId);
+                        $this->model[] = ['product'=>$product,'meta'=>$meta];
+                    }
+
                 }
             }
             return $this->sendResponse();
