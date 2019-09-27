@@ -47,7 +47,7 @@ class SearchController extends Controller
         if(!$model){
             return $model;
         }
-    
+
         if(!empty($filters) && isset($this->filters[$type])){
             $modelIds = $this->filters[$type]::getModelIds($filters,$skip,$take);
             if($modelIds->count()){
@@ -56,8 +56,9 @@ class SearchController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->get();
 
         }
-        $model = $model::whereIn('id',$ids)->whereNull('deleted_at');
-        
+        $placeholders = implode(',',array_fill(0, count($ids), '?'));
+
+        $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->orderByRaw("field(id,{$placeholders})", $ids);
         if(null !== $skip && null !== $take){
             $model = $model->skip($skip)->take($take);
         }
@@ -310,8 +311,9 @@ class SearchController extends Controller
             'body' => [
                 'query' => [
                     'query_string' => [
-                        'query' => $query
-                    ]
+                        'query' => '*'.$query.'*',
+                        'fields' => ['name^3','handle^2','about','keywords^2']
+                     ]
                 ]
             ]
         ];
@@ -325,7 +327,6 @@ class SearchController extends Controller
 
         $response = $client->search($params);
         $this->model = [];
-    
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         
@@ -337,14 +338,13 @@ class SearchController extends Controller
                 $this->model[$name] = [];
                 $ids = $hit->pluck('_id')->toArray();
                 $searched = $this->getModels($name,$ids,$request->input('filters'),$skip,$take);
-
                 $suggestions = $this->filterSuggestions($query,$name,$skip,$take);
                 $suggested = collect([]);
                 if(!empty($suggestions)){
                     $suggested = $this->getModels($name,array_pluck($suggestions,'id'));
                 }
                 if($suggested->count() > 0)
-                    $this->model[$name] = $searched->merge($suggested)->sortBy('name');
+                    $this->model[$name] = $searched->merge($suggested);
                 else
                     $this->model[$name] = $searched;
             }
