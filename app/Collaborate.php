@@ -80,6 +80,7 @@ class Collaborate extends Model implements Feedable
             "profile_id",
             "company_id",
             "has_tags",
+            "collaborate_type",
             "expires_on",
             "updated_at",
             "created_at",
