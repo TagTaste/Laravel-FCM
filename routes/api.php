@@ -356,6 +356,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::get("reportSummary","BatchController@reportSummary");
             Route::get("batches/{id}/reportHeader","QuestionController@reportHeader");
             Route::get("batches/{id}/headers/{headerId}/reports","BatchController@reports");
+            Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/options", "BatchController@optionReports");
             Route::get("batches/{id}/headers/{headerId}/questions/{questionId}/comments","BatchController@comments");
             Route::get("getHeaderWeight","BatchController@getHeaderWeight");
             Route::post("storeHeaderWeight","BatchController@storeHeaderWeight");

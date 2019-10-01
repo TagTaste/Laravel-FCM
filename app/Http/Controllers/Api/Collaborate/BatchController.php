@@ -469,13 +469,19 @@ class BatchController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
-
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->get();
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
+                        if($answer->option_type == 1) {
+                            $answer->value = 'Any other';
+                        } else if ($answer->option_type == 2) {
+                            $answer->value = 'None';
+                        } else {
+                            $answer->value = \DB::table('collaborate_tasting_user_review')->select('value')->where('id',$answer->leaf_id)->get();
+                        }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                         {
@@ -1733,4 +1739,34 @@ class BatchController extends Controller
         }
     }
 
+    public function optionReports(Request $request, $collaborateId,$id, $headerId, $questionId)
+    {
+        $collaborate = Collaborate::where('id',$collaborateId)->where('state','!=',Collaborate::$state[1])->first();
+
+        if ($collaborate === null) {
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+        $profileId = $request->user()->profile->id;
+
+        if(isset($collaborate->company_id)&& (!is_null($collaborate->company_id)))
+        {
+            $checkUser = CompanyUser::where('company_id',$collaborate->company_id)->where('profile_id',$profileId)->exists();
+            if(!$checkUser){
+                return $this->sendError("Invalid Collaboration Project.");
+            }
+        }
+        else if($collaborate->profile_id != $profileId){
+            return $this->sendError("Invalid Collaboration Project.");
+        }
+
+        $answers = \DB::table('collaborate_tasting_user_review')
+            ->select('value','intensity',\DB::raw('count(*) as total'))
+            ->where('collaborate_id',$collaborateId)
+            ->where('question_id',$questionId)
+            ->where('option_type',1)
+            ->where('current_status',3)
+            ->groupBy('value','intensity')->get();
+        $this->model = $answers;
+        return $this->sendResponse();
+    }
 }
