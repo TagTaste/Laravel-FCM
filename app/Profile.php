@@ -49,10 +49,19 @@ class Profile extends Model
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
         'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount'];
 
-    private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone',
-        'verified_phone', 'city', 'country','is_facebook_connected','is_linkedin_connected', 'keywords', 'expertise', 'experience', 'education'];
-    private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
+     /**
+        profile completion mandatory field
+        private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone', 'verified_phone', 'city', 'country','is_facebook_connected','is_linkedin_connected', 'keywords', 'expertise', 'experience', 'education'];
+    **/
+    private $profileCompletionMandatoryField = ['tagline', 'dob', 'city', 'gender', 'foodie_type_id', 'profile_occupations', 'cuisines'];
+
+   
+    /**
+        profile completion optional field
+        private $profileCompletionOptionalField = ['address','website_url', 'heroImageUrl', 'pincode', 'resumeUrl', 'affiliations', 'tvshows',
         'awards','training','projects','patents','publications'];
+    **/
+    private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone', 'verified_phone'];
 
     private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
 
@@ -902,7 +911,7 @@ class Profile extends Model
                     $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
                 }
             }
-            $percentage = ((30 - $index) / 30 ) * 100;
+            $percentage = ((25 - $index) / 25 ) * 100;
             $profileCompletion = [
                 'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
                 'mandatory_remaining_field' => $remaningMandatoryItem,
