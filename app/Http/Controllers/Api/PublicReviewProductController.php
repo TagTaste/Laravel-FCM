@@ -280,6 +280,34 @@ class PublicReviewProductController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
+        if($response['hits']['total']['value'] == 0) {
+            $originalQuery = explode(' ' ,$query);
+            $originalQuery = $originalQuery[0];
+            $originalQuery = str_split($originalQuery,strlen($originalQuery)-1)[0];
+            $originalQuery1 = str_split($originalQuery,strlen($originalQuery)-2)[0];
+            $originalQuery2 = str_split($originalQuery,strlen($originalQuery)-3)[0];
+            $originalQuery3 = str_split($originalQuery,strlen($originalQuery)-4)[0];
+            $params = [
+                'index' => "api",
+                'body' => [
+                    "from" => 0, "size" => 1000,
+                    'query' => [
+                        'query_string' => [
+                            'query' => '*'.$query.'*',
+                            'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
+
+                        ]
+                    ]
+                ]
+            ];
+
+            if($type){
+                $params['type'] = $type;
+            }
+            $client = SearchClient::get();
+
+            $response = $client->search($params);
+        }
         $this->model = [];
         //return $response;
         $page = $request->input('page');
