@@ -32,12 +32,12 @@ class PhotoController extends Controller
         if($request->has('company_id') && !is_null($request->input('company_id')))
         {
             $companyId = $request->input('company_id');
-            $photos = Photo::forCompany($companyId)->whereNotNull('images')->orderBy('created_at','desc')->orderBy('updated_at','desc');
+            $photos = Photo::forCompany($companyId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
         }
         else
         {
             $profileId = $request->has('profile_id') ? $request->input('profile_id') : $loggedInProfileId;
-            $photos = Photo::forProfile($profileId)->whereNotNull('images')->orderBy('created_at','desc')->orderBy('updated_at','desc');
+            $photos = Photo::forProfile($profileId)->orderBy('created_at','desc')->orderBy('updated_at','desc');
         }
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
