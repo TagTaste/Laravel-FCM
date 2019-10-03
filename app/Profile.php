@@ -49,11 +49,11 @@ class Profile extends Model
         'remainingMessages','isFollowedBy','isMessageAble','profileCompletion','batchesCount','newBatchesCount','foodie_type','establishment_types',
         'cuisines','allergens','interested_collections','fb_info','reviewCount', 'totalPostCount', 'imagePostCount'];
 
-     /**
+    /**
         profile completion mandatory field
         private $profileCompletionMandatoryField = ['name', 'handle', 'imageUrl', 'tagline', 'dob', 'phone', 'verified_phone', 'city', 'country','is_facebook_connected','is_linkedin_connected', 'keywords', 'expertise', 'experience', 'education'];
     **/
-    private $profileCompletionMandatoryField = ['tagline', 'dob', 'city', 'gender', 'foodie_type_id', 'profile_occupations', 'cuisines'];
+    private $profileCompletionMandatoryField = ['name', 'handle', 'tagline', 'dob', 'city', 'gender', 'foodie_type_id', 'profile_occupations', 'cuisines'];
 
    
     /**
@@ -62,6 +62,8 @@ class Profile extends Model
         'awards','training','projects','patents','publications'];
     **/
     private $profileCompletionOptionalField = ['keywords','imageUrl', 'phone', 'verified_phone'];
+
+    private $profileCompletionExtraOptionalField = ['heroImageUrl', 'website_url', 'about', 'profile_specializations', 'allergens', 'expertise', 'affiliations', 'experience', 'education', 'training'];
 
     private $profileCompletionMandatoryFieldForCollaborationApply = ['dob','name','gender','verified_phone','profile_occupations'];
 
@@ -875,51 +877,72 @@ class Profile extends Model
 
     public function getProfileCompletionAttribute()
     {
-        if(request()->user()->profile->id == $this->id)
-        {
-            $remaningMandatoryItem = [];
-            $remaningOptionalItem = [];
-            $profileCompletionMandatoryFieldForCollaborationApply = [];
-            $index = 0;
-            if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
+        if (!is_null(request()->user())) {
+            if(request()->user()->profile->id == $this->id)
             {
-                $index++;
-                $remaningMandatoryItem = ['verified_email'];
-            }
-
-            foreach ($this->profileCompletionMandatoryField as $item)
-            {
-                if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                $remaningMandatoryItem = [];
+                $remaningOptionalItem = [];
+                $remaningAdditionalOptionalItem = [];
+                $profileCompletionMandatoryFieldForCollaborationApply = [];
+                $index = 0;
+                if(!isset(request()->user()->verified_at) && is_null(request()->user()->verified_at))
                 {
                     $index++;
-                    $remaningMandatoryItem[] = $item;
+                    $remaningMandatoryItem = ['verified_email'];
                 }
-            }
 
-            foreach ($this->profileCompletionOptionalField as $item)
-            {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                if(!isset(request()->user()->email) && is_null(request()->user()->email))
                 {
                     $index++;
-                    $remaningOptionalItem[] = $item;
+                    $remaningMandatoryItem = ['email'];
                 }
-            }
-            foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
-            {
-                if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
-                {
-                    $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
-                }
-            }
-            $percentage = ((25 - $index) / 25 ) * 100;
-            $profileCompletion = [
-                'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
-                'mandatory_remaining_field' => $remaningMandatoryItem,
-                'optional_remaining_field' => $remaningOptionalItem,
-                'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
-            ];
 
-            return $profileCompletion;
+
+                foreach ($this->profileCompletionMandatoryField as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item}) || strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || ($item == "cuisines" && $this->{$item}->count() == 0))
+                    {
+                        $index++;
+                        $remaningMandatoryItem[] = $item;
+                    }
+                }
+
+                foreach ($this->profileCompletionOptionalField as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    {
+                        $index++;
+                        $remaningOptionalItem[] = $item;
+                    }
+                }
+                $percentage = ((15 - $index) / 15 ) * 100;
+
+                foreach ($this->profileCompletionExtraOptionalField as $item) {
+                    if (is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0 || (is_object($this->{$item}) && $this->{$item}->count() == 0) || (is_array($this->{$item}) && $this->{$item}->count() == 0)) {
+                        $index++;
+                        $remaningAdditionalOptionalItem[] = $item;
+                    }
+                }
+                
+                foreach ($this->profileCompletionMandatoryFieldForCollaborationApply as $item)
+                {
+                    if(is_null($this->{$item}) || empty($this->{$item})|| strlen($this->{$item}) == 0 || count([$this->{$item}]) == 0)
+                    {
+                        $profileCompletionMandatoryFieldForCollaborationApply[] = $item;
+                    }
+                }
+                $percentage_total = ((25 - $index) / 25 ) * 100;
+                $profileCompletion = [
+                    'complete_percentage' => (round($percentage)%5 === 0) ? round($percentage) : round(($percentage+5/2)/5)*5,
+                    'overall_percentage' => (round($percentage_total)%5 === 0) ? round($percentage_total) : round(($percentage_total+5/2)/5)*5,
+                    'mandatory_remaining_field' => $remaningMandatoryItem,
+                    'optional_remaining_field' => $remaningOptionalItem,
+                    'additional_optional_field' => $remaningAdditionalOptionalItem,
+                    'mandatory_field_for_collaboration_apply' => $profileCompletionMandatoryFieldForCollaborationApply
+                ];
+
+                return $profileCompletion;
+            }
         }
     }
 
