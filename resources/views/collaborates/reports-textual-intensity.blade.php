@@ -5,16 +5,26 @@
         $finalTotal = $currentAnswer->total;
         $prResponseSuffix = $finalTotal == 1 ? 'Response' : 'Responses';
         $percent = number_format(floor(($currentAnswer->total/$totalAnswers)*100), 1);
+        $totalIntensity = 0;
+        foreach ($intensities as $key => $value) {
+            if ($value['count']) {
+                $totalIntensity = $totalIntensity + (($key + 1) * $value['count']);
+            }
+        }
+        $avgIntensity = number_format((float)($totalIntensity/$finalTotal), 2, '.', '');
+        $roundedIntensity = round($avgIntensity) - 1;
+        $classNameOfPillText = isset($path) ? 'pr-report-pill-text--small' : 'pr-report-pill-text';
     @endphp
     <div class="pr-answer-row">
         <div class="pr-answer-container">
             <div class="active" style="width: {{$percent}}%;"></div>
             <div class="answer-pill-details">
-                <p class="pr-report-pill-text">
+                <p class="{{ $classNameOfPillText }}">
                     @isset($path)
                         <span>{{$path}} > </span>
                     @endisset
                     {{$answerTitle}}
+                    ({{$intensities[$roundedIntensity]['value']}} - {{$avgIntensity}})
                 </p>
             </div>
         </div>

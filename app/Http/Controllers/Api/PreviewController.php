@@ -44,7 +44,7 @@ class PreviewController extends Controller
             'site_name' => 'TagTaste',
             'deeplink' => $deepLink,
             'modelID' => $modelId,
-            'model' => ucwords($modelName),
+            'modelName' => ucwords($modelName),
             'isShared' => false,
             'shareTypeID' => 0,
             'deepLinkText' => Deeplink::getDeepLinkText($modelName, $modelData)
@@ -85,5 +85,29 @@ class PreviewController extends Controller
         return $this->sendResponse();
     }
 
+    public function showChefProfile(Request $request)
+    {
+        $chefData = \DB::table('constant_variable_model')->where('ui_type',1)->first();
+        $data = json_decode($chefData->data_json);
+        $deepLink = Deeplink::getChefShortLink($chefData);
+        $res = [
+            'title' => $data->title,
+            'image' => $data->image_meta->original_photo,
+            'description' => substr($data->description,0,155).'...',
+            'type' => 'review',
+            'url' => env('APP_URL').'/profile/'.$chefData->model_id,
+            'site_name' => 'TagTaste',
+            'deeplink' => $deepLink,
+            'modelID' => $chefData->model_id,
+            'model' => ucwords($chefData->model_name),
+            'isShared' => false,
+            'shareTypeID' => 0,
+            'deepLinkText' => 'Checkout our '.$data->title.' on TagTaste'
+        ];
+
+        $this->model = $res;
+
+        return $this->sendResponse();
+    }
 }
 

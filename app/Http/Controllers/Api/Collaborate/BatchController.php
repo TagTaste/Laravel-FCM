@@ -1564,7 +1564,7 @@ class BatchController extends Controller
         file_put_contents($name,$pdf);
         $s3 = \Storage::disk('s3');
         $resp = $s3->putFile($relativePath, new File($name), ['visibility'=>'public']);
-        $this->model =   \Storage::url($resp);
+        $this->model = \Storage::url($resp);
         return $this->sendResponse();
     }
 

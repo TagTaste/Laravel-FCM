@@ -44,11 +44,11 @@ class Share extends Command
             }
         });
         
-        \App\Shareable\Job::chunk(200,function($shares){
-            foreach($shares as $share){
-                $share->addToCache();
-            }
-        });
+        // \App\Shareable\Job::chunk(200,function($shares){
+        //     foreach($shares as $share){
+        //         $share->addToCache();
+        //     }
+        // });
         
         \App\Shareable\Photo::chunk(200,function($shares){
             foreach($shares as $share){
@@ -56,14 +56,28 @@ class Share extends Command
             }
         });
         
-        \App\Shareable\Recipe::chunk(200,function($shares){
+        // \App\Shareable\Recipe::chunk(200,function($shares){
+        //     foreach($shares as $share){
+        //         $share->addToCache();
+        //     }
+        // });
+    
+        \App\Shareable\Shoutout::chunk(200,function($shares){
             foreach($shares as $share){
                 $share->addToCache();
             }
         });
-    
-        \App\Shareable\Shoutout::chunk(200,function($shares){
+
+        \App\Shareable\Product::chunk(200,function($shares){
             foreach($shares as $share){
+                echo "caching shared:product:".$share->id." \n";
+                $share->addToCache();
+            }
+        });
+
+        \App\Shareable\Polling::chunk(200,function($shares){
+            foreach($shares as $share){
+                echo "caching shared:polling:".$share->id." \n";
                 $share->addToCache();
             }
         });

@@ -330,6 +330,7 @@ class PublicReviewProductController extends Controller
                 $products = $this->model['product'];
                 $this->model = [];
                 foreach($products as $product){
+                    $product =  \App\PublicReviewProduct::where('id',$product['id'])->first();
                     $meta = $product->getMetaFor($profileId);
                     $this->model[] = ['product'=>$product,'meta'=>$meta];
                 }
@@ -548,6 +549,25 @@ class PublicReviewProductController extends Controller
         }
         $this->model = \DB::table('public_review_global_nested_option')->insert($data);
         return $this->sendResponse();
+    }
+
+    private function logSlack($message)
+    {
+        \Log::warning($message);
+        $client =  new \GuzzleHttp\Client();
+        $hook = env('SLACK_HOOK');
+        if($hook){
+            $client->request('POST', $hook,
+                [
+                    'json' =>
+                        [
+                            "channel" => env('SLACK_CHANNEL'),
+                            "username" => "ramukaka",
+                            "icon_emoji" => ":older_man::skin-tone-3:",
+                            "text" => $message]
+                ]);
+
+        }
     }
 
 }

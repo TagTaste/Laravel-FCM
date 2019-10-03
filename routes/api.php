@@ -46,6 +46,7 @@ Route::post('login',function(Request $request) {
 });
 
 Route::get('social/login/{provider}', 'Auth\LoginController@handleProviderCallback');
+Route::get('/cities', 'Auth\LoginController@getCities');
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
@@ -59,6 +60,7 @@ Route::get("/public/seeall/{modelName}",'PublicViewController@seeall');
 Route::get('public/{modelName}/{modelId}','PublicViewController@modelView');
 Route::get('public/similar/{modelName}/{modelId}','PublicViewController@similarModelView');
 Route::get('public/{modelName}/{modelId}/shared/{shareId}','PublicViewController@modelSharedView');
+Route::get('preview/chefOfTheWeek', 'Api\PreviewController@showChefProfile');
 
 // faq question answer api
 Route::get('categoriesQuestionAnswer/{id}','FaqsController@categoriesQuestionAnswer');
@@ -118,7 +120,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post('/logout','UserController@logout');
         Route::post('/user/verify/phone','UserController@phoneVerify');
 
-        Route::post('/user/requestOtp','UserController@requestOtp');
+                            Route::post('/user/requestOtp','UserController@requestOtp');
 
         /**
          * Route to update user invite code, this roiute will be mostly used by the admin dashboard
@@ -130,6 +132,13 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::group(['namespace'=>'V2','prefix'=>'v2/','as'=>'v2.'],function() {
             //multiple photos api
             Route::resource("photos","PhotoController");
+            //namespace profile
+            Route::group(['namespace'=>'Profile','prefix'=>'profiles/{profileId}','as'=>'profile.','middleware'=>'api.checkProfile'], function() {
+                //namespace company - Checks for company admin
+                Route::group(['namespace'=>'Company','prefix'=>'companies/{companyId}','as'=>'companies.','middleware'=>'api.CheckCompanyAdmin'],function(){
+                    Route::resource("users","UserController");
+                });
+            });
         });
 
         Route::group(['namespace'=>'V1','prefix'=>'v1/','as'=>'v1.'], function() {
@@ -650,7 +659,6 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
         Route::post("/preview",function(Request $request){
             $url = $request->input('url');
             $tags = \App\Preview::get($url);
-
             return response()->json(['data'=>$tags,'errors'=>[],'messages'=>null]);
         });
 

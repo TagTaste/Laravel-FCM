@@ -1,25 +1,24 @@
 <?php
 
-namespace App\Console\Commands\Build\Cache;
+namespace App\Console\Commands;
 
-use App\Collaborate;
 use Illuminate\Console\Command;
 
-class Polling extends Command
+class DispatchJob extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'build:cache:polling';
+    protected $signature = 'job:dispatch {job}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'rebuild jobs cache';
+    protected $description = 'Dispatch job';
 
     /**
      * Create a new command instance.
@@ -38,10 +37,8 @@ class Polling extends Command
      */
     public function handle()
     {
-        \App\Polling::chunk(200,function($models){
-            foreach($models as $model){
-                $model->addToCache();
-            }
-        });
+        //
+        $class = '\\App\\Jobs\\' . $this->argument('job');
+        dispatch(new $class());
     }
 }

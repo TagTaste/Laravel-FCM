@@ -49,12 +49,16 @@ class PhotoController extends Controller
         $randnum = rand(10,1000);
         $response['original_photo'] = \Storage::url($request->file('image')->storeAs($path."/original/$randnum",$imageName,['visibility'=>'public']));
         //create a tiny image
-        $path = $path."/tiny/$randnum" . str_random(20) . ".jpg";
-        $thumbnail = \Image::make($request->file('image'))->resize(50, null,function ($constraint) {
-            $constraint->aspectRatio();
-        })->blur(1)->stream('jpg',70);
-        \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
-        $response['tiny_photo'] = \Storage::url($path);
+        try{
+            $path = $path."/tiny/$randnum" . str_random(20) . ".jpg";
+            $thumbnail = \Image::make($request->file('image'))->resize(50, null,function ($constraint) {
+                $constraint->aspectRatio();
+            })->blur(1)->stream('jpg',70);
+            \Storage::disk('s3')->put($path, (string) $thumbnail,['visibility'=>'public']);
+            $response['tiny_photo'] = \Storage::url($path);
+        } catch (\Exception $e){
+            $response['tiny_photo'] = $response['original_photo'];
+        }
         $meta = getimagesize($request->input('image'));
         $response['meta']['width'] = $meta[0];
         $response['meta']['height'] = $meta[1];

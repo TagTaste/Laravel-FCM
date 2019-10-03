@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DispatchJob;
 use App\Console\Commands\AddHandle;
 use App\Console\Commands\AddSuggestionData;
 use App\Console\Commands\BackupDatabase;
@@ -16,6 +17,7 @@ use App\Console\Commands\Build\Cache\PublicReviewProduct;
 use App\Console\Commands\Build\Cache\Recipe;
 use App\Console\Commands\Build\Cache\Share;
 use App\Console\Commands\Build\Cache\Shoutout;
+use App\Console\Commands\Build\Cache\Polling;
 use App\Console\Commands\CapitalizeExpertise;
 use App\Console\Commands\ChatMergeMessage;
 use App\Console\Commands\CloseCollaborate;
@@ -28,6 +30,7 @@ use App\Console\Commands\ExpirePolling;
 use App\Console\Commands\FixCollaborateImage;
 use App\Console\Commands\GenerateThumbnails;
 use App\Console\Commands\InsertPublicReviewQuestionair;
+use App\Console\Commands\InsertPublicReviewQuestionair1;
 use App\Console\Commands\ProfileDelete;
 use App\Console\Commands\ProgressiveImage;
 use App\Console\Commands\RegisterCompanyFromGoogle;
@@ -68,6 +71,7 @@ class Kernel extends ConsoleKernel
         Share::class,
         SettingChanges::class,
         PublicReviewProduct::class,
+        Polling::class,
         //Rebuild Search
         \App\Console\Commands\Build\Search\Collaboration::class,
         \App\Console\Commands\Build\Search\Company::class,
@@ -206,6 +210,7 @@ class Kernel extends ConsoleKernel
         RemoveDuplicateFromReviewTable::class,
 
         InsertPublicReviewQuestionair::class,
+        InsertPublicReviewQuestionair1::class,
 
 
         //Progressive image
@@ -213,7 +218,9 @@ class Kernel extends ConsoleKernel
 
 
         //update social connection
-        SocialConnectedAddFlag::class
+        SocialConnectedAddFlag::class,
+
+        DispatchJob::class
 
     ];
 
@@ -232,8 +239,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('expires_on:polling')->dailyAt('12:00');
 
 
-        $schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
-        //$schedule->command('follow:company')->dailyAt('23:00');
+        //$schedule->command('backup:db')->withoutOverlapping(15)->dailyAt('00:00');
+        //$schedule->command('follow:company')->weekly()->wednesdays()->at('00:00');;
         //$schedule->command('ServiceInterruptionMail')->dailyAt('18:20');
 
         //command for redis store suggestion

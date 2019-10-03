@@ -61,12 +61,21 @@
         font-family: Helvetica Neue, Arial;
     }
     .pr-report-pill-text {
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 500;
         color: #70080c;
         margin-bottom: 0;
         font-family: Helvetica Neue, Arial;
     }
+
+    .pr-report-pill-text--small {
+        font-size: 12px;
+        font-weight: 500;
+        color: #70080c;
+        margin-bottom: 0;
+        font-family: Helvetica Neue, Arial;
+    }
+
     .pr-report-sub-question {
         padding-left: 15px;
         margin-bottom: 10px;
