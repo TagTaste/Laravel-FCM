@@ -263,9 +263,12 @@ class PublicReviewProductController extends Controller
         $params = [
             'index' => "api",
             'body' => [
+                "from" => 0, "size" => 1000,
                 'query' => [
                     'query_string' => [
-                        'query' => $query
+                        'query' => '*'.$query.'*',
+                        'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
+
                     ]
                 ]
             ]
@@ -277,8 +280,42 @@ class PublicReviewProductController extends Controller
         $client = SearchClient::get();
 
         $response = $client->search($params);
-        $this->model = [];
+        if($response['hits']['total']['value'] == 0) {
+            $originalQuery = explode(' ' ,$query);
+            $originalQuery = $originalQuery[0];
+            $originalQuery = str_split($originalQuery);
+            $temp = '';
+            $search = '';
+            $len = strlen($query)-1;
+            for($i=0;$i<$len;$i++) {
+                $temp = $temp.''.$originalQuery[$i];
+                if ($i == $len-1) {
+                    $search = '('.$temp.'*)'.$search;
+                } else {
+                    $search = ' OR ('.$temp.'*)'.$search;
+                }
+            }
+            $params = [
+                'index' => "api",
+                'body' => [
+                    "from" => 0, "size" => 1000,
+                    'query' => [
+                        'query_string' => [
+                            'query' => $search,
+                            'fields'=>['name^3','brand_name^2','company_name^2','productCategory','subCategory']
+                        ]
+                    ]
+                ]
+            ];
+            if($type){
+                $params['type'] = $type;
+            }
+            $client = SearchClient::get();
 
+            $response = $client->search($params);
+        }
+        $this->model = [];
+        //return $response;
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
 
@@ -306,8 +343,11 @@ class PublicReviewProductController extends Controller
                 $products = $this->model['product'];
                 $this->model = [];
                 foreach($products as $product){
-                    $meta = $product->getMetaFor($profileId);
-                    $this->model[] = ['product'=>$product,'meta'=>$meta];
+                    if($product!=null) {
+                        $meta = $product->getMetaFor($profileId);
+                        $this->model[] = ['product'=>$product,'meta'=>$meta];
+                    }
+
                 }
             }
             return $this->sendResponse();
@@ -357,13 +397,22 @@ class PublicReviewProductController extends Controller
             return $model::whereIn('id',$ids)->whereNull('deleted_at')->where('is_active',1)->get();
 
         }
-        $model = $model::whereIn('id',$ids)->whereNull('deleted_at')->where('is_active',1);
-
-        if(null !== $skip && null !== $take){
-            $model = $model->skip($skip)->take($take);
+        $c = 0;
+        $m=[];
+        foreach ($ids as $id) {
+            if($c>=$skip and $c<$skip+$take) {
+                $m[] = $model::where('id',$id)->whereNull('deleted_at')->where('is_active',1)->first();
+            } else if($c>$skip+$take) {
+                break;
+            }
+            $c++;
         }
 
-        return $model->get();
+
+//        if(null !== $skip && null !== $take){
+//            $model = $model->skip($skip)->take($take);
+//        }
+        return $m;
 
 
     }
@@ -372,17 +421,17 @@ class PublicReviewProductController extends Controller
     {
 
         $suggestions = [];
-        $products = \DB::table('public_review_products')->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
-            ->orWhere('company_name', 'like','%'.$term.'%')->orWhere('description', 'like','%'.$term.'%')->where('is_active',1)
-            ->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
-            ->take($take)->get();
-
-        if(count($products)){
-            foreach($products as $product){
-                $product->type = "product";
-                $suggestions[] = (array) $product;
-            }
-        }
+//        $products = \DB::table('public_review_products')->where('name', 'like','%'.$term.'%')->orWhere('brand_name', 'like','%'.$term.'%')
+//            ->orWhere('company_name', 'like','%'.$term.'%')->orWhere('description', 'like','%'.$term.'%')->where('is_active',1)
+//            ->whereNull('deleted_at')->orderBy('name','asc')->skip($skip)
+//            ->take($take)->get();
+//
+//        if(count($products)){
+//            foreach($products as $product){
+//                $product->type = "product";
+//                $suggestions[] = (array) $product;
+//            }
+//        }
         return $suggestions;
     }
 

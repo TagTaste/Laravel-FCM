@@ -101,7 +101,7 @@ class PreviewController extends Controller
             'title' => $data->title,
             'image' => $data->image_meta->original_photo,
             'description' => substr($data->description,0,155).'...',
-            'type' => 'article',
+            'type' => 'review',
             'url' => env('APP_URL').'/profile/'.$chefData->model_id,
             'site_name' => 'TagTaste',
             'deeplink' => $deepLink,
