@@ -67,6 +67,116 @@ class ReviewController extends Controller
     }
 
     /**
+     * Display a listing of the resource filter.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function filter(Request $request, $productId)
+    {
+        $product = PublicReviewProduct::where('id',$productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Product is not available");
+        }
+
+        // paginate
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
+        $take = 5;
+        $skip = ($page - 1) * 5;
+
+        // sorting
+        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
+        $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
+
+        // gender
+        $gender = $request->input('gender');
+
+        // ageRange
+        $ageRange = $request->input('ageRange');
+
+        $replacements = array(
+            '&lt;18' => '< 18',
+            '18-35' => '18 - 35',
+            '35-55' => '35 - 55',
+            '55-70' => '55 - 70',
+            '&gt;70' => '> 70'
+        );
+        foreach ($ageRange as $key => $value) {
+            if (isset($replacements[$value])) {
+                $ageRange[$key] = $replacements[$value];
+            }
+        }
+
+        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+            ->where('select_type',5);
+
+        if($request->has('rating_low'))
+            $this->model = $this->model->orderBy('leaf_id', 'ASC')->get();
+        else if($request->has('rating_high'))
+            $this->model = $this->model->orderBy('leaf_id', 'DESC')->get();
+        else
+            $this->model = $this->model->orderBy('updated_at',$sortBy)->get();
+
+        $final_data = [];
+
+        foreach ($this->model as $key => $value) {
+            if (!is_null($gender) && in_array($value->profile->gender, $gender) && !is_null($ageRange) && in_array($value->profile->ageRange, $ageRange)) {
+                $final_data[] = $value->toArray();
+            } else if (!is_null($gender) && in_array($value->profile->gender, $gender) && is_null($ageRange)) {
+                 $final_data[] = $value->toArray();
+            } else if (is_null($gender) && !is_null($ageRange) && in_array($value->profile->ageRange, $ageRange)) {
+                $final_data[] = $value->toArray();
+            } else if (is_null($gender) && is_null($ageRange)) {
+                $final_data[] = $value->toArray();
+            }
+        }
+        $this->model = array_splice($final_data,$skip,$take);
+        return $this->sendResponse();
+    }
+
+    /**
+     * Display a listing of the resource foodshot.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function foodShot(Request $request,$productId)
+    {
+        $product = PublicReviewProduct::where('id',$productId)->first();
+        if($product == null)
+        {
+            return $this->sendError("Product is not available");
+        }
+        //paginate
+        $page = $request->input('page') ? intval($request->input('page')) : 1;
+        $page = $page == 0 ? 1 : $page;
+        $take = 5;
+        $skip = ($page - 1) * 5;
+        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
+        $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
+        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+        $food_shots = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+            ->where('select_type',5)
+            ->orderBy('updated_at',$sortBy)
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        
+        $this->model = [];
+
+        if (count($food_shots)) {
+            $food_shots = $food_shots->toArray();
+            foreach ($food_shots as $key => $food_shot) {
+                if (!is_null($food_shot['meta'])) {
+                    $this->model[] = $food_shot;
+                }
+            }
+        }
+        return $this->sendResponse();
+    }
+    
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -194,14 +304,13 @@ class ReviewController extends Controller
     public function comments(Request $request,$productId,$reviewId)
     {
         $model = $this->model->where('id',$reviewId)->where('product_id',$productId)->first();
-        if($model == null)
-        {
+        if ($model == null) {
             $this->model = [];
             return $this->sendError("review is not available");
         }
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
-        $this->model = [];
+        $this->model = $model;
         $this->model['comments'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
         $this->model['next_page'] = $page > 1 ? $page - 1 : null;
         $this->model['count'] = $model->comments()->count();
