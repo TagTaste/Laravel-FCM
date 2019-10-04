@@ -425,6 +425,8 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             //get review
             Route::get("reviews/{id}","ReviewController@show");
             Route::get("reviews","ReviewController@index");
+            Route::get("reviews-filter","ReviewController@filter");
+            Route::get("food-shot","ReviewController@foodShot");
         });
 
         Route::post('products/suggestion','PublicReviewProductController@productSuggestion');
