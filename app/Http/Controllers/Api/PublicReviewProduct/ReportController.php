@@ -311,12 +311,19 @@ class ReportController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
+                    $answers = \DB::table('public_product_user_review')->select('id','leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','option_type','id')->get();
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
+                        if($answer->option_type == 1) {
+                            $answer->value = 'Any other';
+                        } else if ($answer->option_type == 2) {
+                            $answer->value = 'None';
+                        } else {
+                            $answer->value = \DB::table('public_product_user_review')->select('value')->where('id',$answer->id)->get();
+                        }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
                         {
