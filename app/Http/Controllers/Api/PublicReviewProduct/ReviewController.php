@@ -83,7 +83,7 @@ class ReviewController extends Controller
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $take = 5;
-        $skip = ($page - 1) * 5;
+        $skip = ($page - 1) * $take;
 
         // sorting
         $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
@@ -132,7 +132,7 @@ class ReviewController extends Controller
                 $final_data[] = $value->toArray();
             }
         }
-        $this->model = array_splice($final_data,$skip,$take);
+        $this->model = array_splice($final_data, $skip, $take);
         return $this->sendResponse();
     }
 
@@ -152,27 +152,26 @@ class ReviewController extends Controller
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $take = 5;
-        $skip = ($page - 1) * 5;
+        $skip = ($page - 1) * $take;
         $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
         $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
         $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
         $food_shots = $this->model->where('product_id',$productId)->where('header_id',$header->id)
             ->where('select_type',5)
             ->orderBy('updated_at',$sortBy)
-            ->skip($skip)
-            ->take($take)
             ->get();
         
-        $this->model = [];
+        $final_data = [];
 
         if (count($food_shots)) {
             $food_shots = $food_shots->toArray();
             foreach ($food_shots as $key => $food_shot) {
                 if (!is_null($food_shot['meta'])) {
-                    $this->model[] = $food_shot;
+                    $final_data[] = $food_shot;
                 }
             }
         }
+        $this->model = array_splice($final_data, $skip, $take);
         return $this->sendResponse();
     }
     
