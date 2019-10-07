@@ -174,6 +174,42 @@ class ReviewController extends Controller
         $this->model = array_splice($final_data, $skip, $take);
         return $this->sendResponse();
     }
+
+     /**
+     * Display a listing of the resource foodshot.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function reviewFilter(Request $request, $productId)
+    {
+        $filters = [];
+
+        $filters['ageRange'] = [
+            "title" => "Age",
+            "key" => "ageRange",
+            "values" => [
+                '<18' => "Below 18", 
+                '18-35' => "18 - 35", 
+                '35-55' => "35 - 55", 
+                '55-70' => "55 - 70", 
+                '>70' => "70+"
+            ],
+        ];
+
+        $filters['gender'] = [
+            "title" => "Gender",
+            "key" => "gender",
+            "values" => [
+                'Male' => "Male", 
+                'Female' => "Female", 
+                'Other' => "Other"
+            ],
+        ];
+
+        $this->model = $filters;
+
+        return $this->sendResponse();
+    }
     
     /**
      * Show the form for creating a new resource.
