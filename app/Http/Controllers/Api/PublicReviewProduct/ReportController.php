@@ -228,13 +228,20 @@ class ReportController extends Controller
                         $subReports['select_type'] = isset($item->questions->select_type) ? $item->questions->select_type : null;
                         $subReports['total_answers'] = \DB::table('public_product_user_review')->where('current_status',2)->where('product_id',$productId)
                             ->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
+                        $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type','id')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                             ->where('product_id',$productId)->where('question_id',$item->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','id')->get();
                         $options = isset($item->option) ? $item->option : [];
 
                         foreach ($answers as &$answer)
                         {
+                            if($answer->option_type == 1) {
+                                $answer->value = 'Any other';
+                            } else if ($answer->option_type == 2) {
+                                $answer->value = 'None';
+                            } else {
+                                $answer->value = \DB::table('public_product_user_review')->select('value')->where('id',$answer->id)->get();
+                            }
                             $value = [];
                             foreach ($options as $option)
                             {

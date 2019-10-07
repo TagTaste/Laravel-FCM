@@ -291,11 +291,12 @@ class ReviewController extends Controller
                     }
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
+                    $option_type = isset($option['option_type']) ? $option['option_type'] : 0;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,
                         'current_status'=>$currentStatus,'value_id'=>$valueId,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null,'option_type'=>$option_type];
                 }
                 if(isset($answer['meta']) && !is_null($answer['meta']) && !empty($answer['meta']))
                 {

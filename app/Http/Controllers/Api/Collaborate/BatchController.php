@@ -469,9 +469,9 @@ class BatchController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type','id')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','id')->get();
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
@@ -480,7 +480,7 @@ class BatchController extends Controller
                         } else if ($answer->option_type == 2) {
                             $answer->value = 'None';
                         } else {
-                            $answer->value = \DB::table('collaborate_tasting_user_review')->select('value')->where('id',$answer->leaf_id)->get();
+                            $answer->value = \DB::table('collaborate_tasting_user_review')->select('value')->where('id',$answer->id)->get();
                         }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))

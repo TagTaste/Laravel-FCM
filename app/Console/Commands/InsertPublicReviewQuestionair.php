@@ -3958,9 +3958,16 @@ class InsertPublicReviewQuestionair extends Command
                         foreach($value as $v){
                             if(is_null($v) || empty($v))
                                 continue;
+                            if($v == 'Any other' || $v == 'any other')
+                                $option_type = 1;
+                            else if($v == 'none' || $v == 'None')
+                                $option_type = 2;
+                            else
+                                $option_type = 0;
                             $option[] = [
                                 'id' => $i,
-                                'value' => $v
+                                'value' => $v,
+                                'option_type' => $option_type
                             ];
                             $i++;
                         }
@@ -3974,13 +3981,20 @@ class InsertPublicReviewQuestionair extends Command
                             {
                                 continue;
                             }
+                            if($v['value'] == 'Any other' || $v['value'] == 'any other')
+                                $option_type = 1;
+                            else if($v['value'] == 'none' || $v['value'] == 'None')
+                                $option_type = 2;
+                            else
+                                $option_type = 0;
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
                                 'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
-                                'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
+                                'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
+                                'option_type'=>$option_type
                             ];
                             $i++;
                         }
@@ -3994,9 +4008,16 @@ class InsertPublicReviewQuestionair extends Command
                     foreach($value as $v){
                         if(is_null($v) || empty($v))
                             continue;
+                        if($v == 'Any other' || $v == 'any other')
+                            $option_type = 1;
+                        else if($v == 'none' || $v == 'None')
+                            $option_type = 2;
+                        else
+                            $option_type = 0;
                         $option[] = [
                             'id' => $i,
-                            'value' => $v
+                            'value' => $v,
+                            'option_type'=>$option_type
                         ];
                         $i++;
                     }
@@ -4026,8 +4047,9 @@ class InsertPublicReviewQuestionair extends Command
                             {
                                 $parentId = $nested->parent_id == 0 ? null : $nested->parent_id;
                                 $description = isset($nested->description) ? $nested->description : null;
+                                $option_type = isset($nested->option_type) ? $nested->option_type : 0;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
-                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity];
+                                    'is_active'=>1, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,'description'=>$description,'is_intensity'=>$nested->is_intensity, 'option_type'=>$option_type];
                             }
                         }
                         else if(isset($nestedOption->nested_option_array))
@@ -4039,7 +4061,7 @@ class InsertPublicReviewQuestionair extends Command
                                 $description = isset($nested->description) ? $nested->description : null;
                                 $extraQuestion[] = ["sequence_id"=>$nested->s_no,'parent_id'=>$parentId,'value'=>$nested->value,'question_id'=>$x->id,
                                     'is_active'=>$nested->is_active, 'global_question_id'=>$globalQuestion->id,'header_id'=>$headerId,
-                                    'description'=>$description,'is_intensity'=>$nested->is_intensity];
+                                    'description'=>$description,'is_intensity'=>$nested->is_intensity,'option_type'=>0];
                             }
                         }
                         else
@@ -4109,9 +4131,16 @@ class InsertPublicReviewQuestionair extends Command
                             foreach($value as $v){
                                 if(is_null($v) || empty($v))
                                     continue;
+                                if($v == 'Any other' || $v == 'any other')
+                                    $option_type = 1;
+                                else if($v == 'none' || $v == 'None')
+                                    $option_type = 2;
+                                else
+                                    $option_type = 0;
                                 $option[] = [
                                     'id' => $i,
-                                    'value' => $v
+                                    'value' => $v,
+                                    'option_type'=>$option_type
                                 ];
                                 $i++;
                             }
@@ -4125,13 +4154,20 @@ class InsertPublicReviewQuestionair extends Command
                                 {
                                     continue;
                                 }
+                                if($v['value'] == 'Any other' || $v['value'] == 'any other')
+                                    $option_type = 1;
+                                else if($v['value'] == 'none' || $v['value'] == 'None')
+                                    $option_type = 2;
+                                else
+                                    $option_type = 0;
                                 $option[] = [
                                     'id' => $i,
                                     'value' => $v['value'],
                                     'colorCode'=> isset($v['color_code']) ? $v['color_code'] : null,
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
-                                    'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null
+                                    'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
+                                    'option_type'=>$option_type
                                 ];
                                 $i++;
                             }
@@ -4144,9 +4180,16 @@ class InsertPublicReviewQuestionair extends Command
                         foreach ($value as $v) {
                             if (is_null($v) || empty($v))
                                 continue;
+                            if($v == 'Any other' || $v == 'any other')
+                                $option_type = 1;
+                            else if($v == 'none' || $v == 'None')
+                                $option_type = 2;
+                            else
+                                $option_type = 0;
                             $option[] = [
                                 'id' => $i,
-                                'value' => $v
+                                'value' => $v,
+                                'option_type'=>$option_type
                             ];
                             $i++;
                         }
@@ -4164,10 +4207,5 @@ class InsertPublicReviewQuestionair extends Command
                 }
             }
         }
-
-
-
-
-
     }
 }
