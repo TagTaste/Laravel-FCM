@@ -346,7 +346,7 @@ class ReviewController extends Controller
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $this->model = [];
-        $this->model['data'] = $model;
+        $this->model = $model->toArray();
         $this->model['comments'] = $model->comments()->orderBy('created_at','desc')->skip(($page - 1) * 10)->take(10)->get();
         $this->model['next_page'] = $page > 1 ? $page - 1 : null;
         $this->model['count'] = $model->comments()->count();
