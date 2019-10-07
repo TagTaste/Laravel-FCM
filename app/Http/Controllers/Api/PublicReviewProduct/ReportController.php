@@ -313,7 +313,7 @@ class ReportController extends Controller
                 {
                     $answers = \DB::table('public_product_user_review')->select('id','leaf_id',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('leaf_id','question_id','value','option_type','id')->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('leaf_id','question_id','option_type','id')->get();
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
@@ -322,7 +322,7 @@ class ReportController extends Controller
                         } else if ($answer->option_type == 2) {
                             $answer->value = 'None';
                         } else {
-                            $answer->value = \DB::table('public_product_user_review')->select('value')->where('id',$answer->id)->first()['value'];
+                            $answer->value = \DB::table('public_product_user_review')->select('value')->where('id',$answer->id)->first()->value;
                         }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
