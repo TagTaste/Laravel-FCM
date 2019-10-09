@@ -54,16 +54,9 @@ class Shoutout extends Model implements Feedable
 
     }
 
-    public function addToCacheV2(){
-        $data = $this->makeHidden(
-            [
-                'privacy',
-                'owner',
-                'privacy_id', 
-                'payload_id',
-                'mediaJson'
-            ]
-        )->toArray();
+    public function addToCacheV2()
+    {
+        $data = \App\V2\Shoutout::find($this->id)->toArray();
         foreach ($data as $key => $value) {
             if (is_null($value) || $value == '')
                 unset($data[$key]);
