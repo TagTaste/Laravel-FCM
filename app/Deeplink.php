@@ -166,7 +166,7 @@ class Deeplink
             switch ($modelName) {
                 case 'photo':       return env('APP_URL')."/feed/view/photo/$modelId";
                 case 'shoutout':    return env('APP_URL')."/feed/view/shoutout/$modelId";
-                case 'collaborate': return env('APP_URL')."/feed/view/collaborate/$modelId";
+                case 'collaborate': return env('APP_URL')."/collaborate/$modelId";
                 case 'job':         return env('APP_URL')."/feed/view/jobs/$modelId";
                 case 'recipe':      return env('APP_URL')."/recipe/$modelId";
                 case 'profile':     return env('APP_URL')."/profile/$modelId";
