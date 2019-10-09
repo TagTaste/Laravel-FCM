@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\FacadesRedis;
+use Illuminate\Support\Facades\Redis;
 
 class Profile extends Model
 {
