@@ -185,12 +185,7 @@ class Company extends Model
 
     public function addToCacheV2()
     {
-        $data = [
-            'id' => $this->id,
-            'profile_id' => $this->profileId,
-            'name' => $this->name,
-            'logo_meta' => $this->logo_meta
-        ];
+        $data = \App\V2\Company::find($this->id)->toArray();
         Redis::connection('V2')->set("company:small:".$this->id.":V2",json_encode($data));
     }
 

@@ -134,6 +134,7 @@ Route::group(['namespace'=>'Api', 'as' => 'api.' ], function() {
             Route::resource("photos","PhotoController");
             Route::resource("shoutout",'ShoutoutController');
             Route::resource("polling","PollingController");
+            Route::resource("collaborate","CollaborateController");
             Route::get("share/{modelName}/{id}/{modelId}",'ShareController@show');
             Route::get("feed","FeedController@feed");
             Route::get("feed/{modelName}/{modelId}/{device}/{interactionTypeId}","FeedController@feedInteraction");
