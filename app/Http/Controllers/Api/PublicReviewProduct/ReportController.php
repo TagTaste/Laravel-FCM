@@ -149,14 +149,10 @@ class ReportController extends Controller
             return $this->sendError("Invalid product.");
         }
         $this->model = \DB::table('public_product_user_review')
-            ->select('id','value','leaf_id',\DB::raw('count(*) as total'),'option_type')
-            ->selectRaw("GROUP_CONCAT(intensity) as intensity")
-            ->where('current_status',2)
-            ->where('option_type')
+            ->select('id','value','leaf_id','intensity')
+            ->where('option_type',1)
             ->where('product_id',$productId)
             ->where('question_id',$questionId)
-            ->orderBy('question_id','ASC')
-            ->groupBy('value','leaf_id','question_id','option_type','id')
             ->get();
         return $this->sendResponse();
     }
