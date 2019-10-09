@@ -109,6 +109,12 @@ class Profile extends Model
             \App\Documents\Profile::create($profile);
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
+            $profile->addToGraph();
+            $profile->addUserDob();
+            $profile->addUserCuisine();
+            $profile->addUserFoodieType();
+            $profile->addUserSpecialization();
             event(new SuggestionEngineEvent($profile, 'create'));
 
         });
@@ -116,6 +122,12 @@ class Profile extends Model
         self::updated(function (Profile $profile) {
             //bad call inside, would be fixed soon
             $profile->addToCache();
+            $profile->addToCacheV2();
+            $profile->addToGraph();
+            $profile->updateUserDob();
+            $profile->updateUserCuisine();
+            $profile->updateUserFoodieType();
+            $profile->updateUserSpecialization();
 
             //this would delete the old document.
             \App\Documents\Profile::create($profile);
@@ -133,17 +145,256 @@ class Profile extends Model
     public function addToCache()
     {
         $smallProfile = \App\Recipe\Profile::find($this->id);
-        \Redis::set("profile:small:" . $this->id, $smallProfile->toJson());
+        Redis::set("profile:small:".$this->id, $smallProfile->toJson());
+    }
+
+    public function addToCacheV2()
+    {
+        $smallProfile = \App\V2\Profile::find($this->id);
+        Redis::set("profile:small:".$this->id.":V2", $smallProfile->toJson());
+    }
+
+    public function addToGraph()
+    {
+        $data = \App\V2\Profile::find($this->id)->toArray();
+        
+        foreach ($data as $key => $value) {
+            if (is_null($value) || $value == '')
+                unset($data[$key]);
+        }
+        
+        if (isset($data['id'])) {
+            $data['profile_id'] = $data['id'];
+        }
+
+        $user = \App\Neo4j\User::where('user_id', (int)$data['user_id'])->first();
+        if (!$user) {
+            \App\Neo4j\User::create($data);
+        } else {
+            unset($data['id']);
+            \App\Neo4j\User::where('user_id', (int)$data['user_id'])->update($data);
+        }
+    }
+
+    public function addUserDob()
+    {
+        if ($this->dob) {
+            $time = strtotime($this->dob);
+            $date = date('d-m',$time);
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            if ($user) {
+                $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
+                $date_type_have_user = $date_type->have->where('user_id', (int)$this->user_id)->first();
+                if (!$date_type_have_user) {
+                    $relation = $date_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $date_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserDob()
+    {
+        $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
+        if (isset($user->dateOfBirth)) {
+            foreach ($user->dateOfBirth as $key => $value) {
+                $detach_result = $value->have()->detach($user);
+            }
+        }
+        if ($this->dob) {
+            $time = strtotime($this->dob);
+            $date = date('d-m',$time);
+            if ($user) {
+                $date_type = \App\Neo4j\DateOfBirth::where('dob', $date)->first();
+                $date_type_have_user = $date_type->have->where('user_id', $this->user_id)->first();
+                if (!$date_type_have_user) {
+                    $relation = $date_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $date_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function addUserCuisine()
+    {
+        if ($this->cuisines->pluck('id') && $this->cuisines->pluck('id')->count()) {
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            foreach ($this->cuisines->pluck('id') as $key => $value) {
+                $cuisine_type = \App\Neo4j\Cuisines::where('cuisine_id', $value)->first();
+                $cuisine_type_have_user = $cuisine_type->have->where('user_id', (int)$this->user_id)->first();
+                if (!$cuisine_type_have_user) {
+                    $relation = $cuisine_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $cuisine_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserCuisine()
+    {
+        $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+        // if (isset($user->cuisines) && $user->cuisines->count()) {
+        //     // $detach_result = $user->dateOfBirth->have()->detach($user);
+        // }
+
+        if ($this->cuisines->pluck('id') && $this->cuisines->pluck('id')->count()) {
+            foreach ($this->cuisines->pluck('id') as $key => $value) {
+                $cuisine_type = \App\Neo4j\Cuisines::where('cuisine_id', $value)->first();
+                $cuisine_type_have_user = $cuisine_type->have->where('user_id', (int)$this->user_id)->first();
+                if (!$cuisine_type_have_user) {
+                    $relation = $cuisine_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $cuisine_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function addUserFoodieType()
+    {
+        if ($this->foodieType && isset($this->foodieType->id)) {
+            $foodie_type_id = $this->foodieType->id;
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            if ($user) {
+                $foodie_type = \App\Neo4j\FoodieType::where('foodie_type_id', $foodie_type_id)->first();
+                $foodie_type_have_user = $foodie_type->have->where('user_id', $this->user_id)->first();
+                if (!$foodie_type_have_user) {
+                    $relation = $foodie_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $foodie_type->have()->edge($user);
+                    $relation->status = 0;
+                    $relation->statusValue = "haven't";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserFoodieType()
+    {
+        $user = \App\Neo4j\User::where('user_id', $this->user_id)->first();
+        if (isset($user->foodieType)) {
+            $detach_result = $user->foodieType->have()->detach($user);
+        }
+
+        if ($this->foodieType && isset($this->foodieType->id)) {
+            $foodie_type_id = $this->foodieType->id;
+            if ($user) {
+                $foodie_type = \App\Neo4j\FoodieType::where('foodie_type_id', $foodie_type_id)->first();
+                $foodie_type_have_user = $foodie_type->have->where('user_id', $this->user_id)->first();
+                if (!$foodie_type_have_user) {
+                    $relation = $foodie_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $foodie_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function addUserSpecialization()
+    {
+        if ($this->profile_specializations->pluck('id') && $this->profile_specializations->pluck('id')->count()) {
+            $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+            foreach ($this->profile_specializations->pluck('id') as $key => $value) {
+                $specialization_type = \App\Neo4j\Specialization::where('specialization_id', $value)->first();
+                $specialization_type_have_user = $specialization_type
+                    ->have
+                    ->where('user_id', (int)$this->user_id)
+                    ->first();
+                if (!$specialization_type_have_user) {
+                    $relation = $specialization_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $specialization_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
+    }
+
+    public function updateUserSpecialization()
+    {
+        $user = \App\Neo4j\User::where('user_id', (int)$this->user_id)->first();
+        // if (isset($user->profile_specializations) && $user->profile_specializations->count()) {
+        //     // $detach_result = $user->profile_specializations->have()->detach($user);
+        // }
+
+        if ($this->profile_specializations->pluck('id') && $this->profile_specializations->pluck('id')->count()) {
+            foreach ($this->profile_specializations->pluck('id') as $key => $value) {
+                $specialization_type = \App\Neo4j\Specialization::where('specialization_id', $value)->first();
+                $specialization_type_have_user = $specialization_type
+                    ->have
+                    ->where('user_id', (int)$this->user_id)
+                    ->first();
+                if (!$specialization_type_have_user) {
+                    $relation = $specialization_type->have()->attach($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                } else {
+                    $relation = $specialization_type->have()->edge($user);
+                    $relation->status = 1;
+                    $relation->statusValue = "have";
+                    $relation->save();
+                }
+            }
+        }
     }
 
     public static function getFromCache($id)
     {
-        return \Redis::get('profile:small:' . $id);
+        return Redis::get('profile:small:' . $id);
+    }
+
+    public static function getFromCacheV2($id)
+    {
+        return Redis::connection('V2')->get('profile:small:' . $id);
     }
 
     public function removeFromCache()
     {
-        return \Redis::del('profile:small:' . $this->id);
+        Redis::connection('V2')->del('profile:small:' . $this->id.":V2");
+        return Redis::del('profile:small:' . $this->id);
     }
 
     public static function getMultipleFromCache($ids = [])
@@ -152,7 +403,7 @@ class Profile extends Model
         foreach ($ids as &$id) {
             $id = $keyPreifx . $id;
         }
-        $profiles = \Redis::mget($ids);
+        $profiles = Redis::mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
@@ -167,23 +418,29 @@ class Profile extends Model
     {
         $keyPreifx = "profile:small:";
         foreach ($ids as &$id) {
-            $id = $keyPreifx . $id;
+            $id = $keyPreifx . $id.":V2";
         }
-        $profiles = Redis::mget($ids);
-        
+        $profiles = Redis::connection('V2')->mget($ids);
         if (count(array_filter($profiles)) == 0) {
             return false;
         }
-        
         foreach ($profiles as $index => &$profile) {
             $data = json_decode($profile);
-            $profile = array(
-                "id" => $data->id,
-                "name" => $data->name,
-                "handle" => $data->handle
-            );
-            
+            if (!is_null($data)) {
+                $profile = array(
+                    "id" => $data->id,
+                    "name" => $data->name,
+                    "handle" => $data->handle
+                );
+            } else {
+                $profile = array(
+                    "id" => 0,
+                    "name" => "",
+                    "handle" => ""
+                );
+            }
         }
+
         return $profiles;
     }
 
@@ -262,7 +519,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->dob_private == 2)
             {
                 return null;
             }
@@ -476,8 +733,8 @@ class Profile extends Model
 
     public function getFollowingProfilesAttribute()
     {
-        $count = \Redis::SCARD("following:profile:".$this->id);
-        if( $count > 0 && \Redis::sIsMember("following:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("following:profile:".$this->id);
+        if( $count > 0 && Redis::sIsMember("following:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -514,8 +771,8 @@ class Profile extends Model
      */
     public function getFollowerProfilesAttribute()
     {
-        $count = \Redis::SCARD("followers:profile:".$this->id);
-        if(\Redis::sIsMember("followers:profile:".$this->id,$this->id)){
+        $count = Redis::SCARD("followers:profile:".$this->id);
+        if(Redis::sIsMember("followers:profile:".$this->id,$this->id)){
             $count = $count - 1;
         }
 
@@ -537,7 +794,7 @@ class Profile extends Model
     {
         if($this->id != request()->user()->profile->id)
         {
-            $profileIds = \Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
+            $profileIds = Redis::SINTER("followers:profile:".$this->id,"followers:profile:".request()->user()->profile->id);
             if(!count($profileIds)){
                 return ['count' => 0, 'profiles' => []];
             }
@@ -552,7 +809,7 @@ class Profile extends Model
             }
             $data = [];
             if(count($profileInfo))
-                $data = \Redis::mget($profileInfo);
+                $data = Redis::mget($profileInfo);
 
             foreach($data as &$profile){
                 $profile = json_decode($profile);
@@ -763,13 +1020,13 @@ class Profile extends Model
 
     public static function isFollowing($profileId, $followerProfileId)
     {
-        return \Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
+        return Redis::sIsMember("following:profile:" . $profileId,$followerProfileId) === 1;
         //return Subscriber::where('profile_id', $followerProfileId)->where("channel_name", 'like', 'network.' . $profileId)->count() === 1;
     }
 
     public function getIsFollowedByAttribute()
     {
-        return \Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
+        return Redis::sIsMember("followers:profile:" . request()->user()->profile->id,$this->id) === 1;
     }
 
     //specific to API
@@ -790,7 +1047,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->address_private == 2)
             {
                 return null;
             }
@@ -810,7 +1067,7 @@ class Profile extends Model
             {
                 return null;
             }
-            if(!\Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
+            if(!Redis::sIsMember("followers:profile:".request()->user()->profile->id,$this->id) && $this->phone_private == 2)
             {
                 return null;
             }
