@@ -92,7 +92,7 @@ class ReportController extends Controller
                     $userCount++;
                 }
             }
-            $headerRating[] = ['header_type'=>$header->header_type,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$header->id)];
+            $headerRating[] = ['header_type'=>$header->header_type,'header_id'=>$header->id,'meta'=>$this->getRatingMeta($userCount,$headerRatingSum,$header->id)];
         }
 
         return $headerRating;
