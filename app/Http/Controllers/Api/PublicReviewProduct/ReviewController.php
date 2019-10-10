@@ -41,45 +41,11 @@ class ReviewController extends Controller
     public function index(Request $request,$productId)
     {
         $product = PublicReviewProduct::where('id',$productId)->first();
-        if($product == null)
-        {
+        if ($product == null) {
             return $this->sendError("Product is not available");
         }
+        
         //paginate
-        $page = $request->input('page') ? intval($request->input('page')) : 1;
-        $page = $page == 0 ? 1 : $page;
-        $take = 5;
-        $skip = ($page - 1) * 5;
-        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : 'DESC';
-        $sortBy = $sortBy == 'DESC' ? 'DESC' : 'ASC';
-        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
-        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
-            ->where('select_type',5);
-
-        if($request->has('rating_low'))
-            $this->model = $this->model->orderBy('leaf_id', 'ASC')->skip($skip)->take($take)->get();
-        else if($request->has('rating_high'))
-            $this->model = $this->model->orderBy('leaf_id', 'DESC')->skip($skip)->take($take)->get();
-        else
-            $this->model = $this->model->orderBy('updated_at',$sortBy)->skip($skip)->take($take)->get();
-
-        return $this->sendResponse();
-    }
-
-    /**
-     * Display a listing of the resource filter.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function filter(Request $request, $productId)
-    {
-        $product = PublicReviewProduct::where('id',$productId)->first();
-        if($product == null)
-        {
-            return $this->sendError("Product is not available");
-        }
-
-        // paginate
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
         $take = 5;
@@ -102,37 +68,55 @@ class ReviewController extends Controller
             '55-70' => '55 - 70',
             '&gt;70' => '> 70'
         );
-        foreach ($ageRange as $key => $value) {
-            if (isset($replacements[$value])) {
-                $ageRange[$key] = $replacements[$value];
-            }
+        if (!is_null($ageRange) && is_array($ageRange)) {
+            foreach ($ageRange as $key => $value) {
+                if (isset($replacements[$value])) {
+                    $ageRange[$key] = $replacements[$value];
+                }
+            } 
         }
+        
+        if (is_null($gender) && is_null($ageRange)) {
+            $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+            $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+                ->where('select_type',5);
 
-        $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
-        $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
-            ->where('select_type',5);
+            if($request->has('rating_low'))
+                $this->model = $this->model->orderBy('leaf_id', 'ASC')->skip($skip)->take($take)->get();
+            else if($request->has('rating_high'))
+                $this->model = $this->model->orderBy('leaf_id', 'DESC')->skip($skip)->take($take)->get();
+            else
+                $this->model = $this->model->orderBy('updated_at',$sortBy)->skip($skip)->take($take)->get();
 
-        if($request->has('rating_low'))
-            $this->model = $this->model->orderBy('leaf_id', 'ASC')->get();
-        else if($request->has('rating_high'))
-            $this->model = $this->model->orderBy('leaf_id', 'DESC')->get();
-        else
-            $this->model = $this->model->orderBy('updated_at',$sortBy)->get();
+            return $this->sendResponse();
+        } else {
+            $header = ReviewHeader::where('global_question_id',$product->global_question_id)->where('header_selection_type',2)->first();
+            $this->model = $this->model->where('product_id',$productId)->where('header_id',$header->id)
+                ->where('select_type',5);
 
-        $final_data = [];
+            if($request->has('rating_low'))
+                $this->model = $this->model->orderBy('leaf_id', 'ASC')->get();
+            else if($request->has('rating_high'))
+                $this->model = $this->model->orderBy('leaf_id', 'DESC')->get();
+            else
+                $this->model = $this->model->orderBy('updated_at',$sortBy)->get();
 
-        foreach ($this->model as $key => $value) {
-            if (!is_null($gender) && in_array($value->profile->gender, $gender) && !is_null($ageRange) && in_array($value->profile->ageRange, $ageRange)) {
-                $final_data[] = $value->toArray();
-            } else if (!is_null($gender) && in_array($value->profile->gender, $gender) && is_null($ageRange)) {
-                 $final_data[] = $value->toArray();
-            } else if (is_null($gender) && !is_null($ageRange) && in_array($value->profile->ageRange, $ageRange)) {
-                $final_data[] = $value->toArray();
-            } else if (is_null($gender) && is_null($ageRange)) {
-                $final_data[] = $value->toArray();
+            $final_data = [];
+
+            foreach ($this->model as $key => $value) {
+                if (!is_null($gender) && in_array($value->profile->gender, $gender) && !is_null($ageRange) && in_array($value->profile->ageRange, $ageRange)) {
+                    $final_data[] = $value->toArray();
+                } else if (!is_null($gender) && in_array($value->profile->gender, $gender) && is_null($ageRange)) {
+                     $final_data[] = $value->toArray();
+                } else if (is_null($gender) && !is_null($ageRange) && in_array($value->profile->ageRange, $ageRange)) {
+                    $final_data[] = $value->toArray();
+                } else if (is_null($gender) && is_null($ageRange)) {
+                    $final_data[] = $value->toArray();
+                }
             }
+            $this->model = array_splice($final_data, $skip, $take);
+            return $this->sendResponse();
         }
-        $this->model = array_splice($final_data, $skip, $take);
         return $this->sendResponse();
     }
 
@@ -144,10 +128,10 @@ class ReviewController extends Controller
     public function foodShot(Request $request,$productId)
     {
         $product = PublicReviewProduct::where('id',$productId)->first();
-        if($product == null)
-        {
+        if ($product == null) {
             return $this->sendError("Product is not available");
         }
+
         //paginate
         $page = $request->input('page') ? intval($request->input('page')) : 1;
         $page = $page == 0 ? 1 : $page;
