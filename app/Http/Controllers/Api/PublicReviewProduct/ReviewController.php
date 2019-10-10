@@ -168,26 +168,50 @@ class ReviewController extends Controller
     {
         $filters = [];
 
-        $filters['ageRange'] = [
+        $filters[] = [
             "title" => "Age",
             "key" => "ageRange",
             "values" => [
-                '<18' => "Below 18", 
-                '18-35' => "18 - 35", 
-                '35-55' => "35 - 55", 
-                '55-70' => "55 - 70", 
-                '>70' => "70+"
+                [
+                    "title" => "Below 18",
+                    "value" => "<18",
+                ],
+                [
+                    "title" => "18 - 35",
+                    "value" => "18-35",
+                ],
+                [
+                    "title" => "35 - 55",
+                    "value" => "35-55",
+                ],
+                [
+                    "title" => "55 - 70",
+                    "value" => "55-70",
+                ],
+                [
+                    "title" => "Above 70",
+                    "value" => ">70",
+                ]
             ],
         ];
 
-        $filters['gender'] = [
+        $filters[] = [
             "title" => "Gender",
             "key" => "gender",
             "values" => [
-                'Male' => "Male", 
-                'Female' => "Female", 
-                'Other' => "Other"
-            ],
+                [
+                    "title" => "Male",
+                    "value" => "Male",
+                ],
+                [
+                    "title" => "Female",
+                    "value" => "Female",
+                ],
+                [
+                    "title" => "Other",
+                    "value" => "Other",
+                ]
+            ]
         ];
 
         $this->model = $filters;
