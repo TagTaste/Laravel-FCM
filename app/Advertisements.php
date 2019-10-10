@@ -37,7 +37,7 @@ class Advertisements extends Model
      */
     public function company()
     {
-        return $this->belongsTo(\App\V2\Company::class, 'company_id');
+        return $this->belongsTo(\App\V2\Company::class);
     }
 
     public function getActualModelAttribute()
