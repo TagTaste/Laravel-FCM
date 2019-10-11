@@ -40,16 +40,37 @@ class CollaborateController extends Controller
     {
         $page = $request->input('page');
         list($skip,$take) = \App\Strategies\Paginator::paginate($page);
-        $collaborations = $this->model->where('profile_id', $profileId)->whereNull('deleted_at')
-            ->whereNull('company_id')->orderBy('created_at', 'desc');
+        $collaborations = $this->model
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc');
 
         $profileId = $request->user()->profile->id;
         $this->model = [];
         $data = [];
+        $type = isset($request->type)?$request->type:null;
+        $state = isset($request->state)?$request->state:null;
+        if($state == 6) {
+            $interestedInCollaboration =  \App\Collaborate\Applicant::where('profile_id',$profileId)->whereNull('company_id')->whereNull('rejected_at')->pluck('collaborate_id');
+            $collaborations = $collaborations->whereIn('id',$interestedInCollaboration);
+        } else if($state != null){
+            $collaborations = $collaborations->where('state',$state)->whereNull('company_id');
+        } else {
+            $collaborations = $collaborations->whereNull('company_id');
+        }
+        if($type == 'collaborate') {
+            $collaborations = $collaborations->where('collaborate_type','collaborate');
+        } else if($type == 'product-review') {
+            $collaborations = $collaborations->where('collaborate_type','product-review');
+        }
+
         $this->model['count'] = $collaborations->count();
+
         $collaborations = $collaborations->skip($skip)->take($take)->get();
         foreach ($collaborations as $collaboration) {
-            $data[] = ['collaboration' => $collaboration, 'meta' => $collaboration->getMetaFor($profileId)];
+            $data[] = [
+                'collaboration' => $collaboration,
+                'meta' => $collaboration->getMetaFor($profileId)
+            ];
         }
         $this->model['collaborations'] = $data;
 //        if($request->has('categories')){
