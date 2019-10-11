@@ -579,8 +579,7 @@ class FeedController extends Controller
         );
 
         $advertisement_random = Advertisements::whereNull('deleted_at')->where('is_active',1)->whereDate('expired_at', '>', Carbon::now())->inRandomOrder()->first();
-
-        if (count($advertisement_random)) {
+        if ($advertisement_random) {
             $advertisement = $advertisement_random->toArray();
             $data = [];
 
