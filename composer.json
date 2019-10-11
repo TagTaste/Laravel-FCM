@@ -24,7 +24,8 @@
         "spatie/laravel-image-optimizer": "^1.1",
         "intervention/image": "^2.4",
         "barryvdh/laravel-dompdf": "^0.8.2",
-        "webpatser/laravel-uuid": "2.*"
+        "webpatser/laravel-uuid": "2.*",
+        "barryvdh/laravel-cors": "0.10.1"
     },
 
     "require-dev": {
