@@ -282,7 +282,15 @@ class ReviewController extends Controller
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
                 if(isset($answer['option'])) {
                     $optionVals = \DB::table('public_review_questions')->where('id',$questionId)->get();
-                    $optionVals = json_decode($optionVals[0]->questions)->option;
+                    $optionVals = json_decode($optionVals[0]->questions);
+                    //$optionVals = isset($optionVals->nested_option_list) ? $optionVals->nested_option_list : isset($optionVals->option) ? $optionVals->option : null;
+                    if(isset($optionVals->nested_option_list)) {
+                        $optionVals = $optionVals->nested_option_list;
+                    } else if (isset($optionVals->option)) {
+                        $optionVals = $optionVals->option;
+                    } else {
+                        $optionVals = null;
+                    }
                 }
                 foreach ($options as $option)
                 {
@@ -292,7 +300,11 @@ class ReviewController extends Controller
                         $this->model = false;
                         return $this->sendError("Leaf id can not null");
                     }
-                    $option_type = isset($optionVals[$leafId-1]->option_type) ? $optionVals[$leafId-1]->option_type : 0;
+                    if($optionVals == "AROMA") {
+                        $option_type = \DB::table('public_review_nested_options')->where('id',$leafId)->select('option_type')->first()->option_type;
+                    } else {
+                        $option_type = isset($optionVals[$leafId-1]->option_type) ? $optionVals[$leafId-1]->option_type : 0;
+                    }
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
