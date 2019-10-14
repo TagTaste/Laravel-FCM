@@ -280,7 +280,10 @@ class ReviewController extends Controller
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
                 $selectType = isset($answer['select_type']) && !is_null($answer['select_type']) ? $answer['select_type'] : null;
-
+                if(isset($answer['option'])) {
+                    $optionVals = \DB::table('public_review_questions')->where('id',$questionId)->get();
+                    $optionVals = json_decode($optionVals[0]->questions)->option;
+                }
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
@@ -289,9 +292,9 @@ class ReviewController extends Controller
                         $this->model = false;
                         return $this->sendError("Leaf id can not null");
                     }
+                    $option_type = isset($optionVals[$leafId-1]->option_type) ? $optionVals[$leafId-1]->option_type : 0;
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
-                    $option_type = isset($option['option_type']) ? $option['option_type'] : 0;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>$intensity,

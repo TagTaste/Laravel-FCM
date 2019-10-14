@@ -246,7 +246,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "None",
 
-
+                    "option_type":2,
 
 					"is_intensity": 0
 
@@ -350,7 +350,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Any other",
 
-
+                    "option_type": 1,
 
 					"is_intensity": 0
 
@@ -439,7 +439,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "None",
 
-
+                    "option_type":2,
 
 					"is_intensity": 0
 
@@ -455,7 +455,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Any other",
 
-
+                    "option_type":1,
 
 					"is_intensity": 0
 
@@ -544,7 +544,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "None",
 
 
-
+                    "option_type":2,
 					"is_intensity": 0
 
 
@@ -560,7 +560,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Any other",
 
 
-
+                    "option_type": 1,
 					"is_intensity": 0
 
 
@@ -806,7 +806,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "Doesn\'t matter",
 
 
-
+                    "option_type": 2,
 					"is_intensity": 0
 
 
@@ -938,7 +938,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "None",
 
 
-
+                    "option_type": 2,
 					"is_intensity": 0
 
 
@@ -1300,7 +1300,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Can\'t Say",
 
-
+                    "option_type": 2,
 
 					"is_intensity": 0
 
@@ -1424,7 +1424,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Any other",
 
-
+                    "option_type": 1,
 
 					"is_intensity": 0
 
@@ -1436,7 +1436,7 @@ class InsertPublicReviewQuestionair extends Command
 
 
 					"value": "None",
-
+                    "option_type": 2,
 
 
 					"is_intensity": 0
@@ -2286,7 +2286,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "No Basic Taste",
 
-
+                    "option_type": 2,
 
 					"is_intensity": 0
 
@@ -2477,7 +2477,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "No Basic Taste / None",
 
 
-
+                    "option_type": 1,
 					"is_intensity": 0
 
 
@@ -2650,7 +2650,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "No Ayurvedic Taste",
 
-
+                    "option_type": 1,
 
 					"is_intensity": 0
 
@@ -2827,7 +2827,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Any other",
 
-
+                    "option_type":1,
 
 					"is_intensity": 0
 
@@ -3007,7 +3007,7 @@ class InsertPublicReviewQuestionair extends Command
 
 						"is_intensity": 1,
 
-
+                    "option_type": 1,
 
 					"intensity_type": 2,
 
@@ -3181,7 +3181,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "Any other",
 
-
+                    "option_type": 1,
 
 					"is_intensity": 0
 
@@ -3365,7 +3365,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
-
+                    "option_type": 1,
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
@@ -3824,7 +3824,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"value": "None",
 
-
+                    "option_type": 2,
 
 					"is_intensity": 0
 
@@ -4024,7 +4024,7 @@ class InsertPublicReviewQuestionair extends Command
 
 					"intensity_type": 2,
 
-
+                    "option_type": 1,
 
 					"intensity_value": "Barely Detectable,Weak,Mild,Moderate,Intense,Very Intense,Extremely Intense"
 
@@ -4037,7 +4037,7 @@ class InsertPublicReviewQuestionair extends Command
 					"value": "None",
 
 
-
+                        "option_type": 2,
 						"is_intensity": 0
 
 
@@ -6638,12 +6638,6 @@ class InsertPublicReviewQuestionair extends Command
                             {
                                 continue;
                             }
-                            if($v['value'] == 'Any other' || $v['value'] == 'any other')
-                                $option_type = 1;
-                            else if($v['value'] == 'none' || $v['value'] == 'None')
-                                $option_type = 2;
-                            else
-                                $option_type = 0;
                             $option[] = [
                                 'id' => $i,
                                 'value' => $v['value'],
@@ -6651,7 +6645,7 @@ class InsertPublicReviewQuestionair extends Command
                                 'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                 'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                 'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                'option_type'=>$option_type
+                                'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
                             ];
                             $i++;
                         }
@@ -6824,7 +6818,7 @@ class InsertPublicReviewQuestionair extends Command
                                     'is_intensity'=>isset($v['is_intensity']) ? $v['is_intensity'] : null,
                                     'intensity_type'=>isset($v['intensity_type']) ? $v['intensity_type'] : null,
                                     'intensity_value'=>isset($v['intensity_value']) ? $v['intensity_value'] : null,
-                                    'option_type'=>$option_type
+                                    'option_type'=>isset($v['option_type']) ? $v['option_type'] : 0
                                 ];
                                 $i++;
                             }

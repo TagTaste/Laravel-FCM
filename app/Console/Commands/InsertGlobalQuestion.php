@@ -209,7 +209,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "None",
 
-
+                    "option_type":2,
 
 					"is_intensity": 0
 
@@ -313,7 +313,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "Any other",
 
-
+                    "option_type":1,
 
 					"is_intensity": 0
 
@@ -402,7 +402,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "None",
 
-
+                    "option_type":2,
 
 					"is_intensity": 0
 
@@ -418,7 +418,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "Any other",
 
-
+                    "option_type":1,
 
 					"is_intensity": 0
 
@@ -506,7 +506,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "None",
 
-
+                    "option_type":2,            
 
 					"is_intensity": 0
 
@@ -768,8 +768,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "Doesn\'t matter",
 
-
-
+                    "option_type":2,
 					"is_intensity": 0
 
 
@@ -900,7 +899,7 @@ class InsertGlobalQuestion extends Command
 
 					"value": "None",
 
-
+                    "option_type":2,
 
 					"is_intensity": 0
 
