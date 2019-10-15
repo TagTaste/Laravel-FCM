@@ -283,7 +283,6 @@ class ReviewController extends Controller
                 if(isset($answer['option'])) {
                     $optionVals = \DB::table('public_review_questions')->where('id',$questionId)->get();
                     $optionVals = json_decode($optionVals[0]->questions);
-                    //$optionVals = isset($optionVals->nested_option_list) ? $optionVals->nested_option_list : isset($optionVals->option) ? $optionVals->option : null;
                     if(isset($optionVals->nested_option_list)) {
                         $optionVals = $optionVals->nested_option_list;
                     } else if (isset($optionVals->option)) {
@@ -319,7 +318,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta']];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>6,'meta'=>$answer['meta'],'option_type'=>0];
                 }
                 if(isset($answer['comment']) && !is_null($answer['comment']) && !empty($answer['comment']))
                 {
@@ -328,7 +327,7 @@ class ReviewController extends Controller
                         'question_id'=>$questionId,'header_id'=>$headerId,
                         'profile_id'=>$loggedInProfileId, 'product_id'=>$productId,'intensity'=>null,
                         'current_status'=>$currentStatus,'value_id'=>null,
-                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null];
+                        'created_at'=>$this->now,'updated_at'=>$this->now,'select_type'=>$selectType,'meta'=>null,'option_type'=>0];
                 }
             }
         }

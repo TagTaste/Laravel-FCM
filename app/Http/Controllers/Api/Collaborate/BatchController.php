@@ -402,7 +402,7 @@ class BatchController extends Controller
                         foreach ($answers as &$answer)
                         {
                             $value = [];
-                            if($answer->option_type == '2') {
+                            if($answer->option_type == '1') {
                                 $answer->value = "Any other";
                             }
                             foreach ($options as $option)

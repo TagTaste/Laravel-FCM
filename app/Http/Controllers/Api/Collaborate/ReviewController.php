@@ -40,7 +40,7 @@ class ReviewController extends Controller
 
         if(!$checkAssign)
         {
-            return $this->sendError("Wrong product assigned");
+            //return $this->sendError("Wrong product assigned");
         }
         $currentStatus = $request->has('current_status') ? $request->input('current_status') : 2;
         $latestCurrentStatus = \Redis::get("current_status:batch:$batchId:profile:$loggedInProfileId");
@@ -57,10 +57,23 @@ class ReviewController extends Controller
             {
                 $options = isset($answer['option']) ? $answer['option'] : [];
                 $questionId = $answer['question_id'];
+                if(isset($answer["option"])) {
+                    $optionVal = \DB::table('collaborate_tasting_questions')->where('id',$questionId)->get();
+                    if(!isset(json_decode($optionVal[0]->questions)->nested_option_list))
+                        $optionVal = json_decode($optionVal[0]->questions)->option;
+                    else
+                        $optionVal = "AROMA";
+
+                }
                 foreach ($options as $option)
                 {
                     $leafId = isset($option['id']) && $option['id'] != 0 ? $option['id'] : null;
-                    $optionType = isset($option['option_type'])? $option['option_type'] : 0;
+                    if($optionVal=='AROMA') {
+                        $optionType = \DB::table('collaborate_tasting_nested_options')->where('id',$leafId)->first()->option_type;
+                    } else {
+                        $optionType = isset($optionVal[$leafId-1]->option_type) ? $optionVal[$leafId-1]->option_type : 0;
+                    }
+                    //$optionType = isset($option['option_type'])? $option['option_type'] : 0;
                     $valueId = isset($option['value_id']) && $option['value_id'] != 0 ? $option['id'] : null;
                     $intensity = isset($option['intensity']) && !is_null($option['intensity']) && !empty($option['intensity']) ? $option['intensity'] : null;
                     $data[] = ['key'=>null,'value'=>$option['value'],'leaf_id'=>$leafId,
