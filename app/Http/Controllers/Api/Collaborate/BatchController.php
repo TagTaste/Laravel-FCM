@@ -1756,15 +1756,22 @@ class BatchController extends Controller
         else if($collaborate->profile_id != $profileId){
             return $this->sendError("Invalid Collaboration Project.");
         }
-
-        $answers = \DB::table('collaborate_tasting_user_review')
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
+        $this->model = \DB::table('collaborate_tasting_user_review')
             ->select('value','intensity',\DB::raw('count(*) as total'))
             ->where('collaborate_id',$collaborateId)
             ->where('question_id',$questionId)
             ->where('option_type',1)
             ->where('current_status',3)
-            ->groupBy('value','intensity')->get();
-        $this->model = $answers;
+            ->groupBy('value','intensity');
+        $count = $this->model->count();
+        $data["values"] = $this->model
+            ->skip($skip)
+            ->take($take)
+            ->get();
+        $data["count"] = $count;
+        $this->model = $data;
         return $this->sendResponse();
     }
 }

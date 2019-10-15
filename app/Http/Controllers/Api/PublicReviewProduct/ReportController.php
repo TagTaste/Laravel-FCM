@@ -154,7 +154,8 @@ class ReportController extends Controller
             ->select('id','value','leaf_id','intensity')
             ->where('option_type',1)
             ->where('product_id',$productId)
-            ->where('question_id',$questionId);
+            ->where('question_id',$questionId)
+            ->where('current_status',2);
         $count = $this->model->count();
         $data["values"] = $this->model
             ->skip($skip)
