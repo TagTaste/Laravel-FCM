@@ -148,12 +148,20 @@ class ReportController extends Controller
         if ($product === null) {
             return $this->sendError("Invalid product.");
         }
+        $page = $request->input('page');
+        list($skip,$take) = \App\Strategies\Paginator::paginate($page);
         $this->model = \DB::table('public_product_user_review')
             ->select('id','value','leaf_id','intensity')
             ->where('option_type',1)
             ->where('product_id',$productId)
-            ->where('question_id',$questionId)
+            ->where('question_id',$questionId);
+        $count = $this->model->count();
+        $data["values"] = $this->model
+            ->skip($skip)
+            ->take($take)
             ->get();
+        $data["count"] = $count;
+        $this->model = $data;
         return $this->sendResponse();
     }
     

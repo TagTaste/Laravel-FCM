@@ -394,14 +394,17 @@ class BatchController extends Controller
                         $subReports['total_applicants'] = $totalApplicants;
                         $subReports['total_answers'] = \DB::table('collaborate_tasting_user_review')->where('current_status',3)->where('collaborate_id',$collaborateId)
                             ->whereIn('profile_id', $profileIds, $boolean, $type)->where('batch_id',$batchId)->where('question_id',$item->id)->distinct()->get(['profile_id'])->count();
-                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'))->selectRaw("GROUP_CONCAT(intensity) as intensity")
+                        $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")
                             ->where('current_status',3)->whereIn('profile_id', $profileIds, $boolean, $type)->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$item->id)
-                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id')->get();
+                            ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','value','leaf_id','option_type')->get();
 
                         $options = isset($item->option) ? $item->option : [];
                         foreach ($answers as &$answer)
                         {
                             $value = [];
+                            if($answer->option_type == '2') {
+                                $answer->value = "Any other";
+                            }
                             foreach ($options as $option)
                             {
                                 if($option->id == $answer->leaf_id)
@@ -469,18 +472,14 @@ class BatchController extends Controller
                 }
                 else
                 {
-                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type','id')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
+                    $answers = \DB::table('collaborate_tasting_user_review')->select('leaf_id',\DB::raw('count(*) as total'),'option_type','value')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',3)
                         ->where('collaborate_id',$collaborateId)->where('batch_id',$batchId)->where('question_id',$data->id)
-                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','id')->get();
+                        ->whereIn('profile_id', $profileIds, $boolean, $type)->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','value')->get();
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
                     {
                         if($answer->option_type == 1) {
                             $answer->value = 'Any other';
-                        } else if ($answer->option_type == 2) {
-                            $answer->value = 'None';
-                        } else {
-                            $answer->value = \DB::table('collaborate_tasting_user_review')->select('value')->where('id',$answer->id)->get();
                         }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))
@@ -1047,8 +1046,7 @@ class BatchController extends Controller
             }
             $profileIds = $profileIds->merge($filterProfile);
         }
-        if($profileIds->count() > 0 && isset($filters['exclude_profile_id']))
-        {
+        if($profileIds->count() > 0 && isset($filters['exclude_profile_id'])) {
             $filterNotProfileIds = [];
             foreach ($filters['exclude_profile_id'] as $filter)
             {
