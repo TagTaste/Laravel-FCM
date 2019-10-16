@@ -250,7 +250,7 @@ class CollaborateController extends Controller
         }
         else
         {
-            if($inputs['file1'] == $collaborate->file1)
+            if (isset($inputs['file1']) && ($inputs['file1'] == $collaborate->file1))
                 unset($inputs['file1']);
             else
                 $inputs['file1'] = null;
