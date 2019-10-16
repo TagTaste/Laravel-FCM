@@ -260,8 +260,6 @@ class ReportController extends Controller
                         {
                             if($answer->option_type == 1) {
                                 $answer->value = 'Any other';
-                            } else if ($answer->option_type == 2) {
-                                $answer->value = 'None';
                             } else {
                                 $answer->value = \DB::table('public_product_user_review')->select('value')->where('id',$answer->id)->get();
                             }
@@ -342,8 +340,6 @@ class ReportController extends Controller
                     {
                         if($answer->option_type == 1) {
                             $answer->value = 'Any other';
-                        } else if ($answer->option_type == 2) {
-                            $answer->value = 'None';
                         }
                         $value = [];
                         if(isset($data->questions->is_nested_option) && $data->questions->is_nested_option == 1 && isset($data->questions->intensity_value) && isset($answer->intensity))

@@ -290,7 +290,7 @@ class QuestionController extends Controller
                     $comment = $item->value;
                     continue;
                 }
-                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id];
+                $data[] = ['value'=>$item->value,'intensity'=>$item->intensity,'id'=>$item->leaf_id,'option_type'=>$item->option_type];
             }
             if(!is_null($comment) && !empty($comment))
             {
