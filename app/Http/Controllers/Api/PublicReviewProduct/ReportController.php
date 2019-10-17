@@ -338,10 +338,10 @@ class ReportController extends Controller
                 {
                     $answers = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','!=',1)->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','value')->where('option_type','!=',1)->get();
                     $answerAnyOther = \DB::table('public_product_user_review')->select('leaf_id','value',\DB::raw('count(*) as total'),'option_type')->selectRaw("GROUP_CONCAT(intensity) as intensity")->where('current_status',2)
                         ->where('product_id',$productId)->where('question_id',$data->id)
-                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type')->where('option_type','=',1)->get();
+                        ->orderBy('question_id','ASC')->orderBy('total','DESC')->groupBy('question_id','leaf_id','option_type','value')->where('option_type','=',1)->get();
                     $answers = $answers->merge($answerAnyOther);
                     $options = isset($data->questions->option) ? $data->questions->option : [];
                     foreach ($answers as &$answer)
